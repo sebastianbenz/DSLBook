@@ -1,47 +1,58 @@
-\vspace{1cm}
+\part{DSL Design}
+
+% \section{Introduction}
+% \noindent Efficiently bridging the gap between domain concepts and the
+% implementation of these concepts in a programming language is one of the core
+% challenges of software engineering.  Modern high-level programming languages
+% considerably reduce this gap, compared to the assembly programming of yore.
+% However, as Alan J. Perlis stated in one of his famous epigrams on programming,
+% "a programming language is low level if its programs require attention to the
+% irrelevant"~\cite{Perlis82}.  For many tasks, high-level programming languages
+% still require attention to the irrelevant.  Since Turing we know that we need
+% only a minimalistic language to express any computation. Based on this
+% principle, general purpose programming languages provide generic mechanisms such
+% as procedural abstraction that can be used for a wide range of programs. 
+% However, this requires the programmer to encode knowledge about a particular
+% domain using these generic mechanisms. The programming environment --- compiler
+% and integrated development environment (IDE) --- has no particular knowledge
+% about the domain and cannot provide appropriate notation, error checking, or
+% optimizations.
+% 
+% \emph{Domain-specific languages (DSLs)} address this problem by providing
+% linguistic abstractions and notations that allow direct and understandable
+% expression of domain concepts instead of encoding these in a lower level
+% programming language. The IDE for the DSL provides editor services such as
+% syntax checking, syntax highlighting, error checking and code navigation. The
+% code generator or interpreter for a DSL encapsulates implementation knowledge,
+% i.e. takes care of the details that are irrelevant to the application developer.
+% Over the last couple of years, interest in DSL has grown significantly as
+% evidenced by the increased uptake of language workbenches such as Eclipse Xtext
+% and mainstream coverage of the subject by authors like Martin
+% Fowler~\cite{Fowler2011}.
+ 
+
+
+\chapter{Core Design Dimensions}
+ 
+\chapterabstract{Domain-Specific Languages (DSLs) are languages with high
+expressivity for a specific, narrow problem domain. They are a powerful tool for
+software engineering, because they can be tailor-made for a specific class of
+problems. However, because of the large degree of freedom in designing DSLs, and
+because they are supposed to cover the right domain, completely, and at the
+right abstraction level, DSL design is also hard. In this paper we present a
+framework for describing and characterizing external domain specific languages.
+We identify eight design dimensions that span the space within which DSLs are
+designed: expressivity, coverage, semantics, separation of concerns,
+completeness, large-scale model structure, language modularization and syntax.
+We illustrate the design alternatives along each of these dimensions with
+examples from five different case studies. These have been selected for their
+diversity in context, style and implementation technologies. The paper concludes
+with an outlook on further steps towards comprehensive DSL design guidance.}
+
+\vspace{1cm} 
 \noindent
 This part of the book has been written together with Eelco Visser of TU Delft.
 Reach him via \verb#e.visser@tudelft.nl#.
-  
-\section{Introduction}
-
-\noindent Efficiently bridging the gap between domain concepts and the
-implementation of these concepts in a programming language is one of the core
-challenges of software engineering.  Modern high-level programming languages
-considerably reduce this gap, compared to the assembly programming of yore.
-However, as Alan J. Perlis stated in one of his famous epigrams on programming,
-"a programming language is low level if its programs require attention to the
-irrelevant"~\cite{Perlis82}.  For many tasks, high-level programming languages
-still require attention to the irrelevant.  Since Turing we know that we need
-only a minimalistic language to express any computation. Based on this
-principle, general purpose programming languages provide generic mechanisms such
-as procedural abstraction that can be used for a wide range of programs. 
-However, this requires the programmer to encode knowledge about a particular
-domain using these generic mechanisms. The programming environment --- compiler
-and integrated development environment (IDE) --- has no particular knowledge
-about the domain and cannot provide appropriate notation, error checking, or
-optimizations.
-
-\emph{Domain-specific languages (DSLs)} address this problem by providing
-linguistic abstractions and notations that allow direct and understandable
-expression of domain concepts instead of encoding these in a lower level
-programming language. The IDE for the DSL provides editor services such as
-syntax checking, syntax highlighting, error checking and code navigation. The
-code generator or interpreter for a DSL encapsulates implementation knowledge,
-i.e. takes care of the details that are irrelevant to the application developer.
-Over the last couple of years, interest in DSL has grown significantly as
-evidenced by the increased uptake of language workbenches such as Eclipse Xtext
-and mainstream coverage of the subject by authors like Martin
-Fowler~\cite{Fowler2011}.
-
-While much has been written about tools and techniques for implementing DSLs,
-little research has gone into the \emph{design} of domain-specific languages. As
-a result DSL is more an art or craft than an engineering discipline. If DSLs are
-to become a staple ingredient of software engineering, we need a more systematic
-engineering approach to the design of domain-specific languages, which requires
-a well established vocabulary for discussing and \emph{comparing} DSL designs.
-
-\chapter{Core Design Dimensions}
 
 
 \newthought{This part of the book} presents a conceptual framework for the
@@ -53,7 +64,12 @@ contain a complete methodology for designing new DSLs, the framework does
 highlight the options designers should consider. We also describe drivers, or
 forces, that lead to using one design alternative over another one.
 
-
+While much has been written about tools and techniques for implementing DSLs,
+little research has gone into the \emph{design} of domain-specific languages. As
+a result DSL is more an art or craft than an engineering discipline. If DSLs are
+to become a staple ingredient of software engineering, we need a more systematic
+engineering approach to the design of domain-specific languages, which requires
+a well established vocabulary for discussing and \emph{comparing} DSL designs.
 
 
 
