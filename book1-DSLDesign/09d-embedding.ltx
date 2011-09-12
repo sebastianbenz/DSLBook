@@ -1,0 +1,68 @@
+                                 
+\subsection{Language Embedding} 
+
+Language embedding (\fig{langEmbedding}) enables \emph{heterogeneous} fragments
+with \emph{independent} languages. It is similar to reuse in that there are two independent
+languages $l_1$ and $l_2$, but instead of establishing references
+between two homogeneous fragments, we now embed instances of concepts from $l_2$
+in a fragment $f$ expressed with $l_1$, so
+\begin{align}
+\forall c \in \mathit{Cdn_f} \mid  \;
+	&\mathit{lo(co(c.parent))} = l_1 \; \wedge \nonumber \\
+	&\mathit{lo(co(c.child))} = (l_1 \vee l_2)
+\end{align}
+Unlike language extension, where $l_2$ depends on $l_1$ because concepts in
+$l_2$ extends concepts in $l_1$, there is no such dependency in this case. Both
+languages are independent. We call $l_2$ the \emph{embedded} language and $l_1$
+the \emph{host} language. Again, an adapter language $l_A$ that extends $l_1$
+can be used to achieve this, where
+\begin{align}
+\exists c \in \mathit{Cdn_{l_A}} \mid \mathit{lo(c.parent)} = 
+	l_A \wedge \mathit{lo(c.child)} = l_1
+\end{align}
+
+\begin{figure}[h]
+\begin{center} 
+  \includegraphics[width=9cm]{figures/langEmbedding.png} 
+  \caption[labelInTOC]{Embedding: $l_1$ and $l_2$ are independent languages.
+  However, we still want to use them in the same fragment. To enable this, an 
+  adapter language $l_A$ is
+  added. It depends on both $l_1$ and $l_2$, and uses inheritance and
+  composition to adapt $l_1$ to $l_2$ (this is the almost the same structure
+  as in the case of reuse; the difference is that $B5$ now contains $A3$,
+  instead of just referencing it.)}
+  \label{langEmbedding}  
+\end{center} 
+\end{figure}
+
+
+Embedding supports syntactic composition of independently developed languages. 
+As an example, consider a state machine language that can be combined with any
+number of programming languages such as Java or C. If the state machine
+language is used together with Java, then the guard conditions used in the
+transitions should be Java expressions. If it is used with C, then the
+expressions should be C expressions. The two expression languages, or in fact,
+any other one, must be embeddable in the transitions. So the state
+machine language cannot depend on any particular expression language, and the
+expression languages of C or Java obviously cannot be designed with knowledge
+about the state machine language. Both have to remain independent, and have to
+be embedded using an adapter language. 
+
+When embedding a language, the embedded language must often be
+extended as well. In the above example, new kinds of expressions must be added
+to support referencing event parameters. These additional expressions will
+typically reside in the adapter language as well.
+
+\marginnote{Note that if the state machine language is specifically built to
+"embed" C expressions, then this is a case of Language Extension, since the
+state machine language depends on the C expression language.}
+
+\exwebdsl{In order to support queries over persistent data, WebDSL embeds the
+Hibernate Query Language (HQL) such that HQL queries can be used as
+expressions. Queries can refer to entity declarations in the program and to
+variables in the scope of the query.}
+
+\pension{The pension workbench DSL embeds a spreadsheet language for expressing
+unit tests for pension plan calculation rules.}
+
+ 

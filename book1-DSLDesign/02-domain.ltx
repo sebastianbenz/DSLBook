@@ -1,0 +1,281 @@
+\section{Programs, Languages, Domains}
+\label{hierarchical}
+
+Domain-specific languages live in the realm of \emph{programs},
+\emph{languages}, and \emph{domains}. We are primarily interested in
+\emph{computation}. So, let's first consider the relation between programs and
+languages. Let's define $P$ to be the set of all programs. A \emph{program} $p$
+in $P$ is the Platonic representation of some \emph{effective computation} that
+runs on a universal computer. That is, we assume that $P$ represents the
+canonical semantic model of all programs and includes all possible hardware on
+which programs may run. A \emph{language} $L$ defines a structure and notation
+for \emph{expressing} or \emph{encoding} programs. Thus, a program $p$ in $P$
+may have an expression in $L$, which we will denote $p_L$. Note that $p_{L_1}$
+and $p_{L_2}$ are representations of a single semantic (platonic) program in the
+languages $L_1$ and $L_2$. There may be multiple ways to express the same
+program in a language~$L$. A language is a \emph{finitely generated} set of
+program encodings. That is, there must be a finite description that generates
+all program expressions in the language. As a result, it may not be possible to
+define all programs in some language~$L$. For example, the language of
+context-free grammars can be used to represent a wide range of parsing programs,
+but cannot be used to express pension calculations. We denote as $P_L$ the
+subset of $P$ that can be expressed in $L$. A translation $T$ between languages
+$L_1$ and $L_2$ maps programs from their $L_1$ encoding to their $L_2$ encoding,
+i.e. $T(p_{L_1}) = p_{L_2}$.
+
+\begin{marginfigure}
+  \includegraphics[width=5cm]{figures/domain.png}
+  \caption{Programs, Languages, Domains}
+  \label{fig:programs}
+\end{marginfigure}
+
+
+\newthought{Now, what are domains?} There are essentially two approaches to
+characterize domains. First, domains are often considered as a body of knowledge
+in the real world, i.e. outside the realm of software. For instance, pension
+policies are contracts that can be defined and used without software and
+computers. From this \emph{deductive} or \emph{top-down} perspective, a domain
+$D$ is a body of knowledge for which we want to provide some form of software
+support. We define $P_D$ the subset of programs in $P$ that implement
+computations in $D$, e.g. 'this program implements a fountain algorithm'.
+
+In the \emph{inductive} or \emph{bottom-up} approach we define a domain in terms
+of existing software. That is, a domain $D$ is identified as a subset $P_D$ of
+$P$, i.e. a set of programs with common characteristics or similar purpose.
+Often, such domains do not exist outside the realm of software. For example,
+$P_{web}$ is the domain of web applications, which is intrinsically bound to
+computers and software. There is a wide variety of programs that we would agree
+to be web applications. A domain can be very specific. For example $P_{vfount}$
+is the set of fountain programs for the particular fountain hardware produced by
+vendor V. A special case of the inductive approach is where we define a domain
+as a subset of programs of a specific $P_L$ instead of the more general set $P$.
+In this special case we can often clearly identify the commonality between
+programs in the domain, in the form of their consistent use of a set of 
+domain-specific patterns or idioms.
+
+\begin{marginfigure}
+\begin{center}
+  \includegraphics[width=5cm]{figures/domainApprox.png}
+  \caption{Languages L1 and L2 under-approximate and over-approximate domain D.}
+  \label{fig:approximation}
+\end{center}
+\end{marginfigure}
+
+
+Whether we take the deductive or inductive route, we can ultimately identify a
+domain $D$ by a set of programs $P_D$. There can be multiple languages
+in which we can express $P_D$ programs. Possibly, $P_D$ can only be partially
+expressed in a language $L$ (Figure~\ref{fig:programs}). A \emph{domain-specific
+language} $L_D$ for $D$ is a language that is \emph{specialized} to encoding
+$P_D$~programs. That is, $L_D$ is more efficient in some respect in representing
+$P_D$~programs. Typically, such a language is \emph{smaller} in the sense that
+$P_{L_D}$ is a strict subset of $P_L$ for a less specialized language~$L$.
+
+% \EV{We have to reconsider this smaller stuff at some point; it doesn't work
+% set theoretically; with infinite
+% sets of programs there is often a way to encode something; we need to
+% consider the notion of a 'natural encoding' of a problem, which is what we
+% typically think about when considering DSLs.}
+
+\newthought{The crucial difference between languages and domains} is that the
+former are finitely generated, but that the latter are arbitrary sets of programs the
+membership of which is determined by a human oracle. This difference defines the
+difficulty of DSL design: finding regularity in a non-regular domain and
+capturing it in a language. The resulting DSL provides an explanation or
+interpretation of the domain, and often requires trade-offs by under- or
+over-approximation (Figure~\ref{fig:approximation}).
+
+\subsection{Programs as Trees of Elements}
+
+Programs are represented in two ways: concrete syntax and abstract syntax.
+\marginnote{Users use the concrete syntax as they write or change programs. The
+abstract syntax is a data structure that contains all the data expressed with
+the concrete syntax, but without the notational details. The abstract syntax is
+used for analysis and downstream processing of programs.} A language definition
+includes the concrete as well as the abstract syntax, as well as rules for
+mapping one to the other. \emph{Parser-based} systems map the concrete syntax to
+the abstract syntax. Users interact with a stream of characters, and a parser
+derives the abstract syntax by using a grammar. \emph{Projectional} editors go
+the other way round. User editing gestures directly change the abstract syntax,
+the concrete syntax being a mere projection that looks (and mostly feels) like
+text. SDF and Xtext are parser-based, MPS is projectional.
+
+While concrete syntax modularization and composition can be a challenge (as
+discussed in \sect{challenges}), we will illustrate the principles of the
+composition approaches based on the abstract syntax. The abstract syntax of
+programs are primarily trees of program \emph{elements}. Every element (except
+the root) is contained by exactly one parent element. Syntactic nesting of the
+concrete syntax corresponds to a parent-child relationship in the abstract
+syntax. There may also be any number of non-containing cross-references between
+elements, established either directly during editing (in projectional systems)
+or by a linking phase that follows parsing.
+
+A program may be composed from several program \emph{fragments}. A Fragment $f$
+is a standalone tree. $E_f$ is the set of program elements in a fragment.
+
+\newthought{A language} $l$ defines a set of language concepts $C_l$ and their
+relationships. We use the term concept to refer to concrete syntax, abstract
+syntax plus the associated type system rules and constraints as well as some
+definition of its semantics. In a fragment, each program element $e$ is an
+instance of a concept $c$ defined in some language $l$. We define the
+\emph{concept-of} function $co$ to return the concept of which a program element
+is an instance: $co \Rightarrow \mathit{element} \to \mathit{concept}$.
+Similarly we define the \emph{language-of} function $lo$ to return the language
+in which a given concept is defined: $lo \Rightarrow \mathit{concept} \to
+\mathit{language}$. Finally, we define a \emph{fragment-of} function $fo$ that
+returns the fragment that contains a given program element: $fo \Rightarrow
+\mathit{element} \to \mathit{fragment}$.
+
+We also define the following sets of relations between program elements.
+$\mathit{Cdn_f}$ is the set of parent-child relationships in a fragment $f$.
+Each $c \in C$ has the properties $parent$ and $child$. $mathit{Refs_f}$ is the
+set of non-containing cross-references between program elements in a fragment
+$f$. Each reference $r$ in $\mathit{Refs_f}$ has the properties $from$ and $to$,
+which refer to the two ends of the reference relationship. \TODO{Do we need
+those two also for language concepts, or do we always use them with fragments?}
+Finally, we define an inheritance relationship that applies the Liskov
+Substitution Principle to language concepts. A concept $c_sub$ that extends
+another concept $c_super$ can be used in places where an instance of $c_super$
+is expected. $\mathit{Inh_l}$ is the set of inheritance relationships for a
+language $l$. Each $i \in \mathit{Inh_l}$ has the properties $super$ and $sub$.
+
+An important concept in \lmrc\ is the notion of independence. An
+\emph{independent language} does depend on other languages. An independent
+language $l$ can be defined as a language for which the following hold:
+\begin{align}
+\forall r \in \mathit{Refs_l} &\mid \mathit{lo(r.to)} = 
+	\mathit{lo(r.from)} = l
+\\ 
+\forall s \in \mathit{Inh_l} &\mid \mathit{lo(s.super)} = 
+	\mathit{lo(s.sub)} = l
+\\ 
+\forall c \in \mathit{Cdn_l} &\mid \mathit{lo(c.parent)} = 
+     \mathit{lo(c.child)} = l
+\end{align}
+An \emph{independent fragment} is one where all references stay within the
+fragment (4). By definition, an independent fragment has to be expressed with 
+an independent language (5). 
+\begin{align}
+\forall r \in \mathit{Refs_f} &\mid \mathit{fo(r.to)} 
+	= \mathit{fo(r.from)} = f
+\\ 
+\forall e \in E_f &\mid \mathit{lo(co(e))} = l 
+\end{align}
+We also distinguish \emph{homogeneous} and \emph{heterogeneous} fragments. A
+homogeneous fragment is one where all elements are expressed with the same
+language:
+\begin{align}
+\forall e \in E_f &\mid \mathit{lo(e)} = l \\
+\forall c \in \mathit{Cdn_f} &\mid \mathit{lo(c.parent)} = 
+	\mathit{lo(c.child)} = l
+\end{align}
+
+
+
+\subsection{Domain Hierarchy} 
+
+The subsetting of domains naturally gives rise to a hierarchy of domains
+(\fig{hierarchicalDomains}). At the bottom we find the most general domain
+$D_0$. It is the domain of all possible programs $P$. Domains $D_n$, with $n >
+0$, represent progressively more specialized domains, where the set of possible
+programs is a subset of those in $D_{n-1}$ (abbreviated as $D_{-1}$). We call
+$\D{+1}$ a subdomain of D. For example, $\D{1.1}$ could be the domain of
+embedded software, and $\D{1-2}$ could be the domain of enterprise software. The
+progressive specialization can be continued ad-infinitum in principle. For
+example, $\D{2.1.1}$ and $\D{2.1.2}$ are further subdomains of $\D{1.1}$:
+$\D{2.1.1}$ could be automotive embedded software and $\D{2.1.2}$ could be
+avionics software. At the top of the hierarchy we find singleton domains that
+consist of a single program. Languages are typically designed for a particular
+$D$. Languages for $\D{0}$ are called general-purpose languages. Languages for
+$D_n$ with $n > 0$ become more domain-specific for growing $n$.
+
+\begin{figure}[t]
+\begin{center}
+  \includegraphics[scale=0.7]{figures/hierarchicalDomains.png}
+  \caption[labelInTOC]{Domain hierarchy. Domains with higher index are
+  called subdomains of domains with a lower index ($D_1$ is a subdomain of
+  $D_0$). We use just $D$ to refer to the current domain, and $\D{+1}$ and $\D{-1}$ to
+  refer to the relatively more specific and more general ones.}
+  \label{hierarchicalDomains} 
+\end{center}
+\end{figure}
+
+
+
+\subsection{Model Purpose} We have said earlier that there can be several
+languages for the same domain. Deciding which concepts should go into a
+particular language for D, and at which level of abstraction or detail, is not
+always obvious. The basis for the decision is to consider the \emph{model
+purpose}. Models, and hence the languages to express them, are intended for a
+specific purpose. Examples of model purpose include automatic derivation of a
+$D_{-1}$ program, formal analysis and model checking or platform independent
+specification of functionality. The same domain concepts can often be abstracted
+in different ways, for different purposes. When defining a DSL, we have to
+identify the different purposes required, and then decide whether we can create
+one DSL that fits all purposes, or create a DSL for each purpose. 
+
+\embc{The model purpose is the generation of an efficient low-level C
+implementation of the system, while at the same time providing software
+developers with meaningful abstractions.}
+
+\fountain{The model purpose is the generation of efficient implementation code
+for various different target platforms. A secondary purpose is enabling domain
+experts to express the algorithms and experiment with them using simulations and
+tests. The DSL is not expected to be used to visualize the actual
+fountain installation or for sales or marketing purposes.}
+
+\pension{The model purpose of the pension DSL is to enable insurance
+mathematicians and pension plan developers (who are not programmers) to define
+complete pension plans, and to allow them to check their own work for
+correctness using various forms of tests. A secondary purpose is the generation
+of the complete calculation engine for the computing center and the website.}
+
+
+
+
+\subsection{Parsing vs. Projection}
+
+There are two main approaches for implementing external DSLs. The traditional
+approach is parser-based. A grammar specifies the sequence of tokens and words
+that make up a structurally valid program. A parser is generated from this
+grammar. A parser is a program that recognizes valid programs in their textual
+form and creates an abstract syntax tree or graph. Analysis tools or generators
+work with this abstract syntax tree. Users enter programs using the concrete
+syntax (i.e. character sequences) and programs are also stored in this way.
+Example tools in this category include Spoofax and Xtext.
+
+Projectional editors (also known as structured editors) work without parsers.
+Editors directly modify the abstract syntax tree. Projection rules then render a
+textual (or other) representation of the program. Users read and write programs
+through this projected notation. Programs are stored as abstract syntax trees,
+usually as XML. As in parser-based systems, backend tools operate on the
+abstract syntax tree. Projectional editors are well known from graphical
+editors, virtually all of them are projectional editors.  However, they can also
+be used for textual syntax. \marginnote{While in the past projectional text
+editors have gotten a bad reputation, as of 2011, the tools have become good
+enough, and computers have become fast enough to make this approach feasible,
+productive and convenient to use.} Example tools in this category include the
+Intentional Domain Workbench (\url{http://intentsoft.com}) and JetBrains MPS.
+
+In this section, we do not discuss the relative advantages and drawbacks of
+parser-based vs. projectional editors in general. However, we will point out if
+and when there are different DSL design options depending on which of the
+two approaches is used.
+
+
+\subsection{Design Dimensions}
+
+There are many languages for expressing a particular program. In DSL design we
+are looking for the \emph{optimal} language for expressing programs in a
+particular domain. There are multiple dimensions in which we can optimize
+language designs. Often it is not possible to maximize along all dimensions; we
+have to find a trade-off between properties. We have identified the following
+technical dimensions of DSL design: \emph{expressivity}, \emph{coverage},
+\emph{semantics and execution}, \emph{separation of concerns},
+\emph{completeness}, \emph{structuring programs}, \emph{language modularity},
+and \emph{concrete syntax}. In the following sections we will examine
+these dimensions.
+
+
+
+

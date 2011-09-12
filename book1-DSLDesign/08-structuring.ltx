@@ -1,0 +1,168 @@
+\section{Structuring Programs}
+\label{learnFromGPLs}
+
+Languages have to provide means to structure large models in order to keep them
+manageable. These include modularization and visibility, specification vs.
+implementation, specialization, types and instances as well as partitioning.
+\marginnote{The language design alternatives described in this section are
+usually not driven directly by the domain, or the domain experts guiding the
+design of the language. Rather, they are often brought in by the language
+designer or the consumers of the DSL as a means of managing overall complexity.
+For this reason they may be hard to "sell" to domain experts.}
+
+
+\subsection{Modularization and Visibility} 
+
+DSL often provide some kind of logical unit structure, such as namespaces or
+modules. Visibility of symbols may be restricted to those in the same unit, or
+in referenced ("imported") units. Symbols may be declared as public or private.
+Most contemporary programming languages use some form of namespaces and
+visibility restriction as their top level structure.
+
+Some form of namespaces and visibility is necessary in almost any DSL. Often
+there are domain concepts that can play the role of the module, possibly
+oriented towards the structure of the organization in which the DSL is used.
+Keeping some elements private makes those changeable without consequences for
+using modules.
+
+
+\embc{As a fundamental extension to C, this DSL contains modules with
+visibility specifications and imports. Functions, state machines, tasks and all
+other top-level concepts reside in modules.}
+
+\comparch{Components and interfaces live in namespaces. Components are
+implementation units, and are always private. Interfaces and data types may be
+public or private. Namespaces can import each other, making the public elements of the
+imported namespace visible to the importing namespace. The OSGi generator
+creates two different bundles: an interface bundle that contains the public
+artifacts, and an implementation bundle with the components. In case of a
+distributed system, only the interface bundle is deployed on the client.}
+
+\subsection{Partitioning} 
+
+Partitioning refers to the breaking down of programs into several physical units
+such as files\marginnote{If a repository-based tool is used, the importance of
+paritioning is greatly reduced. Although even in that case, there may be a set
+of federated and distributed repositories that can be considered partitions}.
+These physical units do not have to correspond to the logical modularization of
+the models within the partitions. Typically each model fragment is stored in its
+own partition. For example, in Java a public class has to live in a file of the
+same name (logical module == physical partition), whereas in C\# there is no
+relationship between namespace, class names and the physical file and directory
+structure. A similar relationship exists between partitions and viewpoints,
+although in most cases, different viewpoints are stored in different partitions.
+
+Partitioning may have consequences for language design. Consider a DSL where an
+concept A contains a list of instances of concept B. The B instances then have
+to be physically nested within an instance of A. If there are many instances of
+B in a given model, they cannot be split into several files. If such a split
+should be possible, this has to be designed into the language.
+
+\comparch{A variant of this DSL that was used in another project had to be
+changed to allow a namespaces to be spread over several files for
+reasons of scalability and version-control granularity. In the initial version,
+namespaces actually contained the components and interfaces. In the revised
+version, components and interfaces resided were owned by no other element, but
+model files (partitions) had a namespace declaration at the top, logically
+putting all the contained interfaces and components into this namespace. Since
+there was no technical containment relationship between namespaces and its
+elements, several files could now declare the same namespace.}
+
+Three main forces drive the use of partitions. One is the scalability of the DSL
+tool. Beyond a certain file size, the editor may become sluggish. The second
+reason is to use partitions as a way of organizing the overall model. This is
+particularly important if the tool does not provide a good means of showing the
+logical structure models and finding elements by name and type. Organizing
+files, with useful names, in directory structures is a good alternative. The
+third driver for partitioning is integration with existing, file based tool
+chains. Files may be the unit of checkin/checkout, versioning, branching or
+permission checking.
+
+
+\subsection{Specification vs. Implementation} 
+
+Separating specification and implementation supports plugging in different
+implementations for the same specification and hence provides a way to separate
+the outside from the inside of something.\marginnote{Interfaces, pure abstract
+classes, traits or function signatures are a realization of this concept in
+programming languages.} This supports the exchange of several implementations
+behind a single interface. This is often required as a consequence of the
+development process: one stakeholder defines the specification and a client,
+whereas another stakeholder provides one or more implementations. 
+
+\embc{This DSL adds interfaces and components to C. Components provide or use
+one or more interfaces. Different components can be plugged in behind the same
+interface. In contrast to C++, no runtime polymorphism is supported, the
+translation to plain C maps method invocation to flat function calls.}
+
+\fountain{Pumping programs can refer to entities defined as part of the fountain
+hardware as a means of accessing hardware elements (pumps, vents, switches). To
+enable pumping programs to run with different, but similar hardware
+configurations, the hardware structure can use "trait inheritance", where a
+hardware trait defines a set of hardware elements. Other fountain configurations
+can inherit these traits. As long as pumping programs are only written against
+traits, they work with any fountain that implements the particular set of
+traits against which the program is written.}
+
+\subsection{Specialization} 
+
+Specialization enables one entity to be a more specific variant of another one.
+Typically, the more specific one can be used in all context where the more
+general one is valid (Liskov substitution principle\cite{LiskovW94}). The more
+general one may be incomplete, requiring the definition of specialized ones that
+"fill in the holes" left undefined by the more general one.\marginnote{In GPLs,
+we know this approach from class inheritance. "Leaving holes" is realized by
+abstract methods.} Specialization in the context of DSLs can be used for
+implementing variants or of evolving a model over time.
+ 
+ 
+\pension{The customer had to create a huge set of pension plans, implementing
+changes in relevant law over time, or for slightly different customer groups.
+Copying complete plans and then making adaptations was not feasible. Hence the
+DSL provides a way for pension plans to inherit from one another. Calculation
+rules can be marked \emph{abstract} (requiring overwriting in sub-plans),
+\emph{final} rules are not overwritable. Visibility modifiers control which
+rules are considered "implementation details".}
+
+\fountain{A similar approach is used in the fountain DSL. Pumping programs
+can specialize other pumping programs. Since the programs are fundamentally
+state-based, we had to define what exactly it means to override a pumping 
+program.}
+
+\subsection{Types and Instances} 
+
+Types and instances refers to the ability to define a structure that can be
+parametrized when it is instantiated.\marginnote{In programming languages we
+know this from classes and objects (where constructor parameters are used for
+parametrization) or from components (where different instances can be connected
+differently to other instances).}
+
+\embc{Apart from C's \textit{structs} (which are instantiatable data structures)
+and components (which can be instantiated and connected), state machines can
+be instantiated as well. Each instance can be in a different state at any given
+time.}
+
+\subsection{Superposition and Aspects} 
+
+Superposition refers to the ability to merge several model fragments according
+to some DSL-specific merge operator. Aspects provide a way of "pointing to"
+several locations in a program based on a pointcut operator (essentially a query
+over a program or its execution), adapting the model in ways specified by the
+aspect. Both approaches support the creation of many different model variants
+from the same set of model fragments.\marginnote{This is especially important in
+the context of product line engineering and is discussed
+in \cite{VoelterVisser2011}}
+
+\embc{This DSL provides a way of advising component definitions, to introduce
+new ports from within an aspect. This is used, for example, to modularize the
+Monitoring concern.}
+
+\exwebdsl{Entity declarations can be \emph{extended} in separate modules. This
+makes it possible to declare in one module all data model declarations of a
+particular feature. For example, in the researchr application, a
+\texttt{Publication} can be \texttt{Tag}ged, which requires an extension of the
+\texttt{Publication} entity. This extension is defined in the \texttt{tag}
+module, together with the definition of the \texttt{Tag} entity.}
+
+
+

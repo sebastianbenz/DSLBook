@@ -1,0 +1,529 @@
+\section{Scoping and Linking}		
+
+As we have elaborated in the previous section, the concrete syntax in its
+simplest form is a tree. However, the information represented by the program is
+semantically almost always a graph, i.e.\ in addition to the tree's containment
+hierarchy, it contains non-containment cross-references. Examples abound and
+include variable references, procedure calls and target states in transitions of
+state machines. The challenge thus is: how to get from the "syntactical tree" to
+the "semantic graph", or how to establish the cross-links.
+
+Often \MV{also for Spoofax?}, a language's structure definition defines what
+concepts constitute valid target elements for references, but this is usually
+too imprecise: e.g., in the state machine example, only the States that also own
+the transition for which we want to define the target state are valid target
+elements.
+
+There is a marked difference between the projectional and parser-based case:
+
+\begin{itemize}
+  \item In projectional editors, cross-references are directly established as
+  such. Since every model element has a unique ID, a cross-reference is simply a
+  pointer to the target element's ID. The reference is established directly as
+  the program is edited: the code completion menu shows potential target
+  elements for a reference (typically in a pick list) and selection of one of
+  them creates the link.
+
+  \item In parser-based systems, the cross-references have to be established, or
+  \emph{resolved}, from the parsed text after the AST has been created. This
+  means that one specific target element has to be chosen (unambiguously) from
+  the potential target elements, based on the syntax for the cross-reference.
+\end{itemize}
+
+The collection of model elements which are valid targets of a particular
+semantic cross-reference is called the \emph{scope} of that cross-reference.
+Typically, the scope of a particular cross-reference not only depends on the
+target concept of the cross-reference but also on its surroundings, e.g.\ a
+namespace prefix, the location inside the larger structure of the site of the
+cross-reference or something that's essentially non-structural in nature. The
+scope can also be used to provide content assist or code completion in the
+editor.
+
+In both situations we need to be able to compute a useful, visual representation
+of the elements in the scope of a cross-reference. Typically, the name or
+non-technical ID is used as representation, although more complicated schemes
+(e.g., fully qualified names  For projectional systems, this representation is
+used for the visualization of the cross-reference as well as for the items in
+the pick list. Parser-based systems require this representation to resolve
+cross-references by \emph{matching} the syntax for the cross-reference with a
+representations of the elements in the scope. The computation and matching of
+those textual representations is often simply name-based but sometimes more
+advanced schemes are used.
+
+As an example of such a scheme, consider how Java types can be referenced in
+source code either through a fully qualified name (e.g.,
+\verb#java.util.Map.Entry#) or through an unqualified or partly-qualified name
+(e.g., \verb#Map.Entry#) in the presence of an \keyword{import} (in this case,
+\verb#import java.util.Map;#). In this case, Java types are \emph{globally
+exposed} through their fully qualified names, but \emph{locally matched} taking
+\keyword{import} statements into account.
+
+\MV{Doesn't the following para relate more to the "visibility" view of the
+world?} \MB{@MV I replaced occurrences relating to "visible". I also made the
+hierarchy more explicit again --- using short(er) sentences :)}
+
+Scopes can be hierarchical, in which case they are organized as a stack of
+collections --- confusingly, these collections are often called scopes
+themselves. During resolution of a cross-reference, the lowest or
+\emph{innermost} collection is searched first. If none of its elements can be
+matched to the cross-reference's syntax, then the parent of the innermost
+collection is queried, and so forth.
+
+The hierarchy can follow or mimic the structure of the language itself: e.g.,
+the innermost scope of a feature reference consists of all the elements present
+in the directly-encompassing "block" while the outermost scope is the
+\emph{global} scope. In parser-based systems, this provides a mechanism to
+disambiguate target elements having the same reference syntax (usually the
+target element's name) by always choosing the element from the innermost scope
+--- this is often called "shadowing".
+
+When designing or evolving a language, there are several trade-offs with respect
+to scopes:
+\begin{itemize}
+  \item A scope with a large number of elements makes picking the right element
+  harder for the user.
+  \item A poorly thought-out scope might cause matching collisions, i.e.: two or
+  more model elements which can't be readily distinguished from each other by
+  the resolution mechanism. In that case, the mechanism either has to pick one
+  at random or refuse to resolve the cross-reference.
+  \item The notion of validity in "valid target elements" often doesn't consider
+  the language's constraints. This is often done because evaluating the
+  constraints can be relatively time-consuming or even impossible to do reliably
+  on incomplete syntax, but also because it's often more useful to have a
+  meaningful error message coming from the constraints than just seeing an error
+  message "could not resolve cross-reference".
+\end{itemize}
+
+Note that our notion of scope is inverted from the usual one which is centered
+around the \emph{visibility} of elements from the perspective of other elements,
+where only visible elements can be referenced. Our notion is more convenient
+from the cross-reference viewpoint, however, as it centers around resolving
+particular cross-references one at a time.
+
+% \MV{The next para only describes a problem, not a solution. In essence, "be
+% careful, code may become slow". That's true for any code. I would remove it
+% here. You may reintroduce it in the Xtext section.} Another aspect to consider
+% is performance: computation of scopes and matching against them, can become
+% computationally expensive as models and scopes become larger, resulting in less
+% responsive editors and increased model processing time. Parser-based systems
+% tend to re-parse the editor contents more-or-less on every keystroke so
+% efficient computation is particularly important in that case.
+% \MB{True. In fact, performance is broader than cross-references as the last
+% sentence already demonstrates. I'll leave it here as long as I don't actually
+% come across the appropriate location.}
+
+% \MV{General comment: I suggest your read all of the chapter before adding stuff
+% at the beginning. Some of your thoughts (the hierarchical stuff e.g.) are
+% discussed to some extent in the Xtext section}.
+% \MB{The thing is that I like to chip away at "fresh" text as early as possible.
+% I'll have to find a mode to balance those aspects\ldots}
+% 
+% % \MV{The performance aspects of the next para seem not-so-well placed here, see
+% % above. The other things, about designing a language to have "sensible" pick
+% % lists is a very good point. But it should go into the language design section,
+% % not the implementation. You agree?}
+% % \MB{@MV I agree: I moved the pick list aspect to a paragraph above.}
+% % There are essentially two ways to deal with this. At the implementation level,
+% % one can use a cache of sorts to avoid having to recompute a scope unneeded when
+% % nothing essential has changed. As always, this is relatively difficult to get
+% % right because of the cache invalidation problem, so we can only recommend this
+% % in cases where the language workbenches do not provide this functionality
+% % out-of-the-box and the implementation can be sufficiently well-engineered in a
+% % reasonable amount of time. At the language level, one can restrict the number of
+% % potential target elements, resulting in less computation and matching. This
+% % solution can also be a boon for the user (experience): shorter pick lists means
+% % easier choice and a sensible model modularization in combination with a good
+% % subsequent global naming strategy provides a lot of value outside of performance
+% % and in itself as well.
+
+The computation of the scope of a cross-reference typically involves navigating
+and querying the model. Being able to define the scope using a language that can
+express these things comfortably (and declaratively) is a definite plus for
+language workbenches. Higher order functions and chained expressions are very
+useful.
+
+
+%Note that in all three tools, scopes affect the code completion window as well
+%as the linking. \TODO{More Details. And is that true in Spoofax?}
+
+\subsection{Name resolution in Spoofax}
+
+\MV{Explain this one first, since this one is the most low level; good fit to
+introduce the basic mechanism}
+
+
+\subsection{Scoping in Xtext}
+
+Xtext uses Java code (in the future probably Xtend2 code) for implementing all
+aspects of languages except the grammar. Language developers implement various
+classes to build the language beyond the grammar. Xtext framework and custom
+language implementatino classes are contributed to the runtime using Google
+Guice, a dependency injection framework. A lot of functionality is provided
+out-of-the-box with minimal configuration, but it's easy to swap out specific
+parts by binding another or a custom class through Guice.
+
+To implement scopes, language developers have to contribute a class that
+implements the IScopeProvider interface. It has one method that returns an
+IScope for a given reference. The method gets the EReference (which identifies
+the reference on the meta level) as well as the actual instance of the language
+concept whose reference should be scoped.
+
+\footnotesize
+\begin{verbatim}
+public interface IScopeProvider {
+	IScope getScope(EObject context, EReference reference);
+}
+\end{verbatim}
+\normalsize
+
+To make scoping implementation easier, Xtext provides so-called declarative
+scope provider through the AbstractDeclarativeScopeProvider base class: instead
+of having to inspect the EReference and context objects and decide how to
+compute the scope, the language implementor can declare the computation of the
+scope for a specific reference in a separate method using a naming convention.
+
+Two different naming conventions are available:
+
+\footnotesize
+\begin{verbatim}
+// <X>, <R>: we are trying to scope the <R> reference of the <X> concept 
+public IScope scope_<X>_<R>(<X> ctx, EReference ref );
+
+// <X>: the language concept we are looking for
+// <Y>: the concept from below which we try to look for the reference 
+public IScope scope_<X>(<Y> ctx, EReference ref);
+\end{verbatim}
+\normalsize
+ 
+Let's assume we want to scope the targetState reference of the
+ChangeStateStatement. It was defined as
+
+\footnotesize
+\begin{verbatim}
+ChangeStateStatement:
+    "state" targetState=[State];
+\end{verbatim}
+\normalsize
+
+We can use the following two alternative methods:
+
+\footnotesize
+\begin{verbatim}
+public IScope scope_ChangeStateStatement_targetState
+            (ChangeStateStatement ctx, EReference ref ) {
+    ...            
+}
+            
+public IScope scope_State(ChangeStateStatement ctx, EReference ref) {
+    ...
+}
+\end{verbatim}
+\normalsize
+
+The first alternative is specific for the targetState reference of the
+ChangeStateStatement. It is invoked by the declarative scope provider only for
+that reference. The second alternative is more generic. It is invoked whenever
+we are trying to reference a State (or any sub type of State) from any reference
+of a ChangeStateStatement. In fact, it includes children of the context type, so
+we could write an even more general alternative, which scopes the visible States
+from anywhere in a CoolingProgram, independent of the actual reference.
+
+\footnotesize
+\begin{verbatim}
+public IScope scope_State(CoolingProgram ctx, EReference ref) {
+    ...
+}
+\end{verbatim}
+\normalsize
+
+The implementation of the scopes is simple, and relatively similar in all three
+cases. We write Java code that crawls up the containment hierarchy until we
+arrive at a CoolingProgram (in the last alternative, we already have the
+CoolingProgram, so we don't need to move up the tree). Here is a possible
+implementation:
+
+\footnotesize
+\begin{verbatim}
+public IScope scope_ChangeStateStatement_targetState
+            (ChangeStateStatement ctx, EReference ref ) {
+    CoolingProgram owningProgram = Utils.ancestor( ctx, CoolingProgram.class );
+    return Scopes.scopeFor(owningProgram.getStates());
+}
+\end{verbatim}
+\normalsize
+
+Another feature of the declarative scope providers is that it comes built-in
+with the notion of a \emph{global scope}. If no applicable methods can be found
+in the declarative scope provider class (or if they return \keyword{null}), then
+scope computation is delegated to a IGlobalScopeProvider. The specific
+implementation is configured through a Guice binding. By default, the
+ImportNamespacesAwareGlobalScopeProvider is configured, which provides the
+possibility to reference model elements outside of the current file either
+through their (fully) qualified name or through their unqualified name using an
+\keyword{import} statement. The language implementor can influence this
+configuration in the MWE2 workflow for the language or bind his own global scope
+provider implementations through Guice.
+\MB{I need to "fix" a later discussion of global case: see also the remark for
+the global scopes para below. Having a global scope by default really is a
+courtesy of the AbstractDeclarativeScopeProvider class.}
+
+The Scopes class provides a couple of helper methods to create IScope objects
+from collections of elements. The simple scopeFor method we use will use the
+name of the target element as the name by which it will be referenced. So if a
+state is called normalCooling, then the ChangeStateStatement instance 
+\verb#state normalCooling# has to be used. The term normalCooling acts as the
+reference - pressing Ctrl-F3 on that program element will go to the referenced
+state.
+
+\paragraph{Nested Scopes} The approach to scoping shown above is suitable for
+simple cases, such as the targetState reference shown above. However, in
+languages with nestes scopes a different approach is recommended. Here is an
+example of a program expressed in a language with nested blocks and scopes:
+
+\footnotesize
+\begin{verbatim}
+var int x;		
+var int g;
+ 
+function add( int x, int y ) {
+    int sum = x+y;               // 1
+    return sum;
+}
+
+function addAll( int es ... ) {
+    int sum = 0;                 
+    foreach( e in es ) { 
+        sum += e;                // 2
+    }
+    x = sum;                     // 3
+}
+\end{verbatim}
+\normalsize
+
+At 1, the local variables (\verb#sum#), the arguments (\verb#x# and \verb#y#)
+and the global variables are visible, although the global variable \verb#x# is
+shadowed by the argument of the same name. At 2, we can see \verb#x#, \verb#g#,
+\verb#sum# and \verb#es#, but also the iterator variable \verb#e#. At 3,
+\verb#x# refers to the global since it is not shadowed by a parameter or local
+variable of the same name. In general, certain program elements introduce blocks
+(very often statement lists surrounded by curly braces). A block can declare new
+symbols. References from within these blocks can see the symbols defined in that
+block, as well as all ancestor blocks. Symbols in inner blocks typically hide
+symbols in outer blocks. The symbols in outer blocks are either not accessible,
+or a special name has to be used, for example, by prefixing them with the
+\keyword{outer} keyword.
+
+Xtext's scopes support this scenario. IScopes can have outer scopes. If a symbol
+is not found in a scope, the scope queries its outer scope and tries to find the
+symbol there. Since inner scopes are searched first, this implements shadowing
+as expected.
+
+Also, scopes are not just collections of elements. Instead, they are basically a
+map between a string and an element. The string is used as the reference text.
+By default, the string is the same as the target element's name. So if a
+variable is called \verb#x#, it can be referenced by \verb#x#. However, this
+name can also be changed. This enables the global \verb#x# in the example
+above to be available under the name \verb#outer.x# if it is referenced from
+location 1. The following is pseudo-code that implements this behaviour:
+
+\footnotesize
+\begin{verbatim}
+// recursive method to build nested scopes
+private IScope collect( StatementList ctx ) { 
+    IScope outer = null
+    if ( ctx is within another StatementList parent ) {
+        outer = collect(parent)
+    }
+    IScope scope = new Scope( outer )
+    for( all symbols s in ctx ) {
+        scope.put( s.name, s )
+        if ( outer.hasSymbolNamed( s.name ) ) {
+            scope.put( "outer."+s.name, outer.getSymbolByName( s.name ) )
+        }
+    } 
+    return scope
+}
+
+// entry method, according to naming convention 
+// in declarative scope provider
+public IScope scope_Symbol( StatementList ctx ) {
+    return collect( ctx )
+}	
+
+\end{verbatim}
+\normalsize
+
+
+\MB{I'm going to expand quite a bit on the following paragraph, because there's
+a notable difference between the standalone case and the IDE case. Also, the
+way that the global scope comes about and "sees" what elements are visible is a
+bit complicated. This is usually quite difficult for users to grasp.}
+
+\paragraph{Global Scopes} There is one more aspect of scoping that needs to be
+discussed. Programs can be separated into several files and references can cross
+file boundaries. That is, an element in file A can reference an element in file
+B. In earlier versions of Xtext file A had to import file B to make the elements
+in B available as reference targets. This resulted in several problems. First,
+for internal reasons, scalability was limited. Second, as a consequence of the
+explicit file imports, if the referenced element was moved into another file,
+the import statements in the referencing files had to all be updated.
+
+In the current release of Xtext both of these problems are solved with the
+index. The index is a data structure that stores
+(String,IEObjectDescription)-pairs. An IEObjectDescription contains information
+about a model element, including its name, its URI (a kind of global pointer
+that also includes the file in which the element is stored) as well as arbitrary
+user data. All references are resolved against this index, not against the
+actual object. The index is updated whenever a file is saved, or a rebuild is
+performed. This way, if an element is moved to a different file, the reference
+(aganst the index) is still valid. Also, the respective file is loaded only if
+and when the reference is resolved, improving scalability.
+
+There are two ways to customize what gets stored in the index, and how. The
+IQualifiedNameProvider returns a qualified name for each program element. If it
+returns null, the element is not stored in the index, which means it is not
+referenceable. The other way is the IDefaultResourceDescriptionStrategy which
+allows language developers to build their own IEObjectDescription for program
+elements. This is important if custom user data has to be stored in the
+IEObjectDescription for later use during scoping.
+
+
+\subsection{Scoping in MPS}
+
+Making references work in MPS requires several ingredients. First of all,
+developers define a reference as part of the language structure. Then, an editor
+is defined that determines how the referenced element is rendered at the
+referencing site. We have shown this in the previous section. To determine which
+instances of the referenced concept are allowed, a scoping function has to be
+implemented. It simply returns a list of all the elements that are considered
+valid targets for the reference. 
+
+As we have explained above, smart references are an important ingredient to make
+this work conveniently. They make sure that users can simply type the name (or
+whatever else is put into the CC menu by the language developer) of the
+targetted element; once something is selected, the corresponding reference
+concept is instantiated, and the selected target is set.
+
+\paragraph{Simple Scopes} As an example, we begin with the scope definition for
+the target reference of the Transition concept. To recap, it is defined as:
+
+\footnotesize
+\begin{verbatim}
+concept Transition extends MedBase      
+  // ...                                        
+  references:                           
+    State target 1 specializes: <none>    
+\end{verbatim}
+\normalsize
+
+The scope itself is defined via the following search scope constraint. The
+system provides an anonymous function search scope that gets a number of
+arguments that describe the context. The expression in the function then has to
+be written by the language developer. The expression crawls up the containment
+hierarchy until it finds a Statemachine. The set of valid target elements is the
+states of that state machine. The code used here can be arbitrarily complex, and
+is implemented in MPS' BaseLanguge.
+
+\footnotesize
+\begin{verbatim}
+link {target} 
+  referent set handler:<none> 
+  search scope: 
+    (model, scope, referenceNode, linkTarget, enclosingNode)
+    	->join(ISearchScope | sequence<node< >>) { 
+      referenceNode.ancestor<concept = Statemachine>.states; 
+    } 
+  validator: 
+    <default> 
+  presentation : 
+    <no presentation> 
+;\end{verbatim}
+\normalsize
+
+In addition to the search scope, users can provide code that should be executed
+if a new reference target is set, additional validation, as well as customized
+presentation in the code completion menu. 
+
+In case of the transition, the projection of the transition uses the name of the
+target concept as the representation of the actual reference. This can be seen
+from the transition editor (see previous section), that contains this
+expression: \verb#(%target% -> {name} )#. This means that the name property of
+the referenced State is shown as the reference. By default, this is also what is
+used in the code completion menu, resulting in text-editor-like behavior.
+\fig{Fig:mps-transeditor-2} shows an example where the reference includes the
+"keyword" state, as well as the prefix initial in case the state is an initital
+state.
+
+
+\begin{figure}[ht]
+\begin{center}
+  \includegraphics[scale=0.8]{figures/2/mps-transeditor-2.png}
+  \caption[labelInTOC]{}
+  \label{Fig:mps-transeditor-2}  
+\end{center} 
+\end{figure}
+
+To make a point, the editor could also be defined as \verb#(%target% -> X )#,
+where every reference is rendered as an X. The system would still work (because
+the underlying GUIDs are still used), but the information conveyed to the
+user has been reduced to zero. 
+
+\paragraph{Nested Scopes} In a more complex, block oriented language with
+nested scopes, a different implementation pattern is recommended:
+
+\begin{itemize}
+  \item All program elements that contribute elements that can be references
+  (such as blocks, functions or methods) implement an interface IScopeProvider.
+  \item This interface provides a method getVisibleElements<concept C) that
+  returns all elements that are available in that scope. 
+  \item The search scope function simply calls this method on the owning
+  IScopeProvider, passing in the concept whose instances it wants to see (State
+  in the above example).
+  \item The implementation of the method recursively calls the method on its
+  owning IScopeProvider, until there is none anymore. It also removes elements
+  that are overshadowed from the result.
+\end{itemize}
+
+We have already discussed in the previous section that polymorpic references are
+not a problem in MPS. Each one simply defines its own search scope, possibly
+using the IScopeProvider-based approach introduced above: a 
+LocalVariableReference returns all local variables as its scope, the
+ParameterReference returns all function parameters. In the resulting code
+completion menu in an expression where LocalVariableReference and
+ParameterReference are allowed, the superset of both scopes is shown.
+
+
+%-------- Older Notes
+%
+%In parsing:
+%  parser only produces tree
+%  graph always through naming, symbol table, etc.
+%  but may be built into grammar lang
+%  in both cases naming is important
+%  if grammar has real refs, then scoping is used 
+%    to define the set of target objects
+%  maybe the same obj has several names, dep on from where I refer to it
+%          name shadowing, scopes as a hierarchy
+%
+%  challenge: multiple refs to diff things via the same ref syntax
+%  seen in many languages, e.g. Java
+%
+%  example 1: an expression 'time.getSeconds()'; is time a local var or a field?
+%
+%  example 2: a name 'java.lang.System.out'; is 'out' a field? a class? a package name? an
+%  inner class? the capitalization gives us a hint but is only a
+%  convention. need semantic information
+%
+%  multiple refs to diff things problem in Xtext
+%
+% works in spoofax, but with the most straightforward approach
+% references have the same abstract syntax (e.g., Var(x), pointing to
+%  a variable or a field)
+%
+%In projection
+%  references are real refs, based on unique IDs
+%  still need scopes to define the set of valid targets   
+%
+%Compare proj and parser, where in parser the info in the reference has to be
+%enough to resolve the uniquely named target. In proj systems, what is shown is
+%irrelevant, since behind the scenes the ID is used.

@@ -1,0 +1,24 @@
+%%
+%% $Id: stratego.ldf 1593 2004-02-29 23:49:40Z adam $
+%%
+%% Language definition of WebDSL for listings package
+%%
+
+\lstdefinelanguage{webdsl}
+  {otherkeywords={:},
+   morekeywords=[1]{placeholder,navigate,elements,entity,function,var,if,return,access,control,rules,rule,page,template,define,section},
+   sensitive,
+   morecomment=[l]{//},
+   morecomment=[s]{/*}{*/},
+   morestring=[b]",
+   literate={|[}{{\texttt{|$\!\!$[}}}1%
+	    {]|}{{\texttt{]$\!\!$|}}}1%
+	    {->}{$\rightarrow$ }2%
+	    {=>}{$\Rightarrow$ }2,
+   moredelim=[is][basicstyle]{`}{`}, % to escape non-keyword words
+   framerule=0pt,
+   escapeinside={/+}{+/},
+   aboveskip=\smallskipamount,
+   belowskip=.8\smallskipamount,
+   framexbottommargin=0pt
+}[keywords,comments,strings]

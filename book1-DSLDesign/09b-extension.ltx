@@ -1,0 +1,104 @@
+\subsection{Language Extension}  
+\label{lext}
+
+Language extension \fig{langReferencing} enables \emph{heterogeneous} fragments
+with \emph{dependent} languages. A language $l_2$ extending $l_1$ adds
+additional language concepts to those of $l_1$. We call $l_2$ the
+\emph{extending} language, and $l_1$ the \emph{base} language. To allow the new
+concepts to be used in the context provided by $l_1$, some of them extend
+concepts in $l_1$. So, while $l_1$ remains independent, $l_2$ becomes dependent
+on $l_1$ since
+\begin{align}
+\exists i \in \mathit{Inh(l_2)} \mid \mathit{i.sub} = l_2\; \wedge \; 
+	\mathit{i.super} = l_1
+\end{align}
+Consequently, a fragment $f$ contains language concepts from both $l_1$ and
+$l_2$:
+\begin{align}
+\forall e \in E_f \mid \mathit{lo(e)} = (l_1 \vee  l_2)
+\end{align}  
+In other words, $C_f \subset (C_{l_1} \cup C_{l_2})$, so $f$ is
+\emph{heterogeneous}. For heterogeneous fragments (3) does not
+hold anymore, since
+\begin{align}  
+\forall c \in \mathit{Cdn_f} \mid\; &\mathit{lo(co(c.parent))} = 
+             (l_1 \vee  l_2)\; \wedge \; \nonumber \\ 
+     &\mathit{lo(co(c.child))} = (l_1 \vee  l_2)
+\end{align}
+
+\marginnote[-3cm]{Note that copying a Language definition and changing it does
+not constitute a case of language extension, because the extension is not modular,
+it is invasive. Also, a native interfaces that support calling one language from
+another one (like calling C from Perl or Java) is not language extension; rather
+it is a form of language referencing. The fragments remain homogeneous.}
+
+\TODO{Wrong picture! Create new Screenshot from Visio!}
+\begin{figure}[h]
+\begin{center}
+  \includegraphics[width=9cm]{figures/langExtension.png} 
+  \caption[labelInTOC]{Extension: $l_2$ extends $l_1$. It provides additional
+  concepts $B3$ and $B4$. $B3$ extends $A3$, so it can be used as a child of
+  $A2$, plugging $l_2$ into the context provided by $l_1$. Consequently,
+  $l_2$ depends on $l_2$.}
+  \label{langExtension}  
+\end{center} 
+\end{figure} 
+
+Language extension fits well with the hierarchical domains: a language $L_B$ for
+a domain $D$ may extend a language $L_A$ for $D_{-1}$. $L_B$ contains concepts
+specific to $D$, making analysis and transformation of those concepts possible
+without pattern matching and semantics recovery. As explained in the
+introduction, the new concepts are often reified from the idioms and patterns
+used when using an $L_A$ for $D$. Language semantics are typically defined by
+mapping the new abstractions to just these idioms (see \sect{semantics})
+\emph{inline}. This process, also known as \emph{assimilation}, transforms a
+heterogeneous fragment (expressed in $L_D$ and $L_{D+1}$) into a homogeneous
+fragment expressed only with $L_D$. 
+
+\marginnote{Language extension is especially interesting if $D_0$ languages are
+extended, making a DSL an extension of a general purpose language.}
+
+\embc{As an example consider
+embedded programming. The C programming language is typically used as the GPL
+for $D_0$in this case. Extensions for embedded programming include state
+machines, tasks or data types with physical units. Language extensions for the
+subdomain of real-time systems may include ways of specifying deterministic
+scheduling and worst-case execution time. For the avionics subdomain support for
+remote communication using some of the bus systems used in avionics could be
+added. \todo{cite Models Paper}}
+
+Defining a $D$ languages as an extension of a $D_{-1}$ language can also have
+drawbacks. The language is tightly bound to the $D_{-1}$ language it is extended
+from. While it is possible for a standalone DSL in $D$ to generate
+implementations for different $D_{-1}$ languages, this is not easily possible
+for DSLs that are extensions of a $D_{-1}$ language. Also, interaction with the
+$D_{-1}$ language may make meaningful semantic analysis of complete programs
+(using $L_D$ and $L_{D-1}$ concepts) hard. This problem can be limited if
+isolated $L_D$ sections are used, in which interaction with $L_{D-1}$ concepts
+is limited and well-defined.
+
+Extension is especially useful for bottom-up domains. The common patterns and
+idioms identified for a domain can be reified directly into linguistic
+abstractions, and used directly in the language from which they have been
+embedded. Incomplete languages are not a problem, since users can easily fall
+back to $D_{-1}$ to implement the rest. Since DSL users see the $D_{-1}$ code
+all the time anyway, they will be comfortable falling back to $D_{-1}$ in
+exceptional cases. This makes extensions suitable only for DSLs used by
+developers. Domain expert DSLs are typically not implemented as extensions.
+
+\paragraph{Restriction} Sometimes language extension is also used to
+\emph{restrict} the set of language constructs available in the subdomain. For
+example, the real-time extensions for C may restrict the use of dynamic memory
+allocation, the extension for safety-critical systems may prevent the use of
+void pointers and certain casts. Although the extending language is in some sense
+smaller than the extended one, we still consider this a case of language
+extension, for two reasons. First, the restrictions are often implemented by
+\emph{adding additional} constraints that report errors if the restricted
+language constructs are used. Second, a marker concept may be added to the
+base language. The restriction rules are then enforced for children of these
+marker concepts (e.g. in a module marked as "safe", one cannot use void pointers
+and the prohibited casts).
+
+
+
+ 

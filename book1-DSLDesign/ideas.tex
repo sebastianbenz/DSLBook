@@ -1,0 +1,183 @@
+\documentclass[submission,copyright,creativecommons]{eptcs}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{soul}
+\usepackage[pdftex]{graphicx}
+\usepackage[utf8]{inputenc}
+
+\newcommand{\hilight}[1]{\hl{#1}}
+
+\newcommand{\mynote}[2]{
+    {\bfseries\sffamily\scriptsize\hilight{#1}}
+    {\small$\blacktriangleright$\hilight{#2}$\blacktriangleleft$}}
+\newcommand\todo[1]{\mynote{TODO}{#1}} \newcommand\MV[1]{\mynote{MV}{#1}}
+\newcommand\EV[1]{\mynote{EV}{#1}}
+\newcommand\rephrase[1]{\mynote{REPHRASE}{#1}}
+\newcommand\remark[1]{\mynote{REMARK}{#1}}
+
+\newcommand{\fig}[1]{Fig.\;\ref{#1}}
+\newcommand{\sect}[1]{Section\;\ref{#1}}
+
+\providecommand{\event}{DSL 2011} % Name of the event you are submitting to
+\usepackage{breakurl}             % Not needed if you use pdflatex only.
+
+\title{Dimensions of Domain-Specific Language Design}
+\author{Eelco Visser
+\institute{Delft University of Technology}
+\email{visser@acm.org}
+\and
+Markus Voelter 
+\institute{Independent}
+\email{voelter@acm.org}
+}
+\def\titlerunning{Dimensions of DSL Design}
+\def\authorrunning{E. Visser \& M. Voelter}
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\ldots
+\end{abstract}
+
+
+
+
+--------------------	
+   * if language is at too low an abstraction level,
+     - it covers too much of D-1
+     - requires too many idioms (introduce term) to express D
+     - in-language abstraction building mechanisms are required
+       (classed, functions)
+     - and the transformation to D-1 requires pattern matching ->
+       complex transformations.
+     - generally, "semantics rev eng", which is hard. See static
+       analysis
+   * if a language is at too high an absraction level
+     - we cannot express all we need in D
+     - or we will have to make all possible programs
+       specific - feature models
+     - we might have to "inject" D-1 code to express relevant
+       programs
+
+       * semantics of what is written down may not be completely obvious.
+         "magic" is going on.
+       * the ability to define new abstractions (libraries) in the language
+         itself is a sign of high expressivity but makes it pontially difficult
+         for domain people.
+         -> ABAP vs. Lisp
+       * the same is true for all the reuse/inheritance, etc. stuff
+	* 
+	
+	Chomsky Hierarchies
+	How are the "more specialized" differnet? All Turing Compelte?
+	-> limited expressivity makes it analyzable (state machines) -> chomsky
+	-> computabilty
+	-> conciseness kolmogorov complexity
+
+
+
+
+    
+    EX: language extension (of C) will allow you to do everything C does,
+        plus a number of "Interesting" things that can be expressed more
+        succinctly. is this desirable?? WHen? Used by whom?
+    EX: webdsl covers a "certain kind" of web apps
+
+
+
+
+
+
+
+
+
+
+	---------------
+	* completeness is relative to the role somebody plays in a process.
+	  is the DSL complete wrt. to that viewpoint?
+	* is the implementation exposed (for adaptation or completion) yes/no
+	  EX: Counter: UML stubs or even arch DSLs (see below)
+	  EX: MOBL, WEBDSL, MED
+
+
+	
+\section{Forces}
+
+	When discussing the different dimensions of DSL design, the forces
+	listed here "pull" at the solution in (sometimes) different directions
+	resulting in tradeoffs when designing the DSL.
+	
+	The forces are labelled so we can refer to them when discussing
+	the dimensions.
+
+    Domain and Users
+	* Is the domain for the DSL well known and well bounded? Can we
+	  identify the abstractions that need to be put into the language?
+	  If not, a DSL may be the wrong approach, a GPL may be better.
+	* Does the DSL abstract a technology, or a business domain?
+	  If business, we have to ask stakeholders about the domain; harder
+	  to scope than if it is specific to a technology platform, which is
+	  inherently bounded. In both cases we have to identify "common patterns"
+	  and make them first class in the DSL.
+	* Are the users of the DSL a "closed" community? Can we teach them?
+	  Can we support them? Are they "good willed" if the DSL has to be 
+	  (iteratively) evolved?
+	* Are all the models accessible? Can we migrate them if we evolve the
+	  language? Or do we need to be backward compatible "forever"?
+	* Are the users developers or domain experts? This influences the
+	  "sophisticatedness" of the concpets we add to the language 
+	  (abstract pension plans, Lisp vs. COBOL)
+	  
+	The DSL itself
+	* Is there enough "model content" so we can do the required
+	  generation, analysis? Can the lang be changed to contain all,
+	  or does it have to be annotated and "filled in" by other 
+	  roles? Projectional can do view-based, one tree.
+  	* Does the DSL inadvertendly prescribe more than is intended? 
+  	  This will limit how we process the mdoels (for int i=0; i<10; i++)
+  	* Does the DSL require the use of "patterns" the "emulate
+  	  semantics? If so, we may need better lang abstractions
+    * is the syntax usable by the intended users (who may 
+      not be programers)? 
+  	* is the DSL composable with other DSLs, if necessary
+  	  (see viewpoints)
+	  EX: mathematical notation in pension workbench
+	* is the language extensible via libraries or are
+	  all concepts first class and hard-coded?
+	  EX: first class makes tool support possible
+	* support by tools: editor, testability, simulator, debugger..
+	  EX: cooling DSL interpreter with test engine and simulator
+    * languages contains abstractions for reuse and modularization
+ 	  EX: inheritance of pension contracts
+ 	  EX: cooling programs only refer to "interfaces", not to products
+
+    Development Process	
+    * Can we can get direct feedback from (future, current) users as 
+      we build the DSL? Can we iterate? 
+    * Is there already an existing "domain notation" that we can/must
+      use?
+    * Is the domain stable or expected to change all the time?
+    * What about time-to-users? Is short time to users more 
+      important than a "correct" language?
+    * Is the DSL required to be complete, so it can be 
+      generalized, standardized?
+    * Does the DSL fit the roles/process it is expected to 
+      be used in (sep of concerns, viewpoints)
+	
+	Infrastructure
+	* With what kind of infrastructure does the DSL (editor, models)
+	  have to integrate?
+	  
+	GPL Code 
+	* What about the relationship of DSL programs to "normal code"?
+	  Protected Region, Generation Gap. Full generation? Running
+	  in a framework? Are there limitations regarding the generated code?
+	  Existing f/w?
+
+
+\nocite{*}
+\bibliographystyle{eptcs}
+\bibliography{generic}
+\end{document}
+

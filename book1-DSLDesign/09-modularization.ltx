@@ -1,0 +1,68 @@
+\section{Language Modularity}
+\label{sec:extAndComp}
+ 
+ 
+ 
+Reuse of modularized parts makes software development more efficient, since
+similar functionality does not have to be developed over and over again. A
+similar argument can be made for languages. Being able to reuse languages in new
+contexts make designing DSLs more efficient. 
+
+\marginnote{Language modularization and reuse is often not driven by end user or
+domain requirements, but rather, by a desire of the language designers and
+implementers for consistency and avoidance of duplicate implementation work.}
+
+
+We have identified the following four: referencing, extension, reuse and
+embedding. We distinguish them regarding fragment structure and language
+dependencies, as illustrated in \fig{quadrants}. \fig{fragAndLang} shows the
+relationships between fragments and languages in these cases. We consider these
+two criteria to be essential for the following reasons.
+
+
+\begin{figure}[h]
+\begin{center}
+  \includegraphics[width=8.2cm]{figures/quadrants.png}
+  \caption[labelInTOC]{We distinguish the four modularization and composition
+  approaches regarding their consequences for fragment structure and language
+  dependencies.}
+  \label{quadrants} 
+\end{center}
+\end{figure} 
+
+\emph{Language dependencies} capture whether a language has to be designed with
+knowledge about a particular composition partner in mind in order to be
+composable with that partner. It is desirable in many scenarios that languages
+be composable \emph{without} previous knowledge about all possible composition
+partners. \emph{Fragment Structure} captures whether the two composed languages
+can be syntactically mixed. Since modular concrete syntax can be a challenge,
+this is not always that possible, though often desirable.
+
+ 
+\begin{figure}[h] 
+\begin{center}
+  \includegraphics[width=8.2cm]{figures/fragAndLang.png}
+  \caption[labelInTOC]{The relationships between fragments and languages in the
+  four composition approaches. Boxes represent fragments, rounded boxes are
+  languages. Dotted lines are dependencies, solid lines
+  references/associations. The shading of the boxes represent the two
+  different languages.}
+  \label{fragAndLang} 
+\end{center}
+\end{figure}
+
+\input{09a-referencing.ltx}
+\input{09b-extension.ltx}
+\input{09c-reuse.ltx}
+\input{09d-embedding.ltx}
+\input{09e-challengesAndSolutions.ltx}
+
+\subsection{Cascading}
+
+There is an additional \todo{}
+
+
+
+
+
+

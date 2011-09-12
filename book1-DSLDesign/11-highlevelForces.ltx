@@ -1,0 +1,227 @@
+\chapter{High-Level Drivers}
+
+In this section we discuss higher-level design forces that are not directly
+reated to one particular design dimension (those had been discussed in the
+previous chapter). However, these forces still influence DSL design.
+
+\paragraph{Model Purpose} The model purpose defines what the models should be
+used for. Typical purposes include code generation or interpretation,
+consistency checking, formal analysis, documentation, and communication among
+several stakeholders. The DSL will look different for each of these purposes.
+
+\genex{If a DSL should be used for model checking and formal analysis, the DSL
+will probably restrict expressivity. All relevant abstractions will be
+linguistic abstractions, in-language abstraction will be very limited. }
+
+\paragraph{Target Audience} DSLs targetted to software developers will be quite
+different from those targetetted to domain experts. In the former case,
+integration with existing tools (IDE, CVS, editors) is crucial. In the latter
+case, a syntax that closely resembles potentially existing domain notations is
+crucial. The language may also be much more "keyword-heavy" compared to
+languages oriented to developers, who are used to working with a limited set of
+orthogonal concepts, using those to build higher level abstractions.
+
+\embc{This language is oriented towards developers. It is thus fundamentally C
+plus a number of extensions. The language is mostly textual.}
+
+\pension{This DSL is targetted to domain experts. A mix between textual,
+symbolic and graphical notations is used. The testing notations is a table,
+reminding users of Excel. Since before using the DSL no version control system
+was used, a repository-based approach was selected for collaboration.}
+
+\paragraph{Scoping and Domain Definition} Defining the domain, the scope for the
+DSL is important. A too narrow definition renders the DSL unusable for relevant
+problems. A too wide definition will make the DSL too generic, and hence less
+expressive. A domain can be defined bottom-up, by identifying patterns and
+idioms in existing $D_{-1}$ programs; in this case scoping is simple. If a
+domain is defined top-down, based on business requirements, scoping is much
+harder and may require significant analysis effort.
+
+\embc{The domains for the base language is C, so this is a trivial corner case.
+For the extensions, the scope is defined by identifying }
+
+\fountain{}
+
+
+\paragraph{Open Or Closed User Community} If the set of users are known and
+accessible for the DSL designers, it will be much easier to evolve the language
+over time because users can be reached, making them migrate to newer versions.
+Alternatively, the set of all models can be migrated to a newer version using a
+script provided by language developers. In case the set of users, and the DSL
+programs, are not easily accessible, much more effort must be put into keeping
+backward compatibility, the need for evolution should be reduced. This can be
+achieved also by using more abstract, composable language constructs as opposed
+to "a keyword for everything".
+
+
+
+\paragraph{Target Audience}
+  Developers ->
+    Text
+    Integration into text infrastructures
+    coverage maybe not so important, compensate "Outside"
+    completeness not important, can write low level code
+    collab via checkinout
+  DomEx ->
+    whatever notation
+    realtimer collab
+    coverage, completeness
+    
+\paragraph{Extension by Users}
+  more imp for developers
+  not very important for DomEx, if coverage 100%
+  via lib: good for developers, no "direct" tool support
+  via lang ext: better for DE
+  with annotations, viewpoints
+  Views, Metadata
+  
+\paragraph{Integration with Ext Lang}
+       
+
+\paragraph{Metadata}
+  stored in model -> projection
+  stored in VCS -> integration with those!
+  comments in text only or comments in model
+
+\paragraph{Infrastructure Integration}
+  imp for devs
+  better for text (aot projection)
+
+
+\paragraph{Collaboration}
+  checkinout -> 
+    partitioning
+    imp for devs
+    file storage
+    gran is partition
+  realtime
+    perhaps more imp for domexp
+    repository
+    gran may be element
+
+\paragraph{Language Size & complexity}
+
+Stakeholders
+
+\paragraph{Model Size}
+
+Incremental, Impact Analysis
+
+\paragraph{Multiple Stakeholders}
+  if so, viewpoints
+  or after the fact views
+
+
+\paragraph{Ad Hoc vs. Long Lived}
+  
+
+\paragraph{Rate of Language Evolution}
+  high
+    -> 
+
+Domain-specificness, DOmain Size
+
+We look at tooling alternatives, but don't look at how the tools are implemented
+(e.g. index for performance; pure IDE support: refactoring, CC, etc we consider
+as given. Also impl strategy: linking, scoping, impact analysis; classes of
+tools, but not specific tools.)
+
+\embc{The model purpose is the generation of efficient C programs for embedded
+software, for different platforms. A secondary purpose is formal analysis of
+the programs. The target audience is software developers. We stick to mostly
+textual notations. The program files are stored in existing VCS. Domain
+definition is bottom-up: the higher D languages provide abstractions for common
+C patterns and idioms. The user community at this point is open, since the code
+is open source. So far we have managed to remain backward compatible.}
+
+\comparch{The model purpose is the description of the architectural structure of
+component-based OSGi applications. Code generation to Java and to OSGi
+manifests is supported. Target audience is developers; models are stored as
+text files and checked into SVN, the editor is integrated into Eclipse. Domain
+scoping is top-down, based on the architecture of the system for which the DSL
+has been built, as well as bottom-up, driven by OSGi. The user community is
+closed (the developers of an enterprise system), existing models can (and have
+been) migrated via a script.}
+
+\pension{}
+
+\fountain{}
+
+
+
+\chapter{Tooling Influences}
+
+\subsection{Projection vs. Parsing}
+
+There are two main approaches for implementing external DSLs. The traditional
+approach is parser-based. A grammar specifies the sequence of tokens and words
+that make up a structurally valid program. A parser is generated from this
+grammar. A parser is a program that recognizes valid programs in their textual
+form and creates an abstract syntax tree or graph. Analysis tools or generators
+work with this abstract syntax tree. Users enter programs using the concrete
+syntax (i.e. character sequences) and programs are also stored in this way.
+Example tools in this category include Spoofax and Xtext.
+
+Advantages of this approach include simple integration into existing text-based
+infrastructures, low adoption barrier, and editors working as expected.
+Disadvantages include a limitation to purely textual notations and limited
+support for modularization and composition (for some tools).
+
+Projectional editors (also known as structured editors) work without parsers.
+Editors directly modify the abstract syntax tree. Projection rules then render a
+textual (or other) representation of the program. Users read and write programs
+through this projected notation. Programs are stored as abstract syntax trees,
+usually as XML. As in parser-based systems, backend tools operate on the
+abstract syntax tree. Projectional editors are well known from graphical
+editors, virtually all of them are projectional editors.  However, they can also
+be used for textual syntax. While in the past projectional text editors have
+gotten a bad reputation, as of 2011, the tools have become good enough, and
+computers have become fast enough to make this approach feasible, productive and
+convenient to use. Example tools in this category include the Intentional Domain
+Workbench (\url{http://intentsoft.com}) and JetBrains MPS.
+
+Advantages of projectional editors include support for unparseable notations,
+support for non-textual (i.e. graphical, tabular and symbolic) notations in 
+the "text editor", as well as the ability to annotate arbitrary meta data on
+programs and after the fact views. The disadvantage is that models aren't stored
+as text, and editing, diffing and merging must be done with the LWB. Editors
+feel a little bit different, so the adoption barrier is a little bit higher.
+
+\subsection{Files vs. Repository}
+
+Collab Mode
+Integration
+Granulatity
+DB as cache
+
+
+\chapter{Process}
+
+The challenge of developing reusable stuff
+
+\section{DSLs, Process, Agility}
+
+Notice that DSLs are not a methodology, they are a (very powerful) ingredient to
+a developer's toolkit. Except for managing the supplier-consumer relationship
+between DSL developers and DSL users, the use of DSLs doesn't have any
+significant consequences for the development process as a whole. You can still
+do XP or Scrum. You should still test automatically (we will cover language
+testing in this book), run a nightly build and so on. And just like when using
+frameworks or sophisticated technologies, you might want to invest a couple of
+iterations at the beginning of a project to get a head start with the
+technology, possibly only delivering limited (obvious) customer value. There is
+no avoiding the fact that you can only use a DSL after it has been created. But
+you want to make sure to develop the DSL iteratively and incrementally as you
+learn about the domain in a project, otherwise you will probably build languages
+nobody will want or be able to use.
+
+Also, since modern language workbenches are very flexible and support rapid
+evolution of languages, you will want to make sure that you'll show actual
+working prototypes of the language (and the tooling) to your future users as you
+incrementally develop the language. In most cases, there is no need for
+(technical) mockups - it is quite useful to start and experiment with capturing
+some of the core knowledge in actual notation on whiteboards or simple text
+documents, though.
+
+
+

@@ -1,0 +1,88 @@
+\documentclass[justified]{tufte-book}
+
+%\usepackage{bbm} 
+\usepackage{amsmath} 
+\usepackage{amssymb}
+\usepackage{soul} 
+\usepackage[pdftex]{graphicx}
+\usepackage[utf8]{inputenc}   
+\usepackage{comment}
+\usepackage{wrapfig}
+\usepackage{boxedminipage}
+\usepackage{booktabs}
+
+
+  
+    
+\setcounter{totalnumber}{10}
+\setcounter{topnumber}{10}
+\setcounter{bottomnumber}{10}
+\renewcommand{\topfraction}{1}
+\renewcommand{\textfraction}{0}
+\renewcommand{\bottomfraction}{1}
+%\setlength{\fboxsep}{0.1\baselineskip}
+\setlength{\floatsep}{0\baselineskip}
+\setlength{\textfloatsep}{1\baselineskip}
+\setlength{\intextsep}{\baselineskip}
+\renewcommand{\floatpagefraction}{0.1}
+  
+\setcounter{secnumdepth}{2}
+
+\newenvironment{noparindent}{\parskip0.2\baselineskip\parindent0pt}{}
+
+% syntax highlighting
+   
+\newcommand{\hilight}[1]{#1} %\hl{#1}}
+
+%\def\blacktriangleright{\rhd}
+%\def\blacktriangleleft{\lhd}
+%\def\vartriangleleft{\lhd}
+ 
+\newcommand{\D}[1]{D_{#1}}
+
+\newcommand{\chapterabstract}[1]{
+\begingroup
+\leftskip2em
+\rightskip\leftskip\noindent{#1}
+\par
+\endgroup
+}
+
+
+
+\newcommand{\excode}[2]{
+\vspace{3pt}
+\begingroup
+\leftskip2em
+\rightskip\leftskip\footnotesize
+     \noindent\hilight{\textbf{#1}} 
+     {#2}~$\blacktriangleleft$
+\par
+\endgroup
+\vspace{3pt}
+}
+  
+\newcommand{\mynote}[2]{\marginnote{\textbf{{#1}}: {#2}}}
+   
+\newcommand\todo[1]{\mynote{TODO}{#1}} 
+\newcommand\TODO[1]{\mynote{TODO}{#1}} 
+\newcommand{\fig}[1]{Fig.~\ref{#1}}
+\newcommand{\sect}[1]{Section~\ref{#1}}
+
+
+\newcommand{\lmrc}{LMR\&C}
+
+\usepackage{breakurl}             % Not needed if you use pdflatex only.
+
+\title{DSL Engineering}
+
+\author{Markus Voelter}
+
+\begin{document}
+\maketitle
+\input{body.ltx}
+
+\nocite{*}
+\bibliographystyle{abbrv}
+\nobibliography{book}
+\end{document}

@@ -1,0 +1,987 @@
+\section{Transformation and Generation}
+
+Transformation of models is an essential step in working with models. We
+typically distinguish between two different cases: if models are transformed
+into other models we call this model transformation. If models are transformed
+into text (usually programming language source code) we refer to code
+generation. However, as we will see in the examples below, depending on the
+approach and tooling used, this distinction is not always easy to make, and the
+boundary becomes blurred.
+
+A fundamentally different approach to processing models is interpretation. While
+in case of transformation and generation the model is transformed to artifacts
+expressed in a different language, in case of interpretation no such change
+happens. Instead, an interpreter traverses a model and directly performs actions
+depending on the contents of the AS. Strictly speaking, we have already seen
+examples of interpretation in the sections on constraints and type systems: the
+actions performed as the tree is traversed were checks of various kinds.
+However, the term interpretation is typically only used for cases where the
+actions actually execute the model. Execution refers to performing the actions
+that are associated with the langiage concepts as defined by the (dynamic)
+semantics of the concepts. A later chapter explores the notions of semantics in
+more detail.
+
+We elaborate on the tradeoffs between transformation and generation vs.
+interpretation in the chapter on language design.
+
+\subsection{Overview of the approaches}
+
+Classical code generation traverses a program's AST and outputs programming
+language source code. In this context, a clear distinction is made between
+models and source code. Models are represented as an AST represented with some
+preferred AST formalism (or meta model). The AST is represented as programming
+language data structures (typically objects) and an API exists for the
+programmer to interact with the AST. In contrast, the generated source code is
+treated only as text, i.e. a sequence of characters. The tool of choice for this
+kind of approach are template languages. The support the mixing of model
+traversal code and to-be-generated text. The two are separated using some escape
+character. Since the generated code is treated merely as text, there is no
+language awareness (and corresponding tool support) for the target language
+while editing templates. Xtend2, the language used for code generation in Xtext
+is an example of this approach.
+
+Classical model transformation is the other extreme in that it works with ASTs
+only and does not consider the concrete syntax of the either the source or the
+target languages. The source AST is transformed using the source language AS API
+and a suitable traversal language. As the tree is traversed, the API of the
+target language AS is used to assemble the target model. For this to work
+smoothly, most specialized transformation languages assume that the source and
+target models are build with the same AST formalism (e.g. EMF Ecore). These
+languages also provide support for efficiently navigating source models, and for
+creating instances of AS of the target language (tree construction). Examples
+for this approach once again include Xtext's Xtext 2 as well as QVT operational
+and ATL. MPS can also be used in this way. A slightly different approach
+establishes relationships between the source and target models instead of
+"imperatively" constructing a target tree as the source is traversed. While this
+is often less intuitive to write down, the appraoch has the advantage that it
+supports transformation in both directions, and also supports model diff. QVT
+relational is an example of this approach.
+
+As a point in case, please note that code generators and transformations fit our
+definition of interpreters: they traverse a model and perform actions: creating
+artifacts in a target language.
+
+In addition to the two classical cases described above, there are also hybrid
+approaches that blur the boundaries between these two clear cut extremes. They
+are based on the support for language modularization and composition in the
+sense that the template language and the target language can be composed. As a
+consequence, the tooling is aware of the syntacic structure and the static
+semantics of the template language \emph{and} the target language. Both MPS and
+Spoofax/SDF support this approach.
+
+In MPS, program is actually projected and every editing operation directly
+modifies the AST, while using a textual-looking notation as the user interface.
+Template code and target-language code can be represented as nested ASTs, each
+using its own textual syntax. MPS uses a slightly different appraoch based on
+annotations \MV{Have we introduced annotations already?}. As we have elaborated
+previously, projectional editors can store arbitrary information in an AST.
+Specifically, it can store information that does not correspond to the AS as
+defined by the language we want to represent ASTs of. MPS code generation
+templates exploit this approach: template code is fundamentally an instance of
+the target language. This "example model" is then annotated with template
+annotations that define how the example model relates to the source model, and
+which example nodes must be replaced by (further transformed) nodes from the
+source model. The MPS example will elaborate on this approach.
+
+Spoofax, with its Stratego transformation language uses a similar approach based
+on parser technology. As we have already seen, the underlying grammar formalism
+supports flexible composition of grammars. So the template language and the
+target language can be composed, retaining tool support for both of these
+languages. Execution of the template actually directly constructs an AST of the
+target language, using the concrete sytnax of the target language to specify its
+structure. The Spoofax example will provide details.
+
+
+\subsection{Code generation for incomplete languages}
+
+An incomplete language is one where the complete semantics of the generated
+program cannot be expressed by the source model. Consequently, after a
+transformation/generation run, there are still "holes" in the generated code
+that need to be filled in by code directly written in the target language.
+Notice that this problem may occur in what's classically referred to as code
+generation and in transformation, although it is more often encountered in the
+former case.
+
+To fill in the hole, two different approaches are possible. The first one
+involves invasively editing the generated artifact, adding in the missing
+functionality. Some mechanism must be provided to highlight areas in the
+generated code into which manually written code may be added, since only in
+these areas, manually written code is not overwritten during subsequent
+generation runs. The approach works with any target language, as long as the
+generator framework provides the necessary features described above.
+
+The other alternative is to never modify the generated code at all, and instead
+use the composition mechanisms of the target language to "join" generated and
+manually written code. The most well-known case is captured in the generation
+gap pattern where a base class is generated from the model, and the manually
+written code is put into a manually written subclass.
+
+In theory, with perfect tool support, the first approach is preferable since no
+artificial composition relationships have to be introduced just to join the two
+kinds of code. In practice, with today's tooling, the second approach is usually
+more pragmatic. A particular advantage of the second approach is that the
+generated artifacts can always be thrown away and can be regenerated, since no
+changes are applied to them after generation.
+
+\TODO{When do we use M2M?}
+
+\subsection{Xtext Example}
+
+\subsubsection{Generator}
+
+\subsubsection{Model-to-Model Transformation}
+
+\subsection{MPS Example}
+ 
+As we have seen above, the distinction between code generators and
+model-to-model transformations is much less clear in MPS. While there is a
+specialized language for ASCII text generation it is really just used "at the
+end" of the transformation chain as a language like Java or C is generated to
+text so it can be passed to existing compilers.
+
+DSLs and language extensions typically use model-to-model transformations to
+"generate" code expressed in a low level programming language. 
+
+
+In general, writing transformation in MPS involves two ingredients. Templates
+define the actual transformation. Mapping configurations define which template
+to run when and where. Templates are valid instances of the target language.
+So-called macros are used to express dependencies on the input model. For
+example, when the guard condition (a C expression) should be generated into an
+if statement in the target model, you first write an if statement with a dummy
+condition into the template. The following would work: \verb#if (true) {}#. Then
+the nodes that should be replaced by the tranformation are annotated with
+macros. In our example, this would look like this: 
+\verb#if (COPY_SRC[true]){}#. Inside the COPY\_SRC macro you put an expression
+that describes which elements from the input model should replace the dummy node
+true: \verb#node.guard;# would use the guard condition of the input node
+(expected to be of type Transition here). The true node will be replaced by what
+the macro expression return. 
+
+
+\paragraph{Translating the State Machine}
+
+State Machines are translated to the following lower level C entities:
+
+\begin{itemize}
+  \item a variable that keeps track of the current state
+  \item an enum for the states, with a literal for each state
+  \item an enum for the events, with a literal for each event
+  \item and a function that implements the behaviour of the state machine using
+  a switch/case statement. The function takes an event as an argument, checks
+  whether the current state can handle the event, evaulates the guard, and if a
+  transition fires, executes exit and entry actions and updates the current
+  state.
+\end{itemize} 
+
+This high level structure is clearly discernable from the main template in
+\fig{mps-sm-gen}. It integrates into the overall translation process as follows.
+
+\begin{figure}[ht]
+\begin{center}
+  \includegraphics[scale=0.7]{figures/6/mps-sm-gen.png}
+  \caption[labelInTOC]{}
+  \label{mps-sm-gen} 
+\end{center} 
+\end{figure}
+
+The MPS transformation engine works in phases. Each phase transforms models
+expressed in some languages to other models expressed in the same or other
+languages. Model element for which no transformation rules are specified are
+simply copied. Reduction rules are used to intercept program elements and
+transform them as generation progresses through the phases. \fig{mps-gen-phases}
+shows how this affects state machines. A reduction rule is defined that maps
+state machines to the various elements we mentioned above. Notice how the
+surrounding module remains unchanged, because no reduction rule is defined for
+it. 
+
+\begin{figure}[ht]
+\begin{center}
+  \includegraphics[scale=0.7]{figures/6/mps-gen-phases.png}
+  \caption[labelInTOC]{}
+  \label{mps-gen-phases} 
+\end{center} 
+\end{figure}
+
+Revisiting \fig{mps-sm-gen}, the picture becomes clearer: the various elements
+highlighted as template fragments (those enclosed by <TF  TF>) are what the
+state machine is reduced to. State machines and variables, enum
+declarations and functions all live inside modules, so the replacement makes
+structural sense (an error would result otherwise). 
+
+References between model elements are based on identities and "real" pointers,
+not just similarity of names. So, in order to reference element that have been
+generated, they need to get unique labels. In \fig{mps-sm-gen} these are
+highlighted with an orange background. These so-called mapping labels have to be
+declared in the generator's mapping configuration. The give names to the
+relationship between a source model element and what has been generated from it.
+
+\footnotesize
+\begin{verbatim}
+mapping labels:
+  label eventEnumLiternal : Event -> EnumLiteral             
+  label stateEnumLiteral : State -> EnumLiteral              
+  label statemachineProcedure : Statemachine -> Procedure    
+  label currentStateVariable : Statemachine -> ModuleVariable
+\end{verbatim}
+\normalsize
+
+For example, the label currentStateVariable can be ued the instance of
+ModuleVariable that was created from an instance of Statemachine. Attaching
+these mapping labels to the transformation rules (as shown in \fig{mps-sm-gen})
+establishe the relationship. An API call can be used to lookup the target; we'll
+show this later.
+
+We have to create an enum literal for each state and each event. To achieve
+this, we iterate over all states (and events, respectively). This is expressed
+with the LOOP macros in the template (\fig{mps-sm-gen}). The expression that
+determines what we iterate over is entered in the Inspector;
+\fig{mps-sm-inspector1} shows the code for iterating over the states. 
+
+\begin{figure}[ht]
+\begin{center}
+  \includegraphics[scale=0.7]{figures/6/mps-sm-inspector1.png}
+  \caption[labelInTOC]{}
+  \label{mps-sm-inspector1} 
+\end{center} 
+\end{figure}
+ 
+Note that the only really interesting part of \fig{mps-sm-inspector1} is the
+body of the expression (node.states;), which is why in the future we will only
+show this part. For the literals of the events enum we use a similar expression
+(node.events;). The \$ macro is called a property macro. It is used to replace
+values of properties. In this case we use it to define the name property of the
+generated enum literal. Here is the implementation expression of the property
+macro (also entered in the inspector):
+
+\footnotesize
+\begin{verbatim}
+node.stateConstantName();
+\end{verbatim}
+\normalsize
+
+stateConstantName is a behavior method. It is defined as part of the behavior
+aspet of the State concept:
+
+\footnotesize
+\begin{verbatim}
+concept behavior State {                      
+                                              
+  constructor { 
+    <no statements> 
+  }         
+                                              
+  public string stateConstantName() {         
+    return "STATE_" + this.name.toUpperCase();
+  }                                           
+                                              
+}                                             
+\end{verbatim}
+\normalsize
+
+Let us next look at the part of the generator that generates the execute
+function. We first generate an if statement for each state that has at least one
+outgoing transition. We use a LOOP macro with the following expression:
+
+\footnotesize
+\begin{verbatim}
+node.states.where({~it => it.transitions.isNotEmpty; });
+\end{verbatim}
+\normalsize
+ 
+The if statement checks whether the current state corresponds to the state
+literal that corresponds to the state we're currently iterating over. Notice how
+we do not have to use a macro to rewire the eventsenum::eventLiteral to the
+actual literat for the corresponding state. Since we iterate over the same
+colletion (the list of states) of nodes both where we generate the literals and
+where we reference the literals, MPS automatically selects the correct
+reference target.
+ 
+Inside the if, we now generate another if for each of the outgoing transitions
+of the state. We use a LOOP macro with the expression node.transitions. In the
+if, we compare the event that is passed into the method as an argument to the
+event enum literal that corresponds to the transition's trigger. Note that
+triggers are represented in the state machine language using the abstract
+concept Trigger. A subtype, the EventTrigger, is used for those cases where the
+trigger is an incoming event (there may be other kinds of triggers in the
+future). To handle this polymorphic variability correctly, we use a COPY\_SRC
+macro. It "copies" the trigger object, while also executing existing reduction
+rules. We have defined one of these that replaces the EventTrigger with a
+reference to the enum literal (see \fig{mps-sm-eventtrigger}). Notice how in the
+inspector we use the generation context to resolve a label: we retrieve the enum
+literal that has been generated for the event.
+   
+\begin{figure}[ht]
+\begin{center}
+  \includegraphics[scale=0.7]{figures/6/mps-sm-eventtrigger.png}
+  \caption[labelInTOC]{}
+  \label{mps-sm-eventtrigger} 
+\end{center} 
+\end{figure}
+
+We then generate the code that check the guard condition. We use a COPY\_SRC
+macro to replace the dummy true with the guard expression in the model. Since we
+already use C expressions in the state machine, this really is just a copy
+process - no reduction rules are specified.  
+
+Now we have to deal with the exit action of the current state and the entry
+actions of the target state. These are lists of C statements, so we can simply
+COPY\_SRC them into the generated code. Finally, we have to set the current
+state variable to the target state of the transition. We use another reference
+macro (\verb#->#) to rewire this reference. The following code is used in the
+macro:
+
+
+\footnotesize
+\begin{verbatim}
+genContext.get output stateEnumLiteral for (node.target)
+\end{verbatim}
+\normalsize
+
+
+As the last example I want to show how the FireEventStatement is translated. It
+is used as follows:
+
+\footnotesize
+\begin{verbatim}
+initialize {                                                  
+  ...      
+  event linefollower:initialized                              
+}                                                             
+\end{verbatim}
+\normalsize
+
+It ha to be translated to a call to the generated statemachine execute method,
+with the event translated to the respective enum literal. A reduction rule is
+defined, so that every occurence of the FireEventStatement is translated to an
+ExpressionStatement that contains a call to the respective method.
+\fig{mps-sm-fireevent} shows the code.
+ 
+\begin{figure}[ht]
+\begin{center}
+  \includegraphics[scale=0.7]{figures/6/mps-sm-fireevent.png}
+  \caption[labelInTOC]{}
+  \label{mps-sm-fireevent} 
+\end{center} 
+\end{figure}
+
+The goal is to generate a method call with an enum literal as the argument.
+However, we have to first create a module so we have a place to put the called
+method and the enum declaration. Only the code between the <TF TF> brackets
+(i.e., the method call) will be used as the result of the template. The rest is
+"scaffolding" so we have nodes we can reference on the example code that will
+then be marked up with macros. The first reference macro rewires the method. It
+uses the following expression to retrieve the execution function generated from
+the state machine. It uses the label associated with that function to retrieve
+the node from the context. 
+
+\footnotesize
+\begin{verbatim}
+genContext.get output statemachineProcedure for (node.machine);
+\end{verbatim}
+\normalsize
+
+The second reference macro uses a similar approach to get to the correct enum
+literal.
+
+\footnotesize
+\begin{verbatim}
+genContext.get output eventEnumLiternal for (node.trigger);
+\end{verbatim}
+\normalsize
+
+
+discuss someehere the benefits of cascading and stuff. The MPS stuff is a good
+example of the benefits (platform indep of higher level DSLs)
+
+\subsection{Spoofax Example}
+
+
+
+  special languages (target lang level + meta level)
+  what are good gen languages (some criteria)
+      integrating manually written code (generation gap)        
+      parts from My DSL Best Practices Paper
+  
+  modifying generated code: not
+  
+  generation gap pattern 
+  
+  extension of tatget lang to make it more easily generatable (expr blocks)
+
+  
+  when to use M2M (see best practices paper) 
+  what are good trafo languages
+  unidirectional, bidirectional (relational)
+  incremental vs. batch)
+  parts from My DSL Best Practices Paper
+                      
+
+\section{Building Interpreters}  
+ 
+Interpreters are basically programs that read a model, traverse the AST and
+perform actions corresponding to the semantics of the language constructs whose
+instances appear in the AST. How interpreter implementation looks depends a lot
+on the programming language used for implementing them. Also, the complexity of
+the interpreter directly reflects the complexity of the language it processes.
+For example, building an interpreter for a pure expression language with an
+object oriented or functional programming language is almost trivial. In
+constrast, the interpreter for languages that support paralellism can be much
+more challenging. 
+
+The following list explains some typical ingredients that go
+into building interpreters. It assumes a programming language that can
+polymorphically invoke functions or methods. 
+
+\begin{itemize}
+  \item For program elements that can be evaluated to values, i.e., expressions,
+  there is typically a function eval that is polymorphically defined for the
+  various expression types in the language. Since nested expressions are
+  almost always represented as nested trees in the AST, the eval function calls
+  itself with the program elements it owns, and then performs the semantic action on the result. Consider an expression \verb#3 * 2 + 5#. Since the plus is at the root of the
+  AST, eval(Plus) would be called (by some outside entity). It is implemented as
+  actually adding the values obtained by evaluating its arguments. So it calls
+  eval(Multi) and eval(5). Evaluating a number literal is trivial, since it
+  simply returns the number itself. Multi would call eval(3) and eval(2),
+  multiplying their results and returning the result of the multiplication as
+  its own result, allowing plus to finish its calculation.
+  \item Program elements that don't produce a value only make sense in
+  programming languages that have side effects. In other words, execution of
+  such a language concept produces some effect either on global data in the
+  program (re-assignable variables, object state) or on the environment of the
+  program (sending network data or rendering a UI). Such program elements are
+  typically called statements. Statements are typically not recursively nested
+  in a tree, but rather arranged in a list, typically called a StatementList. To
+  execute those, there is typically a function execute that is overloaded for
+  all of the different statement types. It is also overloaded for StatementList
+  which iterates over all statements and calls execute for each one. Note that
+  statements often contain expressions and more statement lists (as in 
+  \verb#if (a>3) { print a; a=0; } else { a=1;}#), so an implementation of
+  execute may call eval and perform some action based on the result (such as
+  deciding whether to execute the then-part of the else-part of the if
+  statement). Executing the then-part and the else-part simply boils down to
+  called execute on the respecrive statement lists.
+  \item Languages that have can express assignment to variables require an
+  environment for execution. Consider \verb#int a = 1; a = a + 1;#. In this
+  example, the a in a+1 is a variable reference. When evaluating the this
+  reference, the system must "remember" that it had assigned 1 to that variable
+  in the previous statement. The interpreter must keep some kind of global
+  hashtable to keep track of symbols and their values, so it can look them up
+  when evaluating a reference to that symbol. Many (though not all) languages
+  that support assignable variables allow reassignment to the same variable (as
+  we do in a = a + 1;). In this case, the environment must be updatable. Notice
+  that in \verb#a=a+1# both mentionings of are references to the same variable,
+  and both are expressions (otherwise a couldn't be used as part of the plus
+  operator, which expects expressions as arguments). However, only a can be
+  assigned to: writing \verb#2 * a = a + 1;# would be invalid. The notion of an
+  lvalue is introduced to describe this. lvalues can be used "on the left side"
+  of an assignment. Variable references are typically lvalues (if they don't
+  point to a const variable). Complex expressions usually aren't, unless they
+  evaluate to something that is in turn an lvalue (an example of this is would
+  be \verb#*(someFunc(arg1, arg2)) = 12;#, in C, assuming that someFunc returns
+  a pointer to an integer).
+  \item The ability to call other entities (functions, procedures, methods)
+  introduces further complexity, especially regarding parameter and return value
+  passing. Assume a function \verb#int add(int a, int b) { return a+b; }#. When
+  this function is called via \verb#add(2,3);# the actual arguments 2 and 3 have
+  to be bound to the formal arguments a and b. An environment must be established 
+  for the execution of add that keeps track of these associations. If functions
+  can also access global state (i.e. symbols that are not explicitly passed in
+  via arguments), then this environment must delegate to the global environment
+  in case a referenced symbol cannot be found in the local environment.
+  Supporting recursive callable entities (as in 
+  \verb#int fac(int i) { return i == 0 ? 1 : fac(i-1) };# requires that for
+  each subsequent call to fac a new environment must be created, with a binding 
+  for the formal variables. However, the original environment must be
+  "remembered" because it is needed to complete the execution of the outer fac
+  after a recursively called fac returns. This is achieved using a stack of
+  environments. A new environment is pushed onto the stack as a function is
+  called (recursively), and the stack is popped, returning to the previous
+  environment, as a called function returns. The return value, which is often
+  expressed using some kind of return statement, is usually placed into the
+  inner environment using a special symbol or name (such as \verb#__ret__#). It
+  can then be picked up from there as the inner environment is popped.
+\end{itemize}
+ 
+ 
+\subsection{Building an Interpreter with Xtext} 
+ 
+This example describes an interpreter for the cooling language. It is used to
+allow DSL users to "play" with the programs. The interpreter can execute test
+cases (and report success or failure) as well as simulate the program
+interactively. 
+ 
+The execution engine, as the interpreter is called here, has to handle the
+following language aspects:
+
+\begin{itemize}
+  \item Statements and expressions, as described above, as supported by the DSL
+  and must be executed
+  \item The top level structure of a cooling program is a state machine. So the
+  interpreter has to deal with states, events and transitions.
+  \item The language supports deferred execution (i.e. perform the following
+  set of statements at a later time), so the interpreter has to keep track of
+  deferred parts of the program
+  \item The language supports writing tests for cooling programs incl. mock
+  behaviour for hardware elements. A set of constructs exists to express this
+  mock behaviour, specifically, ramps to change temperatures over time. These
+  background tasks must be handled by the interpreter as well.
+\end{itemize}
+
+\paragraph{Expressions and Statements}
+
+We start our description of the execution engine inside out, by looking at the
+interpreter for expressions and statements first. As mentioned above, for
+interpreting expressions, there is typically an overloaded eval operation, that
+contains the implementation of expression evaluation for each kind of
+expression. However, Java doesn't have polymorphically overloaded member
+methods. Instead, and Xtext workflow fragment generates a dispatcher. The
+fragment is configured with the abstract meta classes that represent expressions
+and statements (all specific expressions and statements inherit directly or
+indirectly from these classes). The following code shows the fragment
+configuration:
+
+\footnotesize
+\begin{verbatim}
+fragment = de.itemis.interpreter.generator.InterpreterGenerator {
+    expressionRootClassName = "Expression"
+    statementRootClassName = "Statement"
+}
+\end{verbatim}
+\normalsize
+
+This fragment generates an abstract class that acts as the basis for the
+interpreter for the particular set of statements and expressions. as the
+following piece of code shows, the class contains an eval method that uses
+instanceof checks to dispatch to a method specific to the subclass and thereby
+emulating polymorphically overloaded methods. The specific methods throw an
+exception and are expected to be overridden by a manually written subclass  that
+contains the actual interpreter logic for the particular language concepts. the
+class also uses a logging framework (based on the LogEntry class) that can be
+used to create a tree shaped trace of expression evaluation, which is very
+useful for debugging and understanding the execution of the interpreter.
+
+
+\footnotesize
+\begin{verbatim}
+public abstract class AbstractCoolingLanguageExpressionEvaluator 
+                      extends AbstractExpressionEvaluator {
+
+    public AbstractCoolingLanguageExpressionEvaluator( ExecutionContext ctx ) {
+        super(ctx);
+    }
+
+    public Object eval( EObject expr, LogEntry parentLog ) 
+                  throws InterpreterException {
+
+        LogEntry localLog = parentLog.child(LogEntry.Kind.eval, expr, 
+                 "evaluating "+expr.eClass().getName());
+        
+        if ( expr instanceof Equals ) {
+            return evalEquals( (Equals)expr, localLog );
+        }
+        if ( expr instanceof Unequals ) {
+            return evalUnequals( (Unequals)expr, localLog );
+        }
+        if ( expr instanceof Greater ) {
+            return evalGreater( (Greater)expr, localLog );
+        }
+        // the others...
+    }
+
+    protected Object evalEquals( Equals expr, LogEntry log ) 
+              throws InterpreterException {
+        throw new MethodNotImplementedException(expr, 
+                 "method evalEquals not implemented");
+    } 
+    protected Object evalUnequals( Unequals expr, LogEntry log ) 
+              throws InterpreterException {
+        throw new MethodNotImplementedException(expr, 
+              "method evalUnequals not implemented");
+    } 
+    protected Object evalGreater( Greater expr, LogEntry log )
+              throws InterpreterException {
+        throw new MethodNotImplementedException(expr, 
+              "method evalGreater not implemented");
+    } 
+    
+}
+\end{verbatim}
+\normalsize
+    
+A similar class is generated for the statements. Instead of eval, the method is
+called execute and it does not return a value. In every other respect the
+statement executor is similar to the expression evaluator.
+
+Let us now take a look at some example method implementations. The following
+code shows the implementation of evalNumberLiteral which evaluates number
+literals such as 2 or 2.3 or -10.2. The following grammar is used for defining
+number literals:
+
+\footnotesize
+\begin{verbatim}
+Atomic returns Expression:
+    ...
+    ({NumberLiteral} value=DECIMAL_NUMBER);
+
+terminal DECIMAL_NUMBER:
+    ("-")? ('0'..'9')* ('.' ('0'..'9')+)?;
+\end{verbatim}
+\normalsize
+
+Before we delve into the details of this code, it is worth mentioning that the
+"global data" held by the execution engine is stored and possibly around using
+the engine execution context. For example it contains the environment that keeps
+track of symbol values, and it also has access to the type system implementation
+class for the language. Execution context is available through the eec() method.
+
+\footnotesize
+\begin{verbatim}
+    protected Object evalNumberLiteral(NumberLiteral expr, LogEntry log) {
+        String v = ((NumberLiteral) expr).getValue();
+        EObject type = eec().typesystem.typeof(expr, new TypeCalculationTrace());
+        if (type instanceof DoubleType) {
+            log.child(Kind.debug, expr, "value is a double, " + v);
+            return Double.valueOf(v);
+        } else if (type instanceof IntType) {
+            log.child(Kind.debug, expr, "value is a int, " + v);
+            return Integer.valueOf(v);
+        }
+        return null;
+    }
+\end{verbatim}
+\normalsize
+
+
+With this in mind, the implementation of even outnumber literal should be
+obvious. We first retrieve the actual value from the NumberLiteral object, and
+we find out that type of the number literal. The type system basically inspects,
+whether the value contains a dot or not and returns either a DoubleType or 
+IntType. Based on this distinction the evaluate method returns either a Java
+Double or Integer as the value of the NumberLiteral. In addition, it creates log
+entries that document these decisions.
+
+The evaluator for NumberLiteral was simple because number literals are leaves
+in the AST and have no other children, so no recursive invocations of eval are
+required. This is different for the logical and for example. The following code
+shows the implementation of the logical and. It has two more children in the
+left and right properties. the first two statements recursively called the
+evaluator, for the left and right children respectively. They use a utility
+method called evalCheckNullLog which automatically creates a log entry for this
+recursive call and stops the interpreter if the value passed in is null (which
+would mean the AST is somehow broken). Once we have evaluated the two children
+we can simply return a conjunction of the two.
+
+\footnotesize
+\begin{verbatim}
+protected Object evalLogicalAnd(LogicalAnd expr, LogEntry log) {
+    boolean leftVal = ((Boolean)evalCheckNullLog( expr.getLeft(), log ))
+                      .booleanValue();
+    boolean rightVal = ((Boolean)evalCheckNullLog( expr.getRight(), log ))
+                      .booleanValue(); 
+    return leftVal && rightVal;
+}
+\end{verbatim}
+\normalsize
+
+So far, we haven't used the environment, since we haven't worked with variables
+and their current values. Let's now look and how variable assignment is handled.
+We first look at the assignment statement,  which is implemented  in the
+statement executor, not in the expression evaluator.
+
+\footnotesize
+\begin{verbatim}
+protected void executeAssignmentStatement(AssignmentStatement s, LogEntry log){
+    Object l = s.getLeft();
+    Object r = evalCheckNullLog(s.getRight(), log);
+    SymbolRef sr = (SymbolRef) l;
+    SymbolDeclaration symbol = sr.getSymbol();
+    eec().environment.put(symbol, r);
+    log.child(Kind.debug, s, "setting " + symbol.getName() + " to " + r);
+}
+\end{verbatim}
+\normalsize
+
+The first two lines get the left argument as well as the value of the right
+argument. Note how only the right value is evaluated: the left argument is a
+symbol reference (made sure through a constraint). We then retrieve the symbol
+referenced by the symbol reference and create a mapping from the symbol to the
+value in the environment, effectively "assigning" the value to the symbol during
+the execution of the interpreter.
+
+The implementation of the evaluator for a symbol reference (if it is used not
+as an lvalue) is shown in the following code. We use the same environment to
+lookup the value for the symbol. We then check if the value is null (i.e.
+nothing has been assigned to the symbol as yet). In this case we return the
+default value for the respective type and log a warning. Otherwise we return the
+value.
+
+\footnotesize
+\begin{verbatim}
+protected Object evalSymbolRef(SymbolRef expr, LogEntry log) {
+    SymbolDeclaration s = expr.getSymbol();
+    Object val = eec().environment.get(s);
+    if (val == null) {
+        EObject type = eec().typesystem.typeof(expr, new TypeCalculationTrace());
+        Object neutral = intDoubleNeutralValue(type);
+        log.child(Kind.debug, expr, 
+           "looking up value; nothing found, using neutral value: " + neutral);
+        return neutral;
+    } else {
+        log.child(Kind.debug, expr, "looking up value: " + val);
+        return val;
+    }
+}
+\end{verbatim}
+\normalsize
+
+The cooling language does not support function calls, so we demonstrate function
+calls with a similar language that supports it. In that language, function calls
+are expressed as symbol references that have argument lists. Below is the
+grammar. Constraints make sure that argument lists are only used if the
+referenced symbol is actually a FunctionDeclaration.
+
+\footnotesize
+\begin{verbatim}
+FunctionDeclaration returns Symbol:
+    {FunctionDeclaration} "function" type=Type name=ID "(" 
+        (params+=Parameter  ("," params+=Parameter)* )?  ")" "{"    
+        (elements+=Element)*
+    "}";    
+
+Atomic returns Expression:
+    ...
+    {SymbolRef} symbol=[Symbol|QID]  
+        ("(" (actuals+=Expr)? ("," actuals+=Expr)* ")")?; 
+\end{verbatim}
+\normalsize
+
+The following is the code for the evaluation function for the symbol reference.
+It must distinguish between references to variables and to functions. 
+
+\footnotesize
+\begin{verbatim}
+protected Object evalSymbolRef(SymbolRef expr, LogEntry log) {
+    Symbol symbol = expr.getSymbol();
+    if ( symbol instanceof VarDecl ) {
+        return log( symbol, ctx.environment.getCheckNull(symbol), log);
+    }
+    if ( symbol instanceof FunctionDeclaration ) {
+        FunctionDeclaration fd = (FunctionDeclaration) symbol;
+        return callAndReturnWithPositionalArgs("calling "+fd.getName(), 
+                fd.getParams(), expr.getActuals(), fd.getElements(), 
+                RETURN_SYMBOL, log);
+    }
+    throw new InterpreterException(expr, 
+        "interpreter failed; cannot resolve symbol reference " 
+        +expr.eClass().getName()); }
+\end{verbatim}
+\normalsize
+
+The code for the FunctionDeclaration uses a predefined utility method
+callAndReturnWithPositionalArgs. It accepts as arguments the list of formals of
+the called function, the list of actuals passed in, the list of statements in
+the function body, a symbol that should be used for the return value as well as
+the obligatory log. The utility method is implemented as follows:
+
+\footnotesize
+\begin{verbatim}
+protected Object callAndReturnWithPositionalArgs(String name, 
+        EList<? extends EObject> formals, EList<? extends EObject> actuals, 
+        EList<? extends EObject> bodyStatements, Object returnSymbol, 
+        LogEntry log) {
+    ctx.environment.push(name);
+    for( int i=0; i<actuals.size(); i++ ) {
+        EObject actual = actuals.get(i);
+        EObject formal = formals.get(i);
+        ctx.environment.put(formal, evalCheckNullLog(actual, log));
+    }
+    ctx.getExecutor().execute( bodyStatements, log );
+    Object res = ctx.environment.get(returnSymbol);
+    ctx.environment.pop();
+    return res;
+}
+\end{verbatim}
+\normalsize
+
+It first creates a new environment and pushes it on the call stack. The it
+iterates over all the actual argument, evaluates each of them and "assigns" them
+to the formals by creating an association between the formal argument symbol and
+the actual argument value in the new environment. It then uses the statement
+executor (available through the context) to execute all the statements in the
+body of the function. Notice that if they deal with their own variables and
+functions, the use the new environment pushed onto the stack by this method!
+When the execution of the body has finished, we retrieve the return value from
+the environment. The return statement in the function has put it there under a
+name we have prescribed, the returnSymbol, so we know where to find it. Finally,
+we pop the environment, restoring the caller's state of the world and return the
+return value.
+
+
+\paragraph{States, Events and the Main program}
+
+Changing a state happens by executing a ChangeStateStatement, which simply
+references the state that should be entered. Here is the interpreter code in
+StatementExecutor:
+
+\footnotesize
+\begin{verbatim}
+protected void executeChangeStateStatement(ChangeStateStatement s, LogEntry l) {
+    l.child(Kind.debug, s, "change state to " + s.getTargetState().getName());
+    engine.enterState(s.getTargetState(), log);
+}
+
+public void enterState(State ss, LogEntry logger ) 
+        throws TestFailedException, InterpreterException, TestStoppedException {
+    logger.child(Kind.info, ss, "entering state "+ss.getName());
+    context.currentState = ss;
+    executor.execute(ss.getEntryStatements(), logger);
+    throw new NewStateEntered();
+}
+\end{verbatim}
+\normalsize
+
+It calls back to an engine method that handles the state change (since this is
+a more global operation than executing statements, it is handled by the engine
+class itself). The method simply sets the current state to the target state
+passed into the method (the current state is kept track of in the execution
+context). It then executes the set of entry statements of the new state. After
+this it throws an exception NewStateEntered which stops the current execution
+step. 
+
+The overall engine is step driven, i.e. an external "timer" triggers distinct
+execution steps of the engine. A state change always terminates the current
+step. The main method step() triggered by the external timer can be considered
+the main program of the engine. It looks as follows:
+
+\footnotesize
+\begin{verbatim}
+public int step(LogEntry logger) {
+    try {
+        context.currentStep++;
+        executor.execute(getCurrentState().getEachTimeStatements(), stepLogger);
+        executeAsyncStuff(logger);
+        if ( !context.eventQueue.isEmpty() ) {
+            CustomEvent event = context.eventQueue.remove(0);
+            LogEntry evLog = logger.child(Kind.info, null, 
+                "processing event from queue: "+event.getName());
+            processEventFromQueue( event, evLog );
+            return context.currentStep;
+        }
+        processSignalHandlers(stepLogger);
+    } catch ( NewStateEntered se ) {
+    }
+    return context.currentStep;
+}
+\end{verbatim}
+\normalsize
+
+It first executes the each time statements of the current state. This is
+a statement list defined by a state that needs to be re-executed in each step
+while the system is in the respective state. It then executes asynchronous
+tasks. We'll explain this in the next section. Next it checks if an event is in
+the event queue. If so, it removes the first event from the queue and executes
+it. After processing an event the step is terminated. Lastly, we process signal
+handlers (the check statements in the programs).
+
+Processing events simply checks if the current state declares and event handler
+that can deal with the currently processed event. If so, it executes the
+statement list associated with this event handler.
+
+\footnotesize
+\begin{verbatim}
+private void processEventFromQueue(CustomEvent event, LogEntry logger) {
+    for ( EventHandler deh: getCurrentState().getEvents()) {
+        if ( reactsOn( deh, event ) ) {
+            executor.execute(deh.getStatements(), logger);
+        }
+    }
+}
+\end{verbatim}
+\normalsize
+
+Raising events is just another statement that can be put into any statement
+list. It adds the respective event to the queue. Also, events can be raised by
+external actors (the hardware in the real system, and statements in test cases).
+
+The DSL also supports executing code asynchronously, i.e. after a specified
+number of steps. The grammar looks as follows:
+
+\footnotesize
+\begin{verbatim}
+PerformAsyncStatement:
+    "perform" "after" time=Expr "{"
+        (statements+=Statement)*
+    "}";
+\end{verbatim}
+\normalsize
+
+The interpreter for this statement is simply the following method:
+
+\footnotesize
+\begin{verbatim}
+protected void executePerformAsyncStatement(PerformAsyncStatement s, 
+                LogEntry log) throws InterpreterException {
+    int inSteps = ((Integer)evalCheckNullLog(s.getTime(), log)).intValue();
+    eec().asyncElements.add(new AsyncPerform(eec().currentStep + inSteps, 
+        "perform async", s, s.getStatements()));
+}
+\end{verbatim}
+\normalsize
+
+It registers the statement list associated with the PerformAsyncStatement in the
+list of async elements in the execution context. The call to executeAsyncStuff
+at the beginning of the step method described above checks whether the time has
+come and executes those statements.
+
+\footnotesize
+\begin{verbatim}
+private void executeAsyncStuff(LogEntry logger) {
+    List<AsyncElement> stuffToRun = new ArrayList<AsyncElement>();
+    for (AsyncElement e: context.asyncElements) {
+        if ( e.executeNow(context.currentStep) ) {
+            stuffToRun.add(e);
+        }
+    }
+    for (AsyncElement e : stuffToRun) {
+        context.asyncElements.remove(e);
+        e.execute(context, logger.child(Kind.info, null, "Async "+e));
+    }
+}
+\end{verbatim}
+\normalsize
+
+
+
+\todo{mention interpreter framework!}
+\todo{Say something about Xtend2}
+
+
+\subsection{An interpreter in MPS}
+
+Building an interpreter in MPS is fundamentally similar to building one in Xtext
+and EMF. All concept would apply in the same way, intead of EObjects you would
+work with the node<> types that are available on MPS to deal with ASTs. However,
+since MPS' BaseLanguage is itself built with MPS, it can be extended. So instead
+of using a generator to generate the dispatcher that calls the eval methods for 
+the expression classes, suitable language extensions can be defined in the first
+place.
+
+For example, BaseLanguage (effectively Java) could be extended with support for
+polymorphic dispatch (similar to what Xtend2 does). An alternative solution
+involves a dispatch statement, a kind of pimped switch. \fig{mps-dispatch} shows
+an example.
+
+\begin{figure}[ht]
+\begin{center}
+  \includegraphics[scale=0.65]{figures/6/mps-dispatch.png}
+  \caption[labelInTOC]{}
+  \label{mps-dispatch} 
+\end{center}
+\end{figure}
+
+The dispatch statement tests if the argument ex is an instance of the type
+referenced in the "cases". If so, the code on the right side of the arrow is
+executed. Notice the special expression \$ used on the right side of the arrow.
+It refers to the argument ex, but it is already downcast to the type on the left
+of the case's arrow. This way, annoying downcasts can be avoided. 

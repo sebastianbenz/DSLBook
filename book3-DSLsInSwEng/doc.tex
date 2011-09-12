@@ -1,0 +1,104 @@
+\documentclass[justify]{tufte-book}
+
+%\usepackage{bbm} 
+%\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{soul} 
+\usepackage[pdftex]{graphicx}
+\usepackage[utf8]{inputenc} 
+\usepackage{comment}
+\usepackage{wrapfig}
+\usepackage{boxedminipage}
+\usepackage{alltt}
+
+\usepackage{tikz}
+\newenvironment{Tree}{\begin{tikzpicture}[scale =.5]\tikzset{every node/.style={font=\tt}}}{\end{tikzpicture}}
+    
+\setcounter{totalnumber}{10}
+\setcounter{topnumber}{10}
+\setcounter{bottomnumber}{10}
+\renewcommand{\topfraction}{1}
+\renewcommand{\textfraction}{0}
+\renewcommand{\bottomfraction}{1}
+%\setlength{\fboxsep}{0.1\baselineskip}
+\setlength{\floatsep}{0\baselineskip}
+\setlength{\textfloatsep}{1\baselineskip}
+\setlength{\intextsep}{\baselineskip}
+\renewcommand{\floatpagefraction}{0.1}
+\newcommand\Figure[1]{Figure~\ref{#1}}
+\newcommand{\curlies}[1]{\char123{}#1\char125}
+
+
+\newenvironment{noparindent}{\parskip0.2\baselineskip\parindent0pt}{}
+
+% syntax highlighting
+
+\newcommand{\hilight}[1]{#1} %\hl{#1}}
+
+%\def\blacktriangleright{\rhd}
+%\def\blacktriangleleft{\lhd}
+%\def\vartriangleleft{\lhd}
+ 
+\newcommand{\D}[1]{D_{#1}}
+
+\newcommand{\dfrac}[2]{\frac{\displaystyle #1}{\displaystyle #2}}
+
+\newcommand{\excode}[2]{
+\vspace{3pt}
+\begingroup
+\leftskip0em
+\rightskip\leftskip\footnotesize
+     \noindent\hilight{\textbf{#1}} 
+     {#2}~$\blacktriangleleft$
+\par
+\endgroup
+\vspace{3pt}
+}
+
+\newcommand{\embc}[1]{\excode{Embedded C:}{#1}}
+\newcommand{\fountain}[1]{\excode{Fountains:}{#1}}
+\newcommand{\comparch}[1]{\excode{Component Architecture:}{#1}}
+\newcommand{\pension}[1]{\excode{Pension Plans:}{#1}}
+\newcommand{\genex}[1]{\excode{Example:}{#1}}
+\newcommand{\exwebdsl}[1]{\excode{WebDSL:}{#1}}
+\newcommand{\keyword}[1]{\emph{#1}} %% TODO: merge with Marcus's definition of keyword
+
+\newcommand{\mynote}[2]{\noindent{\bfseries\sffamily\scriptsize\hilight{#1}}{\small$\blacktriangleright$\hilight{#2}$\blacktriangleleft$}}
+   
+\newcommand\todo[1]{\mynote{TODO}{#1}} 
+\newcommand\TODO[1]{\mynote{TODO}{#1}} 
+\newcommand\undone[1]{\mynote{UNDONE}{#1}}
+\newcommand\UNDONE[1]{\mynote{UNDONE}{#1}}
+\newcommand\MV[1]{\mynote{MV}{#1}}
+\newcommand\MB[1]{\mynote{MB}{#1}}
+\newcommand\EV[1]{\mynote{EV}{#1}}
+\newcommand\LK[1]{\mynote{LK}{#1}}
+\newcommand\rephrase[1]{\mynote{REPHRASE}{#1}}
+\newcommand\remark[1]{\mynote{REMARK}{#1}}
+\newcommand{\refreq}[1]{
+    {\bfseries\sffamily\scriptsize\hilight{#1}}
+    {\small$\blacktriangleright$REF:\hilight{#1}$\blacktriangleleft$}}
+\newcommand{\fig}[1]{Fig.~\ref{#1}}
+\newcommand{\sect}[1]{Section~\ref{#1}}
+
+\newcommand{\remove}[1]{} 
+
+
+\providecommand{\event}{DSL 2011} % Name of the event you are submitting to
+\usepackage{breakurl}             % Not needed if you use pdflatex only.
+
+\title{DSLs in Software Engineering}
+
+\author{Markus Voelter, voelter@acm.org}
+
+\def\titlerunning{DSLs in Software Engineering}
+\def\authorrunning{Markus Voelter}
+\begin{document}
+\maketitle
+
+\input{body.ltx}
+
+%\nocite{*}
+\bibliographystyle{eptcs}
+\bibliography{book}
+\end{document}

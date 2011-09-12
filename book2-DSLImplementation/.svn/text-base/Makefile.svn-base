@@ -1,0 +1,14 @@
+all :
+	-pdflatex doc
+	-bibtex doc
+
+bib :
+	wget http://researchr.org/downloadbibtex/bibliography/dslsandple-dslsandple -O refs.bib
+	wget http://researchr.org/downloadbibtex/bibliography/c3paper-c3paper/compact -O refs2.bib
+	wget http://researchr.org/downloadbibtex/profile/eelcovisser/compact -O visser.bib
+
+escape : 
+	sed "s/\_/\\\_/" refs2.bib > refs3.bib
+
+from:
+	cat refs3.bib > fromresearchr_c3paper.bib

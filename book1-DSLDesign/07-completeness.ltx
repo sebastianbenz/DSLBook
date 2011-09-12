@@ -1,0 +1,141 @@
+\section{Completeness}
+\label{sect:completeness}
+ 
+Completeness refers to the degree to which a language $L$ implements complete
+programs. Let us introduce a function $G$ ("code generator") that transforms a
+program $p$ in ${L_D}$ to a program $q$ in $L_{D-1}$. For a complete language,
+$p$ and $q$ have the same semantics, i.e. $OB(p) == OB(G(p)) == OB(q) $. For
+incomplete languages where $OB(G(p)) \subset OB(p)$ we have to write additional
+code in $L_{D-1}$, to obtain a program in $D_{-1}$ that has the same semantics
+as intended by the original program in $L_D$.\marginnote{Another way of stating
+this is that $G$ produces a program in $L_{D-1}$ that is not sufficient for a
+subsequent transformation (e.g. a compiler), only the manually written $L_{D-1}$
+code leads the sufficiency.} In cases where we use several viewpoints to
+represent various concerns of $D$, the set of fragments written for these
+concerns must be enough for complete $D_{-1}$ generation. General purpose
+languages at $D_0$ are by definition complete.
+
+\embc{The Embedded C language is complete regarding $D_{-1}$, or even D-n for
+higher levels of D, since higher levels are always built as extensions of
+$D_{-1}$. Developers can always fall back to $D_{-1}$ to express what is not
+expressible in D.}
+
+\fountain{This DSL uses several viewpoints: one to define the structure of
+fountain installations, and one to describe the actual algorithm. When
+generating the C code for the algorithm, both viewpoints are needed, because
+the structure defines how some of the algorithms are implemented.}
+
+A complete DSL is capable of specifying the complete semantics of a program in
+domain D. Possibly, several viewpoints are used to allow different stakeholders
+to express their concerns undisturbed by other concerns. In fact, the manually
+written $D_{-1}$ code can be considered just another viewpoint, which is
+expressed in a GPL, and implemented by developers.
+
+For DSLs used by developers, incomplete DSLs are usually not a problem because
+they are comfortable with providing the $D_{-1}$ code expressed in a programming
+language. Specifically, the DSL users are the same people as those who provide
+the remaining $D_{-1}$ code, so coordination between the two not a problem. For
+DSLs used by domain experts, the situation is different. Usually, they are not
+able to write $D_{-1}$ code, so other people (developers) have to fill in the
+remaining concerns.\marginnote{This requires elaborate collaboration schemes,
+because the domain experts have to communicate the remaining concerns via prose
+text or verbal communication.}
+
+
+\subsection{Compensating for Incompleteness} 
+
+Integrating the $L_{D-1}$ in case of an incomplete $L_{D}$ language can be done
+by  calling "black box" code written in $L_{D-1}$ (requires concepts for calling
+$D_{-1}$ foreign functions in the $D$ language), by directly embedding $L_{D-1}$
+code in the $L_D$ program (especially useful if $L_D$ is an extension of
+$L_{D-1}$), by inserting manually-written $L_{D-1}$ code into the $L_{D-1}$ code
+generated from the $L_D$ program (using protected regions), or by using
+composition mechanisms of $L_{D-1}$ (e.g. inheritance) to "plug in" the manually
+written code into the generated code without actually modifying the generated
+files (also known as the Generation Gap pattern \cite{Vlissidis1996}).
+
+Compensating for incompleteness can be done is several ways. Manually written
+code can be directly embedded into the DSL program at the respective locations.
+This is useful if the tool provide adequate support for embedding the D-1
+language into D programs.Just "pasting text into a textfield" is not a
+productive approach, since no real integration between the languages is
+supported\marginnote{Many tools for graphical modeling provide small boxes in
+dialogs to enter "target code" without any support. In my opinion, this is not
+useful!}. If tool support is available, then this approach is useful only if the
+users of the DSL are also able to write the D-1 code. If this is not the case,
+one of the two alternative approaches is indicated. The first one is the use of
+the generation gap pattern \todo{cite} where the D-1 code is composed with the
+code generated from the DSL. Alternatively, developers can develop a predefined
+set of foreign functions that can be called from within the DSL. In effect,
+developers provide a library of "behavioural building blocks" which can be
+invoked as black boxes from DSL programs.
+
+
+\comparch{This DSL is not complete. Only class skeleton and infrastructure
+integration code is generated from the models. The component implementation has
+to be implemented manually in Java using the Generation Gap pattern.}
+
+Note that a DSL that does not \emph{cover} all of $D$ can still be
+\emph{complete}: the $L_{D-1}$ code generated from a $D$ program may require a
+framework written in $L_{D-1}$ to run in. That framework represents aspects of
+$D$ outside the scope of $L_D$.
+
+\fountain{The fountain DSL only supports reactive, state based systems that
+make up the core of the fountain algorithm. The drivers used in the lower
+layers of the system, or the control algorithms controlling the actual
+electrical pumps, cannot expressed with the DSL. However, these aspects are
+developed once and can be reused without adaptations, so using DSLs is not
+sensible. These parts are implemented manually in C.}
+
+
+\embc{Control loops and device drivers are outside the scope of the DSL, but are
+used by the generated code. These parts are manually written and made available
+to the generated code by well-defined APIs.}
+
+\exwebdsl{The core of a web application is concerned with persistent data and
+their presentation. However, web applications need to perform additional duties
+outside that core, for which often useful libraries exist. WebDSL provides a
+\emph{native interface} that allows a developer to call into a Java, library by
+declaring types and functions from the library in a WebDSL program.}
+
+\subsection{Roundtrip Transformation} 
+
+Roundtrip transformation means that an $L_D$ program can be recovered from a
+program in $L_{D-1}$ (written from scratch, or changed manually after generation
+from a previous iteration of the $L_D$ program). This is challenging, because it
+requires reconstituting the semantics of the $L_D$ program from idioms or
+patterns used in the $L_{D-1}$ code. This is the general reverse engineering
+problem and is not generally possible, although progress has been made over
+recent years (see for example \cite{BeyerHT08, PistoiaCFY07,
+AntkiewiczBC09}).\marginnote{Notice that the problem of "understanding" the
+semantics of a program written at a too-low abstraction level is the reason for
+DSLs in the first place: by providing linguistic abstractions for the relevant
+semantics, no "recovery" is necessary.} For complete languages roundtripping is
+generally not useful, because the complete program can be written on $L_D$ in
+the first place. Even if recovery of the semantics is possible it may not be
+practical: if the DSL provides significant abstraction over the $L_{D-1}$
+program, then the generated $L_{D-1}$ program is so complicated, that manually
+changing the $D_{-1}$ code in a consistent and correct way is tedious and
+error-prone.
+
+Roundtripping has traditionally been used with respect to UML models and
+generated class skeletons. In that case, the abstractions were similar
+(classes), it the tool basically just provides a different concrete syntax.
+\marginnote{We generally recommend to avoid (the attempt of building support
+for) roundtripping.}
+
+\embc{This language does not support roundtripping, but since all DSLs are
+extensions of C, one can always add C code to the programs, alleviating the
+need for roundtripping in the first place.}
+
+\fountain{Roundtripping is not required here, since the DSL is complete. The
+code generators are quite sophisticated, and nobody would want to manually
+change the generated C code. Since the DSL has proven to provide good
+coverage, the need to "tweak" the generated code has not come up.}
+
+\comparch{Roundtripping is not supported. Changes to the interfaces, operation
+signatures or components have to be performed in the models. This has not been
+reported as a problem by the users, since both the implementation code and the
+DSL "look and feel" the same way --- they are both Eclipse-based textual editors
+--- and generation of the derived low level code happens automatically on saving
+a changed model. The workflow is seamless.}
