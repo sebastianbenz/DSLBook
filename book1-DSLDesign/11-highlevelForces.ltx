@@ -1,22 +1,27 @@
-\chapter{High-Level Drivers}
+\chapter{High-Level Design Guidance}
+
+\section{The Language and its Users}
 
 \chapterabstract{In this section we discuss higher-level design forces that are
 not directly reated to one particular design dimension (those had been discussed
 in the previous chapter). However, these forces still influence DSL design.}
 
 
+\subsection{Model Purpose} 
 
-
-\paragraph{Model Purpose} The model purpose defines what the models should be
-used for. Typical purposes include code generation or interpretation,
-consistency checking, formal analysis, documentation, and communication among
-several stakeholders. The DSL will look different for each of these purposes.
+The model purpose defines what the models should be used for. Typical purposes
+include code generation or interpretation, consistency checking, formal
+analysis, documentation, and communication among several stakeholders. The DSL
+will look different for each of these purposes.
 
 \genex{If a DSL should be used for model checking and formal analysis, the DSL
 will probably restrict expressivity. All relevant abstractions will be
 linguistic abstractions, in-language abstraction will be very limited. }
 
-\paragraph{Target Audience} DSLs targetted to software developers will be quite
+
+\subsection{Target Audience} 
+
+DSLs targetted to software developers will be quite
 different from those targetetted to domain experts. In the former case,
 integration with existing tools (IDE, CVS, editors) is crucial. In the latter
 case, a syntax that closely resembles potentially existing domain notations is
@@ -24,41 +29,6 @@ crucial. The language may also be much more "keyword-heavy" compared to
 languages oriented to developers, who are used to working with a limited set of
 orthogonal concepts, using those to build higher level abstractions.
 
-\embc{This language is oriented towards developers. It is thus fundamentally C
-plus a number of extensions. The language is mostly textual.}
-
-\pension{This DSL is targetted to domain experts. A mix between textual,
-symbolic and graphical notations is used. The testing notations is a table,
-reminding users of Excel. Since before using the DSL no version control system
-was used, a repository-based approach was selected for collaboration.}
-
-\paragraph{Scoping and Domain Definition} Defining the domain, the scope for the
-DSL is important. A too narrow definition renders the DSL unusable for relevant
-problems. A too wide definition will make the DSL too generic, and hence less
-expressive. A domain can be defined bottom-up, by identifying patterns and
-idioms in existing $D_{-1}$ programs; in this case scoping is simple. If a
-domain is defined top-down, based on business requirements, scoping is much
-harder and may require significant analysis effort.
-
-\embc{The domains for the base language is C, so this is a trivial corner case.
-For the extensions, the scope is defined by identifying }
-
-\fountain{}
-
-
-\paragraph{Open Or Closed User Community} If the set of users are known and
-accessible for the DSL designers, it will be much easier to evolve the language
-over time because users can be reached, making them migrate to newer versions.
-Alternatively, the set of all models can be migrated to a newer version using a
-script provided by language developers. In case the set of users, and the DSL
-programs, are not easily accessible, much more effort must be put into keeping
-backward compatibility, the need for evolution should be reduced. This can be
-achieved also by using more abstract, composable language constructs as opposed
-to "a keyword for everything".
-
-
-
-\paragraph{Target Audience}
   Developers ->
     Text
     Integration into text infrastructures
@@ -70,7 +40,33 @@ to "a keyword for everything".
     realtimer collab
     coverage, completeness
     
-\paragraph{Extension by Users}
+
+
+\embc{This language is oriented towards developers. It is thus fundamentally C
+plus a number of extensions. The language is mostly textual.}
+
+\pension{This DSL is targetted to domain experts. A mix between textual,
+symbolic and graphical notations is used. The testing notations is a table,
+reminding users of Excel. Since before using the DSL no version control system
+was used, a repository-based approach was selected for collaboration.}
+
+
+\subsection{Open Or Closed User Community} 
+
+If the set of users are known and
+accessible for the DSL designers, it will be much easier to evolve the language
+over time because users can be reached, making them migrate to newer versions.
+Alternatively, the set of all models can be migrated to a newer version using a
+script provided by language developers. In case the set of users, and the DSL
+programs, are not easily accessible, much more effort must be put into keeping
+backward compatibility, the need for evolution should be reduced. This can be
+achieved also by using more abstract, composable language constructs as opposed
+to "a keyword for everything".
+
+
+
+\subsection{Extension by Users}
+
   more imp for developers
   not very important for DomEx, if coverage 100%
   via lib: good for developers, no "direct" tool support
@@ -78,20 +74,24 @@ to "a keyword for everything".
   with annotations, viewpoints
   Views, Metadata
   
-\paragraph{Integration with Ext Lang}
+\subsection{Integration with Ext Lang}
+       
        
 
-\paragraph{Metadata}
+\subsection{Metadata}
+
   stored in model -> projection
   stored in VCS -> integration with those!
   comments in text only or comments in model
 
-\paragraph{Infrastructure Integration}
+\subsection{Infrastructure Integration}
+
   imp for devs
   better for text (aot projection)
 
 
-\paragraph{Collaboration}
+\subsection{Collaboration}
+
   checkinout -> 
     partitioning
     imp for devs
@@ -102,25 +102,59 @@ to "a keyword for everything".
     repository
     gran may be element
 
-\paragraph{Language Size & complexity}
+\subsection{Language Size \& complexity}
 
 Stakeholders
 
-\paragraph{Model Size}
+\subsection{Model Size}
 
 Incremental, Impact Analysis
 
-\paragraph{Multiple Stakeholders}
+\subsection{Multiple Stakeholders}
   if so, viewpoints
   or after the fact views
 
 
-\paragraph{Ad Hoc vs. Long Lived}
+\subsection{Ad Hoc vs. Long Lived}
   
 
-\paragraph{Rate of Language Evolution}
+\subsection{Rate of Language Evolution}
   high
     -> 
+
+Another important aspect that is often forgotten when initiating a MD* project
+is the need for language evolution. If you change the language, make sure that
+you also have a way of adapting model processors as well as existing models.
+
+Doing this requires any or all of the following: a strict configuration
+management discipline, versioning information in the models to trigger
+compatible model processors, keeping track of the changes as a sequence of
+change operations, or model migration tools to transform models based on the old
+language into the new language.
+
+Whether model migration is a challenge or not depends quite a bit on the
+tooling. There are tools that make model evolution a very smooth, but many
+environments don’t. Consider this when deciding about the tooling you want to
+use! Note that in case of textual DSLs, model migration can be achieved via
+regular expressions and grep (at least as a fallback).
+
+It is always a good idea to minimize DSL changes that break existing models.
+Backward-compatibility and deprecation are techniques well worth keeping in mind
+in MD*-land. Note that you might be able to instrument your model processor to
+collect statistics on how deprecated language features continue to be used. Once
+no more instances show up in models, you can safely remove the deprecated
+language feature.
+
+Using a set of well-isolated viewpoint-specific DSLs prevents rippling effects
+on the overall model in case something changes in one DSL.
+
+
+
+
+
+
+
+
 
 Domain-specificness, DOmain Size
 
@@ -152,12 +186,10 @@ been) migrated via a script.}
 
 
 
-\chapter{Tooling Influences}
-
-\chapterabstract{abstract}
+\section{Tooling Influences}
 
 
-\section{Projection vs. Parsing}
+\subsection{Projection vs. Parsing}
 
 There are two main approaches for implementing external DSLs. The traditional
 approach is parser-based. A grammar specifies the sequence of tokens and words
@@ -201,7 +233,7 @@ Granulatity
 DB as cache
 
 
-\chapter{Process}
+\section{Development Process}
 
 \chapterabstract{Using DSLs effectively requires a compatible development
 process. Just like any other artifact which is supposed to be reused in one or
@@ -233,7 +265,7 @@ more projects, \ldots}
 % some of the core knowledge in actual notation on whiteboards or simple text
 % documents, though.
 
-\section{Requirements for the Language}
+\subsection{Requirements for the Language}
 
 How do you find out what your DSL should express? What are the relevant
 abstractions and notations? This is a non-trivial issue, in fact, it is one of
@@ -281,7 +313,7 @@ since the people who build the DSLs and supporting tools are often the same ones
 as the domain experts --- software architects and developers.
 
 
-\section{Iterative Development}
+\subsection{Iterative Development}
 
 Some people use DSLs as an excuse to do waterfall again. They spend months and
 months developing languages, tools, and frameworks. Needless to say, this is not
@@ -317,7 +349,7 @@ should become smaller, and the language size and complexity should approach a
 stable level (\emph{ss} in \fig{languageWaves}).
 
 
-\section{Co-evolve concepts and language}
+\subsection{Co-evolve concepts and language}
 
 In cases where you do a real domain analysis, i.e. when you have to find out
 which concepts the language shall contain, make sure you evolve the language in
@@ -335,7 +367,7 @@ language evolution during domain analysis workshops. Turnaround time should be
 minimal to avoid overhead.
 
 
-\section{Documentation is still necessary}
+\subsection{Documentation is still necessary}
 
 Building DSLs and model processors is not enough to make the approach
 successful. You have to communicate to the users how the DSL and the processors
@@ -353,7 +385,7 @@ you want to be successful, make sure the majority of your documentation is
 example-driven or task-based.
 
 
-\section{Reviews}
+\subsection{Reviews}
 
 A DSL limits the user's freedom in some respect: they can only express things
 that are within the limits of DSLs. Specifically, low-level implementation
@@ -377,7 +409,7 @@ designers: maybe what the users expect is actually correct, and the language
 needs to be adapted.
 
 
-\section{Let people do what they are good at}
+\subsection{Let people do what they are good at}
 
 DSLs offers a chance to let everybody do what they are good at. There are
 several clearly defined roles, or tasks, that need to be done. Let met point out
@@ -404,7 +436,7 @@ understand target platforms. Otherwise the MD* approach will not deliver on its
 promises.
 
 
-\section{Domain Users Programming?}
+\subsection{Domain Users Programming?}
 
 Domain users aren't programmers. But they are still able to formally and
 precisely describe domain knowledge. Can they actually do this alone?
@@ -432,7 +464,7 @@ suitable to the domain. If you encounter this problem, take it as a warning sign
 and take a close look at your language.
 
 
-\section{Domain Users vs. Domain Experts}
+\subsection{Domain Users vs. Domain Experts}
 
 When building business DSLs, people from the domain can play two different
 roles. They can participate in the domain analysis and the definition of the DSL
@@ -457,7 +489,7 @@ the actual target audience.
 Hence, make sure that when defining the language, you actually cross-check with
 real domain users whether they are able to work with the language.
 
-\section{DSL as a Product}
+\subsection{DSL as a Product}
 
 The language, constraints, interpreters and generators are usually developed by
 one (smaller) group of people and used by another (larger) group of people. To
@@ -474,7 +506,7 @@ of "meta", and make meta people participate in actual application development to
 make sure they understand if and how their metaware suits the people who do the
 real application development.
 
-\section{Compatible Organization}
+\subsection{Compatible Organization}
 
 Done right, MD* requires a lot of cross-project work. In many settings the same
 metaware will be used in several projects or contexts. While this is of course a
@@ -486,39 +518,5 @@ very hard to do effectively in such environments.
 Make sure that the organizational structure, and the way project cost is
 handled, is compatible with cross-cutting activities. You might want to take a
 look at the Open Source communities to get inspirations of how to do this.
-
-
-\section{Evolution}
-
-Another important aspect that is often forgotten when initiating a MD* project
-is the need for language evolution. If you change the language, make sure that
-you also have a way of adapting model processors as well as existing models.
-
-Doing this requires any or all of the following: a strict configuration
-management discipline, versioning information in the models to trigger
-compatible model processors, keeping track of the changes as a sequence of
-change operations, or model migration tools to transform models based on the old
-language into the new language.
-
-Whether model migration is a challenge or not depends quite a bit on the
-tooling. There are tools that make model evolution a very smooth, but many
-environments don’t. Consider this when deciding about the tooling you want to
-use! Note that in case of textual DSLs, model migration can be achieved via
-regular expressions and grep (at least as a fallback).
-
-It is always a good idea to minimize DSL changes that break existing models.
-Backward-compatibility and deprecation are techniques well worth keeping in mind
-in MD*-land. Note that you might be able to instrument your model processor to
-collect statistics on how deprecated language features continue to be used. Once
-no more instances show up in models, you can safely remove the deprecated
-language feature.
-
-Using a set of well-isolated viewpoint-specific DSLs prevents rippling effects
-on the overall model in case something changes in one DSL.
-
-
-
-
-
 
 
