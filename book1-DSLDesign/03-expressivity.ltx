@@ -208,6 +208,33 @@ that case, linguistic abstraction is better suited. \marginnote{Modular language
 extension, as discussed later, provides a middle ground between the two
 approaches,}
 
+\subsection{Configuration vs. Customization}
+
+Note the difference between configuration and customization. A customization DSL
+provides a vocabulary which you can creatively combine into sentences of
+potentially arbitrary complexity. A configuration DSL consists of a well-defined
+set of parameters for which users can specify values\marginnote{Think: feature
+models. We will elaborate on this in the section of product lines}.
+Configuration languages are more limited, since you cannot easily express
+instantiation and the relationship between things. However, they are also
+typically less complex. Hence, the more you can lean towards the configuration
+side, the easier it usually is to build model processors. It is also simpler
+from the user’s perspective, since the apparent complexity is limited.
+
+\subsection{Precision vs. Algorithm}
+
+Be aware of the difference between precision and algorithmic completeness. Many
+domain experts are able to formally and precisely specify facts about their
+domain (the "what" of a domain) while they are not able to define
+(Turing-complete) algorithms to implement the system (the "how"). It is your job
+as a developer to provide a formal language for domain users to express facts,
+and then to implement generators and interpreters to map those facts into
+executable algorithms that are true to the knowledge they expressed. The DSL
+expresses the "what", the model processor adds the "how". Consider creating an
+incomplete language (\sect{sect:completeness}), and have developers fill in the
+algorithmic details in GPL code.
+
+
 
 % \paragraph{Cost of DSL Implementation}
 % 

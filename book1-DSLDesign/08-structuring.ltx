@@ -58,6 +58,13 @@ to be physically nested within an instance of A. If there are many instances of
 B in a given model, they cannot be split into several files. If such a split
 should be possible, this has to be designed into the language.
 
+Other concerns in the design of a partitioning strategy include: which partition
+changes as a consequence of specific changes of the model (changing an element
+name might require changes to all by-name references to that element in other
+partitions), where are links stored (are they always stored in the model that
+logically "points to" another one)?, and if not, how/where/when to control
+reference/link storage.
+
 \comparch{A variant of this DSL that was used in another project had to be
 changed to allow a namespaces to be spread over several files for
 reasons of scalability and version-control granularity. In the initial version,
@@ -77,6 +84,15 @@ files, with useful names, in directory structures is a good alternative. The
 third driver for partitioning is integration with existing, file based tool
 chains. Files may be the unit of checkin/checkout, versioning, branching or
 permission checking.
+
+It often makes sense to ensure that each partition is processable separately.
+Alternatively, it is possible to explicitly specify the set of partitions that
+should be processed in a given processor run (or at least a search path, a set
+of directories, to find the partitions, like an include path in C compilers).
+You might even consider a separate build step to combine the results created
+from the separate processing steps of the various partitions (like a C compiler:
+it compiles every file separately into an object file, and then the linker
+handles overall symbol/reference resolution and binding).
 
 
 \subsection{Specification vs. Implementation} 

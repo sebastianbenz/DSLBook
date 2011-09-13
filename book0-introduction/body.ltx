@@ -16,8 +16,8 @@ define a couple of important terms that will be used throughout the book.}
 \section{From General Purpose Languages to DSLs}
 
 \newthought{General Purpose Programming Languages} (GPLs) are means for
-programmers to instruct computers. All of them are Turing complete, which means
-that they can be used to implement anything that is computable with a Turing
+programmers to instruct computers. All of them are Turing complete,
+which means that they can be used to implement anything that is computable with a Turing
 machine. It also means that anything expressible with one Turing complete
 programming language can also be expressed with any other turing complete
 programming language. In that sense, all programming languages are exchangeable.
@@ -828,54 +828,7 @@ this use of models and (informal) languages as outside the scope of our book.
 
 
 
-\section{Terminology}
 
-I will introduce the detailed terminology around DSLs as we explain the concept
-in the book. However, there are a couple of important ones I want to define
-right away.
-
-I use the terms model, program and code interchangeably because I think that any
-distinction is more or less artificial --- see my discussion in the previous
-section. Code can be written in what is typically considered a programming
-language, or in a DSL. Sometimes DSL code and program code are mixed, so
-separating the two makes no sense.
-
-As I elaborate on later, languages consist of a structure definition (called
-abstract syntax or meta model), one or more definitions of the notation (also
-called concrete syntaxes) and semantics. In semantics we distinguish between the
-static semantics (constraints, type system) and the operational semantics (what
-something means as it is executed). If we use the term semantics without any
-qualification, we refer to the execution semantics, not the static semantics.
-
-Sometimes it is useful to distinguish between what we call technical DSLs and
-application domain DSLs (sometimes also called business DSLs, vertical DSLs, or
-"fachliche DSLs" in German). The distinction is not always clear and not
-always necessary. But generally we consider technical DSLs to be used by
-programmers and application domain DSLs to be used by non-programmers (i.e.
-domain experts).
-
-We distinguish between the execution engine and the target platform. The target
-platform is what your DSL program has to run on in the end and is assumed to be
-something we cannot change as part of the DSL development process. The execution
-engine can be changed, and bridges the gap between the DSL and the platform. So,
-when interpreting DSL models, the execution engine is the interpreter and is a
-program that runs natively on the target platform. In case of a generative
-approach, the execution engine is the code generator which produces code that
-can natively run on the target platform. \marginnote[-3cm]{This process can be
-multi-stage. You can generate code that is then interpreted. Or you can generate
-code which is further transformed into something else, and so on. In this case
-each stage can be seen as a DSL-execution engine pair, cascading several of
-these combinations on top of each other.}
-
-The field discussed in this book has many names. These include
-Model-Driven Development, Domain-Specific Modeling, Generative Software
-Development, Language-Oriented Programming, Model-Integrated Computing,
-Model-Based Engineering, and, if you want to stretch it a bit, Model-Driven
-Architecture and End-User Programming. Now, we don't claim that all of these are
-the same and we are very aware of the differences. However, they all have a
-common core which is designing languages for a specialized/limited domain
-including their execution environments and IDEs. With this book, we aim to cover
-this core.
 
 
 
@@ -1182,6 +1135,59 @@ This book focusses mostly on textual languages; we discuss other forms of
 notations only peripherally.
 
 \todo{Point at good books to read on this topic (DSM Book)}
+
+\section{Terminology}
+
+I will introduce the detailed terminology around DSLs as we explain the concept
+in the book. However, there are a couple of important ones I want to define
+right away.
+
+I use the terms model, program and code interchangeably because I think that any
+distinction is more or less artificial --- see my discussion in the previous
+section. Code can be written in what is typically considered a programming
+language, or in a DSL. Sometimes DSL code and program code are mixed, so
+separating the two makes no sense.
+
+As I elaborate on later, languages consist of a structure definition (called
+abstract syntax or meta model), one or more definitions of the notation (also
+called concrete syntaxes) and semantics. In semantics we distinguish between the
+static semantics (constraints, type system) and the operational semantics (what
+something means as it is executed). If we use the term semantics without any
+qualification, we refer to the execution semantics, not the static semantics.
+
+Sometimes it is useful to distinguish between what we call technical DSLs and
+application domain DSLs (sometimes also called business DSLs, vertical DSLs, or
+"fachliche DSLs" in German). The distinction is not always clear and not
+always necessary. But generally we consider technical DSLs to be used by
+programmers and application domain DSLs to be used by non-programmers (i.e.
+domain experts).
+
+We distinguish between the execution engine and the target platform. The target
+platform is what your DSL program has to run on in the end and is assumed to be
+something we cannot change as part of the DSL development process. The execution
+engine can be changed, and bridges the gap between the DSL and the platform. So,
+when interpreting DSL models, the execution engine is the interpreter and is a
+program that runs natively on the target platform. In case of a generative
+approach, the execution engine is the code generator which produces code that
+can natively run on the target platform. \marginnote[-3cm]{This process can be
+multi-stage. You can generate code that is then interpreted. Or you can generate
+code which is further transformed into something else, and so on. In this case
+each stage can be seen as a DSL-execution engine pair, cascading several of
+these combinations on top of each other.}
+
+We use the term \emph{processor} to refer to the program that processes models
+expressed with a DSL. It may be a code generator, a model transformation, an
+interpreter, or even a sophisticated analysis tool.
+
+The field discussed in this book has many names. These include
+Model-Driven Development, Domain-Specific Modeling, Generative Software
+Development, Language-Oriented Programming, Model-Integrated Computing,
+Model-Based Engineering, and, if you want to stretch it a bit, Model-Driven
+Architecture and End-User Programming. Now, we don't claim that all of these are
+the same and we are very aware of the differences. However, they all have a
+common core which is designing languages for a specialized/limited domain
+including their execution environments and IDEs. With this book, we aim to cover
+this core.
 
 
 \section{How to read this Book}

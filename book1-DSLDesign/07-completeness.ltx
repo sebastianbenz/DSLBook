@@ -53,6 +53,13 @@ generated from the $L_D$ program (using protected regions), or by using
 composition mechanisms of $L_{D-1}$ (e.g. inheritance) to "plug in" the manually
 written code into the generated code without actually modifying the generated
 files (also known as the Generation Gap pattern \cite{Vlissidis1996}).
+\marginnote{We strongly discourage the use of protected regions. You’ll run into
+all kinds of problems: generated code is not a throw-away product anymore, you
+have to check it in, and you’ll run into all kinds of funny situations with your
+CM system. Also, often you will accumulate a "sediment" of code that has been
+generated from model elements that are no longer in the model (if you don’t use
+protected regions, you can delete the whole generated source directory from time
+to time, cleaning up the sediment).}
 
 Compensating for incompleteness can be done is several ways. Manually written
 code can be directly embedded into the DSL program at the respective locations.
@@ -62,13 +69,24 @@ productive approach, since no real integration between the languages is
 supported\marginnote{Many tools for graphical modeling provide small boxes in
 dialogs to enter "target code" without any support. In my opinion, this is not
 useful!}. If tool support is available, then this approach is useful only if the
-users of the DSL are also able to write the D-1 code. If this is not the case,
-one of the two alternative approaches is indicated. The first one is the use of
-the generation gap pattern \todo{cite} where the D-1 code is composed with the
-code generated from the DSL. Alternatively, developers can develop a predefined
-set of foreign functions that can be called from within the DSL. In effect,
-developers provide a library of "behavioural building blocks" which can be
-invoked as black boxes from DSL programs.
+users of the DSL are also able to write the D-1 code. 
+
+If this is not the case, one of the two alternative approaches is indicated. The
+first one is the use of the generation gap pattern \todo{cite} where the D-1
+code is composed with the code generated from the DSL. You can e.g. generate a
+base class with abstract methods (requiring the user to implement them in a
+manually written subclass) or with empty callback methods which the user can use
+to customize in a subclass (for example, in user interfaces, you can return a
+position object for a widget, the default method returns null, default to the
+generic layout algorithm). You can delegate, implement interfaces, use #include,
+use reflection tricks, AOP or take a look at the well-known design patterns for
+inspiration. Some languages provide partial classes, where a class definition
+can be split over a generated file and a manually written file.
+
+Alternatively, developers can develop a predefined set of foreign functions that
+can be called from within the DSL. In effect, developers provide a library of
+"behavioural building blocks" which can be invoked as black boxes from DSL
+programs.
 
 
 \comparch{This DSL is not complete. Only class skeleton and infrastructure

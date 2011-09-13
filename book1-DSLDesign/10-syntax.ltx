@@ -1,11 +1,17 @@
 \section{Concrete Syntax}
 
 A good choice of concrete syntax is important for DSLs to be accepted by the
-intended users, particularly if the users are not programmers. There are a
-couple of major classes for DSL concrete syntax\footnote{Sometimes form-based
-GUIs or trees views are considered DSLs. We disagree, because this would make
-any GUI application a DSL.}: \emph{Textual} DSLs use traditional ASCII or
-Unicode text. They basically look and feel like traditional programming
+intended users, particularly if the users are not programmers. Especially (but
+not exclusively) in business domains, a DSL will only be successful if and when
+it uses notations that directly fit the domain --- there might even be existing
+notations you can reuse. A good notation makes expression of common
+concerns simple and concise and provides sensible defaults. It is ok for less
+common concerns to require a bit more verbosity in the notation.
+
+There are a couple of major classes for DSL concrete syntax\footnote{Sometimes
+form-based GUIs or trees views are considered DSLs. We disagree, because this
+would make any GUI application a DSL.}: \emph{Textual} DSLs use traditional
+ASCII or Unicode text. They basically look and feel like traditional programming
 languages. \emph{Symbolic} DSLs are textual DSLs with an extended set of
 symbols, such as fraction bars, mathematical symbols or subscript and
 superscript.\marginnote{The Fortress programming language \cite{Steele05} is
@@ -22,19 +28,36 @@ same model in different notations. As a consequence of tool limitations, this is
 not always possible, however. The requirements for concrete syntax are a major
 driver in tool selection.}
 
-\paragraph{When to use which form} We do not want to make this section a complete
-discussion between graphical and textual DSLs --- a discussion, that is often
-heavily biased by previous experience, prejudice and tool capabilities. Here are
-some rules of thumb. Purely textual DSLs integrate very well with existing
-development infrastructures, making their adoption relatively easy. They are
-very well suited for detailed descriptions, anything that is algorithmic or
-generally resembles (traditional) program source code. Symbolic notations can be
-considered "better textual", and lend themselves to domains that make heavy use
-of symbols and special notations. Graphical notations are very good for
-describing coarse-grained structures and for showing relationships between
-entities. Finally, tables are very useful for collections of similarly
-structured data items, or for expressing how two independent dimensions of data
-relate.
+\begin{marginfigure}
+  \includegraphics[width=3cm]{figures/graphicalRel.png}
+  \caption{Graphical Notation for Relationships}
+  \label{graphicalRel}
+\end{marginfigure}
+
+\begin{marginfigure}
+  \includegraphics[width=4cm]{figures/graphicalFlow.png}
+  \caption{Graphical Notation for Flow}
+  \label{graphicalFlow}
+\end{marginfigure}
+
+\begin{marginfigure} 
+  \includegraphics[width=5cm]{figures/graphicalCause.png}
+  \caption{Graphical Notation for Causality and Timing}
+  \label{graphicalCause}
+\end{marginfigure}
+
+\paragraph{When to use which form} We do not want to make this section a
+complete discussion between graphical and textual DSLs --- a discussion, that is
+often heavily biased by previous experience, prejudice and tool capabilities.
+Here are some rules of thumb. Purely textual DSLs integrate very well with
+existing development infrastructures, making their adoption relatively easy.
+They are very well suited for detailed descriptions, anything that is
+algorithmic or generally resembles (traditional) program source code. Symbolic
+notations can be considered "better textual", and lend themselves to domains
+that make heavy use of symbols and special notations. Graphical notations are
+very good for describing relationships, flow or timing and causal relationships.
+Finally, tables are very useful for collections of similarly structured data
+items, or for expressing how two independent dimensions of data relate.
 
 \pension{The pension DSL uses mathematical symbols and notations to express
 insurance mathematics. A table notation is embedded to express unit tests for
@@ -105,4 +128,12 @@ with expressions for preconditions; block diagrams use a textual syntax for the
 implementation/parametrization of the blocks. A text box without language
 support should only be used as a last resort. We suggest using a textual
 notation, with additional graphical visualizations.
+
+Also note that initially, domain users prefer a graphical notation, because
+things that are described graphically are easier to comprehend than textual
+descriptions, right? Not really. What is most important regarding
+comprehensibility is the alignment of the concepts that need to be conveyed with
+the abstractions in the language. A well-designed textual notation can go a long
+way. Also, textual languages are more productive once the learning curve has
+been passed.
 

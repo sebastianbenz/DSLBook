@@ -78,14 +78,47 @@ reason why we usually generate GPL source code from DSLs, and not machine code:
 we want to reuse existing transformations and optimizations provided by the GPL
 compiler and/or runtime.
 
-Splitting a transformation into several
-subsequent steps is useful to be able to reuse some of these steps. Frontends
-and backends can be reused, for example supporting different target platforms.
-This is especially useful if the reusable transformations include non-trivial
-optimizations, or are just big (i.e. generate many different artifacts,
-fan-out). Splitting a transformation into a chain of smaller ones also makes
-each of them easier to understand and maintain.
+Splitting a transformation into several subsequent steps is useful to be able to
+reuse some of these steps. Frontends and backends can be reused, for example
+supporting different target platforms. This is especially useful if the reusable
+transformations include non-trivial optimizations, or are just big (i.e.
+generate many different artifacts, fan-out). Splitting a transformation into a
+chain of smaller ones also makes each of them easier to understand and maintain.
 
+\paragraph{Care about generated code}
+
+Ideally generated code is a throw-away artifact, a bit like object files in a C
+compiler. Well, not quite! When integrating with generated code, you will have
+to read the generated code, understand it (to some extent), and you will also
+have to debug it at some point. Hence, make sure generated code is documented,
+uses good names for identifiers, and is indented correctly. All of this is
+relatively easy to achieve, as you have all the information you need when
+writing the code generator! Making generated code adhere to the same standards
+as manually written code also helps to diffuse some of the skepticism against
+code generation that is still widespread in some organizations. Note that in
+very mature environments where you generate 100\% of the implementation code,
+the generated code is never seen by a meta ware user. In this case (and only in
+this case) the statements made here don't apply.
+
+
+\paragraph{Platform} Code generation is a powerful tool, and a necessary
+ingredient to the success of model-driven development and external DSLs.
+However, make sure you don't generate unnecessary code.
+
+It is always a good idea to work with a manually implemented, rich domain
+specific platform. It typically consists of middleware, frameworks, drivers,
+libraries and utilities that are taken advantage of by the generated code.
+
+In the extreme case, the generator just generates code to populate/configure the
+frameworks (which might already exist, or which you have to grow together with
+the generator) or provides statically typed facades around otherwise dynamic
+data structures. Don't go too far towards this end, however: in cases where you
+need to consider resource or timing constraints, or when the target platform is
+predetermined and perhaps limited, code generation does open up a new set of
+options and it is often a very good option (after all, it's basically the same
+as compilation, and that's a proven and important technique).
+
+	
 
 \subsection{Interpretation} 
 
