@@ -64,6 +64,39 @@ insurance mathematics. A table notation is embedded to express unit tests for
 the pension plan calculation rules. A graphical projection shows dependencies
 and specialization relationships between plans.}
 
+Selection of concrete syntax is simple for domain user DSLs if there is an
+established notation in the domain already. The challenge then is to replicate
+it as closely as possible with the DSL, while cleaning up possible
+inconsistencies in the notation (since it had not been used formally before). I
+like to use the term "strongly typed word".\sidenote{In some cases it is useful
+to come up with a better notation than the one used historically. This is especially
+true if the historic notation is Excel :-)} 
+
+For DSLs targeted at developers, a textual notation is usually a good starting
+point, since developers are used working with text, and very productive. Tree
+views, and specific visualizations are often useful, but for editing, a textual
+notation is a good starting point. It also integrates well with existing
+development infrastructures.
+
+There are very few DSLs where a purely graphical notation makes sense. In most
+cases, textual languages are embedded in the diagrams: state machines have
+expressions embedded the guards and statements in the actions; component
+diagrams use text for specifications of operations in interfaces, maybe even
+with expressions for preconditions; block diagrams use a textual syntax for the
+implementation/parametrization of the blocks. A text box without language
+support should only be used as a last resort. We suggest using a textual
+notation, with additional graphical visualizations.
+
+Also note that initially, domain users prefer a graphical notation, because
+things that are described graphically are easier to comprehend than textual
+descriptions, right? Not really. What is most important regarding
+comprehensibility is the alignment of the concepts that need to be conveyed with
+the abstractions in the language. A well-designed textual notation can go a long
+way. Also, textual languages are more productive once the learning curve has
+been passed.
+
+
+
 \paragraph{Multiple Notations} For projectional editors it is possible
 to define several notations for the same abstract syntax. By changing the
 projection rules, existing programs can be shown in a different way. This
@@ -105,35 +138,3 @@ notation later this year. The C expression language that is used in guard
 conditions for transitions will be usable as labels on the transition arrows. In
 the table notation for state machines, C expressions can be embedded in the
 cells as well.}
-
-Selection of concrete syntax is simple for domain user DSLs if there is an
-established notation in the domain already. The challenge then is to replicate
-it as closely as possible with the DSL, while cleaning up possible
-inconsistencies in the notation (since it had not been used formally before). I
-like to use the term "strongly typed word".\sidenote{In some cases it is useful
-to come up with a better notation than the one used historically. This is especially
-true if the historic notation is Excel :-)} 
-
-For DSLs targeted at developers, a textual notation is usually a good starting
-point, since developers are used working with text, and very productive. Tree
-views, and specific visualizations are often useful, but for editing, a textual
-notation is a good starting point. It also integrates well with existing
-development infrastructures.
-
-There are very few DSLs where a purely graphical notation makes sense. In most
-cases, textual languages are embedded in the diagrams: state machines have
-expressions embedded the guards and statements in the actions; component
-diagrams use text for specifications of operations in interfaces, maybe even
-with expressions for preconditions; block diagrams use a textual syntax for the
-implementation/parametrization of the blocks. A text box without language
-support should only be used as a last resort. We suggest using a textual
-notation, with additional graphical visualizations.
-
-Also note that initially, domain users prefer a graphical notation, because
-things that are described graphically are easier to comprehend than textual
-descriptions, right? Not really. What is most important regarding
-comprehensibility is the alignment of the concepts that need to be conveyed with
-the abstractions in the language. A well-designed textual notation can go a long
-way. Also, textual languages are more productive once the learning curve has
-been passed.
-

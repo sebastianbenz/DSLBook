@@ -25,11 +25,44 @@ fountain installations, and one to describe the actual algorithm. When
 generating the C code for the algorithm, both viewpoints are needed, because
 the structure defines how some of the algorithms are implemented.}
 
-A complete DSL is capable of specifying the complete semantics of a program in
-domain D. Possibly, several viewpoints are used to allow different stakeholders
-to express their concerns undisturbed by other concerns. In fact, the manually
-written $D_{-1}$ code can be considered just another viewpoint, which is
-expressed in a GPL, and implemented by developers.
+\subsection{Compensating for Incompleteness} 
+
+Integrating the $L_{D-1}$ in case of an incomplete $L_{D}$ language can be done
+in several ways:
+
+\begin{itemize}
+  \item by  calling "black box" code written in $L_{D-1}$ (requires
+concepts for calling $D_{-1}$ foreign functions in the $D$ language)
+  \item by directly embedding $L_{D-1}$
+code in the $L_D$ program (useful if $L_D$ is an extension
+of $L_{D-1}$, or if the tool provide adequate support for embedding the D-1
+language into D programs.\marginnote{Just "pasting text into a textfield" is not a
+productive approach, since no real integration between the languages is
+supported. Many tools for graphical modeling provide small boxes in
+dialogs to enter "target code" without any support. In my opinion, this is not
+useful!})
+  \item by inserting manually-written $L_{D-1}$ code into the $L_{D-1}$ code
+generated from the $L_D$ program (using protected regions)\marginnote{We
+strongly discourage the use of protected regions. You’ll run into all kinds of
+problems: generated code is not a throw-away product anymore, you have to check
+it in, and you’ll run into all kinds of funny situations with your CM system.
+Also, often you will accumulate a "sediment" of code that has been generated
+from model elements that are no longer in the model (if you don’t use protected
+regions, you can delete the whole generated source directory from time to time,
+cleaning up the sediment).}
+  \item or by using composition mechanisms of $L_{D-1}$ (e.g. inheritance) to "plug in" the manually
+written code into the generated code without actually modifying the generated
+files (also known as the Generation Gap pattern \cite{Vlissidis1996}). Example
+techniques for realizing this approach include generating a
+base class with abstract methods (requiring the user to implement them in a
+manually written subclass) or with empty callback methods which the user can use
+to customize in a subclass (for example, in user interfaces, you can return a
+position object for a widget, the default method returns null, default to the
+generic layout algorithm). You can delegate, implement interfaces, use #include,
+use reflection tricks, AOP or take a look at the well-known design patterns for
+inspiration. Some languages provide partial classes, where a class definition
+can be split over a generated file and a manually written file.
+\end{itemize}
 
 For DSLs used by developers, incomplete DSLs are usually not a problem because
 they are comfortable with providing the $D_{-1}$ code expressed in a programming
@@ -39,55 +72,10 @@ DSLs used by domain experts, the situation is different. Usually, they are not
 able to write $D_{-1}$ code, so other people (developers) have to fill in the
 remaining concerns.\marginnote{This requires elaborate collaboration schemes,
 because the domain experts have to communicate the remaining concerns via prose
-text or verbal communication.}
-
-
-\subsection{Compensating for Incompleteness} 
-
-Integrating the $L_{D-1}$ in case of an incomplete $L_{D}$ language can be done
-by  calling "black box" code written in $L_{D-1}$ (requires concepts for calling
-$D_{-1}$ foreign functions in the $D$ language), by directly embedding $L_{D-1}$
-code in the $L_D$ program (especially useful if $L_D$ is an extension of
-$L_{D-1}$), by inserting manually-written $L_{D-1}$ code into the $L_{D-1}$ code
-generated from the $L_D$ program (using protected regions), or by using
-composition mechanisms of $L_{D-1}$ (e.g. inheritance) to "plug in" the manually
-written code into the generated code without actually modifying the generated
-files (also known as the Generation Gap pattern \cite{Vlissidis1996}).
-\marginnote{We strongly discourage the use of protected regions. You’ll run into
-all kinds of problems: generated code is not a throw-away product anymore, you
-have to check it in, and you’ll run into all kinds of funny situations with your
-CM system. Also, often you will accumulate a "sediment" of code that has been
-generated from model elements that are no longer in the model (if you don’t use
-protected regions, you can delete the whole generated source directory from time
-to time, cleaning up the sediment).}
-
-Compensating for incompleteness can be done is several ways. Manually written
-code can be directly embedded into the DSL program at the respective locations.
-This is useful if the tool provide adequate support for embedding the D-1
-language into D programs.Just "pasting text into a textfield" is not a
-productive approach, since no real integration between the languages is
-supported\marginnote{Many tools for graphical modeling provide small boxes in
-dialogs to enter "target code" without any support. In my opinion, this is not
-useful!}. If tool support is available, then this approach is useful only if the
-users of the DSL are also able to write the D-1 code. 
-
-If this is not the case, one of the two alternative approaches is indicated. The
-first one is the use of the generation gap pattern \todo{cite} where the D-1
-code is composed with the code generated from the DSL. You can e.g. generate a
-base class with abstract methods (requiring the user to implement them in a
-manually written subclass) or with empty callback methods which the user can use
-to customize in a subclass (for example, in user interfaces, you can return a
-position object for a widget, the default method returns null, default to the
-generic layout algorithm). You can delegate, implement interfaces, use #include,
-use reflection tricks, AOP or take a look at the well-known design patterns for
-inspiration. Some languages provide partial classes, where a class definition
-can be split over a generated file and a manually written file.
-
-Alternatively, developers can develop a predefined set of foreign functions that
-can be called from within the DSL. In effect, developers provide a library of
-"behavioural building blocks" which can be invoked as black boxes from DSL
-programs.
-
+text or verbal communication.} Alternatively, developers can develop a
+predefined set of foreign functions that can be called from within the DSL. In
+effect, developers provide a library of "behavioural building blocks" which can
+be invoked as black boxes from DSL programs.
 
 \comparch{This DSL is not complete. Only class skeleton and infrastructure
 integration code is generated from the models. The component implementation has

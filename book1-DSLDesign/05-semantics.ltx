@@ -1,10 +1,6 @@
 \section{Semantics and Execution}
 \label{semantics}
 
-% \EV{I would say that static semantics is part of the language; $p_L$ is not
-% in $L$ if it is not statically correct. Thus, $L$ is determined by grammar +
-% type system.}
-   
 Semantics can be partitioned into static semantics and execution semantics.
 Static semantics represent the constraints and type system rules. Execution
 semantics denote the observable behaviour of a program $p$ as it is executed. In
@@ -18,29 +14,23 @@ $$semantics( p_{L_D} ) := q_{L_{D-1}}\;\;\;where\;OB(p_{L_D}) ==
 OB(q_{L_{D-1}})$$
 
 \noindent Equality of the two observable behaviors can be established with a
-sufficient number of tests, or with model checking and proof in rare cases.
-Details are beyond the scope of this paper. This definition reflects the
-hierarchy of domains and works both for languages that describe only structure,
-as well as for those that include behavioural definitions. The technical
-implementation of the mapping to $D_{-1}$ can be provided in two different ways:
-a DSL program can literally be transformed into a program, or a $L_{D-1}$ an
-interpreter can be written in $L_{D-1}$ or $L_{D_0}$ to execute the program. A
-complete discussion of the relative merits between transformation and
-interpretation is beyond the scope of this paper.
+sufficient number of tests, or with model checking and proof in rare cases. This
+definition of semantics reflects the hierarchy of domains and works both for
+languages that describe only structure, as well as for those that include behavioural
+definitions. The technical implementation of the mapping to $D_{-1}$ can be
+provided in two different ways: a DSL program can literally be transformed into
+a program, or a $L_{D-1}$ an interpreter can be written in $L_{D-1}$ or
+$L_{D_0}$ to execute the program. 
 
-\comparch{The component architecture DSL only described interfaces, components
-and systems. This is all structure-only. Many constraints about structural
-integrity are provided, and a mapping to OSGi is implemented. The formal
-definition of the semantics are implied by the mapping to OSGi}
+
 
 \subsection{Transformation} 
 
-The transformation case is easy to see: a
-transformation recreates those patterns and idioms in $L_{D-1}$ for which
-$L_D$ provides linguistic abstraction. The result may be transformed further,
-until a level is reached for which a  language with an execution infrastructure
-exists --- often $D_0$. Code generation from a DSL is thus a special case where
-$L_{D_0}$ code is generated.
+The transformation case is easy to see: a transformation recreates those
+patterns and idioms in $L_{D-1}$ for which $L_D$ provides linguistic
+abstraction. The result may be transformed further, until a level is reached for
+which a  language with an execution infrastructure exists --- often $D_0$. Code
+generation from a DSL is thus a special case where $L_{D_0}$ code is generated.
 
 \embc{The semantics of state machines are defined by their mapping back to C
 switch-case statements. This is repeated for higher D languages.
@@ -48,13 +38,50 @@ The semantics of the robot control DSL is defined by its mapping to state
 machines and tasks. To explain the semantics to the users, prose documentation is 
 available as well.}
 
-For languages where the semantic gap between the DSL and the target language is
-significant, it makes sense to introduce intermediate languages so the
-transformation can be modularized. Optimizations can be performed on each of
-these levels, exploiting the properties of that particular abstraction level.
-Modern compilers with multiple intermediate representations are a good example
-for this approach. MPS comes with a transformation engine that makes such
-transformation chains easy to implement. 
+\comparch{The component architecture DSL only described interfaces, components
+and systems. This is all structure-only. Many constraints about structural
+integrity are provided, and a mapping to OSGi is implemented. The formal
+definition of the semantics are implied by the mapping to OSGi}
+
+
+Formally, defining semantics happens by mapping the DSL concepts to $D_{-1}$
+concepts for which the semantics is known. For DSLs used by developers, and for
+domains that are defined bottom-up, this works well. For domain expert DSLs, and
+for domains define top-down this approach is not necessarily good enough, since
+the $D_{-1}$ concepts has no inherent meaning to the users and/or the domain. An
+additional way of defining the meaning of the DSL is required. Useful approaches
+include prose documentation as well as test cases or simulators. These can be
+written in (another part of the) DSL itself; this way, domain users can play
+with the DSL and write down their expectations in the testing aspect.
+
+\fountain{This DSL has a separate viewpoint for defining test cases where
+domain experts can codify their expectations regarding the behaviour of cooling
+programs. An interpreter is available to simulate the programs, observe their
+progress and stimulate them to see how they react.}
+
+\pension{This DSL supports an Excel-like tabular notation for expressing test
+cases for pension calculation rules. The calculations are functional, and the
+calculation tree can be extended as a way of debugging the rules.}
+
+\paragraph{Multi-staged Transformation} For languages where the semantic gap
+between the DSL and the target language is significant, it makes sense to
+introduce intermediate languages so the transformation can be modularized.
+Optimizations can be performed on each level, exploiting the properties of that
+particular abstraction level. Modern compilers with multiple intermediate
+representations are a good example for this approach.\marginnote{ MPS comes with
+a transformation engine that makes such transformation chains easy to
+implement.} Reusing lower $D$ languages and their subsequent transformations
+includes reuse of non-trivial analyses or optimizations. This makes this case
+much more useful than what the pure reuse of languages and transformations
+suggests. \marginnote{ This is the reason why we usually generate GPL source
+code from DSLs, and not machine code: we want to reuse existing transformations
+and optimizations provided by the GPL compiler and/or runtime.} Splitting a
+transformation into a chain of smaller ones also makes each of them easier to
+understand and maintain.
+
+\embc{The extensions to C are all transformed back to C idioms during
+transformation. Higher-level DSLs, for example, a simple DSL for robot control,
+are reduced to C plus some extensions such as state machines and tasks.}
 
 We can learn something else from compilers: they can be retargetted relatively
 easily by exchanging the backends (machine code generation phases) or the
@@ -71,43 +98,63 @@ these different languages to the same intermediate language.
 various translation options, for several different target platforms (Win32 and
 Osek), an example of backend reuse.}
 
-Reusing lower $D$ languages and their subsequent transformations includes reuse
-of non-trivial analyses or optimizations. This makes this case much more useful
-than what the pure reuse of languages and transformations suggests. This is the
-reason why we usually generate GPL source code from DSLs, and not machine code:
-we want to reuse existing transformations and optimizations provided by the GPL
-compiler and/or runtime.
+A special case of a multi-staged transformation is as a preprocessor to a code
+generator. Here, a transformation is used to reduce the set of used language
+concepts in a fragment to a minimal core, and only the minimal core is supported
+in the code generator. 
 
-Splitting a transformation into several subsequent steps is useful to be able to
-reuse some of these steps. Frontends and backends can be reused, for example
-supporting different target platforms. This is especially useful if the reusable
-transformations include non-trivial optimizations, or are just big (i.e.
-generate many different artifacts, fan-out). Splitting a transformation into a
-chain of smaller ones also makes each of them easier to understand and maintain.
+\embc{Consider the case of a state machine where you want ´to be able to add an
+“emergency stop” feature, i.e. a new transition from each existing state to a
+new STOP state. Don’t handle this in the generator templates. Rather, write a
+model transformation script that preprocesses the state machine model and adds
+all the new transitions and the new STOP state. Once done, you can run the
+existing generator unchanged. You have effectively modularized the emergency
+stop concern into the transformation.}
 
-\paragraph{Care about generated code}
-
-Ideally generated code is a throw-away artifact, a bit like object files in a C
-compiler. Well, not quite! When integrating with generated code, you will have
-to read the generated code, understand it (to some extent), and you will also
-have to debug it at some point. Hence, make sure generated code is documented,
-uses good names for identifiers, and is indented correctly. All of this is
-relatively easy to achieve, as you have all the information you need when
-writing the code generator! Making generated code adhere to the same standards
-as manually written code also helps to diffuse some of the skepticism against
-code generation that is still widespread in some organizations. Note that in
-very mature environments where you generate 100\% of the implementation code,
-the generated code is never seen by a meta ware user. In this case (and only in
-this case) the statements made here don't apply.
+\comparch{The DSL describes hierarchical component architectures (where
+components are assembled from interconnected instances of other components).
+Most component runtime platforms don’t support such hierarchical components, so
+you need to “flatten” the structure for execution. Instead of trying to do this
+in the code generator, you should consider an M2M step to do it, and then write
+a simpler generator that works with a flattened, non-hierarchical model.}
 
 
-\paragraph{Platform} Code generation is a powerful tool, and a necessary
-ingredient to the success of model-driven development and external DSLs.
-However, make sure you don't generate unnecessary code.
+\paragraph{Care about generated code} Ideally, generated code is a throw-away
+artifact, a bit like object files in a C compiler. However, that's not quite
+true. When integrating with generated code, you will have to read the generated
+code, understand it (to some extent), and you will also have to debug it at some
+point. Hence, generated code should be documented, use good names for
+identifiers, and be indented correctly. All of this is relatively easy to
+achieve, as you have all the information you need when writing the code
+generator! Making generated code adhere to the same standards as manually
+written code also helps to diffuse some of the skepticism against code
+generation that is still widespread in some organizations.\marginnote{Note that
+in complete languages with full coverage (i.e. where 100\% of the $D_{-1}$ code
+is generated), the generated code is never seen by a DSL user. In this case the
+statements made here don't apply.}
 
-It is always a good idea to work with a manually implemented, rich domain
+
+\paragraph{Platform} Code generators can become complex. The complexity can
+be reduced by splitting the overall transformation into several steps ---
+see above. Another approach is to work with a manually implemented, rich domain
 specific platform. It typically consists of middleware, frameworks, drivers,
 libraries and utilities that are taken advantage of by the generated code.
+\begin{marginfigure}
+  \includegraphics[width=4cm]{figures/platform.png}
+  \caption[labelInTOC]{Typical layering structure of an application created
+  using DSLs.}
+  \label{platform}  
+\end{marginfigure}
+Where the generated code and the platform meet depends on the complexity of the
+generator, requirements regarding code size and performance, the expressiveness
+of the target language and the potential availability of libraries and
+frameworks that can be used for the task.
+\begin{marginfigure}
+  \includegraphics[width=5cm]{figures/cave.png}
+  \caption[labelInTOC]{Stalagmites and stalactites in limestone caves as a
+  metaphor for a generator and a platform.}
+  \label{cave} 
+\end{marginfigure}
 
 In the extreme case, the generator just generates code to populate/configure the
 frameworks (which might already exist, or which you have to grow together with
@@ -115,20 +162,27 @@ the generator) or provides statically typed facades around otherwise dynamic
 data structures. Don't go too far towards this end, however: in cases where you
 need to consider resource or timing constraints, or when the target platform is
 predetermined and perhaps limited, code generation does open up a new set of
-options and it is often a very good option (after all, it's basically the same
+options and it is often a very good approach (after all, it's basically the same
 as compilation, and that's a proven and important technique).
 
-	
+\embc{For most aspects, we use only a very shallow platform. This is mostly for
+performance reasons and for the fact that the subset of C that is often used
+for embedded systems does not provide good means of abstraction. For example,
+state machines are translated to switch/case statements. If we would generate
+Java code in an enteprise system, we may populate a state machine framework
+instead. In contrast, when we translate the component definitions to the
+AUTOSAR target environment, a relatively powerful platform is used --- namely
+the AUTOSAR APIs, conventions and generators.}
 
 \subsection{Interpretation} 
 
-For interpretation, the same approach could be used,
-i.e. an interpreter for $L_D$ can be implemented in $L_{D-1}$. However, in
-practice we see interpreters written in $L_{D_0}$. They are extensible, so new
-interpreter code can be added in case specialized languages define new language
-concepts. We have not come across real-world DSLs where interpreters are stacked
-along the domain hierarchy in the same way as transformations, with interpreters
-for $L_{D_n}$ written in $L_{D_{n-1}}$ for $n>1$.
+For interpretation, the same approach could be used, i.e. an interpreter for
+$L_D$ can be implemented in $L_{D-1}$. However, in practice we see interpreters
+written in $L_{D_0}$. They may be extensible, so new interpreter code can be
+added in case specialized languages define new language concepts. We have not come
+across real-world DSLs where interpreters are stacked along the domain hierarchy
+in the same way as transformations, with interpreters for $L_{D_n}$ written in
+$L_{D_{n-1}}$ for $n>1$.
 
 \fountain{The DSL also supports the definition of unit tests for the
 asynchronous, reactive pumping algorithm. These tests are executed with an
@@ -142,23 +196,11 @@ functional, so the debugger "expands" the calculation tree, and users can
 inspect all intermediate results.}
 
 
-\subsection{Definition of Semantics} 
-
-Defining semantics in practice happens by
-mapping the DSL concepts to D-1 concepts for which the semantics is known. For
-DSLs used by developers, and for domains that are defined bottom-up, this works
-well. For domain expert DSLs, and for domains define top-down this approach is
-not necessarily good enough, since because the D-1 concepts has no inherent
-meaning to the users and/or the domain. An additional way of defining the
-meaning of the DSL is required. Useful approaches include prose documentation as
-well as test cases. These can be written in (another part of the) DSL itself;
-this way, domain users can play with the DSL and write down their expectations
-in the testing aspect.
 
 \subsection{Transformation vs. Interpretation} 
 
-The primary concern in semantics is the decision between transformation (code
-generation) and interpretation. We present a couple of criteria to help with the
+A primary concern in semantics is the decision between transformation (code
+generation) and interpretation. Here are a couple of criteria to help with this
 decision.
 
 \begin{description}
@@ -195,14 +237,14 @@ decision.
 
 
 
-\subsection{Sufficiency} 
+\subsection{Sufficiency}
 
-A fragment is \emph{sufficient for transformation T} if
-the fragment itself contains all the data for the transformation to be executed.
-It is \emph{insufficient} if it is not. While dependent fragments are by
-definition not sufficient without the transitive closure of fragments they
-depend on, an independent fragment may be sufficient for one transformation, and
-insufficient for another.
+A fragment is \emph{sufficient for transformation T} if the fragment itself
+contains all the data for the transformation to be executed. It is
+\emph{insufficient} if it is not. While dependent fragments are by definition
+not sufficient without the transitive closure of fragments they depend on, an
+independent fragment may be sufficient for one transformation, and insufficient
+for another.
 
 \fountain{The hardware structure is sufficient for a transformation that
 generates an HTML doc that describes the hardware. It is insufficient regarding
@@ -214,41 +256,47 @@ specification} fragment is required to define how the mapping to Osek should
 look like.}
 
 
-\subsection{Multiple Mappings} 
+\subsection{Synchronizing Multiple Mappings} 
 
-The approach suggested so far works well if we
-have only one mapping of a DSL for execution. The semantics implied by the
-mapping to $L_{D-1}$ can be \emph{defined} to be correct. However, as soon as
-we transform the program to several different languages in $D_{-1}$ using
-several transformations, we have to ensure that the semantics of all resulting
-programs are identical. In practice, this often happens when an interpreter is
-used in the IDE for "experimenting" with the models, and a code generator
-creates efficient code for execution in the target environment. In this case, we
-recommend providing a set of test cases that are executed both the interpreted
-and generated versions, expecting them to succeed in both. If the coverage of
-these test cases is high enough to cover all of the observable behavior, then it
-can be assumed with reasonable certainty that the semantics are the same.
+The approach suggested so far works well if we have only one mapping of a DSL
+for execution. The semantics implied by the mapping to $L_{D-1}$ can be
+\emph{defined} to be correct. However, as soon as we transform the program to
+several different targets in $D_{-1}$ using several transformations, we have to
+ensure that the semantics of all resulting programs are identical. In practice,
+this often happens when an interpreter is used in the IDE for "experimenting"
+with the models, and a code generator creates efficient code for execution in
+the target environment. In this case, we recommend providing a set of test cases
+that are executed both the interpreted and generated versions, expecting them to
+succeed in both. If the coverage of these test cases is high enough to cover all
+of the observable behavior, then it can be assumed with reasonable certainty
+that the semantics are the same.
 
 \pension{The unit tests in the pension plans DSL are executed by an interpreter
 in the IDE. However, as Java code is generated from the pension plan
 specifications, the same unit tests are also executed by the generated Java
 code, expecting the same results as in the interpreted version.}
-  
-Sometimes there are several ways how a program in $L_D$ can be translated to a
-single $L_{D-1}$, for example to realize different non-functional
+
+\subsection{Choosing between Several Mappings} 
+
+Sometimes there are several \emph{alternative} ways how a program in $L_D$ can
+be translated to a single $L_{D-1}$, for example to realize different non-functional
 requirements (optimizations, target platform, tracing or logging). There are
 several ways how one alternative may be selected.
 
 \begin{itemize}
   \item Heuristics, based on patterns and idioms used in the program, can be
-  used to determine the applicable translation from the program. 
+  used to determine the applicable translation from the program. Codifying these
+  rules and heuristics can be hard.
   \item In analogy to compiler switches, the decision can be controlled by
   additional, external data, for example by adding an annotation model. An
   annotation model contains data used by the transformation to decide how to
   translate the core program. The transformation uses the $L_D$ program and the
-  annotation model as its input.
+  annotation model as its input. There can
+  be several different annotation models for the same core model.
   \item Alternatively, $L_D$ can be extended to contain additional data 
-  to guide decision. 
+  to guide decision. This is only useful if the DSL user can
+  actually decide which alternative to choose, and if only one alternative
+  should be chose for each program.
 \end{itemize}
 
 \noindent
@@ -257,53 +305,36 @@ $L_D$ program, here too extensive testing must be used to make sure that all
 translations exhibit the same semantics (except for the non-functional
 characteristics that are expected to be different).
 
-Mapping the same DSL to different D-1 languages or
-to different programs expressed with the same D-1 language is useful if
-different non-functional concerns should be implemented, if several target
-platforms should be supported, or if several alternative artifacts (code,
-reports, visualizations) should be selectable. Determining the mapping can be
-done in several ways: the language can be extended to include explicit
-information to guide the decision. This is only useful if the DSL user can
-actually decide which alternative to choose, and if only one alternative should
-be chose for each program. An alternative is to put the explicit information
-into a an annotation model (a separate viewpoint), which leads to all the
-advantages of viewpoints generally (see next section). Specifically, there can
-be several different annotations for the same code model. A third alternative is
-to use rules or heuristics, that determine by inspecting the model which
-translation to use. Codifying these rules and heuristics can be hard.
-
 
 \subsection{Reduced Expressiveness} 
 
-It may be beneficial to limit the
-expressiveness of a language. Limited expressiveness often results in more
-sophisticated analyzability. For example, while state machines are not very
-expressive, sophisticated model checking algorithms are available (e.g. using
-the SPIN model checker from \url{http://spinroot.com/}). The same is true for
-first-order logic, where satisfiability (SAT) solvers \cite{Mitchell05} can be
-used to check programs for consistency. If these kinds of analysis are useful
-for the model purpose, then limiting the expressiveness to the respective
-formalism may be a good idea, even if it makes expressing certain programs in
-$D$ more cumbersome. An alternative approach is to use a language with limited
-expressiveness at $D_{-1}$. For analysis and verification, the $L_D$ concepts
-are translated down into the verifiable $L_{D-1}$ language. Verification is
-performed on $L_{D-1}$, mapping the results back to $L_D$. Transforming to a
-verifiable formalism also works if the formalism is not at $D_{-1}$, as long as
-a mapping exists, and as long as the results of the verification can be mapped
-back to the DSL program.
+It may be beneficial to limit the expressiveness of a language. Limited
+expressiveness often results in more sophisticated analyzability. For example,
+while state machines are not very expressive, sophisticated model checking
+algorithms are available (e.g. using the SPIN model checker from
+\url{http://spinroot.com/}). The same is true for first-order logic, where
+satisfiability (SAT) solvers \cite{Mitchell05} can be used to check programs for
+consistency. If these kinds of analysis are useful for the model purpose, then
+limiting the expressiveness to the respective formalism may be a good idea, even
+if it makes expressing certain programs in $D$ more cumbersome. 
+
+
+However, the language may have to be reduced to the point where domain experts
+are not able to use the language because the connection to the domain is too
+loose. An alternative approach is to use a language with limited expressiveness
+at $D_{-1}$. For analysis and verification, the $L_D$ concepts are translated
+down into the verifiable $L_{D-1}$ language. Verification is performed on
+$L_{D-1}$, mapping the results back to $L_D$. Transforming to a verifiable
+formalism also works if the formalism is not at $D_{-1}$, as long as a mapping
+exists. The problem with this appraoch is the interpretation of analysis results
+in the context of the DSL. Domain users may not be able to interpret the results
+of model checkers or solvers, so they have to be translated back to the DSL.
+This may be a lot of work, or even impossible.
+
+\todo{add an embc example}
 
 \fountain{For the pumping algorithm, we are working on a mapping to SPIN/Promela
 formalism to perform model checking on the pumping algorithms. This will be used
 to proof that invariants expressed in the pumping program will hold in all
 cases, or to show counter examples if they do not.}
  
-Reduced expressiveness may enhance the
-ability to perform meaningful verifications. Examples include model checking
-for state machines or the use of solvers for first order logic. However, to
-enable these approaches, the language may have to be reduced to the point where
-domain experts are not able to use the language because the connection to the
-domain is too loose. In this case a DSL may be translated to the formal language
-for verification. The problem with this appraoch is the back-translation of
-analysis results to the DSL. Domain users will not be able to interpret the
-results of model checkers or solvers, they have to be translated back to the
-DSL. This may be a lot of work, or even impossible.

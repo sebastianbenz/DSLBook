@@ -3,8 +3,8 @@
 \noindent One of the fundamental advantages of domain-specific languages is
 increased expressivity over more general programming languages. By making
 assumptions about the domain of application and encapsulating knowledge about
-the domain in the language and its implementation, e.g. the mapping to a lower
-level language, programs in the DSL can be significantly more concise by
+the domain in the language itself (and not just in programs) as well as in its
+execution strategy, DSL programs in the DSL can be significantly more concise by
 avoiding the need for users to write "boilerplate code". While it is always
 possible to produce short but incomprehensible programs, overall, shorter
 programs require less effort to read and write than longer programs, and should
@@ -14,7 +14,7 @@ For example, if the DSL required only a third of the code to write, but it takes
 four times as long to write the code per line, the there is no benefit for
 writing programs. However, often when reading programs, less code is clearly a
 benefit. So it depends on the ratio between writing and reading code whether a
-DSL's conciseness is important.}. Thus, we will assume that all other things
+DSL's conciseness is important.}. We will thus assume that, all other things
 being equal, shorter programs are preferable over longer programs.
 
 The Kolomogorov complexity \cite{LiVitanyi2008} of an object is the smallest
@@ -47,17 +47,14 @@ language $L_2$ ($L_1 \prec_D L_2$), \\ if for each $p \in P_D \cap P_{L_1}
 \emph{mostly} more expressive, but may not be in corner cases.
 
 \newthought{DSLs are more expressive} than GPLs in the domain they are built
-for. Higher expressiveness means that less code has to be written to express
-interesting information within a domain. Generally, shorter programs are better
-than longer programs. However, there are also other concerns to consider.
-
-Before being able to write these concise programs, users have to learn the
-language. This can be separated into learning the domain, and learning the
-syntax of the language. For people who know the domain, learning the syntax can
-be simplified by using good IDEs with code completion and quick fixes. 
-
-\todo{Talk about small vs. big languages, as a matter of style. modular lang as
-a tradeoff -- see also discussion below.}
+for. But there is also a disadvantage: before being able to write these concise
+programs, users have to learn the language. This can be separated into learning
+the domain, and learning the syntax of the language. For people who know the
+domain, learning the syntax can be simplified by using good IDEs with code
+completion and quick fixes. Learning the domain is independent of the language
+itself. It is easy to see, however, that, if a domain is supported by
+well-defined language, this can be a good reference for the domain itself.
+Learning a domain can be simplified by working with a good DSL.
 
 
 \subsection{Expressivity and the Domain Hierarchy}
@@ -75,30 +72,33 @@ software including state machines, tasks, and physical quantities. The state
 machine construct, for example, has concepts representing states, events,
 transitions and guards. Much less code is required compared to switch/case
 statements or cross-pointing integer arrays, two typical idioms for state
-machine implementation in C.}
+machine implementation in C. Analyzing programs, for example, finding states
+that can never be left because no transition leads out of them, is trivial.}
 
 \exwebdsl{WebDSL entity declarations abstract over the boilerplate code required
 by the Hibernate framework for annotating Java classes with object-relational
 mapping annotations. This reduces code size by an order of
 magnitude~\cite{Visser07}.}
 
-\subsection{Linguistic Abstraction} 
 
-By making the concepts of $D$ first class members of a language $L_D$, i.e.
-definining linguistic abstractions for these concepts, they can be uniquely
-identified in a $D$ program and their structure and semantics is well defined.
-No semantically relevant\sidenote{By "semantically relevant" we mean that the
-tools needed for the model purpose (analysis, translation) have to treat these
-cases specially.} idioms or patterns are required to express programs
-interesting in $D$. Consider the two examples of loops in a Java-like language:
+\subsection{Linguistic vs. In-Language Abstraction} 
+
+\paragraph{Linguistic Abstraction} By making the concepts of $D$ first class
+members of a language $L_D$, i.e. definining linguistic abstractions for these
+concepts, they can be uniquely identified in a $D$ program and their structure
+and semantics is well defined. No semantically relevant\sidenote{By
+"semantically relevant" we mean that the tools needed for the model purpose
+(analysis, translation) have to treat these cases specially.} idioms or patterns
+are required to express interesting programs in $D$. Consider the two examples
+of loops in a Java-like language:
 
 \footnotesize
 \begin{verbatim} 
-    int[] arr = ...                         int[] arr = ...
-    for (int i=0; i<arr.size(); i++) {      List<int> l = ... 
-        sum += arr[i];                      for (int i=0;  i<arr.size(); i++) { 
-    }                                           l.add( arr[i] );
-                                            }
+  int[] arr = ...                         int[] arr = ...
+  for (int i=0; i<arr.size(); i++) {      List<int> l = ... 
+      sum += arr[i];                      for (int i=0;  i<arr.size(); i++) { 
+  }                                           l.add( arr[i] );
+                                          }
 \end{verbatim}
 \normalsize
 
@@ -143,19 +143,16 @@ the code.
 pointing into each other. The DSL program does not specify which implementation
 should be used and the transformation engine is free to chose the more
 appropriate representation. Also, log statements and task declarations can
-be translated in two different ways depending on the target environment.}
+be translated in different ways depending on the target platform.}
 
-
-
-\subsection{In-Language Abstraction} 
-
-Conciseness can also be achieved by a language providing facilities to define
-new (non-linguistic) abstractions in programs. \marginnote{GPL concepts for
-building new abstractions include procedures, classes, specialization, or functions and
-higher-order functions.} It is \emph{not} a sign of a bad DSL if it has
-in-language abstraction mechanisms as long as the created abstractions don't
-require special treatment by analysis or processing tools --- at which point
-they should be refactored into linguistic abstractions.
+\paragraph{In-Lanuguage Abstraction} Conciseness can also be achieved by a
+language providing facilities to define new (non-linguistic) abstractions in
+programs. \marginnote{GPL concepts for building new abstractions include
+procedures, classes, specialization, or functions and higher-order functions.}
+It is \emph{not} a sign of a bad DSL if it has in-language abstraction
+mechanisms as long as the created abstractions don't require special treatment
+by analysis or processing tools --- at which point they should be refactored
+into linguistic abstractions.
 
 \fountain{The language does not support the construction of new abstractions
 since its user community are non-programmers who are not familiar with defining
@@ -171,21 +168,24 @@ abstractions including interfaces and components.}
 pages including rendering of data from the database and form request handling.
 User defined templates can be used to build complex user interfaces.}
 
-\subsection{Standard Library} 
+\paragraph{Standard Library} If a language provides support for in-language
+abstraction, these facilities can be used by the language \emph{designer} to
+provide functionality to language users. Instead of adding language features, a
+standard library is deployed along with the language\marginnote{This approach is
+of course well known from programming languages. All of them come with a
+standard library, and the language can hardly be used without relying on it. It
+is effectively a part of the language}. This approach keeps the language itself
+small, and allows subsequent extensions of the library without changing the
+language definition and processing tools.
 
-If a language provides support for in-language abstraction, these facilities can
-be used by the language \emph{designer} to provide functionality to language
-users. Instead of adding language features, a standard library is deployed along
-with the language\marginnote{This approach is of course well known from
-programming languages. All of them come with a standard library, and the
-language can hardly be used without relying on it. It is effectively a part of
-the language}. This approach keeps the language itself small, and allows
-subsequent extensions of the library without changing the language definition
-and processing tools.
+\fountain{Hardware building blocks have properties. For example, a \emph{fan}
+can be turned on or off, and for a \emph{compressor}, the RPM can be specified.
+The set of properties available for the various building blocks are defined via
+a standard library and are not part of the language. This way, if a new device
+driver supports a new property, it can be made available to cooling programs
+without changing and redeplying the language.}
 
-\todo{Example from the fridge language}
-
-\subsection{Linguistic vs. In-Language Abstraction} A language that contains
+\paragraph{Linguistic vs. In-Language Abstraction} A language that contains
 linguistic abstractions for all relevant domain concepts is simple to transform;
 the transformation rules can be tied to the identities of the language concepts.
 It also makes the language suitable for domain experts, because relevant domain
@@ -204,7 +204,7 @@ especially useful if the same language should be used for several, related
 projects or user groups. Each can build their own set of abstractions in the
 library. It should be kept in mind that in-language abstraction only works if
 the transformation of these abstractions is not specific to the abstraction. In
-that case, linguistic abstraction is better suited. \marginnote{Modular language
+such case, linguistic abstraction is better suited. \marginnote{Modular language
 extension, as discussed later, provides a middle ground between the two
 approaches,}
 
@@ -236,29 +236,3 @@ algorithmic details in GPL code.
 
 
 
-% \paragraph{Cost of DSL Implementation}
-% 
-% In the discussion above we have assumed that the only measure of interest is
-% $|p_L|$, i.e. the size of domain-specific programs. However, when the
-% implementation of the DSL itself is part of the software engineering process,
-% then we should really take that into account as part of the costs. Suppose we
-% have to produce $n$ programs. If we can do this in an existing language $L_1$,
-% the cost is $\Sigma^n_{i=0} |p^i_{L_1}|$, i.e. the sum of the sizes of the
-% programs encoded in $L_1$. If we design a new DSL $L_2$, the cost of the $n$
-% programs is the sum of the sizes of the programs in $L_2$ \emph{plus} 
-% the size of the DSL implementation $|p_T|$. In summary, the $cost(L_2)$ of
-% developing a DSL for producing the $n$ programs is
-% \vspace{-0.6\baselineskip}
-% 
-% $$cost(L_2) = cost_{L_2} - cost_{L_1}  =  (|p_T| + \Sigma^n_{i=0} |p^i_{L_2}|)
-% - \Sigma^n_{i=0} |p^i_{L_1}|$$
-% 
-% \noindent $L_2$ is useful if this cost is negative. Thus, to make production of
-% DSLs cost effective we have to minimize the size of $p_T$ and/or maximize the
-% number of applications of the language. For general-purpose languages the number
-% $n$ is typically very large and thus the size of $p_T$ is irrelevant. For
-% smaller DSLs, the cost is significant. In those cases tools such as language
-% workbenches can significantly reduce the cost of a DSL.
-% 
-% 
-% 
