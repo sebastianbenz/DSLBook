@@ -104,6 +104,54 @@ outside that core, for which often useful libraries exist. WebDSL provides a
 \emph{native interface} that allows a developer to call into a Java, library by
 declaring types and functions from the library in a WebDSL program.}
 
+Allowing users to write $D_{-1}$ code, and especially, if it is actually a GPL
+in $D_0$, comes with two additional challenges though.
+
+\paragraph{Controlling $D_{-1}$ code} The following can easily happen: the
+generator generates an abstract class from some model element. The developer is
+expected to subclass the generated class and implement a couple of abstract
+methods. The manually written subclass needs to conform to a specific naming
+convention so some other generated code can find and use the manually written
+subclass. The generator, however, just generates the base class and stops. How
+do you remind developers to create a subclass?
+
+Of course, if the constructor of the concrete subclass is called from another
+location of the generated code, and/or if the abstract methods are invoked,
+you’ll get compiler errors. By their nature, they are on the abstraction level
+of the implementation code, however. It is not always obvious what the developer
+has to do in terms of the model or domain.
+
+To solve this issue, make sure there is there a way to make those conventions
+and idioms interactive. One way to do this is to generate checks/constraints
+\emph{against the code base} and have them evaluated by the IDE, for example
+using Findbugs etc. If one fails, an error message is reported to the developer.
+As soon as the developer implements the manual code in the required way, the
+error message goes away.
+
+\todo{Add an example}
+
+\paragraph{Broken Promises} In many cases, you will implement constraints that
+validate the DSL program in order to ensure some property of the resulting
+system. For example, you might check dependencies between components in an
+architecture model to ensure components can be exchanged in the actual system.
+
+Of course this only works if the manually written code does not introduce
+dependencies that are not present in the model. In that case the “green light”
+from the constraint check does not help much.
+
+To ensure that promises made by the models are kept by the code, use the
+following two approaches. First, generate code that does not allow violation of
+model promises. For example, don’t expose a factory that allows components to
+look up and use any other component (creating dependencies), but rather use
+dependency injection to supply objects for the valid dependencies expressed in
+the model. Second, use architecture analysis tools (dependency checkers) to
+validate manually written code. You can easily generate the check rules for
+those architecture analysis tools from the models.
+
+\todo{Add an example}
+
+
+
 \subsection{Roundtrip Transformation} 
 
 Roundtrip transformation means that an $L_D$ program can be recovered from a
