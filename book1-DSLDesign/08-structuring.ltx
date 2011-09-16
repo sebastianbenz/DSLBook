@@ -1,5 +1,10 @@
-\section{Structuring Programs}
+\section{Fundamental Paradigms}
 \label{learnFromGPLs}
+
+\todo{Clean up References to this stuff}
+
+
+\subsection{Structure}
 
 Languages have to provide means to structure large programs in order to keep
 them manageable. These include modularization and visibility, specification vs.
@@ -11,13 +16,12 @@ designer or the consumers of the DSL as a means of managing overall complexity.
 For this reason they may be hard to "sell" to domain experts.}
 
 
-\subsection{Modularization and Visibility} 
-
-DSL often provide some kind of logical unit structure, such as namespaces or
-modules. Visibility of symbols may be restricted to those in the same unit, or
-in referenced ("imported") units. Symbols may be declared as public or private.
-Most contemporary programming languages use some form of namespaces and
-visibility restriction as their top level structure.
+\paragraph{Modularization and Visibility} DSL often provide some kind of logical
+unit structure, such as namespaces or modules. Visibility of symbols may be
+restricted to those in the same unit, or in referenced ("imported") units.
+Symbols may be declared as public or private. Most contemporary programming
+languages use some form of namespaces and visibility restriction as their top
+level structure.
 
 Some form of namespaces and visibility is necessary in almost any DSL. Often
 there are domain concepts that can play the role of the module, possibly
@@ -39,19 +43,18 @@ artifacts, and an implementation bundle with the components. In case of a
 distributed system, only the interface bundle is deployed on the client.}
 
 
-\subsection{Partitioning} 
-
-Partitioning refers to the breaking down of programs into several physical units
-such as files\marginnote{If a repository-based tool is used, the importance of
-paritioning is greatly reduced. Although even in that case, there may be a set
-of federated and distributed repositories that can be considered partitions}.
-These physical units do not have to correspond to the logical modularization of
-the models within the partitions. Typically each model fragment is stored in its
-own partition. For example, in Java a public class has to live in a file of the
-same name (logical module == physical partition), whereas in C\# there is no
-relationship between namespace, class names and the physical file and directory
-structure. A similar relationship exists between partitions and viewpoints,
-although in most cases, different viewpoints are stored in different partitions.
+\paragraph{Partitioning} Partitioning refers to the breaking down of programs
+into several physical units such as files\marginnote{If a repository-based tool
+is used, the importance of paritioning is greatly reduced. Although even in that
+case, there may be a set of federated and distributed repositories that can be
+considered partitions}. These physical units do not have to correspond to the
+logical modularization of the models within the partitions. Typically each model
+fragment is stored in its own partition. For example, in Java a public class has
+to live in a file of the same name (logical module == physical partition),
+whereas in C\# there is no relationship between namespace, class names and the
+physical file and directory structure. A similar relationship exists between
+partitions and viewpoints, although in most cases, different viewpoints are
+stored in different partitions.
 
 Partitioning may have consequences for language design. Consider a DSL where an
 concept A contains a list of instances of concept B. The B instances then have
@@ -100,16 +103,15 @@ the results created from the separate processing steps of the various partitions
 then the linker handles overall symbol/reference resolution and binding).
 
 
-\subsection{Specification vs. Implementation} 
-
-Separating specification and implementation supports plugging in different
-implementations for the same specification and hence provides a way to separate
-the outside from the inside of something.\marginnote{Interfaces, pure abstract
-classes, traits or function signatures are a realization of this concept in
-programming languages.} This supports the exchange of several implementations
-behind a single interface. This is often required as a consequence of the
-development process: one stakeholder defines the specification and a client,
-whereas another stakeholder provides one or more implementations. 
+\paragraph{Specification vs. Implementation} Separating specification and
+implementation supports plugging in different implementations for the same
+specification and hence provides a way to separate the outside from the inside
+of something.\marginnote{Interfaces, pure abstract classes, traits or function
+signatures are a realization of this concept in programming languages.} This
+supports the exchange of several implementations behind a single interface. This
+is often required as a consequence of the development process: one stakeholder
+defines the specification and a client, whereas another stakeholder provides one
+or more implementations.
 
 \embc{This DSL adds interfaces and components to C. Components provide or use
 one or more interfaces. Different components can be plugged in behind the same
@@ -125,16 +127,15 @@ can inherit these traits. As long as pumping programs are only written against
 traits, they work with any fountain that implements the particular set of
 traits against which the program is written.}
 
-\subsection{Specialization} 
-
-Specialization enables one entity to be a more specific variant of another one.
-Typically, the more specific one can be used in all context where the more
-general one is valid (Liskov substitution principle\cite{LiskovW94}). The more
-general one may be incomplete, requiring the definition of specialized ones that
-"fill in the holes" left undefined by the more general one.\marginnote{In GPLs,
-we know this approach from class inheritance. "Leaving holes" is realized by
-abstract methods.} Specialization in the context of DSLs can be used for
-implementing variants or of evolving a model over time.
+\paragraph{Specialization} Specialization enables one entity to be a more
+specific variant of another one. Typically, the more specific one can be used in
+all context where the more general one is valid (Liskov substitution
+principle\cite{LiskovW94}). The more general one may be incomplete, requiring
+the definition of specialized ones that "fill in the holes" left undefined by
+the more general one.\marginnote{In GPLs, we know this approach from class
+inheritance. "Leaving holes" is realized by abstract methods.} Specialization in
+the context of DSLs can be used for implementing variants or of evolving a model
+over time.
  
  
 \pension{The customer had to create a huge set of pension plans, implementing
@@ -150,29 +151,26 @@ can specialize other pumping programs. Since the programs are fundamentally
 state-based, we had to define what exactly it means to override a pumping 
 program.}
 
-\subsection{Types and Instances} 
-
-Types and instances refers to the ability to define a structure that can be
-parametrized when it is instantiated.\marginnote{In programming languages we
-know this from classes and objects (where constructor parameters are used for
-parametrization) or from components (where different instances can be connected
-differently to other instances).}
+\paragraph{Types and Instances} Types and instances refers to the ability to
+define a structure that can be parametrized when it is
+instantiated.\marginnote{In programming languages we know this from classes and
+objects (where constructor parameters are used for parametrization) or from
+components (where different instances can be connected differently to other
+instances).}
 
 \embc{Apart from C's \textit{structs} (which are instantiatable data structures)
 and components (which can be instantiated and connected), state machines can
 be instantiated as well. Each instance can be in a different state at any given
 time.}
 
-\subsection{Superposition and Aspects} 
-
-Superposition refers to the ability to merge several model fragments according
-to some DSL-specific merge operator. Aspects provide a way of "pointing to"
-several locations in a program based on a pointcut operator (essentially a query
-over a program or its execution), adapting the model in ways specified by the
-aspect. Both approaches support the creation of many different model variants
-from the same set of model fragments.\marginnote{This is especially important in
-the context of product line engineering and is discussed
-in \cite{VoelterVisser2011}}
+\paragraph{Superposition and Aspects} Superposition refers to the ability to
+merge several model fragments according to some DSL-specific merge operator.
+Aspects provide a way of "pointing to" several locations in a program based on a
+pointcut operator (essentially a query over a program or its execution),
+adapting the model in ways specified by the aspect. Both approaches support the
+creation of many different model variants from the same set of model
+fragments.\marginnote{This is especially important in the context of product
+line engineering and is discussed in \cite{VoelterVisser2011}}
 
 \embc{This DSL provides a way of advising component definitions, to introduce
 new ports from within an aspect. This is used, for example, to modularize the
@@ -186,4 +184,137 @@ particular feature. For example, in the researchr application, a
 module, together with the definition of the \texttt{Tag} entity.}
 
 
+\subsection{Behavior}
 
+The behaviorr description of a DSL must of course be aligned with the needs of
+the domain. However, in many cases, the behavior required for a domain can be
+derived from well-known behavior description paradigms, with slight adaptations
+or enhancements, or simply interacting with domain-specific structures or data.
+Note also that there are two kinds of DSLs that don't make use of these kinds of
+behavior descriptions. Some DSLs really just specify structures. Examples
+include data definition languages or component description languages (although
+both of them often use expressions for derived data, data validation or pre- and
+postconditions). Another kind of DSL only specifies the kind of behavior required, and the
+generator creates the algorithmic implementation. For example, a DSL may specify
+that the communication between two parts of the system should be asynchronous.
+THe generator then maps this to an implementation that behaves according to this
+statement. 
+
+\comparch{This component architecture DSL is an example of a structur-only DSL,
+since it only described black box components and their interfaces and
+relationships.}
+
+In this section, I want to outline some of the most well-known behavioural
+paradigms that can serve as useful starting points for behaviour descriptions in
+DSLs.\marginnote{This is only an overview over a few paradigms; many more exist.
+I refer to the excellent Wikipedia entry on \emph{Programming Paradigms} and to
+\todo{this} book.}
+ 
+\paragraph{Imperative} \marginnote{For many people, often including domain
+experts, this approach is most obvious. Hence it is often a good starting point
+for DSLs.} Imperative programs consist of a sequence of statements, or
+instructions, that change the state of a program. That state may be local to
+some kind of module (e.g. a procedure), global or external (when talking to
+periphery). Procedural and object-oriented programming are both imperative,
+using different means for structuring and (in case of OO) specialization.
+Because of the aliasing problem, imperative programs are expensive to analyse.
+Debugging imperative programs involves stepping through the instructions and
+watching the state change.
+
+\embc{Since C is used as a base language, this language is fundamentally
+imperative. Some of the DSLs on top of it use other paradigms.}
+
+\fountain{The cooling language uses various paradigms, but contains sequences
+of statements to implement aspects of the overall cooling behaviour.}
+
+\paragraph{Functional} Functional programming uses the function as the core
+abstraction. A function's return value can only depend on the values of its
+parameters. Functions cannot access global state, no side effects are allowed.
+Calling the same function several times with the same arguements has to return
+the same value (that value may even be cached!). No aliasing (through mutable
+memory cells) is supported, because values are immutable once they are created.
+Since all dependencies of a computed value are local to a function (the
+arguments), various kinds of analyses are possible. If assignment to variables
+is supported, then it uses a form where a variable can only be assigned once. To
+create real-world programs, a purely functional language is usually not
+sufficient, because it cannot affect the environment. Since there is no state to
+watch change as the program steps through instructions, debugging can be done by
+simply showing all intermediate results of all function calls, basically
+"inspecting" the state of the calculation. This makes building debuggers much
+simpler. Functional programming is hence often used for certain parts
+("calculation core") of a more complex system.
+
+\pension{The calculation core of pension rules is functional. Consequently, a
+debugger has been implemented that, for a given set of input data, shows the
+rules as a tree where all intermediate results of each function call are shown.
+No "step through" debugger is necessary.}
+
+A relevant subset of functional programming is pure expressions (as in $3*2+7
+> i$. Instead of calling functions, operators are used. However, operators are
+just inline-notations for function calls. Usually the operators are hard wired
+into the language, so it is not possible for users to define their own
+functional abstractions. This is the main differentiator to functional
+programming in general.
+
+\comparch{This DSL uses expressions for pre- and post conditions in operations
+in component interfaces.}
+
+\embc{We use expressions in the guard conditions of the state machine
+extension. Of course, C's expression language is reused here.}
+
+\paragraph{Declarative} Declarative programming can be considered the opposite
+of imperative programming (and, to some extent, functional programming). A
+declarative program does not specify any control flow. It does not specify a set
+of steps of a calculation. Instead, a declarative program only specifies a what
+the program should accomplish, not how. This is often done by specifying a set
+of properties of the program's goal. Some kind of evaluation engine then tries
+to find solutions. The particular advantage of this approach is that it is not
+predefined how a solution is found, the evaluation engine has a lot of freedom
+in doing so, possibly using different solutions in different environments. This
+large degree of freedom often makes finding the solution expensive. Debugging
+declarative programs can be hard since the solution algorithm may be very
+complex, involve (systematic) trial and error or backtracking, or may not even
+be know to the user of the language. 
+
+Declarative programming has many important subgroups and use cases. For
+\emph{concurrent programs}, a declarative approach allows the efficient
+execution of the same program on different parallel hardware. In
+\emph{constraint programming}, the programmer specifies a constraints between a
+set of variables. The engine tries to find values for these variables that
+satisfy all constraints. Solving mathematical equation systems is an example. So
+is efficient resource allocation in embedded systems. The evaluation engine is
+often called a solver. \marginnote{Examples for boolean constraint programming
+include the Alloy language or any other SAT solver. \todo{more concrete}}.
+
+\comparch{This DSL specifies timing and resource characteristics for component
+and interface operations. Based on this data, one could run an algorthm which
+allocates the component instances to computing hardware so that the hardware is
+used as efficiently as possible, while at the same time reducing the amount of
+bus traffic. This is an example of constraint solving.}
+
+\embc{This DSL supports presence conditions for product line engineering. A
+presence condition is a boolean expression over a set of configuration features
+that determines whether the associated piece of code is present for a given
+combination of feature selections. To verify the structural integrety of
+programs in the face of varying feature comination, constraint programming is
+used. From the program, the presence conditions and the feature model a set of
+boolean equations is generated. A solver then makes sure they are consistent by
+trying to find an example solution that violates the boolean equations.
+\todo{refer to DSL impl chapter, and to literature (Czarnecki)} }
+
+\emph{Logic programming} is another subparadigm of declarative programming where
+users specify logic clauses (facts and relations) as well as queries. A theorem
+prover tries to solve the queries. \marginote{The Prolog language works this
+way}.
+
+\paragraph{Dataflow} time triggered
+
+drei execution modes: on-change, on-avail-input, time triggered.
+
+\paragraph{Reactive/Event-based} Agent
+
+\paragraph{Statemachines} Time triggered
+
+in fountain. with custom structures (hw)
+
+model checking!
