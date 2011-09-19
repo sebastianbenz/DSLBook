@@ -1,6 +1,12 @@
 \section{Fundamental Paradigms}
 \label{learnFromGPLs}
 
+Every DSL is different. It is driven by the domain to which it applies. However,
+as it turns out, there are also a number of comonalities between DSLs. These can
+be handled by modularizing and reusing (parts of) DSLs as discussed in the
+\emph{next} section. In \emph{this} section we look at common paradigms for
+describing DSL structure and behaviour.
+
 \todo{Clean up References to this stuff}
 
 
@@ -183,7 +189,39 @@ particular feature. For example, in the researchr application, a
 \texttt{Publication} entity. This extension is defined in the \texttt{tag}
 module, together with the definition of the \texttt{Tag} entity.}
 
-\paragraph{Versioning}
+\paragraph{Versioning} Often, artifacts within DSL programs tracked over time.
+One alternative is to simply version the model files using existing version
+control systems, or the version control mechanism built into the language
+workbench. However, this requires users to interact with often large and complex
+version control systems and prevents domain-specific adaptations of the version
+control approach.
+
+The other alternative is to make versioning and tracking over time a part of the
+DSL definition. For example, model elements can be tagged with version numbers
+or specify a revision chain by pointing to a previous version, and enforcing
+compatibility constraints between those versions. Instead of versions, business
+data is often time-dependent, where different revisions of a business rule apply
+to different periods of time. Support for these approaches can be built directly
+into the DSL, with various levels of tool support.
+
+\embc{No versioining is integrated into the DSL. Users work with MPS'
+integration with popular version control systems.}
+
+\comparch{Interfaces can specify a \emph{new version of} reference to another
+component. If they do so, a constraint enforces that the new version provides
+at least the same operations, plus optional additional ones, as the old
+version. \emph{new version of} can also be used among components. In this case,
+the new version as to have the same (or additional) provided ports with the same
+interfaces or new versions of these interfaces. It must have the same or fewer
+required ports. Effectively, this means that the new version of something must
+be replacement-compabible with the old version.}
+
+\pension{In the pension workbench, calculation rules have validity dates.
+This supports the evolution of calculation rules over time, while retaining
+repdocuability for calculations performed at an earlier point in time. Since the
+Intentional Domwin Workbench is a projectional tool, pension plans can be shown
+with only the version of a rule for a given point in time.}
+
 \todo{}  time of creation, validity time, revisions, tags, "snapshots".
 
 \subsection{Behavior}
@@ -464,13 +502,10 @@ be different for different points in time. Rules in a sub-plan can override
 rules in the plan from which the sub-plan inherits. Plans can be declared to be
 abstract, with abstract rules that have to be implemented in sub-plans. }
 
-\fountain{}
-
-expressions in state machines / embc
-imperative in state machine actions / fountain, embc
-functions or imperative in data flow boxes / Yakindu
-
-
-specialization of state machines: yakindu statechart, fountain
-superposition for data flow: yakindu dataflow
+\fountain{The cooling behavior is a reactive system. Events are produced by
+hardware elements (and their drivers). A state machine constitutes the top
+level structure. Within it, an imperative language is used. Programs can
+inherit from another program, overwriting states defined in the base program.
+New transitions can be added, and the existing transitions can be overridden.
+This way, an extended program can "plug into" the base program.}
 
