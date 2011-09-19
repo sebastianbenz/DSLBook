@@ -68,10 +68,30 @@ unit tests for pension plan calculation rules.}
 
 \paragraph{Cross-Cutting Embedding, Metadata}
 
-\todo{Cross-Cutting Stuff (MPS Annotations)}
+A special case of embedding is handling meta data. We define meta data as
+program elements that are not essential to the semantics of the program, and are
+typically not handled by the primary model processor. Nonetheless these data
+need to related to program elements, and, at least from a user's perspective,
+they need to be embedded in programs. Since most of them are rather generic,
+embedding is the right composition mechanism: no dependency to any specific
+language should be necessary, and the meta data should be embeddable in any
+language. Example meta data includes:
 
-  stored in model -> projection
-  stored in VCS -> integration with those!
-  comments in text only or comments in model
- 
+\begin{description}
+  \item[Documentation] should be attachable to any program element, and in the
+  documentation text, other program elements should be referencable. 
+  \item[Traces] capture typed relationships between program elements or between
+  program elements and requirements or other documentation ("this element
+  \emph{implements} that requirement")
+  \item[Presence Conditions] in product line engineering describe whether a
+  program element should be available in the program for a given product
+  configuration ("this procedure is only in the program in the
+  \emph{international} variant of the product").
+\end{description}
+
+In projectional editors, this meta data can be stored in the program tree, and
+shown only if switched on. In textual editors, meta data is often stored in
+separate files, using pointers to refer to the respective model elements. The
+data may be shown in hovers or views adjacent to the editor itself.
+
  
