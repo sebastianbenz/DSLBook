@@ -214,6 +214,45 @@ such case, linguistic abstraction is better suited. \marginnote{Modular language
 extension, as discussed later, provides a middle ground between the two
 approaches,}
 
+
+\subsection{Language Evolution Support}
+
+If a language uses a lot of linguistic abstraction, it is likely, especially
+during the development of the language, that these abstractions change. Changing
+language constructs may break existing models, so special care has to be taken
+regarding language evolution.
+
+Doing this requires any or all of the following: a strict configuration
+management discipline, versioning information in the models to trigger
+compatible model processors, keeping track of the changes as a sequence of
+change operations, or model migration tools to transform models based on the old
+language into the new language.
+
+Whether model migration is a challenge or not depends quite a bit on the
+tooling. There are tools that make model evolution a very smooth, but many
+environments don’t. Consider this when deciding about the tooling you want to
+use! Note that in case of textual DSLs, model migration can be achieved via
+regular expressions and grep (at least as a fallback).
+
+It is always a good idea to minimize DSL changes that break existing models.
+Backward-compatibility and deprecation are techniques well worth keeping in mind
+when working with DSLs. Note that you might be able to instrument your model
+processor to collect statistics on how deprecated language features continue to
+be used. Once no more instances show up in models, you can safely remove the
+deprecated language feature.
+
+Using a set of well-isolated viewpoint-specific DSLs prevents rippling effects
+on the overall model in case something changes in one DSL.
+
+If the DSL is used by a closed, known user community that is accessible to the
+DSL designers, it will be much easier to evolve the language over time because
+users can be reached, making them migrate to newer versions. Alternatively, the
+set of all models can be migrated to a newer version using a script provided by
+language developers. In case the set of users, and the DSL programs, are not
+easily accessible, much more effort must be put into keeping backward
+compatibility, the need for evolution should be reduced. 
+
+
 \subsection{Configuration vs. Customization}
 
 Note the difference between configuration and customization. A customization DSL
@@ -225,7 +264,7 @@ Configuration languages are more limited, since you cannot easily express
 instantiation and the relationship between things. However, they are also
 typically less complex. Hence, the more you can lean towards the configuration
 side, the easier it usually is to build model processors. It is also simpler
-from the user’s perspective, since the apparent complexity is limited.
+from the user's perspective, since the apparent complexity is limited.
 
 \subsection{Precision vs. Algorithm}
 

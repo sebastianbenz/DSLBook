@@ -43,11 +43,11 @@ dialogs to enter "target code" without any support. In my opinion, this is not
 useful!})
   \item by inserting manually-written $L_{D-1}$ code into the $L_{D-1}$ code
 generated from the $L_D$ program (using protected regions)\marginnote{We
-strongly discourage the use of protected regions. Youíll run into all kinds of
+strongly discourage the use of protected regions. You'll run into all kinds of
 problems: generated code is not a throw-away product anymore, you have to check
-it in, and youíll run into all kinds of funny situations with your CM system.
+it in, and you'll run into all kinds of funny situations with your CM system.
 Also, often you will accumulate a "sediment" of code that has been generated
-from model elements that are no longer in the model (if you donít use protected
+from model elements that are no longer in the model (if you don't use protected
 regions, you can delete the whole generated source directory from time to time,
 cleaning up the sediment).}
   \item or by using composition mechanisms of $L_{D-1}$ (e.g. inheritance) to "plug in" the manually
@@ -58,8 +58,8 @@ base class with abstract methods (requiring the user to implement them in a
 manually written subclass) or with empty callback methods which the user can use
 to customize in a subclass (for example, in user interfaces, you can return a
 position object for a widget, the default method returns null, default to the
-generic layout algorithm). You can delegate, implement interfaces, use #include,
-use reflection tricks, AOP or take a look at the well-known design patterns for
+generic layout algorithm). You can delegate, implement interfaces, use
+\#include, use reflection tricks, AOP or take a look at the well-known design patterns for
 inspiration. Some languages provide partial classes, where a class definition
 can be split over a generated file and a manually written file.
 \end{itemize}
@@ -117,7 +117,7 @@ do you remind developers to create a subclass?
 
 Of course, if the constructor of the concrete subclass is called from another
 location of the generated code, and/or if the abstract methods are invoked,
-you’ll get compiler errors. By their nature, they are on the abstraction level
+you'll get compiler errors. By their nature, they are on the abstraction level
 of the implementation code, however. It is not always obvious what the developer
 has to do in terms of the model or domain.
 
@@ -136,12 +136,12 @@ system. For example, you might check dependencies between components in an
 architecture model to ensure components can be exchanged in the actual system.
 
 Of course this only works if the manually written code does not introduce
-dependencies that are not present in the model. In that case the “green light”
+dependencies that are not present in the model. In that case the "green light"
 from the constraint check does not help much.
 
 To ensure that promises made by the models are kept by the code, use the
 following two approaches. First, generate code that does not allow violation of
-model promises. For example, don’t expose a factory that allows components to
+model promises. For example, don't expose a factory that allows components to
 look up and use any other component (creating dependencies), but rather use
 dependency injection to supply objects for the valid dependencies expressed in
 the model. Second, use architecture analysis tools (dependency checkers) to

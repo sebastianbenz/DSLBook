@@ -113,16 +113,16 @@ of a transformation step manually before it is further processed. Actually
 changing the model after it has been created via a transformation would be an
 approach similar to protected regions – with similar challenges.
 
-The better solution is to create a separate model – an annotation model – that
-references the elements in the intermediate model for which it specifies
+The better solution is to create a separate model --- an annotation model ---
+that references the elements in the intermediate model for which it specifies
 additional model data. The downstream processor would process the model created
 via the upstream model-to-model transformation and the annotation model in
-conjunction, understanding the semantics of the annotation model’s relationship
+conjunction, understanding the semantics of the annotation model's relationship
 to the original model.
 
 \genex{For example, if you create a relational data model from an object oriented data
 model, you might automatically derive database table names from the name of the
-class in the OO model. If you need to “change” some of those names, use an
+class in the OO model. If you need to "change" some of those names, use an
 annotation model that specifies an alternate name. The downstream processor
 knows that the name in the annotation model overrides the name in the original
 model.}

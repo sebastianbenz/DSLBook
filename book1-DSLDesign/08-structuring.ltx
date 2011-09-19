@@ -108,6 +108,25 @@ the results created from the separate processing steps of the various partitions
 (like a C compiler: it compiles every file separately into an object file, and
 then the linker handles overall symbol/reference resolution and binding).
 
+The partitioning scheme may also influence users' collaboration when editing
+models. There are two major collaboration models: real-time and commit-based. In
+real-time collaboration, a user sees his model change when another user changes
+the same model. Change propagation is immediate. A database-backed repository is
+often a good choice regarding storage, since the granularity tracked by the
+repository is the model element. In this case, the partitioning may not be
+visible to the end user, since they just work "on the repository". This approach
+is often (at least initially) preferred by non-programmer DSL users.
+
+The other collaboration mode is commit-based where a user's changes only make it
+to the repository if he performs a \emph{commit}, and incoming changes are only
+visible after a user has performed an \emph{update}. While this approach can be
+used with database-backed repositories, it is most often used with file-based
+storage. In this case, the partitioning scheme is visible to DSL users, because
+it is those partitions (i.e. files) they commit or update. This approach tends
+to be preferred by developers, maybe because well-known versioning tools have
+used the approach for a long time.
+
+
 
 \paragraph{Specification vs. Implementation} Separating specification and
 implementation supports plugging in different implementations for the same
@@ -351,7 +370,7 @@ set of equations is consistent. We describe this approach in detail in section
 
 \emph{Logic programming} is another subparadigm of declarative programming where
 users specify logic clauses (facts and relations) as well as queries. A theorem
-prover tries to solve the queries. \marginote{The Prolog language works this
+prover tries to solve the queries.\marginnote{The Prolog language works this
 way}.
 
 

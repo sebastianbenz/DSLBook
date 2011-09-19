@@ -1,0 +1,279 @@
+\chapter{Process Issues} 
+
+\chapterabstract{Software development with DSLs requires a compatible
+development process. A lot of what's required is similar to what's required for
+any other reusable artifact such as a framework. A workable process must be
+established between those who build the reusable artifact and those who use it.
+Requirements have to flow in one direction, and a finished, stable, tested and
+document tool in the other. Also, using DSLs is a bit of a change for all
+involved, especially the domain experts. In this chapter we provide some
+guidelines.}
+
+
+\section{DSL Development}
+
+
+\subsection{Requirements for the Language}
+
+How do you find out what your DSL should express? What are the relevant
+abstractions and notations? This is a non-trivial issue, in fact, it is one of
+the key issues in using DSLs. It requires a lot of domain expertise, thought and
+iteration. The core problem is that you're trying to not just understand one
+problem, but rather a \emph{class} of problems. Understanding and defining the
+extent and nature of this class of problems can be non-trivial. There are
+several typical ways of how to get started.
+
+If you're building a technical DSL, the source for a language is often an
+existing framework, library, architecture or architectural pattern. The
+knowledge often already exists, and building the DSL is mainly about formalizing
+the knowledge: defining a notation, putting it into a formal language, and
+building generators to generate parts of the (potentially complex)
+implementation code. In the process, you often also want to put in place
+reasonable defaults for some of the framework features, thereby increasing the
+level of abstraction and making framework use easier.
+
+In case of business domain DSLs, you can often mine the existing (tacit)
+knowledge of domain experts. In domains like insurance, science or logistics,
+domain experts are absolutely capable of precisely expressing domain knowledge.
+They do it all the time, often using Excel or Word. They often have a "language"
+to express domain concerns, although it is usually not formal, and there's no
+tool support. In this context, your job is to provide formality and tooling.
+Similar to domain knowledge, other domain artifacts can also be exploited: for
+example, hardware structures or device features are good candidates for
+abstractions in the respective domains.
+
+In both previous cases, it is pretty clear how the DSL is going to look like;
+discussions are about details, notation, how to formalize things, viewpoints,
+partitioning and the like (note that those things can be pretty non-trivial,
+too!).
+
+\marginnote{One of my most successful approaches in this case is to build
+strawmen: trying to understand something, factor it into some kind of regular
+structure, and then re-explain that structure back to the stakeholders.}
+However, in the remaining third case, however, we are not so lucky. If no domain
+knowledge is easily available, we have to do an actual domain analysis, digging
+our way through requirements, stakeholder "war stories" and existing
+applications. Co-evolving language and concepts (see below) is a successful
+technique especially in this case.
+
+For your first DSL, try to catch case one or two. Ideally, start with case one,
+since the people who build the DSLs and supporting tools are often the same ones
+as the domain experts --- software architects and developers.
+
+
+\subsection{Iterative Development}
+
+Some people use DSLs as an excuse to do waterfall again. They spend months and
+months developing languages, tools, and frameworks. Needless to say, this is not
+a very successful approach. You need to iterate when developing the
+language. 
+
+Start by developing some deep understanding of a small part of the domain for
+which you build the DSL. Then build a little bit of language, build a little bit
+of generator and develop a small example model to verify what you just did.
+Ideally, implement all aspects of the language and processor for each new domain
+requirement before focusing on new requirements.
+
+Especially newbies to DSLs tend to get languages and meta models wrong because
+they are not used to think meta. You can avoid this pitfall by immediately
+trying out your new language feature by building an example model and developing
+a compatible generator.
+
+\begin{marginfigure}
+  \includegraphics[width=5cm]{figures/languageWaves.png}
+  \caption{Iterating towards a stable language over time}
+  \label{languageWaves} 
+\end{marginfigure}
+It is important that the language approaches some kind of stable state over time
+(\fig{languageWaves}). As you iterate, you will encounter the following
+situation: domain experts express requirements that may sound inconsistent. You
+add all kinds of exceptions and corner cases to the language. You language grows
+in size and complexity. After a number of these exceptions and corner cases,
+ideally the language designer will spot the systematic nature behind these and
+refactor the language to reflect this deeper understanding of the domain.
+Language size and complexity is reduced. Over time, the amplitude of these
+changes in language size and complexity (error bars in \fig{languageWaves})
+should become smaller, and the language size and complexity should approach a
+stable level (\emph{ss} in \fig{languageWaves}).
+
+
+\subsection{Co-evolve concepts and language}
+
+In cases where you do a real domain analysis, i.e. when you have to find out
+which concepts the language shall contain, make sure you evolve the language in
+real time as you discuss the concepts.
+
+Defining a language requires formalization. It requires becoming very clear ---
+formal! --- about the concepts that go into the language. In fact, building the
+language, because of the need for formalization, helps you become clear about
+the concepts in the first place. Language construction acts as a catalyst for
+understanding the domain! I recommend actually building a language in real time
+as you analyze your domain.
+
+To make this feasible, your DSL tool needs to be lightweight enough so support
+language evolution during domain analysis workshops. Turnaround time should be
+minimal to avoid overhead.
+
+
+
+\subsection{Let people do what they are good at}
+
+DSLs offers a chance to let everybody do what they are good at. There are
+several clearly defined roles, or tasks, that need to be done. Let met point out
+two, specifically.
+
+Experts in a specific target technology can dig deep into the details of how to
+efficiently implement, configure and operate that technology. They can spend a
+lot of time testing, digging and tuning. Once they found out what works best,
+they can put their knowledge into generator templates, efficiently spreading the
+knowledge across the team. For the latter task, they will collaborate with
+generator experts and language designer --- our second example role.
+
+The language designer works with domain experts to define abstractions,
+notations and constraints to accurately capture domain knowledge. The language
+designer also works with the architect and the platform experts in defining code
+generators or interpreters. For the role of the language designer, be aware that
+there needs to be some kind of predisposition in the people who do it: not
+everybody is good at "thinking meta", some people are simply more skewed towards
+concrete work. Make sure you use "meta people" to do the "meta work".
+
+There's also a flip side here: you have to make sure you actually do have people
+on your team who are good at language design, know about the domain and
+understand target platforms. Otherwise the MD* approach will not deliver on its
+promises.
+
+
+
+\subsection{Domain Users vs. Domain Experts}
+
+When building business DSLs, people from the domain can play two different
+roles. They can participate in the domain analysis and the definition of the DSL
+itself. On the other hand, they can use the DSL to express specific domain
+knowledge.
+
+It is useful to distinguish these two roles explicitly. The first role (language
+definition) must be filled by a domain expert. These are people who have
+typically been working in the domain for a long time, maybe in different roles,
+who have a deep understanding of the relevant concepts and they are able to
+express them precisely, and maybe formally.
+
+The second group of people are the domain users. They are of course familiar
+with the domain, but they are typically not as experienced as the domain experts
+
+This distinction is relevant because you typically work with the domain experts 
+when defining the language, but you want the domain users to actually work with
+the language. If the experts are too far ahead of the users, the users might not
+be able to "follow" along, and you will not be able to roll out the language to
+the actual target audience.
+
+Hence, make sure that when defining the language, you actually cross-check with
+real domain users whether they are able to work with the language.
+
+\subsection{DSL as a Product}
+
+The language, constraints, interpreters and generators are usually developed by
+one (smaller) group of people and used by another (larger) group of people. To
+make this work, consider the metaware a product developed by one group for use
+by another. Make sure there's a well defined release schedule, development
+happens in short increments, requirements and issues are reported and tracked,
+errors are fixed reasonably quickly, there is ample documentation (examples,
+examples, examples!) and there's support staff available to help with problems
+and the unavoidable learning curve. These things are critical for acceptance.
+
+A specific best practice is to exchange people: from time to time, make
+application developers part of the generator team to appreciate the challenges
+of "meta", and make meta people participate in actual application development to
+make sure they understand if and how their metaware suits the people who do the
+real application development.
+
+\subsection{Documentation is still necessary}
+
+Building DSLs and model processors is not enough to make the approach
+successful. You have to communicate to the users how the DSL and the processors
+work. Specifically, here's what you have to document: the language structure and
+syntax, how to use the editors and the generators, how and where to write manual
+code and how to integrate it as well as platform/framework decisions (if
+applicable).
+
+Please keep in mind that there are other media than paper. Screencasts, videos
+that show flipchart discussions, or even a regular podcast that talks about how
+the tools change are good choices, too.
+
+Also keep in mind that hardly anybody reads reference documentation. If
+you want to be successful, make sure the majority of your documentation is
+example-driven or task-based.
+
+
+
+\section{Using DSLs}
+
+
+\subsection{Reviews}
+
+A DSL limits the user's freedom in some respect: they can only express things
+that are within the limits of DSLs. Specifically, low-level implementation
+decisions are not under a DSL user's control because they are handled by the
+model generator or interpreter.
+
+However, even with the nicest DSL, users can still make mistakes, the DSL users
+can still misuse the DSL (the more expressive the DSL, the bigger this risk).
+So, as as part of your development process, make sure you do regular model
+reviews. This is critical especially to the adoption phase when people are still
+learning the language and the overall approach.
+
+Reviews are easier on DSL level than on code level. Since DSL programs are more
+concise than their equivalent specification in GPL code, reviews become more
+efficient.
+
+If you notice recurring mistakes, things that people do in a "wrong" way
+regularly, you can either add a constraint check that detects the problem
+automatically, or (maybe even better) consider this as input to your language
+designers: maybe what the users expect is actually correct, and the language
+needs to be adapted.
+
+
+\subsection{Compatible Organization}
+
+Done right, MD* requires a lot of cross-project work. In many settings the same
+metaware will be used in several projects or contexts. While this is of course a
+ big plus, it also requires, that the organization is able to organize, staff,
+schedule and pay for cross-cutting work. A strictly project-focused organization
+has a very hard time finding resources for these kinds of activities. MD* is
+very hard to do effectively in such environments.
+
+Make sure that the organizational structure, and the way project cost is
+handled, is compatible with cross-cutting activities. You might want to take a
+look at the Open Source communities to get inspirations of how to do this.
+
+
+\subsection{Domain Users Programming?}
+
+Domain users aren't programmers. But they are still able to formally and
+precisely describe domain knowledge. Can they actually do this alone?
+
+In many domains, usually those that have a scientific or mathematical touch,
+they can. In other domains you might want to shoot for a somewhat lesser goal.
+Instead of expecting domain users and experts to independently specify domain
+knowledge using a DSL, you might want to pair a developer and a domain expert.
+The developer can help the domain expert to be precise enough to "feed" the DSL.
+Because the notation is free of implementation clutter, the domain expert feels
+much more at home than when staring at GPL source code.
+
+Initially, you might even want to reduce your aspirations to the point where the
+developer does the DSL coding based on discussions with domain users, but then
+showing them the resulting model and asking confirming or disproving questions
+about it.\marginnote{Executing the program, by generating code or running some
+kind simulator can also help domain users understand better what has been
+expressed with the DSL.} Putting knowledge into formal models helps you point
+out decisions that need to be made, or language extensions that might be
+necessary.
+
+If you're not able to teach a business domain DSL to the domain users, it might
+not necessarily be the domain users' fault. Maybe your language isn't really
+suitable to the domain. If you encounter this problem, take it as a warning sign
+and take a close look at your language.
+
+
+
+    
+
