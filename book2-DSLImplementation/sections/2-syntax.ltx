@@ -1,4 +1,4 @@
-\section{Concrete and Abstract Syntax}
+\chapter{Concrete and Abstract Syntax}
 
 \todo{Show stuff in MPS with tables and graphics}
 
@@ -6,7 +6,7 @@ The \emph{concrete syntax} (short: CS) of a language is what the user interacts
 with to create programs. It may be textual, graphical, tabular or any
 combination thereof. In this book we focus mostly on textual concrete syntaxes
 for reasons described in \ref{???}. We refer to other forms where appropriate.
-
+ 
 The \emph{abstract syntax} (short: AS) of a language is a data structure that
 holds the information represented by the concrete syntax, but without any of the
 syntactic details. Keywords, layout (e.g., whitespace), and comments are
@@ -92,7 +92,7 @@ structures - i.e., AS first.
 \end{figure}
 
 
-\subsection{Fundamentals of Free Text Editing} 
+\section{Fundamentals of Free Text Editing} 
 
 Most general-purpose programming environments rely on free text editing, where
 programmers edit programs at the character level to form (key)words and phrases.
@@ -120,7 +120,7 @@ ambiguity, look-ahead, LL, (LA)LR, PEG and these all pertain to a certain class
 of parser implementation approaches. We'll provide more details on the various
 grammar and parser classes further on in this section %% /chapter?.
 
-\subsubsection{Parser Generation Technology}
+\subsection{Parser Generation Technology}
 
 In traditional compilers, parsers are often written by hand as a big program
 that reads a stream of characters and uses recursion to create a tree structure.
@@ -288,12 +288,12 @@ were designed that could parse text in a bounded amount of time and memory.
 However, these time and space guarantees could only be provided for certain
 subclasses of the context-free grammars, described by acronyms such as LL(1),
 LL($k$), LR(1), and so on, as illustrated in
-\Figure{Fig:grammar-classes}.
+\fig{Fig:grammar-classes}.
 A particular parser tool supports a specific class of grammars --- e.g., ANTLR
 supports LL($k$) and LL(*).
 
-In the classification of \Figure{Fig:grammar-classes}, the first L stands for left-to-right scanning, and the
-second L in LL and the R in LR stand for leftmost and rightmost derivation.
+In the classification of \fig{Fig:grammar-classes}, the first L stands for
+left-to-right scanning, and the second L in LL and the R in LR stand for leftmost and rightmost derivation.
 The constant $k$ in LL($k$) and LR($k$) indicates the maximum number (of tokens or characters) the
 parser will look ahead to decide which production rule it can
 recognize. Typically, grammars for
@@ -302,9 +302,9 @@ effectively compute the optimal value for $k$ automatically. A special
 case is LL(*), where $k$ is unbounded and the parser can look
 ahead arbitrarily many tokens to make decisions.
 
+\TODO{Venn diagram of grammar classes: LL, LR, ...}
 \begin{figure}[t]
 \begin{center}
-  \TODO{Venn diagram of grammar classes: LL, LR, ...}
 \end{center}
 \caption{Classes of grammars.}
 \label{Fig:grammar-classes}
@@ -400,7 +400,7 @@ FieldPart ::= ID
 
 \noindent
 This last grammar now describes the same language as the one from
-\Figure{Fig:field-access-grammar}, but conforms to the LL(1) grammar class.
+\fig{Fig:field-access-grammar}, but conforms to the LL(1) grammar class.
 
 Unfortunately, it is not possible to factor all possible context-free grammars
 to one of the restricted classes. Valid, unambiguous grammars exist that cannot
@@ -434,7 +434,7 @@ problem for parser implementation as some decision has to be made on which AST
 is preferred.
 
 For example, the expression language grammar given in
-\Figure{Fig:exp-grammar-simple} is ambiguous. For a string \texttt{1*2+3} there
+\fig{Fig:exp-grammar-simple} is ambiguous. For a string \texttt{1*2+3} there
 are two possible trees (corresponding to different operator precedences). The
 grammar does not describe which interpretation should be preferred.
 
@@ -453,7 +453,7 @@ grammar does not describe which interpretation should be preferred.
 \end{Tree}
 \hspace{2em}
 \begin{Tree}
-\node {Exp}
+\node {Exp} 
     child { node {Exp}
         child { child { node {1}}}}
     child { child { child { node {*}}}}
@@ -473,12 +473,12 @@ ambiguity differently. We discuss both approaches.
 
 LL and LR parsers are deterministic parsers: they can only return one possible
 tree for a given input. This means they can't handle any grammar that has
-ambiguities, including the grammar in \Figure{Fig:exp-grammar-simple}.
+ambiguities, including the grammar in \fig{Fig:exp-grammar-simple}.
 Determining whether a grammar is ambiguous is a classical, undecidable problem.
 However, it is possible to detect violations of the LL or LR grammar class
 restrictions, in the form of conflicts. These conflicts do not always indicate
 ambiguities (as seen with the field access grammar of
-\Figure{Fig:field-access-grammar}), but by resolving all conflicts (if possible)
+\fig{Fig:field-access-grammar}), but by resolving all conflicts (if possible)
 an unambiguous grammar can be formed.
 
 Resolving grammar conflicts in the presence of associativity, precedence, and
@@ -550,8 +550,8 @@ Exp ::= Exp "+" Exp \curlies{left}
 \noindent indicating that the multiplication operator binds stronger than the
 addition operator.
 
-\UNDONE{Note that not all parser tools support disambiguation filters: Xtext doesn't,
-but Spoofax does.} \MV{While this is true, I find this comment misleading
+\TODO{Note that not all parser tools support disambiguation filters: Xtext
+doesn't, but Spoofax does.} \MV{While this is true, I find this comment misleading
 because Xtext is not a GLR parser and it sounded like disam filters are only
 relevant for GLR parsers. I suggest we remove this sentence and mention in the
 example above that Xtext does it that way.}
@@ -593,7 +593,7 @@ characters instead of on tokens (a scannerless parser)
 
 
 
-\subsection{Fundamentals of Projectional Editing} 
+\section{Fundamentals of Projectional Editing} 
 
 In parser-based approaches, users use text editors to enter character sequences
 that represent programs. A parser then checks the program for syntactic
@@ -619,7 +619,7 @@ cross-references are first-class rather than being resolved after parsing. The
 program is stored using some generic tree persistence mechanism which are often
 XML-based.
 
-\subsection{Comparing Parsing and Projection}
+\section{Comparing Parsing and Projection}
 
 \MV{The following paragraph needs to be ripped apart and the respective points
 need to be moved into the respective subsubsections} There's a lot to say in
@@ -632,7 +632,7 @@ text-based tools like versioning systems, issue trackers, documentation systems,
 or email clients.
 
 
-\subsubsection{Editing Experience}
+\subsection{Editing Experience}
 
 To edit programs, you need a suitable editor. A normal text editor is obviously
 not sufficient as you would be editing some textual representation of the AST.
@@ -706,7 +706,7 @@ pleasant working environment.
 \MV{Here}
 
 
-\subsubsection{Language Modularity}
+\subsection{Language Modularity}
 
 Projectional editors can cope with textual notations that would be ambiguous if
 they had to be parsed. This is important in two contexts:
@@ -731,7 +731,7 @@ they had to be parsed. This is important in two contexts:
 \end{description}
 
 
-\subsubsection{Notational Freedom}
+\subsection{Notational Freedom}
 
 Since no parsing is used in projectional editors, and the mechanism works
 basically like a graphical editor, notations other than text can be used in the
@@ -741,7 +741,7 @@ with other input gestures), they can be mixed easily: tables can be embedded
 into textual source, and textual languages can be used within table cells.
 Textual notations can also be used inside boxes or as connection labels in diagrams.
 
-\subsubsection{Language Evolution}
+\subsection{Language Evolution}
 
 Evolution of languages can be a bit more complex, since, if language concepts
 are not present anymore in a new revision of the language, existing instances of
@@ -750,7 +750,7 @@ these concepts will break. MPS solves this problem with deprecation and
 chapter on language evolution.
 
 
-\subsubsection{Infrastructure Integration}
+\subsection{Infrastructure Integration}
 
 Special support also needs to be provided for infrastructure integration. Since
 the CS is not pure text, a generic persistence format needs to be devised.
@@ -771,7 +771,7 @@ has a UUID, \emph{move} can be distinguished from \emph{delete} and
 
 
 
-\subsubsection{Other}
+\subsection{Other}
 
 In parser-based systems, the complete AST has to be reconstructable from the CS.
 This implies that there can be no information in the tree that is \emph{not}
@@ -788,13 +788,13 @@ projecting that data inside the original projection, all without changing the
 original language specification.
 
 
-\subsection{Characteristics of AST formalisms}
+\section{Characteristics of AST formalisms}
 
 Most AST formalisms, aka Meta Meta Models, are ways to represent trees or
 graphs. Usually, such an AST formalism is "meta circular" in the sense that it
 can describe itself.
 
-\subsubsection{EMF Ecore}
+\subsection{EMF Ecore}
 
 The Eclipse Modeling Framework (EMF) is at the core of all of Eclipse's modeling
 related activities. Its core component is the Ecore meta meta model, a version
@@ -821,7 +821,7 @@ EMF has grown to be a fairly large ecology within the Eclipse community and
 numerous projects use EMF as a basis for model manipulation and persistence,
 with Ecore for meta model definition.
 
-\subsubsection{Spoofax' ATerm}
+\subsection{Spoofax' ATerm}
 
 Spoofax uses the ATerm format to represent abstract syntax. ATerms are
 a generic tree structure representation format that can be serialized
@@ -851,7 +851,7 @@ structure and serializability of ATerms also allows them to be
 converted to other data formats. For example, the aterm2xml/xml2aterm
 tools can convert between ATerms and XML.
 
-\subsubsection{MPS' Structure Definition}
+\subsection{MPS' Structure Definition}
 
 Every program element in MPS is a node. A node has a structure definition and
 projection rules for rendering. This is also true for language definitions.
@@ -1138,7 +1138,7 @@ name might exist, or some target elements are not visible based on visibility
 rules of the language. To control the possible reference targets, scoping
 functions are used. These will be explained in the next section.
 
-\MB{I still have to reconcile the duplicate explanation of scoping in this
+\todo{MB: I still have to reconcile the duplicate explanation of scoping in this
 paragraph\ldots}
 
 
