@@ -1,0 +1,372 @@
+\chapter{DSLs and Requirements}
+
+\section{What is Requirements Engineering}
+
+Wikipedia defines a requirements as follows:
+\textit{a requirement is a singular documented need of what a particular product
+or service should be or perform.}
+%
+Wiktionary says:
+\textit{specifies a verifiable constraint on an implementation that it shall
+undeniably meet or (a) be deemed unacceptable, or (b) result in implementation
+failure, or (c) result in system failure.}
+%
+In our own words we would probably define a requirement as a statement about
+\textit{what a system should do, and with which quality attributes, without
+presupposing a specific implementation.} Requirements are supposed to tell the
+programmers what the system they are about to implement, should do. They are a
+means of communicating from humans (people who know what the system should do)
+to other humans (those that have to implement it).
+
+Of course, as well all know, there are a number of challenges in this:
+\begin{itemize}
+  \item Those who implement the system may have a different background than
+  those who write them, making misunderstandings likely.
+  \item Those who write the requirements may not actually really know what they
+  want the system to do. Requirements change and learning about these and
+  writing them down is hard.
+  \item Usually requirements are written in plain English (or whatever language
+  you prefer). Writing things down precisely and completely in a non-formal
+  language is next to impossible.
+\end{itemize}
+
+Traditional requirements (documents) are a means of communication between
+people. However, in the end this is not really true. In an ideal world, the
+requirements (in the brain of the person who writes them down) should be
+communicated directly to the computer, without the intermediate programmer. If
+we look at the problem in this way, requirements now become a formal,
+computer-understandable document.
+ 
+Wikipedia has a nice list of characteristics that requirements should posses:
+%
+\begin{description}
+	\item[Cohesive]	The requirement addresses one and only one thing.
+	\item[Complete]	The requirement is fully stated in one place with no missing
+	information.
+	\item[Consistent] The requirement does not contradict any other requirement and
+	is fully consistent with all authoritative external documentation.
+	\item[Atomic] The requirement is atomic, i.e., it does not contain
+	conjunctions. E.g., "The postal code field must validate American and Canadian
+	postal codes" should be written as two separate requirements: (1) "The postal
+	code field must validate American postal codes" and (2) "The postal code field
+	must validate Canadian postal codes".
+	\item[Traceable] The requirement meets all or part of a business need as stated
+	by stakeholders and authoritatively documented. 
+	\item[Current] The requirement has not been made obsolete by the passage of time.
+	\item[Feasible]	The requirement can be implemented within the constraints of the
+	project. 
+	\item[Unambiguous] The requirement is concisely stated without recourse to
+	technical jargon, acronyms (unless defined elsewhere in the Requirements
+	document), or other esoteric verbiage. It expresses objective facts, not
+	subjective opinions. It is subject to one and only one interpretation. Vague
+	subjects, adjectives, prepositions, verbs and subjective phrases are avoided.
+	Negative statements and compound statements are prohibited.
+	\item[Mandatory] The requirement represents a stakeholder-defined characteristic
+	the absence of which will result in a deficiency that cannot be ameliorated. An
+	optional requirement is a contradiction in terms.
+	\item[Verifiable] The implementation of the requirement can be determined
+	through one of four possible methods: inspection, demonstration, test or
+	analysis.
+\end{description}
+
+If requirements are written as pure prose text, then making sure all these
+characteristics are met, boils down mostly to a manual review process. Of
+course, this is tedious and error prone (often exacerbated through
+over-specification even though the prose text isn't a specification at all), so
+it's often not done rigorous enough or not at all and requirements documents end
+up in the sorry state we all know.
+
+If you want to get one step better, you use somewhat controlled language: words
+like ``must'', ``may'', or ``should'' have a well defined meaning and are used
+consciously. Using tables and, to some extent, state machines, is also a good
+way to make some of the data a bit more unambiguous. To manage large sets of
+requirements, tools like DOORS or RequisitePro are used: they allow the unique
+naming of requirements, as well as the expression of relationships and
+hierarchies among requirements. However, the requirements themselves are still
+expressed as plain text, so the fundamental problems mentioned above are not
+improved significantly.
+
+In this chapter we will give you some ideas and examples on how this situation
+can be improved with DSLs.
+
+
+\section{Requirements vs. Design vs. Implementation}
+
+Traditionally, we try to establish a clear line between requirements,
+architecture and design, and implementation. For example, consider the
+following:
+
+\begin{description}
+  \item[Requirement] The system shall be 100\% reliable.
+  \item[Design] Use hot-standby and failover to continue service if something
+  breaks.
+  \item[Implementation] \ldots all the code that is necessary to implement the
+  design above.
+\end{description}
+
+We make this distinction because we want to establish different roles in the
+% TODO  want or make?!
+software engineering process. For example, product management writes the
+requirements, a systems architect comes up with the architecture and design, and
+then a programmer writes the actual code. Different organizations might be
+involved: the OEM writes the requirements, a systems integrator does the
+architecture, and some cheap outsourcing company does the coding. In such a
+scenario it is important to draw precise boundaries between the activities, of
+course.
+
+However, in some sense the boundaries are arbitrary. We could just as well do
+the following:
+
+\begin{description}
+  \item[Requirement] The system shall be 100\% reliable by using hot-standby 
+  and failover to continue service if something breaks.
+  \item[Design] We use two application servers running on two hosts, using XYZ
+  messaging queue as a replication engine for the hot-standby. We use a watchdog
+  for detecting if the primary machine breaks.
+  \item[Implementation] \ldots all the code that is necessary to implement the
+  design above.
+\end{description}
+
+From software development we know that it is very hard to get requirements
+right. In the real world, you have to elaborate on the requirements
+incrementally: you write some requirements, then you write a prototype and check
+if the requirements make sense, then you refine the requirements, write a (maybe
+more detailed) prototype, and so on.
+
+In systems engineering this approach is also very well established. For example,
+when satellites are built, the scientists come up with initial scientific
+requirements, for example, regarding the resolution a satellite-based radar
+antenna looking at the earth should have. Let's look at some of the
+consequences:
+
+\begin{itemize}
+  \item A given resolution requires a specific size of the antenna, and a
+  specific amount of energy being sent out. (Actually, the two influence each
+  other prohibiting a strict hierarchy.)
+  \item A bigger antenna results in a heavier satellite, and more radar energy
+  requires more solar panel area - increasing the size and weight again.
+  \item At some point, the size and weight of the satellite cannot be further
+  increased, because a given launch vehicle reaches its limits - a different
+  launch vehicle might be required.
+  \item A bigger launch vehicle might be much more expensive, or you might have
+  to change the launch provider. For example, you might have to use a Soyuz
+  instead of an Ariane.
+  \item A Soyus launched Baikonur cannot reach the same orbits as an Ariane
+  launched from Courou. As a consequence, the satellite might be ``further
+  away'' from the area you want to inspect with your radar, neglecting the
+  advantages gained by the bigger antenna.
+  \item Instead of a bigger antenna, you might want to use several smaller ones,
+  maybe even on different satellites.
+\end{itemize}
+
+Now this has just looked at size and weight. Similar problems exist with heat
+management, pointing accuracy, propulsion, etc. It is plainly impossible to
+write requirements, throw them over the fence, and have somebody build the
+satellite.
+
+So what do the systems engineers do? They come up with a model of the satellite.
+Using mathematic formulas, they describe how the different properties discussed
+above relate. These might be approximations or based on past experience - after
+all, the real physics can be quite complex. And then they run a so-called
+trade-off analysis. In other words, they change the input values until a
+workable compromise is reached. Usually this is a manual process, but sometimes
+parts of it can be automated.
+
+This shows three things. First, requirements elicitation is incremental. Second,
+models can be a big help to precisely specify requirements and then ``play''
+with them. And third, the boundary between requirements and design is blurred,
+and the two influence each other.
+
+\begin{figure}[h]
+\begin{center}
+  \includegraphics[scale=0.6]{figures/req/reqAndDesign.png}
+  \caption[labelInTOC]{Requirements and Design influence each other and are
+  thus best done iteratively, and in parallel}
+  \label{reqAndDesign}
+\end{center}
+\end{figure}
+  
+
+\section{Using DSLs for Requirements Engineering}
+
+So here is the approach for using DSLs we suggest: identify a couple of core
+areas of the to-be-built system that lend themselves to specification with a
+formal language. Then develop a DSL to express these areas and use them to
+describe the system. The rest of the system - i.e.\ the areas for which a
+DSL-based description makes no sense - is described textually, with the usual
+tools. We will discuss the integration between the textual requirements and the
+DSL-based requirements below.
+
+Once a suitable DSL has been found and implemented, those people who have the
+requirements in mind can directly express them - the lossy human-to-human
+communication is no longer a problem. Various constraint checks, tests and
+simulations can be used to have the requirements owners ``play'' with the
+requirements models to see if they really express what they had in mind.
+
+At this point you may say: well, that's not really requirements engineering
+anymore, that's just plain old DSL usage. We agree to some extent. However,
+these DSLs might not be complete enough to support execution. In many cases they
+are, but in some cases checking, analysis and/or simulation might be all that's
+required. More detailed models may be required to make them executable.
+
+Of course there is one significant caveat: we first have to build this DSL. So
+how do we go about that? We could have somebody write prose requirements and
+hand them over to the DSL developer \ldots back to square one!
+
+There is a much better approach, though. Since today's language workbenches
+support extremely rapid prototyping, you can actually build the DSLs
+interactively with the requirements owner. Since you're not capturing the
+specific requirements but rather try to describe how specific requirements are
+described, you are performing what's called a domain analysis: you try to
+understand the degrees of freedom in the domain to be able to represent it with
+the DSL. This is similar to what has been done with analysis models (back in the
+day \ldots). However, instead of drawing UML analysis diagrams, you capture the
+domain into a language definition. These are if you will ``executable analysis
+models'', since you can always turn around and have the requirements owner try
+to express specific requirements with the DSL you're building, verifying the
+suitability of the DSL.
+
+Here is the process we use:
+%
+\begin{enumerate}
+  \item Have the requirements owner explain some particular aspect of the
+  domain.
+  \item Try to understand that aspect and change your DSL so it can express that
+  aspect.
+  \item Have the requirements owner try to express a couple of specific, but
+  representative, requirements with the DSL.
+  \item You'll run into problems, some things cannot be expressed with the DSL.
+  \item Go back to 1. and reiterate. A complete iteration should take no more
+  than 60 minutes.
+  \item After half a day, stop working with the requirements owner and clean
+  up/refactor the DSL.
+  \item Start another of the language design sessions with the requirements
+  owner and iterate -- over time, you should get closer to \emph{the} DSL for
+  the domain.
+\end{enumerate}
+
+
+\section{Integration with Plain Text Requirements}
+
+Using DSLs, you will not be able to describe all requirements of a systems. 
+There will always be aspects that cannot be formalized, or that are so specific, 
+that the effort of building a DSL does not pay off. You have to find some way of
+integrating plain text requirements with DSL code. Here are some ideas of how
+you can do this.
+
+\subsection{Embedding DSL code in a requirements tool}
+
+As part of the VERDE research project, Eclipse-based tooling for requirements
+engineering is developed. This includes a ``classical'' requirements engineering
+tool in which textual requirements are classified, structured and put into
+relationships with each other. The requirements structure is represented as an
+EMF model. In addition to plain text, requirements can have parameters with
+well-defined types (strings, integers).
+
+\begin{figure}[h]
+\begin{center}
+  \includegraphics[scale=0.45]{figures/req/dslEmbeddedInReqTool.png}
+  \caption[labelInTOC]{An Xtext DSL embedded in a requirements engineering tool}
+  \label{dslEmbeddedInReqTool}
+\end{center}
+\end{figure}
+
+In addition, the type of an attribute can also be a DSL - in other words, it is
+possible to associate DSL programs with requirements. As figure
+\ref{dslEmbeddedInReqTool} shows, these DSL fragments are integrated with the UI
+of the requirements management tool.
+
+\subsection{Integrating Plain Text and Models}
+
+If DSLs are used to describe requirements, these can obviously annotated with
+comments, providing some form of integration with non-formal requirements.
+However, this is a bad solution for various reasons. In most cases it is better
+to keep the text and the models separate, and then refer from one to the using
+actual links (not just text references).
+
+Using the Xdoc extension to Xtext % TODO
+
+
+In MPS, one can use the generic documentation language and embed references
+% TODO
+
+
+\section{Requirements Traceability}
+
+This means: being able to trace how requirements lead to design, implementation
+and test artifacts. This allows you to see if and how requirements have
+influenced the design, whether they are implemented and whether tests for the
+requirements exist. This is especially important in safety-critical environments
+where you have to ``prove'' that certain requirements have been taken care of
+adequately.
+
+Traceability links are basically ``pointers'' from requirements to other
+artifacts. In a world where requirements as well as design, implementation and
+test artifacts are all model-based, establishing these pointers becomes trivial.
+In mixed environments with many different tools built on many different
+foundations, this can become arbitrarily complicated.
+
+In this section we want to show you two approaches to traceability.
+
+\subsection{Traceability Framework for Eclipse}
+
+The VERDE project mentioned above also develops a traceability framework based
+on Eclipse. Various types of traceability links can be defined after which they
+can be used to establish links between arbitrary EMF based models. In addition
+to the generic EMF-based version, tool adapters can also be plugged in. These
+provide specific support for links from/into a number of specific tools or
+formats, for example plain text files, non-EMF UML tools or AUTOSAR models.
+
+The links are kept external to the actual models, so no modifications to
+existing meta models or languages are required. This is also the reason why
+non-EMF artifacts can be integrated, albeit requiring the special tool adapter.
+
+\subsection{Traceability in MPS}
+
+MPS supports language annotations. Arbitrary models - independent of the
+language - can be annotated with any other data. One use case of this approach
+is the annotation with traceability links, as shown in figure
+\ref{traceAnnotationsInMPS}.
+
+\begin{figure}[h]
+\begin{center}
+  \includegraphics[scale=0.45]{figures/req/traceAnnotationsInMPS.png}
+  \caption[labelInTOC]{Traceability annotations on a C-like language}
+  \label{traceAnnotationsInMPS}
+\end{center}
+\end{figure}
+ 
+A context menu action adds a new link to any other model element: Control-Space
+allows the selection of one or more requirements to which to point. The
+requirements themselves are imported into an MPS model from a requirements
+engineering tool via RIF files.
+
+Alternatively it would also be possible to create tooling that points from
+requirements to implementation (as opposed to the opposite direction, shown
+above).
+
+
+\section{Summing Up}
+
+This chapter describes how DSLs play into requirements engineering. Let us wrap
+up by revisiting the desirable characteristics for requirements as outlined by
+Wikipedia, and see how DSLs can improve the situation. The following lists only
+those characteristics for which DSLs make a difference.
+
+\begin{description}
+	\item[Consistent] Consistency is enforced by the language. If the DSL is crafted
+	correctly, no inconsistent programs can be expressed.
+	\item[Traceable] As shown in the last section above, traceability is at least
+	simplified.
+	\item[Feasible] Specific requirements are checked for feasibility by being
+	expressible with the DSL - they are within the scope of what the DSL, hence, the
+	domain for which we write the requirements - is intended.
+	\item[Unambiguous] A description of requirements - or application functionality
+	in general - with a DSL always unambiguous, provided the DSL has well-defined
+	semantics.
+	\item[Verifiable] Constraints, tests, verification or simulation can be used to
+	verify that the requirements regarding various properties. Inspection and review
+	is simplified, because DSL programs are less verbose than implementation code,
+	and clearer than prose.
+\end{description}
+
