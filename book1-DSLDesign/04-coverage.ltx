@@ -4,24 +4,24 @@
 A language $L$ always defines a domain $D$ such that $P_D = P_L$. Let's call
 this domain $D_L$, i.e. the domain determined by $L$. This does not work
 the other way around. Given a domain $D$ there is not necessarily a language that
-\emph{fully covers} it unless we revert to a universal language at a $D_0$ (cf.
-the hierarchical structure of domains and languages).
+\emph{fully covers} that domain unless we revert to a universal language at a
+$D_0$ (cf. the hierarchical structure of domains and languages).
 
+\marginnote{Note that we can achieve full coverage by making $L$ \emph{too
+general}. Such a language, may, however, be less expressive, resulting in bigger
+(unnecessarily big) programs. Indeed this is the reason for designing
+DSLs in the first place: general purpose languages are too general.}
 \begin{quote}
 A language $L$ \emph{fully covers} domain $D$, if for each program $p$ in the
 domain $P_D$ a program $p_L$ can be written in $L$. In other words, $P_D
 \subseteq P_L$.
 \end{quote}
 
-\marginnote{Note that we can achieve full coverage by making $L$ \emph{too
-general}. Such a language, may, however, be less expressive, resulting in bigger
-(unnecessarily big) programs. Indeed this is the reason for designing
-DSLs: general purpose languages are too general.}
 
 Full coverage is a Boolean predicate; a language fully covers a domain or it
 does not. In practice, many languages do not fully cover their respective
 domain. We would like to indicate the \emph{coverage ratio}. The domain coverage
-of a language $L$ is the portion of programs in a domain~$D$ that it can
+ratio of a language $L$ is the portion of programs in a domain~$D$ that it can
 express. We define $C_D(L)$, \emph{the coverage of domain $D$ by language $L$},
 as
 \vspace{-0.4\baselineskip}
@@ -31,8 +31,8 @@ of\;programs\;in\;domain \;D} = \dfrac{|P_D - (P_D - P_L)|}{|P_D|} $$
 
 \noindent Since $P_L$ can be larger than $P_D$, $P_D - (P_D - P_L)$ denotes the
 $P_D$ programs that can be expressed in $P_L$. Although this equation does not
-make sense set theoretically since all sets are typically infinite, it does
-describe the intuitive notion of \emph{degree of coverage}.
+make sense from a set theory perspective (all sets are typically infinite), it
+does describe the intuitive notion of the coverage ratio.
 
 At first glance, an ideal DSL will cover all of its domain ($C_D(L_D)$ is
 100\%). It requires, however, that the domain is well-defined and we can
@@ -42,29 +42,26 @@ keep coverage full. \marginnote{As the domain evolves, language evolution has to
 keep pace, requiring responsive DSL developers. This is an important process
 aspect to keep in mind!}
 
-However, there are two reasons for a DSL \emph{not} to cover all of its
+There are two reasons for a DSL \emph{not} to cover all of its
 \emph{own} domain $D$. First, the language may be deficient and needs to be
 redesigned. This is especially likely for new and immature DSLs. Scoping the
 domain for which to build a DSL is an important part of DSL design. 
 
 Second, the language may have been defined expressly to cover only a subset of
-$D$, typically the subset that is most often used. Covering all of $D$ may lead
-to a language that is too big or complicated for the intended user community
-because of its support for rarely used corner cases of the domain.
-In this case, the remaining parts of $D$ may have to be expressed
-with code written in $D_{-1}$, see the following section on Completeness. This
-requires coordination between DSL users and $D_{-1}$ users, if this not the same
-group of people. However, after this coordination is established it is easier to
-cope with unsupported cases resulting from a DSL that has not yet been updated
-to an evolving domain.
+$D$, typically the subset that is most commonly used. Covering all of $D$ may
+lead to a language that is too big or complicated for the intended user
+community because of its support for rarely used corner cases of the domain. In
+this case, the remaining parts of $D$ may have to be expressed with code written
+in $D_{-1}$ (see also \sect{sect:completeness}). This requires coordination
+between DSL users and $D_{-1}$ users, if this not the same group of people.
 
-\exwebdsl{WebDSL defines web pages through `page definitions' which have formal
-parameters (Figure~\ref{webdsl}). Navigate statements generate links to such
-pages. Because of this stylized idiom, the WebDSL compiler can check that
-internal links are to existing page definitions, with arguments of the right
-type. The price that the developer pays is that the language does not support
-free form URL construction. Thus, the language cannot express all types of URL
-conventions and does not have full coverage of the domain of web applications.}
+\exwebdsl{WebDSL defines web pages through "page definitions" which have formal
+parameters. Navigate statements generate links to such pages. Because of this
+stylized idiom, the WebDSL compiler can check that internal links are to
+existing page definitions, with arguments of the right type. The price that the
+developer pays is that the language does not support free form URL construction.
+Thus, the language cannot express all types of URL conventions and does not have
+full coverage of the domain of web applications.}
  
 \cooling{After trying to write a couple of algorithms, we had to add a
 \emph{perform \ldots after t} statement to run a set of statements after a
@@ -72,10 +69,12 @@ specified time $t$ has elapsed. In the initial language, this had to be done
 manually with events and timers. Since this is a very typical case, we added
 first-class support.}
 
-\embc{Coverage of this set of languages is full. Even if no suitable
-linguistic abstraction is available for some domain concept, it can be
-implement in $D_0$, i.e. in C. Also, addition linguistic abstractions can be
-easily added because of the modular nature of the overall approach.}
+\embc{Coverage of this set of languages is full, although any particular
+extension to C may only cover a part of the respective domain. However, even if
+no suitable linguistic abstraction is available for some domain concept, it can
+be implement in the $D_0$ language C, while retaining complete syntactic and
+semantic integration. Also, additional linguistic abstractions can be easily
+added because of the extensible nature of the overall approach.}
 
 
 
