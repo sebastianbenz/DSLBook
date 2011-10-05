@@ -2,94 +2,137 @@
 \label{semantics}
 
 Semantics can be partitioned into static semantics and execution semantics.
-Static semantics represent the constraints and type system rules. Execution
-semantics denote the observable behaviour of a program $p$ as it is executed. In
-this section we focus on execution semantics unless stated otherwise. 
+Static semantics are implemented by the constraints and type system rules
+(and,if you will, the language structure). Execution semantics denote the
+observable behaviour of a program $p$ as it is executed. In this section we
+focus on execution semantics unless stated otherwise.
 
 Using a function $OB$ that defines this observable behaviour we can define the
 semantics of a program $p_{L_D}$ by mapping it to a program $q$ in a language
 for $D_{-1}$ that has the same observable behavior:
-\vspace{-0.6\baselineskip}
-
 $$semantics( p_{L_D} ) := q_{L_{D-1}}\;\;\;where\;OB(p_{L_D}) ==
 OB(q_{L_{D-1}})$$
-
-\noindent Equality of the two observable behaviors can be established with a
-sufficient number of tests, or with model checking and proof in rare cases. This
-definition of semantics reflects the hierarchy of domains and works both for
+\marginnote{There are also a number of approaches for formally defining
+semantics independent of operational mappings to target languages. However, they
+don't play an important role in real-world DSL design, so we don't address them
+in this book.} 
+\noindent Equality of the two observable behaviors can be
+established with a sufficient number of tests, or with model checking and proof in rare cases. This definition of semantics reflects the hierarchy of domains and works both for
 languages that describe only structure, as well as for those that include behavioural
-definitions. The technical implementation of the mapping to $D_{-1}$ can be
+aspects. 
+
+The technical implementation of the mapping to $D_{-1}$ can be
 provided in two different ways: a DSL program can literally be transformed into
 a program, or a $L_{D-1}$ an interpreter can be written in $L_{D-1}$ or
-$L_{D_0}$ to execute the program. 
+$L_{D_0}$ to execute the program. Before we spend the rest of this section
+looking at these two options in detail, we first briefly look at static
+semantics.
+
 
 \subsection{Static Semantics/Validation}
 
 Before establishing the execution semantics by transforming or interpreting the
 program, its static semantics has to be validated. Constraints and type systems
 are used to this end and we describe their implementation in the DSL
-Implementation section of this book. Here is a thought overview.
+Implementation section of this book \todo{cite}. Here is a short overview.
 
-Constraints are simply boolean expressions that establish some property of a
-model. For example, one might verify that the names of a set of attributes of
-some entity are unique. For a model to be statically correct, all constraints
-have to evaluate to true. Constraint checking should only be performed for a
-model that is structurally/syntactically correct. 
+\marginnote[1cm]{Sometimes constraints are used instead of grammar rules. For
+example, instead of using a $1..n$ multiplicity in the grammar, I often use $0..n$ together with a
+constraint that checks that there is at least one element. The reason for using
+this approach is that if the grammar mechanism is used, a possible error message
+comes from the parser. That error message may read something like
+\emph{expecting SUCH\_AND\_SUCH, found SOMETHING\_ELSE}. This is not very
+useful. If a more tolerant ($0..n$) grammar is used, the constraint error message can be
+made to express a real domain constraint (e.g. \emph{at least one
+SUCH\_AND\_SUCH is required, because \ldots}).}
 
-Type systems are a special kind of constraints. Consider the example of 
-\emph{var int x = 2 * someFunction(sqrt(2);}. The type system constraint may
+\paragraph{Constraints} are simply boolean expressions that
+establish some property of a model. For example, one might verify that the names
+of a set of attributes of some entity are unique. For a model to be statically
+correct, all constraints have to evaluate to true. Constraint checking should
+only be performed for a model that is structurally/syntactically correct.
+
+\embc{One driver in selecting the linguistic abstractions that go into a 
+DSL is the ability to easily implement meaningful constraints. For example, in
+the state machine extension to C it is trivial to find states that have no
+outgoing transitions (dead end). In a functional language, such a constraint
+could be written as \emph{Statemachine:
+states.select(s|!s.isInstanceOf(StopState)).select(s|s.transitions.size == 0)}.}
+
+When defining languages and transformations, developers often have certain
+constraints in their mind which they consider obvious. They assume that no one
+would ever use the language in a particular way. However, DSL users may be
+creative and actually use the language in that way, leading the transformation
+to crash or create non-compilable code. Make sure that all constraints are
+actually implemented. This can sometimes be hard. Only extensive (automated)
+testing can prevent these problems from occurring.
+
+In many cases, a multi-stage transformations is used where a model expressed in
+$L_1$ is transformed into a model expressed in $L_2$, which is then in turn
+transformed into a program expressed in $L_3$\footnote{Note how this also
+applies to the classical case where $L_1$ is your DSL and $L_2$ is a GPL which
+is then compiled!}. Make sure that \emph{every} program in $L_1$ leads to a
+valid program in $L_2$. If the processing of $L_2$ fails with an error message
+using abstractions from $L_2$ (e.g. compiler errors), users of $L_1$ will not be
+able to act on these; they may have never seen the programs generated in $L_2$.
+Again, automated testing is the way to address this issue.
+
+
+\paragraph{Type Systems} are a special kind of constraints. Consider the example of 
+\emph{var int x = 2 * someFunction(sqrt(2));}. The type system constraint may
 check that the type of the variable is the same or a supertype of the type of the
 initialization expression. However, establishing the type of the evaluation
 expression is non-trivial, since it can be an arbitrarily complex expression. A
 type system defines the rules to establish the types of arbitrary expressions,
-as well as type checking constraints. 
+as well as type checking constraints. We cover the implementation of type
+systems in the DSL implementation part of the book \todo{ref}.
 
-When designing the constraints and type system in a language, a decision has to
-be made between (a) declaration of intent and checking for conformance and (b)
-deriving characteristics and checking for consistency. Consider the following
-examples.
+\newthought{When designing constraints and type system} in a language, a
+decision has to be made between one of two approaches:  (a) declaration of
+intent and checking for conformance and (b) deriving characteristics and
+checking for consistency. Consider the following examples.
 
 \embc{Variables have to be defined in the way shown above, where a type has to
-be specified. Alternatively, a type system could be built to automatically
-derive the type of the variable declaration, an approach called type inference.
-This would make the following code correct: 
-\emph{var x = 2 * someFunction(sqrt(2);}. Since no type is explicitly specified, 
-the validator will infer the type of \emph{x} to be the type calculated for the 
-init expression.}
+be specified explicitly. A type specification expresses the intent that this
+variable be of type \emph{int}. Alternatively, a type system could be built to
+automatically derive the type of the variable declaration, an approach called
+type inference. This would allow the following code to be written: \emph{var x =
+2 * someFunction(sqrt(2));}. Since no type is explicitly specified, the
+validator will infer the type of \emph{x} to be the type calculated for the init
+expression.}
 
 \embc{State machines that are supposed to be verified by the model checker have
-to be marked as \emph{verified}. In that case, constraints kick in that mark
-certain ways of writing actions as invalid, because they cannot be handled by
-the model checker. An alternative approach could check the model whether these
-"unverifiable" ways of writing actions are used, and if so, mark the state
-machine as not verifiable.}
+to be marked as \emph{verified}. In that case, additional constraints kick in
+that report certain ways of writing actions as invalid, because they cannot be
+handled by the model checker. An alternative approach could check a state
+machine whether these "unverifiable" ways of writing actions are used, and if
+so, mark the state machine as not verifiable.}
 
-\pension{Pension plans can inherit from other plans. If a pension calculation
-rule overrides a rule in the base plan, then the overriding rule has to marked
-as \emph{overrides}. This way, if the rule in the base plan is removed or
-renamed, the sub plan can report an error. An alternative implementation would
-simply derive the fact that a rule overrides another one if they have the same
-name and signature.}
+\pension{Pension plans can inherit from other plans (called the base plan). If a
+pension calculation rule overrides a rule in the base plan, then the overriding
+rule has to marked as \emph{overrides}. This way, if the rule in the base plan
+is removed or renamed, validatio of the sub plan will report an error. An
+alternative design would simply derive the fact that a rule overrides
+another one if they have the same name and signature.}
 
 Note how in all three cases the constraint checking is based on two steps. First
 we declare an intent (variable is intended to be int, this state machine is
-intended to be verifiable, this rule is intended to override another one). We
-can then check if the program conforms to this specification. The alternative
-would derive the fact from the program (the variable's type is whatever the
-expression's type evaluates to, state machines are verifiable if the
+intended to be verifiable, a rule is intended to override another one). We
+can then check if the program conforms to this intention. The alternative
+approach would derive the fact from the program (the variable's type is whatever
+the expression's type evaluates to, state machines are verifiable if the
 "forbidden" features aren't used, rules override another one if they have the
-same name and signature). 
-
+same name and signature) without any explicitly specified intent. 
 
 When designing constraints and type systems, a decision has to be made regarding
-when to use which approach. Here are some tradeoffs. The
-specification/conformance approach requires a bit more code to write, but
-results in more meaningful and specific error messages. The message can express
+when to use which approach. Here are some trade-offs. The
+specification/conformance approach requires a bit more code to be written,
+but results in more meaningful and specific error messages. The message can express
 that fact that one part of a program does not conform to a specification made by
 another part of the program. It also anchors the constraint checker, because a
-fixed fact about the program is explicitly given, instead of having it derived
+fixed fact about the program is explicitly given instead of having it derived
 from a (possibly large) part of the the program. The derivation/consistency
-appraoch is less effort to write and can hence be seen to be more convenient,
+approach is less effort to write and can hence be seen to be more convenient,
 but it requires more effort in constraint checking, and error messages may be
 harder to understand because of the missing, explicit "hard fact" about the
 program.
@@ -177,7 +220,7 @@ in the code generator.
 
 \embc{Consider the case of a state machine where you want to be able to add an
 "emergency stop" feature, i.e. a new transition from each existing state to a
-new STOP state. Don’t handle this in the generator templates. Rather, write a
+new STOP state. Don't handle this in the generator templates. Rather, write a
 model transformation script that preprocesses the state machine model and adds
 all the new transitions and the new STOP state. Once done, you can run the
 existing generator unchanged. You have effectively modularized the emergency
