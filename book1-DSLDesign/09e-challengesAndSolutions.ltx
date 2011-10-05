@@ -61,8 +61,6 @@ program elements is mapped to another tree, while generation describes the case
 of creating text from program trees. However, for the discussions in this
 section, this distinction is generally not relevant.
 
-\todo{create better versions of the margin figures from the Visio diagrams}
-
 \begin{marginfigure}
   \includegraphics[width=3cm]{figures/referencingCaseA.png}
   \caption{Referencing: Two separate, dependent, single-source transformations}
@@ -86,7 +84,7 @@ can be reused unchanged. The two generators basically share naming information.
   \label{referencingCaseB}
 \end{marginfigure}
 
-\fountain{The refrigerator example uses this case. From the hardware description we
+\cooling{The refrigerator example uses this case. From the hardware description we
 generate an XML file that configures a framework that actually collects the data
 behind the properties of the hardware components in the running refrigerator.
 The C code generated from the algorithm accesses that framework, using
@@ -288,7 +286,7 @@ in other languages, without invasively changing the definition of that other
 language. By making an attribute apply to \verb#BaseConcept#, the super concept
 of all concepts (comparable to \verb#java.lang.Object#), attributes can be made
 applicable to arbitrary program elements, effectively supporting AOP-like
-introductions \TODO{cite} on language level. Attributes are typically used for
+introductions on language level. Attributes are typically used for
 adding "meta data" such as documentation, presence conditions in product line
 engineering \todo{cite VoelterWorkshopPaper} or requirements traces. 
 
@@ -323,9 +321,25 @@ language as being \emph{incompatible} with another one. In that case an error
 could be reported as soon as the languages are used together in a fragment.
   
 
-\paragraph{SDF/Spoofax} 
+\paragraph{SDF/Spoofax}Syntax definition in Spoofax is based on the SDF2 Syntax
+Definition Formalism \cite{Vis97.thesis}. Since SDF uses the Scannerless
+Generalized-LR parsing algorithm, the full class of context-free grammars is
+supported, which is the only grammar class closed under composition, unlike the
+restricted grammar classes of other parser generators. Furthermore, the parser
+does not use a separate lexical analysis phase, but rather considers individual
+tokens as characters, which entails that it supports combination of languages
+with a different lexical syntax, as demonstrated, for example, in the syntax
+definition for AspectJ~\cite{BravenboerTV06}. Thus, SDF supports both extension
+and embedding of languages.
 
-\TODO{EV}  
-
+Semantic analysis, transformation, and code generation in Spoofax are defined
+with the Stratego transformation language \cite{VisserBT98,BravenboerKVV08},
+which is based on the paradigm of term rewriting with programmable strategies.
+Basic transformations are defined with rewrite rules and can be combined into
+composite transformations using strategies. Thus, basic rules defining type
+analysis, static semantic constraints, desugarings, and other transformations
+for separate language components can be composed into transformations for
+language compositions. Stratego provides aspects for overriding and adapting
+transformation strategy definitions~\cite{KatsVisser-SCAM-2010}. 
 
 

@@ -1,21 +1,27 @@
 \section{Expressivity}
  
 \noindent One of the fundamental advantages of domain-specific languages is
-increased expressivity over more general programming languages. By making
-assumptions about the domain of application and encapsulating knowledge about
-the domain in the language itself (and not just in programs) as well as in its
-execution strategy, DSL programs in the DSL can be significantly more concise by
-avoiding the need for users to write "boilerplate code". While it is always
-possible to produce short but incomprehensible programs, overall, shorter
-programs require less effort to read and write than longer programs, and should
-therefore be more efficient in software engineering\sidenote{The size of a
-program may not be the only relevant metric to asses the usefulness of a DSL.
-For example, if the DSL required only a third of the code to write, but it takes
-four times as long to write the code per line, the there is no benefit for
-writing programs. However, often when reading programs, less code is clearly a
-benefit. So it depends on the ratio between writing and reading code whether a
-DSL's conciseness is important.}. We will thus assume that, all other things
-being equal, shorter programs are preferable over longer programs.
+increased expressivity over more general programming languages. Increased
+expressivity typically means that programs are shorter, and that the semantics
+are more readily accessible to processing tools (we will get back to this). By
+making assumptions about the domain of application and encapsulating knowledge
+about the domain in the language and in its execution strategy (and not just in
+programs), programs expressed using a DSL can be significantly more concise.
+
+\cooling{Cooling algorithms expressed with the cooling DSL are ca. five times
+shorter than the C version that is generated from them.}
+
+While it is always possible to produce short but incomprehensible programs,
+overall, shorter programs require less effort to read and write than longer
+programs, and should therefore be more efficient in software engineering. We
+will thus assume that, all other things being equal, shorter programs are
+preferable over longer programs.\footnote{The size of a program may not
+be the only relevant metric to asses the usefulness of a DSL. For example, if the
+DSL required only a third of the code to write, but it takes four times as long
+to write the code per line, the there is no benefit for writing programs.
+However, often when reading programs, less code is clearly a benefit. So it
+depends on the ratio between writing and reading code whether a DSL's
+conciseness is important.}.
 
 The Kolomogorov complexity \cite{LiVitanyi2008} of an object is the smallest
 program in some description language that produces the object. In our case the
@@ -37,24 +43,52 @@ We can then qualify the expressivity of a language relative to another language.
 \noindent Typically, we need to qualify this statement and restrict it to the
 domain of interest.
 
+\marginnote{Note that optimizing a DSL too far towards conciseness may limit the
+DSL's ability to cover a substantial part of the relevant programs in the
+domain, making the DSL useless. We discuss coverage in \sect{coverage}.}
 \begin{center}
 A language $L_1$ is \emph{more expressive in domain $D$} than a
 language $L_2$ ($L_1 \prec_D L_2$), \\ if for each $p \in P_D \cap P_{L_1}
 \cap P_{L_2}$, $|p_{L_1}| < |p_{L_2}|$.
 \end{center}
 
-\noindent A weaker version of this statement requires that  a language is
-\emph{mostly} more expressive, but may not be in corner cases.
+\noindent A weaker but more realistic version of this statement requires that a
+language is \emph{mostly} more expressive, but may not be in corner cases: DSLs
+may optimize for the common case and may require code written in a more general
+language to cover the corner cases\footnote{We discuss this aspect in the section
+on completeness (\sect{sect:completeness}).}.
+
 
 \newthought{DSLs are more expressive} than GPLs in the domain they are built
 for. But there is also a disadvantage: before being able to write these concise
-programs, users have to learn the language. This can be separated into learning
-the domain, and learning the syntax of the language. For people who know the
-domain, learning the syntax can be simplified by using good IDEs with code
-completion and quick fixes. Learning the domain is independent of the language
-itself. It is easy to see, however, that, if a domain is supported by
-well-defined language, this can be a good reference for the domain itself.
-Learning a domain can be simplified by working with a good DSL.
+programs, users have to learn the language. This task can be separated into
+learning the domain itself, and learning the syntax of the language. For people
+who know the domain, learning the syntax can be simplified by using good IDEs
+with code completion and quick fixes, as well as with good, example-based
+documentation. In many cases, DSL users already know the domain, or would have
+to learn the domain even if no DSL were used. Learning the domain is independent
+of the language itself. It is easy to see, however, that, if a domain is
+supported by well-defined language, this can be a good reference for the domain
+itself. Learning a domain can be simplified by working with a good DSL. 
+
+\pension{The users of the pension DSL are pension experts. Most of them have
+spent years describing pension plans using prose text, tables and (informal)
+formulas. The DSL provides formal languages to express that same knowledge
+about the domain.}
+
+The same is true for the act of \emph{building} the DSL. The domain has to be
+scoped, fully explored and systematically structured to be able to build a
+language that covers that domain. This leads to a deep understanding of the
+domain itself.
+
+\cooling{Building the cooling DSL has helped the thermodynamicists and software
+developers to understand the domain, its degrees of freedom and the variability
+in refrigerator hardware and cooling algorithms. Also, the architecture of the
+to-be-generated C application that will run on the device became much more
+well-structured as a consequence of the separation between reusable frameworks,
+device drivers and generated code.}
+
+
 
 
 \subsection{Expressivity and the Domain Hierarchy}
@@ -62,17 +96,18 @@ Learning a domain can be simplified by working with a good DSL.
 In the definition of expressivity above we are comparing arbitrary languages.
 The central idea behind domain-specific languages is that progressive
 specialization of the domain enables progressively more expressive languages.
-Programs in language $L_{D_{n-1}}$ for domain $D_n \subset D_{n-1}$ use a
-set of characteristic idioms and patterns. A language for $D_n$ can provide
-linguistic abstractions for those idioms or patterns, which makes their 
-expression much more concise and their analysis and translation less complex.
+Programs for domain $D_n \subset D_{n-1}$ expressed in a language $L_{D_{n-1}}$
+typically use a set of characteristic idioms and patterns. A language for $D_n$
+can provide linguistic abstractions for those idioms or patterns, which makes
+their expression much more concise and their analysis and translation less
+complex.
 
 \embc{Embedded C extends the C programming language with concepts for embedded
 software including state machines, tasks, and physical quantities. The state
 machine construct, for example, has concepts representing states, events,
 transitions and guards. Much less code is required compared to switch/case
 statements or cross-pointing integer arrays, two typical idioms for state
-machine implementation in C. Analyzing programs, for example, finding states
+machine implementation in C. Program analysis, such as finding states
 that can never be left because no transition leads out of them, is trivial.}
 
 \exwebdsl{WebDSL entity declarations abstract over the boilerplate code required
@@ -84,13 +119,13 @@ magnitude~\cite{Visser07}.}
 \subsection{Linguistic vs. In-Language Abstraction} 
 
 \paragraph{Linguistic Abstraction} By making the concepts of $D$ first class
-members of a language $L_D$, i.e. definining linguistic abstractions for these
-concepts, they can be uniquely identified in a $D$ program and their structure
-and semantics is well defined. No semantically relevant\sidenote{By
-"semantically relevant" we mean that the tools needed for the model purpose
-(analysis, translation) have to treat these cases specially.} idioms or patterns
-are required to express interesting programs in $D$. Consider the two examples
-of loops in a Java-like language:
+members of a language $L_D$, i.e. by definining linguistic abstractions for
+these concepts, they can be uniquely identified in a $D$ program and their
+structure and semantics is well defined. No semantically relevant\sidenote{By
+"semantically relevant" we mean that the tools needed to achieve the model
+purpose (analysis, translation) have to treat these cases specially.} idioms or
+patterns are required to express interesting programs in $D$. Consider the two
+examples of loops in a Java-like language:
 
 \footnotesize
 \begin{verbatim} 
@@ -104,17 +139,17 @@ of loops in a Java-like language:
 
 The left loop can be parallelized, since the order of summing up the array
 elements is irrelevant. The right one cannot, since (we presume) the order of
-the elements in the created list is relevant. A transformation engine that
-translates and optimizes the programs, must perform (sophisticated, and
-sometimes impossible) program analysis to determine that the left loop can be
+the elements in the \emph{List} class is relevant. A transformation engine that
+translates and optimizes the programs must perform (sophisticated, and sometimes
+impossible) program analysis to determine that the left loop can indeed be
 parallelized. The following alternative expression of the same behaviour uses
 better linguistic abstractions, because it is clear without analysis that the
-first loop can be parallelized and the second cannot\sidenote{The property of a
-language $L_D$ of having first-class concepts for abstractions relevant in $D$
-is often called declarative: no sophisticated pattern matching or program flow
-analysis is necessary to capture the semantics of a program (relative to the
-purpose), and treat it correspondingly.}. The decision can simply be based on
-the language concept used (\emph{for} vs. \emph{seqfor})
+first loop can be parallelized and the second cannot\marginnote{The property of
+a language $L_D$ of having first-class concepts for abstractions relevant in $D$
+is often called \emph{declarativeness}: no sophisticated pattern matching or
+program flow analysis is necessary to capture the semantics of a program
+(relative to the purpose), and treat it correspondingly.}. The decision can
+simply be based on the language concept used (\emph{for} vs. \emph{seqfor})
 
 \footnotesize
 \begin{verbatim} 
@@ -128,39 +163,56 @@ the language concept used (\emph{for} vs. \emph{seqfor})
 \embc{State machines are represented with first class concepts. This enables
 code generation, as well as meaningful validation. For example, it is easy to
 detect states that are not reached by any transition and report this as an
-error. Detecting this in a low-level C implementation requires sophisticated
-analysis on the switch-case statements or indexed arrays that constitute the
-implementation of the state machine.}
+error. Detecting this same problem in a low-level C implementation requires
+sophisticated analysis on the switch-case statements or indexed arrays that
+constitute the implementation of the state machine.}
 
 Linguistic abstraction also means that no details irrelevant to the model
 purpose are expressed. Once again, this increases conciseness, and avoids the
-undesired specification of unintended semantics (over-specification). In the
-example above, the loop A is over-specified, it expresses ordering of the
-operations, although this is (most likely) not intended by the person who wrote
-the code.
+undesired specification of unintended semantics (over-specification).
+Overspecification is bad because it limits the degrees of freedom available to a
+transformation engine. In the example above, the loop A is over-specified: it
+expresses ordering of the operations, although this is (most likely) not
+intended by the person who wrote the code.
 
 \embc{State machines can be implemented as switch/case blocks or as arrays
 pointing into each other. The DSL program does not specify which implementation
 should be used and the transformation engine is free to chose the more
-appropriate representation. Also, log statements and task declarations can
-be translated in different ways depending on the target platform.}
+appropriate representation, for example, based on desired program size or
+performance characteristics. Also, log statements and task declarations can be
+translated in different ways depending on the target platform.}
 
-\todo{Example with the optional ports from mbeddr}
+\todo{draw a small component/port diagram to illustrate the idea}
+\embc{Another good example is optional ports in components. Components define
+required ports that specify the interfaces they \emph{use}. For each component
+instance, a required port is connected to the provided port of an instance of a
+component that provides a port with a compartible interfaces. Required ports my
+be optional, so for a given instance, it may be connected or not. Invoking an
+operation on an unconnected required port would result in an error, so this has
+to be prevented. This can be done by enclosing the invocation on a required
+port in an if statement, chechking whether the port is connected. However, an
+if statement can contain any arbitrary boolean expression as its condition 
+(e.g. \emph{if (isConnected(port) || true) \{ port.doSomething(); \}}). So
+checking \emph{statically} that the invocation only happens if the port is connected is
+impossible. An better solution based on linguistic abstraction is to introduce a
+new language concept that checks for a connected port directly: 
+\emph{with port (port) \{ port.doSomething(); \}}. The \emph{with port}
+statement doesn't use a complete expression as its argument, but only a reference to a
+an optional required port. This way, the IDE can check that an invocation on a
+required optional port \emph{port} is only done inside of a \emph{with port}
+statement on that same port.}
 
-\todo{Declaration (mark something re: how it can be used) vs. checking and
-derivation (seems to be abstarct because it has no body). Other concept:
-override. Declaring intent makes something cross-checkable.  }
 
 \paragraph{In-Lanuguage Abstraction} Conciseness can also be achieved by a
 language providing facilities to define new (non-linguistic) abstractions in
 programs. \marginnote{GPL concepts for building new abstractions include
-procedures, classes, specialization, or functions and higher-order functions.}
+procedures, classes, or functions and higher-order functions.}
 It is \emph{not} a sign of a bad DSL if it has in-language abstraction
 mechanisms as long as the created abstractions don't require special treatment
 by analysis or processing tools --- at which point they should be refactored
 into linguistic abstractions.
 
-\fountain{The language does not support the construction of new abstractions
+\cooling{The language does not support the construction of new abstractions
 since its user community are non-programmers who are not familiar with defining
 abstractions. As a consequence, the language had to be modified several
 times during development as new requirements came up from the end users, and had
@@ -177,26 +229,27 @@ User defined templates can be used to build complex user interfaces.}
 \paragraph{Standard Library} If a language provides support for in-language
 abstraction, these facilities can be used by the language \emph{designer} to
 provide functionality to language users. Instead of adding language features, a
-standard library is deployed along with the language\marginnote{This approach is
-of course well known from programming languages. All of them come with a
-standard library, and the language can hardly be used without relying on it. It
+standard library is deployed along with the language to all its
+users\marginnote{This approach is of course well known from programming
+languages. All of them come with a standard library, and the language can hardly be used without relying on it. It
 is effectively a part of the language}. This approach keeps the language itself
 small, and allows subsequent extensions of the library without changing the
 language definition and processing tools.
 
-\fountain{Hardware building blocks have properties. For example, a \emph{fan}
-can be turned on or off, and for a \emph{compressor}, the RPM can be specified.
-The set of properties available for the various building blocks are defined via
-a standard library and are not part of the language. This way, if a new device
-driver supports a new property, it can be made available to cooling programs
-without changing and redeplying the language.}
+\cooling{Hardware building blocks have properties. For example, a \emph{fan}
+can be turned \emph{on} or \emph{off}, and for a \emph{compressor}, the
+\emph{rpm} can be specified. The set of properties available for the various
+building blocks is defined via a standard library and is not part of the
+language. This way, if a new device driver supports a new property, it can be
+made available to cooling programs without changing and redeploying the
+language.}
 
 \paragraph{Linguistic vs. In-Language Abstraction} A language that contains
 linguistic abstractions for all relevant domain concepts is simple to transform;
 the transformation rules can be tied to the identities of the language concepts.
 It also makes the language suitable for domain experts, because relevant domain
 concepts have a direct representation in the language. Code completion can
-provide specific and meaningful support for "exploring" how a program can be
+provide specific and meaningful support for "exploring" how a program should be
 written. However, using linguistic abstractions extensively requires that the
 relevant abstractions be known in advance, or frequent evolution of the language
 is necessary. In-language abstraction is more flexible, because users can build
@@ -210,9 +263,10 @@ especially useful if the same language should be used for several, related
 projects or user groups. Each can build their own set of abstractions in the
 library. It should be kept in mind that in-language abstraction only works if
 the transformation of these abstractions is not specific to the abstraction. In
-such case, linguistic abstraction is better suited. \marginnote{Modular language
-extension, as discussed later, provides a middle ground between the two
-approaches,}
+such case, linguistic abstraction is better suited. \marginnote[-2cm]{Modular
+language extension, as discussed later in \sect{lext}, provides a middle ground
+between the two approaches. A language can be flexibly extended, while
+retaining the advantages of linguistic abstraction.} 
 
 
 \subsection{Language Evolution Support}
@@ -224,33 +278,42 @@ regarding language evolution.
 
 Doing this requires any or all of the following: a strict configuration
 management discipline, versioning information in the models to trigger
-compatible model processors, keeping track of the changes as a sequence of
-change operations, or model migration tools to transform models based on the old
-language into the new language.
+compatible editors and model processors, keeping track of the language changes
+as a sequence of change operations that can be "replayed" on existing models, or
+model migration tools to transform models based on the old language into the new
+language.
 
-Whether model migration is a challenge or not depends quite a bit on the
-tooling. There are tools that make model evolution a very smooth, but many
-environments don’t. Consider this when deciding about the tooling you want to
-use! Note that in case of textual DSLs, model migration can be achieved via
-regular expressions and grep (at least as a fallback).
+Whether model migration is a challenge or not depends on the tooling. There are
+tools that make model evolution a very smooth, but many environments
+don't\marginnote{In parser-based languages, you can always at the very least
+open the file in a text editor and run some kind of global search/replace to
+migrate the program. In projectional editor, special care has to be taken to
+enable the same functionality.}. Consider this when deciding about the tooling
+you want to use! 
 
-It is always a good idea to minimize DSL changes that break existing models.
-Backward-compatibility and deprecation are techniques well worth keeping in mind
-when working with DSLs. Note that you might be able to instrument your model
-processor to collect statistics on how deprecated language features continue to
-be used. Once no more instances show up in models, you can safely remove the
-deprecated language feature.
-
-Using a set of well-isolated viewpoint-specific DSLs prevents rippling effects
-on the overall model in case something changes in one DSL.
+It is always a good idea to minimize those changes to a DSL that break existing
+models. Backward-compatibility and deprecation are techniques well worth keeping
+in mind when working with DSLs. For example, instead of just changing an
+existing concept in an incompatible way, you may add a new concept in addition
+to the old one, along with deprecatio of the old one and a migration script or
+wizard. Note that you might be able to instrument your model processor to
+collect statistics on whether deprecated language features continue to be used.
+Once no more instances show up in models, you can safely remove the deprecated
+language feature..
 
 If the DSL is used by a closed, known user community that is accessible to the
 DSL designers, it will be much easier to evolve the language over time because
-users can be reached, making them migrate to newer versions. Alternatively, the
-set of all models can be migrated to a newer version using a script provided by
-language developers. In case the set of users, and the DSL programs, are not
-easily accessible, much more effort must be put into keeping backward
-compatibility, the need for evolution should be reduced. 
+users can be reached, making them migrate to newer versions\sidenote{The
+instrumentation mentioned above may even report back uses of deprecated language
+features after the official expiration date.}. Alternatively, the set of all
+models can be migrated to a newer version using a script provided by the
+language developers. In case the set of users, and the DSL programs, are not easily
+accessible, much more effort must be put into keeping backward compatibility,
+the need for evolution should be reduced\sidenote{This is the reason why many
+GPLs can never get rid of deprecated language features.}.
+
+Using a set of well-isolated viewpoint-specific DSLs prevents rippling effects
+on the overall model in case something changes in one DSL.
 
 
 \subsection{Configuration vs. Customization}

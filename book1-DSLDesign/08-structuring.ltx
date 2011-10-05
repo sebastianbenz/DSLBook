@@ -2,12 +2,12 @@
 \label{learnFromGPLs}
 
 Every DSL is different. It is driven by the domain to which it applies. However,
-as it turns out, there are also a number of comonalities between DSLs. These can
-be handled by modularizing and reusing (parts of) DSLs as discussed in the
+as it turns out, there are also a number of commonalities between DSLs. These
+can be handled by modularizing and reusing (parts of) DSLs as discussed in the
 \emph{next} section. In \emph{this} section we look at common paradigms for
 describing DSL structure and behaviour.
 
-\todo{Clean up References to this stuff}
+\todo{cite: Clean up References to this stuff}
 
 
 \subsection{Structure}
@@ -143,14 +143,14 @@ one or more interfaces. Different components can be plugged in behind the same
 interface. In contrast to C++, no runtime polymorphism is supported, the
 translation to plain C maps method invocation to flat function calls.}
 
-\fountain{Pumping programs can refer to entities defined as part of the fountain
-hardware as a means of accessing hardware elements (pumps, vents, switches). To
-enable pumping programs to run with different, but similar hardware
-configurations, the hardware structure can use "trait inheritance", where a
-hardware trait defines a set of hardware elements. Other fountain configurations
-can inherit these traits. As long as pumping programs are only written against
-traits, they work with any fountain that implements the particular set of
-traits against which the program is written.}
+\cooling{Cooling programs can refer to entities defined as part of the
+refrigerator hardware as a means of accessing hardware elements (compressors,
+fans, valves). To enable cooling programs to run with different, but similar
+hardware configurations, the hardware structure can use "trait inheritance",
+where a hardware trait defines a set of hardware elements. Other hardware
+configurations can inherit these traits. As long as cooling programs are only
+written against traits, they work with any refrigerator that implements the
+particular set of traits against which the program is written.}
 
 \paragraph{Specialization} Specialization enables one entity to be a more
 specific variant of another one. Typically, the more specific one can be used in
@@ -171,8 +171,8 @@ rules can be marked \emph{abstract} (requiring overwriting in sub-plans),
 \emph{final} rules are not overwritable. Visibility modifiers control which
 rules are considered "implementation details".}
 
-\fountain{A similar approach is used in the fountain DSL. Pumping programs
-can specialize other pumping programs. Since the programs are fundamentally
+\cooling{A similar approach is used in the refrigerator DSL. Cooling programs
+can specialize other cooling programs. Since the programs are fundamentally
 state-based, we had to define what exactly it means to override a pumping 
 program.}
 
@@ -241,8 +241,6 @@ repdocuability for calculations performed at an earlier point in time. Since the
 Intentional Domwin Workbench is a projectional tool, pension plans can be shown
 with only the version of a rule for a given point in time.}
 
-\todo{}  time of creation, validity time, revisions, tags, "snapshots".
-
 \subsection{Behavior}
 
 The behaviorr description of a DSL must of course be aligned with the needs of
@@ -267,7 +265,7 @@ In this section, I want to outline some of the most well-known behavioural
 paradigms that can serve as useful starting points for behaviour descriptions in
 DSLs.\marginnote{This is only an overview over a few paradigms; many more exist.
 I refer to the excellent Wikipedia entry on \emph{Programming Paradigms} and to
-\todo{this} book.}
+the book \cite{RoyH2004}}
  
 \paragraph{Imperative} \marginnote{For many people, often including domain
 experts, this approach is most obvious. Hence it is often a good starting point
@@ -283,7 +281,7 @@ watching the state change.
 \embc{Since C is used as a base language, this language is fundamentally
 imperative. Some of the DSLs on top of it use other paradigms.}
 
-\fountain{The cooling language uses various paradigms, but contains sequences
+\cooling{The cooling language uses various paradigms, but contains sequences
 of statements to implement aspects of the overall cooling behaviour.}
 
 \paragraph{Functional} Functional programming uses the function as the core
@@ -343,7 +341,7 @@ set of variables. The engine tries to find values for these variables that
 satisfy all constraints. Solving mathematical equation systems is an example. So
 is efficient resource allocation in embedded systems. The evaluation engine is
 often called a solver. \marginnote{Examples for boolean constraint programming
-include the Alloy language or any other SAT solver. \todo{more concrete}}.
+include the Alloy language or any other SAT solver.}.
 
 \comparch{This DSL specifies timing and resource characteristics for component
 and interface operations. Based on this data, one could run an algorthm which
@@ -359,14 +357,14 @@ programs in the face of varying feature comination, constraint programming is
 used. From the program, the presence conditions and the feature model a set of
 boolean equations is generated. A solver then makes sure they are consistent by
 trying to find an example solution that violates the boolean equations.
-\todo{refer to DSL impl chapter, and to literature (Czarnecki)} }
+\todo{cite: refer to DSL impl chapter, and to literature (Czarnecki)} }
 
 \genex{Another example for declarative programming is the type system DSL used
 by MPS itelf. Language developers specify a set of type equations containing
 free type variables, among other things. A unification engine tries to solve
 the set of equations by assigning types to the free type variables so that the
 set of equations is consistent. We describe this approach in detail in section
-\todo{}}
+\todo{cite}}
 
 \emph{Logic programming} is another subparadigm of declarative programming where
 users specify logic clauses (facts and relations) as well as queries. A theorem
@@ -387,7 +385,7 @@ scheduler. The input events may be queued, or they may be considered continuous
 signals, whose values are queried in scheduled intervals, and output signals are
 created.
 
-\fountain{The cooling algorithms are reactive programs that control the cooling
+\cooling{The cooling algorithms are reactive programs that control the cooling
 hardware based on environment events. Such events include the opening of a
 refrigerator door, the crossing of a temperature schedule, or a timeout that
 triggers defrosting of a cooling compartment. Events are queued, and the queues
@@ -400,7 +398,7 @@ be almost impossible, because humans are way too slow to fit "in between" events
 that may be generated by the environment in rapid succession. For this reason,
 various kinds of simulators are used to debug the behaviour of reactive systems.
 
-\fountain{The cooling language comes with a simulator based on an interpreter
+\cooling{The cooling language comes with a simulator based on an interpreter
 where the behaviour of a cooling algorithm can be debugged. Events are
 explicitly created by the user, on a time scale that is compatible
 with the debugging process.}
@@ -461,7 +459,7 @@ queues and the current state.
 \embc{As mentioned before, this language provides an extension that supports
 directly working with state machines.}
 
-\fountain{The behaviour of cooling programs is fundamentally state driven. A
+\cooling{The behaviour of cooling programs is fundamentally state driven. A
 scheduler is used to execute the state machine in regular intervals. 
 Transitions are triggered either by incoming, queued events or by changing
 property values of hardware elements. Note that this language is a good example
@@ -476,9 +474,8 @@ provides a counter example. Specifications express something about sequences of
 states such as: "it is not possible that two traffic lights show green at the
 same time" or "whenever a pedestrian presses the \emph{request} button, the
 pedestrian lights eventually will show green".\marginnote{A good introduction to
-model checking can be found in \todo{Berard, Bidoit, Petit, et al. Systems and
-Software Verification, Springer}. We elaborate on model checking in section
-\todo{}}.
+model checking can be found in \cite{BerardBidoitM2001}. We elaborate on model
+checking in section \todo{cite}}.
 
 \subsection{Combinations}
 
@@ -521,7 +518,7 @@ be different for different points in time. Rules in a sub-plan can override
 rules in the plan from which the sub-plan inherits. Plans can be declared to be
 abstract, with abstract rules that have to be implemented in sub-plans. }
 
-\fountain{The cooling behavior is a reactive system. Events are produced by
+\cooling{The cooling behavior is a reactive system. Events are produced by
 hardware elements (and their drivers). A state machine constitutes the top
 level structure. Within it, an imperative language is used. Programs can
 inherit from another program, overwriting states defined in the base program.

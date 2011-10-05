@@ -4,10 +4,11 @@
 Semantics can be partitioned into static semantics and execution semantics.
 Static semantics represent the constraints and type system rules. Execution
 semantics denote the observable behaviour of a program $p$ as it is executed. In
-this section we focus on execution semantics. Using a function $OB$
-that defines this observable behaviour we can define the semantics of a
-program $p_{L_D}$ by mapping it to a program $q$ in a language for $D_{-1}$
-that has the same observable behavior:
+this section we focus on execution semantics unless stated otherwise. 
+
+Using a function $OB$ that defines this observable behaviour we can define the
+semantics of a program $p_{L_D}$ by mapping it to a program $q$ in a language
+for $D_{-1}$ that has the same observable behavior:
 \vspace{-0.6\baselineskip}
 
 $$semantics( p_{L_D} ) := q_{L_{D-1}}\;\;\;where\;OB(p_{L_D}) ==
@@ -21,6 +22,77 @@ definitions. The technical implementation of the mapping to $D_{-1}$ can be
 provided in two different ways: a DSL program can literally be transformed into
 a program, or a $L_{D-1}$ an interpreter can be written in $L_{D-1}$ or
 $L_{D_0}$ to execute the program. 
+
+\subsection{Static Semantics/Validation}
+
+Before establishing the execution semantics by transforming or interpreting the
+program, its static semantics has to be validated. Constraints and type systems
+are used to this end and we describe their implementation in the DSL
+Implementation section of this book. Here is a thought overview.
+
+Constraints are simply boolean expressions that establish some property of a
+model. For example, one might verify that the names of a set of attributes of
+some entity are unique. For a model to be statically correct, all constraints
+have to evaluate to true. Constraint checking should only be performed for a
+model that is structurally/syntactically correct. 
+
+Type systems are a special kind of constraints. Consider the example of 
+\emph{var int x = 2 * someFunction(sqrt(2);}. The type system constraint may
+check that the type of the variable is the same or a supertype of the type of the
+initialization expression. However, establishing the type of the evaluation
+expression is non-trivial, since it can be an arbitrarily complex expression. A
+type system defines the rules to establish the types of arbitrary expressions,
+as well as type checking constraints. 
+
+When designing the constraints and type system in a language, a decision has to
+be made between (a) declaration of intent and checking for conformance and (b)
+deriving characteristics and checking for consistency. Consider the following
+examples.
+
+\embc{Variables have to be defined in the way shown above, where a type has to
+be specified. Alternatively, a type system could be built to automatically
+derive the type of the variable declaration, an approach called type inference.
+This would make the following code correct: 
+\emph{var x = 2 * someFunction(sqrt(2);}. Since no type is explicitly specified, 
+the validator will infer the type of \emph{x} to be the type calculated for the 
+init expression.}
+
+\embc{State machines that are supposed to be verified by the model checker have
+to be marked as \emph{verified}. In that case, constraints kick in that mark
+certain ways of writing actions as invalid, because they cannot be handled by
+the model checker. An alternative approach could check the model whether these
+"unverifiable" ways of writing actions are used, and if so, mark the state
+machine as not verifiable.}
+
+\pension{Pension plans can inherit from other plans. If a pension calculation
+rule overrides a rule in the base plan, then the overriding rule has to marked
+as \emph{overrides}. This way, if the rule in the base plan is removed or
+renamed, the sub plan can report an error. An alternative implementation would
+simply derive the fact that a rule overrides another one if they have the same
+name and signature.}
+
+Note how in all three cases the constraint checking is based on two steps. First
+we declare an intent (variable is intended to be int, this state machine is
+intended to be verifiable, this rule is intended to override another one). We
+can then check if the program conforms to this specification. The alternative
+would derive the fact from the program (the variable's type is whatever the
+expression's type evaluates to, state machines are verifiable if the
+"forbidden" features aren't used, rules override another one if they have the
+same name and signature). 
+
+
+When designing constraints and type systems, a decision has to be made regarding
+when to use which approach. Here are some tradeoffs. The
+specification/conformance approach requires a bit more code to write, but
+results in more meaningful and specific error messages. The message can express
+that fact that one part of a program does not conform to a specification made by
+another part of the program. It also anchors the constraint checker, because a
+fixed fact about the program is explicitly given, instead of having it derived
+from a (possibly large) part of the the program. The derivation/consistency
+appraoch is less effort to write and can hence be seen to be more convenient,
+but it requires more effort in constraint checking, and error messages may be
+harder to understand because of the missing, explicit "hard fact" about the
+program.
 
 
 
@@ -54,7 +126,7 @@ include prose documentation as well as test cases or simulators. These can be
 written in (another part of the) DSL itself; this way, domain users can play
 with the DSL and write down their expectations in the testing aspect.
 
-\fountain{This DSL has a separate viewpoint for defining test cases where
+\cooling{This DSL has a separate viewpoint for defining test cases where
 domain experts can codify their expectations regarding the behaviour of cooling
 programs. An interpreter is available to simulate the programs, observe their
 progress and stimulate them to see how they react.}
@@ -184,10 +256,10 @@ across real-world DSLs where interpreters are stacked along the domain hierarchy
 in the same way as transformations, with interpreters for $L_{D_n}$ written in
 $L_{D_{n-1}}$ for $n>1$.
 
-\fountain{The DSL also supports the definition of unit tests for the
-asynchronous, reactive pumping algorithm. These tests are executed with an
+\cooling{The DSL also supports the definition of unit tests for the
+asynchronous, reactive cooling algorithm. These tests are executed with an
 in-IDE interpreter. A simulation environment allows the interpreter to be used
-interactively. Users can "play" with a pumping program, stepping through it in
+interactively. Users can "play" with a cooling program, stepping through it in
 single steps, watching values change.}
 
 \pension{The pension DSL supports the in-IDE execution of rule unit tests by an
@@ -246,7 +318,7 @@ not sufficient without the transitive closure of fragments they depend on, an
 independent fragment may be sufficient for one transformation, and insufficient
 for another.
 
-\fountain{The hardware structure is sufficient for a transformation that
+\cooling{The hardware structure is sufficient for a transformation that
 generates an HTML doc that describes the hardware. It is insufficient regarding
 the C code generator, since the behavior fragment is required as well.}
 
@@ -331,9 +403,17 @@ in the context of the DSL. Domain users may not be able to interpret the results
 of model checkers or solvers, so they have to be translated back to the DSL.
 This may be a lot of work, or even impossible.
 
-\todo{add an embc example}
+\embc{The state machines expressed in the statemachine extension can be verified
+with a model checker. To make this possible, state machine cannot use arbitrary
+C code in its actions. Instead, an action can only change the values of
+variables local to the state machine and set output events. These output events
+can then be mapped to C functions or component runnables whose implementation
+is outside the scope of the verification. The key here is that the state
+machine is completely self-contained regarding verification: adapting the state
+machine to its surrounding C program is a separate concern and irrelevant to
+the model checker.}
 
-\fountain{For the pumping algorithm, we are working on a mapping to SPIN/Promela
+\cooling{For the cooling algorithm, we are working on a mapping to SPIN/Promela
 formalism to perform model checking on the pumping algorithms. This will be used
 to proof that invariants expressed in the pumping program will hold in all
 cases, or to show counter examples if they do not.}

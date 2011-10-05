@@ -20,8 +20,8 @@ higher levels of D, since higher levels are always built as extensions of
 $D_{-1}$. Developers can always fall back to $D_{-1}$ to express what is not
 expressible in D.}
 
-\fountain{This DSL uses several viewpoints: one to define the structure of
-fountain installations, and one to describe the actual algorithm. When
+\cooling{This DSL uses several viewpoints: one to define the structure of
+a refrigerator, and one to describe the actual algorithm. When
 generating the C code for the algorithm, both viewpoints are needed, because
 the structure defines how some of the algorithms are implemented.}
 
@@ -86,10 +86,10 @@ Note that a DSL that does not \emph{cover} all of $D$ can still be
 framework written in $L_{D-1}$ to run in. That framework represents aspects of
 $D$ outside the scope of $L_D$.
 
-\fountain{The fountain DSL only supports reactive, state based systems that
-make up the core of the fountain algorithm. The drivers used in the lower
+\cooling{The cooling DSL only supports reactive, state based systems that
+make up the core of the cooling algorithm. The drivers used in the lower
 layers of the system, or the control algorithms controlling the actual
-electrical pumps, cannot expressed with the DSL. However, these aspects are
+compressors, cannot expressed with the DSL. However, these aspects are
 developed once and can be reused without adaptations, so using DSLs is not
 sensible. These parts are implemented manually in C.}
 
@@ -126,9 +126,8 @@ and idioms interactive. One way to do this is to generate checks/constraints
 \emph{against the code base} and have them evaluated by the IDE, for example
 using Findbugs etc. If one fails, an error message is reported to the developer.
 As soon as the developer implements the manual code in the required way, the
-error message goes away.
+error message goes away. 
 
-\todo{Add an example}
 
 \paragraph{Broken Promises} In many cases, you will implement constraints that
 validate the DSL program in order to ensure some property of the resulting
@@ -148,7 +147,16 @@ the model. Second, use architecture analysis tools (dependency checkers) to
 validate manually written code. You can easily generate the check rules for
 those architecture analysis tools from the models.
 
-\todo{Add an example}
+\comparch{The code generator to Java generates component implementation classes
+that use dependency injection to supply the targets for required ports. This
+way, the implementation class will have access to exactly those interfaces
+specified in the model. An alternative approach would be to simply hand some
+kind of factory or registry where a component implementation can look up
+instances of components that provide the interfaces specified by the required
+ports of the current component. However, this way it would be much harder to
+make sure that only those dependencies are accessed that are expressed in the
+model. Using dependency injection \emph{enforces} this constraint in the
+implementation code.}
 
 
 
@@ -182,7 +190,7 @@ for) roundtripping.}
 extensions of C, one can always add C code to the programs, alleviating the
 need for roundtripping in the first place.}
 
-\fountain{Roundtripping is not required here, since the DSL is complete. The
+\cooling{Roundtripping is not required here, since the DSL is complete. The
 code generators are quite sophisticated, and nobody would want to manually
 change the generated C code. Since the DSL has proven to provide good
 coverage, the need to "tweak" the generated code has not come up.}
