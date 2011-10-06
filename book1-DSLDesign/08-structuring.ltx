@@ -225,64 +225,71 @@ particular feature. For example, in the \emph{researchr} application, a
 \lcr{Publication} entity. This extension is defined in the \lcr{tag}
 module, together with the definition of the \lcr{Tag} entity.}
 
-\todo{HERE}
-
-\paragraph{Versioning} Often, artifacts within DSL programs tracked over time.
-One alternative is to simply version the model files using existing version
-control systems, or the version control mechanism built into the language
-workbench. However, this requires users to interact with often large and complex
+\paragraph{Versioning} Often, artifacts within DSL programs have to be tracked
+over time. One alternative is to simply version the model files using existing
+version control systems, or the version control mechanism built into the
+language workbench. However, this requires users to interact with often complex
 version control systems and prevents domain-specific adaptations of the version
-control approach.
+control strategy.
 
 The other alternative is to make versioning and tracking over time a part of the
-DSL definition. For example, model elements can be tagged with version numbers
-or specify a revision chain by pointing to a previous version, and enforcing
-compatibility constraints between those versions. Instead of versions, business
-data is often time-dependent, where different revisions of a business rule apply
-to different periods of time. Support for these approaches can be built directly
-into the DSL, with various levels of tool support.
+language. For example, model elements can be tagged with version numbers or
+specify a revision chain by pointing to a previous revision, and enforcing
+compatibility constraints between those revisions. Instead of declaring explicit
+versions, business data is often time-dependent, where different revisions of a
+business rule apply to different periods of time. Support for these approaches
+can be built directly into the DSL, with various levels of tool support.
 
-\embc{No versioining is integrated into the DSL. Users work with MPS'
+\embc{No versioning is defined into the DSL. Users work with MPS'
 integration with popular version control systems.}
 
 \comparch{Interfaces can specify a \lcr{new version of} reference to another
-component. If they do so, a constraint enforces that the new version provides
-at least the same operations, plus optional additional ones, as the old
-version. \lcr{new version of} can also be used among components. In this case,
-the new version as to have the same (or additional) provided ports with the same
+interface. If they do so, a constraint enforces that the new version provides at
+least the same operations as the old version, plus optional additional ones.
+\lcr{new version of} can also be used between components. In this case, the new
+version has to have the same (or additional) provided ports with the same
 interfaces or new versions of these interfaces. It must have the same or fewer
 required ports. Effectively, this means that the new version of something must
-be replacement-compabible with the old version.}
+be replacement-compabible with the old version (the Liskov substitution
+principle again).}
 
-\pension{In the pension workbench, calculation rules have validity dates.
-This supports the evolution of calculation rules over time, while retaining
-repdocuability for calculations performed at an earlier point in time. Since the
-Intentional Domwin Workbench is a projectional tool, pension plans can be shown
-with only the version of a rule for a given point in time.}
+\pension{In the pension workbench, calculation declare have applicability
+periods. This supports the evolution of calculation rules over time, while
+retaining reproducability for calculations performed at an earlier point in
+time. Since the Intentional Domain Workbench is a projectional tool, pension
+plans can be shown with only the version of a rule valid for a given point in
+time.}
 
 \subsection{Behavior}
 \label{parabeh}
 
-The behaviorr description of a DSL must of course be aligned with the needs of
+The behavior expressed with a DSL must of course be aligned with the needs of
 the domain. However, in many cases, the behavior required for a domain can be
-derived from well-known behavior description paradigms, with slight adaptations
-or enhancements, or simply interacting with domain-specific structures or data.
-Note also that there are two kinds of DSLs that don't make use of these kinds of
+derived from well-known behavioral paradigms, with slight adaptations or
+enhancements, or simply interacting with domain-specific structures or data.
+
+Note that there are two kinds of DSLs that don't make use of these kinds of
 behavior descriptions. Some DSLs really just specify structures. Examples
 include data definition languages or component description languages (although
 both of them often use expressions for derived data, data validation or pre- and
-postconditions). Another kind of DSL only specifies the kind of behavior required, and the
-generator creates the algorithmic implementation. For example, a DSL may specify
-that the communication between two parts of the system should be asynchronous.
-THe generator then maps this to an implementation that behaves according to this
-statement. 
+post-conditions). Other DSLs only specify the kind of behavior expected, and the
+generator creates the algorithmic implementation. For example, a DSL may
+specify, simply with a tag such as \emph{async}, that the communication between
+two components shall be asynchronous. The generator then maps this to an
+implementation that behaves according to this specification.
 
-\comparch{This component architecture DSL is an example of a structur-only DSL,
-since it only described black box components and their interfaces and
-relationships.}
+\comparch{The component architecture DSL is an example of a structure-only DSL,
+since it only describes black box components and their interfaces and
+relationships. It uses the specification-only approach to specify whether a
+component port is intended for synchronous or asynchronous communication.}
 
-In this section, I want to outline some of the most well-known behavioural
-paradigms that can serve as useful starting points for behaviour descriptions in
+\embc{The component extension to provides a similar notion of interfaces, ports
+and components as in the previous example. However, since here they are directly
+integrated with C, C expression can be used for pre- and post-conditions of
+interface operations.}
+
+This section described some of the most well-known behavioural paradigms that
+can serve as useful starting points for behaviour descriptions in
 DSLs.\marginnote{This is only an overview over a few paradigms; many more exist.
 I refer to the excellent Wikipedia entry on \emph{Programming Paradigms} and to
 the book \cite{RoyH2004}}
