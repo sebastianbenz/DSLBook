@@ -7,40 +7,38 @@ can be handled by modularizing and reusing (parts of) DSLs as discussed in the
 \emph{next} section. In \emph{this} section we look at common paradigms for
 describing DSL structure and behaviour.
 
-\todo{cite: Clean up References to this stuff}
-
 
 \subsection{Structure}
 
-Languages have to provide means to structure large programs in order to keep
-them manageable. These include modularization and visibility, specification vs.
-implementation, specialization, types and instances as well as partitioning.
-\marginnote{The language design alternatives described in this section are
-usually not driven directly by the domain, or the domain experts guiding the
-design of the language. Rather, they are often brought in by the language
-designer or the consumers of the DSL as a means of managing overall complexity.
-For this reason they may be hard to "sell" to domain experts.}
+Languages have to provide means of structuring large programs in order to keep
+them manageable. Such means include modularization and encapsulation,
+specification vs. implementation, specialization, types and instances as well as
+partitioning. \marginnote[-1.5cm]{The language design alternatives described in
+this section are usually not driven directly by the domain, or the domain experts
+guiding the design of the language. Rather, they are often brought in by the
+language designer or the consumers of the DSL as a means of managing overall
+complexity. For this reason they may be hard to "sell" to domain experts.}
 
 
 \paragraph{Modularization and Visibility} DSL often provide some kind of logical
 unit structure, such as namespaces or modules. Visibility of symbols may be
-restricted to those in the same unit, or in referenced ("imported") units.
-Symbols may be declared as public or private. Most contemporary programming
+restricted to the same unit, or in referenced ("imported") units. Symbols may be
+declared as public or private, the latter making them changeable without
+consequences for using modules.\marginnote{Most contemporary programming
 languages use some form of namespaces and visibility restriction as their top
-level structure.
-
-Some form of namespaces and visibility is necessary in almost any DSL. Often
-there are domain concepts that can play the role of the module, possibly
-oriented towards the structure of the organization in which the DSL is used.
-Keeping some elements private makes those changeable without consequences for
-using modules.
+level structure.} Some form of namespaces and visibility is necessary in almost
+any DSL. Often there are domain concepts that can play the role of the module,
+possibly oriented towards the structure of the organization in which the DSL is
+used. 
 
 
 \embc{As a fundamental extension to C, this DSL contains modules with
 visibility specifications and imports. Functions, state machines, tasks and all
-other top-level concepts reside in modules.}
+other top-level concepts reside in modules. Header files (which are
+effectively a poor way of managing symbol visibility) are only used in the
+generated low level code.}
 
-\comparch{Components and interfaces live in namespaces. Components are
+\comparch{Components and interfaces live in name-spaces. Components are
 implementation units, and are always private. Interfaces and data types may be
 public or private. Namespaces can import each other, making the public elements of the
 imported namespace visible to the importing namespace. The OSGi generator
@@ -48,81 +46,96 @@ creates two different bundles: an interface bundle that contains the public
 artifacts, and an implementation bundle with the components. In case of a
 distributed system, only the interface bundle is deployed on the client.}
 
+\pension{Pension plans constitute namespaces. They are grouped into more
+coarse-grained packages that are aligned with the structure of the pension
+insurance business.}
 
+\marginnote[0.8cm]{If a repository-based tool is used, the importance of
+paritioning is greatly reduced. Although even in that case, there may be a set of federated and
+distributed repositories that can be considered partitions}
 \paragraph{Partitioning} Partitioning refers to the breaking down of programs
-into several physical units such as files\marginnote{If a repository-based tool
-is used, the importance of paritioning is greatly reduced. Although even in that
-case, there may be a set of federated and distributed repositories that can be
-considered partitions}. These physical units do not have to correspond to the
-logical modularization of the models within the partitions. Typically each model
-fragment is stored in its own partition. For example, in Java a public class has
-to live in a file of the same name (logical module == physical partition),
-whereas in C\# there is no relationship between namespace, class names and the
-physical file and directory structure. A similar relationship exists between
-partitions and viewpoints, although in most cases, different viewpoints are
-stored in different partitions.
+into several physical units such as files. These physical units do not have to
+correspond to the logical modularization of the models within the partitions.
+Typically each model fragment is stored in its own partition. For example, in
+Java a public class has to live in a file of the same name (logical module ==
+physical partition), whereas in C\# there is no relationship between namespace,
+class names and the physical file and directory structure. A similar
+relationship exists between partitions and viewpoints, although in most cases,
+different viewpoints are stored in different partitions.
 
 Partitioning may have consequences for language design. Consider a DSL where an
 concept A contains a list of instances of concept B. The B instances then have
 to be physically nested within an instance of A in the concrete syntax. If there
 are many instances of B in a given model, they cannot be split into several
 files. If such a split should be possible, this has to be designed into the
-language. Other concerns influence the design of a partitioning strategy:
-
-\begin{description}
-\item[Change Impact] which partition changes as a consequence of specific
-changes of the model (changing an element name might require changes to all
-by-name references to that element in other partitions)
-\item[Link Storage] where are links stored (are they always stored in the model
-that logically "points to" another one)?, and if not, how/where/when to control
-reference/link storage.
-\item[Model Organzation] Partitions may be used as a way of organizing the
-overall model. This is particularly important if the tool does not provide a
-good means of showing the logical structure models and finding elements by name
-and type. Organizing files, with useful names, in directory structures is a good
-alternative.
-\item[Tool Chain Integration] integration with existing, file based tool chains.
-Files may be the unit of checkin/checkout, versioning, branching or permission
-checking.
-\end{description}
-
-\marginnote{Another driver for using partitions is the scalability of the DSL
-tool. Beyond a certain file size, the editor may become sluggish.}
+language. 
 
 \comparch{A variant of this DSL that was used in another project had to be
 changed to allow a namespaces to be spread over several files for
 reasons of scalability and version-control granularity. In the initial version,
-namespaces actually contained the components and interfaces. In the revised
-version, components and interfaces resided were owned by no other element, but
+namespaces actually \emph{contained} the components and interfaces. In the
+revised version, components and interfaces were owned by no other element, but
 model files (partitions) had a namespace declaration at the top, logically
 putting all the contained interfaces and components into this namespace. Since
 there was no technical containment relationship between namespaces and its
-elements, several files could now declare the same namespace.}
+elements, several files could now declare the same namespace. Changing this
+design decision lead to a significant reimplementation effort because all kinds
+of naming and scoping strategies changed.}
 
-It often makes sense to ensure that each partition is processable separately to
-reduce processing times. Alternatively, it is possible to explicitly specify the
-set of partitions that should be processed in a given processor run (or at least
-a search path, a set of directories, to find the partitions, like an include
-path in C compilers). You might even consider a separate build step to combine
-the results created from the separate processing steps of the various partitions
-(like a C compiler: it compiles every file separately into an object file, and
-then the linker handles overall symbol/reference resolution and binding).
 
-The partitioning scheme may also influence users' collaboration when editing
-models. There are two major collaboration models: real-time and commit-based. In
-real-time collaboration, a user sees his model change when another user changes
-the same model. Change propagation is immediate. A database-backed repository is
-often a good choice regarding storage, since the granularity tracked by the
-repository is the model element. In this case, the partitioning may not be
-visible to the end user, since they just work "on the repository". This approach
-is often (at least initially) preferred by non-programmer DSL users.
+Other concerns influence the design of a partitioning strategy:
+
+\begin{description}
+
+\item[Change Impact] which partition changes as a consequence of a particular
+change of the model (changing an element name might require changes to all
+references to that element from other partitions)
+
+\item[Link Storage] where are links stored (are they always stored in the model
+that logically "points to" another one)?, and if not, how/where/when to control
+reference/link storage.
+
+\item[Model Organzation] Partitions may be used as a way of organizing the
+overall model. This is particularly important if the tool does not provide a
+good means of showing the overall logical structure of models and finding
+elements by name and type. Organizing files with meaningful names in directory
+structures is a workable alternative.
+
+\item[Tool Chain Integration] integration with existing, file based tool chains.
+Files may be the unit of checkin/checkout, versioning, branching or permission
+checking. 
+\end{description}
+
+\marginnote[-1.5cm]{Another driver for using partitions is the scalability of
+the DSL tool. Beyond a certain file size, the editor may become sluggish.}
+
+
+It is often useful to ensure that each partition is processable separately to
+reduce processing times. An alternative approach supports the explict definition
+of those partitions that should be processed in a given processor run (or at
+least a search path, a set of directories, to find the partitions, like an
+include path in C compilers). You might even consider a separate build step to
+combine the results created from the separate processing steps of the various
+partitions (again like a C compiler: it compiles every file separately into an
+object file, and then the linker handles overall symbol/reference resolution and
+binding).
+
+The partitioning scheme may also influence users' team collaboration when
+editing models. There are two major collaboration models: real-time and
+commit-based. In real-time collaboration, a user sees his model change when
+another user changes that same model. Change propagation is immediate. A
+database-backed repository is often a good choice regarding storage, since the
+granularity tracked by the repository is the model element. In this case, the
+partitioning may not be visible to the end user, since they just work "on the
+repository". This approach is often (at least initially) preferred by
+non-programmer DSL users.
 
 The other collaboration mode is commit-based where a user's changes only make it
 to the repository if he performs a \emph{commit}, and incoming changes are only
 visible after a user has performed an \emph{update}. While this approach can be
 used with database-backed repositories, it is most often used with file-based
 storage. In this case, the partitioning scheme is visible to DSL users, because
-it is those partitions (i.e. files) they commit or update. This approach tends
+it is those files they commit or update. This approach tends
 to be preferred by developers, maybe because well-known versioning tools have
 used the approach for a long time.
 
@@ -130,8 +143,8 @@ used the approach for a long time.
 
 \paragraph{Specification vs. Implementation} Separating specification and
 implementation supports plugging in different implementations for the same
-specification and hence provides a way to separate the outside from the inside
-of something.\marginnote{Interfaces, pure abstract classes, traits or function
+specification and hence provides a way to "decouple the outside from the
+inside".\marginnote{Interfaces, pure abstract classes, traits or function
 signatures are a realization of this concept in programming languages.} This
 supports the exchange of several implementations behind a single interface. This
 is often required as a consequence of the development process: one stakeholder
@@ -147,29 +160,31 @@ translation to plain C maps method invocation to flat function calls.}
 refrigerator hardware as a means of accessing hardware elements (compressors,
 fans, valves). To enable cooling programs to run with different, but similar
 hardware configurations, the hardware structure can use "trait inheritance",
-where a hardware trait defines a set of hardware elements. Other hardware
-configurations can inherit these traits. As long as cooling programs are only
-written against traits, they work with any refrigerator that implements the
-particular set of traits against which the program is written.}
+where a hardware trait defines a set of hardware elements, acting as a kind of
+interface. Other hardware configurations can inherit these traits. As long as
+cooling programs are only written against traits, they work with any
+refrigerator that implements the particular set of traits against which the
+program is written.}
+
 
 \paragraph{Specialization} Specialization enables one entity to be a more
 specific variant of another one. Typically, the more specific one can be used in
-all context where the more general one is valid (Liskov substitution
+all contexts where the more general one is expected (the Liskov substitution
 principle\cite{LiskovW94}). The more general one may be incomplete, requiring
-the definition of specialized ones that "fill in the holes" left undefined by
-the more general one.\marginnote{In GPLs, we know this approach from class
-inheritance. "Leaving holes" is realized by abstract methods.} Specialization in
-the context of DSLs can be used for implementing variants or of evolving a model
-over time.
+the specialized ones to "fill in the holes".\marginnote{In GPLs, we know this
+approach from class inheritance. "Leaving holes" is realized by abstract
+methods.} Specialization in the context of DSLs can be used for implementing
+variants or of evolving a program over time.
  
  
-\pension{The customer had to create a huge set of pension plans, implementing
-changes in relevant law over time, or for slightly different customer groups.
-Copying complete plans and then making adaptations was not feasible. Hence the
-DSL provides a way for pension plans to inherit from one another. Calculation
-rules can be marked \emph{abstract} (requiring overwriting in sub-plans),
-\emph{final} rules are not overwritable. Visibility modifiers control which
-rules are considered "implementation details".}
+\pension{The customer using this DSL had the challenge of creating a huge set of
+pension plans, implementing changes in relevant law over time, or implementing
+related plans for different customer groups. Copying complete plans and then
+making adaptations was not feasible for obvious reasons. Hence the DSL provides
+a way for pension plans to inherit from one another. Calculation rules can be
+marked \emph{abstract} (requiring overwriting in sub-plans), \emph{final} rules
+are not overwritable. Visibility modifiers control which rules are considered
+"implementation details".}
 
 \cooling{A similar approach is used in the refrigerator DSL. Cooling programs
 can specialize other cooling programs. Since the programs are fundamentally
@@ -183,7 +198,7 @@ objects (where constructor parameters are used for parametrization) or from
 components (where different instances can be connected differently to other
 instances).}
 
-\embc{Apart from C's \textit{structs} (which are instantiatable data structures)
+\embc{Apart from C's \lcr{structs} (which are instantiatable data structures)
 and components (which can be instantiated and connected), state machines can
 be instantiated as well. Each instance can be in a different state at any given
 time.}
@@ -193,20 +208,24 @@ merge several model fragments according to some DSL-specific merge operator.
 Aspects provide a way of "pointing to" several locations in a program based on a
 pointcut operator (essentially a query over a program or its execution),
 adapting the model in ways specified by the aspect. Both approaches support the
-creation of many different model variants from the same set of model
-fragments.\marginnote{This is especially important in the context of product
-line engineering and is discussed in \cite{VoelterVisser2011}}
+compositional creation of many different model variants from the same set of
+model fragments.\marginnote{This is especially important in the context of product
+line engineering and is discussed in \cite{VoelterVisser2011} and in \todo{ref}
+section of this book.}
 
-\embc{This DSL provides a way of advising component definitions, to introduce
-new ports from within an aspect. This is used, for example, to modularize the
-Monitoring concern.}
+\embc{This DSL provides a way of advising component definitions, for example to
+introduce additional ports from an aspect. An aspect may introduce a port
+\ic{provided port mon: IMonitoring} that allows a central monitoring component
+to query the adviced components via the \lcr{IMonitoring} interface.}
 
 \exwebdsl{Entity declarations can be \emph{extended} in separate modules. This
 makes it possible to declare in one module all data model declarations of a
-particular feature. For example, in the researchr application, a
-\texttt{Publication} can be \texttt{Tag}ged, which requires an extension of the
-\texttt{Publication} entity. This extension is defined in the \texttt{tag}
-module, together with the definition of the \texttt{Tag} entity.}
+particular feature. For example, in the \emph{researchr} application, a
+\lcr{Publication} can be \lcr{Tag}ged, which requires an extension of the
+\lcr{Publication} entity. This extension is defined in the \lcr{tag}
+module, together with the definition of the \lcr{Tag} entity.}
+
+\todo{HERE}
 
 \paragraph{Versioning} Often, artifacts within DSL programs tracked over time.
 One alternative is to simply version the model files using existing version
@@ -226,10 +245,10 @@ into the DSL, with various levels of tool support.
 \embc{No versioining is integrated into the DSL. Users work with MPS'
 integration with popular version control systems.}
 
-\comparch{Interfaces can specify a \emph{new version of} reference to another
+\comparch{Interfaces can specify a \lcr{new version of} reference to another
 component. If they do so, a constraint enforces that the new version provides
 at least the same operations, plus optional additional ones, as the old
-version. \emph{new version of} can also be used among components. In this case,
+version. \lcr{new version of} can also be used among components. In this case,
 the new version as to have the same (or additional) provided ports with the same
 interfaces or new versions of these interfaces. It must have the same or fewer
 required ports. Effectively, this means that the new version of something must
@@ -242,6 +261,7 @@ Intentional Domwin Workbench is a projectional tool, pension plans can be shown
 with only the version of a rule for a given point in time.}
 
 \subsection{Behavior}
+\label{parabeh}
 
 The behaviorr description of a DSL must of course be aligned with the needs of
 the domain. However, in many cases, the behavior required for a domain can be

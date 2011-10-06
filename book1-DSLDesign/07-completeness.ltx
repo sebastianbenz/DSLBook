@@ -1,29 +1,31 @@
 \section{Completeness}
 \label{sect:completeness}
  
-Completeness refers to the degree to which a language $L$ implements complete
-programs. Let us introduce a function $G$ ("code generator") that transforms a
-program $p$ in ${L_D}$ to a program $q$ in $L_{D-1}$. For a complete language,
-$p$ and $q$ have the same semantics, i.e. $OB(p) == OB(G(p)) == OB(q) $. For
-incomplete languages where $OB(G(p)) \subset OB(p)$ we have to write additional
-code in $L_{D-1}$, to obtain a program in $D_{-1}$ that has the same semantics
-as intended by the original program in $L_D$.\marginnote{Another way of stating
-this is that $G$ produces a program in $L_{D-1}$ that is not sufficient for a
-subsequent transformation (e.g. a compiler), only the manually written $L_{D-1}$
-code leads the sufficiency.} In cases where we use several viewpoints to
-represent various concerns of $D$, the set of fragments written for these
-concerns must be enough for complete $D_{-1}$ generation. General purpose
-languages at $D_0$ are by definition complete.
+Completeness refers to the degree to which a language $L$ is able to express
+\emph{complete} programs. Let us introduce a function $G$ ("code generator")
+that transforms a program $p$ in ${L_D}$ to a program $q$ in $L_{D-1}$. For a
+complete language, $p$ and $q$ have the same semantics, i.e. $OB(p) == OB(G(p))
+== OB(q) $. For incomplete languages where $OB(G(p)) \subset OB(p)$ we have to
+write additional code in $L_{D-1}$, to obtain a program in $D_{-1}$ that has the
+same semantics as intended by the original program in $L_D$.\marginnote{Another
+way of stating this is that $G$ produces a program in $L_{D-1}$ that is not
+sufficient for a subsequent transformation (e.g. a compiler), only the manually
+written $L_{D-1}$ code leads the sufficiency.} In cases where we use several
+viewpoints to represent various concerns of $D$, the set of fragments written
+for these concerns must be enough for complete $D_{-1}$ generation. General
+purpose languages at $D_0$ are by definition complete.
 
-\embc{The Embedded C language is complete regarding $D_{-1}$, or even D-n for
-higher levels of D, since higher levels are always built as extensions of
-$D_{-1}$. Developers can always fall back to $D_{-1}$ to express what is not
-expressible in D.}
+\embc{The Embedded C language is complete regarding $D_{-1}$, or even $D_{-n}$
+for higher levels of $D$, since higher levels are always built as extensions of
+its $D_{-1}$. Developers can always fall back to $D_{-1}$ to express what is not
+expressible directly with $L_D$. Since the users of this system are developers,
+falling back to $D_{-1}$ or even $D_0$ is not a problem.}
 
 \cooling{This DSL uses several viewpoints: one to define the structure of
 a refrigerator, and one to describe the actual algorithm. When
 generating the C code for the algorithm, both viewpoints are needed, because
-the structure defines how some of the algorithms are implemented.}
+the structure determines how exactly some of the algorithms are implemented in
+the generated C code.}
 
 \subsection{Compensating for Incompleteness} 
 
@@ -31,60 +33,75 @@ Integrating the $L_{D-1}$ in case of an incomplete $L_{D}$ language can be done
 in several ways:
 
 \begin{itemize}
-  \item by  calling "black box" code written in $L_{D-1}$ (requires
-concepts for calling $D_{-1}$ foreign functions in the $D$ language)
-  \item by directly embedding $L_{D-1}$
-code in the $L_D$ program (useful if $L_D$ is an extension
-of $L_{D-1}$, or if the tool provide adequate support for embedding the D-1
-language into D programs.\marginnote{Just "pasting text into a textfield" is not a
-productive approach, since no real integration between the languages is
-supported. Many tools for graphical modeling provide small boxes in
-dialogs to enter "target code" without any support. In my opinion, this is not
-useful!})
-  \item by inserting manually-written $L_{D-1}$ code into the $L_{D-1}$ code
-generated from the $L_D$ program (using protected regions)\marginnote{We
-strongly discourage the use of protected regions. You'll run into all kinds of
-problems: generated code is not a throw-away product anymore, you have to check
-it in, and you'll run into all kinds of funny situations with your CM system.
-Also, often you will accumulate a "sediment" of code that has been generated
+  \item by  calling "black box" code written in $L_{D-1}$. This requires
+ concepts in $L_D$ for calling $D_{-1}$ foreign functions. No syntactic
+ embedding of $D_{-1}$ code is required.
+
+  \item by directly embedding $L_{D-1}$ code in the $L_D$ program. This is
+  useful if $L_D$ is an extension of $L_{D-1}$, or if the tool provide adequate
+  support for embedding the $D_{-1}$ language into $L_D$
+  programs\marginnote[-1cm]{Just "pasting text into a textfield", an approach
+  used by several graphical modeling tools, is not productive, since no
+  syntactic and semantic integration between the languages is provided.}.
+
+  \item by using composition mechanisms of $L_{D-1}$ to "plug
+  in" the manually written code into the generated code without actually
+  modifying the generated files (also known as the Generation Gap pattern
+  \cite{Vlissidis1996}). Example techniques for realizing this approach include
+  generating a base class with
+abstract methods (requiring the user to implement them in a manually written
+subclass) or with empty callback methods which the user can use to customize in
+a subclass (for example, in user interfaces, you can return a position object
+for a widget, the default method returns null, default to the generic layout
+algorithm). You can delegate, implement interfaces, use \#include, use
+reflection tricks, AOP or take a look at the well-known design patterns for
+inspiration. Some languages provide partial classes, where a class definition
+can be split over a generated file and a manually written file. 
+  \item or by inserting manually-written $L_{D-1}$ code into the $L_{D-1}$ code
+generated from the $L_D$ program using protected regions.
+Protected regions are areas of the code, usually delimited by
+special comments, whose (manually written) contents are not
+overwritten during regeneration of the file\marginnote[-2cm]{We strongly
+discourage the use of protected regions. You'll run into all kinds of problems: generated code is not a throw-away product anymore, you have to check it in, and you'll run into all kinds of funny situations with your CM system. Also, often you will accumulate a "sediment" of code that has been generated
 from model elements that are no longer in the model (if you don't use protected
 regions, you can delete the whole generated source directory from time to time,
 cleaning up the sediment).}
-  \item or by using composition mechanisms of $L_{D-1}$ (e.g. inheritance) to "plug in" the manually
-written code into the generated code without actually modifying the generated
-files (also known as the Generation Gap pattern \cite{Vlissidis1996}). Example
-techniques for realizing this approach include generating a
-base class with abstract methods (requiring the user to implement them in a
-manually written subclass) or with empty callback methods which the user can use
-to customize in a subclass (for example, in user interfaces, you can return a
-position object for a widget, the default method returns null, default to the
-generic layout algorithm). You can delegate, implement interfaces, use
-\#include, use reflection tricks, AOP or take a look at the well-known design patterns for
-inspiration. Some languages provide partial classes, where a class definition
-can be split over a generated file and a manually written file.
 \end{itemize}
 
 For DSLs used by developers, incomplete DSLs are usually not a problem because
 they are comfortable with providing the $D_{-1}$ code expressed in a programming
 language. Specifically, the DSL users are the same people as those who provide
-the remaining $D_{-1}$ code, so coordination between the two not a problem. For
-DSLs used by domain experts, the situation is different. Usually, they are not
+the remaining $D_{-1}$ code, so coordination between the two not a problem. 
+
+\comparch{This DSL is not complete. Only class skeleton and infrastructure
+integration code is generated from the models. The component implementation has
+to be implemented manually in Java using the Generation Gap pattern. The DSL is
+used by developers, so writing code in a subclass of a generated class is not
+a problem.}
+
+
+For DSLs used by domain experts, the situation is different. Usually, they are not
 able to write $D_{-1}$ code, so other people (developers) have to fill in the
 remaining concerns.\marginnote{This requires elaborate collaboration schemes,
 because the domain experts have to communicate the remaining concerns via prose
 text or verbal communication.} Alternatively, developers can develop a
 predefined set of foreign functions that can be called from within the DSL. In
-effect, developers provide a library of "behavioural building blocks" which can
-be invoked as black boxes from DSL programs.
+effect, developers provide a standard library (cf. \sect{lingvsinlang}) which
+can be invoked as black boxes from DSL programs.
 
-\comparch{This DSL is not complete. Only class skeleton and infrastructure
-integration code is generated from the models. The component implementation has
-to be implemented manually in Java using the Generation Gap pattern.}
+\exwebdsl{The core of a web application is concerned with persistent data and
+their presentation. However, web applications need to perform additional duties
+outside that core, for which often useful libraries exist. WebDSL provides a
+\emph{native interface} that allows a developer to call into a Java, library by
+declaring types and functions from the library in a WebDSL program.}
+
 
 Note that a DSL that does not \emph{cover} all of $D$ can still be
-\emph{complete}: the $L_{D-1}$ code generated from a $D$ program may require a
-framework written in $L_{D-1}$ to run in. That framework represents aspects of
-$D$ outside the scope of $L_D$.
+\emph{complete}: not all of the programs imaginable in a domain may be expressed
+with a DSL, but those programs that can be expressed can be expressed
+completely, without any manually written code. Also, the code generated from a
+DSL program may require a framework written in $L_{D-1}$ to run in. That
+framework represents aspects of $D$ outside the scope of $L_D$.
 
 \cooling{The cooling DSL only supports reactive, state based systems that
 make up the core of the cooling algorithm. The drivers used in the lower
@@ -94,58 +111,48 @@ developed once and can be reused without adaptations, so using DSLs is not
 sensible. These parts are implemented manually in C.}
 
 
-\embc{Control loops and device drivers are outside the scope of the DSL, but are
-used by the generated code. These parts are manually written and made available
-to the generated code by well-defined APIs.}
+\paragraph{Controlling $D_{-1}$ code} Allowing users to manually write $D_{-1}$
+code, and especially, if it is actually a GPL in $D_0$, comes with two
+additional challenges though. Consider the following example: the generator
+generates an abstract class from some model element. The developer is expected
+to subclass the generated class and implement a couple of abstract methods. The
+manually written subclass needs to conform to a specific naming convention so
+some other generated code can instantiate the manually written subclass. The
+generator, however, just generates the base class and stops. How can you make
+sure developers actually do write that subclass, using the correct name?
+\marginnote{Of course, if the constructor of the concrete subclass is called
+from another location of the generated code, and/or if the abstract methods are
+invoked, you'll get compiler errors. By their nature, they are on the
+abstraction level of the implementation code, however. It is not always obvious
+what the developer has to do in terms of the model or domain to get rid of these
+errors.}
 
-\exwebdsl{The core of a web application is concerned with persistent data and
-their presentation. However, web applications need to perform additional duties
-outside that core, for which often useful libraries exist. WebDSL provides a
-\emph{native interface} that allows a developer to call into a Java, library by
-declaring types and functions from the library in a WebDSL program.}
-
-Allowing users to write $D_{-1}$ code, and especially, if it is actually a GPL
-in $D_0$, comes with two additional challenges though.
-
-\paragraph{Controlling $D_{-1}$ code} The following can easily happen: the
-generator generates an abstract class from some model element. The developer is
-expected to subclass the generated class and implement a couple of abstract
-methods. The manually written subclass needs to conform to a specific naming
-convention so some other generated code can find and use the manually written
-subclass. The generator, however, just generates the base class and stops. How
-do you remind developers to create a subclass?
-
-Of course, if the constructor of the concrete subclass is called from another
-location of the generated code, and/or if the abstract methods are invoked,
-you'll get compiler errors. By their nature, they are on the abstraction level
-of the implementation code, however. It is not always obvious what the developer
-has to do in terms of the model or domain.
-
-To solve this issue, make sure there is there a way to make those conventions
+To address this issue, make sure there is there a way to make those conventions
 and idioms interactive. One way to do this is to generate checks/constraints
 \emph{against the code base} and have them evaluated by the IDE, for example
-using Findbugs etc. If one fails, an error message is reported to the developer.
-As soon as the developer implements the manual code in the required way, the
-error message goes away. 
+using Findbugs or similar code checking tools\todo{cite}. qIf one fails, an
+error message is reported to the developer. That error message can be worded
+by the developer of the DSL, helping the devloper understand what exactly has
+to be done to solve the problem in the code. 
 
 
-\paragraph{Broken Promises} In many cases, you will implement constraints that
-validate the DSL program in order to ensure some property of the resulting
-system. For example, you might check dependencies between components in an
-architecture model to ensure components can be exchanged in the actual system.
+\paragraph{Broken Promises} As part of the definition of a DSL you will
+implement constraints that validate the DSL program in order to ensure some
+property of the resulting system (see \sect{validation}).q For example, you
+might check dependencies between components in an architecture model to ensure
+components can be exchanged in the actual system. Of course such a validation is
+only useful if the manually written code does not introduce dependencies that
+are not present in the model. In that case the "green light" from the constraint
+check does not help much.
 
-Of course this only works if the manually written code does not introduce
-dependencies that are not present in the model. In that case the "green light"
-from the constraint check does not help much.
-
-To ensure that promises made by the models are kept by the code, use the
-following two approaches. First, generate code that does not allow violation of
-model promises. For example, don't expose a factory that allows components to
-look up and use any other component (creating dependencies), but rather use
-dependency injection to supply objects for the valid dependencies expressed in
-the model. Second, use architecture analysis tools (dependency checkers) to
-validate manually written code. You can easily generate the check rules for
-those architecture analysis tools from the models.
+To ensure that promises made by the models are kept by the (manually written)
+code, use on of the following two approaches. First, generate code that does not
+allow violation of model promises. For example, don't expose a factory that allows
+components to look up and use any other component (creating dependencies), but
+rather use dependency injection to supply objects for the valid dependencies
+expressed in the model. Second, use architecture analysis tools (dependency
+checkers) to validate manually written code. You can easily generate the
+checking rules for those architecture analysis tools from the models.
 
 \comparch{The code generator to Java generates component implementation classes
 that use dependency injection to supply the targets for required ports. This
@@ -172,19 +179,24 @@ recent years (see for example \cite{BeyerHT08, PistoiaCFY07,
 AntkiewiczBC09}).\marginnote{Notice that the problem of "understanding" the
 semantics of a program written at a too-low abstraction level is the reason for
 DSLs in the first place: by providing linguistic abstractions for the relevant
-semantics, no "recovery" is necessary.} For complete languages roundtripping is
-generally not useful, because the complete program can be written on $L_D$ in
-the first place. Even if recovery of the semantics is possible it may not be
-practical: if the DSL provides significant abstraction over the $L_{D-1}$
-program, then the generated $L_{D-1}$ program is so complicated, that manually
-changing the $D_{-1}$ code in a consistent and correct way is tedious and
-error-prone.
+semantics, no "recovery" is necessary for meaningful analysis and
+transformation.} 
+
+Note that for complete languages roundtripping is generally not useful,
+because the complete program can be written on $L_D$ in the first place. Even if
+recovery of the semantics is possible it may not be practical: if the DSL
+provides significant abstraction over the $L_{D-1}$ program, then the generated
+$L_{D-1}$ program is so complicated, that manually changing the $D_{-1}$ code in
+a consistent and correct way is tedious and error-prone.
 
 Roundtripping has traditionally been used with respect to UML models and
 generated class skeletons. In that case, the abstractions were similar
-(classes), it the tool basically just provides a different concrete syntax.
-\marginnote{We generally recommend to avoid (the attempt of building support
-for) roundtripping.}
+(classes), the tool basically just provides a different concrete syntax. This
+similarity of abstractions in the code and the model made roundtripping possible
+to some extent. However, it also made the models relatively useless, because
+they did \emph{not} provide a significant benefit in terms of abstraction over
+code details. \marginnote{We generally recommend to avoid (the attempt of
+building support for) roundtripping.}
 
 \embc{This language does not support roundtripping, but since all DSLs are
 extensions of C, one can always add C code to the programs, alleviating the
@@ -201,3 +213,7 @@ reported as a problem by the users, since both the implementation code and the
 DSL "look and feel" the same way --- they are both Eclipse-based textual editors
 --- and generation of the derived low level code happens automatically on saving
 a changed model. The workflow is seamless.}
+
+\pension{This is a typical application domain DSL where the users never see the
+generated Java code. Consequently, the language has to be complete and
+roundtripping is not useful and would not fit into the development process.}

@@ -63,6 +63,23 @@
 \vspace{3pt}
 }
 
+
+
+\usepackage[T1]{fontenc}
+\newcommand{\changefont}[3]{\fontfamily{#1}\fontseries{#2}\fontshape{#3}\selectfont}
+
+
+
+
+
+% \newcommand{\ic}[1]{\emph{{#1}}}  % inline code
+% \newcommand{\lcr}[1]{\emph{{#1}}} % language concept reference
+
+
+\newcommand{\ic}[1]{\changefont{cmtt}{m}{n}{#1}\normalfont}  % inline code
+\newcommand{\lcr}[1]{\changefont{cmtt}{m}{n}{#1}\normalfont} % language
+
+
 \newcommand{\embc}[1]{\excode{Embedded C:}{#1}}
 \newcommand{\cooling}[1]{\excode{Refrigerators:}{#1}}
 \newcommand{\comparch}[1]{\excode{Component Architecture:}{#1}}

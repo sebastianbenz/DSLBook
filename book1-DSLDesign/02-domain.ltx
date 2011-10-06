@@ -134,10 +134,10 @@ abstract syntax plus the associated type system rules and constraints as well as
 definition of its semantics.}. In a fragment, each element $e$ is an
 instance of a concept $c$ defined in some language $l$. 
 
-\embc{In C, the statement \emph{int x = 3;} is an instance of the
-\emph{LocalVariableDeclaration}. \emph{int} is an instance of \emph{IntType},
+\embc{In C, the statement \ic{int x = 3;} is an instance of the
+\lcr{LocalVariableDeclaration}. \ic{int} is an instance of \lcr{IntType},
 and the 3 is an instance of
-\emph{NumberLiteral}.}
+\lcr{NumberLiteral}.}
 
 We define the \emph{concept-of} function $co$ to return the concept of which a
 program element is an instance: $co \Rightarrow \mathit{element} \to
@@ -151,9 +151,9 @@ We also define the following sets of relations between program elements.
 $\mathit{Cdn_f}$ is the set of parent-child relationships in a fragment $f$.
 Each $c \in C$ has the properties $parent$ and $child$. 
 
-\embc{In \emph{int x = 3;} the local variable declaration is the parent of the
-type and the init expression 3. The concept \emph{LocalVariableDeclaration}
-defines the containment relationships \emph{type} and \emph{init},
+\embc{In \ic{int x = 3;} the local variable declaration is the parent of the
+type and the init expression 3. The concept \lcr{LocalVariableDeclaration}
+defines the containment relationships \lcr{type} and \lcr{init},
 respectively.}
 
 $\mathit{Refs_f}$ is the set of non-containing cross-references between
@@ -161,10 +161,10 @@ program elements in a fragment $f$. Each reference $r$ in $\mathit{Refs_f}$ has 
 properties $from$ and $to$, which refer to the two ends of the reference
 relationship. 
 
-\embc{For example, in the \emph{x = 10;} assignment, \emph{x} is a reference to
+\embc{For example, in the \ic{x = 10;} assignment, \ic{x} is a reference to
 a variable of that name, for example, the one declared in the previous example
-paragraph. The concept \emph{LocalVariabedRef} has a non-containing reference
-relationsip \emph{var} that points to the respective variable.}
+paragraph. The concept \lcr{LocalVariabedRef} has a non-containing reference
+relationsip \lcr{var} that points to the respective variable.}
 
 Finally, we define an inheritance relationship that applies the
 Liskov Substitution Principle to language concepts. A concept $c_sub$ that
@@ -173,8 +173,8 @@ $c_super$ is expected. $\mathit{Inh_l}$ is the set of inheritance relationships
 for a language $l$. Each $i \in \mathit{Inh_l}$ has the properties $super$ and
 $sub$.
 
-\embc{The \emph{LocalVariableDeclaration} introduced above extends the concept
-\emph{Statement}. This way, a local variable declaration can be used wherever a
+\embc{The \lcr{LocalVariableDeclaration} introduced above extends the concept
+\lcr{Statement}. This way, a local variable declaration can be used wherever a
 statement is expected, for example, in the body of a function, which contains a
 list of statements.}
 
@@ -203,10 +203,10 @@ be expressed with an independent language (1.5).
 
 \cooling{The hardware definition language is independent, as are fragments that
 use this language. In contrast, the cooling algorithm language is dependent.
-The \emph{BuildingBlockRef} concept declares a reference to the
-\emph{BuildingBlock} concept defined in the hardware language. Consequently, if
+The \lcr{BuildingBlockRef} concept declares a reference to the
+\lcr{BuildingBlock} concept defined in the hardware language. Consequently, if
 a cooling program refers to a hardware setup using an instance of
-\emph{BuildingBlockRef}, the fragment becomes dependent on the hardware
+\lcr{BuildingBlockRef}, the fragment becomes dependent on the hardware
 definition fragment that contains the referenced building block.}
 
 

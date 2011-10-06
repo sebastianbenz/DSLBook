@@ -18,13 +18,12 @@ the concerns.
 \end{center}
 \end{figure}
 
-
 Two fundamentally different approaches are possible to deal with the set of
 concerns in a domain. Either a single, integrated language can be designed that
 addresses all concerns of $D$ in one integrated model. Alternatively, separate
 concern-specific DSLs can be defined, each addressing one or more of the
-domain's concerns. A program then consists of a set of dependent,
-concern-specific fragments that relate to each other in a well-defined way.
+domain's concerns. A complete program then consists of a set of
+dependent, concern-specific fragments that relate to each other in a well-defined way.
 Viewpoints support this separation of domain concerns into separate DSL.
 \fig{viewpoints} illustrates the two different approaches.
 
@@ -46,17 +45,19 @@ Viewpoints support this separation of domain concerns into separate DSL.
 scheduling in one language construct. Scheduling and implementation are two
 concerns that could have been separated. We opted against this, because both
 concerns are specified by the same person. The language used for implementation
-code is med.core, whereas the task constructs are defined in the med.tasks
-module. So the languages are modularized, but they are used in a single
-integrated model.}
+code is \lcr{med.core}, whereas the task constructs are defined in the
+\lcr{med.tasks} language. So the languages are modularized, but they are
+used in a single integrated model.}
 
 \exwebdsl{Web programs consists of multiple concerns including persistent data,
 user interface, and access control. WebDSL provides specific languages for these
 concerns, but \emph{linguistically integrates} them into a single
-language~\cite{HemelGKV11}. Declarations in the languages can be combined in
+language\cite{HemelGKV11}. Declarations in the languages can be combined in
 WebDSL modules. A WebDSL developer can choose how to factor declarations into
 modules; e.g. all access control rules in one module, or all aspects of some
 feature together in one module.}
+
+\subsection{Viewpoints for Concern Separation}
 
 If viewpoints are used, the concern-specific languages, and consequently the
 viewpoint models, should have well-defined dependencies; cycles should be
@@ -69,64 +70,58 @@ between viewpoint fragments are kept cycle-free, the independent fragments may
 be sufficient for certain transformations; this can be a driver for using
 viewpoints in the first place.
 
-\subsection{Viewpoints to modularize Programs}
-
 Separating out a domain concern into a separate viewpoint fragment can be useful
-for several reasons.
+for several reasons. If different concerns of a domain are specified by
+different stakeholders then separate viewpoints make sure that each stakeholder
+has to deal only with the information they care about. The various fragments can
+be modified, stored and checked in/out separately, maintaining only referential
+integrity with referenced fragmwnt. The viewpoint separation has to be aligned
+with the development process: the order of creation of the fragments must be
+aligned with the dependency structure.
 
-If different concerns of a domain are specified by different stakeholders then
-separate viewpoints make sure that each stakeholder has to deal only with the
-information they care about. The viewpoint separation has to be aligned with the
-development process: the order of creation of the fragments must be aligned with
-the dependency structure. 
-
-Viewpoints are also a good fit if the independent fragment is also sufficient
+Viewpoints are also a good fit if the independent fragment is sufficient
 for a transformation in the domain, i.e. it can be processed without the
 presence of the additional concerns expressed in sepate viewpoints.
-
-Another reason for separate viewpoints is a 1:n relationship between the
-independent and the dependent fragments. If a single core concern may be
-enhanced by several different additional concerns, then it is crucial to keep
-the core concern independent of the information in the additional concerns.
-Viewpoints enable this.
 
 \marginnote{A final (very pragmatic) reason for using viewpoints is when the tooling used
 does not support embedding of a reusable language because syntactic composition
 is not supported.}
+Another reason for separate viewpoints is a 1:n relationship between the
+independent and the dependent fragments. If a single core concern may be
+enhanced by several different additional concerns, then it is crucial to keep
+the core concern independent of the information in the additional concerns.
+Viewpoints make this possible.
+
 
 \cooling{One concern in this DSL specifies the logical hardware structure of
 refrigerators installations. The other one describes the refrigerator cooling
 algorithm. Both are implemented as separate viewpoints, where the algorithm DSL
 references the hardware structure DSL. Using this dependency structure,
-different algorithms can be defined for the same structure. Each of these
-algorithms resides in its own model. While the C code generation requires both
-behavior and hardware structure fragments, the hardware fragment is sufficient
-for a transformation that creates a visual representation of the hardware
-structures.}
+different algorithms can be defined for the same hardware structure. Each of
+these algorithms resides in its own fragment/file. While the C code generation
+requires both behavior and hardware structure fragments, the hardware fragment
+is sufficient for a transformation that creates a visual representation of the
+hardware structures.}
 
 
 \subsection{Viewpoints as Annotation Models}
  
-A special case of viewpoint separation is annotation models. When working with
-model-to-model transformations you can run into some of the same problems as
-with code generation in that sometimes, it seems necessary to mark up the result
-of a transformation step manually before it is further processed. Actually
-changing the model after it has been created via a transformation would be an
-approach similar to protected regions – with similar challenges.
+A special case of viewpoint separation is annotation models (already mentioned
+in \sect{severalmapp}). An annotation provides additional, often technical or
+transformation-controlling data for elements in a core program. This is
+especially useful in a multi-stage transformation (\sect{semtrafo}) where
+additional data may have to be specified for the result of the first phase to
+control the execution of the next phase. Since that intermediate model is
+generated, it is not possible to add these additional specifications to the
+intermediate model. Externalizing it into an annotation model solves that
+problem. 
 
-The better solution is to create a separate model --- an annotation model ---
-that references the elements in the intermediate model for which it specifies
-additional model data. The downstream processor would process the model created
-via the upstream model-to-model transformation and the annotation model in
-conjunction, understanding the semantics of the annotation model's relationship
-to the original model.
-
-\genex{For example, if you create a relational data model from an object oriented data
-model, you might automatically derive database table names from the name of the
-class in the OO model. If you need to "change" some of those names, use an
-annotation model that specifies an alternate name. The downstream processor
-knows that the name in the annotation model overrides the name in the original
-model.}
+\genex{For example, if you create a relational data model from an object
+oriented data model, you might automatically derive database table names from
+the name of the class in the OO model. If you need to "change" some of those
+names, use an annotation model that specifies an alternate name. The downstream
+processor knows that the name in the annotation model overrides the name in the
+original model.}
 
 \subsection{Viewpoints for Progressive Refinement} 
 
@@ -156,16 +151,20 @@ required (enabled via techniques described in~\cite{DiskinXC10, Stevens10}).
 \subsection{Viewpoint Synchronization} 
 
 In some cases the models for the various concerns need to be synchronized. This
-means that when a change happens in a model of one viewpoint, the models
-representing other viewpoints must change in a consistent way. It depends on the
-tools used whether synchronization is feasible: in projectional tools it is
-relatively easy to achieve, for parser-based systems it can be problematic.
+means that when a change happens in a model representing one viewpoint, the
+models representing other viewpoints must change in a consistent way. It depends
+on the tools used whether synchronization is feasible: in projectional tools it
+is relatively easy to achieve, for parser-based systems it can be problematic.
+
+\todo{Say something about on demand, simple listeners, Krzysztofs work in that
+space and QVTO and look at the example below. Use the ports example instead?}
 
 \embc{Components implement interfaces. Each component provides an implementation
 for each method define in each of the interfaces it implements. If a new method
 is added to an interface, all components that implement that particular
 interface must get a new, empty method implementation. This is an example of
 model synchronization.}
+
 
 
 \subsection{Views on Programs} 

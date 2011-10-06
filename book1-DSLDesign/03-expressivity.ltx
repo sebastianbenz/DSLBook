@@ -117,6 +117,7 @@ magnitude~\cite{Visser07}.}
 
 
 \subsection{Linguistic vs. In-Language Abstraction} 
+\label{lingvsinlang}
 
 \paragraph{Linguistic Abstraction} By making the concepts of $D$ first class
 members of a language $L_D$, i.e. by definining linguistic abstractions for
@@ -139,7 +140,7 @@ examples of loops in a Java-like language:
 
 The left loop can be parallelized, since the order of summing up the array
 elements is irrelevant. The right one cannot, since (we presume) the order of
-the elements in the \emph{List} class is relevant. A transformation engine that
+the elements in the \lcr{List} class is relevant. A transformation engine that
 translates and optimizes the programs must perform (sophisticated, and sometimes
 impossible) program analysis to determine that the left loop can indeed be
 parallelized. The following alternative expression of the same behaviour uses
@@ -149,7 +150,7 @@ a language $L_D$ of having first-class concepts for abstractions relevant in $D$
 is often called \emph{declarativeness}: no sophisticated pattern matching or
 program flow analysis is necessary to capture the semantics of a program
 (relative to the purpose), and treat it correspondingly.}. The decision can
-simply be based on the language concept used (\emph{for} vs. \emph{seqfor})
+simply be based on the language concept used (\lcr{for} vs. \lcr{seqfor})
 
 \footnotesize
 \begin{verbatim} 
@@ -192,14 +193,14 @@ operation on an unconnected required port would result in an error, so this has
 to be prevented. This can be done by enclosing the invocation on a required
 port in an if statement, chechking whether the port is connected. However, an
 if statement can contain any arbitrary boolean expression as its condition 
-(e.g. \emph{if (isConnected(port) || true) \{ port.doSomething(); \}}). So
+(e.g. \ic{if (isConnected(port) || true) \{ port.doSomething(); \}}). So
 checking \emph{statically} that the invocation only happens if the port is connected is
 impossible. An better solution based on linguistic abstraction is to introduce a
 new language concept that checks for a connected port directly: 
-\emph{with port (port) \{ port.doSomething(); \}}. The \emph{with port}
+\ic{with port (port) \{ port.doSomething(); \}}. The \lcr{with port}
 statement doesn't use a complete expression as its argument, but only a reference to a
 an optional required port. This way, the IDE can check that an invocation on a
-required optional port \emph{port} is only done inside of a \emph{with port}
+required optional port \lcr{port} is only done inside of a \lcr{with port}
 statement on that same port.}
 
 
@@ -236,9 +237,9 @@ is effectively a part of the language}. This approach keeps the language itself
 small, and allows subsequent extensions of the library without changing the
 language definition and processing tools.
 
-\cooling{Hardware building blocks have properties. For example, a \emph{fan}
-can be turned \emph{on} or \emph{off}, and for a \emph{compressor}, the
-\emph{rpm} can be specified. The set of properties available for the various
+\cooling{Hardware building blocks have properties. For example, a \lcr{fan}
+can be turned \lcr{on} or \lcr{off}, and for a \lcr{compressor}, the
+\lcr{rpm} can be specified. The set of properties available for the various
 building blocks is defined via a standard library and is not part of the
 language. This way, if a new device driver supports a new property, it can be
 made available to cooling programs without changing and redeploying the

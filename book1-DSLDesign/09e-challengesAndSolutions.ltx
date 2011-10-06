@@ -14,14 +14,14 @@ structures.
 Extension and Embedding requires modular concrete syntax definitions because
 additional language elements must be "mixed" with programs written with the base
 language. In the embedded programming example, state machines are hosted in
-regular C programs. This works because the C language's \verb#Module# construct
-contains a collection of \verb#ModuleContents#, and the \verb#StateMachine#
-concept extends the \verb#ModuleContent# concept. This state machine language is
+regular C programs. This works because the C language's \lcr{Module} construct
+contains a collection of \lcr{ModuleContents}, and the \lcr{StateMachine}
+concept extends the \lcr{ModuleContent} concept. This state machine language is
 designed specifically for being embedded into C, so it can access and extend the
-\verb#ModuleContent# concept. If the state machine language were reusable with
+\lcr{ModuleContent} concept. If the state machine language were reusable with
 any host language in addition to C, then an adapter language would provide a
-language concept that adapts C's \verb#IModuleContent# to \verb#StateMachine#,
-because \verb#StateMachine# cannot directly extend \verb#IModuleContent# --- it
+language concept that adapts C's \lcr{IModuleContent} to \lcr{StateMachine},
+because \lcr{StateMachine} cannot directly extend \lcr{IModuleContent} --- it
 does now depend on the C language.
 
 
@@ -32,7 +32,7 @@ language, the type system can be implemented with the referenced language in
 mind as well. In the refrigerator example, the algorithm language defines typing
 rules for hardware elements (from the hardware language), because these types
 are used to determine which properties can be accessed on the hardware elements
-(e.g. a compressor has a property \verb#active# that controls if it is turned on
+(e.g. a compressor has a property \lcr{active} that controls if it is turned on
 or off).
 
 In case of extension, the type systems of the base language must be designed in
@@ -136,7 +136,7 @@ Sometimes a language extension requires rewriting transformations defined by the
 base language. For example, in the data-types-with-physical-units example, the
 language also provides range checking and overflow detection. So if two such
 quantities are added, the addition is transformed into a call to a special
-\verb#add# function instead of using the regular plus operator. This function
+\lcr{add} function instead of using the regular plus operator. This function
 performs overflow checking and addition.
 
 Language Extension introduces the risk of semantic interactions. The
@@ -277,14 +277,14 @@ MPS also supports restriction. A language concept can restrict under which
 parents it can be used, or which children a concept may have. These constraints
 literally remove the ability to enter constructs that would violate the
 constraints. Using this approach, the unit testing extension to C enforces that
-\verb#assert# statements can only be used in unit tests and not in any other
+\lcr{assert} statements can only be used in unit tests and not in any other
 statement list.
 
 MPS has another approach for language embedding called \emph{attributes}. An
 attribute introduces additional parent-child relationships into concepts defined
 in other languages, without invasively changing the definition of that other
-language. By making an attribute apply to \verb#BaseConcept#, the super concept
-of all concepts (comparable to \verb#java.lang.Object#), attributes can be made
+language. By making an attribute apply to \lcr{BaseConcept}, the super concept
+of all concepts (comparable to \lcr{java.lang.Object}), attributes can be made
 applicable to arbitrary program elements, effectively supporting AOP-like
 introductions on language level. Attributes are typically used for
 adding "meta data" such as documentation, presence conditions in product line
