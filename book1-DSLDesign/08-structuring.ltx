@@ -297,12 +297,13 @@ the book \cite{RoyH2004}}
 \paragraph{Imperative} \marginnote{For many people, often including domain
 experts, this approach is most obvious. Hence it is often a good starting point
 for DSLs.} Imperative programs consist of a sequence of statements, or
-instructions, that change the state of a program. That state may be local to
-some kind of module (e.g. a procedure), global or external (when talking to
-periphery). Procedural and object-oriented programming are both imperative,
-using different means for structuring and (in case of OO) specialization.
-Because of the aliasing problem, imperative programs are expensive to analyse.
-Debugging imperative programs involves stepping through the instructions and
+instructions, that change the state of a program. This state may be local to
+some kind of module (e.g. a procedure or an object), global (as in global
+variables) or external (when talking to periphery). Procedural and
+object-oriented programming are both imperative, using different means for
+structuring and (in case of OO) specialization. Because of aliasing and side
+effects imperative programs are expensive to analyse. Debugging imperative
+programs is straight forward and involves stepping through the instructions and
 watching the state change.
 
 \embc{Since C is used as a base language, this language is fundamentally
@@ -311,22 +312,23 @@ imperative. Some of the DSLs on top of it use other paradigms.}
 \cooling{The cooling language uses various paradigms, but contains sequences
 of statements to implement aspects of the overall cooling behaviour.}
 
-\paragraph{Functional} Functional programming uses the function as the core
-abstraction. A function's return value can only depend on the values of its
-parameters. Functions cannot access global state, no side effects are allowed.
-Calling the same function several times with the same arguements has to return
-the same value (that value may even be cached!). No aliasing (through mutable
-memory cells) is supported, because values are immutable once they are created.
-Since all dependencies of a computed value are local to a function (the
+\paragraph{Functional} Functional programming uses functions as the core
+abstraction. A function's return value only depends on the values of its
+arguments. Functions cannot access global state, no side effects are allowed.
+Calling the same function several times with the same argument values has to
+return the same value (that value may even be cached!). No aliasing (through
+mutable memory cells) is supported, because values are immutable once they are
+created. Since all dependencies of a computed value are local to a function (the
 arguments), various kinds of analyses are possible. If assignment to variables
-is supported, then it uses a form where a variable can only be assigned once. To
-create real-world programs, a purely functional language is usually not
-sufficient, because it cannot affect the environment. Since there is no state to
-watch change as the program steps through instructions, debugging can be done by
-simply showing all intermediate results of all function calls, basically
-"inspecting" the state of the calculation. This makes building debuggers much
-simpler. Functional programming is hence often used for certain parts
-("calculation core") of a more complex system.
+is supported, then it uses a form where a variable can only be assigned once. 
+
+To create real-world programs, a purely functional language is usually not
+sufficient, because it cannot affect the environment (after all, this is a side
+effect). Since there is no state to watch change as the program steps through
+instructions, debugging can be done by simply showing all intermediate results
+of all function calls, basically "inspecting" the state of the calculation. This
+makes building debuggers much simpler. Functional programming is often
+used for certain parts ("calculation core") of a more complex system.
 
 \pension{The calculation core of pension rules is functional. Consequently, a
 debugger has been implemented that, for a given set of input data, shows the
@@ -336,34 +338,39 @@ No "step through" debugger is necessary.}
 A relevant subset of functional programming is pure expressions (as in $3*2+7
 > i$. Instead of calling functions, operators are used. However, operators are
 just inline-notations for function calls. Usually the operators are hard wired
-into the language, so it is not possible for users to define their own
+into the language and it is not possible for users to define their own
 functional abstractions. This is the main differentiator to functional
 programming in general.
 
-\comparch{This DSL uses expressions for pre- and post conditions in operations
-in component interfaces.}
-
 \embc{We use expressions in the guard conditions of the state machine
-extension. Of course, C's expression language is reused here.}
+extension as well as in pre- and post-conditions for interface operations. In
+both cases it is not possible to define or call external functions. Of course,
+C's expression language is reused here.}
 
 \paragraph{Declarative} Declarative programming can be considered the opposite
 of imperative programming (and, to some extent, functional programming). A
-declarative program does not specify any control flow. It does not specify a set
-of steps of a calculation. Instead, a declarative program only specifies a what
-the program should accomplish, not how. This is often done by specifying a set
-of properties of the program's goal. Some kind of evaluation engine then tries
-to find solutions. The particular advantage of this approach is that it is not
-predefined how a solution is found, the evaluation engine has a lot of freedom
-in doing so, possibly using different solutions in different environments. This
-large degree of freedom often makes finding the solution expensive. Debugging
-declarative programs can be hard since the solution algorithm may be very
-complex, involve (systematic) trial and error or backtracking, or may not even
-be know to the user of the language. 
+declarative program does not specify any control flow. It does not specify a
+sequence of steps of a calculation. Instead, a declarative program only
+specifies what the program should accomplish, not how. This is often done by
+specifying a set of properties, equations, relationships or constraints. Some
+kind of evaluation engine then tries to find solutions. The particular advantage
+of this approach is that it is not predefined how a solution is found, the
+evaluation engine has a lot of freedom in doing so, possibly using different
+solutions in different environments, or evolving the approach over
+time\footnote{For example, the strategies for implementing SAT solvers have
+evolved quite a bit over time. SAT solvers are much more scalable today.
+However, the formalism for desribing the logic formulas that are processed by
+SAT solvers have not changed}. This large degree of freedom often makes finding
+the solution expensive --- trial and error, backtracking or exhaustive search
+may be used. Debugging declarative programs can be hard since the solution
+algorithm may be very complex and possibly not even be know to the user of
+the language.
 
 Declarative programming has many important subgroups and use cases. For
 \emph{concurrent programs}, a declarative approach allows the efficient
-execution of the same program on different parallel hardware. In
-\emph{constraint programming}, the programmer specifies a constraints between a
+execution of the same program on different parallel hardware. The compiler or
+runtime system can allocate the program to available computational resources. In
+\emph{constraint programming}, the programmer specifies constraints between a
 set of variables. The engine tries to find values for these variables that
 satisfy all constraints. Solving mathematical equation systems is an example. So
 is efficient resource allocation in embedded systems. The evaluation engine is
@@ -371,7 +378,7 @@ often called a solver. \marginnote{Examples for boolean constraint programming
 include the Alloy language or any other SAT solver.}.
 
 \comparch{This DSL specifies timing and resource characteristics for component
-and interface operations. Based on this data, one could run an algorthm which
+and interface operations. Based on this data, one could run an algorithm which
 allocates the component instances to computing hardware so that the hardware is
 used as efficiently as possible, while at the same time reducing the amount of
 bus traffic. This is an example of constraint solving.}
@@ -379,19 +386,21 @@ bus traffic. This is an example of constraint solving.}
 \embc{This DSL supports presence conditions for product line engineering. A
 presence condition is a boolean expression over a set of configuration features
 that determines whether the associated piece of code is present for a given
-combination of feature selections. To verify the structural integrety of
-programs in the face of varying feature comination, constraint programming is
-used. From the program, the presence conditions and the feature model a set of
-boolean equations is generated. A solver then makes sure they are consistent by
-trying to find an example solution that violates the boolean equations.
+combination of feature selections. To verify the structural integrity of
+programs in the face of varying feature combination, constraint programming is
+used (there may be no configuration of the program where a reference to a symbol
+is included, but the symbol itself is not). From the program, the presence
+conditions and the feature model a set of boolean equations is generated. A
+solver then makes sure they are consistent by trying to find an example solution
+that violates the boolean equations.
 \todo{cite: refer to DSL impl chapter, and to literature (Czarnecki)} }
 
 \genex{Another example for declarative programming is the type system DSL used
-by MPS itelf. Language developers specify a set of type equations containing
-free type variables, among other things. A unification engine tries to solve
-the set of equations by assigning types to the free type variables so that the
-set of equations is consistent. We describe this approach in detail in section
-\todo{cite}}
+by MPS itself. Language developers specify a set of type equations containing
+free type variables, among other things. A unification engine tries to solve the
+set of equations by assigning actual types to the free type variables so that
+the set of equations is consistent. We describe this approach in detail in
+section \todo{ref}}
 
 \emph{Logic programming} is another subparadigm of declarative programming where
 users specify logic clauses (facts and relations) as well as queries. A theorem
