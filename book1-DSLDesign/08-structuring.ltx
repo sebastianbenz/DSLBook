@@ -1,3 +1,5 @@
+\FloatBarrier
+
 \section{Fundamental Paradigms}
 \label{learnFromGPLs}
 
@@ -203,15 +205,16 @@ and components (which can be instantiated and connected), state machines can
 be instantiated as well. Each instance can be in a different state at any given
 time.}
 
-\paragraph{Superposition and Aspects} Superposition refers to the ability to
-merge several model fragments according to some DSL-specific merge operator.
-Aspects provide a way of "pointing to" several locations in a program based on a
-pointcut operator (essentially a query over a program or its execution),
-adapting the model in ways specified by the aspect. Both approaches support the
-compositional creation of many different model variants from the same set of
-model fragments.\marginnote{This is especially important in the context of product
-line engineering and is discussed in \cite{VoelterVisser2011} and in \todo{ref}
-section of this book.}
+\paragraph{Superposition and Aspects} Superposition\marginnote{This is
+especially important in the context of product line engineering and is discussed
+in \cite{VoelterVisser2011} and in section of this book.} \todo{ref} refers to
+the ability to merge several model fragments according to some DSL-specific merge
+operator. Aspects provide a way of "pointing to" several locations in a program
+based on a pointcut operator (essentially a query over a program or its
+execution), adapting the model in ways specified by the aspect. Both approaches
+support the compositional creation of many different model variants from the
+same set of model fragments.
+
 
 \embc{This DSL provides a way of advising component definitions, for example to
 introduce additional ports from an aspect. An aspect may introduce a port
@@ -288,14 +291,15 @@ and components as in the previous example. However, since here they are directly
 integrated with C, C expression can be used for pre- and post-conditions of
 interface operations.}
 
+\marginnote[-2cm]{This is only an overview over a few paradigms; many more
+exist. I refer to the excellent Wikipedia entry on \emph{Programming Paradigms} and to
+the book \cite{RoyH2004}}
 This section described some of the most well-known behavioural paradigms that
 can serve as useful starting points for behaviour descriptions in
-DSLs.\marginnote{This is only an overview over a few paradigms; many more exist.
-I refer to the excellent Wikipedia entry on \emph{Programming Paradigms} and to
-the book \cite{RoyH2004}}
+DSLs.
  
-\paragraph{Imperative} \marginnote{For many people, often including domain
-experts, this approach is most obvious. Hence it is often a good starting point
+\paragraph{Imperative} \marginnote[0.5cm]{For many people, often including
+domain experts, this approach is most obvious. Hence it is often a good starting point
 for DSLs.} Imperative programs consist of a sequence of statements, or
 instructions, that change the state of a program. This state may be local to
 some kind of module (e.g. a procedure or an object), global (as in global
@@ -357,9 +361,9 @@ kind of evaluation engine then tries to find solutions. The particular advantage
 of this approach is that it is not predefined how a solution is found, the
 evaluation engine has a lot of freedom in doing so, possibly using different
 solutions in different environments, or evolving the approach over
-time\footnote{For example, the strategies for implementing SAT solvers have
-evolved quite a bit over time. SAT solvers are much more scalable today.
-However, the formalism for desribing the logic formulas that are processed by
+time\footnote[][-0.5cm]{For example, the strategies for implementing SAT solvers
+have evolved quite a bit over time. SAT solvers are much more scalable today.
+However, the formalism for describing the logic formulas that are processed by
 SAT solvers have not changed}. This large degree of freedom often makes finding
 the solution expensive --- trial and error, backtracking or exhaustive search
 may be used. Debugging declarative programs can be hard since the solution
@@ -372,10 +376,8 @@ execution of the same program on different parallel hardware. The compiler or
 runtime system can allocate the program to available computational resources. In
 \emph{constraint programming}, the programmer specifies constraints between a
 set of variables. The engine tries to find values for these variables that
-satisfy all constraints. Solving mathematical equation systems is an example. So
-is efficient resource allocation in embedded systems. The evaluation engine is
-often called a solver. \marginnote{Examples for boolean constraint programming
-include the Alloy language or any other SAT solver.}.
+satisfy all constraints. Solving mathematical equation systems is an example,
+as is solving sets of boolean logic formulas.
 
 \comparch{This DSL specifies timing and resource characteristics for component
 and interface operations. Based on this data, one could run an algorithm which
@@ -388,11 +390,11 @@ presence condition is a boolean expression over a set of configuration features
 that determines whether the associated piece of code is present for a given
 combination of feature selections. To verify the structural integrity of
 programs in the face of varying feature combination, constraint programming is
-used (there may be no configuration of the program where a reference to a symbol
-is included, but the symbol itself is not). From the program, the presence
-conditions and the feature model a set of boolean equations is generated. A
-solver then makes sure they are consistent by trying to find an example solution
-that violates the boolean equations.
+used (to ensure that there is no configuration of the program where a reference
+to a symbol is included, but the referenced symbol is not). From the
+program, the presence conditions and the feature model a set of boolean
+equations is generated. A solver then makes sure they are consistent by trying
+to find an example solution that violates the boolean equations.
 \todo{cite: refer to DSL impl chapter, and to literature (Czarnecki)} }
 
 \genex{Another example for declarative programming is the type system DSL used
@@ -404,66 +406,66 @@ section \todo{ref}}
 
 \emph{Logic programming} is another subparadigm of declarative programming where
 users specify logic clauses (facts and relations) as well as queries. A theorem
-prover tries to solve the queries.\marginnote{The Prolog language works this
+prover tries to solve the queries\marginnote{The Prolog language works this
 way}.
-
 
 \paragraph{Reactive/Event-based/Agent} In this paradigm, behavior is triggered
 based on events received by some entity. Events may be created by another entity
-or by the environment (or a driver). Reactions are expressed by the production
-of other events. Events may be globally visible or explicitly routed between
-entities, possibly using filter and/or using priority queues. This approach is
-often used in embedded system that have to interact with the real world. The
-real world produces events as it changes. 
-
-A variant of this approach queries the inputs at intervals controlled by a
-scheduler. The input events may be queued, or they may be considered continuous
-signals, whose values are queried in scheduled intervals, and output signals are
-created.
+or by the environment (through a device driver). Reactions are expressed by the
+production of other events. Events may be globally visible or explicitly routed
+between entities, possibly using filters and/or using priority queues. This
+approach is often used in embedded systems that have to interact with the real
+world, where the real world produces events as it changes. A variant of this
+approach queries input signals at intervals controlled by a scheduler and
+considers changes in input signals as the events.
 
 \cooling{The cooling algorithms are reactive programs that control the cooling
 hardware based on environment events. Such events include the opening of a
-refrigerator door, the crossing of a temperature schedule, or a timeout that
+refrigerator door, the crossing of a temperature threshold, or a timeout that
 triggers defrosting of a cooling compartment. Events are queued, and the queues
 are processed in intervals determined by a scheduler.}
 
-Debugging is simple if the timing of input events can be controlled. Visualizing
-incoming events and the code that is triggered as a reaction is relatively
-simple. If the timing of input events cannot be controlled, then debugging can
-be almost impossible, because humans are way too slow to fit "in between" events
-that may be generated by the environment in rapid succession. For this reason,
-various kinds of simulators are used to debug the behaviour of reactive systems.
+Debugging is simple if the timing/frequency of input events can be controlled.
+Visualizing incoming events and the code that is triggered as a reaction is
+relatively simple. If the timing of input events cannot be controlled, then
+debugging can be almost impossible, because humans are way too slow to fit "in
+between" events that may be generated by the environment in rapid succession.
+For this reason, various kinds of simulators are used to debug the behaviour of
+reactive systems, and sophisticated diagnostics regarding event frequencies
+or queue filling levels may have to be integrated into the programs as they run
+in the real environment.
 
 \cooling{The cooling language comes with a simulator based on an interpreter
 where the behaviour of a cooling algorithm can be debugged. Events are
 explicitly created by the user, on a time scale that is compatible
 with the debugging process.}
 
-\paragraph{Dataflow} The dataflow paradigm is centered around variables with
-dependencies (relationships in terms of calculation rules) among them. As a
-variable changes, those that depend on the variable are recalculated. We know
-this approach mainly from two use cases. One is spreadsheets: cell formulas
-express dependencies to other cells. As the values in these other cells change,
-the dependend cells are recalculated. The other use case is data flow (or block)
-diagrams (\fig{graphicalFlow2}, used in embedded software, ETL systems and
-enterprise messaging and CEP. There, the calculations are encapsulated in the
-blocks, and the lines represent dependencies --- the output of one blocks
-"flows" into input slot of another block. There are three different execution
-modes:
 \begin{marginfigure}
   \includegraphics[width=4cm]{figures/graphicalFlow.png}
   \caption{Graphical Notation for Flow}
   \label{graphicalFlow2}
 \end{marginfigure} 
+\paragraph{Dataflow} The dataflow paradigm is centered around variables with
+dependencies (relationships in terms of calculation rules) among them. As a
+variable changes, those variables that depend on the changing variable are
+recalculated. We know this approach mainly from two use cases. One is
+spreadsheets: cell formulas express dependencies to other cells. As the values
+in these other cells change, the dependent cells are updated. The other use case
+is data flow (or block) diagrams (\fig{graphicalFlow2}, used in embedded
+software, ETL systems and enterprise messaging and complex event processing.
+There, the calculations are encapsulated in the blocks, and the lines represent
+dependencies --- the output of one blocks "flows" into input slot of another
+block. There are three different execution modes:
 
 \begin{itemize}
   \item The first one considers the data values as continuous signals. At the
-  time one of the inputs changes, all dependent values are recalculated. The
-  change triggers the recalculation. This is the model used in spreadsheets.
+  time one of the inputs changes, all dependent values are recalculated, the
+  change triggers the recalculation, and the recalculation ripples through the
+  dependency graph. This is the model used in spreadsheets.
   \item The second one considers the the data values quantized, unique messages.
   Only if a message is available for all inputs, a new output message is
-  calculated. The calculation synchronized on the availability of a message at
-  each input, and upon calculation, these messages are consumed. This approach
+  calculated. The recalculation synchronizes on the availability of a message at
+  each input, and upon recalculation, these messages are consumed. This approach
   is often used in ETL and CEP systems.
   \item The third approach is time triggered. Once again, the inputs are
   understood to be continuous signals, and a scheduler determines when a new
@@ -472,56 +474,62 @@ modes:
   in embedded systems.
 \end{itemize}
 
-Debugging these kinds of
-systems is relatively straight forward because the calculation is always in a
-distinct state. Dependencies and data flow, or the currently active block and
-the available messages can easily be visualized in the spreadsheet or in the
+Debugging these kinds of systems is relatively straight forward because the
+calculation is always in a distinct state. Dependencies and data flow, or the
+currently active block and the available messages can easily be visualized in a
 block diagram notation. Note that the calculation rules themselves are
-considered black boxes here.
+considered black boxes here, whose inside may be built from any other paradigm,
+often functional. Integrating debuggers for the inside of boxes as well is a
+more challenging task.
 
 
 \paragraph{State-based} The state-based paradigm describes a system's behaviour
 in terms of the states the system can be in, the transitions between these
 states as well as events that trigger these transitions and actions that are
-executed as states change. State machines are useful for systematically managing
-the behavior of an entity. It can also be used to describe valid sequences of
-events, messages or procedure calls. It can be used in an event-driven mode
-where incoming events actually trigger transitions and the associated actions.
-Alternatively a state machine can be run in a timed mode, where a scheduler
-determines when event queues are checked and processed. Except for possible
-real-time issues, state machines are easy to debug by highlight the state of
-queues and the current state.
+executed as states change. State machines are useful for systematically
+organizing the behavior of an entity. It can also be used to describe valid
+sequences of events, messages or procedure calls. State machines can be used in
+an event-driven mode where incoming events actually trigger transitions and the
+associated actions. Alternatively a state machine can be run in a timed mode,
+where a scheduler determines when event queues are checked and processed. Except
+for possible real-time issues, state machines are easy to debug by highlighting
+the contents of event queues and the current state.
 
 \embc{As mentioned before, this language provides an extension that supports
-directly working with state machines.}
+directly working with state machines. Events can be passed into a state machine
+from regular C code or by mapping incoming messages in components to events in
+state machines that reside in components. Actions can contain arbitrary C code,
+unless the state machine shall be verifiable in which case actions may only
+create outgoing events or change statemachine-local variables.}
 
 \cooling{The behaviour of cooling programs is fundamentally state driven. A
-scheduler is used to execute the state machine in regular intervals. 
-Transitions are triggered either by incoming, queued events or by changing
-property values of hardware elements. Note that this language is a good example
-where a behavioral paradigm is used without significant alterations, but
-working with domain-specific data structures: refrigerator hardware and their
-properties.} 
+scheduler is used to execute the state machine in regular intervals. Transitions
+are triggered either by incoming, queued events or by changing property values
+of hardware building blocks. Note that this language is an example where a
+behavioral paradigm is used without significant alterations, but working with
+domain-specific data structures: refrigerator hardware and their properties.}
 
-State-based behavior description is also interesting because it support model
-checking: a state chart is verified against a set of specifications. The model
-checker either determines that the state chart conforms to the specifications or
-provides a counter example. Specifications express something about sequences of
-states such as: "it is not possible that two traffic lights show green at the
-same time" or "whenever a pedestrian presses the \emph{request} button, the
-pedestrian lights eventually will show green".\marginnote{A good introduction to
-model checking can be found in \cite{BerardBidoitM2001}. We elaborate on model
-checking in section \todo{cite}}.
+\marginnote{A good introduction to model checking can be found in
+\cite{BerardBidoitM2001}. We elaborate on model checking in section }.
+\todo{ref}
+As mentioned before, state-based behavior description is also interesting
+because it support model checking: a state chart is verified against a set of
+specifications. The model checker either determines that the state chart
+conforms to the specifications or provides a counter example. Specifications
+express something about sequences of states such as: "it is not possible that
+two traffic lights show green at the same time" or "whenever a pedestrian
+presses the \emph{request} button, the pedestrian lights eventually will show
+green".
 
 \subsection{Combinations}
 
 Many DSLs use combinations of various behavioural and structural paradigms
-described here.\marginnote{Note how this observation leads to the desire to
-better modularize and reuse some of the above paradigms. Room for research :-)}
-A couple of combinations are very typical:
+described in this section\footnote{Note how this observation leads to the
+desire to better modularize and reuse some of the above paradigms. Room for
+research :-)}. A couple of combinations are very typical:
 
 \begin{itemize}
-  \item a data flow language often uses a functional or importative language to
+  \item a data flow language often uses a functional or imperative language to
   describe the calculation rules that express the dependencies between the
   variables (the contents of the boxes in data flow diagrams or of cells in
   spreadsheets)
@@ -532,9 +540,9 @@ A couple of combinations are very typical:
   data flow or state-based programming to implement the behaviour that
   determines the reactions.
   \item in purely structural languages, for example, those for expressing
-  components and their dependencies, a functional language is often used to
-  express pre- and postconditions for operations. A state-based language is
-  often used for protocol state machines, which determines the valid order of
+  components and their dependencies, a functional/expression language is often
+  used to express pre- and postconditions for operations. A state-based language 
+  is often used for protocol state machines, which determines the valid order of
   incoming events or operation calls.
 \end{itemize}
 
@@ -545,19 +553,20 @@ of several paradigms.
 symbols for the core actuary mathematics. A functional language with a normal
 textual syntax is used for the higher-level pension calculation rules. A
 spreadsheet/data flow language is used for expressing unit tests for pension
-rules. Various nested levels of namespaces are used to organize the rules, the
-most important of which is the pension plan. It contains rules and test cases
-for those rules. Pension plans can inherit from other plans as a means of
-expressing variants. Rules are versioned over time, and the actual calculation
-formula is part of the version. Thus, a pension plan's behaviour can be made to
-be different for different points in time. Rules in a sub-plan can override
-rules in the plan from which the sub-plan inherits. Plans can be declared to be
-abstract, with abstract rules that have to be implemented in sub-plans. }
+rules. Various nesting levels of namespaces are used to organize the rules, the
+most important of which is the pension plan. A plan contains calculation rules
+as well as test cases for those rules. Pension plans can specialize other plans
+as a means of expressing variants. Rules in a sub-plan can override rules in the
+plan from which the sub-plan inherits. Plans can be declared to be abstract,
+with abstract rules that have to be implemented in sub-plans. Rules are
+versioned over time, and the actual calculation formula is part of the version.
+Thus, a pension plan's behaviour can be made to be different for different
+points in time. }
 
-\cooling{The cooling behavior is a reactive system. Events are produced by
-hardware elements (and their drivers). A state machine constitutes the top
-level structure. Within it, an imperative language is used. Programs can
-inherit from another program, overwriting states defined in the base program.
-New transitions can be added, and the existing transitions can be overridden.
-This way, an extended program can "plug into" the base program.}
+\cooling{The cooling behavior description is described as a reactive system.
+Events are produced by hardware elements (and their drivers). A state machine
+constitutes the top level structure. Within it, an imperative language is used.
+Programs can inherit from another program, overwriting states defined in the
+base program: new transitions can be added, and the existing transitions can be
+overridden as a way for an extended program to "plug into" the base program.}
 

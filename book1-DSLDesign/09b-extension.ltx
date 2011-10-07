@@ -43,16 +43,16 @@ it is a form of language referencing. The fragments remain homogeneous.}
 \end{center} 
 \end{figure} 
 
-Language extension fits well with the hierarchical domains: a language $L_B$ for
-a domain $D$ may extend a language $L_A$ for $D_{-1}$. $L_B$ contains concepts
-specific to $D$, making analysis and transformation of those concepts possible
-without pattern matching and semantics recovery. As explained in the
-introduction, the new concepts are often reified from the idioms and patterns
-used when using an $L_A$ for $D$. Language semantics are typically defined by
-mapping the new abstractions to just these idioms (see \sect{semantics})
-\emph{inline}. This process, also known as \emph{assimilation}, transforms a
-heterogeneous fragment (expressed in $L_D$ and $L_{D+1}$) into a homogeneous
-fragment expressed only with $L_D$. 
+Language extension fits well with the hierarchical domains introduced in
+\sect{domhier}: a language $L_B$ for a domain $D$ may extend a language $L_A$
+for $D_{-1}$. $L_B$ contains concepts specific to $D$, making analysis and
+transformation of those concepts possible without pattern matching and semantics
+recovery. As explained in the introduction, the new concepts are often reified
+from the idioms and patterns used when using an $L_A$ for $D$. Language
+semantics are typically defined by mapping the new abstractions to just these
+idioms (see \sect{semantics}) \emph{inline}. This process, also known as
+\emph{assimilation}, transforms a heterogeneous fragment (expressed in $L_D$ and
+$L_{D+1}$) into a homogeneous fragment expressed only with $L_D$.
 
 \marginnote{Language extension is especially interesting if $D_0$ languages are
 extended, making a DSL an extension of a general purpose language.}
@@ -97,5 +97,9 @@ language constructs are used. Second, a marker concept may be added to the
 base language. The restriction rules are then enforced for children of these
 marker concepts (e.g. in a module marked as "safe", one cannot use void pointers
 and the prohibited casts).
+
+\embc{Modules can be marked as \emph{MISRA-compliant}, which prevents the use
+of those C constructs that are not allowed in MISRA \todo{cite}. Prohibited
+concepts are reported as errors directly in the program.}
 
 

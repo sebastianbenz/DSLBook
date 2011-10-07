@@ -5,61 +5,68 @@
 concrete syntax is not required. A reference between fragments is usually simply
 an identifier and does not have its own internal structure for which a grammar
 would be required. The name resolution phase can then create the actual
-cross-reference between abstract syntax objects. In the refrigerator example,
-the algorithm language contains cross-references into the hardware language.
-Those references are simple, dotted names ($a.b.c$). In the UI example, the
-adapter language simply introduces dotted names to refer to fields of data
-structures. 
+cross-reference between abstract syntax objects. 
+
+\cooling{The algorithm language contains cross-references into the hardware language.
+Those references are simple, dotted names ($a.b.c$).}
+
+\genex{In the UI example, the adapter language simply introduces dotted names to
+refer to fields of data structures.}
 
 Extension and Embedding requires modular concrete syntax definitions because
 additional language elements must be "mixed" with programs written with the base
-language. In the embedded programming example, state machines are hosted in
-regular C programs. This works because the C language's \lcr{Module} construct
-contains a collection of \lcr{ModuleContents}, and the \lcr{StateMachine}
-concept extends the \lcr{ModuleContent} concept. This state machine language is
-designed specifically for being embedded into C, so it can access and extend the
-\lcr{ModuleContent} concept. If the state machine language were reusable with
-any host language in addition to C, then an adapter language would provide a
-language concept that adapts C's \lcr{IModuleContent} to \lcr{StateMachine},
-because \lcr{StateMachine} cannot directly extend \lcr{IModuleContent} --- it
-does now depend on the C language.
+language. 
+
+\embc{State machines are hosted in regular C programs. This works because the C
+language's \lcr{Module} construct contains a collection of \lcr{ModuleContents},
+and the \lcr{StateMachine} concept extends the \lcr{ModuleContent} concept. This
+state machine language is designed specifically for being embedded into C, so it
+can access and extend the \lcr{ModuleContent} concept. If the state machine
+language were reusable with any host language in addition to C, then an adapter
+language would provide a language concept that adapts C's \lcr{IModuleContent}
+to \lcr{StateMachine}, because \lcr{StateMachine} cannot directly extend
+\lcr{IModuleContent} --- it does now depend on the C language.}
 
 
 \paragraph{Type Systems} For referencing, the type system rules and constraints
 of the referencing language typically have to take into account the referenced
 language. Since the referenced language is known when developing the referencing
 language, the type system can be implemented with the referenced language in
-mind as well. In the refrigerator example, the algorithm language defines typing
+mind as well. 
+
+\cooling{In the refrigerator example, the algorithm language defines typing
 rules for hardware elements (from the hardware language), because these types
 are used to determine which properties can be accessed on the hardware elements
 (e.g. a compressor has a property \lcr{active} that controls if it is turned on
-or off).
+or off).}
 
 In case of extension, the type systems of the base language must be designed in
 a way that allows adding new typing rules in language extensions. For example,
 if the base language defines typing rules for binary operators, and the
 extension language defines new types, then those typing rules may have to be
-overridden to allow the use of existing operators with the new types. In the
-embedded systems example, a language extension provides types with physical
-units (as in 100 kg). Additional typing rules are needed to override the typing
-rules for C's basic operators (+, -, *, /, etc.).
+overridden to allow the use of existing operators with the new types. 
+
+\embc{A language extension provides types with physical units (as in 100 kg).
+Additional typing rules are needed to override the typing rules for C's basic
+operators (+, -, *, /, etc.).}
 
 For reuse and embedding, the typing rules that affect the interplay between the
-two languages reside in the adapter language. In the UI example the adapter
-language will have to adapt the data types of the fields in the data description
-to the types the UI widgets expect. For example, a combo box widget can only be
-bound to fields that have some kind of text or enum data type. Since the
-specific types are specific to the data description language (which is unknown
-at the time of creation of the UI language), a mapping must be provided in the
-adapter language.
+two languages reside in the adapter language.
+
+\genex{In the UI example the adapter language will have to adapt the data types
+of the fields in the data description to the types the UI widgets expect. For
+example, a combo box widget can only be bound to fields that have some kind of
+text or enum data type. Since the specific types are specific to the data
+description language (which is unknown at the time of creation of the UI
+language), a mapping must be provided in the adapter language.}
 
 
 \paragraph{Transformation} In this section we use the terms
-\emph{transformation} and \emph{generation}
-interchangably. In general, the term transformation is used if one tree of
-program elements is mapped to another tree, while generation describes the case
-of creating text from program trees. However, for the discussions in this
-section, this distinction is generally not relevant.
+\emph{transformation} and \emph{generation} interchangably. In general, the term
+transformation is used if one tree of program elements is mapped to another
+tree, while generation describes the case of creating text from program trees.
+However, for the discussions in this section, this distinction is generally not
+relevant.
 
 \begin{marginfigure}
   \includegraphics[width=3cm]{figures/referencingCaseA.png}
@@ -68,7 +75,7 @@ section, this distinction is generally not relevant.
 \end{marginfigure}
 
 Three cases have to be considered for referencing. The first one
-(\fig{referencingCaseA}) propagates the referencing structure to two independent
+(\fig{referencingCaseA}) propagates the referencing structure to the
 target fragments. We call these two transformations single-sourced, since each
 of them only uses a single, homogeneous fragment as input and creates a single,
 homogeneous fragment, perhaps with references between them. Since the
@@ -78,37 +85,50 @@ knowledge about the names of the elements that have to be referenced in the
 other fragment. If a generator for the referenced language already exists, it
 can be reused unchanged. The two generators basically share naming information.
 
-\begin{marginfigure}
+\comparch{In the types viewpoint, interfaces and components are defined. The
+types viewpoint is independent, and it is sufficient for the generation of the
+code necessary for implementing component behaviour: Java base classes are
+generated that act as the component implementations (expected to be extended by
+manually written subclasses). A second, dependent viewpoints describes component
+instances and their connections (it depends on the types viewpoint). A third one
+describes the deployment of the instances to execution nodes (servers,
+essentially). The generator for the deployment viewpoint generates code that
+actually instantiates the classes that implement components, so it has to know
+the names of those generated (and hand-written) classes.}
+  
+\begin{marginfigure}[3.3cm]
   \includegraphics[width=3cm]{figures/referencingCaseB.png}
   \caption{A single multi-sourced transformation.}
   \label{referencingCaseB}
 \end{marginfigure}
-
-\cooling{The refrigerator example uses this case. From the hardware description we
-generate an XML file that configures a framework that actually collects the data
-behind the properties of the hardware components in the running refrigerator.
-The C code generated from the algorithm accesses that framework, using
-agreed-upon identifiers to identify properties whose value have to be read or
-set.}
-  
-\begin{marginfigure}
-  \includegraphics[width=3cm]{figures/referencingCaseC.png}
-  \caption{A preprocessing transformation that changes the referenced fragment in a way
-specified by the referencing fragment}
-  \label{referencingCaseC}
-\end{marginfigure}
-
 The second case (\fig{referencingCaseB}) is a multi-sourced transformation that
 creates one single homogeneous fragment. This typically occurs if the
 referencing fragment is used to guide the transformation of the referenced
 fragment, for example by specifying target transformation strategies. In this
 case, a new transformation has to be written that takes the referencing fragment
 into account. The possibly existing generator for the referenced language cannot
-be reused as is. An alternative to rewriting the generator is the use of a
+be reused as is. 
+
+\cooling{The refrigerator example uses this case. The code generator that
+generates the C code that implements the cooling algorithm takes into account
+the information from the hardware description model. A single fragment is
+generated from the two input models. The generated code is C-only, so the
+fragment remains homogeneous.}
+
+
+\begin{marginfigure}[3cm]
+  \includegraphics[width=3cm]{figures/referencingCaseC.png}
+  \caption{A preprocessing transformation that changes the referenced fragment in a way
+specified by the referencing fragment}
+  \label{referencingCaseC}
+\end{marginfigure}
+The third case, an alternative to rewriting the generator, is the use of a
 preprocessing transformation (\fig{referencingCaseC}), that changes the
 referenced fragment in a way consistent with what the referenced fragment
 prescribes. The existing transformations for the referenced fragment can then be
 reused.
+
+
 
 \newthought{As we have discussed above}, language extensions are usually created
 by defining linguistic abstractions for common idioms of a domain $D$. A
@@ -117,9 +137,10 @@ mapping $L_D$ to $L_{D-1}$, a process called assimilation. In other words,
 transformations for language extensions map a heterogeneous fragment (containing
 $L_{D-1}$ and $L_D$ code) to a homogeneous fragment that contains only $L_{D-1}$
 code (\fig{transExtension}). In some cases additional files may be generated,
-often configuration files. In the embedded systems state machines example, the
-state machines are generated down to a function that contains a switch/case
-statement, as well as enums for states and events.
+often configuration files. 
+
+\embc{State machines are generated down to a function that contains a switch/case
+statement, as well as enums for states and events.}
 
 \begin{marginfigure}
   \includegraphics[width=5cm]{figures/transExtension.png}
@@ -133,26 +154,31 @@ statement, as well as enums for states and events.
 
 
 Sometimes a language extension requires rewriting transformations defined by the
-base language. For example, in the data-types-with-physical-units example, the
-language also provides range checking and overflow detection. So if two such
-quantities are added, the addition is transformed into a call to a special
-\lcr{add} function instead of using the regular plus operator. This function
-performs overflow checking and addition.
+base language. 
+
+\embc{In the data-types-with-physical-units example, the language also provides
+range checking and overflow detection. So if two such quantities are added, the
+addition is transformed into a call to a special \lcr{add} function instead of
+using the regular plus operator. This function performs overflow checking and
+addition.}
 
 Language Extension introduces the risk of semantic interactions. The
 transformations associated with several independently developed extensions of
-the same base language may interact with each other. Consider the (somewhat
-constructed) example of two extensions to Java that each define a new statement.
-When assimilated to pure Java, both new statements require the surrounding Java
-class to extend a specific, but different base class. This won't work because a
-Java class can only extend one base class. Interactions may also be more subtle
-and affect memory usage or execution performance. Note that this problem is not
-specific to languages, it can occur whenever several independent extensions of a
-base concept can be used together, ad hoc. To avoid the problem, transformations
-should be built in a way so that they do not "consume scarce resources" such as
-inheritance links. A more thorough discussion of the problem of
-semantic interactions is beyond the scope of this paper, and we refer
-to \cite{} for details.
+the same base language may interact with each other.
+
+\genex{Consider the (somewhat constructed) example of two extensions to Java
+that each define a new statement. When assimilated to pure Java, both new
+statements require the surrounding Java class to extend a specific, but
+different base class. This won't work because a Java class can only extend one
+base class.}
+
+Interactions may also be more subtle and affect memory usage or execution
+performance. Note that this problem is not specific to languages, it can occur
+whenever several independent extensions of a base concept can be used together,
+ad hoc. To avoid the problem, transformations should be built in a way so that
+they do not "consume scarce resources" such as inheritance links. A more
+thorough discussion of the problem of semantic interactions is beyond the scope
+of this paper, and we refer to \todo{cite} for details.
 
 \newthought{In the reuse scenario}, it is likely that both the reused and the
 context language already come with their own generators. If these generators
@@ -234,6 +260,12 @@ Just a language extension, language embedding may also lead to semantic
 interactions if multiple languages are embedded into the same host language. 
 
 
+
+
+
+\endinput
+
+\todo{This whole tool story needs to go into the implementation section.}
 
 \subsection{Tool Support}
 \label{tools}

@@ -2,46 +2,47 @@
 \label{concretesyntax}
 
 A good choice of concrete syntax is important for DSLs to be accepted by the
-intended users, particularly if the users are not programmers. Especially (but
-not exclusively) in business domains, a DSL will only be successful if and when
-it uses notations that directly fit the domain --- there might even be existing
-notations you can reuse. A good notation makes expression of common
-concerns simple and concise and provides sensible defaults. It is ok for less
-common concerns to require a bit more verbosity in the notation.
+intended user community, particularly if the users are not programmers.
+Especially (but not exclusively) in business domains, a DSL will only be
+successful if and when it uses notations that directly fit the domain --- there
+might even be existing, established notations that should be reused. A good
+notation makes expression of common concerns simple and concise and provides
+sensible defaults. It is ok for less common concerns to require a bit more
+verbosity in the notation.
 
 There are a couple of major classes for DSL concrete syntax\footnote{Sometimes
 form-based GUIs or trees views are considered DSLs. We disagree, because this
 would make any GUI application a DSL.}: \emph{Textual} DSLs use traditional
 ASCII or Unicode text. They basically look and feel like traditional programming
-languages. \emph{Symbolic} DSLs are textual DSLs with an extended set of
-symbols, such as fraction bars, mathematical symbols or subscript and
-superscript.\marginnote{The Fortress programming language \cite{Steele05} is
-close to this.} \emph{Graphical} DSLs use graphical shapes. An important
-subgroup is represented by those that use box-and-line diagrams that look and
-feel like UML class diagrams or state machines. However, there are more options
-for graphical notations, such as those illustrated by UML timing diagrams or
-sequence diagrams. \emph{Tables and Matrices} are a powerful way to represent
-certain kinds of data and can play an important part for DSLs.
+languages. \emph{Graphical} DSLs use graphical shapes. An important subgroup is
+represented by those that use box-and-line diagrams that look and feel like UML
+class diagrams or state machines. \emph{Symbolic} DSLs are textual DSLs with an
+extended set of symbols, such as fraction bars, mathematical symbols or
+subscript and superscript.\marginnote{The Fortress programming language
+\cite{Steele05} is close to this.} However, there are more options for graphical
+notations, such as those illustrated by UML timing diagrams or sequence
+diagrams. \emph{Tables and Matrices} are a powerful way to represent certain
+kinds of data and can play an important part for DSLs.
 
-\marginnote{The perfect DSL tool should support freely combining and integrating
+The perfect DSL tool should support freely combining and integrating
 the various classes of concrete syntax, and be able to show (aspects of) the
 same model in different notations. As a consequence of tool limitations, this is
 not always possible, however. The requirements for concrete syntax are a major
-driver in tool selection.}
+driver in tool selection.
 
-\begin{marginfigure}
+\begin{marginfigure}[0.8cm]
   \includegraphics[width=3cm]{figures/graphicalRel.png}
   \caption{Graphical Notation for Relationships}
   \label{graphicalRel}
 \end{marginfigure}
 
-\begin{marginfigure}
+\begin{marginfigure}[0.8cm]
   \includegraphics[width=4cm]{figures/graphicalFlow.png}
   \caption{Graphical Notation for Flow}
   \label{graphicalFlow}
 \end{marginfigure}
 
-\begin{marginfigure} 
+\begin{marginfigure}[0.8cm]
   \includegraphics[width=5cm]{figures/graphicalCause.png}
   \caption{Graphical Notation for Causality and Timing}
   \label{graphicalCause}
@@ -55,23 +56,29 @@ existing development infrastructures, making their adoption relatively easy.
 They are very well suited for detailed descriptions, anything that is
 algorithmic or generally resembles (traditional) program source code. Symbolic
 notations can be considered "better textual", and lend themselves to domains
-that make heavy use of symbols and special notations. Graphical notations are
-very good for describing relationships, flow or timing and causal relationships.
-Finally, tables are very useful for collections of similarly structured data
-items, or for expressing how two independent dimensions of data relate.
+that make heavy use of symbols and special notations. tables are very useful for
+collections of similarly structured data items, or for expressing how two
+independent dimensions of data relate. Finally, graphical notations are very
+good for describing relationships (\fig{graphicalRel}), flow
+(\fig{graphicalFlow}) or timing and causal relationships (\fig{graphicalCause}).
 
 \pension{The pension DSL uses mathematical symbols and notations to express
 insurance mathematics. A table notation is embedded to express unit tests for
 the pension plan calculation rules. A graphical projection shows dependencies
 and specialization relationships between plans.}
 
+\embc{The core DSLs use a textual notation with some tabular enhancements, for
+example, for decision tables. However, as MPS' capability for handling
+graphical notations will increase, we will represent state machines as
+diagrams.}
+
 Selection of concrete syntax is simple for domain user DSLs if there is an
-established notation in the domain already. The challenge then is to replicate
-it as closely as possible with the DSL, while cleaning up possible
-inconsistencies in the notation (since it had not been used formally before). I
-like to use the term "strongly typed word".\sidenote{In some cases it is useful
-to come up with a better notation than the one used historically. This is especially
-true if the historic notation is Excel :-)} 
+established notation in the domain. The challenge then is to replicate it as
+closely as possible with the DSL, while cleaning up possible inconsistencies in
+the notation (since it had not been used formally before). I like to use the
+term "strongly typed word" in this case.\sidenote{In some cases it is useful to
+come up with a better notation than the one used historically. This is
+especially true if the historic notation is Excel :-)}
 
 For DSLs targeted at developers, a textual notation is usually a good starting
 point, since developers are used working with text, and very productive. Tree
@@ -79,45 +86,57 @@ views, and specific visualizations are often useful, but for editing, a textual
 notation is a good starting point. It also integrates well with existing
 development infrastructures.
 
+\embc{This was the original reason for developing this system as a set of
+extensions to C. C is the baseline for embedded systems, and everybody is
+familiar with it. A textual notation is useful for many concerns in embedded
+systems. Note that several languages create visualizations on the fly, for
+example for module dependencies, component dependencies and component instance
+wirings. The graphviz tool \todo{ref} is used here since it provides decent
+auto-layout.}
+
 There are very few DSLs where a purely graphical notation makes sense. In most
 cases, textual languages are embedded in the diagrams: state machines have
 expressions embedded the guards and statements in the actions; component
 diagrams use text for specifications of operations in interfaces, maybe even
 with expressions for preconditions; block diagrams use a textual syntax for the
-implementation/parametrization of the blocks. A text box without language
-support should only be used as a last resort. We suggest using a textual
-notation, with additional graphical visualizations.
+implementation/parametrization of the blocks.\marginnote[-2cm]{A text box where
+textual code can be entered without language support should only be used as a
+last resort. Instead, a textual notation, with additional graphical
+visualizations should be used}.
 
-Also note that initially, domain users prefer a graphical notation, because
-things that are described graphically are easier to comprehend than textual
-descriptions, right? Not really. What is most important regarding
-comprehensibility is the alignment of the concepts that need to be conveyed with
-the abstractions in the language. A well-designed textual notation can go a long
-way. Also, textual languages are more productive once the learning curve has
-been passed.
+\todo{screenshots from some itemis tools}
+
+\marginnote{In my consulting practice, I almost always start with a textual
+notation and try to stabilize language abstractions based on this notation. Only
+then will I engage in a discussion about whether a graphical notations on top of
+the textual one is necessary. Often it is not, and if it is, we have avoided
+iterating the implementation of the graphical editor implementation, which,
+depending on the tooling, can be a lot of work.} Also note that initially,
+domain users prefer a graphical notation, because of the perception that things
+that are described graphically are simple(r) to comprehend Not really. However,
+what is most important regarding comprehensibility is the alignment of the
+domain concepts with the abstractions in the language. A well-designed textual
+notation can go a long way. Also, textual languages are more productive once the
+learning curve has been overcome.
 
 
 
-\paragraph{Multiple Notations} For projectional editors it is possible
-to define several notations for the same abstract syntax. By changing the
-projection rules, existing programs can be shown in a different way. This
-removes some of the burden of getting it right initially, because the notation
-can be adapted after the fact. Also, for textual notations it is possible to
-automatically derive graphical visualizations as a way of illustrating key
-relationships between program elements. In general, for the concrete syntax of a
-DSL writability is often more important than readability, because additional
-read-only representations can always be derived automatically.
+\paragraph{Multiple Notations} For projectional editors it is possible to define
+several notations for the same abstract syntax. By changing the projection
+rules, existing programs can be shown in a different way. This removes some of
+the burden of getting it right initially, because the notation can be adapted
+after the fact. In general, for the concrete syntax of a DSL writability is
+often more important than readability, because additional read-only
+representations can always be derived automatically.
 
-\embc{The primary syntax is textual. However, for state machines, tabular
-notations are supported as well. The projection can be changed as the program is
-edited, rendering the same state machine textually or as a table. Graphical
-notations will be added in the future.}
+\embc{For state machines, the primary syntax is textual. However, a tabular
+notation is supported as well. The projection can be changed as the program is
+edited, rendering the same state machine textually or as a table. As
+mentioned above, a graphical notation will be added in the future.}
 
 \cooling{The refrigerator DSL uses graphical visualizations to render diagrams
 of the hardware structure, as well as a graphical state charts representing the
 underlying state machine.}
-
-\todo{Show integration with graphics and table}
 
 \paragraph{Relationship to Hierarchical Domains} Domains at low $D$ are most
 likely best expressed with a textual or symbolic concrete syntax. Obvious
@@ -128,16 +147,18 @@ and block diagrams illustrate, graphical notations become useful. However, these
 two notations are also a good example of language embedding since both of them
 require expressions: state machines in guards, and block diagrams as the
 implementation of blocks. Reusable expression languages should be embedded into
-the graphical notations. Tool support for the integration of graphical and
-textual concrete syntaxes, including IDE support, become necessary. In
-case this is not supported by the tool, viewpoints may be an option. One
-viewpoint could use a graphical notation to define coarse-grained structures,
-and a second viewpoint uses a textual notation to provide "implementation
-details" for the structures defined by the graphical viewpoint\sidenote{Not every tool can support every (combination of) form of concrete syntax, so
-this aspect is limited by the tool, or drives tool selection.}.
+the graphical notations. In case this is not supported by the tool, viewpoints
+may be an option. One viewpoint could use a graphical notation to define
+coarse-grained structures, and a second viewpoint uses a textual notation to
+provide "implementation details" for the structures defined by the graphical
+viewpoint\sidenote{Not every tool can support every (combination of) form of
+concrete syntax, so this aspect is limited by the tool, or drives tool
+selection.}.
  
-\embc{The state machine extension of C will be supplanted with a graphical
-notation later this year. The C expression language that is used in guard
-conditions for transitions will be usable as labels on the transition arrows. In
-the table notation for state machines, C expressions can be embedded in the
-cells as well.}
+\todo{The above para needs to be refactored to the Yakindu SM and Data FLow
+examples fit in well.}
+ 
+\embc{As the graphical notation for state machines will become available, C
+expression language that is used in guard conditions for transitions will be
+usable as labels on the transition arrows. In the table notation for state
+machines, C expressions can be embedded in the cells as well.}
