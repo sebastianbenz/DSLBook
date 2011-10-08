@@ -963,83 +963,110 @@ idiosyncrasies.
 
 \subsection{Component Architecture}
 
-This DSL, illustrated in \fig{compArch}, supports the definition of components
-and interfaces (A), as well as the definition of systems, which are connected
-instances of components (B).  This is an architectural DSL that is used to model
-interfaces, components, components instances and connectors as well as
-deployment on hardware nodes. It is used for an enterprise system, OSGi
-infrastructure code is generated from the models. It is used by software
-developers and implemented with Eclipse Xtext.
+This is an architecture DSL used to define the software architecture of a
+complex, ditributed, component-based system in the transportation domain. Among
+other architectural abstractions, the DSL DSL supports the definition of
+components and interfaces (\fig{compArch1}) as well as the definition of 
+systems, which are connected instances of components (\fig{compArch1}). 
+Code generators generate code that acts as the basis for the implementation
+of the system, as well as all the code necessary to work with the
+distribution middleware. It is used by software developers and architects and
+implemented with Eclipse Xtext.
 
-\begin{figure*}[h]
-  \includegraphics[width=18cm]{figures/compArch.png}
-  \caption[labelInTOC][-7mm]{Component Architecture DSL example code}
-  \label{compArch} 
-\end{figure*}
+\begin{figure}[h]
+  \includegraphics[width=8cm]{figures/compArch1.png}
+  \caption[labelInTOC]{Components and interfaces}
+  \label{compArch1} 
+\end{figure}
+ 
+\begin{figure}[h]
+  \includegraphics[width=7cm]{figures/compArch2.png}
+  \caption[labelInTOC]{Component instances and connectors}
+  \label{compArch2} 
+\end{figure}
 
 
 \subsection{Refrigerator Configuration}
 
 
 \todo{change picture and text towards fridges}
-The refrigerator DSL is used to describe cooling algorithms in
-refrigerators describe water fountains. The DSL consists of two parts. The first
-part (A) describes the hardware structure of fountain installations. The structure is defined by composing various
-hardware features by inheritance into fountains. The various features contribute
-actual model elements that represent hardware elements. The second part
-describes the actual pumping algorithm (B) using a state-based, asynchronous
-language. Pumping programs refer to hardware features and they can access the
-properties of hardware elements from expressions and commands. The fountain DSL
-is used by fountain designers. It is implemented with Eclipse Xtext
+This case study describes a set of DSLs for cooling algorithms in refrigerators.
+Three languages are used. The first one describes the logical hardware
+structure of refrigerators (\fig{cooling1}). The second one describes cooling algorithms
+in the refrigerators using a state-based, asynchronous
+language (\fig{cooling2}). Cooling programs refer to hardware features and they
+can access the properties of hardware elements from expressions and commands. 
+The third one is used to test cooling programs (\fig{cooling3}). These DSLs are
+used by thermodynamists and are implemented with Eclipse Xtext.
 
-\todo{change it to fridges}
-\begin{figure*}
-  \includegraphics[width=18cm]{figures/fountains.png}
-  \caption[labelInTOC][-5mm]{Refrigerator Configuration DSL example code}
-  \label{compArch} 
-\end{figure*}
+\begin{figure}[h]
+  \includegraphics[width=5cm]{figures/cooling1.png}
+  \caption[labelInTOC]{Hardware structure definition in the refrigerator
+  case study}
+  \label{cooling1} 
+\end{figure}
+
+
+\begin{figure}[h]
+  \includegraphics[width=12cm]{figures/cooling2.png}
+  \caption[labelInTOC]{A simplified cooling algorithm. Note that we don't show
+  a program with real-world complexity because we're not allowed to show it.}
+  \label{cooling2} 
+\end{figure}
+
+\begin{figure}[h]
+  \includegraphics[width=6cm]{figures/cooling3.png}
+  \caption[labelInTOC]{A test script to test cooling programs}
+  \label{cooling3} 
+\end{figure}
 
 \subsection{Extended C}
 
-This program written in the Extended C DSL contains C
-functions, constants, as well as a task and a state machine. This case study
-(detailed in \cite{Voelter10}) covers a set of extensions to the C programming
-language tailored to embedded programming. These include state machines,
-physical quantities, tasks, interfaces and components. Higher level DSLs are
-added for specific purposes such as controlling a Lego Mindstorms robot. ANSI C
-is generated and subsequently compiled with GCC. This DSL is intended to be used
-by embedded software developers and it is implemented with MPS
+This case study (detailed in \cite{Voelter10}) covers a set of extensions to the
+C programming language tailored to embedded programming. These include state
+machines, physical quantities, tasks, interfaces and components. Higher level
+DSLs are added for specific purposes such as controlling a Lego Mindstorms
+robot. ANSI C is generated and subsequently compiled with GCC. This DSL is
+intended to be used by embedded software developers and it is implemented with
+MPS
 
 \todo{Update to mbeddr C}
 \begin{figure*}
   \includegraphics[width=18cm]{figures/extendedC-2.png}
-  \caption[labelInTOC][-5mm]{Example Code written using the Extended C language}
+  \caption[labelInTOC][-5mm]{Example Code written using the Extended C
+  language. It contains C functions, constants, as well as a task and a state
+  machine.}
   \label{extendedC} 
 \end{figure*}
 
 \subsection{Pension Plans}
 
-The pension DSL supports mathematical abstractions and
-notations to allow insurance mathematicians to express their domain knowledge
-directly (A) as well as higher level pension rules and unit tests in the table
-notation (B). This DSL is used to efficiently describe families of pension plans
-for a large insurance company. A complete Java implementation of the calculation
-engine is generated. It is intended to be used by insurance mathematicians and
-pension experts. It has been built by Capgemini with the Intentional Domain
-Workbench (\url{http://intentsoft.com}
+The pension DSL supports mathematical abstractions and notations to allow
+insurance mathematicians to express their domain knowledge directly
+(\fig{pension1}) as well as higher level pension rules and unit tests in the
+table notation (\fig{pension2}). This DSL is used to efficiently describe
+families of pension plans for a large insurance company. A complete Java
+implementation of the calculation engine is generated. It is intended to be used
+by insurance mathematicians and pension experts. It has been built by Capgemini
+with the Intentional Domain Workbench (\url{http://intentsoft.com}
 
-\todo{Update all the (A) and (B) references to the respective figure X
-referenes}
 
 \begin{figure*}
-  \includegraphics[width=18cm]{figures/pension-all.png}
-  \caption[labelInTOC][-5mm]{Example Code written using the Pension Plans
+  \includegraphics[width=18cm]{figures/pension-1.png}
+  \caption[labelInTOC]{Example Code written using the Pension Plans
   language}
-  \label{pensionplans} 
+  \label{pension1} 
+\end{figure*} 
+
+\begin{figure*}
+  \includegraphics[width=18cm]{figures/pension-2.png}
+  \caption[labelInTOC]{Example Code written using the Pension Plans
+  language}
+  \label{pensions2} 
 \end{figure*}
 
 \subsection{WebDSL}
-
+ 
 WebDSL is a language for web programming~\cite{Visser07} that integrates
 languages the different concerns of web programming, including persistent data
 modeling (entity), user interface templates (define), access
@@ -1050,7 +1077,7 @@ failures~\cite{HemelGKV11}. The fragment above shows a data model, user
 interface templates, and access control rules for posts in a blogging
 application. WebDSL is implemented with the Spoofax Language
 Workbench~\cite{KatsV10} (\url{http://spoofax.org}) and is used in the researchr
-digital library (\url{http://researchr.org}).  
+digital library (\url{http://researchr.org}).   
 
 \begin{figure*}
   \includegraphics[width=18cm]{figures/webdsl.jpg}
