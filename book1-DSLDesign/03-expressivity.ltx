@@ -113,6 +113,9 @@ statements or cross-pointing integer arrays, two typical idioms for state
 machine implementation in C. Program analysis, such as finding states
 that can never be left because no transition leads out of them, is trivial.}
 
+
+
+
 \exwebdsl{WebDSL entity declarations abstract over the boilerplate code required
 by the Hibernate framework for annotating Java classes with object-relational
 mapping annotations. This reduces code size by an order of
@@ -186,9 +189,17 @@ appropriate representation, for example, based on desired program size or
 performance characteristics. Also, log statements and task declarations can be
 translated in different ways depending on the target platform.}
 
-\todo{draw a small component/port diagram to illustrate the idea}
-\embc{Another good example is optional ports in components. Components define
-required ports that specify the interfaces they \emph{use}. For each component
+
+
+\begin{marginfigure}
+  \includegraphics[width=5cm]{figures/embc/components.png}
+  \caption{Example component diagram. The top half defines components, their
+  ports and the relationship of these ports to interfaces. The bottom half
+  shows instances whose ports are connected by a connector.}
+  \label{components}
+\end{marginfigure}
+\embc{Another good example is optional ports in components. Components (see
+\fig{components}) define required ports that specify the interfaces they \emph{use}. For each component
 instance, a required port is connected to the provided port of an instance of a
 component that provides a port with a compartible interfaces. Required ports my
 be optional, so for a given instance, it may be connected or not. Invoking an
@@ -202,9 +213,22 @@ impossible. An better solution based on linguistic abstraction is to introduce a
 new language concept that checks for a connected port directly: 
 \ic{with port (port) \{ port.doSomething(); \}}. The \lcr{with port}
 statement doesn't use a complete expression as its argument, but only a reference to a
-an optional required port. This way, the IDE can check that an invocation on a
-required optional port \lcr{port} is only done inside of a \lcr{with port}
+an optional required port (\fig{optionalport}). This way, the IDE can check that
+an invocation on a required optional port \lcr{port} is only done inside of a \lcr{with port}
 statement on that same port.}
+
+\begin{figure}[h]
+\begin{center}
+  \includegraphics[scale=1]{figures/embc/optionalport.png}
+  \caption[labelInTOC]{The \lcr{with port} statement is required to surround an
+  invocation on an optional, required port. If the port is not connected for
+  the current instance, the code inside the \lcr{with port} is not executed. It
+  acts as an \lcr{if} statement, but since it cannot contain a complete
+  expression, the correct use of the \lcr{with port} statement can be
+  statically checked.}
+  \label{optionalport}  
+\end{center}
+\end{figure}
 
 
 \paragraph{In-Lanuguage Abstraction} Conciseness can also be achieved by a
@@ -225,6 +249,8 @@ to be integrated directly into the language.}
 \embc{Since C is extended, C's abstraction mechanisms (functions, structs,
 enums) are available. Moreover, we added new mechanisms for building
 abstractions including interfaces and components.}
+
+\todo{refer tro the above optional port picture}
 
 \exwebdsl{WebDSL provides \emph{template definitions} to capture partial web
 pages including rendering of data from the database and form request handling.

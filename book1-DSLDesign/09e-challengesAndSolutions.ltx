@@ -17,6 +17,11 @@ Extension and Embedding requires modular concrete syntax definitions because
 additional language elements must be "mixed" with programs written with the base
 language. 
 
+\begin{marginfigure}
+  \includegraphics[width=5cm]{figures/embc/statemachinmodules.png}
+  \caption{EMPTY}
+  \label{statemachinmodules}
+\end{marginfigure}
 \embc{State machines are hosted in regular C programs. This works because the C
 language's \lcr{Module} construct contains a collection of \lcr{ModuleContents},
 and the \lcr{StateMachine} concept extends the \lcr{ModuleContent} concept. This
@@ -26,6 +31,7 @@ language were reusable with any host language in addition to C, then an adapter
 language would provide a language concept that adapts C's \lcr{IModuleContent}
 to \lcr{StateMachine}, because \lcr{StateMachine} cannot directly extend
 \lcr{IModuleContent} --- it does now depend on the C language.}
+
 
 
 \paragraph{Type Systems} For referencing, the type system rules and constraints

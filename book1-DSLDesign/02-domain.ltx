@@ -137,8 +137,8 @@ definition of its semantics.}. In a fragment, each element $e$ is an
 instance of a concept $c$ defined in some language $l$. 
 
 \embc{In C, the statement \ic{int x = 3;} is an instance of the
-\lcr{LocalVariableDeclaration}. \ic{int} is an instance of \lcr{IntType},
-and the 3 is an instance of
+\lcr{LocalVariableDeclaration}. \ic{int} is an instance of \lcr{IntType}, and
+the 3 is an instance of
 \lcr{NumberLiteral}.}
 
 We define the \emph{concept-of} function $co$ to return the concept of which a
@@ -158,10 +158,10 @@ type and the init expression 3. The concept \lcr{LocalVariableDeclaration}
 defines the containment relationships \lcr{type} and \lcr{init},
 respectively.}
 
-$\mathit{Refs_f}$ is the set of non-containing cross-references between
-program elements in a fragment $f$. Each reference $r$ in $\mathit{Refs_f}$ has the
+$\mathit{Refs_f}$ is the set of non-containing cross-references between program
+elements in a fragment $f$. Each reference $r$ in $\mathit{Refs_f}$ has the
 properties $from$ and $to$, which refer to the two ends of the reference
-relationship. 
+relationship.
 
 \embc{For example, in the \ic{x = 10;} assignment, \ic{x} is a reference to
 a variable of that name, for example, the one declared in the previous example
@@ -224,10 +224,25 @@ language:
 \embc{A program written in plain C is homogeneous. All program elements are
 instances of the C language. Using the statemachine language extension allows
 us to embed state machines in C programs. This makes the respective fragment
-heterogeneous.}
+heterogeneous (see \fig{heterogeneous}).}
+
+\begin{figure}[h] 
+\begin{center}
+  \includegraphics[width=14cm]{figures/embc/heterogeneous.png}
+  \caption[labelInTOC]{An example of a heterogeneous fragment. This module
+  contains global variables (from the \emph{core} language), a state machine
+  (from the \emph{statemachines} language) and a test case (from the
+  \emph{unittest} language). Note how concepts defined in the
+  \emph{statemachine} language (\lcr{trigger}, \lcr{isInState}) are used inside
+  a \lcr{TestCase}.}
+  \label{heterogeneous} 
+\end{center}
+\end{figure}
 
 \subsection{Domain Hierarchy} 
 \label{domhier}
+
+
 
 The subsetting of domains naturally gives rise to a hierarchy of domains
 (\fig{hierarchicalDomains}). At the bottom we find the most general domain
@@ -245,13 +260,8 @@ typically designed for a particular $D$. Languages for $\D{0}$ are called
 general-purpose languages. Languages for $D_n$ with $n > 0$ become more
 domain-specific for growing $n$.
 
-\embc{The C base language is defined for $D_0$. Extensions for tasks, state
-machines or components can argued to be specific to embedded systems, making
-those sit in $D_{1.1}$. Progressive specialization is possible; for example, a
-language for controlling small lego robots sits on top of state machines and
-tasks. It could be allocated to $D_{2.1.1}$.}
 
-\begin{figure}[t]
+\begin{figure}[h]
 \begin{center}
   \includegraphics[scale=0.7]{figures/hierarchicalDomains.png}
   \caption[labelInTOC]{Domain hierarchy. Domains with higher index are
@@ -262,6 +272,11 @@ tasks. It could be allocated to $D_{2.1.1}$.}
 \end{center}
 \end{figure}
 
+\embc{The C base language is defined for $D_0$. Extensions for tasks, state
+machines or components can argued to be specific to embedded systems, making
+those sit in $D_{1.1}$. Progressive specialization is possible; for example, a
+language for controlling small lego robots sits on top of state machines and
+tasks. It could be allocated to $D_{2.1.1}$.}
 
 
 \subsection{Model Purpose} We have said earlier that there can be several

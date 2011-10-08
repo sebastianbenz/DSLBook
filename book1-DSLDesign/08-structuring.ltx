@@ -40,6 +40,12 @@ other top-level concepts reside in modules. Header files (which are
 effectively a poor way of managing symbol visibility) are only used in the
 generated low level code.}
 
+\begin{figure}[h]
+  \includegraphics[scale=1]{figures/embc/modules.png}
+  \caption{EMPTY}
+  \label{modules}
+\end{figure}
+
 \comparch{Components and interfaces live in name-spaces. Components are
 implementation units, and are always private. Interfaces and data types may be
 public or private. Namespaces can import each other, making the public elements of the
@@ -216,8 +222,8 @@ support the compositional creation of many different model variants from the
 same set of model fragments.
 
 
-\embc{This DSL provides a way of advising component definitions, for example to
-introduce additional ports from an aspect. An aspect may introduce a port
+\comparch{This DSL provides a way of advising component definitions, for example
+to introduce additional ports from an aspect. An aspect may introduce a port
 \ic{provided port mon: IMonitoring} that allows a central monitoring component
 to query the adviced components via the \lcr{IMonitoring} interface.}
 
@@ -291,6 +297,12 @@ and components as in the previous example. However, since here they are directly
 integrated with C, C expression can be used for pre- and post-conditions of
 interface operations.}
 
+\begin{figure}
+  \includegraphics[width=8cm]{figures/embc/precond.png}
+  \caption{EMPTY}
+  \label{precond}
+\end{figure} 
+
 \marginnote[-2cm]{This is only an overview over a few paradigms; many more
 exist. I refer to the excellent Wikipedia entry on \emph{Programming Paradigms} and to
 the book \cite{RoyH2004}}
@@ -339,8 +351,14 @@ debugger has been implemented that, for a given set of input data, shows the
 rules as a tree where all intermediate results of each function call are shown.
 No "step through" debugger is necessary.}
 
-A relevant subset of functional programming is pure expressions (as in $3*2+7
-> i$. Instead of calling functions, operators are used. However, operators are
+\begin{figure}[h]
+  \includegraphics[width=11cm]{figures/pension/debugger.png}
+  \caption{EMPTY}
+  \label{debugger}
+\end{figure}
+
+A relevant subset of functional programming is pure expressions (as in \ic{3*2+7
+> i}. Instead of calling functions, operators are used. However, operators are
 just inline-notations for function calls. Usually the operators are hard wired
 into the language and it is not possible for users to define their own
 functional abstractions. This is the main differentiator to functional
@@ -396,6 +414,13 @@ program, the presence conditions and the feature model a set of boolean
 equations is generated. A solver then makes sure they are consistent by trying
 to find an example solution that violates the boolean equations.
 \todo{cite: refer to DSL impl chapter, and to literature (Czarnecki)} }
+
+\begin{figure}
+  \includegraphics[width=8cm]{figures/embc/presencecond.png}
+  \caption{EMPTY}
+  \label{presencecond}
+\end{figure} 
+
 
 \genex{Another example for declarative programming is the type system DSL used
 by MPS itself. Language developers specify a set of type equations containing

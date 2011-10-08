@@ -56,12 +56,20 @@ of a set of attributes of some entity are unique. For a model to be statically
 correct, all constraints have to evaluate to true. Constraint checking should
 only be performed for a model that is structurally/syntactically correct.
 
+\begin{marginfigure}
+  \includegraphics[width=2.5cm]{figures/embc/states.png}
+  \caption[labelInTOC]{An example state machine with a \emph{dead end} state, a
+  state that cannot be left once entered (no outgoing transitions).}
+  \label{states}  
+\end{marginfigure}
+
 \embc{One driver in selecting the linguistic abstractions that go into a 
 DSL is the ability to easily implement meaningful constraints. For example, in
 the state machine extension to C it is trivial to find states that have no
-outgoing transitions (dead end). In a functional language, such a constraint
-could be written as \ic{Statemachine:
-states.select(s|!s.isInstanceOf(StopState)).select(s|s.transitions.size == 0)}.}
+outgoing transitions (dead end, \fig{states}). In a functional language, such a
+constraint could be written as \ic{Statemachine:
+states.select(s|!s.isInstanceOf(StopState)).\\select(s|s.transitions.size ==
+0)}.}
 
 When defining languages and transformations, developers often have certain
 constraints in their mind which they consider obvious. They assume that no one
@@ -159,6 +167,12 @@ The semantics of the robot control DSL is defined by its mapping to state
 machines and tasks. To explain the semantics to the users, prose documentation is 
 available as well.}
 
+\begin{marginfigure}
+  \includegraphics[width=3.5cm]{figures/embc/robotcontrol.png}
+  \caption[labelInTOC]{EMPTY}
+  \label{robotcontrol}  
+\end{marginfigure}
+
 \comparch{The component architecture DSL only described interfaces, components
 and systems. This is all structure-only. Many constraints about structural
 integrity are provided, and a mapping to OSGi is implemented. The formal
@@ -184,6 +198,12 @@ progress and stimulate them to see how they react.}
 \pension{This DSL supports an Excel-like tabular notation for expressing test
 cases for pension calculation rules. The calculations are functional, and the
 calculation tree can be extended as a way of debugging the rules.}
+
+\begin{figure}[h] 
+  \includegraphics[width=11cm]{figures/pension/testcases.png}
+  \caption[labelInTOC]{EMPTY}
+  \label{testcases}  
+\end{figure}
 
 DSL programs may also be mapped to a \emph{different} language, on that is not
 "under" the DSL in the domain hierarchy, but rather "somewhere on the side".
@@ -239,10 +259,15 @@ generator. Here, a transformation is used to reduce the set of used language
 concepts in a fragment to a minimal core, and only the minimal core is supported
 in the code generator. 
 
+\begin{marginfigure}
+  \includegraphics[width=3.5cm]{figures/embc/states2.png}
+  \caption[labelInTOC]{EMPTY}
+  \label{states2}  
+\end{marginfigure}
 \embc{Consider the case of a state machine where you want to be able to add an
 "emergency stop" feature, i.e. a new transition from each existing state to a
 new STOP state. Instead of handling this case in the code generator a model
-transformation script preprocesses the state machine modqel and adds all the new
+transformation script preprocesses the state machine model and adds all the new
 transitions and the new STOP state. Once done, the existing generator is run
 unchanged. You have effectively modularized the emergency stop concern into a
 separate transformation.}
@@ -294,6 +319,12 @@ argument which provides those function pointers for each operation of each
 required port. A call on a required port thus is a relatively ugly affair based
 on function pointers. However, to achieve the desired goal, no different,
 cleaner code approach is possible in C.}
+
+\begin{figure}[h]
+  \includegraphics[width=8cm]{figures/embc/restrictedport.png}
+  \caption[labelInTOC]{EMPTY}
+  \label{restrictedport}   
+\end{figure}
 
 \paragraph{Platform} Code generators can become complex. The complexity can
 be reduced by splitting the overall transformation into several steps ---
