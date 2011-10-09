@@ -40,7 +40,14 @@ program, its static semantics has to be validated. Constraints and type systems
 are used to this end and we describe their implementation in the DSL
 Implementation section of this book \todo{cite}. Here is a short overview.
 
-\marginnote[1cm]{Sometimes constraints are used instead of grammar rules. For
+
+\paragraph{Constraints} are simply boolean expressions that
+establish some property of a model. For example, one might verify that the names
+of a set of attributes of some entity are unique. For a model to be statically
+correct, all constraints have to evaluate to true. Constraint checking should
+only be performed for a model that is structurally/syntactically correct.
+ 
+\marginnote[-1.5cm]{Sometimes constraints are used instead of grammar rules. For
 example, instead of using a $1..n$ multiplicity in the grammar, I often use $0..n$ together with a
 constraint that checks that there is at least one element. The reason for using
 this approach is that if the grammar mechanism is used, a possible error message
@@ -49,12 +56,7 @@ comes from the parser. That error message may read something like
 useful. If a more tolerant ($0..n$) grammar is used, the constraint error message can be
 made to express a real domain constraint (e.g. \emph{at least one
 SUCH\_AND\_SUCH is required, because \ldots}).}
-
-\paragraph{Constraints} are simply boolean expressions that
-establish some property of a model. For example, one might verify that the names
-of a set of attributes of some entity are unique. For a model to be statically
-correct, all constraints have to evaluate to true. Constraint checking should
-only be performed for a model that is structurally/syntactically correct.
+ 
 
 \begin{marginfigure}
   \includegraphics[width=2.5cm]{figures/embc/states.png}
@@ -67,9 +69,8 @@ only be performed for a model that is structurally/syntactically correct.
 DSL is the ability to easily implement meaningful constraints. For example, in
 the state machine extension to C it is trivial to find states that have no
 outgoing transitions (dead end, \fig{states}). In a functional language, such a
-constraint could be written as \ic{Statemachine:
-states.select(s|!s.isInstanceOf(StopState)).\\select(s|s.transitions.size ==
-0)}.}
+constraint could be written as \ic{states.select(s|!s.isInstanceOf(StopState)).
+\\select(s|s.transitions.size == 0)}.} 
 
 When defining languages and transformations, developers often have certain
 constraints in their mind which they consider obvious. They assume that no one

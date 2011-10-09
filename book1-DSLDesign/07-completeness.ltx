@@ -114,6 +114,12 @@ developed once and can be reused without adaptations, so using DSLs is not
 sensible. These parts are implemented manually in C.}
 
 
+\marginnote[2cm]{Of course, if the constructor of the concrete subclass is
+called from another location of the generated code, and/or if the abstract methods are
+invoked, you'll get compiler errors. By their nature, they are on the
+abstraction level of the implementation code, however. It is not always obvious
+what the developer has to do in terms of the model or domain to get rid of these
+errors.}
 \paragraph{Controlling $D_{-1}$ code} Allowing users to manually write $D_{-1}$
 code, and especially, if it is actually a GPL in $D_0$, comes with two
 additional challenges though. Consider the following example: the generator
@@ -123,12 +129,6 @@ manually written subclass needs to conform to a specific naming convention so
 some other generated code can instantiate the manually written subclass. The
 generator, however, just generates the base class and stops. How can you make
 sure developers actually do write that subclass, using the correct name?
-\marginnote{Of course, if the constructor of the concrete subclass is called
-from another location of the generated code, and/or if the abstract methods are
-invoked, you'll get compiler errors. By their nature, they are on the
-abstraction level of the implementation code, however. It is not always obvious
-what the developer has to do in terms of the model or domain to get rid of these
-errors.}
 
 To address this issue, make sure there is there a way to make those conventions
 and idioms interactive. One way to do this is to generate checks/constraints
