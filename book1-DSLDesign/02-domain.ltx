@@ -233,16 +233,17 @@ us to embed state machines in C programs. This makes the respective fragment
 heterogeneous (see \fig{heterogeneous}).}
 
 \begin{figure}[h] 
-\begin{center}
+  \rule{1\textwidth}{0.7pt}
+  \vspace{-0.5cm}
   \includegraphics[width=14cm]{figures/embc/heterogeneous.png}
-  \caption[labelInTOC]{An example of a heterogeneous fragment. This module
-  contains global variables (from the \emph{core} language), a state machine
+  \caption[labelInTOC][0.3cm]{An example of a heterogeneous fragment. This
+  module contains global variables (from the \emph{core} language), a state machine
   (from the \emph{statemachines} language) and a test case (from the
   \emph{unittest} language). Note how concepts defined in the
   \emph{statemachine} language (\lcr{trigger}, \lcr{isInState}) are used inside
   a \lcr{TestCase}.}
   \label{heterogeneous} 
-\end{center}
+  \rule{1\textwidth}{0.7pt}
 \end{figure}
 
 \subsection{Domain Hierarchy} 
@@ -268,14 +269,12 @@ domain-specific for growing $n$.
 
 
 \begin{figure}[h]
-\begin{center}
   \includegraphics[scale=0.7]{figures/hierarchicalDomains.png}
   \caption[labelInTOC]{Domain hierarchy. Domains with higher index are
   called subdomains of domains with a lower index ($D_1$ is a subdomain of
   $D_0$). We use just $D$ to refer to the current domain, and $\D{+1}$ and $\D{-1}$ to
   refer to the relatively more specific and more general ones.}
   \label{hierarchicalDomains} 
-\end{center}
 \end{figure}
 
 \embc{The C base language is defined for $D_0$. Extensions for tasks, state
