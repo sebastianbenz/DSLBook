@@ -34,17 +34,19 @@ possibly oriented towards the structure of the organization in which the DSL is
 used. 
 
 
-\embc{As a fundamental extension to C, this DSL contains modules with
-visibility specifications and imports. Functions, state machines, tasks and all
-other top-level concepts reside in modules. Header files (which are
+\embc{As a fundamental extension to C, this DSL contains modules with visibility
+specifications and imports (\fig{modules}). Functions, state machines, tasks and
+all other top-level concepts reside in modules. Header files (which are
 effectively a poor way of managing symbol visibility) are only used in the
 generated low level code.}
 
 \begin{figure}[h]
   \rule{1\textwidth}{0.7pt}
   \vspace{-0.5cm}
-  \includegraphics[scale=0.7]{figures/embc/modules.png}
-  \caption[][0.3cm]{EMPTY}
+  \includegraphics[scale=0.6]{figures/embc/modules.png}
+  \caption[][0.3cm]{Modules are the top-level contruct in this C
+  implementation. Module contents can be exported, which means they are visible
+  to importing modules.}
   \label{modules}
   \rule{1\textwidth}{0.7pt}
 \end{figure}
@@ -226,15 +228,16 @@ same set of model fragments.
 
 
 \comparch{This DSL provides a way of advising component definitions, for example
-to introduce additional ports from an aspect. An aspect may introduce a port
-\ic{provided port mon: IMonitoring} that allows a central monitoring component
+to introduce additional ports from an aspect (\fig{monitoring}). An aspect may
+introduce a port \ic{provided port mon: IMonitoring} that allows a central monitoring component
 to query the adviced components via the \lcr{IMonitoring} interface.}
 
 \begin{figure}[h]
   \rule{1\textwidth}{0.7pt}
   \vspace{-0.5cm} 
-  \includegraphics[width=8cm]{figures/comparch/monitoring.png}
-  \caption[][0.3cm]{EMPTY}
+  \includegraphics[width=10cm]{figures/comparch/monitoring.png}
+  \caption[][0.3cm]{The aspect component contributes an additional required port
+  to each of the other components defined in the system.}
   \label{monitoring}
   \rule{1\textwidth}{0.7pt}
 \end{figure} 
@@ -309,18 +312,20 @@ component port is intended for synchronous or asynchronous communication.}
 \embc{The component extension to provides a similar notion of interfaces, ports
 and components as in the previous example. However, since here they are directly
 integrated with C, C expression can be used for pre- and post-conditions of
-interface operations.}
+interface operations (\fig{precond}).}
 
 \begin{figure}[h]
   \rule{1\textwidth}{0.7pt}
   \vspace{-0.5cm}
   \includegraphics[width=8cm]{figures/embc/precond.png}
-  \caption[][0.3cm]{EMPTY}
+  \caption[][0.3cm]{Precondiditions can be added to interface operations. They
+  are executed whenever any runnable that implements the particular operation
+  is executed.}
   \label{precond}
   \rule{1\textwidth}{0.7pt}
 \end{figure} 
-
-\marginnote[-2cm]{This is only an overview over a few paradigms; many more
+ 
+\marginnote{This is only an overview over a few paradigms; many more
 exist. I refer to the excellent Wikipedia entry on \emph{Programming Paradigms} and to
 the book \cite{RoyH2004}}
 This section described some of the most well-known behavioural paradigms that
@@ -365,12 +370,13 @@ used for certain parts ("calculation core") of a more complex system.
 
 \pension{The calculation core of pension rules is functional. Consequently, a
 debugger has been implemented that, for a given set of input data, shows the
-rules as a tree where all intermediate results of each function call are shown.
-No "step through" debugger is necessary.}
+rules as a tree where all intermediate results of each function call are shown
+(\fig{debugger}). No "step through" debugger is necessary.}
 
 \begin{figure}[h]
   \includegraphics[width=11cm]{figures/pension/debugger.png}
-  \caption{EMPTY}
+  \caption{Debugging functional programs can be done by showing the state of
+  the calculation, for example as a tree.}
   \label{debugger}
 \end{figure}
 
@@ -423,11 +429,11 @@ bus traffic. This is an example of constraint solving.}
 \embc{This DSL supports presence conditions for product line engineering. A
 presence condition is a boolean expression over a set of configuration features
 that determines whether the associated piece of code is present for a given
-combination of feature selections. To verify the structural integrity of
-programs in the face of varying feature combination, constraint programming is
-used (to ensure that there is no configuration of the program where a reference
-to a symbol is included, but the referenced symbol is not). From the
-program, the presence conditions and the feature model a set of boolean
+combination of feature selections (\fig{presencecond}). To verify the structural
+integrity of programs in the face of varying feature combination, constraint
+programming is used (to ensure that there is no configuration of the program
+where a reference to a symbol is included, but the referenced symbol is not).
+From the program, the presence conditions and the feature model a set of boolean
 equations is generated. A solver then makes sure they are consistent by trying
 to find an example solution that violates the boolean equations.
 \todo{cite: refer to DSL impl chapter, and to literature (Czarnecki)} }
@@ -436,7 +442,9 @@ to find an example solution that violates the boolean equations.
   \rule{1\textwidth}{0.7pt}
   \vspace{-0.5cm}
   \includegraphics[width=8cm]{figures/embc/presencecond.png}
-  \caption[][0.3cm]{EMPTY}
+  \caption[][0.3cm]{Code affected by a presence condition is highlighted in
+  blue. The presence condition is rendered on the left of the affected code. It
+  is a boolean expression over a set of (predefined) configuration parameters.}
   \label{presencecond}
   \rule{1\textwidth}{0.7pt}
 \end{figure} 
@@ -480,15 +488,18 @@ reactive systems, and sophisticated diagnostics regarding event frequencies
 or queue filling levels may have to be integrated into the programs as they run
 in the real environment.
 
-\cooling{The cooling language comes with a simulator based on an interpreter
-where the behaviour of a cooling algorithm can be debugged. Events are
+\cooling{The cooling language comes with a simulator (\fig{simulator})  based on
+an interpreter where the behaviour of a cooling algorithm can be debugged. Events are
 explicitly created by the user, on a time scale that is compatible
 with the debugging process.}
 
 \begin{figure}[h]
 \begin{center}
   \includegraphics[width=8cm]{figures/cooling/simulator.png}
-  \caption{EMPTY}
+  \caption{The simulator for the cooling language shows the state of the system
+  (commands, event queue, value of hardware properties, variables and tasks).
+  The program can be single-stepped. The user can change the value of
+  variables or hardware properties as a means of interacting with the program.}
   \label{simulator}
 \end{center} 
 \end{figure} 

@@ -19,15 +19,19 @@ language.
 
 \begin{marginfigure}
   \includegraphics[width=5cm]{figures/embc/statemachinmodules.png}
-  \caption{EMPTY}
+  \caption{The core language (above the dotted line) defines an interface
+  \lcr{IModuleContent}. Anything that should be hosted inside a \lcr{Module}
+  has to implement this interface, typically from another language.
+  \lcr{StateMachines} are an example.} 
   \label{statemachinmodules}
 \end{marginfigure}
 \embc{State machines are hosted in regular C programs. This works because the C
 language's \lcr{Module} construct contains a collection of \lcr{ModuleContents},
 and the \lcr{StateMachine} concept extends the \lcr{ModuleContent} concept. This
 state machine language is designed specifically for being embedded into C, so it
-can access and extend the \lcr{ModuleContent} concept. If the state machine
-language were reusable with any host language in addition to C, then an adapter
+can access and extend the \lcr{ModuleContent} concept
+(\fig{statemachinmodules}). If the state machine language were reusable with any 
+host language in addition to C, then an adapter
 language would provide a language concept that adapts C's \lcr{IModuleContent}
 to \lcr{StateMachine}, because \lcr{StateMachine} cannot directly extend
 \lcr{IModuleContent} --- it does now depend on the C language.}
