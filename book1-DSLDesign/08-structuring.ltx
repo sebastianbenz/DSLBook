@@ -44,15 +44,15 @@ generated low level code.}
   \rule{1\textwidth}{0.7pt}
   \vspace{-0.5cm}
   \includegraphics[scale=0.7]{figures/embc/modules.png}
-  \caption[0.3cm]{EMPTY}
+  \caption[][0.3cm]{EMPTY}
   \label{modules}
   \rule{1\textwidth}{0.7pt}
 \end{figure}
 
-\comparch{Components and interfaces live in name-spaces. Components are
+\comparch{Components and interfaces live in namespaces. Components are
 implementation units, and are always private. Interfaces and data types may be
-public or private. Namespaces can import each other, making the public elements of the
-imported namespace visible to the importing namespace. The OSGi generator
+public or private. Namespaces can import each other, making the public elements
+of the imported namespace visible to the importing namespace. The OSGi generator
 creates two different bundles: an interface bundle that contains the public
 artifacts, and an implementation bundle with the components. In case of a
 distributed system, only the interface bundle is deployed on the client.}
@@ -230,6 +230,17 @@ to introduce additional ports from an aspect. An aspect may introduce a port
 \ic{provided port mon: IMonitoring} that allows a central monitoring component
 to query the adviced components via the \lcr{IMonitoring} interface.}
 
+\begin{figure}[h]
+  \rule{1\textwidth}{0.7pt}
+  \vspace{-0.5cm} 
+  \includegraphics[width=8cm]{figures/comparch/monitoring.png}
+  \caption[][0.3cm]{EMPTY}
+  \label{monitoring}
+  \rule{1\textwidth}{0.7pt}
+\end{figure} 
+
+
+
 \exwebdsl{Entity declarations can be \emph{extended} in separate modules. This
 makes it possible to declare in one module all data model declarations of a
 particular feature. For example, in the \emph{researchr} application, a
@@ -304,7 +315,7 @@ interface operations.}
   \rule{1\textwidth}{0.7pt}
   \vspace{-0.5cm}
   \includegraphics[width=8cm]{figures/embc/precond.png}
-  \caption[0.3cm]{EMPTY}
+  \caption[][0.3cm]{EMPTY}
   \label{precond}
   \rule{1\textwidth}{0.7pt}
 \end{figure} 
@@ -425,7 +436,7 @@ to find an example solution that violates the boolean equations.
   \rule{1\textwidth}{0.7pt}
   \vspace{-0.5cm}
   \includegraphics[width=8cm]{figures/embc/presencecond.png}
-  \caption[0.3cm]{EMPTY}
+  \caption[][0.3cm]{EMPTY}
   \label{presencecond}
   \rule{1\textwidth}{0.7pt}
 \end{figure} 
@@ -473,6 +484,15 @@ in the real environment.
 where the behaviour of a cooling algorithm can be debugged. Events are
 explicitly created by the user, on a time scale that is compatible
 with the debugging process.}
+
+\begin{figure}[h]
+\begin{center}
+  \includegraphics[width=8cm]{figures/cooling/simulator.png}
+  \caption{EMPTY}
+  \label{simulator}
+\end{center} 
+\end{figure} 
+
 
 \begin{marginfigure}
   \includegraphics[width=4cm]{figures/graphicalFlow.png}
