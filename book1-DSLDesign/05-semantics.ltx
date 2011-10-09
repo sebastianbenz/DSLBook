@@ -59,7 +59,7 @@ SUCH\_AND\_SUCH is required, because \ldots}).}
  
 
 \begin{marginfigure}
-  \includegraphics[width=2.5cm]{figures/embc/states.png}
+  \includegraphics[width=2.5cm]{figures-design/embc/states.png}
   \caption{An example state machine with a \emph{dead end} state, a
   state that cannot be left once entered (no outgoing transitions).}
   \label{states}  
@@ -163,7 +163,7 @@ which a language with an execution infrastructure exists --- often $D_0$. Code
 generation from a DSL is thus a special case where $L_{D_0}$ code is generated.
 
 \begin{marginfigure}
-  \includegraphics[width=6cm]{figures/embc/lego.png}
+  \includegraphics[width=6cm]{figures-design/embc/lego.png}
   \caption{The robot control DSL is embedded in C program modules
   and provides linguistic abstractions for controlling a small lego car. It can
   accelerate, decelerate and turn left and right. }
@@ -178,7 +178,7 @@ mapping to state machines and tasks (\fig{robotcontrol}). To explain the
 semantics to the users, prose documentation is available as well.}
 
 \begin{marginfigure}
-  \includegraphics[width=3.5cm]{figures/embc/robotcontrol.png}
+  \includegraphics[width=3.5cm]{figures-design/embc/robotcontrol.png}
   \caption{Robot control programs are mapped to state machines and
   tasks. State machines are mapped to C, and tasks are mapped to C as well as
   to operating system configuration files (a so-called OIL file). In the end,
@@ -214,7 +214,7 @@ cases for pension calculation rules (\fig{testcases}). The calculations are
 functional, and the calculation tree can be extended as a way of debugging the rules.}
 
 \begin{figure}[h] 
-  \includegraphics[width=11cm]{figures/pension/testcases.png}
+  \includegraphics[width=11cm]{figures-design/pension/testcases.png}
   \caption{Test cases in the pension language allow users to specify test data
   for each input value of a rule. The rules are then evaluated by an
   interpreter, providing immediate feedback about incorrect rules.}
@@ -276,7 +276,7 @@ concepts in a fragment to a minimal core, and only the minimal core is supported
 in the code generator. 
 
 \begin{marginfigure}
-  \includegraphics[width=3.5cm]{figures/embc/states2.png}
+  \includegraphics[width=3.5cm]{figures-design/embc/states2.png}
   \caption{A transformation adds an emergency stop feature to a state machine.
   A new state is added ($S_{es}$), and a transition from each other state to
   that new state is added as well. The transition is triggered by the
@@ -342,7 +342,7 @@ cleaner code approach is possible in C.}
 \begin{figure}[h]
   \rule{1\textwidth}{0.7pt}
   \vspace{-0.5cm}
-  \includegraphics[width=10cm]{figures/embc/restrictedport.png}
+  \includegraphics[width=10cm]{figures-design/embc/restrictedport.png}
   \caption[][0.3cm]{The required port \lcr{lowlevel} is not just bound to the
   \lcr{ILowLevel} interface, but restricted tot the \lcr{ll} port of the
   \lcr{LowLevelCode} component. This way, it is statically known which C
@@ -357,7 +357,7 @@ see above. Another approach is to work with a manually implemented, rich domain
 specific platform. It typically consists of middleware, frameworks, drivers,
 libraries and utilities that are taken advantage of by the generated code.
 \begin{marginfigure}
-  \includegraphics[width=4cm]{figures/platform.png}
+  \includegraphics[width=4cm]{figures-design/platform.png}
   \caption{Typical layering structure of an application created
   using DSLs.}
   \label{platform}  
@@ -367,7 +367,7 @@ generator, requirements regarding code size and performance, the expressiveness
 of the target language and the potential availability of libraries and
 frameworks that can be used for the task.
 \begin{marginfigure}[1cm]
-  \includegraphics[width=5cm]{figures/cave.png}
+  \includegraphics[width=5cm]{figures-design/cave.png}
   \caption{Stalagmites and stalactites in limestone caves as a
   metaphor for a generator and a platform.}
   \label{cave} 

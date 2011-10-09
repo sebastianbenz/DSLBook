@@ -18,7 +18,7 @@ additional language elements must be "mixed" with programs written with the base
 language. 
 
 \begin{marginfigure}
-  \includegraphics[width=5cm]{figures/embc/statemachinmodules.png}
+  \includegraphics[width=5cm]{figures-design/embc/statemachinmodules.png}
   \caption{The core language (above the dotted line) defines an interface
   \lcr{IModuleContent}. Anything that should be hosted inside a \lcr{Module}
   has to implement this interface, typically from another language.
@@ -79,7 +79,7 @@ However, for the discussions in this section, this distinction is generally not
 relevant.
 
 \begin{marginfigure}
-  \includegraphics[width=3cm]{figures/referencingCaseA.png}
+  \includegraphics[width=3cm]{figures-design/referencingCaseA.png}
   \caption{Referencing: Two separate, dependent, single-source transformations}
   \label{referencingCaseA}
 \end{marginfigure}
@@ -107,7 +107,7 @@ actually instantiates the classes that implement components, so it has to know
 the names of those generated (and hand-written) classes.}
   
 \begin{marginfigure}[3.3cm]
-  \includegraphics[width=3cm]{figures/referencingCaseB.png}
+  \includegraphics[width=3cm]{figures-design/referencingCaseB.png}
   \caption{A single multi-sourced transformation.}
   \label{referencingCaseB}
 \end{marginfigure}
@@ -127,7 +127,7 @@ fragment remains homogeneous.}
 
 
 \begin{marginfigure}[3cm]
-  \includegraphics[width=3cm]{figures/referencingCaseC.png}
+  \includegraphics[width=3cm]{figures-design/referencingCaseC.png}
   \caption{A preprocessing transformation that changes the referenced fragment in a way
 specified by the referencing fragment}
   \label{referencingCaseC}
@@ -153,7 +153,7 @@ often configuration files.
 statement, as well as enums for states and events.}
 
 \begin{marginfigure}
-  \includegraphics[width=5cm]{figures/transExtension.png}
+  \includegraphics[width=5cm]{figures-design/transExtension.png}
   \caption{Extension: transformation usually
   happens by assimiliation, i.e. generating code in the host language from code
   expressed in the extension language. Optionally, additional files are
@@ -197,7 +197,7 @@ they transform to a common target languages (such as Java or C) then the
 potential for reusing previously existing transformations exists.
 
 \begin{marginfigure}
-  \includegraphics[width=4cm]{figures/reuseCaseA.png}
+  \includegraphics[width=4cm]{figures-design/reuseCaseA.png}
   \caption{Reuse: Reuse of existing transformations for both fragments plus
   generation of adapter code}
   \label{reuseCaseA} 
@@ -216,7 +216,7 @@ methods; the adapter may generate a subclass and implement these abstract
 methods. 
 
 \begin{marginfigure}
-  \includegraphics[width=4cm]{figures/reuseCaseB.png}
+  \includegraphics[width=4cm]{figures-design/reuseCaseB.png}
   \caption{Reuse: composing transformations}
   \label{reuseCaseB} 
 \end{marginfigure} 
@@ -228,7 +228,7 @@ context language. In this case, a mechanism for composing transformations is
 needed. 
 
 \begin{marginfigure}
-  \includegraphics[width=4cm]{figures/reuseCaseC.png}
+  \includegraphics[width=4cm]{figures-design/reuseCaseC.png}
   \caption{Reuse: generating
   separate artifacts plus a weaving specification}
   \label{reuseCaseC} 
@@ -252,7 +252,7 @@ directly generate to the same target language that is generated to by the host
 language.
 
 \begin{marginfigure}
-  \includegraphics[width=5cm]{figures/transEmbedding.png} 
+  \includegraphics[width=5cm]{figures-design/transEmbedding.png} 
   \caption{In transforming embedded languages, a new transformation
   has to be written if the embedded language does not come with a
   transformation for the target language of the host language transformation.
