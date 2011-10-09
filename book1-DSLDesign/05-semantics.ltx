@@ -58,7 +58,7 @@ only be performed for a model that is structurally/syntactically correct.
 
 \begin{marginfigure}
   \includegraphics[width=2.5cm]{figures/embc/states.png}
-  \caption[labelInTOC]{An example state machine with a \emph{dead end} state, a
+  \caption{An example state machine with a \emph{dead end} state, a
   state that cannot be left once entered (no outgoing transitions).}
   \label{states}  
 \end{marginfigure}
@@ -161,15 +161,27 @@ abstraction. The result may be transformed further, until a level is reached for
 which a language with an execution infrastructure exists --- often $D_0$. Code
 generation from a DSL is thus a special case where $L_{D_0}$ code is generated.
 
+\begin{marginfigure}
+  \includegraphics[width=6cm]{figures/embc/lego.png}
+  \caption{The robot control DSL is embedded in C program modules
+  and provides linguistic abstractions for controlling a small lego car. It can
+  accelerate, decelerate and turn left and right. }
+  \label{lego}  
+\end{marginfigure}
+
+
 \embc{The semantics of state machines are defined by their mapping back to C
 switch-case statements. This is repeated for higher D languages.
-The semantics of the robot control DSL is defined by its mapping to state
-machines and tasks. To explain the semantics to the users, prose documentation is 
-available as well.}
+The semantics of the robot control DSL (\fig{lego}) is defined by its
+mapping to state machines and tasks (\fig{robotcontrol}). To explain the
+semantics to the users, prose documentation is available as well.}
 
 \begin{marginfigure}
   \includegraphics[width=3.5cm]{figures/embc/robotcontrol.png}
-  \caption[labelInTOC]{EMPTY}
+  \caption{Robot control programs are mapped to state machines and
+  tasks. State machines are mapped to C, and tasks are mapped to C as well as
+  to operating system configuration files (a so-called OIL file). In the end,
+  everything ends up in text for downstream processing by existing tools.}
   \label{robotcontrol}  
 \end{marginfigure}
 
@@ -197,12 +209,14 @@ programs. An interpreter is available to simulate the programs, observe their
 progress and stimulate them to see how they react.}
 
 \pension{This DSL supports an Excel-like tabular notation for expressing test
-cases for pension calculation rules. The calculations are functional, and the
-calculation tree can be extended as a way of debugging the rules.}
+cases for pension calculation rules (\fig{testcases}). The calculations are
+functional, and the calculation tree can be extended as a way of debugging the rules.}
 
 \begin{figure}[h] 
   \includegraphics[width=11cm]{figures/pension/testcases.png}
-  \caption[labelInTOC]{EMPTY}
+  \caption{Test cases in the pension language allow users to specify test data
+  for each input value of a rule. The rules are then evaluated by an
+  interpreter, providing immediate feedback about incorrect rules.}
   \label{testcases}  
 \end{figure}
 
@@ -262,15 +276,18 @@ in the code generator.
 
 \begin{marginfigure}
   \includegraphics[width=3.5cm]{figures/embc/states2.png}
-  \caption[labelInTOC]{EMPTY}
+  \caption{A transformation adds an emergency stop feature to a state machine.
+  A new state is added ($S_{es}$), and a transition from each other state to
+  that new state is added as well. The transition is triggered by the
+  \emph{emergency stop} event (not shown).} 
   \label{states2}  
 \end{marginfigure}
 \embc{Consider the case of a state machine where you want to be able to add an
 "emergency stop" feature, i.e. a new transition from each existing state to a
 new STOP state. Instead of handling this case in the code generator a model
 transformation script preprocesses the state machine model and adds all the new
-transitions and the new STOP state. Once done, the existing generator is run
-unchanged. You have effectively modularized the emergency stop concern into a
+transitions and the new emergency stop state (\fig{states2}). Once done, the
+existing generator is run unchanged. You have effectively modularized the emergency stop concern into a
 separate transformation.}
 
 \comparch{The DSL describes hierarchical component architectures (where
@@ -325,8 +342,11 @@ cleaner code approach is possible in C.}
   \rule{1\textwidth}{0.7pt}
   \vspace{-0.5cm}
   \includegraphics[width=10cm]{figures/embc/restrictedport.png}
-  \caption[labelInTOC][0.3cm]{EMPTY}
-  \label{restrictedport}
+  \caption[][0.3cm]{The required port \lcr{lowlevel} is not just bound to the
+  \lcr{ILowLevel} interface, but restricted tot the \lcr{ll} port of the
+  \lcr{LowLevelCode} component. This way, it is statically known which C
+  function implements the behaviour and the generated code can be optimized.}
+  \label{restrictedport} 
   \rule{1\textwidth}{0.7pt}    
 \end{figure}
 
@@ -337,7 +357,7 @@ specific platform. It typically consists of middleware, frameworks, drivers,
 libraries and utilities that are taken advantage of by the generated code.
 \begin{marginfigure}
   \includegraphics[width=4cm]{figures/platform.png}
-  \caption[labelInTOC]{Typical layering structure of an application created
+  \caption{Typical layering structure of an application created
   using DSLs.}
   \label{platform}  
 \end{marginfigure}
@@ -345,9 +365,9 @@ Where the generated code and the platform meet depends on the complexity of the
 generator, requirements regarding code size and performance, the expressiveness
 of the target language and the potential availability of libraries and
 frameworks that can be used for the task.
-\begin{marginfigure}
+\begin{marginfigure}[1cm]
   \includegraphics[width=5cm]{figures/cave.png}
-  \caption[labelInTOC]{Stalagmites and stalactites in limestone caves as a
+  \caption{Stalagmites and stalactites in limestone caves as a
   metaphor for a generator and a platform.}
   \label{cave} 
 \end{marginfigure}
