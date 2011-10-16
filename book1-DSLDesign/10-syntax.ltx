@@ -116,16 +116,31 @@ wirings. The graphviz tool \todo{ref} is used here since it provides decent
 auto-layout.}
 
 There are very few DSLs where a purely graphical notation makes sense. In most
-cases, textual languages are embedded in the diagrams: state machines have
-expressions embedded the guards and statements in the actions; component
-diagrams use text for specifications of operations in interfaces, maybe even
-with expressions for preconditions; block diagrams use a textual syntax for the
-implementation/parametrization of the blocks.\marginnote[-2cm]{A text box where
-textual code can be entered without language support should only be used as a
-last resort. Instead, a textual notation, with additional graphical
-visualizations should be used}.
+cases, textual languages are embedded in the diagrams or tables: state machines
+have expressions embedded the guards and statements in the actions
+(\fig{statemachines}); component diagrams use text for specifications of
+operations in interfaces, maybe even with expressions for preconditions; block diagrams use a
+textual syntax for the implementation/parametrization of the blocks
+(\fig{blockdiagram}); tables may embed textual notations in the cells
+(\fig{yakreq}). \marginnote[-2cm]{A text box where textual code can be entered
+without language support should only be used as a last resort. Instead, a
+textual notation, with additional graphical visualizations should be used}.
 
-\todo{screenshots from some itemis tools}
+\todo{screenshots from some itemis tools that combine textual and graphical}
+
+\begin{figure}
+  \includegraphics[width=10cm]{figures-design/blockdiagram.jpg}
+  \caption{Block diagrams built with the Yakindu modeling tools. A textual DSL
+  is used to implement the behaviour in the blocks. While the textual DSL is
+  not technically integrated with the graphical notation (separate viewponts),
+  semantic integration is provided.}
+  \label{blockdiagram}
+\end{figure}
+
+
+
+
+
 
 \marginnote{In my consulting practice, I almost always start with a textual
 notation and try to stabilize language abstractions based on this notation. Only
@@ -139,6 +154,15 @@ what is most important regarding comprehensibility is the alignment of the
 domain concepts with the abstractions in the language. A well-designed textual
 notation can go a long way. Also, textual languages are more productive once the
 learning curve has been overcome.
+
+
+\begin{figure}[h]
+  \includegraphics[width=10cm]{figures-design/yakreq.jpg}
+  \caption{The Yakindu Requirements tools integrates a textual DSL for formal
+  requirements specification. An Xtext DSL is syntactically integrated into a
+  table view. Semantic integration is provided as well.}
+  \label{yakreq}
+\end{figure}
 
 
 
@@ -158,6 +182,15 @@ mentioned above, a graphical notation will be added in the future.}
 \cooling{The refrigerator DSL uses graphical visualizations to render diagrams
 of the hardware structure, as well as a graphical state charts representing the
 underlying state machine.}
+
+\begin{figure}[h]
+  \includegraphics[width=10cm]{figures-design/statemachines.png}
+  \caption{The Yakindu State Chart Tools support the use of Xtext DSLs in
+  actions and guard conditions of state machines, mixing textual and graphical
+  notations. The DSL can even be exchanged, to support domain specific action
+  languages.}
+  \label{statemachines}
+\end{figure} 
 
 \paragraph{Relationship to Hierarchical Domains} Domains at low $D$ are most
 likely best expressed with a textual or symbolic concrete syntax. Obvious
