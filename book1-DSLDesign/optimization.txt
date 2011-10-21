@@ -1,0 +1,131 @@
+Hi,
+
+sorry for my late reply. Bit busy currently :-)
+
+> during the round table, you've been expressing that getting a higher level
+> of abstraction would help having more optimised programs. This might
+> actually sounds quite interesting and doable. As you expressed, the less the
+> developer write, the more freedom the compiler have to optimise. But then,
+> the real question raises: how this tool can optimise?
+
+absolutely. A lot of sophisticatedness has to go into the compiler. That
+may be expensive. 
+
+> On my side, I'm a developer, specialised in low-level stuff. And one a day,
+> for a stupid simulation, I've been facing a stupid problem: how to detect an
+> overflow on my long integer?
+
+... a problem we'll have to face in our research project as well!
+
+> There are some tricks, but not really
+> convenient. And I was running a quite resources consuming simulation, so I
+> wanted to prevent useless time waste. "High" level languages actually do not
+> provide any mechanism to detect overflow, or to prevent them. Whereas, with
+> the intel/AMD architecture, if you go down to the assembly level, you have
+> an immediate way to catch overflow (the overflow flag). So, in order to
+> optimise, I had to completely remove abstraction to talk directly to the
+> machine. The compiler would have not been able to see I was trying to handle
+> overflow and then to optimise the correct way.
+
+but you could mark your variable or expression as "overflow-detected" and then
+the generator would generate the low-level assembly code instead of high level
+code, right?
+
+> I totally agree, this is a quite weird example.
+
+well, not really. It does happen in several places. We are planning to address
+it in our research proejct as well --- although we didn't decide yet how to do it.
+
+>  And limited use-case as
+> well. So, let's take another example. I'm not only a developer, but also a
+> reverse engineer. This is really interesting since I see what the compilers
+> really "understand" about our code, and what they produce as output.
+> Including how they optimise it. They are lacking optimisations, or even
+> sometimes making some stuff even more complex than it should be. There is no
+> need to be a reverse engineer to have heard about compilers wrong
+> optimisations. They assert on code supposed usages and try to do their best.
+
+right. A compiler optimization always makes assumptions and is based on 
+(relatively) general rules. If in some corner case a more sophisticated solution
+would be possible, it may not use it, since this "exception" to the rule is not
+known to the compiler. Here is the reasoning:
+* developers can do very sophisticated low level optimizations. They know
+  all the corner cases. But doing this is a lot of work and requires sophisticated
+  developers.
+* a tool can address the 90% case well. The developer doesn't have to know
+  or care, and it is less work. However, the 10% remaining possible optimizations
+  aren't done.
+
+This arguement pro tools is used for garbage collection and transactional memory
+as well. If you need to address the remaining 10%, using a tool is not for you.
+
+> This is why C code has for example volatile keyword (to prevent wrong
+> optimisation), and this is also why compilers provide pragmas/keywords to
+> help them optimising (see for example the __builtin_expect of GCC).
+
+right. The way I would say it is this way:
+* standard C doesn't allow you to express certain properties of the the program
+* so the compiler needs additional "hints" from the developer on what to do
+
+The more knowledge about the (semantics of a) program you can feed to the
+compiler, the more reasonable decisions it can make.
+
+
+> So, this leads me to my deep question: are we capable of designing and
+> building a tool that would optimise that much? Or on the other hand, adding
+> more levels of abstraction would bring more and more missed optimisations,
+> and then less efficient program?
+
+a very good question. I think one problem with C compiler optimizations is 
+that C is still relatively low level and general purpose. My argument would be
+that by raising the level of abstraction to the point where actual domain 
+semantics is in the program, a generator can make more meaningful decisions.
+And since it is not a general purpose language, the scope of the problem is
+reduced. This is also the argument Martin Oderskyl makes in his Scala/Concurrency/DSL
+research project.
+
+
+> I'm rethinking to one of the example you took this afternoon with MPS, and
+> the translation from some DSL to C. If we admit that none of those tools is
+> perfect (which is likely to be right),
+
+indeed :) 
+
+> then to have a binary, instead of
+> having only one tool that can fails, we can have two. What if final tool
+> fails on previous tool failure?
+
+sure, that is possible. Testing is the (unsatisfactory) answer. By the way:
+if you use just a C compiler or an assembler, you also have two tools. The
+first one being the developer. He has to make many more decisions in his
+mind, and the compiler might "react" wrongly. Developers aren't perfect
+either :-)
+
+> With higher level of abstraction, the developer understands its code better.
+> Does the compiler as well? I'm not that sure. This is probably due to my
+> background.
+> It's an open question I would have liked you treat with the others during
+> the round table, but this would have probably taken some time.
+
+yes. Also, I am no a compiler optimization guy. And I usually don't work
+in environments where those last 10% are important.
+
+Let me know what you think :-)
+
+Markus
+
+
+-- 
+Markus Völter
+
+voelter - ingenieurbüro für softwaretechnologie/itemis
+Ötztaler Strasse 38, 70327 Stuttgart-Untertürkheim, Germany
+Tel. +49 (0) 171 / 86 01 869
+Email: voelter@acm.org
+
+Web: http://www.voelter.de
+Blog: http://www.voelter.de/blog
+SE Radio Podcast: http://www.se-radio.net
+omega tau podcast: http://www.omegataupodcast.net
+Upcoming DSL book: http://dsl-engineering.org/
+
