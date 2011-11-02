@@ -3,8 +3,6 @@
 \section{Semantics and Execution}
 \label{semantics}
  
-\todo{Say something about optimizations --- optimizations.txt}
-
 Semantics can be partitioned into static semantics and execution semantics.
 Static semantics are implemented by the constraints and type system rules
 (and,if you will, the language structure). Execution semantics denote the
@@ -300,6 +298,25 @@ in the code generator, you should consider a model transformation step to do it,
 and then write a simpler generator that works with a flattened, non-hierarchical
 model.}
 
+\paragraph{Efficiency and Optimization} As mentioned, transforming from $D$ to
+$D_{-1}$ allows the use of sophisticated optimizations, potentially resulting in
+very efficient code. Because the DSL uses domain-specific abstractions and hence
+includes a lot of domain semantics, optimizations can take advantage of this and
+produce very efficient $D_{-1}$ code. However, building such optimizations can
+be very expensive. It is especially hard to build \emph{global} optimizations
+that require knowledge about the structure or semantics of large or diverse
+parts of the overall program. Also, an optimization will always rely on some set
+of rules that determine when and how to optimize. There will always be corner
+cases where an experienced developer will produce more efficient $D_{-1}$ code.
+However, this requires a competent developer and, usually, a lot of effort
+\emph{in each case}. A tool will typically address the 90\% case well: it will
+produce reasonably efficient code in the vast majority of cases with very little
+effort (once the optimizations have been defined). In most cases, this is good
+enough --- in the remaining corner cases, $D_{-1}$ has to be written manually.
+
+This argument pro tools is also used for garbage collection, transactional
+memory and optimizing compilers for higher level programming languages.
+
 
 \paragraph{Care about generated code} Ideally, generated code is a throw-away
 artifact, a bit like object files in a C compiler. However, that's not quite
@@ -471,7 +488,7 @@ Combinations between the two approaches are also possible. For example,
 transformation can create an intermediate representation which is then
 interpreted. Or an interpreter can generate code on the fly as a means of
 optimization. While this approach is common in GPL VMs such as the JVM, we have
-not seen this approach used for DSLs. \todo{This is partial evaluation, right?}
+not seen this approach used for DSLs. 
 
 
 \subsection{Sufficiency}
@@ -586,10 +603,12 @@ used at $D_{-1}$. For analysis and verification, the $L_D$ programs are
 transformed down to the verifiable $L_{D-1}$ language. Verification is performed
 on $L_{D-1}$, mapping the results back to $L_D$. Transforming to a verifiable
 formalism also works if the formalism is not at $D_{-1}$, as long as a mapping
-exists. The problem with this appraoch is the interpretation of analysis results
+exists. The problem with this approach is the interpretation of analysis results
 in the context of the DSL. Domain users may not be able to interpret the results
 of model checkers or solvers, so they have to be translated back to the DSL.
 This may be a lot of work, or even impossible.
 
+
 \todo{talk about mapping DSLs down to state machines and reinterpreting the
 result in the context of the DSL. Should be a result from the LWES project.}
+

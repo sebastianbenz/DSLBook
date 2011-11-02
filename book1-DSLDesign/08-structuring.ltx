@@ -450,6 +450,31 @@ to find an example solution that violates the boolean equations.
 \end{figure} 
 
 
+\genex{The Yakindu DAMOS block diagram editor supports custom block
+implementation based on the Mscript language. Mscript (\sect{mscript}) supports
+declarative specification of equations between input and output parameters of a
+block. A solver comes up with an closed, sequential solution that efficiently
+calculates the output of an overall block diagram.}
+
+\begin{figure}[h]
+  \rule{1\textwidth}{0.7pt}
+  \vspace{-0.5cm}
+  \includegraphics[width=15cm]{figures-design/mscript.jpg}
+  \caption[][1.0cm]{An Mscript block specifies input and output arguments
+  of a block ($u$ and $v$) as well as configuration parameters
+  ($initialCondition$ and $gain$). The assertions specify constraints on the
+  data the blocks works with. The $eq$ statements specify how the output values
+  are calculated from the input values. Stateful behaviours are
+  supported, where the value for the $n$-th step depends on values from
+  previous steps (e.g. $n-1$).  }
+  \label{mscript}
+  \rule{1\textwidth}{0.7pt}
+\end{figure} 
+
+
+
+
+
 \genex{Another example for declarative programming is the type system DSL used
 by MPS itself. Language developers specify a set of type equations containing
 free type variables, among other things. A unification engine tries to solve the
@@ -594,10 +619,11 @@ desire to better modularize and reuse some of the above paradigms. Room for
 research :-)}. A couple of combinations are very typical:
 
 \begin{itemize}
-  \item a data flow language often uses a functional or imperative language to
-  describe the calculation rules that express the dependencies between the
+  \item a data flow language often uses a functional, imperative or declarative
+  language to describe the calculation rules that express the dependencies between the
   variables (the contents of the boxes in data flow diagrams or of cells in
-  spreadsheets). \fig{blockdiagram} is an example.
+  spreadsheets). \fig{blockdiagram} shows an example block diagram, and
+  \fig{mscript} shows an example implementation.
   \item state machines use expressions as transition guard conditions, as well
   as typically an imperative language for expressing the actions that are
   executed as a state is entered or left, or when a transition is executed. An

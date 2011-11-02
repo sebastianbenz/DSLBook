@@ -174,6 +174,9 @@ error. Detecting this same problem in a low-level C implementation requires
 sophisticated analysis on the switch-case statements or indexed arrays that
 constitute the implementation of the state machine.}
 
+\embc{Another example of how linguistic abstraction is advantageous is static
+detection of invocations on optional ports as shown in \fig{optionalport}.}
+
 Linguistic abstraction also means that no details irrelevant to the model
 purpose are expressed. Once again, this increases conciseness, and avoids the
 undesired specification of unintended semantics (over-specification).
@@ -205,7 +208,7 @@ component that provides a port with a compartible interfaces. Required ports my
 be optional, so for a given instance, it may be connected or not. Invoking an
 operation on an unconnected required port would result in an error, so this has
 to be prevented. This can be done by enclosing the invocation on a required
-port in an if statement, chechking whether the port is connected. However, an
+port in an if statement, checking whether the port is connected. However, an
 if statement can contain any arbitrary boolean expression as its condition 
 (e.g. \ic{if (isConnected(port) || true) \{ port.doSomething(); \}}). So
 checking \emph{statically} that the invocation only happens if the port is connected is
@@ -250,8 +253,6 @@ to be integrated directly into the language.}
 \embc{Since C is extended, C's abstraction mechanisms (functions, structs,
 enums) are available. Moreover, we added new mechanisms for building
 abstractions including interfaces and components.}
-
-\todo{refer tro the above optional port picture}
 
 \exwebdsl{WebDSL provides \emph{template definitions} to capture partial web
 pages including rendering of data from the database and form request handling.

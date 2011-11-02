@@ -126,8 +126,6 @@ blocks (\fig{blockdiagram}); tables may embed textual notations in the cells
 without language support should only be used as a last resort. Instead, a
 textual notation, with additional graphical visualizations should be used}. 
 
-\todo{screenshots from some itemis tools that combine textual and graphical}
-
 \begin{figure}
   \includegraphics[width=10cm]{figures-design/blockdiagram.jpg}
   \caption{Block diagrams built with the Yakindu modeling tools. A textual DSL
@@ -195,18 +193,16 @@ are also very dense and algorithmic, use a symbolic notation. As we progress to
 higher $D$s, the concepts become more and more abstract, and as state machines
 and block diagrams illustrate, graphical notations become useful. However, these
 two notations are also a good example of language embedding since both of them
-require expressions: state machines in guards, and block diagrams as the
-implementation of blocks. Reusable expression languages should be embedded into
-the graphical notations. In case this is not supported by the tool, viewpoints
-may be an option. One viewpoint could use a graphical notation to define
+require expressions: state machines in guards and actions (\fig{statemachines}),
+and block diagrams as the implementation of blocks (\fig{blockdiagram} and
+\fig{mscript}). Reusable expression languages should be embedded into the
+graphical notations. In case this is not supported by the tool, viewpoints may
+be an option. One viewpoint could use a graphical notation to define
 coarse-grained structures, and a second viewpoint uses a textual notation to
 provide "implementation details" for the structures defined by the graphical
 viewpoint\sidenote{Not every tool can support every (combination of) form of
 concrete syntax, so this aspect is limited by the tool, or drives tool
 selection.}.
- 
-\todo{The above para needs to be refactored to the Yakindu SM and Data FLow
-examples fit in well.}
  
 \embc{As the graphical notation for state machines will become available, C
 expression language that is used in guard conditions for transitions will be
