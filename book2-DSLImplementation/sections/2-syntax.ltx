@@ -5,15 +5,16 @@
 The \emph{concrete syntax} (short: CS) of a language is what the user interacts
 with to create programs. It may be textual, graphical, tabular or any
 combination thereof. In this book we focus mostly on textual concrete syntaxes
-for reasons described in \ref{???}. We refer to other forms where appropriate.
+for reasons described in \todo{reference to the respective place in the
+introduction}. We refer to other forms where appropriate.
  
 The \emph{abstract syntax} (short: AS) of a language is a data structure that
 holds the information represented by the concrete syntax, but without any of the
-syntactic details. Keywords, layout (e.g., whitespace), and comments are
-typically not included. Note that syntactic information which doesn't end up in
-the AS is often preserved in some "hidden" form so the CS can be reconstructed
-from the combination of the AS and this hidden information --- this
-bidirectionality simplifies creating IDE features quite a bit.
+syntactic details. Keywords and symbols, layout (e.g., whitespace), and comments
+are typically not included. Note that syntactic information which doesn't end up
+in the AS is often preserved in some "hidden" form so the CS can be
+reconstructed from the combination of the AS and this hidden information ---
+this bidirectionality simplifies creating IDE features quite a bit.
 
 In most cases, the abstract syntax is a tree data structure. Instances that
 represent actual programs (i.e. sentences in the language) are hence often
@@ -21,27 +22,21 @@ called an abstract syntax tree or AST. Some formalisms also support
 cross-references across the tree, in which case the data structure becomes a
 graph (with a primary containment hierarchy). It is still usually called an AST.
 
-\MV{FOwler's Semantic Model is not the same as the AST. The AST is driven by
-the needs of the language, whereas the SM is driven by the needs of the domain.
-I would not introduce this concept here.}
-
 While the CS is the "UI" of the language to the user, the AS acts as the API to
-access the data represented by programs. It is used by developers of validators,
+access programs by processing tools: it is used by developers of validators,
 transformations and code generators. The concrete syntax is not relevant in
 these cases.
 
-To illustrate this dichotomy between concrete and abstract syntax, consider the
+To illustrate the dichotomy between concrete and abstract syntax, consider the
 following example program:
 
-\footnotesize
-\begin{verbatim}
+\begin{alltt}
 var x: int;
 calc y: int = 1 + 2 * sqrt(x)
-\end{verbatim}
-\normalsize 
-
-This program has a hierarchical structure: definitions of \texttt{x} and
-\texttt{y} at the top, inside \texttt{y} there's a nested expression. This
+\end{alltt}
+ 
+This program has a hierarchical structure: definitions of \ic{x} and
+\ic{y} at the top, inside \ic{y} there's a nested expression. This
 structure is reflected in the corresponding abstract syntax. A possible AST is
 illustrated in \fig{astexample}. The boxes represent program elements, and the
 names in the boxes represent language concepts that make up the abstract syntax.
@@ -81,7 +76,8 @@ and the concrete syntax can relate as the language is used to create programs:
 \fig{astandcst} shows the typical combinations of these two dimensions. In
 practice, parser-based systems typically derive the AS from the CS - i.e., CS
 first. In projectional systems, the CS is usually annotated onto the AS data
-structures - i.e., AS first.
+structures - i.e., AS first. In the next sections we look more closely at
+parsing and projection.
 
 \begin{figure}[ht]
 \begin{center}
@@ -92,17 +88,17 @@ structures - i.e., AS first.
 \end{figure}
 
 
-\section{Fundamentals of Free Text Editing} 
+\section{Fundamentals of Free Text Editing and Parsing} 
 
 Most general-purpose programming environments rely on free text editing, where
 programmers edit programs at the character level to form (key)words and phrases.
 
-A \emph{parser} is used to check the program text for syntactic correctness, and
-create the AST by populating the AS from information extracted from the textual
-source.  Most modern IDEs perform this task in real-time as the user edits the
-program. The AST is always kept in sync with the program text. Many IDE features
---- such as content assist, validation, navigation, Refactoring support, etc.
---- are based on the real-time AST.
+A \emph{parser} is used to check the program text (concrete syntax) for
+syntactic correctness, and create the AST by populating the AS from information
+extracted from the textual source.  Most modern IDEs perform this task in
+real-time as the user edits the program. The AST is always kept in sync with the
+program text. Many IDE features --- such as content assist, validation,
+navigation, refactoring support, etc. --- are based on the real-time AST.
 
 A key characteristic of the free text editing approach is its strong separation
 between the concrete syntax (i.e., text) and the abstract syntax. The concrete
@@ -115,10 +111,10 @@ Many different approaches to parser implementation exist. Each may restrict
 the syntactic freedom of a DSL, or constrain the way in which a particular
 syntax must be specified. It is important to be aware of this as not all
 languages can be comfortably, or even at all implemented by every parser
-implementation approach. The reader may have heard terms like context free,
-ambiguity, look-ahead, LL, (LA)LR, PEG and these all pertain to a certain class
+implementation approach. You may have heard terms like context free,
+ambiguity, look-ahead, LL, (LA)LR, PEG. These all pertain to a certain class
 of parser implementation approaches. We'll provide more details on the various
-grammar and parser classes further on in this section %% /chapter?.
+grammar and parser classes further on in this section.
 
 \subsection{Parser Generation Technology}
 
@@ -128,7 +124,8 @@ Manually writing a parser in this way requires significant expertise in
 parsing and a large development effort. For standardized programming languages
 that don't change very often, and that have a large user community, this
 approach makes sense. It can lead to very fast parsers that also exhibit good
-error recovery (the ability to continue parsing after a syntax error has been found).
+error recovery (the ability to continue parsing after a syntax error has been 
+found).
 
 In contrast, language workbenches, and increasingly also traditional compilers,
 \emph{generate} a parser from a grammar, a DSL for formally defining textual
@@ -153,17 +150,17 @@ code) embedded in grammars? We'd like to separate these concerns\ldots}
 Because of the complexity inherent in parsing, parser implementations tend to
 split the parsing process into a number of phases. In the majority of cases, the
 text input is first separated into a sequence of \emph{tokens} (i.e.,
-keywords, identifiers, literal syntax, comments, whitespace, etc.) by
-a \emph{scanner} (sometimes called lexer). The
-\emph{parser} then constructs the actual AST the that token
+keywords, identifiers, literals, comments, whitespace, etc.) by
+a \emph{scanner} (sometimes also called lexer). The
+\emph{parser} then constructs the actual AST from the token
 sequence. This simplifies the implementation compared to directly parsing at
 the character level. A scanner is usually implemented using direct recognition of
 keywords and a set of regular expressions to recognize all other valid input as
 tokens.
 
 Both the scanner and parser can be generated from grammars (see below). A
-well-known example of a scanner (lexer) generation tool is \texttt{lex}. Modern parsing
-frameworks, such as ANTLR, do their own scanner generation.
+well-known example of a scanner (lexer) generation tool is \ic{lex}. Modern
+parsing frameworks, such as ANTLR, do their own scanner generation.
 
 Note that the word "parser" now has more than one meaning: it can either refer
 to the combination of the scanner and the parser or to the post-scanner parser.
@@ -237,24 +234,19 @@ be a literal such as a keyword or a punctuation symbol. If there are
 multiple possible patterns for a symbol, these can be written as
 separate productions, or the patterns can
 be separated by the '$|$' operator to indicate a choice. An
-extension of BNF is called Extended BNF (EBNF), which adds a number of convenience
+extension of BNF, called Extended BNF (EBNF), adds a number of convenience
 operators such as '?' for  an optional pattern, '*' to indicate zero
 or more occurrences, and '+' to indicate one or more occurrences.
 
-As an example, \Figure{Fig:exp-grammar-simple} shows an example of a grammar for
+As an example, \fig{Fig:exp-grammar-simple} shows an example of a grammar for
 a simple arithmetic expression language using BNF notation. Basic expressions
-are built up of \verb$NUM$ number literals and the \verb$+$ and \verb$*$
+are built up of \ic{NUM} number literals and the \ic{+} and \ic{*} 
 operators.
 
-\MV{We have said this above already.}
-% This grammar can be read in two ways: as a description of how to produce
-% sentences in the arithmetic expression language (generation), and as a
-% description of how to recognize and parse those sentences
-% (recognition).
 
 Note how expression nesting is described using recursion in this grammar:
-the Exp rule calls itself, so sentences like \verb#2+3*4# are allowed. This
-poses two practical challenges for parser generation systems: first, the
+the \ic{Exp} rule calls itself, so sentences like \ic{2 + 3 * 4} are allowed.
+This poses two practical challenges for parser generation systems: first, the
 precedence and associativity of the operators is not described (explicitly) by
 this grammar. Second, not all parser generators provide full support for
 recursion. We elaborate on these issues in the remainder of the section and in
@@ -274,33 +266,32 @@ refers to number literals.}
 \paragraph{Grammar classes}
 
 BNF can describe any grammar that maps textual sentences to trees based only on
-the input symbols. These are called \emph{context-free grammars} and can be used
-to parse the majority of modern programming languages. In contrast,
-\emph{context-sensitive grammars} are those that also depend on the context in
-which a partial sentence occurs, making them suitable for natural language
-processing but at the same time, making parsing itself a lot harder since the
-parser has to be aware of a lot more than just the syntax.
+the input symbols\todo{as opposed to what?}. These are called \emph{context-free
+grammars} and can be used to parse the majority of modern programming languages.
+In contrast, \emph{context-sensitive grammars} are those that also depend on the
+context in which a partial sentence occurs, making them suitable for natural
+language processing but at the same time, making parsing itself a lot harder
+since the parser has to be aware of a lot more than just the syntax.
 
 Parser generation was first applied in command-line tools such as \texttt{yacc}
-in the early seventies. As a consequence of the relatively slow computers, much
-attention was paid to the efficiency of generated parsers. Various algorithms
-were designed that could parse text in a bounded amount of time and memory.
-However, these time and space guarantees could only be provided for certain
-subclasses of the context-free grammars, described by acronyms such as LL(1),
-LL($k$), LR(1), and so on, as illustrated in
-\fig{Fig:grammar-classes}.
-A particular parser tool supports a specific class of grammars --- e.g., ANTLR
+in the early seventies. As a consequence of relatively slow computers, much
+attention was paid to the efficiency of the generated parsers. Various
+algorithms were designed that could parse text in a bounded amount of time and
+memory. However, these time and space guarantees could only be provided for
+certain subclasses of the context-free grammars, described by acronyms such as
+LL(1), LL($k$), LR(1), and so on, as illustrated in \fig{Fig:grammar-classes}. A
+particular parser tool supports a specific class of grammars --- e.g., ANTLR
 supports LL($k$) and LL(*).
 
 In the classification of \fig{Fig:grammar-classes}, the first L stands for
-left-to-right scanning, and the second L in LL and the R in LR stand for leftmost and rightmost derivation.
-The constant $k$ in LL($k$) and LR($k$) indicates the maximum number (of tokens or characters) the
-parser will look ahead to decide which production rule it can
-recognize. Typically, grammars for
+left-to-right scanning, and the second L in LL and the R in LR stand for
+leftmost and rightmost derivation. The constant $k$ in LL($k$) and LR($k$)
+indicates the maximum number (of tokens or characters) the parser will look
+ahead to decide which production rule it can recognize. Typically, grammars for
 "real" DSLs tend to need only finite look-ahead and many parser tools
-effectively compute the optimal value for $k$ automatically. A special
-case is LL(*), where $k$ is unbounded and the parser can look
-ahead arbitrarily many tokens to make decisions.
+effectively compute the optimal value for $k$ automatically. A special case is
+LL(*), where $k$ is unbounded and the parser can look ahead arbitrarily many
+tokens to make decisions.
 
 \TODO{Venn diagram of grammar classes: LL, LR, ...}
 \begin{figure}[t]
@@ -311,14 +302,13 @@ ahead arbitrarily many tokens to make decisions.
 \end{figure}
 
 Supporting only a subclass of all possible context-free grammars poses
-restrictions on the languages that are supported b a parser
-generator. For some languages, it is
-not possible to write a grammar in a certain subclass, making that particular language
-unparseable with a tool that only supports that particular class of grammars. For other
-languages, a natural context-free grammar exists, but it must be written in a
-different, often awkward way to conform to the subclass. This will be
-illustrated in the Xtext example, which uses ANTLR as the underlying LL($k$)
-parser technology.
+restrictions on the languages that are supported b a parser generator. For some
+languages, it is not possible to write a grammar in a certain subclass, making
+that particular language unparseable with a tool that only supports that
+particular class of grammars. For other languages, a natural context-free
+grammar exists, but it must be written in a different, often awkward way to
+conform to the subclass. This will be illustrated in the Xtext example, which
+uses ANTLR as the underlying LL($k$) parser technology.
 
 Parser generators can detect if a grammar conforms to a certain subclass,
 reporting conflicts that relate to the implementation of the algorithm:
@@ -334,19 +324,19 @@ the form \verb$customer.name$ or \verb$"Tim".length$:%
   STRING to indicate string literal patterns in these examples.}
 
 \begin{figure}[t]
-\begin{alltt}
-Exp ::= ID
+\begin{alltt} 
+Exp ::= ID 
       | Exp "." ID 
       | STRING
 \end{alltt}
-\caption{A grammar for property access expressions.}
+\caption{A grammar for property access expressions of
+the form \ic{customer.name} or \ic{"Tim".length}.}
 \label{Fig:field-access-grammar}
 \end{figure}
 
 This grammar uses left-recursion: the left-most symbol of one of the definitions
 of \verb$Exp$ is a call to \verb$Exp$, i.e.\ it is recursive. Left-recursion is
-not supported by LL parsers, which includes the ANTLR parser generator and Xtext
-(which makes use of ANTLR).
+not supported by LL parsers such as ANTLR. 
 
 The grammar can be \emph{left-factored} by changing it to a form where all left
 recursion is eliminated. The essence of left-factoring is that the grammar is
@@ -429,9 +419,8 @@ workbench that uses GLR parsing.
 
 Grammars can be \emph{ambiguous} meaning that at least one valid sentence in the
 language can be constructed in more than one (non-equivalent) way from the
-production rules, corresponding to multiple possible ASTs. This obviously is a
-problem for parser implementation as some decision has to be made on which AST
-is preferred.
+production rules, corresponding to multiple possible ASTs. This obviously is a problem for parser
+implementation as some decision has to be made on which AST is preferred.
 
 For example, the expression language grammar given in
 \fig{Fig:exp-grammar-simple} is ambiguous. For a string \texttt{1*2+3} there
@@ -496,26 +485,14 @@ Mult ::= Mult "*" NUM
 \noindent The resulting grammar is a valid LR grammar. Note how it puts the
 addition operator in the highest layer to give it the lowest priority, and how
 it uses left-recursion to encode left-associativity of the operators. The
-grammar can be left-factored to a corresponding LL grammar (supported
-by Xtext) as follows:
+grammar can be left-factored to a corresponding LL grammar as follows. We will
+see more extensive examples of this approach in the section on Xtext (\todo{}).
 
 \begin{alltt}
 Expr ::= Mult ("+" Mult)*
 Mult ::= NUM ("*" NUM)*
 \end{alltt}
 
-\MB{It would be good to expand this a bit with examples of other types of
-operators (post-/prefix) as well, since they follow different patterns. A more
-explicit discussion of associativity is desirable as well, IMHO. Currently, the
-only good sources which can easily be found are blogs by Sven E.\ and
-myself\ldots}
-
-\MV{Note that we have many more examples of this (with many more operators) in
-the Xtext example. We should keep it brief here, and then discuss details in
-the example section.} \LK{ok, so then we don't need to elaborate on it
-here?} \MV{I think what we have is enough. Take a look at the Xtext example to
-judge for yourself.} \LK{alright. then MB can remove these comments
-once read and agreed to :)}
 
 \paragraph{Ambiguity with generalized parsers}
 
@@ -523,7 +500,7 @@ General parsers accept grammars regardless of recursion or ambiguity. That is,
 the grammar of \Figure{Fig:exp-grammar-simple} is readily accepted as a valid
 grammar. In case of an ambiguity, the generated parser simply returns all
 possible abstract syntax trees, e.g.\ a left-associative tree and a
-right-associative tree for the expression \texttt{1+2+3}. The different trees
+right-associative tree for the expression \texttt{1*2+3}. The different trees
 can be manually inspected to determine what ambiguities exist in the grammar, or
 the desired tree can be programmatically selected.
 
@@ -548,24 +525,14 @@ Exp ::= Exp "+" Exp \curlies{left}
 \end{alltt}
 
 \noindent indicating that the multiplication operator binds stronger than the
-addition operator.
+addition operator. This kind of declarative disambiguation is commonly found in
+GLR parsers, but typically not available in parsers that support only more
+limited grammar classes.
 
-\TODO{Note that not all parser tools support disambiguation filters: Xtext
-doesn't, but Spoofax does.} \MV{While this is true, I find this comment misleading
-because Xtext is not a GLR parser and it sounded like disam filters are only
-relevant for GLR parsers. I suggest we remove this sentence and mention in the
-example above that Xtext does it that way.}
-%
-\LK{i think that was just
-an old note floating around here; we discussed the xtext approach
-above}
-%
-\LK{but some reflection may be good}
-%
-\MV{Maybe reemphasizing that it only exists in GLR parsers?}
 
 \paragraph{Compositionality}
 
+\todo{}
 encoded precedence, associativity, etc. makes grammars resistent to
 change and composition
 
@@ -598,26 +565,32 @@ characters instead of on tokens (a scannerless parser)
 In parser-based approaches, users use text editors to enter character sequences
 that represent programs. A parser then checks the program for syntactic
 correctness and constructs an abstract syntax tree from the character sequence.
-The AST contains all the semantic information expressed by the program i.e.\ %%
-keywords.
+The AST contains all the semantic information expressed by the program.
 
 In projectional editors, the process happens the other way round: as a user
-edits the program, the AST is modified directly. This is similar to the  MVC
-pattern where every editing action triggers a change in the AST. A projection
-engine then creates some representation of the AST with which the user
-interacts. This approach is well-known from graphical editors. In editing a UML
-diagram, users don't draw pixels onto a canvas, and an "image parser" then
-creates the AST. Rather, the editor creates and instance of \texttt{uml.Class}
-as you drag a class from the palette to the canvas. A projection engine renders
-the diagram, in this case drawing a rectangle for the class. This approach can
-be generalized to also work with text editors.
+edits the program, the AST is modified directly. A projection engine then
+creates some representation of the AST with which the user interacts, and which
+reflects the changes. This approach is well-known from graphical editors in
+general, and the MVC pattern specifically. In editing a UML diagram, users don't
+draw pixels onto a canvas, and a "pixel parser" then creates the AST. Rather,
+the editor creates and instance of \texttt{uml.Class} as you drag a class from
+the palette to the canvas. A projection engine renders the diagram, in this case
+drawing a rectangle for the class. This approach can be generalized to work
+with any notation, including textual.
 
-Every program element is stored as a node with a unique ID (UID) in the AST.
-References are based on actual pointers (references to UIDs). The AST is
-actually an ASG, an abstract syntax graph, from the start because
-cross-references are first-class rather than being resolved after parsing. The
-program is stored using some generic tree persistence mechanism which are often
-XML-based.
+In projectional editors, every program element is stored as a node with a unique
+ID (UID) in the AST. References between program elements are based on actual
+pointers (references to UIDs). The AST is actually an ASG, an abstract syntax
+graph, from the start because cross-references are first-class rather than being
+resolved after parsing. The program is stored using a generic tree
+persistence mechanism, often XML.
+
+The projectional approach can deal with arbitrary syntactic forms. Since no
+grammar is used, grammar classes are not relevant here. In principle,
+projectional editing is simpler than parsing, since there is no need to
+"extract" the program structure from a flat textual source. However, as we will
+see below, the challenge in projectional editing lies making the editing
+experience convenient.
 
 \section{Comparing Parsing and Projection}
 
@@ -893,7 +866,7 @@ interfaces. It can declare references and child collections. It may also have a
 number of primitive-type properties as well as a couple of "static" features
 (those stating with "concept"). In addition, concepts can have behavior methods.
                                                                             
-\subsection{Xtext Example}
+\section{Xtext Example}
 
 \TODO{We assume an introduction of the case studies somewhere before this point}
 
@@ -1322,7 +1295,7 @@ referencable elements extend SymbolDeclaration and use a single reference.
 
 
 
-\subsection{Spoofax Example}
+\section{Spoofax Example}
 
 Mobl's data modeling language provides entities and entity
 functions. To illustrate the language, here is an example of two
@@ -1384,7 +1357,7 @@ ID                        -> Exp {cons("Var")}
 
  
 
-\subsection{MPS Example}
+\section{MPS Example}
 
 We start by defining a simple language for state machines. Core concepts include
 StateMachine, State, Transition and Trigger. The state machine can be embedded

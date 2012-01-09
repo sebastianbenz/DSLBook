@@ -38,14 +38,33 @@
 \endgroup
 }
 
+\newcommand{\ic}[1]{\changefont{cmtt}{m}{n}{#1}\normalfont}  % inline code
+\newcommand{\lcr}[1]{\changefont{cmtt}{m}{n}{#1}\normalfont} % language
+\newcommand{\keystroke}[1]{\changefont{cmtt}{m}{n}{#1}\normalfont} % language
+\newcommand{\intention}[1]{\emph{#1}} % language
+
+\newcommand{\fig}[1]{Fig.~\ref{#1}}
+\newcommand{\sect}[1]{Section~\ref{#1}}
+\newcommand{\changefont}[3]{\fontfamily{#1}\fontseries{#2}\fontshape{#3}\selectfont}
+
+\usepackage{verbatim}
+	 
+\newenvironment{code} 
+    {\vspace{0.5cm}\noindent\rule{\textwidth}{0.7pt}
+     \vspace{-0.55cm}
+     \scriptsize \verbatim}
+    {\endverbatim \normalsize
+	 \vspace{-0.5cm}
+	 \rule{\textwidth}{0.7pt}
+	 \vspace{0.25cm}
+	 }
+
+
+
 \morefloats
 \morefloats
 
 \newcommand{\hilight}[1]{#1} %\hl{#1}}
-
-%\def\blacktriangleright{\rhd}
-%\def\blacktriangleleft{\lhd}
-%\def\vartriangleleft{\lhd}
  
 \newcommand{\D}[1]{D_{#1}}
 
@@ -62,6 +81,7 @@
 \endgroup
 \vspace{3pt}
 }
+
 
 \newcommand{\embc}[1]{\excode{Embedded C:}{#1}}
 \newcommand{\fountain}[1]{\excode{Fountains:}{#1}}
