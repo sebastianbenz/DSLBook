@@ -168,13 +168,13 @@ IScope for a given reference. The method gets the EReference (which identifies
 the reference on the meta level) as well as the actual instance of the language
 concept whose reference should be scoped.
 
-\footnotesize
-\begin{verbatim}
+
+\begin{code}
 public interface IScopeProvider {
 	IScope getScope(EObject context, EReference reference);
 }
-\end{verbatim}
-\normalsize
+\end{code}
+
 
 To make scoping implementation easier, Xtext provides so-called declarative
 scope provider through the AbstractDeclarativeScopeProvider base class: instead
@@ -184,31 +184,31 @@ scope for a specific reference in a separate method using a naming convention.
 
 Two different naming conventions are available:
 
-\footnotesize
-\begin{verbatim}
+
+\begin{code}
 // <X>, <R>: we are trying to scope the <R> reference of the <X> concept 
 public IScope scope_<X>_<R>(<X> ctx, EReference ref );
 
 // <X>: the language concept we are looking for
 // <Y>: the concept from below which we try to look for the reference 
 public IScope scope_<X>(<Y> ctx, EReference ref);
-\end{verbatim}
-\normalsize
+\end{code}
+
  
 Let's assume we want to scope the targetState reference of the
 ChangeStateStatement. It was defined as
 
-\footnotesize
-\begin{verbatim}
+
+\begin{code}
 ChangeStateStatement:
     "state" targetState=[State];
-\end{verbatim}
-\normalsize
+\end{code}
+
 
 We can use the following two alternative methods:
 
-\footnotesize
-\begin{verbatim}
+
+\begin{code}
 public IScope scope_ChangeStateStatement_targetState
             (ChangeStateStatement ctx, EReference ref ) {
     ...            
@@ -217,8 +217,8 @@ public IScope scope_ChangeStateStatement_targetState
 public IScope scope_State(ChangeStateStatement ctx, EReference ref) {
     ...
 }
-\end{verbatim}
-\normalsize
+\end{code}
+
 
 The first alternative is specific for the targetState reference of the
 ChangeStateStatement. It is invoked by the declarative scope provider only for
@@ -228,13 +228,13 @@ of a ChangeStateStatement. In fact, it includes children of the context type, so
 we could write an even more general alternative, which scopes the visible States
 from anywhere in a CoolingProgram, independent of the actual reference.
 
-\footnotesize
-\begin{verbatim}
+
+\begin{code}
 public IScope scope_State(CoolingProgram ctx, EReference ref) {
     ...
 }
-\end{verbatim}
-\normalsize
+\end{code}
+
 
 The implementation of the scopes is simple, and relatively similar in all three
 cases. We write Java code that crawls up the containment hierarchy until we
@@ -242,15 +242,15 @@ arrive at a CoolingProgram (in the last alternative, we already have the
 CoolingProgram, so we don't need to move up the tree). Here is a possible
 implementation:
 
-\footnotesize
-\begin{verbatim}
+
+\begin{code}
 public IScope scope_ChangeStateStatement_targetState
             (ChangeStateStatement ctx, EReference ref ) {
     CoolingProgram owningProgram = Utils.ancestor( ctx, CoolingProgram.class );
     return Scopes.scopeFor(owningProgram.getStates());
 }
-\end{verbatim}
-\normalsize
+\end{code}
+
 
 Another feature of the declarative scope providers is that it comes built-in
 with the notion of a \emph{global scope}. If no applicable methods can be found
@@ -280,8 +280,8 @@ simple cases, such as the targetState reference shown above. However, in
 languages with nestes scopes a different approach is recommended. Here is an
 example of a program expressed in a language with nested blocks and scopes:
 
-\footnotesize
-\begin{verbatim}
+
+\begin{code}
 var int x;		
 var int g;
  
@@ -297,8 +297,8 @@ function addAll( int es ... ) {
     }
     x = sum;                     // 3
 }
-\end{verbatim}
-\normalsize
+\end{code}
+
 
 At 1, the local variables (\verb#sum#), the arguments (\verb#x# and \verb#y#)
 and the global variables are visible, although the global variable \verb#x# is
@@ -326,8 +326,8 @@ name can also be changed. This enables the global \verb#x# in the example
 above to be available under the name \verb#outer.x# if it is referenced from
 location 1. The following is pseudo-code that implements this behaviour:
 
-\footnotesize
-\begin{verbatim}
+
+\begin{code}
 // recursive method to build nested scopes
 private IScope collect( StatementList ctx ) { 
     IScope outer = null
@@ -350,8 +350,8 @@ public IScope scope_Symbol( StatementList ctx ) {
     return collect( ctx )
 }	
 
-\end{verbatim}
-\normalsize
+\end{code}
+
 
 
 \MB{I'm going to expand quite a bit on the following paragraph, because there's
@@ -407,14 +407,14 @@ concept is instantiated, and the selected target is set.
 \paragraph{Simple Scopes} As an example, we begin with the scope definition for
 the target reference of the Transition concept. To recap, it is defined as:
 
-\footnotesize
-\begin{verbatim}
+
+\begin{code}
 concept Transition extends MedBase      
   // ...                                        
   references:                           
     State target 1 specializes: <none>    
-\end{verbatim}
-\normalsize
+\end{code}
+
 
 The scope itself is defined via the following search scope constraint. The
 system provides an anonymous function search scope that gets a number of
@@ -424,8 +424,8 @@ hierarchy until it finds a Statemachine. The set of valid target elements is the
 states of that state machine. The code used here can be arbitrarily complex, and
 is implemented in MPS' BaseLanguge.
 
-\footnotesize
-\begin{verbatim}
+
+\begin{code}
 link {target} 
   referent set handler:<none> 
   search scope: 
@@ -437,8 +437,8 @@ link {target}
     <default> 
   presentation : 
     <no presentation> 
-;\end{verbatim}
-\normalsize
+;\end{code}
+
 
 In addition to the search scope, users can provide code that should be executed
 if a new reference target is set, additional validation, as well as customized

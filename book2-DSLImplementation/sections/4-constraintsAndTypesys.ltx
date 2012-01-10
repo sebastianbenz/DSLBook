@@ -43,8 +43,8 @@ type for which the check should apply, and it has the @Check annotation.
 For example, the following method is a check that is invoked for all instances
 of CustomState (i.e. not for start states and background states):
 	
-\footnotesize
-\begin{verbatim}
+
+\begin{code}
 @Check(CheckType.NORMAL)
 public void checkOrphanEndState( CustomState ctx ) {
     CoolingProgram coopro = Utils.ancestor(ctx, CoolingProgram.class);
@@ -59,8 +59,8 @@ public void checkOrphanEndState( CustomState ctx ) {
     error("no transition ever leads into this state", 
     	CoolingLanguagePackage.eINSTANCE.getState_Name());
 }
-\end{verbatim}
-\normalsize
+\end{code}
+
 
 The method retrieves the owning cooling program, then retrieves all of its
 descendants and iterates over them. If the descendant is a ChangeStateStatement,
@@ -91,8 +91,8 @@ that the constraint is written in BaseLanguage, which is an extended version of
 Java that has some of the features that makes constraints more concise. Here is
 the code for the same "state unreachable" constraint:
 
-\footnotesize
-\begin{verbatim}
+
+\begin{code}
 non type system rule stateUnreachable {                                                                                                                                                                         
   applicable for concept = State as state                                                                                                                                                                       
   do {                                                                                                                                                                                                          
@@ -104,8 +104,8 @@ non type system rule stateUnreachable {
     }
   }                                                                                                                                                                                                             
 }                                                                                                                                                                                                               
-\end{verbatim}
-\normalsize
+\end{code}
+
 
 Notice how the constraint is called a "non type system rule". This illustrates
 how in MPS type system rules are the default, and this "simple" constraint is an
@@ -146,12 +146,12 @@ To introduce the basic concepts of type systems, let us go back to the example
 used at the beginning of the section on syntax. As a reminder here is the
 example code, and \fig{astexample-again} shows the abstract syntax tree. 
 
-\footnotesize
-\begin{verbatim}
+
+\begin{code}
 var x: int;
 calc y: int = 1 + 2 * sqrt(x)
-\end{verbatim}
-\normalsize 
+\end{code}
+ 
 
 \begin{figure}[ht]
 \begin{center}
@@ -236,14 +236,14 @@ applied within its own definition.
 
 The standard example is the calculation of factorial:
 
-\footnotesize
-\begin{verbatim}
+
+\begin{code}
 int factorial( int n ) {
     if ( n <= 1 ) return 1;
     else return n * factorial( n-1 );
 }
-\end{verbatim}
-\normalsize 
+\end{code}
+ 
 
 In the context of type systems, the recursive approach for calculating a type
 defines a polymorhphic method typeof, which takes a program element and returns
@@ -252,37 +252,37 @@ its own type depends.
 
 Let us consider the following example grammar (we use Xtext notation here):
 
-\footnotesize
-\begin{verbatim}
+
+\begin{code}
 LocalVarDecl:
     "var" name=ID ":" type=Type ("=" init=Expr)?;
-\end{verbatim}
-\normalsize 
+\end{code}
+ 
 
 The following examples are structurally valid example instances:
 
-\footnotesize 
-\begin{verbatim}
+ 
+\begin{code}
 var i: int          // 1
 var i: int = 42     // 2
 var i: int = 33.33  // 3
 var i = 42          // 4
-\end{verbatim}
-\normalsize 
+\end{code}
+ 
 
 Let's develop the pseudo-code for typeof function the LocalVarDecl. A first cut
 could look as follows:
 
-\footnotesize 
-\begin{verbatim}
+ 
+\begin{code}
 typeof( LocalVarDecl lvd ) {
 	return typeof( lvd.type )
 }
 
 typeof( IntType it ) { return it }
 typeof( DoubleType dt ) { return dt }
-\end{verbatim}
-\normalsize 
+\end{code}
+ 
 
 Notice how the typeof for LocalVarDecl recusively calls typeof for its type
 property. Recursion ends with the typeof functions for the types; they return
@@ -293,22 +293,22 @@ LocalVarDecl, it does not address the type check that makes sure that, if an
 init expression is specified, it has the same type (or a subtype). This could be
 achieved as follows:
 
-\footnotesize 
-\begin{verbatim} 
+ 
+\begin{code} 
 typeof( LocalVarDecl lvd ) {
     if isSpecified lvd.init { 
         assert typeof( lvd.init ) isSameOrSubtypeOf typeof( lvd.type )
     } 
     return typeof( lvd.type )
 }
-\end{verbatim}
-\normalsize
+\end{code}
+
 
 Notice that the type specification itself is also optional. So we have create a
 somewhat more elaborate version of the function:
 
-\footnotesize 
-\begin{verbatim} 
+ 
+\begin{code} 
 typeof( LocalVarDecl lvd ) {
     if !isSpecified lvd.type && !isSpecified lvd.init 
         raise error
@@ -324,22 +324,22 @@ typeof( LocalVarDecl lvd ) {
         return typeof( lvd.type )
     } 
 }
-\end{verbatim}
-\normalsize
+\end{code}
+
 
 This is relatively verbose. Assuming that assertions are ignored if one of the
 called typeof functions returns null because the argument is not specified, we
 can simplify this to the following code:
 
-\footnotesize 
-\begin{verbatim} 
+ 
+\begin{code} 
 typeof( LocalVarDecl lvd ) {
     assert isSpecified lvd.type || isSpecified lvd.init
     assert typeof( lvd.init ) isSameOrSubtypeOf typeof( lvd.type )
     return typeof( lvd.type )
 }
-\end{verbatim}
-\normalsize
+\end{code}
+
 
 
 
@@ -358,13 +358,13 @@ solving sets of linear equations. The "equational theory" is algebra, and
 substitution refers to assignment of values to x and y. A solution is 
 \verb#x := 5, y := 10#. 
 
-\footnotesize 
-\begin{verbatim} 
+ 
+\begin{code} 
 (1) 2 * x == 10
 (2) x + x == 10 
 (3) x + y == 2 * x + 5
-\end{verbatim}
-\normalsize
+\end{code}
+
 
 Using unification for type systems means that language developers specify a
 number of type equations which contain type variables (cf the x and y) as well
@@ -378,14 +378,14 @@ equation cannot be satisfied for any assigment of type values to type variables,
 a type error is detected. To illustrate this, we return to the LocalVarDecl
 example introduced above.
 
-\footnotesize 
-\begin{verbatim}
+ 
+\begin{code}
 var i: int          // 1
 var i: int = 42     // 2
 var i: int = 33.33  // 3
 var i = 42          // 4
-\end{verbatim}
-\normalsize 
+\end{code}
+ 
 
 The following two type equations constitute the complete type system
 specification. The $:==:$ operator means type equation (left side must be the
@@ -393,12 +393,12 @@ same type as right side), $:<=:$ refers to subtype-equation (left side must be
 same type or supertype of right side). The operators are taken from MPS, which
 uses this technique.
 
-\footnotesize 
-\begin{verbatim}
+ 
+\begin{code}
 typeof( LocalVarDecl.type ) :<=: typeof( LocalVarDecl.init) 
 typeof( LocalVarDecl ) :==: typeof( LocalVarDecl.type ) 
-\end{verbatim}
-\normalsize 
+\end{code}
+ 
 
 Let us look at the four examples. We use capital letters for free type
 variables. In the first case, the init expression is not given, so the first
@@ -406,14 +406,14 @@ equation is ignored. The second equation can be satisfied by assigning T, the
 type of the variable declaration, to be int. The second equations acts as a type
 derivation rule.
 
-\footnotesize 
-\begin{verbatim}
+ 
+\begin{code}
 var i: int          // 1
 
 typeof( int ) :<=: typeof( -null- ) // ignore
 typeof( T ) :==: typeof( int )      // T := int
-\end{verbatim}
-\normalsize 
+\end{code}
+ 
 
 In the second case the type and the init expression are given, and both have
 types that can be calculated independent from the equations specified for the
@@ -421,26 +421,26 @@ LocalVarDecl. So the first equation has no free type variables, but it is true
 with the type values specified. The second equation works the same as above,
 deriving T to be int.
 
-\footnotesize 
-\begin{verbatim}
+ 
+\begin{code}
 var i: int = 42     // 2
 
 typeof( int ) :<=: typeof( int )    // true
 typeof( T ) :==: typeof( int )      // T := int
-\end{verbatim}
-\normalsize 
+\end{code}
+ 
 
 The third case is similar to the second case; but the first equation, in which
 all types are specified, is not true, so a type error is raised.
 
-\footnotesize 
-\begin{verbatim}
+ 
+\begin{code}
 var i: int = 33.33    // 3
 
 typeof( int ) :<=: typeof( double ) // error!
 typeof( T ) :==: typeof( int )      // T := int
-\end{verbatim}
-\normalsize 
+\end{code}
+ 
 
 Case four is interesting because no variable type is explicitly specified; the
 idea is to use what's known as type inference to derive the type from the init
@@ -448,41 +448,41 @@ expression. In this case there are two free variables in the equations,
 substituting both with int solves both equations. Notice how the unification
 approach automatically leads to support for type inference!
 
-\footnotesize 
-\begin{verbatim}
+ 
+\begin{code}
 var i = 42     // 4
 
 typeof( U ) :<=: typeof( int )  // U := int
 typeof( T ) :==: typeof( U )    // T := int
-\end{verbatim}
-\normalsize 
+\end{code}
+ 
 
 
 To further illustrate how unification works, consider the following example
 where we try to provide typing rules for array types, incl. array initializers.
 
 
-\footnotesize 
-\begin{verbatim}
+ 
+\begin{code}
 var i: int[]
 var i: int[] = {1, 2, 3}
 var i = {1, 2, 3}
-\end{verbatim}
-\normalsize 
+\end{code}
+ 
 
 The additional complication in this case is that we need to make sure that all
 the initialiation expressions (inside the curlies) have the same or compatible
 types. Here are the typing equations:
 
-\footnotesize 
-\begin{verbatim}
+ 
+\begin{code}
 type var T
 foreach ( init.elements as e ) 
     T :<=: typeof(e)
 typeof( LocalVarDecl.type ) :<=: t
 typeof( LocalVarDecl ) :==: typeof( LocalVarDecl.type ) 
-\end{verbatim}
-\normalsize 
+\end{code}
+ 
 
 We introduce an additional type variable T and iterate over all the expression
 in the array initializer, establishing an equation between all of these elements
@@ -548,8 +548,8 @@ can be implemented manually with arbitrary Java code. To make sure type errors
 are reported as part of the Xtext validation, the framework has to be integrated
 manually:
 
-\footnotesize 
-\begin{verbatim}
+ 
+\begin{code}
 @Inject 
 private ITypesystem ts;
 
@@ -557,8 +557,8 @@ private ITypesystem ts;
 public void validateTypes( EObject m ) {
     ts.checkTypesystemConstraints( m, this );
 }    
-\end{verbatim}
-\normalsize 
+\end{code}
+ 
 
 Most type systems are built from a limited set of typing rules (assigning fixed
 types, deriving the type of an element from one of its properties, calculating
@@ -569,8 +569,8 @@ typing constraint (the expr property of the IfStatement must be a boolean).
 Also, for types which cannot be specified declaratively, an operation type can
 be implemented to programmatically define types. 
 
-\footnotesize 
-\begin{verbatim}
+ 
+\begin{code}
 public class CLTypesystem extends CLTypesytemGenerated {
 
     private CoolingLanguagePackage cl = CoolingLanguagePackage.eINSTANCE;
@@ -593,8 +593,8 @@ public class CLTypesystem extends CLTypesytemGenerated {
         return create(cl.getIntType());
     }
 }
-\end{verbatim}
-\normalsize 
+\end{code}
+ 
 
 In addition to the API used in the code above, the Typesystem Framework also
 comes with a textual DSL to express typing rules. From the textual type system
@@ -633,23 +633,23 @@ Primitive types usually use a copy of themselves as their type. It has to be a
 copy as opposed to the object itself, because the actual program element must
 not be pulled out of the EMF containment tree. This is specified as follows:
 
-\footnotesize 
-\begin{verbatim}
+ 
+\begin{code}
 typeof BoolType -> clone
 typeof IntType -> clone
 typeof DoubleType -> clone
 typeof StringType -> clone
-\end{verbatim}
-\normalsize 
+\end{code}
+ 
 
 For concepts that have a fixed type, but not a clone, the type can simply be
 specified:
 
-\footnotesize 
-\begin{verbatim}
+ 
+\begin{code}
 typeof StringLiteral -> StringType
-\end{verbatim}
-\normalsize 
+\end{code}
+ 
 
 Type systems are most important, and most interesting, in the context of
 expressions. Since all expressions derive from the abstract Expr concept, we can
@@ -657,11 +657,11 @@ declare that this class is abstract, and hence no typing rule is given. However,
 the editor reports a warning there are concrete subclasses of an abstract class
 for which no type is specified either.
 
-\footnotesize 
-\begin{verbatim}
+ 
+\begin{code}
 typeof Expr -> abstract
-\end{verbatim}
-\normalsize 
+\end{code}
+ 
 
 The notation provided by the DSL groups typing rules and type checks for a
 single concept together. The following is the typing information for the Plus
@@ -669,14 +669,14 @@ concept. It declares the type of Plus to be the common type of the left and
 right arguments ("the more general one") and then adds two constraints that
 check that the left and right argument are either strings, ints or doubles.
 
-\footnotesize 
-\begin{verbatim}
+ 
+\begin{code}
 typeof Plus -> common left right {
     ensureType left :<=: StringType, IntType, DoubleType
     ensureType right :<=: StringType, IntType, DoubleType
 } 
-\end{verbatim}
-\normalsize 
+\end{code}
+ 
 
 The typing rules for Equals are also interesting. It specifies that the
 resulting type is booleanm that the left and right arguments must be COMPARABLE,
@@ -686,8 +686,8 @@ it is  IntType, DoubleType, and BoolType. The $:<=>:$ operator describes
 unordered compatibility: the types of the two properties left and right must
 either be the same, or left must be a subtype or right, or vice versa. 
 
-\footnotesize 
-\begin{verbatim}
+ 
+\begin{code}
 typeof Equals -> BoolType {
     ensureType left :<=: char(COMPARABLE)
     ensureType right :<=: char(COMPARABLE)
@@ -696,21 +696,21 @@ typeof Equals -> BoolType {
 characteristic COMPARABLE {
     IntType, DoubleType, BoolType
 }
-\end{verbatim}
-\normalsize 
+\end{code}
+ 
 
 There is also support for ordered compatibility, as can be seen from the typing
 rule for AssignmentStatement. It has no type (it is a statement!), but the left
 and right argument must exhibit ordered compatibility: they either have to be
 the same types, or right must be a subtype of left, and \emph{not} vice versa.
 
-\footnotesize 
-\begin{verbatim}
+ 
+\begin{code}
 typeof AssignmentStatement -> none {
     ensureCompatibility left :<=: right
 }
-\end{verbatim}
-\normalsize 
+\end{code}
+ 
 
 
 
@@ -720,15 +720,15 @@ MPS includes a DSL for type system rule definition. The semantics are based on
 unification, and to some extent, pattern matching. 
 
 The type of a LocalVariableReference is calculated with the following typing
-rule\footnote{Since only the expression within the \texttt{do \curlies{ ... }} block has
+rule\footnote{Since only the expression within the \ic{do \curlies{ ... }} block has
 to be typed by the developer, we'll only show that expression in future
 examples.}. It establishes an equation between the type of the
 LocalVariableReference itself and the variable it references. \verb#typeof# is a
 built-in operator returns the type for its argument.
 
  
-\footnotesize 
-\begin{verbatim}
+ 
+\begin{code}
 rule typeof_LocalVariableReference {                    
   applicable for concept = LocalVariableReference as lvr
   overrides false                                       
@@ -737,8 +737,8 @@ rule typeof_LocalVariableReference {
     typeof(lvr) :==: typeof(lvr.variable);              
   }                                                     
 }                                                       
-\end{verbatim}
-\normalsize 
+\end{code}
+ 
 
 The rules for the boolean NotExpression contains two rules. The first one makes
 sure that the notted expression is boolean. The second one types the
@@ -749,18 +749,18 @@ BaseLanguage new Expression. The second one uses a quotation, where "a piece of
 tree" can be inlined into program code. It uses the concrete syntax of the
 quoted construct --- here: a BooleanType --- in the quotation.
 
-\footnotesize 
-\begin{verbatim}
+ 
+\begin{code}
 typeof(notExpr.expression) :==: new node<BooleanType>(); 
 typeof(notExpr) :==: <boolean>; 
-\end{verbatim}
-\normalsize 
+\end{code}
+ 
 
 A more interesting example is the typing of structs. Let us consider the
 following piece of C code:
 
-\footnotesize 
-\begin{verbatim}
+ 
+\begin{code}
 struct Person {
     char* name;
     int	age;
@@ -769,8 +769,8 @@ struct Person {
 int addToAge( Person p, int delta ) {
     return p.age + delta;
 }
-\end{verbatim}
-\normalsize 
+\end{code}
+ 
 
 At least two program elements have to be typed: the parameter p as well as the
 p.age expression. The type of the FunctionParameter concept is the type of its
@@ -787,8 +787,8 @@ follows. It is an expression, owns another expression variable (on the left of
 the dot) as well as a reference to a StructAttribute (name or age in the
 example) .
 
-\footnotesize 
-\begin{verbatim}
+ 
+\begin{code}
 concept StructAttributeReference extends Expression
                                  implements ILValue
   instance can be root: false                      
@@ -798,8 +798,8 @@ concept StructAttributeReference extends Expression
                                                    
   references:                                      
   StructAttribute attribute 1 specializes: <none>  
-\end{verbatim}
-\normalsize 
+\end{code}
+ 
                                                    
 The typing rule for the StructAttributeReference looks as follows. The variable,
 the expression on which we use the dot operator, has to be a GenericStructType,
@@ -807,12 +807,12 @@ or a subtype thereof (i.e. a StructType which points to an actual
 StructDeclaration). Second, the type of the whole expression is the type of the
 reference attribute (e.g. int in case of p.age).
 
-\footnotesize 
-\begin{verbatim}
+ 
+\begin{code}
 typeof(structAttrRef.variable) :<=: new node<StructType>(); 
 typeof(structAttrRef) :==: typeof(structAttrRef.attribute);
-\end{verbatim}
-\normalsize 
+\end{code}
+ 
 
 This example also illustrates the interplay between the type system and other
 aspects of language definition, specifically scopes. The referenced
@@ -820,8 +820,8 @@ StructAttribute (on the right side of the dot) may only reference a
 StructAttribute that is part of the the StructDeclaration that is referenced
 from the StructType. The following scope definition illustrates this:
 
-\footnotesize 
-\begin{verbatim}
+ 
+\begin{code}
 link {attribute} 
   search scope: 
     (model, scope, referenceNode, linkTarget, enclosingNode)->join(ISearchScope | sequence<node< >>) { 
@@ -832,8 +832,8 @@ link {attribute}
         return null; 
       } 
     } 
-\end{verbatim}
-\normalsize 
+\end{code}
+ 
 
 MPS also uses pattern matching. As we will discuss in the chapter on language
 extension and composition, MPS supports incremental extension of existing
@@ -843,13 +843,13 @@ existing operators to be used with these new types.
 As an example consider the introduction of complex numbers into C. It should be
 possible to write code like this:
 
-\footnotesize 
-\begin{verbatim}
+ 
+\begin{code}
 complex c1 = (1, 2i);
 complex c2 = (3, 5i);
 complex c3 = c1 + c2; // (4+7i)
-\end{verbatim}
-\normalsize 
+\end{code}
+ 
 
 The plus in \verb#c1 + c2# should be the Plus defined by the original language.
 Alternatively, we could define a new plus for complex numbers. While this would
@@ -864,8 +864,8 @@ extended. To enable this, MPS supports so-called overloaded operations
 containers. The following container defines the type of plus and minus if both
 arguments are int or double.
 
-\footnotesize 
-\begin{verbatim}
+ 
+\begin{code}
 overloaded operations rules binaryOperation                                                                          
                                                                                                                      
 operation concepts: PlusExpression | MinusExpression
@@ -881,8 +881,8 @@ right operand type: <double> is exact: false use strong subtyping false
 operation type: (operation, leftOperandType, rightOperandType)->node<> { 
   <double>; 
 }                                            
-\end{verbatim}
-\normalsize 
+\end{code}
+ 
 
 To tie these definitions into the regular typing rules, the following typing
 rule must be written\footnote{Note that only one such rule must be written for
@@ -890,8 +890,8 @@ all binary operations. Everything else will be handled with the overloaded
 operations containers}. Using the operation type construct, the typing rules
 ties in with overloaded operation containers.
 
-\footnotesize 
-\begin{verbatim}
+ 
+\begin{code}
 rule typeof_BinaryExpression {                                                                                                                                                                                                                                                                                                                                           
   applicable for concept = BinaryExpression as be                                                                                                                                                                                                                                                                                                                        
   overrides false                                                                                                                                                                                                                                                                                                                                                        
@@ -911,8 +911,8 @@ rule typeof_BinaryExpression {
         } 
     }
   }                                                                                                                                                                                                                                                                                                                                                                        
-\end{verbatim}
-\normalsize 
+\end{code}
+ 
 
 The important aspect of this approach is that overloaded operation containers
 are additive. Language extensions can simply contribute additional containers.
@@ -920,8 +920,8 @@ For the complex number example, this could look like the following. We declare
 that as soon as one of the arguments is of type complex, the resulting type will
 be complex as well.
 
-\footnotesize 
-\begin{verbatim}
+ 
+\begin{code}
 operation concepts: PlusExpression | MinusExpression                                     
 one operand type: <complex> is exact: false use strong subtyping false     
 is applicable:                                                         
@@ -931,8 +931,8 @@ operation type:
   <complex>; 
 }  
 -----------------------------------------------                        
-\end{verbatim}
-\normalsize 
+\end{code}
+ 
 
 
 The Typesystem DSL in MPS covers a large fraction of the type system rules

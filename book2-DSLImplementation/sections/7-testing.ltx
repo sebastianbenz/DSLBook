@@ -37,8 +37,8 @@ Xtext to test a DSL program using the Xtext testing utilities at
 \verb#http://code.google.com/a/eclipselabs.org/p/xtext-utils/wiki/Unit_Testing#.
 It is a JUnit4 test case with special support for the Xtext infrastructure.
 
-\footnotesize
-\begin{verbatim}
+
+\begin{code}
 @RunWith(XtextRunner.class)
 @InjectWith(CoolingLanguageInjectorProvider.class)
 public class InterpreterTests extends XtextTest {
@@ -49,8 +49,8 @@ public class InterpreterTests extends XtextTest {
     }
     
 }                                                                                                                                                                                                               
-\end{verbatim}
-\normalsize
+\end{code}
+
 
 The single test method loads the \verb#interpreter/engine0.cool# program, as
 well as two more files which contain elements referenced from
@@ -65,16 +65,16 @@ On a more fine grained level it is often useful to test partial sentences
 instead of complete sentences or programs. The following piece of Xtext example
 code tests the CustomState parser rule:
 
-\footnotesize
-\begin{verbatim}
+
+\begin{code}
     @Test 
     public void testStateParserRule() throws Exception {
         testParserRule("state s:", "CustomState" );
         testParserRule("state s: entry { do fach1->anOperation }", "CustomState" );
         testParserRule("state s: entry { do fach1->anOperation }", "State" );
     }
-\end{verbatim}
-\normalsize
+\end{code}
+
 
 The first line asserts that the string \verb#state s:# is parsed with the
 CustomState parser rule. The second line passes in a more complex state, one
@@ -103,8 +103,8 @@ The unit testing utilities mentioned above also support testing constraints. The
 utilities come with an internal Java DSL that support checking for the presence
 of error annotations after parsing and constraint-checking a model file.
 
-\footnotesize
-\begin{verbatim}
+
+\begin{code}
     @Test 
     public void testTypesOfParams() throws Exception {
         testFileNoSerializer("typesystem/tst1.cool", "tests.appl", "stdparams.cool");
@@ -114,8 +114,8 @@ of error annotations after parsing and constraint-checking a model file.
         assertConstraints( issues.under(Variable.class, "w1").             // 3
           errorsOnly().sizeIs(2).oneOfThemContains("incompatible type") ); // 3
     }
-\end{verbatim}
-\normalsize
+\end{code}
+
 
 We first load the model file that constains constraint errors (in this case,
 type system errors). Then we assert the total number of errors in the file to be
@@ -129,22 +129,22 @@ program. If a test fails, a meaningful error message is output that supports
 localizing (potential) problems in the test. The following is the error message
 if no error message is found that contains the substring "incompatible type":
 
-\footnotesize
-\begin{verbatim}
+
+\begin{code}
 junit.framework.AssertionFailedError: <no id> failed
   - failed oneOfThemContains: none of the issues 
     contains substring 'incompatible type' 
   at junit.framework.Assert.fail(Assert.java:47)
   at junit.framework.Assert.assertTrue(Assert.java:20)
   ...
-\end{verbatim}
-\normalsize
+\end{code}
+
 
 If the test fails earlier in the filter expression, more than one output is
 provided:
 
-\footnotesize
-\begin{verbatim}
+
+\begin{code}
 junit.framework.AssertionFailedError: <no id> failed
   - no elements of type 
     com.bsh.pk.cooling.coolingLanguage.Variable named 'v1' found 
@@ -152,8 +152,8 @@ junit.framework.AssertionFailedError: <no id> failed
     contains substring 'incompatible type'
   at junit.framework.Assert.fail(Assert.java:47) 
   ...
-\end{verbatim}
-\normalsize
+\end{code}
+
 
 A similar facility is available for MPS, it is called a NodesTest
 (\fig{mps-testexample}). It supports special annotations to express assertions
@@ -231,8 +231,8 @@ assertions in the test case will fail.
 The following code shows one of the simplest possible cooling programs, as well
 as a test case for that program:
 
-\footnotesize
-\begin{verbatim}
+
+\begin{code}
 cooling program EngineProgram0 for Einzonengeraet  uses stdlib {
          
     var v: int
@@ -259,8 +259,8 @@ test EngineTest0 for EngineProgram0 {
     assert-currentstate-is s2      // 6
     assert-value v is 0            // 7
 }
-\end{verbatim}
-\normalsize
+\end{code}
+
 
 The test first asserts that, as soon as the program starts, it is in the start
 state (line 1). We then assert that v is 2. The only reasonable way how v can
@@ -278,8 +278,8 @@ These tests can be run interactively from the IDE, in which case assertion
 failures are annotated as error marks on the program, or from within JUnit. 
 The following piece of code shows how to run the tests from JUnit.
 
-\footnotesize
-\begin{verbatim}
+
+\begin{code}
 @RunWith(XtextRunner.class)
 @InjectWith(CoolingLanguageInjectorProvider.class)
 public class InterpreterTests extends PKInterpreterTestCase {
@@ -290,8 +290,8 @@ public class InterpreterTests extends PKInterpreterTestCase {
         runAllTestsInFile( (Model) getModelRoot());
     }
 }
-\end{verbatim}
-\normalsize
+\end{code}
+
 
 The runAllTestsInFile method is called, passing in the model's root element. The
 method runAllTestsInFile is defined by the PKInterpreterTestCase base class,
@@ -300,8 +300,8 @@ iterates over all tests in the model and executes them by creating and running a
 TestExecutionEngine. The TestExecutionEngine is a wrapper around the interpreter
 for cooling programs. 
 
-\footnotesize
-\begin{verbatim}
+
+\begin{code}
 protected void runAllTestsInFile(Model m) {
     CLTypesystem ts = new CLTypesystem();
     EList<CoolingTest> tests = m.getTests();
@@ -312,8 +312,8 @@ protected void runAllTestsInFile(Model m) {
         e.runTest(logger);    
     }
 }
-\end{verbatim}
-\normalsize
+\end{code}
+
 
 Testing generators in this way works similarly. The generator generates the DSL
 program to an executable representation, for example, Java or C code. The tests
@@ -334,8 +334,8 @@ is 10 times 2180, the resolution factor derived from mapping 300 km/h units to
 statement that executes the tests. This statement is specific to the Osek target
 platform. 
 
-\footnotesize
-\begin{verbatim}
+
+\begin{code}
 module tests imports <<imports>> { 
  
   test testSimpleAdding / tests adding two numbers { 
@@ -357,16 +357,16 @@ module tests imports <<imports>> {
   }
 
 }
-\end{verbatim}
-\normalsize
+\end{code}
+
                                                                                                                                                                                                                                                                            
 From this program the following low-level C is generated (plus a makefile and
 an Osek configuration file). Notice how the generator takes into account the
 Osek platform specifics: for example, it uses ecrobot\_stats\_monitor to output
 messages to the screen of the lego robot. 
 
-\footnotesize
-\begin{verbatim}
+
+\begin{code}
 #include "include/Tests.h"
 
 // used resources
@@ -399,8 +399,8 @@ void ecrobot_device_initialize(){
     Tests_tests_testproc_testSimpleAdding ( );
     Tests_tests_testproc_testPhysicalQuantities ( );
 }
-\end{verbatim}
-\normalsize
+\end{code}
+
 
 While the above examples are trivial test cases, they nontheless illustrate the
 benefit of testing semantics vs. testing syntax. Inspecting the generated C

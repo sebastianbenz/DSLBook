@@ -30,10 +30,11 @@ these cases.
 To illustrate the dichotomy between concrete and abstract syntax, consider the
 following example program:
 
-\begin{alltt}
+
+\begin{code}
 var x: int;
 calc y: int = 1 + 2 * sqrt(x)
-\end{alltt}
+\end{code}
  
 This program has a hierarchical structure: definitions of \ic{x} and
 \ic{y} at the top, inside \ic{y} there's a nested expression. This
@@ -231,12 +232,9 @@ beyond the pure grammatical structure of the language, such as the semantical
 relation between references and declarations. 
 
 Fundamentally, grammar production rules can be expressed in
-Backus-Naur Form (BNF)\footnote{}, written as
-
-  \(S\) \texttt{::=} \(P_1\) \texttt{...} \(P_n\)
-
+Backus-Naur Form (BNF)\footnote{}, written as \(S\) \ic{::=} \(P_1\) \ic{...} \(P_n\)
 This grammar defines a symbol $S$ by a series of pattern expressions $P_1$
-\texttt{...} $P_n$. Each pattern expression can refer to another symbol or can
+\ic{...} $P_n$. Each pattern expression can refer to another symbol or can
 be a literal such as a keyword or a punctuation symbol. If there are
 multiple possible patterns for a symbol, these can be written as
 separate productions, or the patterns can
@@ -260,15 +258,17 @@ recursion. We elaborate on these issues in the remainder of the section and in
 the Spoofax and Xtext examples.
 
 \begin{figure}[t]
-\begin{alltt}
+\begin{code}
 Exp ::= NUM
       | Exp "+" Exp
       | Exp "*" Exp
-\end{alltt}
-\caption{A grammar for a simple expression language. The \texttt{NUM} symbol
+\end{code}
+\caption{A grammar for a simple expression language. The \ic{NUM} symbol
 refers to number literals.}
 \label{Fig:exp-grammar-simple}
 \end{figure}
+
+
 
 \paragraph{Grammar classes}
 
@@ -280,7 +280,7 @@ context in which a partial sentence occurs, making them suitable for natural
 language processing but at the same time, making parsing itself a lot harder
 since the parser has to be aware of a lot more than just the syntax.
 
-Parser generation was first applied in command-line tools such as \texttt{yacc}
+Parser generation was first applied in command-line tools such as \ic{yacc}
 in the early seventies. As a consequence of relatively slow computers, much
 attention was paid to the efficiency of the generated parsers. Various
 algorithms were designed that could parse text in a bounded amount of time and
@@ -331,11 +331,11 @@ the form \verb$customer.name$ or \verb$"Tim".length$:%
   STRING to indicate string literal patterns in these examples.}
 
 \begin{figure}[t]
-\begin{alltt} 
+\begin{code} 
 Exp ::= ID 
       | Exp "." ID 
       | STRING
-\end{alltt}
+\end{code}
 \caption{A grammar for property access expressions of
 the form \ic{customer.name} or \ic{"Tim".length}.}
 \label{Fig:field-access-grammar}
@@ -350,32 +350,32 @@ recursion is eliminated. The essence of left-factoring is that the grammar is
 rewritten in such a way that all production rules which are recursive consume at
 least one token or character before going into the recursion. Left-factoring
 introduces additional rules that act as intermediaries and often makes
-repetition explicit using the \texttt{+} and \texttt{*} operators. The example
+repetition explicit using the \ic{+} and \ic{*} operators. The example
 grammar uses recursion for repetition, which can be made explicit as follows:
 
-\begin{alltt}
+\begin{code}
 Exp ::= ID
       | (Exp ".")+ ID
       | STRING
-\end{alltt}
+\end{code}
 
 \noindent
 The resulting grammar is still left-recursive, but we can introduce an
 intermediate rule to eliminate the recursive call to \verb$Exp$:
 
-\begin{alltt}
+\begin{code}
 Exp ::= ID
       | (FieldPart ".")+ ID
       | STRING
 
 FieldPart ::= ID
             | STRING
-\end{alltt}
+\end{code}
 
 \noindent Unfortunately, this resulting grammar still has overlapping rules (a
 first/first conflict) as the \verb$ID$ symbol matches more than one rule. This
-conflict can be eliminated by removing the \texttt{Exp ::= ID} rule and making
-the \texttt{+} "one or more" repetition into a \texttt{*} "zero or more"
+conflict can be eliminated by removing the \ic{Exp ::= ID} rule and making
+the \ic{+} "one or more" repetition into a \ic{*} "zero or more"
 repetition:
 
 %\begin{alltt}
@@ -387,13 +387,13 @@ repetition:
 %            | STRING
 %\end{alltt}
 
-\begin{alltt}
+\begin{code}
 Exp       ::= (FieldPart ".")* ID
             | STRING
             
 FieldPart ::= ID
             | STRING
-\end{alltt}
+\end{code}
 
 \noindent
 This last grammar now describes the same language as the one from
@@ -430,7 +430,7 @@ production rules, corresponding to multiple possible ASTs. This obviously is a p
 implementation as some decision has to be made on which AST is preferred.
 
 For example, the expression language grammar given in
-\fig{Fig:exp-grammar-simple} is ambiguous. For a string \texttt{1*2+3} there
+\fig{Fig:exp-grammar-simple} is ambiguous. For a string \ic{1*2+3} there
 are two possible trees (corresponding to different operator precedences). The
 grammar does not describe which interpretation should be preferred.
 
@@ -482,12 +482,12 @@ other risks of ambiguity requires carefully layering the grammar in such a way
 that it encodes the desired properties. To encode left-associativity and a lower
 priority for the addition operator we can rewrite the grammar as follows:
 
-\begin{alltt}
+\begin{code}
 Expr ::= Expr "+" Mult
        | Mult
 Mult ::= Mult "*" NUM
        | NUM
-\end{alltt}
+\end{code}
 
 \noindent The resulting grammar is a valid LR grammar. Note how it puts the
 addition operator in the highest layer to give it the lowest priority, and how
@@ -495,10 +495,10 @@ it uses left-recursion to encode left-associativity of the operators. The
 grammar can be left-factored to a corresponding LL grammar as follows. We will
 see more extensive examples of this approach in the section on Xtext (\todo{}).
 
-\begin{alltt}
+\begin{code}
 Expr ::= Mult ("+" Mult)*
 Mult ::= NUM ("*" NUM)*
-\end{alltt}
+\end{code}
 
 
 \paragraph{Ambiguity with generalized parsers}
@@ -507,7 +507,7 @@ General parsers accept grammars regardless of recursion or ambiguity. That is,
 the grammar of \Figure{Fig:exp-grammar-simple} is readily accepted as a valid
 grammar. In case of an ambiguity, the generated parser simply returns all
 possible abstract syntax trees, e.g.\ a left-associative tree and a
-right-associative tree for the expression \texttt{1*2+3}. The different trees
+right-associative tree for the expression \ic{1*2+3}. The different trees
 can be manually inspected to determine what ambiguities exist in the grammar, or
 the desired tree can be programmatically selected.
 
@@ -515,21 +515,21 @@ Language developers can use \emph{disambiguation filters} to indicate which
 interpretation should be preferred. For example, left-associativity can be
 indicated on a per-production basis:
 
-\begin{alltt}
+\begin{code}
 Exp ::= NUM
-      | Exp "+" Exp \curlies{left}
-      | Exp "*" Exp \curlies{left}
-\end{alltt}
+      | Exp "+" Exp {left}
+      | Exp "*" Exp {left}
+\end{code}
 
 \noindent indicating that both operators are left-associative (using the
 \verb${left}$ annotation as seen in Spoofax). Operator precedence can be
 indicated with relative priorities or with precedence annotations:
 
-\begin{alltt}
-Exp ::= Exp "*" Exp \curlies{left}
+\begin{code}
+Exp ::= Exp "*" Exp {left}
 >
-Exp ::= Exp "+" Exp \curlies{left}
-\end{alltt}
+Exp ::= Exp "+" Exp {left}
+\end{code}
 
 \noindent indicating that the multiplication operator binds stronger than the
 addition operator. This kind of declarative disambiguation is commonly found in
@@ -550,13 +550,11 @@ grammar \Figure{Fig:field-access-grammar}?
 
 and what about
 
-\footnotesize
-\begin{verbatim}
+\begin{code}
 for (Customer c : SELECT customer FROM accounts WHERE balance < 0) {
   ...
 }
-\end{verbatim}
-\normalsize
+\end{code}
 
 reserved keywords: for, SELECT, FROM
 
@@ -587,7 +585,7 @@ creates some representation of the AST with which the user interacts, and which
 reflects the changes. This approach is well-known from graphical editors in
 general, and the MVC pattern specifically. In editing a UML diagram, users don't
 draw pixels onto a canvas, and a "pixel parser" then creates the AST. Rather,
-the editor creates and instance of \texttt{uml.Class} as you drag a class from
+the editor creates and instance of \ic{uml.Class} as you drag a class from
 the palette to the canvas. A projection engine renders the diagram, in this case
 drawing a rectangle for the class. This approach can be generalized to work
 with any notation, including textual.
@@ -896,8 +894,7 @@ Nodes are instances of Concepts, which corresponds to EMF's EClass. Like
 EClasses, concepts are meta circular, i.e. there is a concept that defines the
 properties of concepts:
 
-\footnotesize
-\begin{verbatim} 
+\begin{code} 
 concept ConceptDeclaration extends AbstractConceptDeclaration                          
                            implements INamedConcept                     
                                       IStructureDeprecatable            
@@ -922,8 +919,8 @@ concept ConceptDeclaration extends AbstractConceptDeclaration
                                                                                 
   concept properties:                                                           
     alias = concept                       
-\end{verbatim}
-\normalsize
+\end{code}
+
  
 A concept may extend a single other concept and implement any number of
 interfaces. It can declare references and child collections. It may also have a
@@ -940,8 +937,7 @@ Cooling programs represent the behavioral aspect of the refrigerator language.
 Here is a trivial program that can be used to illustrate some of the features of
 the language.
 
-\footnotesize
-\begin{verbatim} 
+\begin{code} 
 cooling program EngineProgram0 {
      
     var v: int
@@ -956,20 +952,18 @@ cooling program EngineProgram0 {
         entry { set v = 0 }
           
 } 
-\end{verbatim}
-\normalsize
+\end{code}
 
-The program declares a variable \texttt{v} and an event \texttt{e}. When the
-program starts up, the init section is executed, setting \texttt{v} to 1. The
+The program declares a variable \ic{v} and an event \ic{e}. When the
+program starts up, the init section is executed, setting \ic{v} to 1. The
 system then (automatically) transitions into the start state. There it waits
-until it receives the \texttt{e} event. It then transition to the \texttt{s2}
-state, where it uses an entry action to set \texttt{v} back to 0. More complex
+until it receives the \ic{e} event. It then transition to the \ic{s2}
+state, where it uses an entry action to set \ic{v} back to 0. More complex
 programs include checks of changes of measurements
 (\verb#compartment1->currentTemp#) and commands to the hardware %%%
 (\verb#do compartment1->coolOn#), as shown in the next snippet:
 
-\footnotesize
-\begin{verbatim} 
+\begin{code} 
 start:
     check ( compartment1->currentTemp > maxTemp ) {
         do compartment1->coolOn
@@ -983,8 +977,7 @@ state initialCooling:
     check ( compartment1->currentTemp < maxTemp ) {
         state normalCooling
     }
-\end{verbatim}
-\normalsize
+\end{code}
 
 
 \paragraph{Grammar basics} In Xtext, the language is specified using a grammar
@@ -993,8 +986,8 @@ the concrete syntax of a program element, as well as its mapping to the AS.
 Xtext generates an Ecore meta model to describe the AS. Here is the definition
 of the CoolingProgram rule:
 
-\footnotesize
-\begin{verbatim} 
+
+\begin{code} 
 CoolingProgram:
     "cooling" "program" name=ID "{"
       (events+=CustomEvent |
@@ -1002,8 +995,7 @@ CoolingProgram:
       (initBlock=InitBlock)?
       (states+=State)*
     "}";
-\end{verbatim} 
-\normalsize
+\end{code} 
 
 Rules begin with the name (CoolingProgram), a colon, and then the rule body. The
 body defines the syntactic structure of the language concept defined by the
@@ -1014,11 +1006,9 @@ unbounded sequence of lowercase and uppercase characters, digits, and the
 underscore, although it may not start with a digit. This terminal rule is
 defined as follows, again using a BNF-like syntax:
 
-\footnotesize
-\begin{verbatim} 
+\begin{code} 
 terminal ID: ('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'_'|'0'..'9')*;
-\end{verbatim} 
-\normalsize
+\end{code} 
 
 In pure grammar languages, one would write \verb#"cooling" "program" ID"{"#,
 specifying that after the two keywords we expect an ID as defined above.
@@ -1057,30 +1047,25 @@ The following alternative notation would first expect all events, and
 then all variables. Im the end, it depends on your end users which notation is
 more suitable.
 
-\footnotesize
-\begin{verbatim} 
+\begin{code} 
       (events+=CustomEvent)*
       (variables+=Variable)*
-\end{verbatim} 
-\normalsize
+\end{code} 
 
 The definition of State is different, since State is intended to be an abstract
 meta class with several subtypes.
 
-\footnotesize
-\begin{verbatim} 
+\begin{code} 
 State:
     BackgroundState | StartState | CustomState;
-\end{verbatim} 
-\normalsize
+\end{code} 
 
 The vertical bar operator is used here to express alternatives regarding the
 syntax. This is translated to inheritance in the meta model. The definition of
 custom state is shown in the following code snippet. It uses the same grammar
 language features as explained above.
 
-\footnotesize
-\begin{verbatim} 
+\begin{code} 
 CustomState:
     "state" name=ID ":"
         (invariants+=Invariant)*
@@ -1091,8 +1076,7 @@ CustomState:
             (eachTimeStatements+=Statement)*
         "}")?
         (events+=EventHandler | signals+=SignalHandler)*;
-\end{verbatim}  
-\normalsize 
+\end{code}  
 
 StartState and BackgroundState, the other two subtypes of State, share some
 properties. Consequently, Xtexts AS derivation algorithm pulls them up into the
@@ -1114,9 +1098,9 @@ abstract State meta class so they can be accessed polymorphically.
   cross-reference, and then explain that's not how you normally do it
   in Xtext, but that you should make it a cross-reference instead. I
   suppose you could then even show it with
-  \texttt{targetState=[State|QID]} and say that
-  \texttt{targetState=[State]} is a short-hand in case it's an
-  \texttt{ID}. that way maybe we can maintain a grammar perspective in
+  \ic{targetState=[State|QID]} and say that
+  \ic{targetState=[State]} is a short-hand in case it's an
+  \ic{ID}. that way maybe we can maintain a grammar perspective in
   this section}
 
 Let us now look at statements and expressions. States
@@ -1125,8 +1109,7 @@ entered and left respectively. The \verb#set v = 1# is an example. Statement
 itself is of course abstract and has all the various kinds of statements as
 subtypes/alternatives (in the actual language there are many more):
 
-\footnotesize
-\begin{verbatim} 
+\begin{code} 
 Statement:
     IfStatement | AssignmentStatement | PerformAsyncStatement | 
     ChangeStateStatement | AssertStatement; 
@@ -1136,8 +1119,7 @@ ChangeStateStatement:
 
 AssignmentStatement:
     "set" left=Expr "=" right=Expr;
-\end{verbatim}  
-\normalsize 
+\end{code}  
 
 The ChangeStateStatement is used to transition into another state of the overall
 state-based program. It uses the keyword \keyword{state} and then a reference to
@@ -1163,14 +1145,12 @@ Notice how in this case the vertical bar does not represent an alternative, it
 is merely used as a separator between the target type and the terminal used to
 represent the reference.
 
-\footnotesize
-\begin{verbatim} 
+\begin{code} 
 ChangeStateStatement:
     "state" targetState=[State|QID];
 
 QID: ID ("." ID)*;
-\end{verbatim}  
-\normalsize 
+\end{code}  
 
 The other remaining detail is scoping. During the linking phase, where the text
 of ID (or QID) is used to find the target object, several objects with the same
@@ -1188,8 +1168,7 @@ in Xtext. Let us look at the definition of expressions as a whole. The following
 snippet is a subset of the actual definition of expressions (we have omitted
 some additional expressions that don't add anything to the description here).
 
-\footnotesize
-\begin{verbatim} 
+\begin{code} 
 Expr:
     ComparisonLevel;
 
@@ -1217,8 +1196,7 @@ AtomicLevel returns Expression:
     ({ParenExpr} "(" expr=Expr ")") |
     ({NumberLiteral} value=DECIMAL_NUMBER) |
     ({SymbolRef} symbol=[SymbolDeclaration|QID]);
-\end{verbatim}  
-\normalsize 
+\end{code}  
 
 We first have to explain in more detail how the AST construction works in Xtext.
 Obviously, as the text is parsed, meta classes are instantiated and the AST is
@@ -1284,7 +1262,7 @@ precedence levels. So higher precedence rules always end up further down in the
 tree. If we want to change this, we can use parentheses: inside those, we can
 again embed an Expr, i.e. we jump back to the lowest precedence level.
 
-\TODO{Explain why Xtext does it this way (left recursion, etc.) and refer back
+\todo{Explain why Xtext does it this way (left recursion, etc.) and refer back
 to general parsing discussion.}
 
 To use Xtext with expressions it is not necessary to completely understand the
@@ -1300,13 +1278,11 @@ SymbolDeclaration meta class. This means that all of them can be referenced by
 the single SymbolRef construct.
 
 
-\footnotesize
-\begin{verbatim} 
+\begin{code} 
 AtomicLevel returns Expression:
     ...
     ({SymbolRef} symbol=[SymbolDeclaration|QID]);
-\end{verbatim}  
-\normalsize 
+\end{code}  
 
 The problem with this situation is that the reference itself does not encode the
 kind of thing that is referenced. By looking at the reference alone we only know
@@ -1317,15 +1293,13 @@ more natural design of the language would use different reference constructs for
 the different referencable elements. In this case, the reference itself is
 specific to the referenced meta class, making processing much easier.
 
-\footnotesize
-\begin{verbatim} 
+\begin{code} 
 AtomicLevel returns Expression:
     ...
     ({VariableRef} var=[Variable]);
     ({ParameterRef} param=[Parameter]);
     ({HardwareBuildingBlockRef} hbb=[HardwareBuildingBlock]);
-\end{verbatim}  
-\normalsize 
+\end{code}  
 
 However, this is not possible with Xtext, since the parser cannot distinguish
 the three cases syntactically. In all three cases, the reference itself is just
@@ -1334,15 +1308,13 @@ element is actually referenced, but this is too late for the parser, which needs
 an unambiguous grammar. The grammar could be disambiguated by using a different
 syntax for each element:
 
-\footnotesize
-\begin{verbatim} 
+\begin{code} 
 AtomicLevel returns Expression:
     ...
     ({VariableRef} "v:" var=[Variable]);
     ({ParameterRef} "p:" param=[Parameter]);
     ({HardwareBuildingBlockRef} "bb:" hbb=[HardwareBuildingBlock]);
-\end{verbatim}  
-\normalsize 
+\end{code}  
 
 While this approach will technically work, it would lead to an awkward syntax
 and is hence typically not used. The only remaining alternative is to make all
@@ -1352,7 +1324,7 @@ referencable elements extend SymbolDeclaration and use a single reference.
 
 
 
-\TODO{Explain how to go from AS to CS}
+\todo{Explain how to go from AS to CS}
 
 
 
@@ -1368,7 +1340,7 @@ Mobl's data modeling language provides entities and entity
 functions. To illustrate the language, here is an example of two
 data type definitions related to a shopping list app:
 
-\begin{verbatim}
+\begin{code}
 module shopping
 
 entity Item {
@@ -1389,7 +1361,7 @@ entity Store {
     return open <= now.getTime() && close <= now().getTime();
   }
 }
-\end{verbatim}
+\end{code}
 
 In mobl, most files starts with a module header, which can be followed
 by a list of entity type definitions. Our example \emph{shopping}
@@ -1399,7 +1371,7 @@ in a database and can be retrieved using mobl's querying API.
 
 Syntax:
 
-\begin{verbatim}
+\begin{code}
 "entity" QId ":" Type "{" EntityBodyDecl* "}"  -> Definition {cons("Entity")}
 "entity" QId "{" EntityBodyDecl* "}"  -> Definition {cons("EntityNoSuper")}
 ID ":" Type "(" {Anno ","}* ")" -> EntityBodyDecl {cons("Property")}
@@ -1407,18 +1379,18 @@ ID ":" Type                     -> EntityBodyDecl {cons("PropertyNoAnnos")}
 FunctionDef                               -> EntityBodyDecl
 ID                              -> Anno {cons("SimpleAnno")}
 "inverse" ":" ID                -> Anno {cons("InverseAnno")}
-\end{verbatim}
+\end{code}
 
-\begin{verbatim}
+\begin{code}
 
 "function" QId "(" {FArg ","}* ")" ":" Type "{" Statement* "}" -> FunctionDef {cons("Function")}
 "return" Exp ";"                            -> Statement
 {cons("Return")}
 
-Exp "." ID "(" { Exp  ")" -> Exp {cons("MethodCall")}
+Exp "." ID "(" Exp  ")" -> Exp {cons("MethodCall")}
 Exp "." ID                -> Exp {cons("FieldAccess")}
 ID                        -> Exp {cons("Var")}
-\end{verbatim}
+\end{code}
 
 
 
@@ -1431,9 +1403,7 @@ StateMachine, State, Transition and Trigger. The state machine can be embedded
 in C code as we will see later. The language supports the definition of state
 machines as shown in the following piece of code:
 
-{
-\footnotesize
-\begin{verbatim}
+\begin{code}
 statemachine linefollower {                                                         
   event initialized;                                                                 
   event bumped;                                                                     
@@ -1454,11 +1424,10 @@ statemachine linefollower {
     <<transitions>>                                                                 
   }                                                                                 
 }                                                                                   
-\end{verbatim}
-}
+\end{code}
 
 
-\TODO{Add UML diagram of the language. Generate via MPS.}
+\todo{Add UML diagram of the language. Generate via MPS.}
 
 \paragraph{Concept Definition} MPS is projectional so we start with the
 definition of the AS. In MPS, AS elements are called concepts. The code below shows the definition of
@@ -1471,8 +1440,7 @@ module owns a collection of IModuleContents, just like the Statemachine
 contains States and Events.
 
 
-\footnotesize
-\begin{verbatim}
+\begin{code}
 concept Statemachine extends MedBase              
                      implements IHasIdentifierName
                                 IModuleContent    
@@ -1488,8 +1456,7 @@ concept Statemachine extends MedBase
                                                   
   concept properties:                             
     alias = statemachine                            
-\end{verbatim}
-\normalsize
+\end{code}
 
 
 
@@ -1500,8 +1467,7 @@ our statemachine language extends C core. A state contains a boolean attribute
 initial, to mark the initial state. Finally, a State contains a collection of 
 Transitions. 
 
-\footnotesize
-\begin{verbatim}
+\begin{code}
 concept Transition extends MedBase      
                    implements <none>    
   properties:                           
@@ -1516,8 +1482,7 @@ concept Transition extends MedBase
                                         
   concept properties:                   
     alias = transition                    
-\end{verbatim}
-\normalsize
+\end{code}
 
 
 Transitions contain a Trigger, a guard condition and the target state. The
@@ -1544,7 +1509,7 @@ in front of the target state.
 \end{center}
 \end{figure}
 
-\TODO{Add a table projection to show off non textual notations}
+\todo{Add a table projection to show off non textual notations}
 
 \fig{Fig:mps-stateeditor} shows the editor definition for the State. It uses a
 vertical list to arrange several horizontal elements. The first line contains
@@ -1578,8 +1543,7 @@ expression that determines whether the intention is currently applicable, and
 the actual code that performs the quickfix. Note how this is simply a
 model-to-model transformation expressed with MPS APIs. 
 
-\footnotesize
-\begin{verbatim}
+\begin{code}
 intention makeInitialState for concept State { 
                                                                                                                                                            
   description(editorContext, node)->string { 
@@ -1595,8 +1559,7 @@ intention makeInitialState for concept State {
     node.initial = true; 
   }
 }
-\end{verbatim}
-\normalsize
+\end{code}
 
 
 
@@ -1624,8 +1587,7 @@ expressions and the inheritance hierarchy, it is possible to factor all side
 transformations for all binary operations into one single action declaration,
 resulting in much less implementation effort.
 
-\footnotesize
-\begin{verbatim}
+\begin{code}
 side transform actions makeArithmeticExpression                                                                                                                                                                                                                                  
  
   right transformed node: Expression tag: default_                                                                                                                                                                                                              
@@ -1649,8 +1611,7 @@ side transform actions makeArithmeticExpression
             expr.right.set new(<default>); 
             return expr.right; 
           }                    
-\end{verbatim}
-\normalsize
+\end{code}
 
 
 
@@ -1688,8 +1649,7 @@ kind of reference for any given syntactic form can be implemented. Consider the
 following example, where we refer to a local variable (a) and an event parameter
 (timestamp) from within expressions:
 
-\footnotesize
-\begin{verbatim}
+\begin{code}
 int a;
 int b;
 
@@ -1699,8 +1659,7 @@ statemachine linefollower {
     initialized [now() - timestamp > 1000 && a > 3] -> running                                                   
   }                                                                                 
 }                                                                                   
-\end{verbatim}
-\normalsize
+\end{code}
 
 
 Both references to local variables and to event parameters use the same

@@ -11,7 +11,7 @@
 \usepackage{alltt}
 \usepackage{boxedminipage}
 \usepackage{booktabs}
-
+ 
 
 \usepackage{tikz}
 \newenvironment{Tree}{\begin{tikzpicture}[scale=.5]\tikzset{every node/.style={font=\tt}}}{\end{tikzpicture}}
@@ -28,7 +28,6 @@
 \setlength{\textfloatsep}{1\baselineskip}
 \setlength{\intextsep}{\baselineskip}
 \renewcommand{\floatpagefraction}{0.1}
-\morefloats
 
 
 
@@ -68,7 +67,18 @@
 \newcommand{\genex}[1]{\excode{Example:}{#1}}
 \newcommand{\exwebdsl}[1]{\excode{WebDSL:}{#1}}
 
-
+\usepackage{verbatim}
+\newenvironment{code} 
+    {\vspace{3mm}
+     \noindent
+     \rule{\textwidth}{0.7pt}
+     \vspace{-4mm}
+     \scriptsize \verbatim}
+    {\endverbatim \normalsize
+	 \vspace{-4mm}
+	 \rule{\textwidth}{0.7pt}
+	 \vspace{0mm}
+	 }
 
 
 \usepackage[T1]{fontenc}
@@ -106,7 +116,7 @@
 
 
 
-
+ 
 
 
 \title{DSL Engineering}

@@ -216,15 +216,15 @@ highlighted with an orange background. These so-called mapping labels have to be
 declared in the generator's mapping configuration. The give names to the
 relationship between a source model element and what has been generated from it.
 
-\footnotesize
-\begin{verbatim}
+
+\begin{code}
 mapping labels:
   label eventEnumLiternal : Event -> EnumLiteral             
   label stateEnumLiteral : State -> EnumLiteral              
   label statemachineProcedure : Statemachine -> Procedure    
   label currentStateVariable : Statemachine -> ModuleVariable
-\end{verbatim}
-\normalsize
+\end{code}
+
 
 For example, the label currentStateVariable can be ued the instance of
 ModuleVariable that was created from an instance of Statemachine. Attaching
@@ -254,17 +254,17 @@ values of properties. In this case we use it to define the name property of the
 generated enum literal. Here is the implementation expression of the property
 macro (also entered in the inspector):
 
-\footnotesize
-\begin{verbatim}
+
+\begin{code}
 node.stateConstantName();
-\end{verbatim}
-\normalsize
+\end{code}
+
 
 stateConstantName is a behavior method. It is defined as part of the behavior
 aspet of the State concept:
 
-\footnotesize
-\begin{verbatim}
+
+\begin{code}
 concept behavior State {                      
                                               
   constructor { 
@@ -276,18 +276,18 @@ concept behavior State {
   }                                           
                                               
 }                                             
-\end{verbatim}
-\normalsize
+\end{code}
+
 
 Let us next look at the part of the generator that generates the execute
 function. We first generate an if statement for each state that has at least one
 outgoing transition. We use a LOOP macro with the following expression:
 
-\footnotesize
-\begin{verbatim}
+
+\begin{code}
 node.states.where({~it => it.transitions.isNotEmpty; });
-\end{verbatim}
-\normalsize
+\end{code}
+
  
 The if statement checks whether the current state corresponds to the state
 literal that corresponds to the state we're currently iterating over. Notice how
@@ -332,24 +332,24 @@ macro (\verb#->#) to rewire this reference. The following code is used in the
 macro:
 
 
-\footnotesize
-\begin{verbatim}
+
+\begin{code}
 genContext.get output stateEnumLiteral for (node.target)
-\end{verbatim}
-\normalsize
+\end{code}
+
 
 
 As the last example I want to show how the FireEventStatement is translated. It
 is used as follows:
 
-\footnotesize
-\begin{verbatim}
+
+\begin{code}
 initialize {                                                  
   ...      
   event linefollower:initialized                              
 }                                                             
-\end{verbatim}
-\normalsize
+\end{code}
+
 
 It ha to be translated to a call to the generated statemachine execute method,
 with the event translated to the respective enum literal. A reduction rule is
@@ -375,20 +375,20 @@ uses the following expression to retrieve the execution function generated from
 the state machine. It uses the label associated with that function to retrieve
 the node from the context. 
 
-\footnotesize
-\begin{verbatim}
+
+\begin{code}
 genContext.get output statemachineProcedure for (node.machine);
-\end{verbatim}
-\normalsize
+\end{code}
+
 
 The second reference macro uses a similar approach to get to the correct enum
 literal.
 
-\footnotesize
-\begin{verbatim}
+
+\begin{code}
 genContext.get output eventEnumLiternal for (node.trigger);
-\end{verbatim}
-\normalsize
+\end{code}
+
 
 
 discuss someehere the benefits of cascading and stuff. The MPS stuff is a good
@@ -541,14 +541,14 @@ and statements (all specific expressions and statements inherit directly or
 indirectly from these classes). The following code shows the fragment
 configuration:
 
-\footnotesize
-\begin{verbatim}
+
+\begin{code}
 fragment = de.itemis.interpreter.generator.InterpreterGenerator {
     expressionRootClassName = "Expression"
     statementRootClassName = "Statement"
 }
-\end{verbatim}
-\normalsize
+\end{code}
+
 
 This fragment generates an abstract class that acts as the basis for the
 interpreter for the particular set of statements and expressions. as the
@@ -562,8 +562,8 @@ used to create a tree shaped trace of expression evaluation, which is very
 useful for debugging and understanding the execution of the interpreter.
 
 
-\footnotesize
-\begin{verbatim}
+
+\begin{code}
 public abstract class AbstractCoolingLanguageExpressionEvaluator 
                       extends AbstractExpressionEvaluator {
 
@@ -606,8 +606,8 @@ public abstract class AbstractCoolingLanguageExpressionEvaluator
     } 
     
 }
-\end{verbatim}
-\normalsize
+\end{code}
+
     
 A similar class is generated for the statements. Instead of eval, the method is
 called execute and it does not return a value. In every other respect the
@@ -618,16 +618,16 @@ code shows the implementation of evalNumberLiteral which evaluates number
 literals such as 2 or 2.3 or -10.2. The following grammar is used for defining
 number literals:
 
-\footnotesize
-\begin{verbatim}
+
+\begin{code}
 Atomic returns Expression:
     ...
     ({NumberLiteral} value=DECIMAL_NUMBER);
 
 terminal DECIMAL_NUMBER:
     ("-")? ('0'..'9')* ('.' ('0'..'9')+)?;
-\end{verbatim}
-\normalsize
+\end{code}
+
 
 Before we delve into the details of this code, it is worth mentioning that the
 "global data" held by the execution engine is stored and possibly around using
@@ -635,8 +635,8 @@ the engine execution context. For example it contains the environment that keeps
 track of symbol values, and it also has access to the type system implementation
 class for the language. Execution context is available through the eec() method.
 
-\footnotesize
-\begin{verbatim}
+
+\begin{code}
     protected Object evalNumberLiteral(NumberLiteral expr, LogEntry log) {
         String v = ((NumberLiteral) expr).getValue();
         EObject type = eec().typesystem.typeof(expr, new TypeCalculationTrace());
@@ -649,8 +649,8 @@ class for the language. Execution context is available through the eec() method.
         }
         return null;
     }
-\end{verbatim}
-\normalsize
+\end{code}
+
 
 
 With this in mind, the implementation of even outnumber literal should be
@@ -672,8 +672,8 @@ recursive call and stops the interpreter if the value passed in is null (which
 would mean the AST is somehow broken). Once we have evaluated the two children
 we can simply return a conjunction of the two.
 
-\footnotesize
-\begin{verbatim}
+
+\begin{code}
 protected Object evalLogicalAnd(LogicalAnd expr, LogEntry log) {
     boolean leftVal = ((Boolean)evalCheckNullLog( expr.getLeft(), log ))
                       .booleanValue();
@@ -681,16 +681,16 @@ protected Object evalLogicalAnd(LogicalAnd expr, LogEntry log) {
                       .booleanValue(); 
     return leftVal && rightVal;
 }
-\end{verbatim}
-\normalsize
+\end{code}
+
 
 So far, we haven't used the environment, since we haven't worked with variables
 and their current values. Let's now look and how variable assignment is handled.
 We first look at the assignment statement,  which is implemented  in the
 statement executor, not in the expression evaluator.
 
-\footnotesize
-\begin{verbatim}
+
+\begin{code}
 protected void executeAssignmentStatement(AssignmentStatement s, LogEntry log){
     Object l = s.getLeft();
     Object r = evalCheckNullLog(s.getRight(), log);
@@ -699,8 +699,8 @@ protected void executeAssignmentStatement(AssignmentStatement s, LogEntry log){
     eec().environment.put(symbol, r);
     log.child(Kind.debug, s, "setting " + symbol.getName() + " to " + r);
 }
-\end{verbatim}
-\normalsize
+\end{code}
+
 
 The first two lines get the left argument as well as the value of the right
 argument. Note how only the right value is evaluated: the left argument is a
@@ -716,8 +716,8 @@ nothing has been assigned to the symbol as yet). In this case we return the
 default value for the respective type and log a warning. Otherwise we return the
 value.
 
-\footnotesize
-\begin{verbatim}
+
+\begin{code}
 protected Object evalSymbolRef(SymbolRef expr, LogEntry log) {
     SymbolDeclaration s = expr.getSymbol();
     Object val = eec().environment.get(s);
@@ -732,8 +732,8 @@ protected Object evalSymbolRef(SymbolRef expr, LogEntry log) {
         return val;
     }
 }
-\end{verbatim}
-\normalsize
+\end{code}
+
 
 The cooling language does not support function calls, so we demonstrate function
 calls with a similar language that supports it. In that language, function calls
@@ -741,8 +741,8 @@ are expressed as symbol references that have argument lists. Below is the
 grammar. Constraints make sure that argument lists are only used if the
 referenced symbol is actually a FunctionDeclaration.
 
-\footnotesize
-\begin{verbatim}
+
+\begin{code}
 FunctionDeclaration returns Symbol:
     {FunctionDeclaration} "function" type=Type name=ID "(" 
         (params+=Parameter  ("," params+=Parameter)* )?  ")" "{"    
@@ -753,14 +753,14 @@ Atomic returns Expression:
     ...
     {SymbolRef} symbol=[Symbol|QID]  
         ("(" (actuals+=Expr)? ("," actuals+=Expr)* ")")?; 
-\end{verbatim}
-\normalsize
+\end{code}
+
 
 The following is the code for the evaluation function for the symbol reference.
 It must distinguish between references to variables and to functions. 
 
-\footnotesize
-\begin{verbatim}
+
+\begin{code}
 protected Object evalSymbolRef(SymbolRef expr, LogEntry log) {
     Symbol symbol = expr.getSymbol();
     if ( symbol instanceof VarDecl ) {
@@ -775,8 +775,8 @@ protected Object evalSymbolRef(SymbolRef expr, LogEntry log) {
     throw new InterpreterException(expr, 
         "interpreter failed; cannot resolve symbol reference " 
         +expr.eClass().getName()); }
-\end{verbatim}
-\normalsize
+\end{code}
+
 
 The code for the FunctionDeclaration uses a predefined utility method
 callAndReturnWithPositionalArgs. It accepts as arguments the list of formals of
@@ -784,8 +784,8 @@ the called function, the list of actuals passed in, the list of statements in
 the function body, a symbol that should be used for the return value as well as
 the obligatory log. The utility method is implemented as follows:
 
-\footnotesize
-\begin{verbatim}
+
+\begin{code}
 protected Object callAndReturnWithPositionalArgs(String name, 
         EList<? extends EObject> formals, EList<? extends EObject> actuals, 
         EList<? extends EObject> bodyStatements, Object returnSymbol, 
@@ -801,8 +801,8 @@ protected Object callAndReturnWithPositionalArgs(String name,
     ctx.environment.pop();
     return res;
 }
-\end{verbatim}
-\normalsize
+\end{code}
+
 
 It first creates a new environment and pushes it on the call stack. The it
 iterates over all the actual argument, evaluates each of them and "assigns" them
@@ -824,8 +824,8 @@ Changing a state happens by executing a ChangeStateStatement, which simply
 references the state that should be entered. Here is the interpreter code in
 StatementExecutor:
 
-\footnotesize
-\begin{verbatim}
+
+\begin{code}
 protected void executeChangeStateStatement(ChangeStateStatement s, LogEntry l) {
     l.child(Kind.debug, s, "change state to " + s.getTargetState().getName());
     engine.enterState(s.getTargetState(), log);
@@ -838,8 +838,8 @@ public void enterState(State ss, LogEntry logger )
     executor.execute(ss.getEntryStatements(), logger);
     throw new NewStateEntered();
 }
-\end{verbatim}
-\normalsize
+\end{code}
+
 
 It calls back to an engine method that handles the state change (since this is
 a more global operation than executing statements, it is handled by the engine
@@ -854,8 +854,8 @@ execution steps of the engine. A state change always terminates the current
 step. The main method step() triggered by the external timer can be considered
 the main program of the engine. It looks as follows:
 
-\footnotesize
-\begin{verbatim}
+
+\begin{code}
 public int step(LogEntry logger) {
     try {
         context.currentStep++;
@@ -873,8 +873,8 @@ public int step(LogEntry logger) {
     }
     return context.currentStep;
 }
-\end{verbatim}
-\normalsize
+\end{code}
+
 
 It first executes the each time statements of the current state. This is
 a statement list defined by a state that needs to be re-executed in each step
@@ -888,8 +888,8 @@ Processing events simply checks if the current state declares and event handler
 that can deal with the currently processed event. If so, it executes the
 statement list associated with this event handler.
 
-\footnotesize
-\begin{verbatim}
+
+\begin{code}
 private void processEventFromQueue(CustomEvent event, LogEntry logger) {
     for ( EventHandler deh: getCurrentState().getEvents()) {
         if ( reactsOn( deh, event ) ) {
@@ -897,8 +897,8 @@ private void processEventFromQueue(CustomEvent event, LogEntry logger) {
         }
     }
 }
-\end{verbatim}
-\normalsize
+\end{code}
+
 
 Raising events is just another statement that can be put into any statement
 list. It adds the respective event to the queue. Also, events can be raised by
@@ -907,35 +907,35 @@ external actors (the hardware in the real system, and statements in test cases).
 The DSL also supports executing code asynchronously, i.e. after a specified
 number of steps. The grammar looks as follows:
 
-\footnotesize
-\begin{verbatim}
+
+\begin{code}
 PerformAsyncStatement:
     "perform" "after" time=Expr "{"
         (statements+=Statement)*
     "}";
-\end{verbatim}
-\normalsize
+\end{code}
+
 
 The interpreter for this statement is simply the following method:
 
-\footnotesize
-\begin{verbatim}
+
+\begin{code}
 protected void executePerformAsyncStatement(PerformAsyncStatement s, 
                 LogEntry log) throws InterpreterException {
     int inSteps = ((Integer)evalCheckNullLog(s.getTime(), log)).intValue();
     eec().asyncElements.add(new AsyncPerform(eec().currentStep + inSteps, 
         "perform async", s, s.getStatements()));
 }
-\end{verbatim}
-\normalsize
+\end{code}
+
 
 It registers the statement list associated with the PerformAsyncStatement in the
 list of async elements in the execution context. The call to executeAsyncStuff
 at the beginning of the step method described above checks whether the time has
 come and executes those statements.
 
-\footnotesize
-\begin{verbatim}
+
+\begin{code}
 private void executeAsyncStuff(LogEntry logger) {
     List<AsyncElement> stuffToRun = new ArrayList<AsyncElement>();
     for (AsyncElement e: context.asyncElements) {
@@ -948,8 +948,8 @@ private void executeAsyncStuff(LogEntry logger) {
         e.execute(context, logger.child(Kind.info, null, "Async "+e));
     }
 }
-\end{verbatim}
-\normalsize
+\end{code}
+
 
 
 
