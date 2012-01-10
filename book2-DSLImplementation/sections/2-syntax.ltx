@@ -759,23 +759,42 @@ diagrams.
  
 \subsection{Language Evolution}
 
-Evolution of languages can be a bit more complex, since, if language concepts
-are not present anymore in a new revision of the language, existing instances of
-these concepts will break. MPS solves this problem with deprecation and
-"automatic" migration scripts. We will discuss this in more detail in the
-chapter on language evolution.
+If the language changes, existing instance models temporarily become
+outdated in the sense that they had been developed for the old version of the
+language. If the new language is not backward compatible, these existing models
+have to be migrated to conform to the updated language. 
 
+Since projectional editors store the models as structured data where each
+program node points to the language concept it is an instance of, the tools have
+to take special care that such "incompatible" models can still be opened and the
+migrated, manually or by a script, to the new version of the language. MPS
+supports this feature, and it is even possible to distribute migration scripts
+with (updated) languages to run the migration automatically.
+
+Free text editing does not have this problem. A model, essentially a sequence of
+characters, can \emph{always} be opened in the editor. The program may not be
+parseable, but users can always update the program manually, or with global
+search and replace, or regular expressions.
+
+\todo{do we talk about evolution somewhere?} 
 
 \subsection{Infrastructure Integration}
 
-Special support also needs to be provided for infrastructure integration. Since
-the CS is not pure text, a generic persistence format needs to be devised.
+Today's software development infrastructure is typically text oriented. Many
+tools used for diffing and merging, or tools like grep and regular expressions
+are geared towards textual storage. This means that DSLs that use free text
+editing integrate nicely with these tools. 
+
+In projectional IDEs, sSpecial support needs to be provided for infrastructure
+integration. Since the CS is not pure text, a generic persistence format is
+used, typically based on XML. While XML is technically text as well, it is not
+practicable to perform diff, merge and the like on the level of the XML. 
 Therefore, special tools need to be provided for diff and merge. MPS provides
 integration with the usual VCS systems and handles diff and merge in the tool,
-using the concrete, projected syntax. Note that since every program element
-has a UUID, \emph{move} can be distinguished from \emph{delete} and
-\emph{create}, providing more useable semantics for diff and merge.
-\fig{fig:mps-diff.png} shows an example of an MPS diff.
+using the concrete, projected syntax. Note that since every program element has
+a UUID, \emph{move} can be distinguished from \emph{delete} and \emph{create},
+providing more useable semantics for diff and merge. \fig{fig:mps-diff.png}
+shows an example of an MPS diff.
 
 \begin{figure}[ht]
 \begin{center}
@@ -802,6 +821,8 @@ can be stored, and projected if required. MPS supports so-called annotations,
 where additional data can be added to model elements of existing languages and
 projecting that data inside the original projection, all without changing the
 original language specification.
+
+
 
 
 \section{Characteristics of AST formalisms}
@@ -908,6 +929,8 @@ A concept may extend a single other concept and implement any number of
 interfaces. It can declare references and child collections. It may also have a
 number of primitive-type properties as well as a couple of "static" features
 (those stating with "concept"). In addition, concepts can have behavior methods.
+                 
+                 
                                                                             
 \section{Xtext Example}
 
