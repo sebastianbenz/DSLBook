@@ -8,7 +8,13 @@
 \usepackage[utf8]{inputenc} 
 \usepackage{comment}
 \usepackage{wrapfig}
+\usepackage{alltt}
 \usepackage{boxedminipage}
+\usepackage{booktabs}
+
+
+\usepackage{tikz}
+\newenvironment{Tree}{\begin{tikzpicture}[scale=.5]\tikzset{every node/.style={font=\tt}}}{\end{tikzpicture}}
   
     
 \setcounter{totalnumber}{10}
@@ -22,13 +28,15 @@
 \setlength{\textfloatsep}{1\baselineskip}
 \setlength{\intextsep}{\baselineskip}
 \renewcommand{\floatpagefraction}{0.1}
+\morefloats
+
+
 
 
 \newenvironment{noparindent}{\parskip0.2\baselineskip\parindent0pt}{}
 
 \setcounter{secnumdepth}{2}
 
-% syntax highlighting
    
 \newcommand{\chapterabstract}[1]{
 \begingroup
@@ -38,19 +46,10 @@
 \endgroup
 }
 
-\morefloats
-\morefloats
+
+ 
 
 \newcommand{\hilight}[1]{#1} %\hl{#1}}
-
-%\def\blacktriangleright{\rhd}
-%\def\blacktriangleleft{\lhd}
-%\def\vartriangleleft{\lhd}
- 
-\newcommand{\D}[1]{D_{#1}}
-
-\renewcommand{\dfrac}[2]{\frac{\displaystyle #1}{\displaystyle #2}}
-
 \newcommand{\excode}[2]{
 \vspace{5pt}
 \begingroup
@@ -62,6 +61,13 @@
 \endgroup
 \vspace{3pt}
 }
+\newcommand{\embc}[1]{\excode{Embedded C:}{#1}}
+\newcommand{\cooling}[1]{\excode{Refrigerators:}{#1}}
+\newcommand{\comparch}[1]{\excode{Component Architecture:}{#1}}
+\newcommand{\pension}[1]{\excode{Pension Plans:}{#1}}
+\newcommand{\genex}[1]{\excode{Example:}{#1}}
+\newcommand{\exwebdsl}[1]{\excode{WebDSL:}{#1}}
+
 
 
 
@@ -70,50 +76,41 @@
 
 
 
+\newcommand{\ic}[1]{\changefont{cmtt}{m}{n}{#1}\normalfont}  
+\newcommand{\keyword}[1]{\changefont{cmtt}{m}{n}{#1}\normalfont}  
+\newcommand{\keystroke}[1]{\changefont{cmtt}{m}{n}{#1}\normalfont}  
+\newcommand{\lcr}[1]{\changefont{cmtt}{m}{n}{#1}\normalfont} 
+\newcommand{\curlies}[1]{\char123{}#1\char125}
 
 
-% \newcommand{\ic}[1]{\emph{{#1}}}  % inline code
-% \newcommand{\lcr}[1]{\emph{{#1}}} % language concept reference
-
-
-\newcommand{\ic}[1]{\changefont{cmtt}{m}{n}{#1}\normalfont}  % inline code
-\newcommand{\lcr}[1]{\changefont{cmtt}{m}{n}{#1}\normalfont} % language
-
-
-\newcommand{\embc}[1]{\excode{Embedded C:}{#1}}
-\newcommand{\cooling}[1]{\excode{Refrigerators:}{#1}}
-\newcommand{\comparch}[1]{\excode{Component Architecture:}{#1}}
-\newcommand{\pension}[1]{\excode{Pension Plans:}{#1}}
-\newcommand{\genex}[1]{\excode{Example:}{#1}}
-\newcommand{\exwebdsl}[1]{\excode{WebDSL:}{#1}}
 
 \newcommand{\mynote}[2]{\marginnote{\textbf{{#1}}: {#2}}}
-   
-
-\newcommand\markus[1]{\mynote{MARKUS}{#1}} 
-   
-   
-   
+\newcommand\MV[1]{\mynote{MARKUS}{#1}} 
+\newcommand\LK[1]{\mynote{MARKUS}{#1}} 
 \newcommand\todo[1]{\mynote{TODO}{#1}} 
-\newcommand\undone[1]{\mynote{UNDONE}{#1}}
-\newcommand\rephrase[1]{\mynote{REPHRASE}{#1}}
-\newcommand\remark[1]{\mynote{REMARK}{#1}}
-\newcommand{\refreq}[1]{
-    {\bfseries\sffamily\scriptsize\hilight{#1}}
-    {\small$\blacktriangleright$REF:\hilight{#1}$\blacktriangleleft$}}
+
+\newcommand\laurie[1]{\mynote{MARKUS}{#1}} 
+\newcommand\shatalin[1]{\mynote{MARKUS}{#1}} 
+\newcommand\vaclav[1]{\mynote{MARKUS}{#1}} 
+   
+   
 \newcommand{\fig}[1]{Fig.~\ref{#1}}
 \newcommand{\sect}[1]{Section~\ref{#1}}
+   
+ 
 
-\newcommand{\remove}[1]{} 
-
+\newcommand{\D}[1]{D_{#1}}
+\renewcommand{\dfrac}[2]{\frac{\displaystyle #1}{\displaystyle #2}}
 \newcommand{\lmrc}{LMR\&C}
 
-\usepackage{breakurl}             % Not needed if you use pdflatex only.
+
+
+
+
+
 
 \title{DSL Engineering}
-
 \author{Markus Voelter, voelter@acm.org}
-
 \def\titlerunning{DSL Design}
 \def\authorrunning{Markus Voelter}
 \begin{document}
