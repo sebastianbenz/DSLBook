@@ -100,6 +100,13 @@ real-time as the user edits the program. The AST is always kept in sync with the
 program text. Many IDE features --- such as content assist, validation,
 navigation, refactoring support, etc. --- are based on the real-time AST.
 
+\begin{marginfigure}
+  \includegraphics[width=5cm]{figures/1/parserbased.png}
+  \caption{In parser-based systems, the user only interacts with the concrete
+  syntax, and the AST is constructed from the information in the text.}
+  \label{parserbased}
+\end{marginfigure} 
+
 A key characteristic of the free text editing approach is its strong separation
 between the concrete syntax (i.e., text) and the abstract syntax. The concrete
 syntax is the principal representation, used for both editing and persistence.
@@ -567,6 +574,13 @@ that represent programs. A parser then checks the program for syntactic
 correctness and constructs an abstract syntax tree from the character sequence.
 The AST contains all the semantic information expressed by the program.
 
+\begin{marginfigure}
+  \includegraphics[width=5cm]{figures/1/projectional.png}
+  \caption{In projectional systems, the user sees the concrete syntax, but all
+  editing gestures directly influence the AST. The AST is \emph{not} extracted
+  from the concrete syntax, which means the CS does not have to be parseable.}
+  \label{projectional}
+\end{marginfigure} 
 In projectional editors, the process happens the other way round: as a user
 edits the program, the AST is modified directly. A projection engine then
 creates some representation of the AST with which the user interacts, and which
@@ -607,12 +621,21 @@ or email clients.
 
 \subsection{Editing Experience}
 
-To edit programs, you need a suitable editor. A normal text editor is obviously
-not sufficient as you would be editing some textual representation of the AST.
-For textual-looking notations, it is important that the editor tries and makes
-the editing experience as text-like as possible, i.e. the keyboard actions we
-have gotten used to from free-text editing should work as far as possible. MPS
-does a decent job here, using, among others, the following strategies:
+In free text editing, any regular text editor will do. However, users expect
+powerful IDE that includes support for syntax coloring, code completion, go to
+definition, find references, error annotations, refactoring and the like. Xtext
+and Spoofax provide such IDE support. However, you can always go back to any
+text editor to edit the programs.
+
+In projectional editing, this is different. since a normal text editor is
+obviously not sufficient as you would be editing some textual representation of
+the AST. A specialized editor has to be supplied. Like in free text editing, it
+has to provide the IDE support features mentioned above. MPS provides those.
+Howevre, there is another challenge: for textual-looking notations, it is
+important that the editor tries and makes the editing experience as text-like as possible, i.e. the keyboard
+actions we have gotten used to from free-text editing should work as far as
+possible. MPS does a decent job here, using, among others, the following
+strategies:
 
 \begin{itemize}
 
@@ -676,43 +699,63 @@ projectional editors have gotten a bit of a bad rep because of that. In case of
 MPS this tool support is available, and hence, MPS provides a productive and
 pleasant working environment.
 
-\MV{Here}
-
 
 \subsection{Language Modularity}
 
-Projectional editors can cope with textual notations that would be ambiguous if
-they had to be parsed. This is important in two contexts:
+As we have seen in \todo{}, language modularization and composition is an
+important building block in working with DSLs. Parser-based and projectional
+editors come with different trade-offs in this respect. Notice that is this
+section we only consider syntax issues --- semantics has been covered in
+\todo{the respective section in DSL design}.
 
-\begin{description}
+In parser-based systems it depends on the grammar class supported by the tool
+whether composition can be supported well. The problem is that combining two or
+more independently developed grammars into one may become ambiguous, for
+example, because the same character sequence is defined as two different tokens.
+The resulting grammar cannot be parsed and has to be disambiguated manually,
+typically by invasively changing the resulting grammar. This of course breaks
+modularity and hence is not an option. Parsers that support the full set of
+context-free grammars, such as ANTLR, and hence Xtext, have this problem.
+Parsers that support the full class of context-free grammars, such as the GLR
+parser used as part of Spoofax, do not have this problem. While a grammar may
+become ambiguous in the sense that a program may be parseable in more than one
+way, this can be resolved by declaratively specifying which alternative should
+be used. This specification can be made \emph{without} invasively changing the
+resulting grammar, retaining modularity. 
 
-	\item[existing languages] for which a language-specific parser had been manually
-	written before, should now be handled with a LWB. Projectional editors can deal
-	with any "strange" syntax defined by legacy systems.
-
-	\item[language composition] After composing separately developed languages, the
-	resulting language may be ambiguous\footnote{Many grammar formalisms are not
-	closed under composition.}. In projectional systems, this cannot happen. Any
-	combination of languages will be syntactically valid (semantics is a different
-	issue). If a composed language would be ambiguous, the user has to make a
-	disambiguating decision as the program is built. For example, in MPS, if in a
-	given location two language concepts are available under the same alias, just
-	typing the alias won't bind, and the user has to manually decide by picking one
-	alternative from the code completion menu. We discuss details in the chapter on
-	language composition.
-
-\end{description}
+In projectional editors, language modularity and composition is not a problem at
+all. There is no grammar, no parsing, no grammar classes, and hence no problem
+with composed grammars becoming ambiguous. Any combination of languages will be
+syntactically valid. If a composed language would be ambiguous, the user has to
+make a disambiguating decision as the program is entered. For example, in MPS,
+if in a given location two language concepts are available under the same alias,
+just typing the alias won't bind, and the user has to manually decide by picking
+one alternative from the code completion menu. 
 
 
 \subsection{Notational Freedom}
 
-Since no parsing is used in projectional editors, and the mechanism works
-basically like a graphical editor, notations other than text can be used in the
-editor. For example, MPS supports tables as well as simple diagrams. Since these
+Parser-based systems process linear sequences of character symbols.
+Traditionally, the character symbols were taken from the ASCII character set,
+resulting in textual programs being made up from "plain text". With the advent
+of unicode, a much wider variety of characters is available while still sticking
+to the linear sequence of character symbols approach. For example, the Fortress
+programming language makes use of this: greek letters and a wide variety of
+different bracket styles can be used in the programs. However, character layout
+is always ignored. For example it is not possible to use parsers to handle
+tabular notations, fraction bars or even graphics. 
+
+
+In projectional editing, this limitation does not exist. A projectional editor
+never has to extract the AST from the concrete syntax; editing gestures directly
+influence the AST, and the concrete syntax is rendered from the AST. This
+mechanism is basically like a graphical editor. Notations other than text can be
+used. For example, MPS supports tables as well as simple diagrams. Since these
 non-textual notations are handled the same way as the textual ones (possibly
 with other input gestures), they can be mixed easily: tables can be embedded
 into textual source, and textual languages can be used within table cells.
-Textual notations can also be used inside boxes or as connection labels in diagrams.
+Textual notations can also be used inside boxes or as connection labels in
+diagrams.
 
 \subsection{Language Evolution}
 
