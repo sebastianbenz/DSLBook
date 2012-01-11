@@ -172,13 +172,23 @@ enable components to interact, we also introduce the notion of interfaces, as
 well as ports, which are named communication endpoints typed with an interface.
 Ports have a direction (provides, requires) as well as a cardinality.
 
-\begin{figure}[h]
-\begin{center}
-  \includegraphics[scale=0.55]{figures/arch/aal-1.png}
-  \caption[labelInTOC]{Components, required ports and provided ports}
-  \label{aal-1}
-\end{center}
-\end{figure}
+\begin{code}
+component DelayCalculator {
+  provides aircraft: IAircraftStatus 
+  provides managementConsole: IManagementConsole 
+  requires screens[0..n]: IInfoScreen
+}
+component Manager {
+  requires backend[1]: IManagementConsole
+}
+component InfoScreen {
+  provides default: IInfoScreen 
+}
+component AircraftModule {
+  requires calculator[1]: IAircraftStatus
+}
+\end{code}
+
 
 It is important to not just state which interfaces a component provides, but
 also which interfaces it requires because we want to be able to understand (and
@@ -190,13 +200,13 @@ Note that these are logical instances. Decisions about pooling and redundant
 physical instances had not been made yet. We also introduce connectors to define
 actual communication paths between components (and their ports).
 
-\begin{figure}[h]
-\begin{center}
-  \includegraphics[scale=0.55]{figures/arch/aal-2.png}
-  \caption[labelInTOC]{Component instances and their connectors}
-  \label{aal-2}
-\end{center}
-\end{figure}
+\begin{code}
+instance dc: DelayCalculator
+instance screen1: InfoScreen
+instance screen2: InfoScreen
+connect dc.screens to (screen1.default, screen2.default)
+\end{code}
+
 
 At some point it became clear that in order to not get lost in all the
 components, instances and connectors, we need to introduce some kind of
@@ -204,25 +214,45 @@ namespace. It became equally clear that we'd need to distribute things to
 different files - the tool support ought to make sure that editor functionality
 such as Go To Definition and Find References still works.
 
-\begin{figure}[h]
-\begin{center}
-  \includegraphics[scale=0.55]{figures/arch/aal-3.png}
-  \caption[labelInTOC]{TODO}
-  \label{aal-3}
-\end{center}
-\end{figure}
+\begin{code}
+namespace com.mycompany {
+  namespace datacenter {
+    component DelayCalculator {
+      provides aircraft: IAircraftStatus 
+      provides managementConsole: IManagementConsole 
+      requires screens[0..n]: IInfoScreen
+    }
+    component Manager {
+      requires backend[1]: IManagementConsole
+    }
+  }
+  namespace mobile {
+    component InfoScreen {
+      provides default: IInfoScreen 
+    }
+    component AircraftModule {
+      requires calculator[1]: IAircraftStatus
+    }
+  }
+} 
+\end{code}
+
 
 It is also a good idea to keep component and interface definition (essentially:
 type definitions) separate from system definitions (connected instances), so we
 introduced the concept of compositions.
 
-\begin{figure}[h]
-\begin{center}
-  \includegraphics[scale=0.55]{figures/arch/aal-4.png}
-  \caption[labelInTOC]{TODO}
-  \label{aal-4}
-\end{center}
-\end{figure}
+\begin{code}
+namespace com.mycompany.test {
+  composition testSystem {
+    instance dc: DelayCalculator
+    instance screen1: InfoScreen
+    instance screen2: InfoScreen
+    connect dc.screens to (screen1.default, screen2.default)
+  }
+} 
+\end{code}
+
 
 Of course in a real system, the DelayCalculator would have to dynamically
 discover all the available InfoScreens at runtime. There is not much point in
@@ -231,13 +261,18 @@ at runtime against some kind of naming/trader/lookup/registry infrastructure. It
 is re-executed every 60 seconds to find the InfoScreens that had just come
 online.
 
-\begin{figure}[h]
-\begin{center}
-  \includegraphics[scale=0.55]{figures/arch/aal-5.png}
-  \caption[labelInTOC]{TODO}
-  \label{aal-5}
-\end{center}
-\end{figure}
+\begin{code}
+namespace com.mycompany.production {
+  instance dc: DelayCalculator
+  // InfoScreen instances are created and 
+  // started in other configurations 
+  dynamic connect dc.screens query {
+    type = IInfoScreen
+    status = active
+  }
+} 
+\end{code}
+
 
 A similar approach can be used to realize load balancing or fault tolerance. A
 static connector can point to a primary as well as a backup instance. Or a
@@ -248,13 +283,18 @@ registry, using its name (qualified through the namespace) and all provided
 interfaces. Additional parameters can be specified, the following example
 registers a primary and a backup instance for the DelayCalculator.
 
-\begin{figure}[h]
-\begin{center}
-  \includegraphics[scale=0.55]{figures/arch/aal-6.png}
-  \caption[labelInTOC]{TODO}
-  \label{aal-6}
-\end{center}
-\end{figure}
+
+\begin{code}
+namespace com.mycompany.datacenter {
+  registered instance dc1: DelayCalculator {
+    registration parameters {role = primary}
+  }
+  registered instance dc2: DelayCalculator {
+    registration parameters {role = backup}
+  }
+} 
+\end{code}
+
 
 Until now we didn't really define what an interface is. We knew that we'd like
 to build the system based on a messaging infrastructure. Here's our first idea:
@@ -266,13 +306,18 @@ needed to be able to define the direction of a message: does it flow in or out
 of the port? More generally, which kinds of message interaction patterns are
 there? We identified several, here are examples of oneway and request-reply:
 
-\begin{figure}[h]
-\begin{center}
-  \includegraphics[scale=0.55]{figures/arch/aal-7.png}
-  \caption[labelInTOC]{TODO}
-  \label{aal-7}
-\end{center}
-\end{figure}
+
+
+\begin{code}
+interface IAircraftStatus {
+  oneway message reportPosition(aircraft: ID, pos: Position )
+  request-reply message reportProblem {
+    request (aircraft: ID, problem: Problem, comment: String)
+    reply (repairProcedure: ID) 
+  }
+} 
+\end{code}
+
 
 We talked a long time about various message interaction patterns. After a while
 it turned out that one of the core use cases for messages is to push status
@@ -304,13 +349,28 @@ We state that the publisher publishes the replicated data whenever something
 changes in the local data structure. However, the InfoScreen only needs an
 update every 60 seconds (as well as a full load of data when it is started up).
 
-\begin{figure}[h]
-\begin{center}
-  \includegraphics[scale=0.55]{figures/arch/aal-8.png}
-  \caption[labelInTOC]{TODO}
-  \label{aal-8}
-\end{center}
-\end{figure}
+
+\begin{code}
+struct FlightInfo {
+  from: Airport
+  to: Airport
+  scheduled: Time
+  expected: Time
+  …
+}
+
+replicated singleton flights {
+  flights: FlightInfo[]
+}
+
+component DelayCalculator {
+  publishes flights
+}
+
+component InfoScreen {
+  consumes flights
+}
+\end{code}
 
 This is much more concise compared to a description based on messages. We can
 automatically derive the kinds of messages needed for full update, incremental
@@ -327,13 +387,27 @@ that expresses that you can only report positions and problems once the aircraft
 is registered. In other words, the first thing an aircraft has to do is register
 itself.
 
-\begin{figure}[h]
-\begin{center}
-  \includegraphics[scale=0.55]{figures/arch/aal-9.png}
-  \caption[labelInTOC]{TODO}
-  \label{aal-9}
-\end{center}
-\end{figure}
+\begin{code}
+interface IAircraftStatus {
+  oneway message registerAircraft(aircraft: ID! ) 
+  oneway message unregisterAircraft(aircraft: ID! ) 
+  oneway message reportPosition(aircraft: ID!, pos: Position! ) 
+  request-reply message reportProblem {
+    request (aircraft: ID!, problem: Problem!, comment: String!)
+    reply (repairProcedure: !ID) 
+  }
+  protocol initial = new {
+    state new {
+      registerAircraft => registered
+    }
+    state registered { 
+      unregisterAircraft => new
+      reportPosition
+      reportProblem
+    }
+  }
+} 
+\end{code}
 
 Initially, the protocol state machine is in the new state. Here, the only valid
 message is \texttt{registerAircraft}. If this is received, we transition into
@@ -353,24 +427,26 @@ visible aspects change which is why no ports and other externally-exposed
 details of the component are declared. For all intents and purposes, it's the
 same thing - just maybe a couple of bugs are fixed.
 
-\begin{figure}[h]
-\begin{center}
-  \includegraphics[scale=0.55]{figures/arch/aal-x1.png}
-  \caption[labelInTOC]{TODO}
-  \label{aal-x1}
-\end{center}
-\end{figure}
+\begin{code}
+component DelayCalculator {
+  publishes flights { publication = onchange }
+}
+newImplOf component DelayCalculator: DelayCalculatorV2
+\end{code}
+
 
 If you really want to evolve a component (i.e., change its external signature)
 you can write it like this:
 
-\begin{figure}[h]
-\begin{center}
-  \includegraphics[scale=0.55]{figures/arch/aal-x2.png}
-  \caption[labelInTOC]{TODO}
-  \label{aal-x2}
-\end{center}
-\end{figure}
+\begin{code}
+component DelayCalculator {
+  publishes flights { publication = onchange }
+}
+newVersionOf component DelayCalculator: DelayCalculatorV3 {
+  publishes flights { publication = onchange }
+  provides somethingElse: ISomething
+}
+\end{code}
 
 The keyword is \texttt{newVersionOf} and now you can provide additional features
 (like the \texttt{somethingElse} port) and you remove required ports. You cannot

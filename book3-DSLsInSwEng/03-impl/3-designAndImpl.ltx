@@ -1,0 +1,447 @@
+\section{Design and Implementation}
+\label{design}
+ 
+In this section we illustrate the design of mbeddr C by addressing each of the
+ways $W_m$ of extending C. In doing so, we have tried to avoid MPS idioms and
+intricacies as far as possible. We start by explaining in some detail how MPSworks.
+ 
+\subsection{MPS Basics} 
+ 
+MPS is a projectional editor. Projectional editors do not use grammars and
+parsers. Instead, editing gestures directly change an abstract representation of
+the program. Projections render the program in some notation through which users
+interact with the program. Traditionally, projectional editors had a bad reputation,
+because, while the projection may look like text, it did not feel this way.
+Editing was a pain. MPS has essentially solved this problem. Editing text feels
+\emph{enough} like editing text in a parser-based environment to not make it aproblem at all.  
+
+Projectional editing is more flexible than the parser-based approach. It can
+support textual, tabular, symbolic and graphical editing in the same editor.
+Furthermore, composing independently developed syntaxes is not a problem
+because a composed syntax never becomes ambiguous. This is why, except in a few
+highlighted cases, we ignore the definition of concrete syntax in our discussion
+of the design of mbeddr C and discuss only the abstract syntax. MPS also
+supports other aspects of language definition such as type systems and
+transformations. Each aspect is implemented with a DSL optimized for the
+particular aspect. 
+
+Projectional editing also supports preventing the user from entering language
+constructs in contexts where they are not allowed. For example, an \lcr{assert}
+statement may only be used inside a test case. In addition, by adding conditions
+into the projection rules, program parts irrelevant in a certain situation can
+be hidden. For example, a program can be shown in a variant-specific way by
+hiding all those parts that are not included in a particular program variant.
+To learn more about the mechanics of MPS we refer to \cite{Voelter2011}, which
+describes language definition, modularization and composition in detail.
+
+\subsection{The Core Languages}
+
+C can be partitioned into expressions, statements, functions, etc. We
+have factored these parts into separate language modules to make each of them
+reusable without pulling in all of C. The \lcr{expressions} language is the most
+fundamental language. It depends on no other language and defines the primitive
+types, the corresponding literals and the basic operators. Support for pointers
+and user defined data types (\lcr{enum, struct, union}) is factored into the
+\lcr{pointers} and \lcr{udt} languages, respectively. \lcr{statements} contains
+the procedural part of C, and the \lcr{modules} language covers modularization.See \fig{umldiagram} for an overview.
+
+\subsection{Addressing $W_1$ (Top-Level Constructs): Test Cases}
+\label{toplevel}
+
+\parhead{Structure} \lcr{Module}s own a collection of \lcr{IModuleContent}s, an
+interface that defines the properties of everything that can reside directly in
+a module. All top-level constructs such as \lcr{Function}s implement
+\lcr{IModuleContent}. \lcr{IModuleContent} extends MPS'
+\lcr{IIdentifierNamedConcept} interface, which provides a \lcr{name} property.
+\lcr{IModuleContent} also defines a Boolean property \lcr{exported} that
+determines whether the respective module content is visible to modules that
+import this module. Since the \lcr{IModuleContent} interface can also be
+implemented by concepts in other languages, new top level constructs such as the
+\lcr{TestCase} in the \ic{unittest} language can implement this interface, as
+long as the respective language has a dependency on the \lcr{modules} language,
+which defines \lcr{IModuleContent}. \fig{umldiagram} shows some of the relevant
+concepts and languages.
+
+
+\begin{figure}   
+\begin{center} 
+  \includegraphics[width=11cm]{figures/impl/umldiagram.png}
+\end{center}
+\caption{Anatomy of the mbeddr language stack: the diagram shows some of the 
+language concepts, their relationships and the languages.}
+\label{umldiagram}
+\end{figure} 
+
+\parhead{Constraints} A test case contains a \lcr{StatementList}, so any C
+statement can be used in a test case. \lcr{StatementList} becomes available
+to the unit test language through its dependency on the \lcr{statements}
+language. \lcr{unittest} also defines new statements: \lcr{assert} and
+\lcr{fail}. They extend the abstract \lcr{Statement} concept defined in the
+\lcr{statements} language. This makes them valid in \emph{any} statement list,
+for example in a function body. This is undesirable, since the transformation of
+\lcr{assert}s into C depends on them being used in a \lcr{TestCase}. To
+enforce this, a \emph{can be child} constraint is defined
+(\fig{assertConstraints}).
+
+\begin{figure}[h]
+\begin{code} 
+  concepts constraints AssertStatement { 
+    can be child 
+      (operationContext, scope, parentNode, link, childConcept)->boolean { 
+        parentNode.ancestor<concept = TestCase, +>.isNotNull; 
+  }   } 
+\end{code}
+\caption{This constraint restricts an \lcr{AssertStatement} to be used only
+inside a \lcr{TestCase} by checking that at least one of its ancestors is a
+\lcr{TestCase}.}
+\label{assertConstraints} 
+\end{figure}
+
+\parhead{Transformation} The new language in \lcr{unittest} are reduced to C
+concepts: the \lcr{TestCase} is transformed to a \lcr{void} function without arguments and the \lcr{assert}
+statement is transformed into a \lcr{report} statement defined in the logging
+language. In turn, it is transformed into a platform-specific way of 
+reporting an error (console, serial line or error memory). \fig{unittest2c}
+shows an example.
+
+
+\begin{figure}[h]
+\begin{minipage}[b]{0.3\linewidth}
+\begin{code}
+test case exampleTest {
+  int x = add(21, 21);               
+  assert(0) x == 42;         
+} 
+
+\end{code}
+\end{minipage}
+\hspace{0.025\linewidth}
+\begin{minipage}[b]{0.3\linewidth}
+\begin{code} 
+void test_exampleTest {
+  int x = add(21, 21);               
+  report testing.FAILED(0) 
+      on !( x == 42 );
+} 
+\end{code}
+\end{minipage}
+\hspace{0.025\linewidth}
+\begin{minipage}[b]{0.3\linewidth}
+\begin{code} 
+void test_exampleTest {
+  int x = add(21, 21);
+  if ( !( x == 42 ) ) {
+    printf( "failed: 0" );
+} }
+\end{code}
+\end{minipage} 
+\caption{Two-stage transformation of \lcr{TestCase}s. The \lcr{TestCase} is
+transformed into a C function using the logging framework to output error
+messages. The \lcr{report} statement is then transformed in turn into a
+\lcr{printf} statement \emph{if} we generate for the Windows/Mac environment. It
+would be transformed to something else if we generated for the actual target
+device.}
+\label{unittest2c}
+\end{figure}
+
+
+
+\subsection{Addressing $W_2$ (Statements): Safeheap Statement}
+
+We have seen the basics of integrating new statements in the previous section.
+In this section we focus on statements that require handling local variable
+scopes and visibilities. We implement the \ic{safeheap} statement mentioned
+earlier (see \fig{safeheap}), which automatically frees dynamically allocated
+memory. The variables introduced by the \ic{safeheap} statement have to be
+visible only inside its body and they have to shadow variables of the same name
+declared in outer scopes (such as the \ic{a} declared in the first line of the
+\ic{measure} function in \fig{safeheap}).
+
+\parhead{Structure} The \lcr{safeheap} statement extends \lcr{Statement}. It
+contains a \lcr{Statement-}\\\lcr{List} as its body, as well as a list of
+\lcr{SafeHeapVar}s. These extend \lcr{LocalVarDecl}, so they fit with the
+existing mechanism for handling variable shadowing.
+  
+\begin{figure} 
+\rule{\textwidth}{0.7pt} 
+\begin{center} 
+\includegraphics[width=7.5cm]{figures/impl/safeheap.png}
+\end{center}
+\vspace{-5mm} 
+\rule{\textwidth}{0.7pt} 
+\caption{A \lcr{safeheap} statement declares heap variables which
+can only be used inside the body of the statement. When the body is left, the
+memory is automatically freed.}
+\label{safeheap}
+\end{figure}
+
+
+\parhead{Behaviour} \lcr{LocalVarRef}s are expressions that reference
+\lcr{LocalVarDecl}. A scope constraint, a mechanism provided by MPS, determines
+the set of visible variables. We implement this constraint so it ascends the
+containment tree until it finds a node which implements
+\lcr{ILocalVarScopeProvider} and calls its \lcr{getLocalVarScope} method. A
+\lcr{LocalVarScope} has a reference to an outer scope, which is set by finding
+\emph{its} \lcr{ILocalVarScopeProvider} ancestor, effectively building a
+hierarchy of \lcr{LocalVarScope}s. To get at the list of the visible variables,
+the \lcr{LocalVarRef} scope constraint calls the \lcr{getVisibleLocalVars}
+method on the innermost \lcr{LocalVarScope} object. This method returns a flat
+list of \lcr{LocalVarDecl}s, taking into account that variables owned by a
+\lcr{LocalVarScope} that is lower in the hierarchy shadow variables of the same
+name from a higher level in the hierarchy. So, to plug the
+\lcr{SafeHeapStatement} into this mechanism, it has to implement
+\lcr{ILocalVarScopeProvider} and implement the two methods shown 
+in \fig{safeheapbehaviour}.
+
+\begin{figure}[h]
+\begin{code} 
+public LocalVarScope getLocalVarScope(node<> context, int statementIndex) {
+  LocalVarScope scope = new LocalVarScope(getContainedLocalVariables()); 
+  node<ILocalVarScopeProvider> outerScopeProvider = 
+      this.ancestor<concept = ILocalVarScopeProvider>; 
+  if (outerScopeProvider != null) { 
+    scope.setOuterScope(outerScopeProvider.getLocalVarScope(this, this.index)); 
+  } 
+  return scope; 
+}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+public sequence<node<LocalVariableDecl>> getContainedLocalVariables() {
+  this.vars; 
+}
+\end{code} 
+\caption{A \lcr{safeheap} statement implements the two methods declared by the
+\lcr{ILocalVarScopeProvider} interface. \lcr{getContainedLocalVariables}
+returns the \lcr{LocalVarDecl}s that are declared between the parentheses (see
+\fig{safeheap}). \lcr{getLocalVarScope} constructs a scope that contains these
+variables and then builds the hierarchy of outer scopes by relying on its
+ancestors that also implement \lcr{ILocalVarScopeProvider}.}
+\label{safeheapbehaviour}
+\end{figure}
+
+
+\subsection{Addressing $W_3$ (Expressions): Decision Tables}
+
+Expressions are different from statements in that they can be evaluated to a
+\emph{value} as the program executes. During editing and compilation, the
+\emph{type} of an expression is relevant for the static correctness of the
+program. So extending a language regarding expressions requires extending the
+type system rules as well.
+  
+\fig{dectab} shows the decision table expression. It is evaluated to the
+expression in a cell \emph{c} if the column header of \emph{c} and the row
+header of \emph{c} are true\footnote{Strictly speaking, it is the \emph{first}
+of the cells for which the headers are true. We are currently in the process of
+integrating static analyses to detect incompleteness and overlap in decision
+tables.}. If none of the condition pairs is true, then the default value,
+\ic{FAIL} in the example, is used. A decision table also specifies the type of
+the value it will evaluate to, and all the expression in content cells have
+to be compatible with that type. The type of the header cells has to be Boolean.
+
+
+\begin{figure}[h]
+\begin{code} 
+typeof(dectab) :==: typeof(dectabc.type);  // the type of the whole decision table 
+                                           // is the type specified in the type field 
+foreach expr in dectab.colHeaders {        // for each of the expressions in
+  typeof(expr) :==: <boolean>;             // the column headers, the type  
+}                                          // must be boolean
+foreach expr in dectabc.rowHeaders {       // ... same for the row headers
+  typeof(expr) :==: <boolean>;             
+}                                          
+foreach expr in dectab.resultValues {      // the type of each of the result
+  infer typeof(expr) :<=: typeof(dcectab); // values must be the same or a 
+}                                          // subtype of the table itself
+typeof(dc.def) :<=: typeof(dectab);        // ... same for the default
+\end{code} 
+\caption{The type equations for the decision table (see the
+comments for details).}
+\label{dectabtyping}
+\end{figure}
+
+\parhead{Structure} The decision table extends the \lcr{Expression} concept
+defined in the \ic{expressions} language. Decision tables contain a list of
+expressions for the column headers, one for the row headers and another one for
+the result values. It also contains a child of type \lcr{Type} to declare the
+type of the result expressions, as well as a default value expression.
+
+\parhead{Type System} MPS uses unification in the type system. Language
+concepts specify type equations that contain type literals (such as
+\lcr{boolean}) as well as type variables (such as \lcr{typeof(dectab)}). The
+unification engine then tries to assign values to the type variables so that all
+applicable type equations become true. New language concepts contribute
+additional type equations. \fig{dectabtyping} shows those for decision tables.
+New equations are solved along with those for existing concepts. For example,
+the typing rules for a \lcr{ReturnStatement} ensure that the type of the returned
+expression is the same or a subtype of the type of the surrounding function. If
+a \lcr{ReturnStatement} uses a decision table as the returned expression, the
+type calculated for the decision table must be compatible with the return
+type of the surrounding function. 
+
+
+
+ 
+ 
+\subsection{Addressing $W_4$ (Types and Literals): Physical Units}
+
+To illustrate adding new types and literals we use physical units (see
+\fig{unitsexample}).
+
+\begin{figure}[h]
+\rule{\textwidth}{0.7pt} 
+\begin{center} 
+\includegraphics[width=10cm]{figures/impl/units.png}
+\end{center} 
+\rule{\textwidth}{0.7pt} 
+\caption{The \emph{units} extension supports data types and literals with
+physical units. A \lcr{UnitDeclaration} specifies the unit and the base type.
+Type checks ensure that the values associated with unit literals use the correct
+unit (cf. the error). The typing rules for the existing \lcr{+} and \lcr{==} 
+operators must be overridden to support types with units.}
+\label{unitsexample}
+\end{figure}
+
+\parhead{Structure} \lcr{UnitDeclaration} are \ic{IModuleContents}. They specify
+a name and the \lcr{Type} to which they apply. Introducing new types (so one can
+write \ic{kg/int m = \ldots }) is done by defining a \lcr{UnitType} which
+extends the \lcr{Type} concept. The \lcr{UnitType} refers to the
+\lcr{UnitDeclaration} whose type it represents. We also introduce
+\lcr{LiteralWithUnit}s (as in \ic{10kg}). These are
+\lcr{Expressions} that have a child of type \lcr{Literal} as their \lcr{value}
+as well as a reference to a \lcr{UnitDeclaration}.
+
+\parhead{Scoping} \lcr{LiteralWithUnit}s and \lcr{UnitType}s refer to a
+\lcr{UnitDeclaration}, which is a module content. According to the visibility
+rules, valid targets for the reference are the \lcr{UnitDeclaration}s in the
+same module, and the \emph{exported} ones in all imported modules. This rule
+applies to \emph{any} reference to \emph{any} module contents, and is
+implemented generically. \fig{scoping} shows the code for the scope of the
+reference to the \lcr{UnitDeclaration}. We use an interface
+\lcr{IVisibleNodeProvider}, (implemented by \lcr{Module}s) to find all
+instances of a given type. The implementation of \ic{visibleContentsOfType}
+simply searches through the contents of the current and imported modules and
+collects instances of the specified concept. The result is used as the scope for
+references for the reference.
+ 
+\begin{figure}[h]
+\begin{code} 
+link {unit} 
+  search scope: 
+    (model, scope, referenceNode, linkTarget, enclosingNode, operationContext)
+                       ->join(ISearchScope | sequence<node<UnitDeclaration>>) { 
+      enclosingNode.ancestor<concept = IVisibleNodeProvider>.
+             visibleContentsOfType(concept/UnitDeclaration/); 
+    } 
+\end{code} 
+\caption{The \lcr{visibleContentsOfType} operation returns all instances of the
+passed in concept in the current module, as well as all exported 
+instances in modules imported by the current module.}
+\label{scoping}
+\end{figure}
+ \parhead{Type System} We have seen how MPS uses equations and
+unification to specify type system rules. However, there is special support
+for binary operators that makes overloading for new types easy:
+Overloaded operations containers specify 3-tuples of \emph{(leftArgType,
+rightArgType, resultType)} plus applicability conditions to match type patterns
+and decide on the resulting type. Typing rules for new (combinations of) types
+can be added by specifying additional 3-tuples. \fig{ovopcont} shows the
+overloaded rules for C's \lcr{PlusExpression} when applied to two
+\ic{UnitType}s: the result type will be a \lcr{UnitType} as well.
+\begin{figure}[h]
+\begin{code} 
+operation concepts: PlusExpression                                                                                                                                                                                                                   
+left operand type: new node<UnitType>()                                                                                                                                                                                                  
+right operand type: new node<UnitType>()                                                                                                                                                                                                
+is applicable: (operation, leftOperandType, rightOperandType)->boolean {                                                                                                                                                                                                                                         
+                  return leftOperandType : UnitType.unit == rightOperandType :  UnitType.unit; 
+               }
+resulting type: (operation, leftOperandType, rightOperandType)->node<> {                                                                                                                                                                                                                                        
+                   leftOperandType.copy; 
+                }                                                                                                                                                                              
+\end{code} 
+\caption{This code overloads the \ic{PlusExpression} to work for
+\ic{UnitType}s. It specifies the types it applied to (\ic{UnitType}) and checks
+that it only applies if the two arguments have \emph{the same} unit (more
+sophisticated unit compatibility rules could be added here). The resulting type 
+is a copy of the left operand's type (same as the right one, so we can choose 
+either).}
+\label{ovopcont}
+\end{figure}\subsection{Addressing $W_5$ (Alternative Transformations): Range Checking}
+
+The \ic{safemodules} language defines an \emph{annotation} to mark
+\lcr{Modules} as safe. If a module is safe, the binary operators such as \lcr{+}
+or \lcr{*} are replaced with calls to functions that, in addition to performing
+the addition or multiplication, perform a range check. Annotations are concepts
+whose instances can be added as children of other nodes \emph{N} without this
+being specified in the definition of \emph{N}'s concept. The \lcr{safe} is
+restricted so it is applicable only to \lcr{Module}s. The transformation that
+replaces the binary operators with function calls is triggered by the presence
+of this annotation on the \lcr{Module} which (transitively) contains the
+operator. \fig{safetransformation} shows the transformation code. MPS uses
+pair-wise priorities to specify relative orderings of transformations (from
+which MPS calculates a global transformation order). We use a priority to make
+sure this transformation runs \emph{before} the final transformation that maps
+the C tree to C text for compilation.
+ 
+\begin{figure}[h]
+\rule{\textwidth}{0.7pt} 
+\begin{center} 
+  \includegraphics[width=12cm]{figures/impl/safetransformation.png}
+\end{center}
+\rule{\textwidth}{0.7pt}
+\caption{This \emph{reduction rule} transforms instances of \lcr{PlusExpression}
+into a call to a library function \lcr{addWithRangeChecks}, passing in the left 
+and right argument of the \lcr{+} using the two \lcr{COPY\_SRC} macros. The 
+\lcr{condition} ensures that the transformation is only executed if
+the containing \lcr{Module} has a \lcr{safeAnnotation} attached to it.} 
+\label{safetransformation}  
+\end{figure}
+
+
+\subsection{Addressing $W_6$ (Meta Data): Requirements Traces}
+Meta data is data that is not required for the core transformation to C, but 
+is useful to specialized optional tools. Meta data should be
+attachable to program nodes without the definition of these nodes having to
+be aware of the meta data (see \fig{traces}). In the previous subsection we have
+seen how MPS' annotations can be used for this. Structurally, annotations
+become children of the node they are attached to. The annotation's definition
+declares the name of the link that contains this additional child. In the
+editor, annotations look as if they \emph{surrounded} their parent node. The
+right part of \fig{traces} shows the definition of the editor of the
+requirements trace annotation: it puts the trace on top of the annotated
+node (see left part of \fig{traces}). Since MPS is a projectional editor, 
+there is no grammar that needs to be made aware of the additional syntax in 
+the program. This is key to enabling arbitrary annotations on arbitrary program 
+nodes. 
+
+The same mechanism is used for presence conditions; instead of references to
+requirements, those annotations contain the Boolean expressions over the
+configuration switches.
+
+ 
+
+\begin{figure}[h]
+\rule{\textwidth}{0.7pt}
+\begin{center} 
+  \includegraphics[width=12cm]{figures/impl/tracesAll.png}
+\end{center}
+\rule{\textwidth}{0.7pt} 
+\caption{\emph{Left:} Requirements traces can be attached to any program node of any
+language. An intention (pressing Alt-Enter and selecting \emph{Add Trace}) is
+used to attach them. \emph{Right:} The editor definition for the \lcr{ReqTrace}
+annotation. It consists of a vertical list \lcr{[/ .. /]} with two lines. The
+first line contains the reference to the reference requirement. The second line uses the
+\lcr{attributed node} construct to embed to the editor of the program node
+to which this annotation is attached. So the annotation is always rendered
+right on top of whatever syntax the original node uses.}
+\label{traces}  
+\end{figure}   
+
+
+\subsection{Addressing $W_7$ (Restriction): Preventing Use of Reals Numbers} 
+
+We have already seen in \sect{toplevel} how constraints can prevent the use of
+certain concepts in certain contexts. We use the same approach for preventing
+the use of real number types inside model-checkable state machines: a \ic{can be
+ancestor} constraint in the state machine prevents instances of \ic{float} in
+the state machine if the \ic{verified} flag is set.
+

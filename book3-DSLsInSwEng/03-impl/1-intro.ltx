@@ -1,0 +1,296 @@
+% !TEX root = doc.tex
+\section{Introduction}
+
+Embedded software is an essential ingredient of life today. Airplanes, cars,
+sensors and mobile phones are but a few examples of systems where a significant
+part of the business value derives from software running as part of the
+overall system, sometimes not even noticed by the user. The amount of software
+embedded in devices is growing (see, for example, the German National Roadmap
+for Embedded Systems \cite{ABB+09}). Embedded software development is a
+challenging field, since, in addition to functional requirements, a
+number of strict operational requirements have to be fulfilled as well. These
+include reliability (a device may not be accessible for maintenance after
+delivery), safety (a system may endanger life or property if it fails),
+efficiency (the resources available to the system may be limited) or real-time
+constraints (a system may have to run on a strict schedule prescribed by the
+system's environment). Addressing these challenges requires any of the
+following: abstraction techniques should not lead to excessive runtime
+overhead; programs should be easily analyzable for faults before delivery; and
+various kinds of annotations, for example for describing physical units,
+must be integrated into the code. In addition, process issues such as requirements
+traceability have to be addressed, and developers have to cope with a high
+degree of variability, since embedded systems are often developed in the context
+of product lines.
+ 
+Current approaches for embedded software development can roughly be
+distinguished into programming and modeling. The \emph{programming} approach
+relies on C, and sometimes C++. However, because of C's limited support for
+defining custom abstractions, this can lead to software that is hard to
+understand, maintain and extend. C's ability to work with very low-level
+abstractions such as pointers, makes C code very expensive to analyze
+statically. The alternative approach uses \emph{modeling} tools with automatic
+code generation. The modeling tools provide predefined, higher-level
+abstractions such as state machines or data flow component diagrams. Example
+tools include ASCET-SD\footnote{http://www.etas.com/} or
+Simulink\footnote{http://www.mathworks.com/products/simulink}. Using
+higher-level abstractions leads to more concise programs and simplified fault
+detection using static analysis and model checking (for example using the
+Simulink Design
+Verifier\footnote{http://www.mathworks.com/products/sldesignverifier}).
+Increasingly, \emph{domain specific} languages (DSLs) are used (see Related Work
+in \sect{related}). Studies such as \cite{Altran:2011} and \cite{LiggesmeyerT09}
+show that domain-specific languages substantially increase productivity in
+embedded software development. However, most real-world systems cannot be
+described completely and adequately with a single modeling tool or DSL, and the
+integration effort between manually written C code and possibly several modeling
+tools and DSLs becomes significant.
+
+
+A promising solution to this dilemma lies in a much tighter integration between
+low-level C code and higher-level abstractions specific to embedded systems. We
+propose to achieve this with an extensible C programming language. The
+advantages of C can be maintained: existing \emph{legacy code} can be easily
+integrated, reused, and evolved, and the need for \emph{efficient code} is
+immediately addressed by relying on C's low-level programming concepts. At the
+same time, domain-specific extensions such as state machines, components or data
+types with physical units can be made available as C extensions. This improves
+\emph{productivity} via more concise programs, it helps improve \emph{quality}
+in a constructive way by avoiding errors up-front, and leads to system
+implementations that are more amenable to meaningful \emph{analysis}. By
+directly embedding the extensions into C, the mismatch and integration challenge
+between domain specific models and general purpose code can be removed. An
+industry-strength implementation of this approach would also include IDE support
+for C and all of its extensions: syntax highlighting, code completion, error
+checking, refactoring and debugging.
+ 
+Developing such an extensible language and IDE is hard, but modern language
+engineering approaches promise to be able to address this. The LW-ES research
+project, run by itemis AG, fortiss GmbH, Sick AG and Lear GmbH explores the
+benefits of language engineering in the context of embedded software
+development. The open source project is hosted at \ic{http://mbeddr.com}. The
+code is available through this site.
+  
+\paragraph{Contribution} In this paper we present mbeddr C, an extensible
+C-based language and IDE that implements the approach described above.
+Extensions to C can be \emph{modular}, i.e. they can be developed without
+changing the C base language, and \emph{incremental}, so extensions can be
+developed at any time and users can include extension modules into programs as
+the need arises. Extensions address syntax, type systems, semantics (by
+transformation to lower abstraction levels) as well as IDE support. We have
+implemented mbeddr C using the open source MPS language
+workbench\footnote{http://jetbrains.com/mps}.
+     \paragraph{Outline} We proceed as follows. In the next section we describe in
+more detail the challenges faced in embedded software development. In
+\sect{solapproach}, we provide an overview over our solution approach and
+identify ways in which C must be extensible to allow the definition of adequate
+domain specific abstractions. \sect{usingC} introduces a number of example
+extensions that address the challenges outlined in \sect{challenges}. We
+describe the implementation of these extensions, and with it, the design of the
+extensible C base language, in \sect{design}. We wrap up the paper with related
+work (\sect{related}), a discussion (\sect{discussion}) and an outlook on future
+work (\sect{future}).
+
+
+\section{Challenges in Embedded Software Development}
+\label{challenges}
+
+In this section we discuss a set of challenges that practitioners consider
+central when developing embedded software. We label the challenges $C_n$ so we
+can refer to them from \sect{usingC} where we show how mbeddr C addresses them.
+ 
+ 
+\paragraph{$C_1$: Abstraction without Runtime Cost} Domain-specific concepts
+provide more abstract descriptions of the system under development. Examples
+include data flow blocks, state machines, or data types with physical units. On
+the one hand, adequate abstractions have a higher expressive power that leads
+to shorter and easier to understand and maintain programs. On the other hand, by
+restricting the freedom of programmers, the domain specific abstractions also
+enable constructive quality assurance. For embedded systems, where runtime
+efficiency is a prime concern, mechanisms are needed that can be resolved beforeor during compilation, to ensure an efficient implementation.
+
+\paragraph{$C_2$: C considered Unsafe} While C is efficient and flexible,
+several of C's features are often considered unsafe. For example, unconstrained
+casting via \lcr{void} pointers, using \lcr{int}s as Booleans or the weak typing
+implied by \lcr{union}s can result in hard-to-detect runtime errors.
+Consequently, the unsafe features of C are prohibited in many organizations.
+Standards for automotive software development such as MISRA \cite{2004_misra_c}
+limit C to a \emph{safe} language subset. However, most C IDEs are not aware of
+these and other, organization-specific restrictions, so they are enforced with
+separate checkers that are often not well integrated with the IDE. This makes it
+hard for developers to adhere to the restrictions efficiently.
+
+\paragraph{$C_3$: Program annotations} For reasons such as safety or efficiency,
+embedded systems often require additional data to be associated with program
+nodes. Examples include physical units, data encodings or value ranges for
+variables. These annotations are typically used by specific, often custom-built
+analysis or generation tools. Since C programs can only capture such data
+informally as comments or \lcr{pragma}s, the C type system and IDE cannot check
+their correctness regarding the C program. They may also be stored separately
+(for example, in XML files) and linked back to the program using names or other
+weak links. Even with tool support that checks the consistency of these links
+and helps navigate between code and this data, the separation of core
+functionality and annotations leads to unnecessary complexity and
+maintainability problems.
+
+\paragraph{$C_4$: Static Checks and Verification} Embedded systems often have to
+fulfil strict safety requirements. Industry standards regarding safety (such as
+ISO-26262, DO-178B or IEC-61508) demand that for high safety certification
+levels various forms of static analyses are performed on the software. This
+ranges from simple type checks to sophisticated property checks, for example by
+model checking \cite{2005_ivanicic_model_checking_c_programs}. Since C is a very
+flexible and relatively weakly-typed language, the more advanced analyses are
+very expensive. Using suitable domain-specific abstractions (for example, state
+machines) leads to programs that can be analyzed much more easily. 
+
+
+\paragraph{$C_5$: Process Support} There are at least two cross-cutting and
+process-related concerns relevant to embedded systems. First, many certification
+standards (such as those mentioned above) require that code be explicitly linked
+to requirements such that full traceability is available. Today, requirements
+are often managed in external tools and maintaining traceability to the code is
+a burden to the developers and often done in an ad hoc way, for example via
+comments. Second, many embedded systems are developed as part of product lines
+with many distinct product variants, where each variant consists of a subset of
+the (parts of) artifacts that comprise the product line. This variability is
+usually captured in constraints expressed over program parts such as statements,
+functions or states. Most existing tools come with their own variation
+mechanism, if variability is supported at all. Integration between program
+parts, the constraints and the variant configuration (for example via feature
+models) is often done through weak links, and with little awareness of the
+semantics of the underlying language. For example, the C preprocessor, often
+used for this task, performs simple text replacement or removal controlled by
+the conditions in \ic{\#ifdef}s. As a consequence, variant management is a huge
+source of accidental complexity.
+
+\noindent An additional concern is tool integration. The diverse requirements
+and limitations of C discussed to far often lead to the use of a wide variety of
+tools in a single embedded development project. Most off-the-shelf tools are not
+open enough to facilitate seamless and semantically meaningful integration with
+other tools, leading to significant accidental tool integration complexity.
+COTS tools often also do not support meaningful language extension, severely
+limiting the ability to define and use custom domain-specific abstractions.
+
+
+\section{Solution Approach}
+\label{solapproach}
+
+Language engineering provides a holistic approach to solve these challenges. In
+this section we illustrate how the mbeddr system addresses these challenges with
+an extensible version of the C programming language, growing the stack of
+languages extensions illustrated in \fig{growing}. The following section briefly
+discusses language extension in general and explores which ways $W_m$ of
+extending C are necessary to address the challenges $C_n$. \sect{usingC} then
+shows examples that address each of the challenges and ways of extending C.
+
+
+\begin{figure}   
+\begin{center} 
+  \includegraphics[width=10cm]{figures/impl/growing_c_language.png}
+\end{center}
+\caption{The mbeddr language stack: the language extensions are layered
+on top of each other, while support for requirements traceability and product line variability are
+cross-cutting. Component/Statemachine integration and Statemachine Tests are not
+discussed in this paper.}
+\label{growing}
+\end{figure}   
+
+
+\subsection{Language Extension}
+
+In \cite{Voelter2011} we classify strategies for language modularization
+and composition. Traditionally, languages are composed
+by \emph{referencing}: The partial programs expressed with different languages
+reside in their own files and refer to each other via references, often using qualified names. There
+is no \emph{syntactic} integration between the languages, where programs
+expressed with different languages are syntactically mixed. While referencing is
+sometimes useful, syntactic integration is required in many cases, as we will
+see in the examples provided in \sect{usingC}. In \cite{Voelter2011} we identify
+two strategies that support syntactic integration: language \emph{embedding}
+refers to the syntactic composition of two independent languages. The embedded
+language has no dependency on the host language. Both have been developed
+independently, and the act of embedding does not require changes to either
+language. In language \emph{extension}, a dependency from the extension language
+to the base language is allowed, for example, by inheriting from language
+concepts defined in the base language. The mbeddr system relies on
+language extension.
+
+Language extension, as provided by mbeddr, provides deep syntactic and semantic
+integration, as well as an IDE that is aware of the language extensions. It is
+much more than a macro system or an open compiler (cf. Related Work in
+\sect{related}). Our implementation technology, the JetBrains MPS open source
+language workbench, supports the flexible definition, extension, composition and
+use of multiple languages. A language extension defines new structure, syntax,
+type system rules and semantics. In the language extension composition strategy,
+the semantics of a language extension are typically defined by a transformation
+back to the base language, an approach also called assimilation
+\cite{BravenboerV07}. For example, in an extension that provides state machines,
+those are transformed to a \lcr{switch/case}-based implementation in C.
+Extensions can be stacked (\fig{growing}), where a higher-level extension
+extends a lower-level language. At the bottom of this stack resides plain C in
+textual form and a suitable compiler. \fig{reduction} shows an example where a
+module containing a component containing a state machine is transformed to C. 
+
+
+\begin{figure}
+\begin{center} 
+  \includegraphics[width=11cm]{figures/impl/reduction.png}
+\end{center}
+\caption{Higher-level abstractions such as state machines
+or components are reduced to their lower-level equivalent, resulting in C text
+that is subsequently compiled.}
+\label{reduction}   
+\end{figure} 
+
+A set of organizations, such as the departments in a large company, will likely
+not agree on a \emph{single} set of extensions since they typically work in
+slightly different areas. Also, a language that contains \emph{all} relevant
+abstractions would become big and unwieldy. Thus, extensions have to be
+\emph{modular}. They have to be defined without modifying the base language, and
+unintended interactions between independently created extensions must be avoided
+(a discussion of automatic detection of interactions is beyond the scope of this
+paper). Also, users must be able to include \emph{incrementally} only those
+extensions into any given program they actually need. 
+
+\subsection{Ways to extend C}
+\label{ways}
+In this section we discuss in which particular ways C needs to be extensible.
+\sect{design} shows examples of each of these ways.
+
+\paragraph{$W_1$: Top Level Constructs} New top level constructs are necessary.
+This enables the integration of test cases or new programming paradigms
+relevant in particular domains such as state machines, or interfaces and
+components. 
+
+\paragraph{$W_2$: Statements} New statements, such as \lcr{assert} or \lcr{fail}
+statements in test cases, must be supported. If statements introduce new
+blocks, then variable visibility and shadowing must be handled correctly.
+Statements may have to be restricted to a specific
+context; for example the the \lcr{assert} or \lcr{fail} statements must
+\emph{only} be used in test cases and not in any other statement list.
+
+\paragraph{$W_3$: Expressions} New kinds of expressions must be supported. An
+example is the decision table expression that represents a two-level decision
+tree as a two dimensional table.
+ 
+\paragraph{$W_4$: Types and Literals} New types, for example for matrices,
+complex numbers or quantities with physical units must be supported. This also
+requires defining new operators or overriding the typing rules for existing
+ones. New literals may also be required: for example, physical units could beattached to number literals (as in \ic{10kg}).
+\paragraph{$W_5$: Transformation} Alternative transformations for existing
+language concepts must be possible. For example, in a module marked as
+\lcr{safe}, \lcr{x + y} may have to be translated to
+\lcr{addWithBoundsCheck(x, y)}, a call to an \ic{inline} function that performs
+bounds-checking besides the addition. 
+
+\paragraph{$W_6$: Meta Data Decoration} It should be possible to add meta data
+such as trace links to requirements or product line variability constraints to
+arbitrary program nodes, without changing the node's definition.
+\paragraph{$W_7$: Restriction} It should be possible to define contexts in which
+the use of certain language concepts is prohibited. Just like any other
+extension, such context musts be definable \emph{after} the original language
+has been implemented, and without invasive change. For example, the use of
+pointer arithmetics should be prohibited in modules marked as \emph{safe} or the
+use of real numbers should be prohibited in state machines that are intended to
+be model checked (model checkers do not support real numbers).
+
+

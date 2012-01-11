@@ -164,13 +164,10 @@ recursion~\cite{CzarneckiHE05}. For example, the feature model in \fig{exfm} is
 equivalent to the following grammar. We use all caps to represent terminals, and
 camel-case identifiers as non-terminals:
 
-
-\footnotesize
-\begin{verbatim} 
-  Fountain -> Basin PUMP
-  Basin -> ISFULLSENSOR? (ONENOZZLE | TWONOZZLES)
-\end{verbatim}
-\normalsize
+\begin{code}
+Fountain -> Basin PUMP
+Basin -> ISFULLSENSOR? (ONENOZZLE | TWONOZZLES)
+\end{code}
 
 
 \noindent This grammar generates a finite number of sentences, i.e there are
@@ -184,47 +181,40 @@ references.
 
 
 
-\emph{Attributes} express properties of features. For example, the \textit{PUMP}
-could have an integer attribute \textit{rpm}, representing the power setting of
+\emph{Attributes} express properties of features. For example, the \ic{PUMP}
+could have an integer attribute \ic{rpm}, representing the power setting of
 the pump. Some feature modeling tools (e.g. pure::variants) support attributes.
 
-
-\footnotesize
-\begin{verbatim} 
-  Fountain -> Basin PUMP(rpm:int)
-  Basin -> ISFULLSENSOR? (ONENOZZLE | TWONOZZLES)
-\end{verbatim}
-\normalsize
+\begin{code}
+Fountain -> Basin PUMP(rpm:int)
+Basin -> ISFULLSENSOR? (ONENOZZLE | TWONOZZLES)
+\end{code}
 
 
 \emph{Recursive} grammars can be used to model repetition and nesting.
 Repetition is also supported by cardinality-based feature models, as described
 in \cite{CzarneckiHE05}. Nesting is necessary to model tree structures such as
 those occurring in expressions. The following grammar extends the fountain
-feature model with a \textit{Behavior}, which consists of a number of
-\textit{Rules}. The \textit{Basin} can now have any number of \textit{Nozzles}.
+feature model with a \ic{Behavior}, which consists of a number of
+\ic{Rules}. The \ic{Basin} can now have any number of \ic{Nozzles}.
 
-
-\footnotesize
-\begin{verbatim} 
+\begin{code}
   Fountain -> Basin PUMP(rpm:int) Behavior
   Basin -> ISFULLSENSOR? NOZZLE*
   Behavior -> Rule*
   Rule -> CONDITION CONSEQUENCE
-\end{verbatim}
-\normalsize
+\end{code}
 
 
 \emph{References} allow the creation of context-sensitive relations
 between parts of generated sentences --- or subtrees of the generated
 derivation trees. For example, by further extending our fountain grammar
-we can describe a rule whose condition refers to the \textit{full} attribute of
-the \textit{ISFULLSENSOR} and whose consequence sets a \textit{PUMP}'s
-\textit{rpm} to 0.
+we can describe a rule whose condition refers to the \ic{full} attribute of
+the \ic{ISFULLSENSOR} and whose consequence sets a \ic{PUMP}'s
+\ic{rpm} to 0.
 
 
-\footnotesize
-\begin{verbatim} 
+\begin{code} 
   Fountain -> Basin id:PUMP(rpm:int)? Behavior
   Basin -> id:ISFULLSENSOR(full:boolean)? id:NOZZLE*
   Behavior -> Rule*
@@ -238,8 +228,7 @@ the \textit{ISFULLSENSOR} and whose consequence sets a \textit{PUMP}'s
   GreaterThanExpression -> Expression Expression
 
   Consequence -> ATTRREFEXPRESSION Expression
-\end{verbatim}
-\normalsize
+\end{code}
 
 
 
@@ -258,10 +247,10 @@ the \textit{ISFULLSENSOR} and whose consequence sets a \textit{PUMP}'s
 enhanced feature modeling notation. We use cardinalities, as well as references
 to existing features, the latter are shown as dotted boxes. A valid
 configuration could be the one shown in \fig{exfm-extended-inst}. It shows a fountain with one basin,
-two nozzles named \textit{n1} and \textit{n2}, one sensor \textit{s} and a pump
-\textit{p}. It contains a rule that expresses that if the \textit{full}
-attribute of \textit{s} is set, and the \textit{rpm} of pump \textit{p} is
-greater than zero, then the \textit{rpm} should be set to zero.
+two nozzles named \ic{n1} and \ic{n2}, one sensor \ic{s} and a pump
+\ic{p}. It contains a rule that expresses that if the \ic{full}
+attribute of \ic{s} is set, and the \ic{rpm} of pump \ic{p} is
+greater than zero, then the \ic{rpm} should be set to zero.
  
 
 
@@ -288,8 +277,7 @@ definitions (keywords), as in the following extension of the fountain grammar:
 
 
 
-\footnotesize
-\begin{verbatim} 
+\begin{code} 
   Fountain -> "fountain" Basin Pump Behavior
   Basin -> "basin" IsFullSensor Nozzle*
   Behavior -> Rule*
@@ -309,8 +297,7 @@ definitions (keywords), as in the following extension of the fountain grammar:
   IsFullSensor: "sensor" ID (full:boolean)?
   Nozzle: "nozzle" ID
   Pump: "pump" ID (rpm:int)?
-\end{verbatim}
-\normalsize
+\end{code}
 
 
 \noindent We can now write a program that uses a convenient textual notation,
@@ -321,22 +308,20 @@ rules and other constraints, but that is beyond the scope of this paper.
 
 
 
-\footnotesize
-\begin{verbatim} 
+\begin{code} 
   fountain
     basin sensor s
           nozzle n1
           nozzle n2
     pump p
     if s.full && p.rpm > 0 then p.rpm = 0
-\end{verbatim}
-\normalsize
+\end{code}
 
 
 DSLs fill the gap between feature models and programming languages. They can be
 more expressive than feature models, but they are not as unrestricted and
 low-level as programming languages. Like programming languages, DSLs, support
-\textit{construction}, allowing the composition of an unlimited number of
+\ic{construction}, allowing the composition of an unlimited number of
 programs. Construction happens by
 instantiating language concepts, establishing relationships, and defining values for attributes. We do not a-priori know all
 possible valid programs. In contrast to programming languages, DSLs keep the
@@ -566,11 +551,10 @@ approximation of this approach.
 Clafer \cite{291} combines meta modeling and feature modeling. In addition to
 providing a unified syntax and a semantics based on sets, Clafer also provides
 a mapping to SAT solvers to support validation of models. The following code is
-Clafer code (adapted from Michal Antkiewicz' \textit{Concept Modeling Using
+Clafer code (adapted from Michal Antkiewicz' \emph{Concept Modeling Using
 Clafer} tutorial at http://gsd.uwaterloo.ca/node/310). 
 
-\footnotesize
-\begin{verbatim} 
+\begin{code} 
   abstract Person
     name : String
     firstname : String
@@ -590,25 +574,24 @@ Clafer} tutorial at http://gsd.uwaterloo.ca/node/310).
 
   abstract WaitingLine 
     participants -> Person *
-\end{verbatim}
-\normalsize
+\end{code}
 
 \noindent
-The Clafer code example describes a concept \textit{Person} with the following
+The Clafer code example describes a concept \ic{Person} with the following
 characteristics:
 \begin{itemize}
-  \item a name and a first name of type \textit{String} (similar to attributes)
-  \item a gender which is \textit{Male} or \textit{Female}, or both (similar to
+  \item a name and a first name of type \ic{String} (similar to attributes)
+  \item a gender which is \ic{Male} or \ic{Female}, or both (similar to
   or-groups in feature models)
-  \item a marital status which is either \textit{single}, \textit{married} or
-  \textit{divorced} (similar to xor-groups in feature models)
-  \item an \textit{Address} (similar composition is language definitions) 
-  \item and an optional \textit{State} attribute on the address (similar to
+  \item a marital status which is either \ic{single}, \ic{married} or
+  \ic{divorced} (similar to xor-groups in feature models)
+  \item an \ic{Address} (similar composition is language definitions) 
+  \item and an optional \ic{State} attribute on the address (similar to
   optional features in feature modeling)
 \end{itemize}
 
-The code also shows a reference: a \textit{WaitingLine} refers to any number of
-\textit{Persons}.
+The code also shows a reference: a \ic{WaitingLine} refers to any number of
+\ic{Persons}.
 
 
 Note, however, that an important ingredient for making DSLs work in practice is
@@ -790,9 +773,9 @@ dependencies over the behavior specifications.
 \begin{figure}[htp]
 \begin{center}
   \includegraphics[scale=0.68]{figures/ple/bsh-cool2.png}
-  \caption[labelInTOC]{Within a pumping program, \textit{variant} statements can
+  \caption[labelInTOC]{Within a pumping program, \ic{variant} statements can
   be used to implement negative variability over optional hardware features.
-  The example shows code that is only executed if the \textit{WithAlarm} feature
+  The example shows code that is only executed if the \ic{WithAlarm} feature
   is present.}
   \label{bsh-cool2}
 \end{center} 
@@ -819,7 +802,7 @@ Tooling is based on Eclipse Xtext and pure::variants. \fig{archdslvar} shows a
 screenshot. The system also supported AOP: aspects are available to
 "contribute" additional properties to existing model elements. The article in
 \cite{Volter10} describes this example, and the general approach, in more
-detail.
+detail. 
 
 
 
@@ -888,7 +871,7 @@ technical space of DSLs. First we briefly recap the core PLE concepts.
   meaningful to non-programmers as well.
 
   \item \emph{The Solution Space} refers to the technical space that is used
-  to implement the products. In case of \textit{software} product line
+  to implement the products. In case of \emph{software} product line
   engineering, this space is software development. The platform lives in the
   solution space. The production tools create or adapt artifacts in the solution
   space based on a specification of a product in the problem space.
@@ -959,7 +942,7 @@ solution space or configuring some technical aspect of the solution directly
 
 \subsection{Binding Time}
 
-DSLs can be executed in two ways. \textit{Transformation} maps a DSL program to
+DSLs can be executed in two ways. \emph{Transformation} maps a DSL program to
 another formalism for which an execution infrastructure already exists. If this
 formalism is another DSL, we speak of model-to-model transformation, or simply
 transformation. If the target is a programming language, we speak of code
@@ -1018,7 +1001,6 @@ whether they are part of the platform or the production tools:
   turn interpreted by the platform, then the transformations constitute
   production tools and the interpreter of the target formalism is a part of the
   platform.
-
 \end{itemize}
 
 
