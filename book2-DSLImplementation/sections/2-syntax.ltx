@@ -181,12 +181,12 @@ part of the input --- only the parser has this awareness. An example of a
 typical problem that arises from this is that keywords can't be used as
 identifiers even though often the use of a keyword wouldn't cause ambiguity in
 the actual parsing. The Java language is an example of this: it uses a fixed set
-of keywords, such as \keyword{class} and \keyword{public}, that cannot be used
+of keywords, such as \ic{class} and \ic{public}, that cannot be used
 as identifiers.
 
 A context-unaware scanner can also introduce problems when languages
 are extended or composed. In the case of Java, this was seen with the
-\keyword{assert} and \keyword{enum} keywords that were introduced in
+\ic{assert} and \ic{enum} keywords that were introduced in
 Java 1.4 and Java 5. Any programs that used identifiers with those
 names (such as unit testing APIs) were no longer valid. For composed
 languages, similar problems arise as constituent languages have
@@ -999,8 +999,8 @@ CoolingProgram:
 
 Rules begin with the name (CoolingProgram), a colon, and then the rule body. The
 body defines the syntactic structure of the language concept defined by the
-rule. In our case, we expect the keywords \keyword{cooling} and
-\keyword{program}, followed by an ID. ID is a \emph{terminal rule} that is
+rule. In our case, we expect the keywords \ic{cooling} and
+\ic{program}, followed by an ID. ID is a \emph{terminal rule} that is
 defined in the parent grammar from which we inherit. It is defined as an
 unbounded sequence of lowercase and uppercase characters, digits, and the
 underscore, although it may not start with a digit. This terminal rule is
@@ -1122,7 +1122,7 @@ AssignmentStatement:
 \end{code}  
 
 The ChangeStateStatement is used to transition into another state of the overall
-state-based program. It uses the keyword \keyword{state} and then a reference to
+state-based program. It uses the keyword \ic{state} and then a reference to
 the actual target state in the form of its name. Notice how Xtext uses brackets
 to express the fact that the \verb#targetState# property points to an existing
 State as opposed to containing a new one (written as \verb#targetState=State#),
@@ -1209,7 +1209,7 @@ instantiation: \verb#TrueLiteral: {TrueLiteral} "true";# Notice that the action
 can instantiate meta classes other than those that are derived from the rule
 name. Unless otherwise specified, an assignment such as \verb+name=ID+ is always
 interpreted as an assignment on the object that has been created most recently.
-The \keyword{current} keyword can be used to access that object in case it
+The \ic{current} keyword can be used to access that object in case it
 itself needs to be assigned to a property.
 
 Now we know enough to understand how expressions are encoded and parsed. For the
@@ -1224,11 +1224,11 @@ parsed:
   returns an object which represents the parsed result or null in case no
   object was instantiated, or it internally throws an exception indicating that
   the input couldn't be matched to the called rule. The returned object is
-  available in the calling rule using the \keyword{current} keyword.
+  available in the calling rule using the \ic{current} keyword.
   \item The parser now "dives down" until it matches the 2. This occurs on
   AtomicLevel, as it matches the \verb#DECIMAL\_NUMBER# terminal. At this point
   it creates an instance of NumberLiteral and assigns the actual number (2) to
-  the value property. It also sets the \keyword{current} object to point to the
+  the value property. It also sets the \ic{current} object to point to the
   just created NumberLiteral.
   \item The AtomicLevel rule ends, and the stack is unwound. We're back at
   PrefixOpLevel, in the second branch. Since nothing else is specified, we
