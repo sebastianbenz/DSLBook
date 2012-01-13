@@ -328,12 +328,13 @@ is defined that determines how the referenced element is rendered at the
 referencing site. We have shown this in the previous section. To determine which
 instances of the referenced concept are allowed, a scoping function has to be
 implemented. It simply returns a list of all the elements that are considered
-valid targets for the reference. 
+valid targets for the reference, as well as, optionally, a text string used to
+display the respective element in the code completion menu.
 
 As we have explained above, smart references are an important ingredient to make
 this work conveniently. They make sure that users can simply type the name (or
-whatever else is put into the CC menu by the language developer) of the
-targetted element; once something is selected, the corresponding reference
+whatever else is put into the code completion menu by the language developer) of
+the targetted element; once something is selected, the corresponding reference
 concept is instantiated, and the selected target is set.
 
 \paragraph{Simple Scopes} As an example, we begin with the scope definition for
@@ -341,7 +342,7 @@ the target reference of the Transition concept. To recap, it is defined as:
 
 
 \begin{code}
-concept Transition extends MedBase      
+concept Transition      
   // ...                                        
   references:                           
     State target 1 specializes: <none>    

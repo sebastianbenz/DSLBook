@@ -1399,190 +1399,193 @@ ID                        -> Exp {cons("Var")}
 \section{MPS Example}
 
 We start by defining a simple language for state machines. Core concepts include
-StateMachine, State, Transition and Trigger. The state machine can be embedded
-in C code as we will see later. The language supports the definition of state
-machines as shown in the following piece of code:
+\ic{StateMachine}, \ic{State}, \ic{Transition} and \ic{Trigger}. The state
+machine can be embedded in C code as we will see later. The language supports
+the definition of state machines as shown in the following piece of code:
 
 \begin{code}
-statemachine linefollower {                                                         
-  event initialized;                                                                 
-  event bumped;                                                                     
-  event blocked;                                                                    
-  event unblocked;                                                                  
-  initial state initializing {                                                      
-    initialized [true] -> running                                                   
-  }                                                                                 
-  state paused {                                                                    
-    entry int16 i = 1;                                                              
-    unblocked [true] -> running                                                     
-  }                                                                                 
-  state running {                                                                   
-    blocked [true] -> paused                                                        
-    bumped [true] -> crash                                                          
-  }                                                                                  
-  state crash {                                                                     
-    <<transitions>>                                                                 
-  }                                                                                 
-}                                                                                   
+module LineFollowerStatemachine { 
+   
+  statemachine LineFollower {                                                              
+    events unblocked()                                                               
+           blocked()                                                                 
+           bumped()                                                                  
+           initialized()                                                            
+    states (initial = initializing) {   
+      state initializing {                                                       
+        on initialized [ ] -> running {  } 
+      }                          
+      state paused { 
+        on unblocked [ ] -> running {  } 
+      }                                  
+      state running { 
+        on blocked [ ] -> paused {  } 
+        on bumped [ ] -> crashed {  } 
+      }   
+      state crashed { 
+      }
+   }                                                                  
+  }
+}                                                                             
 \end{code}
 
 
 \todo{Add UML diagram of the language. Generate via MPS.}
 
-\paragraph{Concept Definition} MPS is projectional so we start with the
-definition of the AS. In MPS, AS elements are called concepts. The code below shows the definition of
-the concept Statemachine. It contains a collection of States and a
-collection of Events. The alias is defined as "statemachine", so typing this
-word inside C modules instantiates a state machines. Statemachine also 
-implements a couple of interfaces; IHasIdentifierName contributes a property
-name, IModuleContent makes the state machine embeddable in C Modules --- the
-module owns a collection of IModuleContents, just like the Statemachine
-contains States and Events.
-
+\paragraph{Concept Definition} MPS is projectional, so we start with the
+definition of the AS. In MPS, AS elements are called concepts. The code below
+shows the definition of the concept \ic{Statemachine}. It contains a collection
+of \ic{State}s and a collection of \ic{InEvent}s. It also contains a reference
+to one of the states to mark it as the \ic{initial} state. The alias is defined as
+\ic{statemachine}, so typing this word inside C modules instantiates a state
+machine. State machines also implements a couple of interfaces;
+\ic{IIdentifierNamedElement} contributes a property \ic{name},
+\ic{IModuleContent} makes the state machine embeddable in C \ic{Module}s --- the
+module owns a collection of \ic{IModuleContents}, just like the state machine
+contains states and events.
 
 \begin{code}
-concept Statemachine extends MedBase              
-                     implements IHasIdentifierName
-                                IModuleContent    
-  properties:                                     
-    << ... >>                                       
-                                                  
-  children:                                       
-    State states 0..n specializes: <none>           
-    Event events 0..n specializes: <none>           
-                                                  
-  references:                                     
-    << ... >>                                       
-                                                  
-  concept properties:                             
-    alias = statemachine                            
+concept Statemachine extends BaseConcept                            
+                     implements IModuleContent                      
+                                ILocalVarScopeProvider              
+                                                                    
+  children:                                                         
+    State states 0..n specializes: <none>                             
+    InEvent inEvents 0..n specializes: <none>                         
+                                                                    
+  references:                                                       
+    State initial 1 specializes: <none>                               
+                                                                    
+  concept properties:                                               
+    alias = statemachine                                              
 \end{code}
 
-
-
-The State contains collections of EntryActions and ExitActions. These both
-extend Action, which in turn owns a StatementList to include C code.
-StatementList is a concept defined by the C core language. To make that visible,
-our statemachine language extends C core. A state contains a boolean attribute
-initial, to mark the initial state. Finally, a State contains a collection of 
-Transitions. 
+A \ic{State} contains two \ic{StatementLists} as \ic{entryActions} and
+\ic{exitActions}. \ic{StatementList} is a concept defined by the
+\ic{com.mbeddr.core.statements} language. To make that visible, our statemachine
+language extends \ic{com.mbeddr.core.statements}. Finally, a \ic{State}
+contains a collection of \ic{Transition}s.
 
 \begin{code}
-concept Transition extends MedBase      
-                   implements <none>    
-  properties:                           
-    << ... >>                             
-                                        
+concept Transition     
   children:                             
     Trigger trigger 1 specializes: <none> 
     Expression guard 1 specializes: <none>
+    StatementList actions 1 specializes: <none>
                                         
   references:                           
     State target 1 specializes: <none>    
                                         
   concept properties:                   
-    alias = transition                    
+    alias = on                    
 \end{code}
 
 
-Transitions contain a Trigger, a guard condition and the target state. The
-trigger is an abstract concept; various specializations are possible, the
-default implementation is the EventTrigger, which references an event. The guard
-condition is of type Expression; another concept inherited from the C core
-language. A typesystem rule will be defined later to constrain this expression
-to be boolean. The target state is a reference, i.e. we point to an existing
-state instead of owning it. 
+\ic{Transition}s contain a \ic{Trigger}, a guard condition, transition actions
+and the target state. The trigger is an abstract concept; various
+specializations are possible, the default implementation is the
+\ic{EventTrigger}, which references an \ic{Event}. The guard condition is an
+\ic{Expression}, a concept reused from \ic{com.mbeddr.core.expressions}. A type
+system rule will be defined later to constrain this expression to be Boolean.
+The target state is a reference, i.e. we point to an existing state instead of
+owning it. \ic{actions} is another \ic{StatementList} that contains arbitrary Cstatements used as the transition actions.
 
-
-\paragraph{Editor Definition} Editors are defined via projection rules. Editors
-are made of cells. When defining editors, various cell types are arranged so that the resulting syntax
-has the desired structure. \fig{Fig:mps-transeditor} shows the definition of the
-editor for a transition. It arranges the trigger, guard and target state in a
-horizontal list of cells, the guard surrounded by brackets, and an arrow (->)
-in front of the target state. 
-
+\paragraph{Editor Definition} Editors, i.e. the projection rules, are made of
+cells. When defining editors, various cell types are arranged so that the
+resulting syntax has the desired structure. \fig{Fig:mps-transeditor} shows the
+definition of the editor for a \ic{Transition}. It arranges the keyword \ic{on},
+the trigger, the guard condition, target state and the actions in a horizontal
+list of cells, the guard surrounded by brackets, and an arrow (\ic{->}) in 
+front of the target state. The editor for the actions \ic{StatementList} comeswith its own set of curly braces.   
 \begin{figure}[ht]
 \begin{center}
-  \includegraphics[scale=0.7]{figures/1/mps-transeditor.png}
+  \includegraphics[width=11cm]{figures/1/mps-transeditor.png}
   \caption[labelInTOC]{}
   \label{Fig:mps-transeditor}  
 \end{center}
 \end{figure}
 
-\todo{Add a table projection to show off non textual notations}
+\todo{Once tables work well in MPS: add a table projection to show off non
+textual notations}
 
-\fig{Fig:mps-stateeditor} shows the editor definition for the State. It uses a
-vertical list to arrange several horizontal elements. The first line contains
-the keyword initial, the keyword state and the name property of the state. The
-question mark in front of the initial label denotes this cell as being
-optional; an expression determines whether it is shown or not. In this case, the
-expression checks the initial property of the current state, and shows the
-keyword only if is true. A quick fix is used to toggle the property. 
+\fig{Fig:mps-stateeditor} shows the editor definition for the \ic{State}
+concept. It uses an \ic{indent} collection of cells with various style
+attributes to arrange the \ic{state} keyword and name, the entry actions, the
+transitions and the exit actions in a vertical list. Entry and exit actions are
+shown only if the respective \ic{StatementList} is not empty (a condition is
+attached to the respective cells, marked by the \ic{?} in front of the cell).
+An intention is used (see next section) to add a new statement and hence make
+the respective list visible.   
 
 \begin{figure}[ht]
 \begin{center}
-  \includegraphics[scale=0.7]{figures/1/mps-stateeditor.png}
+  \includegraphics[width=11cm]{figures/1/mps-stateeditor.png}
   \caption[labelInTOC]{}
   \label{Fig:mps-stateeditor}  
 \end{center}
 \end{figure}
 
-The rest of the editor arranges the entry actions, transitions and exit actions
-in a vertical arrangement. Each of the collections is indented (---->). The
-entry and exit actions are only shown if the collections are not empty (another
-optional cell). A quick fix is used to create the first entry and exit actions,
-subsequent ones can be created by pressing enter at the end of an existing
-action.
-
-\paragraph{Intentions} Since the use of quick fixes (called intentions
-in MPS) is an essential part of editing with MPS, we show how they are created in this section.
-The following piece of code shows the definition on the one that triggers the
-initial properties. Intentions specify for which language concept they apply, a
-text that describes the intention in the intentions menu, an optional boolean
-expression that determines whether the intention is currently applicable, and
-the actual code that performs the quickfix. Note how this is simply a
-model-to-model transformation expressed with MPS APIs. 
+\paragraph{Intentions} Projection editors imply that only  
+Intentions (aka qiuck fixes) are an essential part of MPS' editor philosophy.
+For example, in the previous section we mentioned that we use them to add entry
+actiom statements to a \ic{State}. Here is the intention code:
 
 \begin{code}
-intention makeInitialState for concept State { 
-                                                                                                                                                           
+intention addEntryActions for concept State {                                                                                             
+  error intention : false                                                                                                                 
+  available in child nodes : true                                                                                                         
+                                                                                                                                          
   description(editorContext, node)->string { 
-    "Statemachine: Make Initial"; 
-  }                                                                             
-                                                                                                                                                           
-  <isApplicable = true>                                                                                                                                      
-                                                                                                                                                           
+    "Add Entry Action"; 
+  }                                                                    
+                                                                                                                                          
+  isApplicable(editorContext, node)->boolean { 
+    node.entryAction.isNull; 
+  }                                                             
+                                                                                                                                          
   execute(editorContext, node)->void { 
-    foreach s in node.ancestor<concept = Statemachine>.states { 
-      s.initial = false; 
-    } 
-    node.initial = true; 
+    node.entryAction.set new(<default>); 
+    editorContext.selectWRTFocusPolicy(node.entryAction); 
   }
 }
 \end{code}
 
+An intention is defined for a specific language concept (\ic{State} in the
+example). It can then be invoked by pressing \keystroke{Alt-Enter} on any
+instance of this concept. Optionally it is possible to also make it available in
+child nodes. For example, if you are in the guard expression of an transition,
+an intention for \ic{State} with \ic{available in child nodes} set to \ic{true}
+will be available as well. The intention then specifies an expression used as
+the title in the menu and an applicability condition. In the example the
+intention is only applicable if the corresponding state does not yet have any
+entry action. Finally, the \ic{execute} section contains procedural code that
+performs the respective change on the model. In this case we simply create a new
+instance of \ic{StatementList} in the \ic{entryAction} child. We also set the
+cursor into this new \ic{StatementList}. 
+
 
 
 \paragraph{Expressions} Since we inherit the guard expression structure and
-syntax from the C core language, we don't have to define expressions. It is
-nonetheless interesting to look at its implementation.
+syntax from the C core language, we don't have to define expressions ourselves.
+It is nonetheless interesting to look at their implementation in
+\ic{com.mbeddr.core.expressions}.
 
 Expressions are arranged into a hierarchy starting with the abstract concept
-Expression. All other kinds of expressions extend Expression, directly or
-indirectly. For example, the PlusExpression extends the BinaryExpression which
-in turn extends Expression. BinaryExpressions have left and right child
-Expressions. This way, arbitrarily complex expressions can be built.
-Representing expressions as trees is a standard approach; in that sense, the
-abstract syntax of MPS expressions is not very interesing. The editors are also
-trivial --- in case of the plus expression, they are a horizontal list of:
-editor for left argument, the plus symbol, and the editor for the right
-argument.
+\ic{Expression}. All other kinds of expressions extend \ic{Expression}, directly
+or indirectly. For example, \ic{PlusExpression} extends \ic{BinaryExpression}
+which in turn extends \ic{Expression}. \ic{BinaryExpressions} have \ic{left} and
+\ic{right} child \ic{Expressions}. This way, arbitrarily complex expressions can
+be built. Representing expressions as trees is a standard approach; in that
+sense, the abstract syntax of MPS expressions is not very interesing. The
+editors are also trivial --- in case of the \ic{+} expression, they are a
+horizontal list of: editor for \ic{left} argument, the \ic{+} symbol, and the
+editor for the \ic{right} argument.
 
 As we have explained in the general discussion about projectional editing, MPS
 supports linear input of hierarchical expressions using so-called side
 transforms. The code below shows the right side transformation for
-expressions that transforms an arbitrary expression into a PlusExpression but
-putting the PlusExpression "on top" of the current node. Using the alias of
+expressions that transforms an arbitrary expression into a \ic{PlusExpression}
+by putting the \ic{PlusExpression} "on top" of the current node. Using the alias of
 expressions and the inheritance hierarchy, it is possible to factor all side
 transformations for all binary operations into one single action declaration,
 resulting in much less implementation effort.
@@ -1597,12 +1600,6 @@ side transform actions makeArithmeticExpression
       simple item                                                                                                                                                                                                                                                                
         matching text                                                                                                                                                                                                                                                            
           +                                                                                                                                                                                                                                                                      
-        description text                                                                                                                                                                                                                                                         
-          <default>                                                                                                                                                                                                                                                              
-        icon                                                                                                                                                                                                                                                                     
-          <default>                                                                                                                                                                                                                                                              
-        type                                                                                                                                                                                                                                                                     
-          <default>                                                                                                                                                                                                                                                              
         do transform                                                                                                                                                                                                                                                             
           (operationContext, scope, model, sourceNode, pattern)->node< > { 
             node<PlusExpression> expr = new node<PlusExpression>(); 
