@@ -378,108 +378,77 @@ should be executed if a new reference target is set (\ic{referent set handler}),
 additional validation (\ic{validator}), as well as customized
 presentation in the code completion menu (\ic{presentation}).
 
-In case of the transition, the projection of the transition uses the name of the
-target concept as the representation of the actual reference. This can be seen
-from the transition editor (see previous section), that contains this:
-\ic{\%targetState\% -> \{name\}}. This means that the name property of the
-referenced \ic{State} is shown as the reference text. By default, this is also
-what is used in the code completion menu, resulting in text-editor-like behavior.
-\fig{Fig:mps-transeditor-2} shows an example where the reference includes the
-"keyword" state, as well as the prefix initial in case the state is an initital
-state.
-
-
-\begin{figure}[ht]
-\begin{center}
-  \includegraphics[scale=0.8]{figures/2/mps-transeditor-2.png}
-  \caption[labelInTOC]{}
-  \label{Fig:mps-transeditor-2}  
-\end{center} 
-\end{figure}
-
-To make a point, the editor could also be defined as \verb#(%target% -> X )#,
-where every reference is rendered as an X. The system would still work (because
-the underlying GUIDs are still used), but the information conveyed to the
-user has been reduced to zero. 
-
 \paragraph{Nested Scopes} In a more complex, block oriented language with
 nested scopes, a different implementation pattern is recommended:
 
 \begin{itemize}
-  \item All program elements that contribute elements that can be references
-  (such as blocks, functions or methods) implement an interface IScopeProvider.
-  \item This interface provides a method getVisibleElements<concept C) that
+  \item All program elements that contribute elements that can be referenced
+  (such as blocks, functions or methods) implement an interface \ic{IScopeProvider}.
+  \item This interface provides a method \ic{getVisibleElements<concept C)} that
   returns all elements that are available in that scope. 
   \item The search scope function simply calls this method on the owning
-  IScopeProvider, passing in the concept whose instances it wants to see (State
-  in the above example).
+  \ic{IScopeProvider}, passing in the concept whose instances it wants to see 
+  (\ic{State} in the above example).
   \item The implementation of the method recursively calls the method on its
-  owning IScopeProvider, until there is none anymore. It also removes elements
-  that are overshadowed from the result.
-\end{itemize}
-
-
-
-
+  owning \ic{IScopeProvider}, until there is none anymore. It also removes 
+  elements that are overshadowed from the result.
+\end{itemize}
 
 \paragraph{Polymorphic References}
 
-\LK{even more so than the previous bit on references, this part
-  doesn't fit here and should be moved to the section on Scoping and Linking}
-
-We have explained above how references work
-in principle: they are actual pointers to the references element (the necessary
-scopes are explained in the next section). In the section on Xtext (\todo{make
-sure we explain that first}) we have seen how from a given location only one
-kind of reference for any given syntactic form can be implemented. Consider the
-following example, where we refer to a local variable (a) and an event parameter
-(timestamp) from within expressions:
+We have explained above how references work in principle: they are real pointers
+to the references element. In the section on Xtext (\todo{make sure we explain
+that first}) we have seen how from a given location only one kind of reference
+for any given syntactic form can be implemented. Consider the following example,
+where we refer to a global variable \ic{a} and an event parameter (\ic{timestamp})
+from within expressions:
 
 \begin{code}
-int a;
-int b;
+var int a;
+var int b;
 
 statemachine linefollower {                                                         
-  event initialized(int timestamp);                                                                
-  initial state initializing {                                                      
-    initialized [now() - timestamp > 1000 && a > 3] -> running                                                   
-  }                                                                                 
+  in event initialized(int timestamp);
+  states {                                                                
+    state initializing {                                                      
+      on initialized [now() - timestamp > 1000 && a > 3] -> running                                                   
+    }     
+    state running {
+    }
+  }                                                                            
 }                                                                                   
 \end{code}
 
-
-
 Both references to local variables and to event parameters use the same
-syntactic form: simply a name. In Xtext, this has to be implemented with a
-single reference (typically called SymbolReference) that can reference to any
-kind of Symbol. LocalVariableDefintions and EventParameters would both extend
-Symbol, and scopes would make sure both kinds are visible from within guard
-expressions. The problem with this approach is that the reference itself
-contains no type information about what it references, it is simply a
-SymbolReferenece. Processing code has to inspect the type of the symbol to find
-out what a SymbolReference actually means.
+syntactic form: simply a text string (the name of the respective target
+element). In Xtext, this has to be implemented with a single reference concept,
+typically called \ic{SymbolReference}, that can reference to any kind of
+\ic{Symbol}. \ic{LocalVariableDefintions} and \ic{EventParameters} would both
+extend \ic{Symbol}, and scopes would make sure both kinds are visible from
+within guard expressions. The problem with this approach is that the reference
+itself contains no type information about what it references, it is simply a
+\ic{SymbolReference}. Processing code has to inspect the type of the
+referenced symbol to find out what a particular \ic{SymbolReference} actuallymeans.
 
-In projectional editors this done differently. In the example above there is a
-LocalVariableReference and an EventParameterReference. Both have an editor that
-simply renders the name of the referenced element. Entering the reference
-happens by typing the name of the referenced element (cf the concept of smart
-references introduced above). In the (rare) case where there's a LocalVariable
-and a EventParameter, the user has to make an explicit decision, at the time of
-entry (the name won't bind, and the CC menu requires a choice). It is important
-to understand that, although the names are similar, the tool still knows which
-one refers to a LocalVariable and which one refers to a EventParameterReference.
-Upon selection, the correct reference objects are created.
+In projectional editors this is done differently. To solve the example above,
+one would create a \ic{LocalVariableReference} and an
+\ic{EventParameterReference}. The former references variables and the latter
+references event parameters. Both have an editor that simply renders the name
+of the referenced element, and each of them has \ic{their own} scope definition! 
+So adding new kinds of references to existing expression languages can be done
+in a modular fashion, since the new reference expression comes with its own,
+independent scoping rule. 
+
+Entering the reference happens by typing the name of the referenced element (cf.
+the concept of smart references introduced above). In the case where there's a
+\ic{LocalVariable} and a \ic{EventParameter} of the same name, the user has to
+make an explicit decision, at the time of entry (the name won't bind, and the
+code completion menu requires a choice). It is important to understand that,
+although the names are similar, the tool still knows which one refers to a \ic{LocalVariable} and which
+one refers to a \ic{EventParameter}: upon selection from the code completion
+menu, the correct reference objects are created.
 
 
-
-
-We have already discussed in the previous section that polymorpic references are
-not a problem in MPS. Each one simply defines its own search scope, possibly
-using the \ic{IScopeProvider}-based approach introduced above: a 
-\ic{LocalVariableReference} returns all local variables as its scope, the
-\ic{ParameterReference} returns all function parameters. In the resulting code
-completion menu in an expression where \ic{LocalVariableReference} and
-\ic{ParameterReference} are allowed, the superset of both scopes is shown.
 
 
 %-------- Older Notes
