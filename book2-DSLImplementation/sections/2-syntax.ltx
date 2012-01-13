@@ -1492,41 +1492,53 @@ owning it. \ic{actions} is another \ic{StatementList} that contains arbitrary C
 
 \paragraph{Editor Definition} Editors, i.e. the projection rules, are made of
 cells. When defining editors, various cell types are arranged so that the
-resulting syntax has the desired structure. \fig{Fig:mps-transeditor} shows the
-definition of the editor for a \ic{Transition}. It arranges the keyword \ic{on},
-the trigger, the guard condition, target state and the actions in a horizontal
-list of cells, the guard surrounded by brackets, and an arrow (\ic{->}) in 
-front of the target state. The editor for the actions \ic{StatementList} comeswith its own set of curly braces.   
+resulting syntax has the desired structure. \fig{Fig:mps-stateeditor} shows the
+editor definition for the \ic{State} concept. It uses an \ic{indent} collection
+of cells with various style attributes to arrange the \ic{state} keyword and
+name, the entry actions, the transitions and the exit actions in a vertical
+list. Entry and exit actions are shown only if the respective \ic{StatementList}
+is not empty (a condition is attached to the respective cells, marked by the
+\ic{?} in front of the cell). An intention is used (see next section) to add a
+new statement and hence make the respective list visible.
+\begin{figure}[ht]
+\vspace{-5mm}
+\begin{center}
+  \includegraphics[width=11cm]{figures/1/mps-stateeditor.png}
+  \caption[labelInTOC]{}
+  \label{Fig:mps-stateeditor}  
+\end{center}
+\vspace{-15mm}
+\end{figure}
+
+
+\fig{Fig:mps-transeditor} shows the definition of the editor for a
+\ic{Transition}. It arranges the keyword \ic{on}, the trigger, the guard
+condition, target state and the actions in a horizontal list of cells, the guard
+surrounded by brackets, and an arrow (\ic{->}) in front of the target state. The
+editor for the actions \ic{StatementList} comes with its own set of curly
+braces. 
+
 \begin{figure}[ht]
 \begin{center}
   \includegraphics[width=11cm]{figures/1/mps-transeditor.png}
   \caption[labelInTOC]{}
   \label{Fig:mps-transeditor}  
 \end{center}
-\end{figure}
+\end{figure}The \ic{\%targetState\% -> \{name\}} piece is interesting; it expresses that in
+order to render the target state, the target's state's \ic{name} attribute
+should be shown. We could use any text string to refer to the target state; we
+could even use the symbol \ic{X} to render \emph{all} target state references.
+The refernence would still work, because the underlying data structure uses the
+target's unique ID to establish the reference. It does not matter what we use to
+represent the target in the model\footnote{\ic{X} for all of them would of
+course be bad for human readability, but technically it would still work}.
 
 \todo{Once tables work well in MPS: add a table projection to show off non
 textual notations}
 
-\fig{Fig:mps-stateeditor} shows the editor definition for the \ic{State}
-concept. It uses an \ic{indent} collection of cells with various style
-attributes to arrange the \ic{state} keyword and name, the entry actions, the
-transitions and the exit actions in a vertical list. Entry and exit actions are
-shown only if the respective \ic{StatementList} is not empty (a condition is
-attached to the respective cells, marked by the \ic{?} in front of the cell).
-An intention is used (see next section) to add a new statement and hence make
-the respective list visible.   
-
-\begin{figure}[ht]
-\begin{center}
-  \includegraphics[width=11cm]{figures/1/mps-stateeditor.png}
-  \caption[labelInTOC]{}
-  \label{Fig:mps-stateeditor}  
-\end{center}
-\end{figure}
 
 \paragraph{Intentions} Projection editors imply that only  
-Intentions (aka qiuck fixes) are an essential part of MPS' editor philosophy.
+Intentions (aka quick fixes) are an essential part of MPS' editor philosophy.
 For example, in the previous section we mentioned that we use them to add entry
 actiom statements to a \ic{State}. Here is the intention code:
 
@@ -1563,6 +1575,11 @@ performs the respective change on the model. In this case we simply create a new
 instance of \ic{StatementList} in the \ic{entryAction} child. We also set the
 cursor into this new \ic{StatementList}. 
 
+Notice how we don't have to specify any formatter or serializer for our
+language. Remember how a projectional editor \emph{always} goes from AS to CS.
+So after changing the AS procedurally, the respective piece of the tree is
+simply rerendered to update the representation of the program in the editor.
+
 
 
 \paragraph{Expressions} Since we inherit the guard expression structure and
@@ -1585,10 +1602,7 @@ As we have explained in the general discussion about projectional editing, MPS
 supports linear input of hierarchical expressions using so-called side
 transforms. The code below shows the right side transformation for
 expressions that transforms an arbitrary expression into a \ic{PlusExpression}
-by putting the \ic{PlusExpression} "on top" of the current node. Using the alias of
-expressions and the inheritance hierarchy, it is possible to factor all side
-transformations for all binary operations into one single action declaration,
-resulting in much less implementation effort.
+by putting the \ic{PlusExpression} "on top" of the current node. 
 
 \begin{code}
 side transform actions makeArithmeticExpression                                                                                                                                                                                                                                  
@@ -1611,74 +1625,44 @@ side transform actions makeArithmeticExpression
 \end{code}
 
 
+Using the alias (i.e. the operator symbol) of the respective
+\ic{BinaryExpression} and the inheritance hierarchy, it is possible to factor
+all side transformations for all binary operations into one single action
+implementation, resulting in much less implementation effort.
+The fact that you can enter expressions linearly, leads to a problem not unlike
+the one found in grammars regarding operator precedence. If you enter \ic{2 + 3
+* 4} by typing these characters sequentially, there are two ways how the tree
+could look, depending on whether \ic{+} or \ic{*} binds more
+tightly\footnote{Note how this really is a consequence of the linear input
+method; you could build the tree by first typing the \ic{+} and then filling in
+the left and right arguments, in which case it would be clear that the \ic{*}
+is lower in the tree and hence binds tighter}. 
 
-In the AST, operator precedence is encoded by where in an expression tree a
-given expression is located. For example, in \verb#2+3*4# the + is higher up in
-the tree than the *, encoding that the * has higher precedence. This is natural
-since processing of ASTs is typically depth-first, so the * is evaluated before
-the +. However, as we enter an expression linearly using the side
-transformations actions, we have to make sure that we don't accidentally put a
-+ "below" a *. There are two ways to deal with this:
-
-\begin{itemize}
-  \item The first alternative allows lower-precedence operators below
-  higher-precedence operators in the tree, but the editor automatically renders
-  parentheses to make sure visual appearance is in line with the AST.
-  \item The other alternative reshuffles the tree automatically whenever an
-  expression is edited, putting higher-precedence operators further down in the
-  tree. Parenthesis can still be used explicitly.
-\end{itemize}
-
-In both cases the system needs information about the precedence level of
-operators or expressions. This information can be stored in a concept property
-(comparable to a static member in a Java class).
-
-\paragraph{Polymorphic References}
-
-\LK{even more so than the previous bit on references, this part
-  doesn't fit here and should be moved to the section on Scoping and Linking}
-
- We have explained above how references work
-in principle: they are actual pointers to the references element (the necessary
-scopes are explained in the next section). In the section on Xtext (\todo{make
-sure we explain that first}) we have seen how from a given location only one
-kind of reference for any given syntactic form can be implemented. Consider the
-following example, where we refer to a local variable (a) and an event parameter
-(timestamp) from within expressions:
+To deal with this problem, we proceed as follows: each subconcept of
+\ic{BinaryExpression} has a numerical value associated with it that expresses
+its precedence. The higher the number, the higher the precedence (i.e. the
+lower in the tree). The action code shown above is change to include a call to a
+helper function that rearranges the tree according to the precedence values.  
 
 \begin{code}
-int a;
-int b;
-
-statemachine linefollower {                                                         
-  event initialized(int timestamp);                                                                
-  initial state initializing {                                                      
-    initialized [now() - timestamp > 1000 && a > 3] -> running                                                   
-  }                                                                                 
-}                                                                                   
+do transform                                                                                                                                                                                                                                                             
+  (operationContext, scope, model, sourceNode, pattern)->node< > { 
+    node<PlusExpression> expr = new node<PlusExpression>(); 
+    sourceNode.replace with(expr); 
+    expr.left = sourceNode; 
+    expr.right.set new(<default>); 
+    PrecedenceHelper.rearrange(expr);
+    return expr.right; 
+  }
 \end{code}
 
+This helper function scans through an expression tree and checks for cases where
+a binary expression with a higher precedence is an ancestor of a binary
+expression with a lower precedence value. If it finds one, it simply rearranges
+the tree to resolve this problem. Since the problem can only arise as a
+consequence of the linear input method, it is sufficient to include this
+rearrangement in the side transformation shown above. 
 
-Both references to local variables and to event parameters use the same
-syntactic form: simply a name. In Xtext, this has to be implemented with a
-single reference (typically called SymbolReference) that can reference to any
-kind of Symbol. LocalVariableDefintions and EventParameters would both extend
-Symbol, and scopes would make sure both kinds are visible from within guard
-expressions. The problem with this approach is that the reference itself
-contains no type information about what it references, it is simply a
-SymbolReferenece. Processing code has to inspect the type of the symbol to find
-out what a SymbolReference actually means.
-
-In projectional editors this done differently. In the example above there is a
-LocalVariableReference and an EventParameterReference. Both have an editor that
-simply renders the name of the referenced element. Entering the reference
-happens by typing the name of the referenced element (cf the concept of smart
-references introduced above). In the (rare) case where there's a LocalVariable
-and a EventParameter, the user has to make an explicit decision, at the time of
-entry (the name won't bind, and the CC menu requires a choice). It is important
-to understand that, although the names are similar, the tool still knows which
-one refers to a LocalVariable and which one refers to a EventParameterReference.
-Upon selection, the correct reference objects are created.
 
 
 

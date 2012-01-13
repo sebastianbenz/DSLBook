@@ -328,8 +328,8 @@ is defined that determines how the referenced element is rendered at the
 referencing site. We have shown this in the previous section. To determine which
 instances of the referenced concept are allowed, a scoping function has to be
 implemented. It simply returns a list of all the elements that are considered
-valid targets for the reference, as well as, optionally, a text string used to
-display the respective element in the code completion menu.
+valid targets for the reference, as well a an optional text string used
+to represent the respective element in the code completion menu.
 
 As we have explained above, smart references are an important ingredient to make
 this work conveniently. They make sure that users can simply type the name (or
@@ -340,7 +340,6 @@ concept is instantiated, and the selected target is set.
 \paragraph{Simple Scopes} As an example, we begin with the scope definition for
 the target reference of the Transition concept. To recap, it is defined as:
 
-
 \begin{code}
 concept Transition      
   // ...                                        
@@ -348,23 +347,24 @@ concept Transition
     State target 1 specializes: <none>    
 \end{code}
 
-
-The scope itself is defined via the following search scope constraint. The
-system provides an anonymous function search scope that gets a number of
-arguments that describe the context. The expression in the function then has to
-be written by the language developer. The expression crawls up the containment
-hierarchy until it finds a Statemachine. The set of valid target elements is the
-states of that state machine. The code used here can be arbitrarily complex, and
-is implemented in MPS' BaseLanguge.
-
-
+The scope itself is defined via the search scope constraint below. The system
+provides an anonymous function \ic{search scope} that gets a number of arguments
+that describe the context including the enclosing node and the referencing node.
+As the signature shows, the function has to return either an \ic{ISearchScope}
+or simply a sequence of nodes of type \ic{State}. The scope of the target state
+is simple the set of states of the state machine that (transitively) contains
+the transition. To implement this, the expression in the body of this function
+crawls up the containment hierarchy until it finds a \ic{Statemachine} and then
+returns its \ic{states}. The code used to express scopes can be arbitrarily 
+complex and is implemented in MPS' BaseLanguge.
 \begin{code}
 link {target} 
-  referent set handler:<none> 
+  referent set handler:
+    <none> 
   search scope: 
     (model, scope, referenceNode, linkTarget, enclosingNode)
-    	->join(ISearchScope | sequence<node< >>) { 
-      referenceNode.ancestor<concept = Statemachine>.states; 
+    	->join(ISearchScope | sequence<node<State>>) { 
+      enclosingNode.ancestor<concept = Statemachine>.states; 
     } 
   validator: 
     <default> 
@@ -373,19 +373,20 @@ link {target}
 ;\end{code}
 
 
-In addition to the search scope, users can provide code that should be executed
-if a new reference target is set, additional validation, as well as customized
-presentation in the code completion menu. 
+In addition to the search scope, language developers can provide code that
+should be executed if a new reference target is set (\ic{referent set handler}),
+additional validation (\ic{validator}), as well as customized
+presentation in the code completion menu (\ic{presentation}).
 
 In case of the transition, the projection of the transition uses the name of the
 target concept as the representation of the actual reference. This can be seen
-from the transition editor (see previous section), that contains this
-expression: \verb#(%target% -> {name} )#. This means that the name property of
-the referenced State is shown as the reference. By default, this is also what is
-used in the code completion menu, resulting in text-editor-like behavior.
+from the transition editor (see previous section), that contains this:
+\ic{\%targetState\% -> \{name\}}. This means that the name property of the
+referenced \ic{State} is shown as the reference text. By default, this is also
+what is used in the code completion menu, resulting in text-editor-like behavior.
 \fig{Fig:mps-transeditor-2} shows an example where the reference includes the
 "keyword" state, as well as the prefix initial in case the state is an initital
-state.
+state.
 
 
 \begin{figure}[ht]
@@ -417,13 +418,68 @@ nested scopes, a different implementation pattern is recommended:
   that are overshadowed from the result.
 \end{itemize}
 
+
+
+
+
+\paragraph{Polymorphic References}
+
+\LK{even more so than the previous bit on references, this part
+  doesn't fit here and should be moved to the section on Scoping and Linking}
+
+We have explained above how references work
+in principle: they are actual pointers to the references element (the necessary
+scopes are explained in the next section). In the section on Xtext (\todo{make
+sure we explain that first}) we have seen how from a given location only one
+kind of reference for any given syntactic form can be implemented. Consider the
+following example, where we refer to a local variable (a) and an event parameter
+(timestamp) from within expressions:
+
+\begin{code}
+int a;
+int b;
+
+statemachine linefollower {                                                         
+  event initialized(int timestamp);                                                                
+  initial state initializing {                                                      
+    initialized [now() - timestamp > 1000 && a > 3] -> running                                                   
+  }                                                                                 
+}                                                                                   
+\end{code}
+
+
+
+Both references to local variables and to event parameters use the same
+syntactic form: simply a name. In Xtext, this has to be implemented with a
+single reference (typically called SymbolReference) that can reference to any
+kind of Symbol. LocalVariableDefintions and EventParameters would both extend
+Symbol, and scopes would make sure both kinds are visible from within guard
+expressions. The problem with this approach is that the reference itself
+contains no type information about what it references, it is simply a
+SymbolReferenece. Processing code has to inspect the type of the symbol to find
+out what a SymbolReference actually means.
+
+In projectional editors this done differently. In the example above there is a
+LocalVariableReference and an EventParameterReference. Both have an editor that
+simply renders the name of the referenced element. Entering the reference
+happens by typing the name of the referenced element (cf the concept of smart
+references introduced above). In the (rare) case where there's a LocalVariable
+and a EventParameter, the user has to make an explicit decision, at the time of
+entry (the name won't bind, and the CC menu requires a choice). It is important
+to understand that, although the names are similar, the tool still knows which
+one refers to a LocalVariable and which one refers to a EventParameterReference.
+Upon selection, the correct reference objects are created.
+
+
+
+
 We have already discussed in the previous section that polymorpic references are
 not a problem in MPS. Each one simply defines its own search scope, possibly
-using the IScopeProvider-based approach introduced above: a 
-LocalVariableReference returns all local variables as its scope, the
-ParameterReference returns all function parameters. In the resulting code
-completion menu in an expression where LocalVariableReference and
-ParameterReference are allowed, the superset of both scopes is shown.
+using the \ic{IScopeProvider}-based approach introduced above: a 
+\ic{LocalVariableReference} returns all local variables as its scope, the
+\ic{ParameterReference} returns all function parameters. In the resulting code
+completion menu in an expression where \ic{LocalVariableReference} and
+\ic{ParameterReference} are allowed, the superset of both scopes is shown.
 
 
 %-------- Older Notes
