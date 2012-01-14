@@ -319,6 +319,58 @@ unqualified name using an \ic{import} statement.
 
 
 
+\paragraph{Polymorphic References} In the cooling language, expressions also
+include references to various other entities, such as configuration parameters,
+variables and hardware elements (compressors or fans defined in a different
+model). All of these referenceable elements extend the \ic{SymbolDeclaration}
+meta class. This means that all of them can be referenced by the single
+\ic{SymbolRef} construct.
+\begin{code} 
+AtomicLevel returns Expression:
+    ...
+    ({SymbolRef} symbol=[SymbolDeclaration|QID]);
+\end{code}  
+
+The problem with this situation is that the reference itself does not encode the
+kind of thing that is referenced. By looking at the reference alone we only know
+that we reference some kind of symbol. This makes writing code that processes
+the model cumbersome, since the target of a \ic{SymbolRef} has to be taken into
+account when deciding how to treat (translate, validate) a symbol reference. A
+more natural design of the language would use different reference constructs for
+the different referencable elements. In this case, the reference itself is
+specific to the referenced meta class, making processing much easier.
+
+\begin{code} 
+AtomicLevel returns Expression:
+    ...
+    ({VariableRef} var=[Variable]);
+    ({ParameterRef} param=[Parameter]);
+    ({HardwareBuildingBlockRef} hbb=[HardwareBuildingBlock]);
+\end{code}  
+
+However, this is not possible with Xtext, since the parser cannot distinguish
+the three cases syntactically. In all three cases, the reference syntax itself
+is just an \ic{ID}. Only during the linking phase could the system check which
+kind of element is actually referenced, but this is too late for the parser,
+which needs an unambiguous grammar. The grammar could be disambiguated by using
+a different syntax for each element:
+
+\begin{code} 
+AtomicLevel returns Expression:
+    ...
+    ({VariableRef} "v:" var=[Variable]);
+    ({ParameterRef} "p:" param=[Parameter]);
+    ({HardwareBuildingBlockRef} "bb:" hbb=[HardwareBuildingBlock]);
+\end{code}  
+
+While this approach will technically work, it would lead to an awkward syntax
+and is hence typically not used. The only remaining alternative is to make all
+referencable elements extend \ic{SymbolDeclaration} and use a single reference
+concept.
+
+
+
+
 
 \section{Scoping in MPS}
 

@@ -645,8 +645,8 @@ strategies:
   is immediately instantiated.
 
   \item So-called side transforms make sure that expressions can be entered
-  conveniently. Consider a local variable declaration \verb#int a = 2;#. If this
-  should be changed to \verb#int a = 2+3;# the 2 in the init expression needs
+  conveniently. Consider a local variable declaration \ic{int a = 2;}. If this
+  should be changed to \ic{int a = 2+3;} the 2 in the init expression needs
   to be replaced by an instance of the binary + operator, with the 2 in the left
   slot and the 3 in the right. Instead of removing the 2 and inserting a +,
   users can simply type + on the right side of the 2; the system performs the
@@ -656,14 +656,14 @@ strategies:
   linearly, as expected.
   
   \item Delete actions are used to similar effect when elements are deleted.
-  Deleting the 3 in \verb#2+3# first keeps the plus, with an empty right slot.
+  Deleting the 3 in \ic{2+3} first keeps the plus, with an empty right slot.
   Deleting the + then removes the + and puts the 2 at the root of the subtree.
 
   \item Wrappers support instantiation of concepts that are actually children of
   the concepts allowed in a given location. Consider again a local variable
-  declaration \verb#int a;#. The concept represented could be
+  declaration \ic{int a;}. The concept represented could be
   LocalVariableDeclaration, a subtype of Statement, to make it legal in method
-  bodies (for example). However, users simply want to start typing \verb#int#,
+  bodies (for example). However, users simply want to start typing \ic{int},
   i.e.\ selecting the content of the type field of the LocalVariableDeclaration.
   A wrapper can be used to support entering types where
   LocalVariableDeclarations are expected. Once a type is selected, the wrapper
@@ -671,7 +671,7 @@ strategies:
   type field, and moves the cursor into the name slot.
 
   \item Smart references achieve a similar effect for references (as opposed to
-  children). Consider pressing Ctrl-Space after the + in \verb#2+3#. Assume
+  children). Consider pressing Ctrl-Space after the + in \ic{2+3}. Assume
   further, that a couple of local variables are in scope and that these can be
   used instead of the 3. These should be available in the code completion menu.
   However, technically, a VariableReference has to be instantiated, whose
@@ -934,11 +934,11 @@ number of primitive-type properties as well as a couple of "static" features
 \todo{We assume an introduction of the case studies somewhere before this point}
 
 Cooling programs represent the behavioral aspect of the refrigerator language.
-Here is a trivial program that can be used to illustrate some of the features of
-the language.
+Here is a trivial program that can be used to illustrate some of the
+features of the language. The program is basically a state machine.
 
 \begin{code} 
-cooling program EngineProgram0 {
+cooling program HelloWorld uses stdlib {
      
     var v: int
     event e
@@ -946,46 +946,47 @@ cooling program EngineProgram0 {
     init { set v = 1 }
        
     start:   
-       on e { state s2 } 
+       on e { state s } 
        
-    state s2:
+    state s:
         entry { set v = 0 }
           
 } 
 \end{code}
 
-The program declares a variable \ic{v} and an event \ic{e}. When the
-program starts up, the init section is executed, setting \ic{v} to 1. The
-system then (automatically) transitions into the start state. There it waits
-until it receives the \ic{e} event. It then transition to the \ic{s2}
-state, where it uses an entry action to set \ic{v} back to 0. More complex
+The program declares a variable \ic{v} and an event \ic{e}. When the program
+starts up, the \ic{init} section is executed, setting \ic{v} to \ic{1}. The
+system then (automatically) transitions into the \ic{start} state. There it
+waits until it receives the \ic{e} event. It then transition to the state
+\ic{s}, where it uses an entry action to set \ic{v} back to \ic{0}. More complex
 programs include checks of changes of measurements
-(\verb#compartment1->currentTemp#) and commands to the hardware %%%
-(\verb#do compartment1->coolOn#), as shown in the next snippet:
+(\ic{aCompartment->currentTemp}) and commands to the hardware\ic{set aCompartment->isCooling = true}, as shown in the next snippet:
 
 \begin{code} 
 start:
-    check ( compartment1->currentTemp > maxTemp ) {
-        do compartment1->coolOn
+    check ( aCompartment->currentTemp > maxTemp ) {
+        set aCompartment->isCooling = true
         state initialCooling
     }
-    check ( compartment1->currentTemp <= maxTemp ) {
+    check ( aCompartment->currentTemp <= maxTemp ) {
         state normalCooling
     } 
     
 state initialCooling:
-    check ( compartment1->currentTemp < maxTemp ) {
+    check ( aCompartment->currentTemp < maxTemp ) {
         state normalCooling
     }
 \end{code}
 
 
-\paragraph{Grammar basics} In Xtext, the language is specified using a grammar
-which is a collection of \emph{parser rules}. These rules specify (by default)
-the concrete syntax of a program element, as well as its mapping to the AS.
-Xtext generates an Ecore meta model to describe the AS. Here is the definition
-of the CoolingProgram rule:
-
+\paragraph{Grammar basics} \marginnote[5mm]{It is also possible to first create
+the EMF meta model and then define a grammar for it. While this is a bit more work,
+it is also more flexible because not all possible Ecore meta models can be
+described implicitly by a grammar. For example, interfaces cannot be expressed
+from the grammar.} In Xtext, the syntax is specified using a grammar, a
+collection of \emph{parser rules}. These rules specify the concrete syntax of a
+program element, as well as its mapping to the AS. Xtext generates an Ecore meta
+model to describe the AS. Here is the definition of the \ic{CoolingProgram} rule:
 
 \begin{code} 
 CoolingProgram:
@@ -997,30 +998,29 @@ CoolingProgram:
     "}";
 \end{code} 
 
-Rules begin with the name (CoolingProgram), a colon, and then the rule body. The
-body defines the syntactic structure of the language concept defined by the
-rule. In our case, we expect the keywords \ic{cooling} and
-\ic{program}, followed by an ID. ID is a \emph{terminal rule} that is
-defined in the parent grammar from which we inherit. It is defined as an
+Rules begin with the name (\ic{CoolingProgram}), a colon, and then the rule
+body. The body defines the syntactic structure of the language concept defined
+by the rule. In our case, we expect the keywords \ic{cooling} and \ic{program},
+followed by an \ic{ID}. \ic{ID} is a \emph{terminal rule} that is defined in the
+parent grammar from which we inherit (not shown). \ic{ID} is defined as an
 unbounded sequence of lowercase and uppercase characters, digits, and the
 underscore, although it may not start with a digit. This terminal rule is
-defined as follows, again using a BNF-like syntax:
-
+defined as follows, again using a BNF-like syntax:
 \begin{code} 
 terminal ID: ('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'_'|'0'..'9')*;
 \end{code} 
 
-In pure grammar languages, one would write \verb#"cooling" "program" ID"{"#,
-specifying that after the two keywords we expect an ID as defined above.
-However, in Xtext grammars don't just express the concrete syntax - they also
-determine the mapping to the AS. We have encountered two such mappings so far.
-The first one is implicit (although it can be made explicit as well): the name
-of the rule will be the name of the generated meta class. So we will get a meta
-class CoolingProgram. The second mapping we have encountered in \verb#name=ID#.
-It specifies that the meta class get a property name that holds the contents of
-the ID in the program text. Since nothing else is specified in the ID terminal
-rule, the type of this property defaults to EString, Ecore's implementation of a
-string data type.
+In pure grammar languages, one would write \ic{"cooling" "program" ID "\{"},
+specifying that after the two keywords we expect an \ic{ID}. However, Xtext
+grammars don't just express the concrete syntax --- they also determine the
+mapping to the AS. We have encountered two such mappings so far. The first one
+is implicit (although it can be made explicit as well): the name of the rule
+will be the name of the generated meta class. So we will get a meta class
+\ic{CoolingProgram}. The second mapping we have encountered in \ic{name=ID}. It
+specifies that the meta class gets a property \ic{name} that holds the contents
+of the \ic{ID} in the program text. Since nothing else is specified in the ID
+terminal rule, the type of this property defaults to \ic{EString}, Ecore's
+implementation of a string data type.
 
 The rest of the definition of a cooling program is enclosed in curly braces. It
 contains three elements: first the program contains a collection of events and
@@ -1028,42 +1028,42 @@ variables (the asterisk specifies unbounded multiplicity), an optional init
 block (optionality is specified by the question mark) and a list of states. Let
 us inspect each of these in more detail. 
 
-The expression \verb#(states+=State)*# specifies that there can be any number of
-State instances in the program. The meta class gets a property \verb#states#, it
-is of type State (the meta class derived from the State rule). Since we use the
-\verb#+=# operator, the \verb#states# property is a list as well. In case of the
-optional init block, the meta class will have an \verb#initBlock# property,
-typed as InitBlock (whose parser rule we don't show and discuss here), with a
+The expression \ic{(states+=State)*} specifies that there can be any number of
+\ic{State} instances in the program. The \ic{CoolingProgram} meta class gets a
+property \ic{states}, it is of type \ic{State} (the meta class derived from the
+\ic{State} rule). Since we use the \ic{+=} operator, the \ic{states}
+property will be typed to be a \emph{list} of \ic{State}s. In case of the
+optional init block, the meta class will have an \ic{initBlock} property, typed
+as \ic{InitBlock} (whose parser rule we don't show and discuss here), with a
 multiplicity of 0..1. Events and variables are more interesting, since the
 vertical bar operator is used within the parentheses. The asterisk expresses
-that whatever is inside the parentheses can occur any number of times - note
-that the use of a \verb#*# usually goes hand in hand with that of a
-\verb#+=#. Inside the parentheses we expect either a CustomEvent or a Variable.
+that whatever is inside the parentheses can occur any number of times --- note
+that the use of a \ic{*} usually goes hand in hand with the use of a \ic{+=}.
+Inside the parentheses we expect either a \ic{CustomEvent} or a \ic{Variable}.
 Variables are assigned to the variables collection, events are assigned to the
-events collection. This notation means that we can mix events and variables in
-any order.
+events collection. 
 
-The following alternative notation would first expect all events, and
-then all variables. Im the end, it depends on your end users which notation is
-more suitable.
-
+This notation means that we can mix events and variables in any order. The
+following alternative notation would first expect all events, and then all
+variables. Im the end, it depends on your end users which notation is more
+suitable.
 \begin{code} 
       (events+=CustomEvent)*
       (variables+=Variable)*
 \end{code} 
 
-The definition of State is different, since State is intended to be an abstract
-meta class with several subtypes.
+The definition of \ic{State} is interesting, since \ic{State} is intended to be an
+abstract meta class with several subtypes.
 
 \begin{code} 
 State:
     BackgroundState | StartState | CustomState;
 \end{code} 
 
-The vertical bar operator is used here to express alternatives regarding the
-syntax. This is translated to inheritance in the meta model. The definition of
-custom state is shown in the following code snippet. It uses the same grammar
-language features as explained above.
+The vertical bar operator is used here to express syntactic alternatives. This
+is translated to inheritance in the meta model. The definition of
+\ic{CustomState} is shown in the following code snippet. It uses the set of
+grammar language features explained above.
 
 \begin{code} 
 CustomState:
@@ -1078,10 +1078,10 @@ CustomState:
         (events+=EventHandler | signals+=SignalHandler)*;
 \end{code}  
 
-StartState and BackgroundState, the other two subtypes of State, share some
-properties. Consequently, Xtexts AS derivation algorithm pulls them up into the
-abstract State meta class so they can be accessed polymorphically.
-\fig{Fig:xtext-metamodel} shows the resulting meta model using EMF's tree view.
+\ic{StartState} and \ic{BackgroundState}, the other two subtypes of \ic{State},
+share some properties. Consequently, Xtext's AS derivation algorithm pulls them
+up into the abstract \ic{State} meta class so they can be accessed polymorphically.
+\fig{Fig:xtext-metamodel} shows the resulting meta model using EMF's tree view.
 
 \begin{figure}[ht]
 \begin{center}
@@ -1092,22 +1092,15 @@ abstract State meta class so they can be accessed polymorphically.
 \end{figure}
 
 
+\todo{Provide figure captions}
+
 \paragraph{References}
 
-\LK{maybe this should first show the grammar rule without the
-  cross-reference, and then explain that's not how you normally do it
-  in Xtext, but that you should make it a cross-reference instead. I
-  suppose you could then even show it with
-  \ic{targetState=[State|QID]} and say that
-  \ic{targetState=[State]} is a short-hand in case it's an
-  \ic{ID}. that way maybe we can maintain a grammar perspective in
-  this section}
-
-Let us now look at statements and expressions. States
-have entry and exit statements, procedural code that is executed when a state is
-entered and left respectively. The \verb#set v = 1# is an example. Statement
-itself is of course abstract and has all the various kinds of statements as
-subtypes/alternatives (in the actual language there are many more):
+Let us now look at statements and expressions. \ic{State}s have entry and exit
+statements, procedural code that is executed when a state is entered and left,
+respectively. \ic{set v = 1} in the hello world program is an example. \ic{Statement}
+itself is of course abstract and has the various kinds of statements as
+subtypes/alternatives:
 
 \begin{code} 
 Statement:
@@ -1121,29 +1114,37 @@ AssignmentStatement:
     "set" left=Expr "=" right=Expr;
 \end{code}  
 
-The ChangeStateStatement is used to transition into another state of the overall
-state-based program. It uses the keyword \ic{state} and then a reference to
-the actual target state in the form of its name. Notice how Xtext uses brackets
-to express the fact that the \verb#targetState# property points to an existing
-State as opposed to containing a new one (written as \verb#targetState=State#),
-i.e.: a non-containing cross-reference. In traditional grammars, the rule would
-be written as \verb#"state" targetStateName=ID;# and the language implementation
-would have to provide functionality to follow the \verb#targetState# link
-separately.
+The \ic{ChangeStateStatement} is used to transition into another state. It uses
+the keyword \ic{state} and then a reference to the actual target state. Notice
+how Xtext uses square brackets to express the fact that the \ic{targetState}
+property points to an \emph{existing} state as opposed to containing a new one
+(which would be written as \ic{targetState=State}), i.e. a non-containing
+cross-reference. 
 
-Note that the cross-reference definition only specifies the target type of the
-cross-reference, but not the CS itself: by default, the ID terminal is used for
-the syntax. Initially, this ID ends up in a proxy URI which is resolved lazily
-as soon as we try and access the property. The Xtext framework takes care of
-most of this out-of-the-box, but you can exert a lot of control on its behavior
-by means of a custom scope provider.
+This is another example of where the Xtext grammar language goes beyond
+classical grammar languages, where one would write \ic{"state"
+targetStateName=ID;}. Writing it this way only specifies that we expect an \ic{ID} 
+after the \ic{state} keyword. The fact that we call it \ic{targetStateName}
+communicates \emph{to the programmer} that we expect this text string to
+correspond to the name of a state --- it is the task of a later phase in model
+processing to \emph{resolve} the name to an actual state reference. Typically,
+the code to resolve the reference has to be written manually, because there is
+no way for the tool to automatically derive from the grammar that this \ic{ID}
+is actually a reference to a \ic{State}. In Xtext, the \ic{targetState=[State]}
+notation makes this explicit, so the resolution of the reference can be
+automatic (taking into account manually written scopes, as discussed in the
+next chapter). This notation also has the advantage that the resulting meta
+class types the \ic{targetState} property to \ic{State}, which makes processing
+the models much easier.
 
-There are two more details to explain. In case the actual terminal or datatype
-rule used to represent the reference is not an ID, but, for example, a name with
-dots in it (qualified name), this can be specified as part of the reference.
-Notice how in this case the vertical bar does not represent an alternative, it
-is merely used as a separator between the target type and the terminal used to
-represent the reference.
+Note that the cross-reference definition only specifies the target type
+(\ic{State}) of the cross-reference, but not the concrete syntax of the
+reference itself. By default, the \ic{ID} terminal is used for the reference
+syntax, i.e. a simple (identifier-like) text string is expected. However, this
+can be overridden by specifying the concrete syntax terminal behind a vertical
+bar in the reference. Notice that in this case the vertical bar does not
+represent an \emph{alternative}, it is merely used as a \emph{separator} between
+the target type and the terminal used to represent the reference.
 
 \begin{code} 
 ChangeStateStatement:
@@ -1153,20 +1154,18 @@ QID: ID ("." ID)*;
 \end{code}  
 
 The other remaining detail is scoping. During the linking phase, where the text
-of ID (or QID) is used to find the target object, several objects with the same
+of \ic{ID} (or \ic{QID}) is used to find the target object, several objects with the same
 name might exist, or some target elements are not visible based on visibility
 rules of the language. To control the possible reference targets, scoping
 functions are used. These will be explained in the next section.
 
-\todo{MB: I still have to reconcile the duplicate explanation of scoping in this
-paragraph\ldots}
 
-
-\paragraph{Expressions} The AssignmentStatement is one of the statements that
-uses expressions. This leads us to discussing the implementation of expressions
-in Xtext. Let us look at the definition of expressions as a whole. The following
-snippet is a subset of the actual definition of expressions (we have omitted
-some additional expressions that don't add anything to the description here).
+\paragraph{Expressions} The \ic{AssignmentStatement} shown above is one of the
+statements that uses expressions. This leads us to discussing the implementation
+of expressions in Xtext. Let us look at the definition of expressions as a
+whole. The following snippet is a subset of the actual definition of expressions
+(we have omitted some additional expressions that don't add anything to the
+description here).
 
 \begin{code} 
 Expr:
@@ -1200,125 +1199,83 @@ AtomicLevel returns Expression:
 
 We first have to explain in more detail how the AST construction works in Xtext.
 Obviously, as the text is parsed, meta classes are instantiated and the AST is
-assembled. However, instantiation of the respective meta class happens only when
-the first assignment to one of its properties is performed. If no assignment is
-performed at all, no object is created. For example in case of
-\verb#TrueLiteral: "true";# no instance of TrueLiteral will ever be created,
+assembled. However, instantiation of the respective meta class happens
+only upon the first assignment to one of its properties. If no assignment
+is performed at all, no object is created. For example in grammar rule
+\ic{TrueLiteral: "true";} no instance of \ic{TrueLiteral} will ever be created,
 because there is nothing to assign. In this case, an action can be used to force
-instantiation: \verb#TrueLiteral: {TrueLiteral} "true";# Notice that the action
+instantiation: \ic{TrueLiteral: \{TrueLiteral\} "true";} Notice that the action
 can instantiate meta classes other than those that are derived from the rule
-name. Unless otherwise specified, an assignment such as \verb+name=ID+ is always
-interpreted as an assignment on the object that has been created most recently.
-The \ic{current} keyword can be used to access that object in case it
-itself needs to be assigned to a property.
+name (we could write \ic{TrueLiteral: \{SomeOtherThing\} "true";}, although this
+would not make sense in this case). Unless otherwise specified, an assignment
+such as \ic{name=ID} is always interpreted as an assignment on the object that
+has been created most recently. The \ic{current} keyword can be used to access
+that object in case it \emph{itself} needs to be assigned to a property ofanother AST object.
 
-Now we know enough to understand how expressions are encoded and parsed. For the
-rules with the Level suffix, no meta classes are created, because (as Xtext is
-able to find out statically) they are never instantiated. They merely act as a
-way to encode precedence. To understand this, let's consider how \verb#2*3# is
-parsed:
+Now we know enough about AST construction to understand how expressions are
+encoded and parsed. In the expression grammar above, for the rules with the
+\ic{Level} suffix, no meta classes are created, because (as Xtext is able to
+find out statically) they are never instantiated. They merely act as a way to
+encode precedence. To understand this, let's consider how \ic{2 * 3} is parsed:
 
 \begin{itemize}
-  \item We start (by definition) with the Expr rule. The Expr rule just calls
-  the ComparisonLevel rule. Note that a rule call can have two effects: it
-  returns an object which represents the parsed result or null in case no
-  object was instantiated, or it internally throws an exception indicating that
-  the input couldn't be matched to the called rule. The returned object is
-  available in the calling rule using the \ic{current} keyword.
-  \item The parser now "dives down" until it matches the 2. This occurs on
-  AtomicLevel, as it matches the \verb#DECIMAL\_NUMBER# terminal. At this point
-  it creates an instance of NumberLiteral and assigns the actual number (2) to
-  the value property. It also sets the \ic{current} object to point to the
-  just created NumberLiteral.
-  \item The AtomicLevel rule ends, and the stack is unwound. We're back at
-  PrefixOpLevel, in the second branch. Since nothing else is specified, we
-  unwind once more.
-  \item We're now back at the MultiplicationLevel. The rule we have on the stack
-  is not finished yet and we try to match a * and a /. The match on * succeeds.
-  At this point the so-called assignment action on the left side of the * kicks
-  in (\verb#{Multi.left=current}#). This action creates an instance of Multi,
-  and assigns the current (the NumberLiteral) to its left property. Then it
-  assigns the newly created Multi to be the current object. At this point we
-  have a subtree with the * at the root, and the NumerLiteral 2 in the left
-  property.
-  \item The rule hasn't ended yet. We dive down to PrefixOpLevel once more,
-  matching the 3 in the same way as the two before. The NumerLiteral for 3 is
-  assigned to the right property.
+  \item The \ic{AssignmentStatement} refers to the \ic{Expr} rule in its
+  \ic{left} and \ic{right} properties, so we "enter" the expression tree at the
+  level of \ic{Expr} (which is the root of the expression hierarchy).
+  \item The \ic{Expr} rule just calls the \ic{ComparisonLevel} rule, which calls
+  \ic{AdditionLevel}, and so on. No objects are created at this point, since no
+  assignment to any property is performed. 
+  \item The parser "dives down" until it finds something that matches the
+  first symbol in the parsed text: the \ic{2}. This occurs on \ic{AtomicLevel}, as
+  it matches the \ic{DECIMAL\_NUMBER} terminal. At this point it creates an 
+  instance of \ic{NumberLiteral} and assigns the actual number \ic{2} to
+  the \ic{value} property. It also sets the \ic{current} object to point to the
+  just created \ic{NumberLiteral}.
+  \item The \ic{AtomicLevel} rule ends, and the stack is unwound. We're back at
+  \ic{PrefixOpLevel}, in the second branch. Since nothing else is specified
+  after the call to \ic{AtomicLevel}, we unwind once more.
+  \item We're now back at the \ic{MultiplicationLevel}. The rule 
+  is not finished yet and we try to match a \ic{*} and a \ic{/}. The match on 
+  \ic{*} succeeds. At this point the so-called assignment action on the left 
+  side of the \ic{*} kicks
+  in (\ic{{Multi.left=current}}). This action creates an instance of \ic{Multi},
+  and assigns the \ic{current} (the \ic{NumberLiteral} created before) to its
+  \ic{left} property. Then it makes the newly created \ic{Multi} the new 
+  \ic{current}. At this point we have a subtree with the \ic{*} at the root, 
+  and the \ic{NumerLiteral} in the left   property.
+  \item The rule hasn't ended yet. We dive down to \ic{PrefixOpLevel} and
+  \ic{AtomicLevel} once more, matching the \ic{3} in the same way as the two before.
+  The \ic{NumerLiteral} for \ic{3} is assigned to the \ic{right} property as we
+  unwind the stack.
   \item At this point we unwind the stack further, and since no more text is
   present, no more objects are created. The tree structure is as we had
   expected.
-\end{itemize}
+\end{itemize}
 
-If we'd parsed \verb#4 + 2*3# the + would have matched before the *, because it
-is "mentioned earlier" in the grammar, it is in a lower-precedence group, the  
-AdditionLevel. Once we're a the 4 + tree, we'd go down again to match the 2.
-As we unwind the stack after matching the 2 we'd match the *, creating a Multi
-again. The current, at this point, would be the 2, so it would be put onto the
-left side of the *, making the * the current. Unwinding further, that * would be
-put onto the right side of the +, building the tree just as we'd expect.
+If we'd parsed \ic{4 + 2*3} the \ic{+} would have matched before the \ic{*},
+because it is "mentioned earlier" in the grammar. It is in a lower-precedence
+group, the \ic{AdditionLevel}. Once we're a the \ic{4 +} tree, we'd go down
+again to match the \ic{2}. As we unwind the stack after matching the \ic{2} we'd
+match the \ic{*}, creating a \ic{Multi} again. The \ic{current}, at this point,
+would be the \ic{2}, so it would be put onto the \ic{left} side of the \ic{*},
+making the \ic{*} the \ic{current}. Unwinding further, that \ic{*} would be put
+onto the \ic{right} side of the \ic{+}, building the tree just as we'd expect.
+
 
 Notice how a rule at a given level only always delegates to rules at higher
 precedence levels. So higher precedence rules always end up further down in the
-tree. If we want to change this, we can use parentheses: inside those, we can
-again embed an Expr, i.e. we jump back to the lowest precedence level.
+tree. If we want to change this, we can use parentheses (see the \ic{ParenExpr}
+in the \ic{AtomicLevel}): inside those, we can again embed an \ic{Expr}, i.e. we
+jump back to the lowest precedence level.
 
 \todo{Explain why Xtext does it this way (left recursion, etc.) and refer back
 to general parsing discussion.}
 
-To use Xtext with expressions it is not necessary to completely understand the
-mechanism, since expressions are always structured in the way shown above. The
-code shown here can be used as a template. Adding new operators or new levels
-can be done easily. 
+Note that once you understand the basic approach, it is easy to add new
+expressions with a precedence similar to another one (just add it as an
+alternative to the respective \ic{Level} rule) or to introduce a new precedence
+level (just interject a new \ic{Level} rule between two existing ones).
 
-\paragraph{Polymorphic References} In the cooling language, expressions also
-include references to other entities, such as configuration parameters,
-variables and hardware elements such as compressors and fans (defined in a
-different model, not shown above). All of these referencable elements extend the
-SymbolDeclaration meta class. This means that all of them can be referenced by
-the single SymbolRef construct.
-
-
-\begin{code} 
-AtomicLevel returns Expression:
-    ...
-    ({SymbolRef} symbol=[SymbolDeclaration|QID]);
-\end{code}  
-
-The problem with this situation is that the reference itself does not encode the
-kind of thing that is referenced. By looking at the reference alone we only know
-that we reference some kind of symbol. This makes writing code that processes
-the model cumbersome, since the target of a SymbolRef has to be taken into
-account when deciding how to treat (translate, validate) a symbol reference. A
-more natural design of the language would use different reference constructs for
-the different referencable elements. In this case, the reference itself is
-specific to the referenced meta class, making processing much easier.
-
-\begin{code} 
-AtomicLevel returns Expression:
-    ...
-    ({VariableRef} var=[Variable]);
-    ({ParameterRef} param=[Parameter]);
-    ({HardwareBuildingBlockRef} hbb=[HardwareBuildingBlock]);
-\end{code}  
-
-However, this is not possible with Xtext, since the parser cannot distinguish
-the three cases syntactically. In all three cases, the reference itself is just
-an ID. Only during the linking phase could the system check which kind of
-element is actually referenced, but this is too late for the parser, which needs
-an unambiguous grammar. The grammar could be disambiguated by using a different
-syntax for each element:
-
-\begin{code} 
-AtomicLevel returns Expression:
-    ...
-    ({VariableRef} "v:" var=[Variable]);
-    ({ParameterRef} "p:" param=[Parameter]);
-    ({HardwareBuildingBlockRef} "bb:" hbb=[HardwareBuildingBlock]);
-\end{code}  
-
-While this approach will technically work, it would lead to an awkward syntax
-and is hence typically not used. The only remaining alternative is to make all
-referencable elements extend SymbolDeclaration and use a single reference.
 
 
 
