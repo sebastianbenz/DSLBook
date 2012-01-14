@@ -177,7 +177,7 @@ generally seeks to guarantee that operations expecting a certain kind of value
 are not used with values for which that operation makes no sense.
 \end{quote}
 
-In summary, type systems associate types with values and then checks whether
+In summary, type systems associate types with values and then check whether
 these types conform to predefined typing rules. 
 
 We distinguish between dynamic type systems which perform the type checks as
@@ -213,50 +213,54 @@ Using this example, we can illustrate in more detail what type systems have to
 do:
 
 \begin{description}
+
   \item[Declare Fixed Types] Some program elements have fixed types. They don't
   have to be derived or calculated, they are always the same and previously
-  known. Examples include the IntConst (whose type is IntType), the sqrt concept
-  (whose type is double), as well as the type declarations themselves (the type
-  of IntType is IntType, the type of DoubleType is DoubleType).
-  \item[Derive Types] For other program elements, the type has to be derived
-  from the types of other elements. For example, the type of a VarRef (the
+  known. Examples include the \ic{IntConst} (whose type is \ic{IntType}), the \ic{sqrt} concept
+  (whose type is \ic{double}), as well as the type declarations themselves (the type
+  of \ic{IntType} is \ic{IntType}, the type of \ic{DoubleType} is \ic{DoubleType}).
+
+  \item[Derive Types] For some program elements, the type has to be derived
+  from the types of other elements. For example, the type of a \ic{VarRef} (the
   variable reference) is the type of the referenced variable. The type of a
-  variable is the type of it's declared type. In the example, the type of x and
-  the reference to x is IntType.
+  variable is the type of it's declared type. In the example above, the type of
+  \ic{x} and the reference to \ic{x} is \ic{IntType}.
+
   \item[Calculate Common Types] Most type systems have some kind of type
-  hierarchy. In the example, IntType is a subtype of DoubleType (IntType can be
-  used wherever DoubleType is expected). This subtype relationship has to be
-  specified. Also, the type of certain program elements may be calculated from
-  the arguments passed to them; in many cases the resulting type will be the
-  "more general one". examples are the Plus and Multi constructs: if two
-  IntTypes are added, the result is an IntType. If two DoubleTypes are added,
-  the result is a DoubleType. If an IntType and a DoubleType are added, the
-  result is a DoubleType, the more general of the two.
+  hierarchy. In the example, \ic{IntType} is a subtype of \ic{DoubleType}
+  (\ic{IntType} can be used wherever \ic{DoubleType} is expected). A type system
+  has to support the specification of such subtype relationships. Also, the type
+  of certain program elements may be calculated from the arguments passed to
+  them; in many cases the resulting type will be the "more general one".
+  examples are the \ic{Plus} and \ic{Multi} constructs: if the left and right
+  arguments are two \ic{IntTypes}, the result is an \ic{IntType}. In case of
+  two \ic{DoubleType}s, the result is a \ic{DoubleType}. If an \ic{IntType} and a
+  \ic{DoubleType} are used, the result is a \ic{DoubleType}, the more general of the
+  two.
+
   \item[Type Checks] Finally, a type system has check for type errors and report
   them to the language user. In the example, a type error would occur if
-  something with a DoubleType were assigned to an IntType variable.
+  something with a \ic{DoubleType} were assigned to an \ic{IntType} variable.
+
 \end{description}
 
 Note that the type of a program element is not generally the same as it's
-language concept. For example, the concept (meta class) of the number 1 is
-IntConst and it's type is IntType. The type of the sqrt is DoubleType and its
-concept is Sqrt. Only for type declarations themselves the two are (usually) the
-same. The type of an IntType is IntType. Specifically, several instances of the
-same concept can have different types: a plus calculates it's type as the more
-general of the two arguments. So the type of each Plus instance depends on
-what kinds of arguments the particular instance has.
+language concept. For example, the concept (meta class) of the number \ic{1} is
+\ic{IntConst} and its type is \ic{IntType}. The type of the \ic{sqrt} is \ic{DoubleType} and its
+concept is \ic{Sqrt}. Only for type declarations themselves the two are (usually) the
+same: the type of an \ic{IntType} is \ic{IntType}. Often several
+instances of the same concept can have different types: a \ic{+} calculates it's
+type as the more general of the two arguments. So the type of each \ic{+}
+instance depends on what kinds of arguments the particular instance has.
  
-The core of a type system can be considered to be a function typeof that
-calculates the type for a program element: 
-
-	$$typeof ::= concept => type$$ 
-
+The core of a type system can be considered to be a function \ic{typeof} that
+calculates the type for a program element: $$typeof ::= element => type$$ 
 Types are often represented with the same technology as the language concepts.
 As we will see, in case of MPS types are just nodes, i.e. instances of concepts.
-In Xtext, we use EObjects, i.e. instances of EClasses as types \MV{Spoofax?}. In
+In Xtext, we use \ic{EObjects}, i.e. instances of \ic{EClasses} as types \MV{Spoofax?}. In
 both cases, we even define the concepts as part of the language. This is useful
 because most of the concepts used as types also have to be used in the program
-text whenever types are explicitly declared (as in \verb#var x: int#).
+text whenever types are explicitly declared (as in \ic{var x: int}).
 
 \section{Type Calculation Strategies}
 
