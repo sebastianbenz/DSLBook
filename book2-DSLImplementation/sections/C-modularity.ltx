@@ -1,0 +1,33 @@
+\chapter{Modularization, Reuse and Composition}
+
+\chapterabstract{Language modularization, extension and composition (\lmrc) is
+an important ingredient to the efficient use of DSLs, just like reuse in general
+is important to software development. We discuss the need for \lmrc in the
+context of DSL design in \todo{}, where we introduce the four classes of
+\lmrc. In this chapter, we look at the implementation approaches taken by thevarious example tools.}
+
+\subsection{Introduction}
+
+When modularizing and composing languages, the following challenges have to be
+addressed: 
+
+\begin{itemize}
+  \item The concrete and the abstract syntax have to be combined. Depending on
+  the kind of composition, this requires the embedding of one syntax into
+  another one. This, in turn, requires modular grammars.
+  \item The static semantics, i.e. the constraints and the type system have to
+  be integrated. For example in case of language extension, new types have to be
+  "made valid" for existing operators.
+  \item The execution semantics have to be combined as well. In practice, this
+  may mean mixing the code generated from the composed languages, or composing
+  the generators.
+  \item Finally, the IDE that provides code completion, syntax coloring, static
+  checks and other relevant services has to be extended and composed as well.
+\end{itemize}
+
+In this chapter we show how each of those is addressed with the respective
+tools. We don't discuss the general problems any further, since those have been
+discussed in the chapter on DSL design \todo{}
+
+
+\input{sections/C1-mps.ltx}

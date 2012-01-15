@@ -1,0 +1,32 @@
+digraph structure {
+	
+	node [ shape=rectangle ];
+	
+	{rank=source; entities };
+
+	{rank=same; relmapping rbac uispec };
+
+	{rank=sink; relmapping_entities rbac_entities uispec_validation };
+	
+	rbac;
+	rbac_entities;
+	relmapping;
+	relmapping_entities;
+	uispec;
+	uispec_validation;
+	entities [ penwidth=2.0 ];
+	
+	expressions [style=dashed];
+	
+	rbac_entities -> rbac [ arrowhead=empty weight=10.0];
+	uispec_validation -> uispec [ arrowhead=empty weight=10.0 ];
+	relmapping_entities -> relmapping  [ arrowhead=empty weight=10.0 ];
+	
+	uispec_validation -> expressions [ dir=both arrowtail=diamond arrowhead=normal  weight=5.0];
+	
+	rbac_entities -> entities;
+	relmapping_entities -> entities;
+	
+	uispec -> entities;
+	
+}
