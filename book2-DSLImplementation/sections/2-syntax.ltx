@@ -1026,7 +1026,7 @@ the EMF meta model and then define a grammar for it. While this is a bit more wo
 it is also more flexible because not all possible Ecore meta models can be
 described implicitly by a grammar. For example, interfaces cannot be expressed
 from the grammar.} In Xtext, the syntax is specified using a grammar, a
-collection of \emph{parser rules}. These rules specify the concrete syntax of a
+collection of \emph{parser rules}\LK{weren't these called productions before?}. These rules specify the concrete syntax of a
 program element, as well as its mapping to the AS. Xtext generates an Ecore meta
 model to describe the AS. Here is the definition of the \ic{CoolingProgram} rule:
 
@@ -1337,13 +1337,13 @@ level (just interject a new \ic{Level} rule between two existing ones).
 % (we assume some introduction of the case studies
 %  before this point)
 
-Mobl's data modeling language provides entities and entity
-functions. To illustrate the language, here is an example of two
-data type definitions related to a shopping list app:
+Mobl's data modeling language provides entities, properties and
+functions. To illustrate the language, below
+are two
+data type definitions related to a shopping list app.
+It supports lists of items that can be favorited, checked, and
+so on, and are associated with some \ic{Store}.
 
-\begin{figure}[ht]
-\vspace{-5mm}
-\begin{center}
 \begin{code}
 module shopping
 
@@ -1355,7 +1355,41 @@ entity Item {
   order    : Num
   store    : Store
 }
+\end{code}
 
+In mobl, most files starts with a module header, which can be followed
+by a list of entity type definitions. 
+%Our example \emph{shopping}
+%module defines two entities for items on a shopping list and stores
+%for those items.  Entities are persistent data types that are stored
+%in a database and can be retrieved using mobl's querying API.
+In turn, each entity can have one or more property or function definitions.
+We can specify this syntax using the following grammar in Spoofax, using SDF notation:
+
+\begin{code}
+context-free start symbols
+
+  Start
+  
+context-free syntax
+
+  "module" ID Entity*                 -> Start {"Module"}
+  "entity" ID "{" EntityBodyDecl* "}" -> Entity {"EntityNoSuper"}
+  ID ":" Type                         -> EntityBodyDecl {"PropertyNoAnnos"}
+\end{code}
+
+While most elements of this grammar definition should be familiar,
+SDF has its own notation and conventions. In particular, it
+divides grammars into different sections. The example grammar here
+uses two sections: \ic{context-free start symbols} to list the starting symbols of
+the grammar, and \ic{context-free syntax} to list all the context-free syntax productions.
+And unlike in the grammars we have shown until now,
+productions in SDF first list the pattern they match against and then the symbol
+they produce. 
+
+and then
+
+\begin{code}
 entity Store {
   name  : String
   open  : Time
@@ -1366,46 +1400,20 @@ entity Store {
   }
 }
 \end{code}
-\end{center}
-  \caption[labelInTOC]{A mobl example: data definitions for a shopping application.}
-  \label{Fig:mobl-shopping}  
-\vspace{-10mm}
-\end{figure}
 
-
-In mobl, most files starts with a module header, which can be followed
-by a list of entity type definitions. Our example \emph{shopping}
-module defines two entities for items on a shopping list and stores
-for those items.  Entities are persistent data types that are stored
-in a database and can be retrieved using mobl's querying API.
-
-Syntax:
+can be parsed using
 
 \begin{code}
-"entity" QId ":" Type "{" EntityBodyDecl* "}"  -> Definition {cons("Entity")}
-"entity" QId "{" EntityBodyDecl* "}"  -> Definition {cons("EntityNoSuper")}
-ID ":" Type "(" {Anno ","}* ")" -> EntityBodyDecl {cons("Property")}
-ID ":" Type                     -> EntityBodyDecl {cons("PropertyNoAnnos")}
-FunctionDef                               -> EntityBodyDecl
-ID                              -> Anno {cons("SimpleAnno")}
-"inverse" ":" ID                -> Anno {cons("InverseAnno")}
-\end{code}
-
-\begin{code}
-
-"function" QId "(" {FArg ","}* ")" ":" Type "{" Statement* "}" -> FunctionDef {cons("Function")}
-"return" Exp ";"                            -> Statement
-{cons("Return")}
+"function" QId "(" {FArg ","}* ")" ":" Type "{" Statement* "}" -> EntityBodyDecl {"Function"}
+"return" Exp ";"                            -> Statement {cons("Return")}
 
 Exp "." ID "(" Exp  ")" -> Exp {cons("MethodCall")}
 Exp "." ID                -> Exp {cons("FieldAccess")}
 ID                        -> Exp {cons("Var")}
 \end{code}
 
-
-
+%\TODO{}
  
-
 \section{MPS Example}
 
 We start by defining a simple language for state machines. Core concepts include
