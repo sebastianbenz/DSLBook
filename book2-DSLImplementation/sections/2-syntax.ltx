@@ -17,7 +17,7 @@ reconstructed from the combination of the AS and this hidden information ---
 this bidirectionality simplifies creating IDE features quite a bit.
 
 In most cases, the abstract syntax is a tree data structure. Instances that
-represent actual programs (i.e. sentences in the language) are hence often
+represent actual programs (i.e., sentences in the language) are hence often
 called an abstract syntax tree or AST. Some formalisms also support
 cross-references across the tree, in which case the data structure becomes a
 graph (with a primary containment hierarchy). It is still usually called an AST.
@@ -83,7 +83,7 @@ parsing and projection.
 \begin{figure}[ht]
 \begin{center}
   \includegraphics[scale=0.6]{figures/1/astandcst.png}
-  \caption[labelInTOC]{}
+  \caption[labelInTOC]{Dimensions of defining the concrete and abstract syntax of a language.}
   \label{astandcst} 
 \end{center}
 \end{figure}
@@ -112,7 +112,7 @@ A key characteristic of the free text editing approach is its strong separation
 between the concrete syntax (i.e., text) and the abstract syntax. The concrete
 syntax is the principal representation, used for both editing and persistence.
 The abstract syntax is used under the hood by the implementation of the DSL,
-e.g. for providing an outline view, validation, and for transformations and code
+e.g.\ for providing an outline view, validation, and for transformations and code
 generation.
 
 Many different approaches to parser implementation exist. Each may restrict
@@ -399,7 +399,7 @@ FieldPart ::= ID
 This last grammar now describes the same language as the one from
 \fig{Fig:field-access-grammar}, but conforms to the LL(1) grammar class.
 
-Unfortunately, it is not possible to factor all possible context-free grammars
+In the general case, not all context-free grammars can be mapped
 to one of the restricted classes. Valid, unambiguous grammars exist that cannot
 be factored to any of the restricted grammar classes. In practice, this means
 that some languages cannot be parsed with LL or LR parsers.
@@ -408,11 +408,10 @@ that some languages cannot be parsed with LL or LR parsers.
 
 Research into parsing algorithms has produced parser generators specific to
 various grammar classes, but there has also been research in parsers for the
-full class of context-free grammars. Naive algorithms that support the full
-class of context-free grammars use backtracking, i.e.\ they allow themselves to
-try to match the input using another production rule even though an
-earlier-tried rule already seemed to match\MV{I don't understand the previous
-sentence}. This carries the risk of exponential execution times or
+full class of context-free grammars. A naive approach to avoid the restrictions
+of LL or LR parsers may be to add backtracking, so that if any input doesn't match
+a particular production, the parser can go back and try a different production.
+Unfortunately, this approach risks exponential execution times or
 non-termination and usually exhibits poor performance.
 
 There are also general parsing algorithms that can \emph{efficiently} parse the
@@ -537,33 +536,76 @@ GLR parsers, but typically not available in parsers that support only more
 limited grammar classes.
 
 
-\paragraph{Compositionality}
+\paragraph{Compositionality of Grammars}
 
-\todo{}
-encoded precedence, associativity, etc. makes grammars resistent to
-change and composition
+Grammars evolve as languages change and new features are added.
+These features can be added by adding single, new productions, or
+by composing the grammar with an existing grammar. Composition
+of grammars is an efficient way of reusing grammars and quickly
+constructing or extending new grammars.
 
-grammar classes and composition don't mix
+As a basic example of a grammar composition, consider an the following
+grammar for arithmetic expressions:
 
-can you compose the arithmetic expressions grammar with the field access 
-grammar \Figure{Fig:field-access-grammar}?
+\begin{code}
+Expr ::= NUM
+       | Expr "*" Expr
+       | Expr "+" Expr
+\end{code}
 
-and what about
+Once more operators are added and the proper associativities and precedences
+are specified, such a grammar 
+forms an excellent unit for reuse. Now suppose we want to add this grammar to
+a second grammar, where we have a field access expression:
 
+\begin{code}
+Expr ::= ID
+       | STRING
+       | Expr "." ID
+\end{code}
+
+In the ideal case, composing two such grammars together should be trivial.
+However, reality is often less than ideal. There are three challenges that
+arise when composing grammars.
+
+A first challenge is posed by grammars class restrictions.
+As we have shown, grammars need to be massaged
+with techniques such as left-factoring in order to confirm to a certain grammar class.
+Likewise, any precedence order or associativity can be encoded
+by massaging the grammar to take a certain form. Unfortunately,
+all this massaging makes grammars very resistent to change and composition.
+After two grammars are composed together, it is often the case
+that their composition is no longer LL or LR, and needs another
+manual factorization step to be usable. In contrast,
+using separate precedence and associativity definitions with general parsers
+avoids this problem.
+
+A second challenge is in composing scanners. When two grammars are composed together
+that depend on a different lexical syntax, conflicts can arise.
+For example, consider what happens when we compose the grammar
+of Java with the grammar of SQL, as illustrated in \fig{Fig:javasql}.
+The SQL grammar reserves keywords such as \ic{SELECT},
+even though they are not reserved in Java. Such a language
+change could break compatibility with existing Java programs, and
+can only be avoided by using a scannerless parser.
+
+\begin{figure}[t]
+\begin{center}
 \begin{code}
 for (Customer c : SELECT customer FROM accounts WHERE balance < 0) {
   ...
 }
 \end{code}
+  \caption[labelInTOC]{A composition of Java and SQL.}
+  \label{Fig:javasql} 
+\end{center}
+\end{figure}
 
-reserved keywords: for, SELECT, FROM
-
-requires a context-sensitive scanner, or a parser that operates on
-characters instead of on tokens (a scannerless parser)
-
-
-
-
+A third challenge is ambiguity. Composing arbitrary grammars together 
+risks introducing new ambiguities that did not exist in either of
+the two constituent grammars. In the case of the arithmetic
+expressions and field access grammars, care must specifically be
+taken to indicate the precedence order of all operators.
 
 \section{Fundamentals of Projectional Editing} 
 
@@ -891,7 +933,7 @@ tools can convert between ATerms and XML.
 Every program element in MPS is a node. A node has a structure definition and
 projection rules for rendering. This is also true for language definitions.
 Nodes are instances of Concepts, which corresponds to EMF's EClass. Like
-EClasses, concepts are meta circular, i.e. there is a concept that defines the
+EClasses, concepts are meta circular, i.e.\ there is a concept that defines the
 properties of concepts:
 
 \begin{code} 
@@ -1265,9 +1307,8 @@ onto the \ic{right} side of the \ic{+}, building the tree just as we'd expect.
 Notice how a rule at a given level only always delegates to rules at higher
 precedence levels. So higher precedence rules always end up further down in the
 tree. If we want to change this, we can use parentheses (see the \ic{ParenExpr}
-in the \ic{AtomicLevel}): inside those, we can again embed an \ic{Expr}, i.e. we
+in the \ic{AtomicLevel}): inside those, we can again embed an \ic{Expr}, i.e.\ we
 jump back to the lowest precedence level.
-
 \todo{Explain why Xtext does it this way (left recursion, etc.) and refer back
 to general parsing discussion.}
 
@@ -1293,10 +1334,16 @@ level (just interject a new \ic{Level} rule between two existing ones).
 
 \section{Spoofax Example}
 
+% (we assume some introduction of the case studies
+%  before this point)
+
 Mobl's data modeling language provides entities and entity
 functions. To illustrate the language, here is an example of two
 data type definitions related to a shopping list app:
 
+\begin{figure}[ht]
+\vspace{-5mm}
+\begin{center}
 \begin{code}
 module shopping
 
@@ -1319,6 +1366,12 @@ entity Store {
   }
 }
 \end{code}
+\end{center}
+  \caption[labelInTOC]{A mobl example: data definitions for a shopping application.}
+  \label{Fig:mobl-shopping}  
+\vspace{-10mm}
+\end{figure}
+
 
 In mobl, most files starts with a module header, which can be followed
 by a list of entity type definitions. Our example \emph{shopping}
