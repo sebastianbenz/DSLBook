@@ -536,6 +536,7 @@ GLR parsers, but typically not available in parsers that support only more
 limited grammar classes.
 
 
+
 \paragraph{Compositionality of Grammars}
 
 Grammars evolve as languages change and new features are added.
@@ -543,6 +544,10 @@ These features can be added by adding single, new productions, or
 by composing the grammar with an existing grammar. Composition
 of grammars is an efficient way of reusing grammars and quickly
 constructing or extending new grammars.
+\MV{I think evolultion of grammars is different from composition: in the
+evolution, we change an existing one, invasively. In composition, we want to
+composed independetly developed ones, ideally without change. The above
+paragraph makes it all sound "one problem".}
 
 As a basic example of a grammar composition, consider an the following
 grammar for arithmetic expressions:
@@ -554,9 +559,9 @@ Expr ::= NUM
 \end{code}
 
 Once more operators are added and the proper associativities and precedences
-are specified, such a grammar 
-forms an excellent unit for reuse. Now suppose we want to add this grammar to
-a second grammar, where we have a field access expression:
+are specified, such a grammar forms an excellent unit for reuse. Now suppose 
+we want to add this grammar to a second grammar, where we have a field access 
+expression:
 
 \begin{code}
 Expr ::= ID
@@ -564,30 +569,31 @@ Expr ::= ID
        | Expr "." ID
 \end{code}
 
+\MV{is it important for your example that it is also called "Expr" in this
+second grammar?}
+
 In the ideal case, composing two such grammars together should be trivial.
 However, reality is often less than ideal. There are three challenges that
 arise when composing grammars.
 
-A first challenge is posed by grammars class restrictions.
-As we have shown, grammars need to be massaged
-with techniques such as left-factoring in order to confirm to a certain grammar class.
-Likewise, any precedence order or associativity can be encoded
-by massaging the grammar to take a certain form. Unfortunately,
-all this massaging makes grammars very resistent to change and composition.
-After two grammars are composed together, it is often the case
-that their composition is no longer LL or LR, and needs another
-manual factorization step to be usable. In contrast,
-using separate precedence and associativity definitions with general parsers
-avoids this problem.
+A first challenge is posed by grammars class restrictions. As we have shown,
+grammars need to be massaged with techniques such as left-factoring in order to
+conform to a certain grammar class. Likewise, any precedence order or
+associativity can be encoded by massaging the grammar to take a certain form.
+Unfortunately, all this massaging makes grammars very resistent to change and
+composition. After two grammars are composed together, it is often the case that
+their composition is no longer LL or LR, and needs another manual factorization
+step to be usable. In contrast, using separate precedence and associativity
+definitions with general parsers avoids this problem. \MV{How? Where are theresulting cross-grammar precedences encoded?}
 
-A second challenge is in composing scanners. When two grammars are composed together
-that depend on a different lexical syntax, conflicts can arise.
-For example, consider what happens when we compose the grammar
-of Java with the grammar of SQL, as illustrated in \fig{Fig:javasql}.
-The SQL grammar reserves keywords such as \ic{SELECT},
-even though they are not reserved in Java. Such a language
-change could break compatibility with existing Java programs, and
-can only be avoided by using a scannerless parser.
+
+A second challenge is in composing scanners. When two grammars that depend on a
+different lexical syntax are composed together, conflicts can arise. For
+example, consider what happens when we compose the grammar of Java with the
+grammar of SQL, as illustrated in \fig{Fig:javasql}. The SQL grammar reserves
+keywords such as \ic{SELECT}, even though they are not reserved in Java. Such a
+language change could break compatibility with existing Java programs which
+happen to use a variable named \ic{SELECT}, and can only be avoided by using ascannerless parser. \MV{How does a scannerless parser avoid this?}
 
 \begin{figure}[t]
 \begin{center}
@@ -605,7 +611,10 @@ A third challenge is ambiguity. Composing arbitrary grammars together
 risks introducing new ambiguities that did not exist in either of
 the two constituent grammars. In the case of the arithmetic
 expressions and field access grammars, care must specifically be
-taken to indicate the precedence order of all operators.
+taken to indicate the precedence order of all operators. \MV{How is this third
+challenge different from the first one?}
+
+
 
 \section{Fundamentals of Projectional Editing} 
 
@@ -930,6 +939,8 @@ tools can convert between ATerms and XML.
 
 \subsection{MPS' Structure Definition}
 
+\todo{add ics for the keywords}
+
 Every program element in MPS is a node. A node has a structure definition and
 projection rules for rendering. This is also true for language definitions.
 Nodes are instances of Concepts, which corresponds to EMF's EClass. Like
@@ -1026,7 +1037,7 @@ the EMF meta model and then define a grammar for it. While this is a bit more wo
 it is also more flexible because not all possible Ecore meta models can be
 described implicitly by a grammar. For example, interfaces cannot be expressed
 from the grammar.} In Xtext, the syntax is specified using a grammar, a
-collection of \emph{parser rules}\LK{weren't these called productions before?}. These rules specify the concrete syntax of a
+collection of productions that are typically called \emph{parser rules}. These rules specify the concrete syntax of a
 program element, as well as its mapping to the AS. Xtext generates an Ecore meta
 model to describe the AS. Here is the definition of the \ic{CoolingProgram} rule:
 
@@ -1330,19 +1341,15 @@ level (just interject a new \ic{Level} rule between two existing ones).
 
 
 
-
-
 \section{Spoofax Example}
 
 % (we assume some introduction of the case studies
 %  before this point)
 
-Mobl's data modeling language provides entities, properties and
-functions. To illustrate the language, below
-are two
-data type definitions related to a shopping list app.
-It supports lists of items that can be favorited, checked, and
-so on, and are associated with some \ic{Store}.
+Mobl's data modeling language provides entities, properties and functions. To
+illustrate the language, below are two data type definitions related to a
+shopping list app. It supports lists of items that can be favorited, checked,
+and so on, and are associated with some \ic{Store}.
 
 \begin{code}
 module shopping
@@ -1363,8 +1370,9 @@ by a list of entity type definitions.
 %module defines two entities for items on a shopping list and stores
 %for those items.  Entities are persistent data types that are stored
 %in a database and can be retrieved using mobl's querying API.
-In turn, each entity can have one or more property or function definitions.
-We can specify this syntax using the following grammar in Spoofax, using SDF notation:
+In turn, each entity can have one or more property or function definitions
+(shown in the next example snippet). We can specify this syntax using the
+following grammar in Spoofax, using SDF notation:
 
 \begin{code}
 context-free start symbols
@@ -1378,14 +1386,15 @@ context-free syntax
   ID ":" Type                         -> EntityBodyDecl {"PropertyNoAnnos"}
 \end{code}
 
-While most elements of this grammar definition should be familiar,
-SDF has its own notation and conventions. In particular, it
-divides grammars into different sections. The example grammar here
-uses two sections: \ic{context-free start symbols} to list the starting symbols of
-the grammar, and \ic{context-free syntax} to list all the context-free syntax productions.
-And unlike in the grammars we have shown until now,
-productions in SDF first list the pattern they match against and then the symbol
-they produce. 
+While most elements of this grammar definition should be familiar, SDF has its
+own notation and conventions. In particular, it divides grammars into different
+sections. The example grammar here uses two sections: \ic{context-free start
+symbols} to list the starting symbols of the grammar, and \ic{context-free
+syntax} to list all the context-free syntax productions. And unlike in the
+grammars we have shown until now, productions in SDF first list the pattern they
+match against and then the symbol \MV{abstract syntax element} they produce.\MV{can you explain what the stuff in "quotes" on the right side of the
+productions mean? And how do the data in the fields (the ID, the Type) of the
+pattern get into the AST elements? I see no mapping.}
 
 and then
 
@@ -1411,6 +1420,9 @@ Exp "." ID "(" Exp  ")" -> Exp {cons("MethodCall")}
 Exp "." ID                -> Exp {cons("FieldAccess")}
 ID                        -> Exp {cons("Var")}
 \end{code}
+
+\MV{I assume that you're planning to do this anyway, but please make sure your
+example explains precedence etc.}
 
 %\TODO{}
  
