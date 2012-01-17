@@ -262,11 +262,13 @@ both cases, we even define the concepts as part of the language. This is useful
 because most of the concepts used as types also have to be used in the program
 text whenever types are explicitly declared (as in \ic{var x: int}).
 
+
+
 \section{Type Calculation Strategies}
 
-In the end, the typeof function can be implemented in any way suitable; after
+In the end, the \ic{typeof} function can be implemented in any way suitable; after
 all, it is just program code. However, in practice, three approaches seem to be
-used most: recursion, unification and pattern matching. Wel'll explore each of
+used most: recursion, unification and pattern matching. We will explore each of
 these conceptually, and then provide examples in the tool sections.
 
 
@@ -277,15 +279,15 @@ this? Does anyone know something about that?}
 \subsection{Recursion}
 
 Recursion is widely used in computer science. According to Wikipedia, it refers
-to a 
+to 
 
 \begin{quote}
 a method of defining functions in which the function being defined is
 applied within its own definition.
 \end{quote}
 
-The standard example is the calculation of factorial:
-
+The standard example is the calculation of factorial, where the \ic{factorial}
+function calls itself:
 
 \begin{code}
 int factorial( int n ) {
@@ -296,12 +298,11 @@ int factorial( int n ) {
  
 
 In the context of type systems, the recursive approach for calculating a type
-defines a polymorhphic method typeof, which takes a program element and returns
-its type, while calling itself to calculate the types of those elements on which
+defines a polymorhphic function \ic{typeof}, which takes a program element and
+returns its type, while calling itself to calculate the types of those elements on which
 its own type depends. 
 
 Let us consider the following example grammar (we use Xtext notation here):
-
 
 \begin{code}
 LocalVarDecl:
@@ -309,8 +310,7 @@ LocalVarDecl:
 \end{code}
  
 
-The following examples are structurally valid example instances:
-
+The following examples are structurally valid example sentences:
  
 \begin{code}
 var i: int          // 1
@@ -320,8 +320,8 @@ var i = 42          // 4
 \end{code}
  
 
-Let's develop the pseudo-code for typeof function the LocalVarDecl. A first cut
-could look as follows:
+Let's develop the pseudo-code for \ic{typeof} function the \ic{LocalVarDecl}. 
+A first attempt could look as follows:
 
  
 \begin{code}
@@ -334,14 +334,12 @@ typeof( DoubleType dt ) { return dt }
 \end{code}
  
 
-Notice how the typeof for LocalVarDecl recusively calls typeof for its type
-property. Recursion ends with the typeof functions for the types; they return
-themselves.
-
-However, while this implementation successfully calculates the type of the
-LocalVarDecl, it does not address the type check that makes sure that, if an
-init expression is specified, it has the same type (or a subtype). This could be
-achieved as follows:
+Notice how the \ic{typeof} for \ic{LocalVarDecl} recursively calls \ic{typeof}
+for its \ic{type} property. Recursion ends with the \ic{typeof} functions for
+the types; they return themselves. This implementation successfully calculates
+the type of the \ic{LocalVarDecl}, but it does not address the type check that
+makes sure that, if an \ic{init} expression is specified, it has the same type
+(or a subtype) of the \ic{type} property. This could be achieved as follows:
 
  
 \begin{code} 
@@ -353,9 +351,9 @@ typeof( LocalVarDecl lvd ) {
 }
 \end{code}
 
-
-Notice that the type specification itself is also optional. So we have create a
-somewhat more elaborate version of the function:
+Notice in the grammar that the specification of the variable type (in the
+\ic{type} property) is also optional. So we have create a somewhat more
+elaborate version of the function:
 
  
 \begin{code} 
@@ -377,9 +375,9 @@ typeof( LocalVarDecl lvd ) {
 \end{code}
 
 
-This is relatively verbose. Assuming that assertions are ignored if one of the
-called typeof functions returns null because the argument is not specified, we
-can simplify this to the following code:
+This code is quite verbose. Assuming that assertions are ignored if one
+of the called \ic{typeof} functions returns \ic{null} because the argument is 
+not specified, we can simplify this to the following code. 
 
  
 \begin{code} 
@@ -390,44 +388,47 @@ typeof( LocalVarDecl lvd ) {
 }
 \end{code}
 
-
+This is probably the shortest version of the code that can be imagined using
+recursive function calls and a suitable language\footnote{Note how ignoring 
+an assertion if an argument is \ic{null} is a good example of custom semantics
+that is useful for a given purpose. Essentially, we have just defined a DSL for
+type calculations based on recursive function calls)}.
 
 
 \subsection{Unification}
 
-Unification is the second approach to type calculation. Once again we start with
-a definition from Wikipedia:
+Unification is the second well-known approach to type calculation. Once again we
+start with a definition from Wikipedia:
 
 \begin{quote}
 Unification is an operation [..] which produces from [..] logic terms a 
 substitution which [..] makes the terms equal modulo some equational theory.
 \end{quote}
 
-While this sounds sophisticated, we have all used unification in high-school for
-solving sets of linear equations. The "equational theory" is algebra, and
-substitution refers to assignment of values to x and y. A solution is 
-\verb#x := 5, y := 10#. 
+While this sounds quite sophisticated, we have all used unification in
+high-school for solving sets of linear equations. The "equational theory" is 
+algebra. Here is an example: 
 
- 
 \begin{code} 
 (1) 2 * x == 10
 (2) x + x == 10 
 (3) x + y == 2 * x + 5
 \end{code}
 
+Substitution refers to assignment of values to \ic{x} and \ic{y}. A solution
+is \ic{x := 5, y := 10}.
 
 Using unification for type systems means that language developers specify a
-number of type equations which contain type variables (cf the x and y) as well
+number of type equations which contain type variables (cf the \ic{x} and \ic{y}) as well
 as type values (the numbers in the above example). Some kind of engine is then
 trying to make all equations be true by assigning type values to the type
 variables in the type equations.
 
 The interesting property of this approach is that there is no distinction
-between typing rules and type checks. We simply specify equations. If an
-equation cannot be satisfied for any assigment of type values to type variables,
-a type error is detected. To illustrate this, we return to the LocalVarDecl
-example introduced above.
-
+between typing rules and type checks. We simply specify a set of equations that
+must be true for the types to check. If an equation cannot be satisfied for any
+assigment of type values to type variables, a type error is detected. To
+illustrate this, we return to the \ic{LocalVarDecl} example introduced above.
  
 \begin{code}
 var i: int          // 1
@@ -438,25 +439,25 @@ var i = 42          // 4
  
 
 The following two type equations constitute the complete type system
-specification. The $:==:$ operator means type equation (left side must be the
-same type as right side), $:<=:$ refers to subtype-equation (left side must be
-same type or supertype of right side). The operators are taken from MPS, which
-uses this technique.
+specification. The \ic{:==:} operator expresses type equation (left side must be
+the same type as right side), \ic{:<=:} refers to subtype-equation (left side
+must be same type or subtype of right side, the pointed side of \ic{<} points
+to the "smaller", more specialized type). The operators are taken from MPS,
+which uses this technique.
 
  
 \begin{code}
-typeof( LocalVarDecl.type ) :<=: typeof( LocalVarDecl.init) 
+typeof( LocalVarDecl.init ) :<=: typeof( LocalVarDecl.type) 
 typeof( LocalVarDecl ) :==: typeof( LocalVarDecl.type ) 
 \end{code}
  
 
-Let us look at the four examples. We use capital letters for free type
-variables. In the first case, the init expression is not given, so the first
-equation is ignored. The second equation can be satisfied by assigning T, the
+Let us look at the four examples cases. We use capital letters for free type
+variables. In the first case, the \ic{init} expression is not given, so the first
+equation is ignored. The second equation can be satisfied by assigning \ic{T}, the
 type of the variable declaration, to be int. The second equations acts as a type
-derivation rule.
+derivation rule and makes the type of the overall \ic{LocalVarDecl} \ic{int}.
 
- 
 \begin{code}
 var i: int          // 1
 
@@ -465,12 +466,14 @@ typeof( T ) :==: typeof( int )      // T := int
 \end{code}
  
 
-In the second case the type and the init expression are given, and both have
-types that can be calculated independent from the equations specified for the
-LocalVarDecl. So the first equation has no free type variables, but it is true
-with the type values specified. The second equation works the same as above,
-deriving T to be int.
 
+In the second case the \ic{type} and the \ic{init} expression are given, and
+both have types that can be calculated independent of the equations specified
+for the \ic{LocalVarDecl} (they are fixed). So the first equation has no free
+type variables, but it is true with the type values specified (two \ic{int}s).
+Notice how in this case the equation acts as a type check: if the equation were
+not true for the two given values, a type error would be reported. The second 
+equation works the same as above, deriving \ic{T} to be \ic{int}.
  
 \begin{code}
 var i: int = 42     // 2
@@ -493,9 +496,9 @@ typeof( T ) :==: typeof( int )      // T := int
  
 
 Case four is interesting because no variable type is explicitly specified; the
-idea is to use what's known as type inference to derive the type from the init
+idea is to use what's known as type inference to derive the type from the \ic{init}
 expression. In this case there are two free variables in the equations,
-substituting both with int solves both equations. Notice how the unification
+substituting both with \ic{int} solves both equations. Notice how the unification
 approach automatically leads to support for type inference!
 
  
@@ -511,7 +514,6 @@ typeof( T ) :==: typeof( U )    // T := int
 To further illustrate how unification works, consider the following example
 where we try to provide typing rules for array types, incl. array initializers.
 
-
  
 \begin{code}
 var i: int[]
@@ -520,83 +522,90 @@ var i = {1, 2, 3}
 \end{code}
  
 
-The additional complication in this case is that we need to make sure that all
-the initialiation expressions (inside the curlies) have the same or compatible
-types. Here are the typing equations:
-
+Compared to the \ic{LocalVarDecl} example above, the additional complication in
+this case is that we need to make sure that \emph{all} the initialization
+expressions (inside the curly braces) have the same or compatible types. Here
+are the typing equations:
  
 \begin{code}
 type var T
-foreach ( init.elements as e ) 
+foreach ( e: init.elements ) 
     T :<=: typeof(e)
 typeof( LocalVarDecl.type ) :<=: t
 typeof( LocalVarDecl ) :==: typeof( LocalVarDecl.type ) 
 \end{code}
  
 
-We introduce an additional type variable T and iterate over all the expression
-in the array initializer, establishing an equation between all of these elements
-and T. This results in a set of equations that each must be satisfied. The only
-way to achieve this is that all array initializer members are of the same
-(sub-)type. In the examples, this makes T to be int. The rest of the equations
-works as explained above. Notice that if we'd write 
-\verb#var i = {1, 33.33, 3}#, then $T := double$, but the equations would 
-still work because we use the $:<=:$ operator. 
+We introduce an additional type variable \ic{T} and iterate over all the
+expression in the array initializer, establishing an equation between each of
+these elements and \ic{T}. This results in a set of equations that \emph{each}
+must be satisfied. The only way to achieve this is that all array initializer
+members are of the same (sub-)type. In the examples, this makes \ic{T} to be
+\ic{int}. The rest of the equations works as explained above. Notice that if
+we'd write \ic{var i = \{1, 33.33, 3\}}, then \ic{T := double}, but the
+equations would still work because we use the \ic{:<=:} operator.
 
 
 \subsection{Pattern Matching}
 
-In pattern matching, we simply we simply list the possible combinations of types
+In pattern matching, we simply list the possible combinations of types
 in a big table. Cases that are not listed in the table will result in errors.
-For our LocalVarDecl example, such a table could look like the following:
+For our \ic{LocalVarDecl} example, such a table could look like the following:
 
+\vspace{5mm}
 \begin{tabular}{l l l}
-typeof(type) & typeof(init) & typeof(LocalVarDecl)\\
+\ic{typeof(type)} & \ic{typeof(init)} & \ic{typeof(LocalVarDecl)}\\
 \hline
-int & int & int\\
-int & - & int\\
-- & int & int\\
-double & double & double\\
-double & - & double\\
-- & double & double\\
-int & double & int\\
-double & int & int\\
+\ic{int} & \ic{int} & \ic{int}\\
+\ic{int} & - & \ic{int}\\
+- & \ic{int} & \ic{int}\\
+\ic{double} & \ic{double} & \ic{double}\\
+\ic{double} & - & \ic{double}\\
+- & \ic{double} & \ic{double}\\
+\ic{int} & \ic{double} & \ic{int}\\
+\ic{double} & \ic{int} & \ic{int}\\
 \end{tabular}
+\vspace{5mm}
  
-To avoid repeating everything for all valid types, variables could be used. T+
-refers to T or subtypes of T.
+To avoid repeating everything for all valid types, variables could be used. \ic{T+}
+refers to \ic{T} or subtypes of \ic{T}.
 
+
+\vspace{5mm}
 \begin{tabular}{l l l}
-typeof(type) & typeof(init) & typeof(LocalVarDecl)\\
+\ic{typeof(type)} & \ic{typeof(init)} & \ic{typeof(LocalVarDecl)}\\
 \hline
-T & T & T\\
-T & - & T\\
-- & T & T\\
-T & T+ & T\\
+\ic{T} & \ic{T} & \ic{T}\\
+\ic{T} & - & \ic{T}\\
+- & \ic{T} & \ic{T}\\
+\ic{T} & \ic{T+} & \ic{T}\\
 \end{tabular}
+
 
 
 \section{Xtext Example}
 
-Up until version 1.0 Xtext provided no support for implementing type systems
-(beyond manually implementing constraints). In 2.0 a type system integrated with
-the JVM's type system is available. Since it is limited to JVM-related types, it
-is not as versatile as it could be.
+Up until version 1.0, Xtext provided no support for implementing type systems
+(beyond implementing everything manually and plugging it into the constraints).
+In 2.0 a type system integrated with the JVM's type system is available. Since
+it is limited to JVM-related types, it is not as versatile as it could be.
 
 As a consequence, two third-party libraries have been developed: the Xtext
-Typesystem Framework (developed by Markus Voelter,
-\verb#http://code.google.com/a/eclipselabs.org/p/xtext-typesystem/#) and XTypes
-(developed by Lorenzo Bettini, \verb#http://xtypes.sourceforge.net/#). In the
-remainder of this section we will look at the Xtext Typesystem Framework.
+Typesystem Framework (developed by the
+author\footnote{http://code.google.com/a/eclipselabs.org/p/xtext-typesystem/},
+and XTypes (developed by Lorenzo
+Bettini\footnote{http://xtypes.sourceforge.net/}. In the remainder of this
+section we will look at the Xtext Typesystem Framework\todo{and briefly at the
+JVM type system integration}.
 
 
 \paragraph{Xtext Typesystem Framework} The Xtext Typesystem Framework is
-fundamentally based on the recursive approach. It provides an Interface
-ITypesystem with a method typeof( EObject ) which returns the type for the
+fundamentally based on the recursive approach. It provides an interface
+\ic{ITypesystem} with a method \ic{typeof( EObject )} which returns the type for the
 program element passed in as an argument. In its simplest form, the interface
 can be implemented manually with arbitrary Java code. To make sure type errors
 are reported as part of the Xtext validation, the framework has to be integrated
-manually:
+into the validation framework manually:
 
  
 \begin{code}
@@ -610,14 +619,16 @@ public void validateTypes( EObject m ) {
 \end{code}
  
 
-Most type systems are built from a limited set of typing rules (assigning fixed
-types, deriving the type of an element from one of its properties, calculating
-the type as the common type of its two arguments). The DefaultTypesystem class
-provides support for declaratively. In the code below, the initialize method
-defines one type (the type of the IntType is a clone of itself) and defines one
-typing constraint (the expr property of the IfStatement must be a boolean).
-Also, for types which cannot be specified declaratively, an operation type can
-be implemented to programmatically define types. 
+As we have discussed above, most type systems are built from a limited set of
+typing strategies (assigning fixed types, deriving the type of an element from
+one of its properties, calculating the type as the common type of its two
+arguments). The \ic{DefaultTypesystem} class implements \ic{ITypesystem} and
+provides support for declaratively specifying these strategies. In the code
+below, the initialize method defines one type (the type of the \ic{IntType} is a
+clone of itself) and defines one typing constraint (the \ic{expr} property of the
+\ic{IfStatement} must be a Boolean). Also, for types which cannot be specified
+declaratively, an operation \ic{type(..)} can be implemented to programmatically
+define types.
 
  
 \begin{code}
@@ -655,13 +666,13 @@ provide added value over a framework or API (\fig{fig:xtext-typesyseditor} shows
 a screenshot):
 
 \begin{itemize}
-  \item the notation is much more concise
+  \item the notation is much more concise compared to the API
   \item code completion into the target language meta model is provided
-  \item if the typing rules are incomple, a static error is shown in the editor,
-  as opposed to getting runtime error when the framework starts up (see the
-  warning in (\fig{fig:xtext-typesyseditor})
-  \item pressing ctrl-space on a property jumps to the typing rule that defines
-  the type for that property.
+  \item if the typing rules are incomplete, a static error is shown in the
+  editor, as opposed to getting runtime error during initialization of the 
+  framework (see the warning in (\fig{fig:xtext-typesyseditor})
+  \item \keystroke{Ctrl-Click} on a property jumps to the typing rule
+  that defines the type for that property.
 \end{itemize}
 
 
@@ -683,14 +694,12 @@ Primitive types usually use a copy of themselves as their type. It has to be a
 copy as opposed to the object itself, because the actual program element must
 not be pulled out of the EMF containment tree. This is specified as follows:
 
- 
 \begin{code}
 typeof BoolType -> clone
 typeof IntType -> clone
 typeof DoubleType -> clone
 typeof StringType -> clone
 \end{code}
- 
 
 For concepts that have a fixed type, but not a clone, the type can simply be
 specified:
@@ -702,10 +711,10 @@ typeof StringLiteral -> StringType
  
 
 Type systems are most important, and most interesting, in the context of
-expressions. Since all expressions derive from the abstract Expr concept, we can
+expressions. Since all expressions derive from the abstract \ic{Expr} concept, we can
 declare that this class is abstract, and hence no typing rule is given. However,
-the editor reports a warning there are concrete subclasses of an abstract class
-for which no type is specified either.
+the editor reports a warning if there are concrete subclasses of an abstract
+class for which no type is specified either.
 
  
 \begin{code}
@@ -714,10 +723,11 @@ typeof Expr -> abstract
  
 
 The notation provided by the DSL groups typing rules and type checks for a
-single concept together. The following is the typing information for the Plus
-concept. It declares the type of Plus to be the common type of the left and
-right arguments ("the more general one") and then adds two constraints that
-check that the left and right argument are either strings, ints or doubles.
+single concept. The following is the typing information for the \ic{Plus}
+concept. It declares the type of \ic{Plus} to be the common type of the
+\ic{left} and \ic{right} arguments ("the more general one") and then adds two
+constraints that check that the \ic{left} and \ic{right} argument are either
+\ic{string}s, \ic{int}s or \ic{double}s.
 
  
 \begin{code}
@@ -728,31 +738,32 @@ typeof Plus -> common left right {
 \end{code}
  
 
-The typing rules for Equals are also interesting. It specifies that the
-resulting type is booleanm that the left and right arguments must be COMPARABLE,
-and that the left and right arguments are compatible. COMPARABLE is a so-called
-type characteristic, this can be considered as collection of types. In this case
-it is  IntType, DoubleType, and BoolType. The $:<=>:$ operator describes
-unordered compatibility: the types of the two properties left and right must
-either be the same, or left must be a subtype or right, or vice versa. 
-
+The typing rules for \ic{Equals} are also interesting. It specifies that the
+resulting type is \ic{boolean} that the \ic{left} and \ic{right} arguments must
+be \ic{COMPARABLE}, and that the left and right arguments are compatible.
+\ic{COMPARABLE} is a so-called type characteristic: this can be considered as
+collection of types. In this case it is \ic{IntType}, \ic{DoubleType}, and
+\ic{BoolType}. The \ic{:<=>:} operator describes unordered compatibility: the
+types of the two properties \ic{left} and \ic{right} must either be the same, 
+or \ic{left} must be a subtype or \ic{right}, or vice versa.
  
 \begin{code}
+characteristic COMPARABLE {
+    IntType, DoubleType, BoolType
+}
 typeof Equals -> BoolType {
     ensureType left :<=: char(COMPARABLE)
     ensureType right :<=: char(COMPARABLE)
     ensureCompatibility left :<=>: right
 }
-characteristic COMPARABLE {
-    IntType, DoubleType, BoolType
-}
 \end{code}
  
 
-There is also support for ordered compatibility, as can be seen from the typing
-rule for AssignmentStatement. It has no type (it is a statement!), but the left
-and right argument must exhibit ordered compatibility: they either have to be
-the same types, or right must be a subtype of left, and \emph{not} vice versa.
+There is also support for \emph{ordered} compatibility, as can be seen from the
+typing rule for \ic{AssignmentStatement} below. It has no type (it is a
+statement!), but the \ic{left} and \ic{right} argument must exhibit ordered
+compatibility: they either have to be the same types, or \ic{right} must be a subtype
+of \ic{left}, \emph{but not vice versa}.
 
  
 \begin{code}
@@ -766,15 +777,15 @@ typeof AssignmentStatement -> none {
 
 \section{MPS Example}
 
-MPS includes a DSL for type system rule definition. The semantics are based on
+MPS includes a DSL for type system rule definition. It is based on
 unification, and to some extent, pattern matching. 
 
-The type of a LocalVariableReference is calculated with the following typing
+The type of a \ic{LocalVariableReference} is calculated with the following typing
 rule\footnote{Since only the expression within the \ic{do \curlies{ ... }} block has
 to be typed by the developer, we'll only show that expression in future
 examples.}. It establishes an equation between the type of the
-LocalVariableReference itself and the variable it references. \verb#typeof# is a
-built-in operator returns the type for its argument.
+\ic{LocalVariableReference} itself and the variable it references. \ic{typeof}
+is a built-in operator returns the type for its argument.
 
  
  
@@ -790,14 +801,15 @@ rule typeof_LocalVariableReference {
 \end{code}
  
 
-The rules for the boolean NotExpression contains two rules. The first one makes
-sure that the notted expression is boolean. The second one types the
-NotExpression itself to be boolean. Just as in Xtext, in MPS types are instances
-of language concepts. In MPS there are two different ways how language concepts
-can be instantiated. The first one (as shown in the first rule) uses the
-BaseLanguage new Expression. The second one uses a quotation, where "a piece of
-tree" can be inlined into program code. It uses the concrete syntax of the
-quoted construct --- here: a BooleanType --- in the quotation.
+The rules for the boolean \ic{NotExpression} contains two equations. The first
+one makes sure that the negated expression is boolean. The second one types the
+\ic{NotExpression} itself to be boolean. Just as in Xtext, in MPS types are
+instances of language concepts. In MPS there are two different ways how language
+concepts can be instantiated. The first one (as shown in the first equation)
+uses the BaseLanguage \ic{new} expression. The second one uses a quotation,
+where "a piece of tree" can be inlined into program code. It uses the concrete
+syntax of the quoted construct --- here: a \ic{BooleanType} --- in the 
+quotation.
 
  
 \begin{code}
@@ -806,7 +818,7 @@ typeof(notExpr) :==: <boolean>;
 \end{code}
  
 
-A more interesting example is the typing of structs. Let us consider the
+A more interesting example is the typing of structs. Consider the
 following piece of C code:
 
  
@@ -822,53 +834,67 @@ int addToAge( Person p, int delta ) {
 \end{code}
  
 
-At least two program elements have to be typed: the parameter p as well as the
-p.age expression. The type of the FunctionParameter concept is the type of its
-type: \verb#typeof(parameter) :==: typeof(parameter.type);#. This is not
-specific to the fact that the parameter refers to a struct. The language concept
-that represents the Person type in the parameter is a StructType. A StructType
-refers to the StructDeclaration it represents a type of and extends Type, which
-acts as the super type for all types in the Embedded C language. So in essence,
-this means that the type of p is an instance of StructType that has a pointer to
-the StructDeclaration Person.
+At least two program elements have to be typed: the parameter \ic{p} as well as
+the \ic{p.age} expression. The type of the \ic{FunctionParameter} concept is the
+type of its type: 
 
-The p.age is an instance of a StructAttributeReference. It is defined as
-follows. It is an expression, owns another expression variable (on the left of
-the dot) as well as a reference to a StructAttribute (name or age in the
-example) .
+\begin{code}
+typeof(parameter) :==: typeof(parameter.type);
+\end{code}
+
+
+This is not specific to the fact that the parameter refers to a \ic{struct}. The
+language concept that represents the \ic{Person} type in the parameter is a
+\ic{StructType}. A \ic{StructType} refers to the \ic{StructDeclaration} it
+represents a type of and extends \ic{Type}, which acts as the super type for all
+types in mbeddr C. So in essence, this means that the type of \ic{p} is an
+instance of \ic{StructType} that has a pointer to the \ic{StructDeclaration}
+\ic{Person}.
+\begin{marginfigure}[-2cm]
+  \includegraphics[width=5cm]{figures/4/structtype.png}
+  \caption{}
+  \label{structtype}
+\end{marginfigure} 
+
+\ic{p.age} is an instance of a \ic{StructAttributeReference}. It is defined as
+follows. It is an expression, owns another expression property (on the left of
+the dot) as well as a reference to a \ic{StructAttribute} (\ic{name} or \ic{age}
+in the example).\begin{marginfigure}[2cm]
+  \includegraphics[width=5cm]{figures/4/structattrref.png}
+  \caption{}
+  \label{structattrref}
+\end{marginfigure} 
 
  
 \begin{code}
 concept StructAttributeReference extends Expression
                                  implements ILValue
-  instance can be root: false                      
-
   children:                                        
-  Expression variable 1 specializes: <none>        
+    Expression context 1 specializes: <none>        
                                                    
   references:                                      
-  StructAttribute attribute 1 specializes: <none>  
+    StructAttribute attribute 1 specializes: <none>  
 \end{code}
  
                                                    
-The typing rule for the StructAttributeReference looks as follows. The variable,
-the expression on which we use the dot operator, has to be a GenericStructType,
-or a subtype thereof (i.e. a StructType which points to an actual
-StructDeclaration). Second, the type of the whole expression is the type of the
-reference attribute (e.g. int in case of p.age).
+The typing rule for the \ic{StructAttributeReference} looks as follows. The \ic{context},
+the expression on which we use the dot operator, has to be a \ic{GenericStructType},
+or a subtype thereof (i.e. a \ic{StructType} which points to an actual
+\ic{StructDeclaration}). Second, the type of the whole expression is the type of the
+reference \ic{attribute} (e.g. \ic{int} in case of \ic{p.age}). 
 
  
 \begin{code}
-typeof(structAttrRef.variable) :<=: new node<StructType>(); 
+typeof(structAttrRef.context) :<=: new node<GenericStructType>(); 
 typeof(structAttrRef) :==: typeof(structAttrRef.attribute);
 \end{code}
  
 
 This example also illustrates the interplay between the type system and other
 aspects of language definition, specifically scopes. The referenced
-StructAttribute (on the right side of the dot) may only reference a
-StructAttribute that is part of the the StructDeclaration that is referenced
-from the StructType. The following scope definition illustrates this:
+\ic{StructAttribute} (on the right side of the dot) may only reference a
+\ic{StructAttribute} that is part of the the \ic{StructDeclaration} that is referenced
+from the \ic{StructType}. The following scope definition illustrates this:
 
  
 \begin{code}
@@ -885,35 +911,35 @@ link {attribute}
 \end{code}
  
 
-MPS also uses pattern matching. As we will discuss in the chapter on language
-extension and composition, MPS supports incremental extension of existing
-languages. Extensions may also introduce new types, and, specifically, may allow
-existing operators to be used with these new types. 
-
-As an example consider the introduction of complex numbers into C. It should be
-possible to write code like this:
+As we will discuss in the chapter on language extension and composition, MPS
+supports incremental extension of existing languages. Extensions may also
+introduce new types, and, specifically, may allow existing operators to be used
+with these new types. This is facilitated by MPS' use for pattern matching in
+the type system, specifically for binary operators such as \ic{+}, \ic{>} or
+\ic{==}. As an example consider the introduction of complex numbers into C. It
+should be possible to write code like this:
 
  
 \begin{code}
 complex c1 = (1, 2i);
 complex c2 = (3, 5i);
-complex c3 = c1 + c2; // (4+7i)
+complex c3 = c1 + c2; // results in (4, 7i)
 \end{code}
  
 
-The plus in \verb#c1 + c2# should be the Plus defined by the original language.
-Alternatively, we could define a new plus for complex numbers. While this would
-work technically (remember there is no parser ambiguity problems), it would mean
-that users, when entering a Plus, would have to decide between the original plus
-and the new plus for complex numbers. This would not be very convenient from a
-usability perspective. By reusing the original plus we avoid this problem.
+The \ic{+} in \ic{c1 + c2} should be the \ic{+} defined by the original
+language. Alternatively, we could define a new \ic{+} for complex numbers. While
+this would work technically (remember there is no parser ambiguity problems), it
+would mean that users, when entering a \ic{+}, would have to decide between the
+original plus and the new plus for complex numbers. This would not be very
+convenient from a usability perspective. By reusing the original plus we avoid
+this problem.
 
-However, this requires that the typing rules defined for plus in the original C
-language will now accept complex numbers; the original typing rules must be
-extended. To enable this, MPS supports so-called overloaded operations
-containers. The following container defines the type of plus and minus if both
-arguments are int or double.
-
+However, reusing the original \ic{+} requires that the typing rules defined for
+\ic{PlusExpression} in the original C language will now have to accept complex
+numbers; the original typing rules must be extended. To enable this, MPS
+supports so-called overloaded operations containers. The following container,
+taking from the mbeddr C core language, defines the type of \ic{+} and \ic{-} ifboth arguments are \ic{int} or \ic{double}.
  
 \begin{code}
 overloaded operations rules binaryOperation                                                                          
@@ -934,11 +960,11 @@ operation type: (operation, leftOperandType, rightOperandType)->node<> {
 \end{code}
  
 
-To tie these definitions into the regular typing rules, the following typing
-rule must be written\footnote{Note that only one such rule must be written for
-all binary operations. Everything else will be handled with the overloaded
-operations containers}. Using the operation type construct, the typing rules
-ties in with overloaded operation containers.
+To integrate these definitions with the regular typing rules, the following
+typing rule must be written\footnote{Note that only one such rule must be
+written for all binary operations. Everything else will be handled with the
+overloaded operations containers}. Using the \ic{operation type} construct, the
+typing rules ties in with overloaded operation containers.
 
  
 \begin{code}
@@ -960,15 +986,16 @@ rule typeof_BinaryExpression {
             } 
         } 
     }
-  }                                                                                                                                                                                                                                                                                                                                                                        
+  }    
+}                                                                                                                                                                                                                                                                                                                                                                    
 \end{code}
  
 
 The important aspect of this approach is that overloaded operation containers
-are additive. Language extensions can simply contribute additional containers.
-For the complex number example, this could look like the following. We declare
-that as soon as one of the arguments is of type complex, the resulting type will
-be complex as well.
+are \emph{additive}. Language extensions can simply contribute \emph{additional}
+containers. For the complex number example, this could look like the following:
+we declare that as soon as one of the arguments is of type complex, the
+resulting type will be complex as well.
 
  
 \begin{code}
@@ -979,13 +1006,12 @@ is applicable:
 operation type:                                                        
 (operation, leftOperandType, rightOperandType)->node<> { 
   <complex>; 
-}  
------------------------------------------------                        
+}                       
 \end{code}
  
 
 
-The Typesystem DSL in MPS covers a large fraction of the type system rules
+The type system DSL in MPS covers a large fraction of the type system rules
 encountered in practice. BaseLanguage, which is an extension of Java, covers the
 whole Java type system this way. However, for exceptional cases, procedural
 BaseLanguage code can be used to implement type checks as well.
