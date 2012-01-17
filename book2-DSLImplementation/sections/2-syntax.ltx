@@ -548,6 +548,13 @@ constructing or extending new grammars.
 evolution, we change an existing one, invasively. In composition, we want to
 composed independetly developed ones, ideally without change. The above
 paragraph makes it all sound "one problem".}
+\LK{true, they're not really the same. however, they are
+both affected by these challenges. for 
+composition, the problem is a just bit worse since you don't want
+to invasively change the input grammars.}
+\LK{do you think evolution should be removed here, though?
+particularly the ``resistance to change'' property of
+LL grammars really affects grammar evolution}
 
 As a basic example of a grammar composition, consider an the following
 grammar for arithmetic expressions:
@@ -561,7 +568,14 @@ Expr ::= NUM
 Once more operators are added and the proper associativities and precedences
 are specified, such a grammar forms an excellent unit for reuse. Now suppose 
 we want to add this grammar to a second grammar, where we have a field access 
-expression:
+expression:%
+\footnote{%
+Here we consider the case where two grammars use
+a symbol with the identical name ``Expr.''
+Some grammar definition formalisms support mechanisms such as 
+grammar mixins and renaming operators to work with grammar modules
+where the symbol names do not match.
+}
 
 \begin{code}
 Expr ::= ID
@@ -571,29 +585,45 @@ Expr ::= ID
 
 \MV{is it important for your example that it is also called "Expr" in this
 second grammar?}
+\LK{well, it makes things easier. SDF, and its successor that
+we've been working on, support different ways of fancy import declarations
+that can rename something when importing. maybe something for a footnote? (see above)}
 
-In the ideal case, composing two such grammars together should be trivial.
-However, reality is often less than ideal. There are three challenges that
-arise when composing grammars.
+In the ideal case, composing two such grammars should be trivial.
+However, reality is often less than ideal.
+There are a number of challenges that arise in practice,
+related to ambiguity and to grammar class restrictions.
 
-A first challenge is posed by grammars class restrictions. As we have shown,
-grammars need to be massaged with techniques such as left-factoring in order to
+\LK{I refactored this a bit, but still not quite happy with it}
+%
+Composing arbitrary grammars 
+risks introducing ambiguities that did not exist in either of
+the two constituent grammars. In the case of the arithmetic
+expressions and field access grammars, care must specifically be
+taken to indicate the precedence order of all operators.
+With a general parser, new priority rules can be added without changing
+imported two grammars. When an LL or LR parser is used,
+it is often necessary to change one or both of the composed grammars
+to eliminate any conflicts.
+
+We have shown how grammars can be massaged with techniques such as left-factoring in order to
 conform to a certain grammar class. Likewise, any precedence order or
 associativity can be encoded by massaging the grammar to take a certain form.
-Unfortunately, all this massaging makes grammars very resistent to change and
+Unfortunately, all this massaging makes grammars very resistant to change and
 composition. After two grammars are composed together, it is often the case that
 their composition is no longer LL or LR, and needs another manual factorization
-step to be usable. In contrast, using separate precedence and associativity
-definitions with general parsers avoids this problem. \MV{How? Where are theresulting cross-grammar precedences encoded?}
+step to be usable.
 
-
-A second challenge is in composing scanners. When two grammars that depend on a
+Another challenge is in composing scanners. When two grammars that depend on a
 different lexical syntax are composed together, conflicts can arise. For
 example, consider what happens when we compose the grammar of Java with the
 grammar of SQL, as illustrated in \fig{Fig:javasql}. The SQL grammar reserves
 keywords such as \ic{SELECT}, even though they are not reserved in Java. Such a
 language change could break compatibility with existing Java programs which
-happen to use a variable named \ic{SELECT}, and can only be avoided by using ascannerless parser. \MV{How does a scannerless parser avoid this?}
+happen to use a variable named \ic{SELECT}, and can only be avoided by using ascannerless parser. \MV{How does a scannerless parser avoid this?}\LK{I wasn't sure whether to provide something of a recap on scannerless parsing.
+Normally I might refer back to the original section, but we don't have a lot of section numbers, and
+don't want to break the flow of the text here. What do you suggest?}
+
 
 \begin{figure}[t]
 \begin{center}
@@ -606,13 +636,6 @@ for (Customer c : SELECT customer FROM accounts WHERE balance < 0) {
   \label{Fig:javasql} 
 \end{center}
 \end{figure}
-
-A third challenge is ambiguity. Composing arbitrary grammars together 
-risks introducing new ambiguities that did not exist in either of
-the two constituent grammars. In the case of the arithmetic
-expressions and field access grammars, care must specifically be
-taken to indicate the precedence order of all operators. \MV{How is this third
-challenge different from the first one?}
 
 
 
