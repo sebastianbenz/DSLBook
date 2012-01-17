@@ -1,44 +1,44 @@
 \chapter{Transformation and Generation}
 
-Transformation of models is an essential step in working with models. We
+Transformation of models is an essential step in working with DSLs. We
 typically distinguish between two different cases: if models are transformed
-into other models we call this model transformation. If models are transformed
-into text (usually programming language source code) we refer to code
-generation. However, as we will see in the examples below, depending on the
+into other models we call this \emph{model transformation}. If models are transformed
+into text (usually programming language source code) we refer to \emph{code
+generation}. However, as we will see in the examples below, depending on the
 approach and tooling used, this distinction is not always easy to make, and the
 boundary becomes blurred.
 
-A fundamentally different approach to processing models is interpretation. While
-in case of transformation and generation the model is transformed to artifacts
-expressed in a different language, in case of interpretation no such change
-happens. Instead, an interpreter traverses a model and directly performs actions
-depending on the contents of the AS. Strictly speaking, we have already seen
-examples of interpretation in the sections on constraints and type systems: the
-actions performed as the tree is traversed were checks of various kinds.
-However, the term interpretation is typically only used for cases where the
-actions actually execute the model. Execution refers to performing the actions
-that are associated with the langiage concepts as defined by the (dynamic)
-semantics of the concepts. A later chapter explores the notions of semantics in
-more detail.
+A fundamentally different approach to processing models is
+\emph{interpretation}. While in case of transformation and generation the model
+is migrated to artifacts expressed in a different language, in case of
+interpretation no such change happens. Instead, an interpreter traverses a model
+and directly performs actions depending on the contents of the AS. Strictly
+speaking, we have already seen examples of interpretation in the sections on
+constraints and type systems: constraint and type checks can be seen as an
+interpreter where the actions performed as the tree is traversed are checks of
+various kinds. However, the term interpretation is typically only used for cases
+where the actions actually \emph{execute} the model. Execution refers to performing the
+actions that are associated with the language concepts as defined by the
+(dynamic) semantics of the concepts. A later chapter explores the notions of
+semantics in more detail.
 
-We elaborate on the tradeoffs between transformation and generation vs.
-interpretation in the chapter on language design.
+We elaborate on the trade-offs between transformation and generation vs.
+interpretation in the chapter on language design \todo{}.
 
 \section{Overview of the approaches}
 
 Classical code generation traverses a program's AST and outputs programming
-language source code. In this context, a clear distinction is made between
-models and source code. Models are represented as an AST represented with some
-preferred AST formalism (or meta model). The AST is represented as programming
-language data structures (typically objects) and an API exists for the
-programmer to interact with the AST. In contrast, the generated source code is
-treated only as text, i.e. a sequence of characters. The tool of choice for this
-kind of approach are template languages. The support the mixing of model
-traversal code and to-be-generated text. The two are separated using some escape
-character. Since the generated code is treated merely as text, there is no
-language awareness (and corresponding tool support) for the target language
-while editing templates. Xtend2, the language used for code generation in Xtext
-is an example of this approach.
+language source code (or other textual output). In this context, a clear
+distinction is made between models and source code. Models are represented as an
+AST expressed with some preferred AST formalism (or meta meta model); an API
+exists for the programmer to interact with the AST. In contrast, the generated
+source code is treated as text, i.e. a sequence of characters. The tool of
+choice for transforming an AST into text are template languages. They support
+the syntactic mixing of model traversal code and to-be-generated text. The two
+are separated using some escape character. Since the generated code is treated
+merely as text, there is no language awareness (and corresponding tool support)
+for the target language while editing templates. Xtend2, the language used for
+code generation in Xtext is an example of this approach.
 
 Classical model transformation is the other extreme in that it works with ASTs
 only and does not consider the concrete syntax of the either the source or the
@@ -46,42 +46,45 @@ target languages. The source AST is transformed using the source language AS API
 and a suitable traversal language. As the tree is traversed, the API of the
 target language AS is used to assemble the target model. For this to work
 smoothly, most specialized transformation languages assume that the source and
-target models are build with the same AST formalism (e.g. EMF Ecore). These
-languages also provide support for efficiently navigating source models, and for
-creating instances of AS of the target language (tree construction). Examples
-for this approach once again include Xtext's Xtext 2 as well as QVT operational
-and ATL. MPS can also be used in this way. A slightly different approach
+target models are build with the same AST formalism (e.g. EMF Ecore). Model
+transformation languages typically provide support for efficiently navigating
+source models, and for creating instances of AS of the target language (tree construction). 
+Examples for this approach once again include Xtext's Xtend2 as well as QVT
+operational and ATL. MPS can also be used in this way. A slightly different approach
 establishes relationships between the source and target models instead of
 "imperatively" constructing a target tree as the source is traversed. While this
-is often less intuitive to write down, the appraoch has the advantage that it
+is often less intuitive to write down, the approach has the advantage that it
 supports transformation in both directions, and also supports model diff. QVT
 relational is an example of this approach.
-
-As a point in case, please note that code generators and transformations fit our
+\marginnote{Note that code generators and transformations fit our
 definition of interpreters: they traverse a model and perform actions: creating
-artifacts in a target language.
+artifacts in a target language.}
+
+
 
 In addition to the two classical cases described above, there are also hybrid
 approaches that blur the boundaries between these two clear cut extremes. They
 are based on the support for language modularization and composition in the
 sense that the template language and the target language can be composed. As a
-consequence, the tooling is aware of the syntacic structure and the static
+consequence, the tooling is aware of the syntactic structure and the static
 semantics of the template language \emph{and} the target language. Both MPS and
 Spoofax/SDF support this approach.
 
-In MPS, program is actually projected and every editing operation directly
-modifies the AST, while using a textual-looking notation as the user interface.
-Template code and target-language code can be represented as nested ASTs, each
-using its own textual syntax. MPS uses a slightly different appraoch based on
-annotations \MV{Have we introduced annotations already?}. As we have elaborated
-previously, projectional editors can store arbitrary information in an AST.
-Specifically, it can store information that does not correspond to the AS as
-defined by the language we want to represent ASTs of. MPS code generation
-templates exploit this approach: template code is fundamentally an instance of
-the target language. This "example model" is then annotated with template
-annotations that define how the example model relates to the source model, and
-which example nodes must be replaced by (further transformed) nodes from the
-source model. The MPS example will elaborate on this approach.
+
+In MPS, program is projected and every editing operation directly modifies the
+AST, while using a textual-looking notation as the user interface. Template code
+and target-language code can be represented as nested ASTs, each using its own
+textual syntax. MPS uses a slightly different approach based on annotations
+\MV{Have we introduced annotations already?}: As we have elaborated previously,
+projectional editors can store arbitrary information in an AST. Specifically, it
+can store information that does not correspond to the AS as defined by the
+language we want to represent ASTs of. MPS code generation templates exploit
+this approach: template code is fundamentally an instance of the target
+language. This "example model" is then annotated with template annotations that
+define how the example model relates to the source model, and which example
+nodes must be replaced by (further transformed) nodes from the source model. The
+MPS example below will elaborate on this approach.
+
 
 Spoofax, with its Stratego transformation language uses a similar approach based
 on parser technology. As we have already seen, the underlying grammar formalism
@@ -92,39 +95,7 @@ target language, using the concrete sytnax of the target language to specify its
 structure. The Spoofax example will provide details.
 
 
-\section{Code generation for incomplete languages}
 
-An incomplete language is one where the complete semantics of the generated
-program cannot be expressed by the source model. Consequently, after a
-transformation/generation run, there are still "holes" in the generated code
-that need to be filled in by code directly written in the target language.
-Notice that this problem may occur in what's classically referred to as code
-generation and in transformation, although it is more often encountered in the
-former case.
-
-To fill in the hole, two different approaches are possible. The first one
-involves invasively editing the generated artifact, adding in the missing
-functionality. Some mechanism must be provided to highlight areas in the
-generated code into which manually written code may be added, since only in
-these areas, manually written code is not overwritten during subsequent
-generation runs. The approach works with any target language, as long as the
-generator framework provides the necessary features described above.
-
-The other alternative is to never modify the generated code at all, and instead
-use the composition mechanisms of the target language to "join" generated and
-manually written code. The most well-known case is captured in the generation
-gap pattern where a base class is generated from the model, and the manually
-written code is put into a manually written subclass.
-
-In theory, with perfect tool support, the first approach is preferable since no
-artificial composition relationships have to be introduced just to join the two
-kinds of code. In practice, with today's tooling, the second approach is usually
-more pragmatic. A particular advantage of the second approach is that the
-generated artifacts can always be thrown away and can be regenerated, since no
-changes are applied to them after generation.
-
-\todo{When do we use M2M?}
- 
 \section{Xtext Example}
 
 \subsection{Generator}
@@ -137,53 +108,116 @@ As we have seen above, the distinction between code generators and
 model-to-model transformations is much less clear in MPS. While there is a
 specialized language for ASCII text generation it is really just used "at the
 end" of the transformation chain as a language like Java or C is generated to
-text so it can be passed to existing compilers.
+text so it can be passed to existing compilers. \fig{mps-textgen} shows the
+\ic{textgen} component for mbeddr C's \ic{IfStatement}. MPS' text generation
+language basically appends text to a buffer. We won't discuss this aspect of MPS
+any futher, since MPS textgen is basically a wrapper language around a
+\ic{StringBuffer}. However, this is perfectly adequate for the task at hand,
+since it is only used in the last stage of generation where the AST is
+essentially structurally identical to the generated text.
+ 
+\begin{figure}[ht]
+\begin{center}
+  \includegraphics[scale=0.7]{figures/6/mps-textgen.png}
+  \caption[labelInTOC]{}
+  \label{mps-textgen} 
+\end{center} 
+\end{figure}
+
 
 DSLs and language extensions typically use model-to-model transformations to
-"generate" code expressed in a low level programming language. 
-
-
-In general, writing transformation in MPS involves two ingredients. Templates
-define the actual transformation. Mapping configurations define which template
-to run when and where. Templates are valid instances of the target language.
-So-called macros are used to express dependencies on the input model. For
+"generate" code expressed in a low level programming language. In general,
+writing transformation in MPS involves two ingredients. Templates define the
+actual transformation. Mapping configurations define which template to run when
+and where. Templates are valid sentences of the target language. So-called
+macros are used to express dependencies on and queries over the input model. For
 example, when the guard condition (a C expression) should be generated into an
-if statement in the target model, you first write an if statement with a dummy
-condition into the template. The following would work: \verb#if (true) {}#. Then
-the nodes that should be replaced by the tranformation are annotated with
-macros. In our example, this would look like this: 
-\verb#if (COPY_SRC[true]){}#. Inside the COPY\_SRC macro you put an expression
-that describes which elements from the input model should replace the dummy node
-true: \verb#node.guard;# would use the guard condition of the input node
-(expected to be of type Transition here). The true node will be replaced by what
-the macro expression return. 
+\ic{if} statement in the target model, you first write an \ic{if} statement with a dummy
+condition into the template. The following would work: \ic{if (true) \{\}}. Then
+the nodes that should be replaced by the
+transformation with nodes from the input model are annotated with macros. In our
+example, this would look like this: \ic{if (COPY\_SRC[true])\{\}}. Inside the
+\ic{COPY\_SRC} macro you put an expression that describes which elements from 
+the input model should replace the dummy node \ic{true}: \ic{node.guard;}
+would use the guard condition of the input node (expected to be of type
+\ic{Transition} here). When the transformation is executed, the \ic{true} node
+will be replaced by what the macro expression returns --- in this case, theguard of the input transition.
 
 
 \paragraph{Translating the State Machine}
 
+
+State machines live inside modules. Just like \ic{struct}s they can be
+instantiated. The following code shows an example. Notice the two global
+variables \ic{c1} and \ic{c2}, which are instances of the same state machine
+\ic{Counter}.
+
+\begin{code}
+module Statemachine from cdesignpaper.statemachine imports nothing { 
+   
+  statemachine Counter { 
+  in events 
+    start() <no binding> 
+    step(int[0..10] size) <no binding> 
+  out events 
+    started() <no binding> 
+    resetted() <no binding> 
+    incremented(int[0..10] newVal) <no binding> 
+  local variables 
+    int[0..10] currentVal = 0 
+    int[0..10] LIMIT = 10 
+  states ( initial = start ) 
+    state start { 
+      on start [ ] -> countState { send started(); } 
+    } 
+    state countState { 
+      on step [currentVal + size > LIMIT] -> start { send resetted(); } 
+      on step [currentVal + size <= LIMIT] -> countState { 
+        currentVal = currentVal + size; 
+        send incremented(currentVal); 
+      } 
+      on start [ ] -> start { send resetted(); } 
+    } 
+  }
+  
+  var Counter c1; 
+  var Counter c2; 
+   
+  void aFunction() { 
+    trigger(c1, start); 
+  } 
+}
+\end{code}
+
+
 State Machines are translated to the following lower level C entities:
 
 \begin{itemize}
-  \item a variable that keeps track of the current state
-  \item an enum for the states, with a literal for each state
-  \item an enum for the events, with a literal for each event
-  \item and a function that implements the behaviour of the state machine using
-  a switch/case statement. The function takes an event as an argument, checks
-  whether the current state can handle the event, evaulates the guard, and if a
-  transition fires, executes exit and entry actions and updates the current
-  state.
+  \item an \ic{enum} for the states, with a literal for each state
+  \item an \ic{enum} for the events, with a literal for each event
+  \item a \ic{struct} declaration that contains an attribute for the
+  current state, as well as attributes for the local variables declared in the
+  state machine
+  \item and finally, a function that implements the behaviour of the state
+  machine using a \ic{switch} statement. The function takes two arguments: one
+  named \ic{instance} typed with the \ic{struct} mentioned in the previous
+  item, and one named \ic{event} that is typed to the event \ic{enum}
+  mentioned above. The function checks whether the instance's current state can
+  handle the event passed in, evaluates the guard, and if a transition fires,
+  executes exit and entry actions and updates the current state.
 \end{itemize} 
 
-This high level structure is clearly discernable from the main template in
-\fig{mps-sm-gen}. It integrates into the overall translation process as follows.
+This high level structure is clearly discernable from the two main templates
+shown in \fig{mps-sm-gen-1} and \fig{mps-sm-gen-2}. 
 
-\begin{figure}[ht]
+\begin{figure}[h]
 \begin{center}
-  \includegraphics[scale=0.7]{figures/6/mps-sm-gen.png}
+  \includegraphics[width=11cm]{figures/6/mps-sm-gen-1.png}
   \caption[labelInTOC]{}
-  \label{mps-sm-gen} 
+  \label{mps-sm-gen-1} 
 \end{center} 
 \end{figure}
+
 
 The MPS transformation engine works in phases. Each phase transforms models
 expressed in some languages to other models expressed in the same or other
@@ -203,196 +237,246 @@ it.
 \end{center} 
 \end{figure}
 
-Revisiting \fig{mps-sm-gen}, the picture becomes clearer: the various elements
-highlighted as template fragments (those enclosed by <TF  TF>) are what the
-state machine is reduced to. State machines and variables, enum
-declarations and functions all live inside modules, so the replacement makes
-structural sense (an error would result otherwise). 
-
-References between model elements are based on identities and "real" pointers,
-not just similarity of names. So, in order to reference element that have been
-generated, they need to get unique labels. In \fig{mps-sm-gen} these are
-highlighted with an orange background. These so-called mapping labels have to be
-declared in the generator's mapping configuration. The give names to the
-relationship between a source model element and what has been generated from it.
+Let us look in more detail at the template in \fig{mps-sm-gen-1}. It reduce a
+\ic{Statemachine}, the input node, to two \ic{enum}s and a \ic{struct}. We use
+template fragments (marked with \ic{<TF TF>}) to highlight those parts of the
+template that should actually be used to replace the input node as the
+transformation executes. The surrounding \ic{ImplementationModule} (\ic{module
+dummy}) is only needed because \ic{enum}s and \ic{struct}s \emph{have} to live
+in \ic{ImplementationModule}s in a valid instance of the mbeddr C language.
 
 
-\begin{code}
-mapping labels:
-  label eventEnumLiternal : Event -> EnumLiteral             
-  label stateEnumLiteral : State -> EnumLiteral              
-  label statemachineProcedure : Statemachine -> Procedure    
-  label currentStateVariable : Statemachine -> ModuleVariable
-\end{code}
-
-
-For example, the label currentStateVariable can be ued the instance of
-ModuleVariable that was created from an instance of Statemachine. Attaching
-these mapping labels to the transformation rules (as shown in \fig{mps-sm-gen})
-establishe the relationship. An API call can be used to lookup the target; we'll
-show this later.
-
-We have to create an enum literal for each state and each event. To achieve
+We have to create an \ic{enum} literal for each state and each event. To achieve
 this, we iterate over all states (and events, respectively). This is expressed
-with the LOOP macros in the template (\fig{mps-sm-gen}). The expression that
-determines what we iterate over is entered in the Inspector;
+with the \ic{LOOP} macros in the template (\fig{mps-sm-gen-1}). The expression
+that determines what we iterate over is entered in the Inspector;
 \fig{mps-sm-inspector1} shows the code for iterating over the states. 
+Note that the only really interesting part of \fig{mps-sm-inspector1} is the
+body of the anonymous function (\ic{node.states;}), which is why in the future we
+will only show this part. For the literals of the events enum we use a similar expression
+(\ic{node.events;}). 
 
 \begin{figure}[ht]
 \begin{center}
-  \includegraphics[scale=0.7]{figures/6/mps-sm-inspector1.png}
+  \includegraphics[width=10cm]{figures/6/mps-sm-inspector1.png}
   \caption[labelInTOC]{}
   \label{mps-sm-inspector1} 
 \end{center} 
 \end{figure}
- 
-Note that the only really interesting part of \fig{mps-sm-inspector1} is the
-body of the expression (node.states;), which is why in the future we will only
-show this part. For the literals of the events enum we use a similar expression
-(node.events;). The \$ macro is called a property macro. It is used to replace
-values of properties. In this case we use it to define the name property of the
-generated enum literal. Here is the implementation expression of the property
-macro (also entered in the inspector):
+
+
+The \ic{LOOP} macro iterates over collections and then creates an instance of
+the concept it is attached to for every iteration. In case of the two
+\ic{enum}s, the \ic{LOOP} macro is attached to an \ic{EnumLiteral}, so we create
+an \ic{EnumLiteral} for each event and state we iterate over. However, these
+various \ic{EnumLiteral}s all have to have different names. In fact, the name of
+each literal should be the name of the state/event for which it is created. We
+can use a property macro, denoted by the \ic{\$} sign, to achive this. A 
+property macro is used to replace
+values of properties. In this case we use it to replace the \ic{name} property of the
+generated \ic{EnumLiteral}. Here is the implementation expression of the
+property macro (also entered in the inspector):
 
 
 \begin{code}
-node.stateConstantName();
+node.cEnumLiteralName();
 \end{code}
 
 
-stateConstantName is a behavior method. It is defined as part of the behavior
-aspet of the State concept:
-
+\ic{cEnumLiteralName} is a behavior method. It is defined as part of the behavior
+aspect of the \ic{State} concept. It concatenates the \ic{name} of the parent
+\ic{Statemachine} with the string \ic{\_\_state\_} and the name of the current
+state.
 
 \begin{code}
 concept behavior State {                      
                                               
-  constructor { 
-    <no statements> 
-  }         
-                                              
-  public string stateConstantName() {         
-    return "STATE_" + this.name.toUpperCase();
+  public string cEnumLiteralName() {         
+    return this.parent : Statemachine.name + "__state_" + this.name;
   }                                           
                                               
 }                                             
 \end{code}
 
+We use property macros in a similar way to define the names of the two generated
+\ic{enum}s themselves. The first of the \ic{struct} attributes is also
+interesting. It is used to remember the current state. It has to be typed to the
+state \ic{enum} that is generated from this particular state machine. The type
+of the attribute is an \ic{EnumType}; \ic{EnumType}s extend \ic{Type} and
+reference the \ic{EnumDeclaration} whose type they represent. How can we
+establish the reference to the correct \ic{EnumDeclaration}? We use a reference
+macro (\ic{->\$}) to retarget the reference. \fig{mps-ref-macro} shows the
+macro's expression.
 
-Let us next look at the part of the generator that generates the execute
-function. We first generate an if statement for each state that has at least one
-outgoing transition. We use a LOOP macro with the following expression:
-
-
-\begin{code}
-node.states.where({~it => it.transitions.isNotEmpty; });
-\end{code}
-
- 
-The if statement checks whether the current state corresponds to the state
-literal that corresponds to the state we're currently iterating over. Notice how
-we do not have to use a macro to rewire the eventsenum::eventLiteral to the
-actual literat for the corresponding state. Since we iterate over the same
-colletion (the list of states) of nodes both where we generate the literals and
-where we reference the literals, MPS automatically selects the correct
-reference target.
- 
-Inside the if, we now generate another if for each of the outgoing transitions
-of the state. We use a LOOP macro with the expression node.transitions. In the
-if, we compare the event that is passed into the method as an argument to the
-event enum literal that corresponds to the transition's trigger. Note that
-triggers are represented in the state machine language using the abstract
-concept Trigger. A subtype, the EventTrigger, is used for those cases where the
-trigger is an incoming event (there may be other kinds of triggers in the
-future). To handle this polymorphic variability correctly, we use a COPY\_SRC
-macro. It "copies" the trigger object, while also executing existing reduction
-rules. We have defined one of these that replaces the EventTrigger with a
-reference to the enum literal (see \fig{mps-sm-eventtrigger}). Notice how in the
-inspector we use the generation context to resolve a label: we retrieve the enum
-literal that has been generated for the event.
-   
 \begin{figure}[ht]
 \begin{center}
-  \includegraphics[scale=0.7]{figures/6/mps-sm-eventtrigger.png}
+  \includegraphics[width=11cm]{figures/6/mps-ref-macro.png}
   \caption[labelInTOC]{}
-  \label{mps-sm-eventtrigger} 
+  \label{mps-ref-macro} 
 \end{center} 
 \end{figure}
 
-We then generate the code that check the guard condition. We use a COPY\_SRC
-macro to replace the dummy true with the guard expression in the model. Since we
-already use C expressions in the state machine, this really is just a copy
-process - no reduction rules are specified.  
+Note how a reference macro expects either the target node (here: an
+\ic{EnumDeclaration}) as the return value, or a \ic{string}. That \ic{string}
+would be the name of the target element. Our implementation returns the name of
+the states \ic{enum} generated in the same template. MPS then uses the target
+language's scoping rules to find and link to the correct target element.
 
-Now we have to deal with the exit action of the current state and the entry
-actions of the target state. These are lists of C statements, so we can simply
-COPY\_SRC them into the generated code. Finally, we have to set the current
-state variable to the target state of the transition. We use another reference
-macro (\verb#->#) to rewire this reference. The following code is used in the
-macro:
-
-
-
-\begin{code}
-genContext.get output stateEnumLiteral for (node.target)
-\end{code}
-
-
-
-As the last example I want to show how the FireEventStatement is translated. It
-is used as follows:
-
-
-\begin{code}
-initialize {                                                  
-  ...      
-  event linefollower:initialized                              
-}                                                             
-\end{code}
-
-
-It ha to be translated to a call to the generated statemachine execute method,
-with the event translated to the respective enum literal. A reduction rule is
-defined, so that every occurence of the FireEventStatement is translated to an
-ExpressionStatement that contains a call to the respective method.
-\fig{mps-sm-fireevent} shows the code.
  
-\begin{figure}[ht]
+\begin{figure}[h]
 \begin{center}
-  \includegraphics[scale=0.7]{figures/6/mps-sm-fireevent.png}
+  \includegraphics[width=11cm]{figures/6/mps-sm-gen-2.png}
   \caption[labelInTOC]{}
-  \label{mps-sm-fireevent} 
+  \label{mps-sm-gen-2} 
 \end{center} 
 \end{figure}
 
-The goal is to generate a method call with an enum literal as the argument.
-However, we have to first create a module so we have a place to put the called
-method and the enum declaration. Only the code between the <TF TF> brackets
-(i.e., the method call) will be used as the result of the template. The rest is
-"scaffolding" so we have nodes we can reference on the example code that will
-then be marked up with macros. The first reference macro rewires the method. It
-uses the following expression to retrieve the execution function generated from
-the state machine. It uses the label associated with that function to retrieve
-the node from the context. 
+
+Let us now address the second main template, \fig{mps-sm-gen-2}, which generates
+the execute function. Looking at the template fragment markers (\ic{<TF  TF>})
+reveals that we only generate the \ic{switch} statement with this template,
+\emph{not} the function that contains it. The reason is that we need to be able
+to embed the state machine \ic{switch} into other function-like concepts as well
+(e.g. component operations), so we have separated the generation of the function
+from the generation of the actual state machine behavior. 
+
+The \ic{switch} expression is interesting. It switches over the current state of
+the current state machine instance. That instance is represented by the
+\ic{instance} parameter passed into the function. It has a \ic{\_\_currentState}
+field. Notice how the function that contains the \ic{switch} statement \emph{in
+the template} has to have the \ic{instance} argument, and how its type, the
+\ic{struct}, has to have the \ic{\_\_currentState} attribute \emph{in the
+template}. If the respective elements were not there in the template, we
+couldn't write the template code! Since there is a convention that in the
+\emph{resulting} function the argument will also be called \ic{instance}, and
+the attribute will also be called \ic{\_\_currentState}, we don't have to use a
+reference macro to retarget the two.
+
+Inside the \ic{switch} we then \ic{LOOP} over all the states of the state
+machine and generate a \ic{case}, using the state's corresponding enum literal.
+Inside the case, we embed another \ic{switch} that switches over the \ic{event}
+argument. Inside this inner \ic{switch} we iterate over all transitions that are
+triggered by the event we currently iterate over:
+
+\begin{code}
+node<State> state = (node<State>) node.adapter.getUserObject("outer"); 
+state.transitions.where({~it => it.trigger.event == node; });
+\end{code}
+
+We then generate an \ic{if} statement that checks at runtime whether the
+guard condition for this transition is true. We copy in the guard condition
+using the \ic{COPY\_SRC} macro attached to the \ic{true} dummy node. The
+\ic{COPY\_SRC} macro copies the original node, but it also applies additional
+reduction rules for this node (and all its descendants). For example, in a guard
+condition, you can refer to event arguments. The reference to \ic{size} in the
+\ic{step} transition is an example.
+
+\begin{code}
+statemachine Counter { 
+  in events 
+    step(int[0..10] size) 
+    ... 
+  states ( initial = start ) 
+    ... 
+    state countState { 
+      on step [currentVal + size > LIMIT] -> start { send resetted(); } 
+    }
+}
+\end{code}
+
+Event arguments are mapped to the resulting C function via a \ic{void*} array. A
+reference to an event argument (\ic{EventArgRef}) hence has to be reduced to 
+accessing the n-th element in the array (where n is the index of the event
+argument in the list of arguments). \fig{mps-eventArgRef} shows the
+reduction rule. The reduction rule creates code that
+looks like this (for an \ic{int} event attribute): \ic{*((int*)arguments[0])}.
+It accesses the array, casts the element to a pointer to the type of the
+argument, and then dereferences everything.
+
+\begin{figure}[h]
+\begin{center}
+  \includegraphics[width=11cm]{figures/6/mps-eventArgRef.png}
+  \caption[labelInTOC]{}
+  \label{mps-eventArgRef} 
+\end{center} 
+\end{figure}
+
+Inside the \ic{if} statement, we have to generate the code that has to be
+executed if a transition executes. We first copy in all the exit actions of the
+current state. Once again, the \ic{int8\_t exitActions;} is just an arbitrary
+dummy statement that will be replaced by a the statements in the exit actions
+(\ic{COPY\_SRCL} replaces a node with a \emph{list} of nodes). The respective
+expression is this:
+
+\begin{code}
+(node, genContext, operationContext)->sequence<node<>> { 
+  if (node.parent : State.exitAction != null) { 
+    return node.parent : State.exitAction.statements; 
+  } 
+  new sequence<node<>>(empty); 
+}
+\end{code}
+
+We then do the same for the transition actions of the current transition, set
+the \ic{instance->\_\_currentState} to the target state of the transition using
+a reference macro (\ic{node.targetState.cEnumLiteralName();}), and then we
+handle the entry actions of the target state. We then return, because at most
+one transition can fire as a consequence of calling the state machine execute
+function.
+
+
+As the last example I want to show how the \ic{TriggerSMStatement} is
+translated. It is used as follows:
 
 
 \begin{code}
-genContext.get output statemachineProcedure for (node.machine);
+var Counter c1; 
+ 
+void aFunction() { 
+  trigger(c1, start); 
+} 
 \end{code}
 
 
-The second reference macro uses a similar approach to get to the correct enum
-literal.
+It has to be translated to a call to the generated state machine execute
+function that we have discussed at length above. For simplicity, we explain
+a version of the \ic{TriggerSMStatement} that does not include event arguments.
+\fig{mps-trigger} shows the template. 
 
+ 
+\begin{figure}[h]
+\begin{center}
+  \includegraphics[width=11cm]{figures/6/mps-trigger.png}
+  \caption[labelInTOC]{}
+  \label{mps-trigger} 
+\end{center} 
+\end{figure}
+
+We use a dummy function \ic{someMethod} so we can embed a function call ---
+because we have to generate a function call to the execute function generated
+from the state machine. Only the function call is surrounded with the template
+fragment markers. The function we call \emph{in the template} is the
+\ic{smExecuteFunction} in the template. It has the same signature of the real,
+generated state machine execute function. We use a reference macro to retargetthe \ic{function} reference in the function call. It uses the followingexpression, which returns the name of the function generated for the state
+machine referenced in the \ic{statemachine} expression of the trigger statement.
 
 \begin{code}
-genContext.get output eventEnumLiternal for (node.trigger);
+node.statemachine.type : StatemachineType.machine.cFunctionName();
+\end{code}
+
+Note how the first argument to the \ic{trigger} statement can be \emph{any}expression (local variable reference, global variable reference, a functioncall). However, we know (and enforce via the type system) that the expression'stype must be a \ic{StatemachineType}, which has a reference to the\ic{Statemachine} whose instance the expression represents. So we can cast,access the machine, and get the name of the execute function generated from thatstate machine. 
+
+The second argument of the \ic{trigger} statement is a reference to the event we
+want to trigger in the state machine. We can use another reference macro to find
+the enum literal generated for this event. The macro code is straight forward:
+
+\begin{code}
+node.event.cEnumLiteralName();
 \end{code}
 
 
 
-discuss someehere the benefits of cascading and stuff. The MPS stuff is a good
-example of the benefits (platform indep of higher level DSLs)
+
 
 \section{Spoofax Example}
 
