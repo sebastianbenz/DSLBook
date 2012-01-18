@@ -553,8 +553,13 @@ both affected by these challenges. for
 composition, the problem is a just bit worse since you don't want
 to invasively change the input grammars.}
 \LK{do you think evolution should be removed here, though?
-particularly the ``resistance to change'' property of
+particularly the "resistance to change" property of
 LL grammars really affects grammar evolution}
+\MV{I suggest you make it two sections. One is on evolution (where you talk
+about the "resistance to change", and the other one is about composotionality
+(where you talk about independent, no-invasive modification of grammars. You
+can still refer to the same fundamental issues in both sections, but I think
+it is two different sections.))}
 
 As a basic example of a grammar composition, consider an the following
 grammar for arithmetic expressions:
@@ -571,7 +576,7 @@ we want to add this grammar to a second grammar, where we have a field access
 expression:%
 \footnote{%
 Here we consider the case where two grammars use
-a symbol with the identical name ``Expr.''
+a symbol with the identical name "Expr."
 Some grammar definition formalisms support mechanisms such as 
 grammar mixins and renaming operators to work with grammar modules
 where the symbol names do not match.
@@ -582,12 +587,6 @@ Expr ::= ID
        | STRING
        | Expr "." ID
 \end{code}
-
-\MV{is it important for your example that it is also called "Expr" in this
-second grammar?}
-\LK{well, it makes things easier. SDF, and its successor that
-we've been working on, support different ways of fancy import declarations
-that can rename something when importing. maybe something for a footnote? (see above)}
 
 In the ideal case, composing two such grammars should be trivial.
 However, reality is often less than ideal.
@@ -606,6 +605,7 @@ imported two grammars. When an LL or LR parser is used,
 it is often necessary to change one or both of the composed grammars
 to eliminate any conflicts.
 
+\MV{The following paragraph seems to not really "connect" to the previous one.}
 We have shown how grammars can be massaged with techniques such as left-factoring in order to
 conform to a certain grammar class. Likewise, any precedence order or
 associativity can be encoded by massaging the grammar to take a certain form.
@@ -623,6 +623,8 @@ language change could break compatibility with existing Java programs which
 happen to use a variable named \ic{SELECT}, and can only be avoided by using ascannerless parser. \MV{How does a scannerless parser avoid this?}\LK{I wasn't sure whether to provide something of a recap on scannerless parsing.
 Normally I might refer back to the original section, but we don't have a lot of section numbers, and
 don't want to break the flow of the text here. What do you suggest?}
+\MV{Well, just saying something like "because a scannerless parser considers
+the tokens in their use-context and not globally"}
 
 
 \begin{figure}[t]
