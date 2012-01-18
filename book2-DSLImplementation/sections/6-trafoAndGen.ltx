@@ -505,98 +505,112 @@ node.event.cEnumLiteralName();
  
 Interpreters are basically programs that read a model, traverse the AST and
 perform actions corresponding to the semantics of the language constructs whose
-instances appear in the AST. How interpreter implementation looks depends a lot
+instances appear in the AST. How interpreter implementation look depends a lot
 on the programming language used for implementing them. Also, the complexity of
 the interpreter directly reflects the complexity of the language it processes.
 For example, building an interpreter for a pure expression language with an
 object oriented or functional programming language is almost trivial. In
-constrast, the interpreter for languages that support paralellism can be much
+contrast, the interpreter for languages that support parallelism can be much
 more challenging. 
 
 The following list explains some typical ingredients that go
-into building interpreters. It assumes a programming language that can
-polymorphically invoke functions or methods. 
+into building interpreters for functional and procedural languages. It assumes a
+programming language that can polymorphically invoke functions or methods. 
 
-\begin{itemize}
-  \item For program elements that can be evaluated to values, i.e., expressions,
-  there is typically a function eval that is polymorphically defined for the
-  various expression types in the language. Since nested expressions are
-  almost always represented as nested trees in the AST, the eval function calls
-  itself with the program elements it owns, and then performs the semantic action on the result. Consider an expression \verb#3 * 2 + 5#. Since the plus is at the root of the
-  AST, eval(Plus) would be called (by some outside entity). It is implemented as
-  actually adding the values obtained by evaluating its arguments. So it calls
-  eval(Multi) and eval(5). Evaluating a number literal is trivial, since it
-  simply returns the number itself. Multi would call eval(3) and eval(2),
-  multiplying their results and returning the result of the multiplication as
-  its own result, allowing plus to finish its calculation.
-  \item Program elements that don't produce a value only make sense in
-  programming languages that have side effects. In other words, execution of
-  such a language concept produces some effect either on global data in the
-  program (re-assignable variables, object state) or on the environment of the
-  program (sending network data or rendering a UI). Such program elements are
-  typically called statements. Statements are typically not recursively nested
-  in a tree, but rather arranged in a list, typically called a StatementList. To
-  execute those, there is typically a function execute that is overloaded for
-  all of the different statement types. It is also overloaded for StatementList
-  which iterates over all statements and calls execute for each one. Note that
-  statements often contain expressions and more statement lists (as in 
-  \verb#if (a>3) { print a; a=0; } else { a=1;}#), so an implementation of
-  execute may call eval and perform some action based on the result (such as
-  deciding whether to execute the then-part of the else-part of the if
-  statement). Executing the then-part and the else-part simply boils down to
-  called execute on the respecrive statement lists.
-  \item Languages that have can express assignment to variables require an
-  environment for execution. Consider \verb#int a = 1; a = a + 1;#. In this
-  example, the a in a+1 is a variable reference. When evaluating the this
-  reference, the system must "remember" that it had assigned 1 to that variable
-  in the previous statement. The interpreter must keep some kind of global
-  hashtable to keep track of symbols and their values, so it can look them up
-  when evaluating a reference to that symbol. Many (though not all) languages
-  that support assignable variables allow reassignment to the same variable (as
-  we do in a = a + 1;). In this case, the environment must be updatable. Notice
-  that in \verb#a=a+1# both mentionings of are references to the same variable,
-  and both are expressions (otherwise a couldn't be used as part of the plus
-  operator, which expects expressions as arguments). However, only a can be
-  assigned to: writing \verb#2 * a = a + 1;# would be invalid. The notion of an
-  lvalue is introduced to describe this. lvalues can be used "on the left side"
-  of an assignment. Variable references are typically lvalues (if they don't
-  point to a const variable). Complex expressions usually aren't, unless they
-  evaluate to something that is in turn an lvalue (an example of this is would
-  be \verb#*(someFunc(arg1, arg2)) = 12;#, in C, assuming that someFunc returns
-  a pointer to an integer).
-  \item The ability to call other entities (functions, procedures, methods)
-  introduces further complexity, especially regarding parameter and return value
-  passing. Assume a function \verb#int add(int a, int b) { return a+b; }#. When
-  this function is called via \verb#add(2,3);# the actual arguments 2 and 3 have
-  to be bound to the formal arguments a and b. An environment must be established 
-  for the execution of add that keeps track of these associations. If functions
-  can also access global state (i.e. symbols that are not explicitly passed in
-  via arguments), then this environment must delegate to the global environment
-  in case a referenced symbol cannot be found in the local environment.
-  Supporting recursive callable entities (as in 
-  \verb#int fac(int i) { return i == 0 ? 1 : fac(i-1) };# requires that for
-  each subsequent call to fac a new environment must be created, with a binding 
-  for the formal variables. However, the original environment must be
-  "remembered" because it is needed to complete the execution of the outer fac
-  after a recursively called fac returns. This is achieved using a stack of
-  environments. A new environment is pushed onto the stack as a function is
-  called (recursively), and the stack is popped, returning to the previous
-  environment, as a called function returns. The return value, which is often
-  expressed using some kind of return statement, is usually placed into the
-  inner environment using a special symbol or name (such as \verb#__ret__#). It
-  can then be picked up from there as the inner environment is popped.
-\end{itemize}
+\paragraph{Expressions} For program elements that can be evaluated to values,
+i.e., expressions, there is typically a function \ic{eval} that is defined for
+the various expression types in the language, i.e. it is polymorphically
+overridden for subconcepts of \ic{Expression}. Since nested expressions are
+almost always represented as nested trees in the AST, the \ic{eval} function
+calls itself with the program elements it owns, and then performs some semantic
+action on the result. Consider an expression \ic{3 * 2 + 5}. Since the \ic{+} is
+at the root of the AST, \ic{eval(Plus)} would be called (by some outside
+entity). It is implemented to add the values obtained by evaluating its
+arguments. So it calls \ic{eval(Multi)} and \ic{eval(5)}. Evaluating a number
+literal is trivial, since it simply returns the number itself. \ic{eval(Multi)}
+would call \ic{eval(3)} and \ic{eval(2)}, multiplying their results and
+returning the result of the multiplication as its own result, allowing plus to
+finish its calculation\marginnote{Technically, \ic{eval} could be implemented as
+a method of the AST classes in an object-oriented language. However, this is
+tyically not done since the interpreter should be kept separate from the AST
+classes, for example, because there may be several interpreters or because the
+interpreter is developed by other people than the AST.}.
+
+  
+\paragraph{Statements} Program elements that don't produce a value only make
+sense in programming languages that have side effects. In other words, execution
+of such a language concept produces some effect either on global data in the
+program (re-assignable variables, object state) or on the environment of the
+program (sending network data or rendering a UI). Such program elements are
+typically called \ic{Statements}. Statements are typically not recursively
+nested in a tree, but rather arranged in a list, called a \ic{StatementList}. To
+execute those, there is typically a function \ic{execute} that is overloaded for
+all of the different statement types. It is also overloaded for
+\ic{StatementList} which iterates over all statements and calls \ic{execute}
+for each one. Note that statements often contain expressions and more statement
+lists (as in \ic{if (a>3) \{ print a; a=0; \} else \{ a=1;\}}), so an
+implementation of execute may call \ic{eval} and perform some action based on
+the result (such as deciding whether to execute the then-part of the else-part
+of the \ic{if} statement). Executing the then-part and the else-part simply
+boils down to called \ic{execute} on the respective statement lists.
+
+\paragraph{Environments} Languages that have can express assignment to variables
+require an environment during execution to remember the values for the variables
+at each point during program execution. Consider \ic{int a = 1; a = a + 1;}. In
+this example, the \ic{a} in \ic{a + 1} is a variable reference. When evaluating
+this reference, the system must "remember" that it had assigned \ic{1} to that
+variable in the previous statement. The interpreter must keep some kind of
+global hash table, the environment, to keep track of symbols and their values,
+so it can look them up when evaluating a reference to that symbol. Many (though
+not all) languages that support assignable variables allow reassignment to the
+same variable (as we do in \ic{a = a + 1;}). In this case, the environment must
+be updatable. Notice that in \ic{a = a + 1} both mentionings of are references
+to the same variable, and both are expressions (otherwise a couldn't be used as
+part of the plus operator, which expects expressions as arguments). However,
+only a can be assigned to: writing \ic{2 * a = a + 1;} would be invalid. The
+notion of an \ic{lvalue} is introduced to describe this. lvalues can be used "on
+the left side" of an assignment. Variable references are typically lvalues (if
+they don't point to a \ic{const} variable). Complex expressions usually are not,
+unless they evaluate to something that is in turn an lvalue (an example of this
+is would be \ic{*(someFunc(arg1, arg2)) = 12;}, in C, assuming that
+\ic{someFunc} returns a pointer to an integer).
+  
+  
+\paragraph{Call Stacks} The ability to call other entities (functions,
+procedures, methods) introduces further complexity, especially regarding
+parameter and return value passing. Assume a function \ic{int add(int a, int b)
+\{ return a + b; \}}. When this function is called via \ic{add(2, 3);} the
+actual arguments \ic{2} and \emph{3} have to be bound to the formal arguments
+\ic{a} and \ic{b}. An environment must be established for the execution of
+\ic{add} that keeps track of these associations. If functions can also access
+global state (i.e. symbols that are not explicitly passed in via arguments),
+then this environment must delegate to the global environment in case a
+referenced symbol cannot be found in the local environment. Supporting
+recursively callable entities (as in \ic{int fac(int i) \{ return i == 0 ? 1 :
+fac(i-1); \}}) requires that for each recursive call to \ic{fac} a new
+environment is created, with a binding for the formal variables. However, the
+original environment must be "remembered" because it is needed to complete the
+execution of the outer \ic{fac} after a recursively called \ic{fac} returns.
+This is achieved using a stack of environments. A new environment is pushed onto
+the stack as a function is called (recursively), and the stack is popped,
+returning to the previous environment, as a called function returns. The return
+value, which is often expressed using some kind of \ic{return} statement, is
+usually placed into the inner environment using a special symbol or name (such
+as \ic{\_\_ret\_\_}). It can then be picked up from there as the inner
+environment is popped.
  
+
+
  
 \subsection{Building an Interpreter with Xtext} 
  
 This example describes an interpreter for the cooling language. It is used to
 allow DSL users to "play" with the programs. The interpreter can execute test
 cases (and report success or failure) as well as simulate the program
-interactively. 
+interactively.
  
 The execution engine, as the interpreter is called here, has to handle the
-following language aspects:
+following language aspects:
 
 \begin{itemize}
   \item Statements and expressions, as described above, as supported by the DSL
