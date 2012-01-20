@@ -151,9 +151,9 @@ code) embedded in grammars? We'd like to separate these concerns\ldots}
 
 \paragraph{Parsing versus scanning}
 
-\LK{note that I changed lexer to scanner: lexer is more commonly used
-  nowadays but since it's called 'scannerless parsing' it probably makes more
-  sense to use 'scanner'}
+%\LK{note that I changed lexer to scanner: lexer is more commonly used
+%  nowadays but since it's called 'scannerless parsing' it probably makes more
+%  sense to use 'scanner'}
 
 Because of the complexity inherent in parsing, parser implementations tend to
 split the parsing process into a number of phases. In the majority of cases, the
@@ -273,7 +273,8 @@ refers to number literals.}
 \paragraph{Grammar classes}
 
 BNF can describe any grammar that maps textual sentences to trees based only on
-the input symbols\todo{as opposed to what?}. These are called \emph{context-free
+the input symbols\todo{as opposed to what?}\LK{I'm not sure if we should get into context-sensitive vs context-free grammars here...}
+These are called \emph{context-free
 grammars} and can be used to parse the majority of modern programming languages.
 In contrast, \emph{context-sensitive grammars} are those that also depend on the
 context in which a partial sentence occurs, making them suitable for natural
@@ -492,7 +493,8 @@ Mult ::= Mult "*" NUM
 addition operator in the highest layer to give it the lowest priority, and how
 it uses left-recursion to encode left-associativity of the operators. The
 grammar can be left-factored to a corresponding LL grammar as follows. We will
-see more extensive examples of this approach in the section on Xtext (\todo{}).
+see more extensive examples of this approach in the section on Xtext
+(\Section{Sec:xtext-syntax}).
 
 \begin{code}
 Expr ::= Mult ("+" Mult)*
@@ -620,12 +622,9 @@ example, consider what happens when we compose the grammar of Java with the
 grammar of SQL, as illustrated in \fig{Fig:javasql}. The SQL grammar reserves
 keywords such as \ic{SELECT}, even though they are not reserved in Java. Such a
 language change could break compatibility with existing Java programs which
-happen to use a variable named \ic{SELECT}, and can only be avoided by using ascannerless parser. \MV{How does a scannerless parser avoid this?}\LK{I wasn't sure whether to provide something of a recap on scannerless parsing.
-Normally I might refer back to the original section, but we don't have a lot of section numbers, and
-don't want to break the flow of the text here. What do you suggest?}
-\MV{Well, just saying something like "because a scannerless parser considers
-the tokens in their use-context and not globally"}
-
+happen to use a variable named \ic{SELECT}. This problem can only
+be avoided by a scannerless parser, which considers the lexical syntax in
+the context it appears instead of doing a separate scanning stage.
 
 \begin{figure}[t]
 \begin{center}
@@ -933,6 +932,7 @@ numerous projects use EMF as a basis for model manipulation and persistence,
 with Ecore for meta model definition.
 
 \subsection{Spoofax' ATerm}
+\label{Sec:spoofax-aterm}
 
 Spoofax uses the ATerm format to represent abstract syntax. ATerms are
 a generic tree structure representation format that can be serialized
@@ -1008,6 +1008,7 @@ number of primitive-type properties as well as a couple of "static" features
                  
                                                                             
 \section{Xtext Example}
+\label{Sec:xtext-syntax}
 
 \todo{We assume an introduction of the case studies somewhere before this point}
 
@@ -1396,32 +1397,91 @@ by a list of entity type definitions.
 %for those items.  Entities are persistent data types that are stored
 %in a database and can be retrieved using mobl's querying API.
 In turn, each entity can have one or more property or function definitions
-(shown in the next example snippet). We can specify this syntax using the
-following grammar in Spoofax, using SDF notation:
+(shown in the next example snippet).
+
+In Spoofax, the syntax of languages is described using SDF.
+SDF is a modular and flexible syntax definition formalism, supported
+by the SGLR parser generator. It can generate efficient, Java-based
+scannerless and general parsers. An example of a production written
+in SDF is
 
 \begin{code}
+"module" ID Entity* -> Start {"Module"}
+\end{code}
+
+\noindent
+where the pattern on the left-hand side of the arrow is matched by the symbol \ic{Start}
+on the right-hand side. When the pattern is matched by the parser, it creates a new tree
+node with the name \ic{Module}, indicated by the quoted expression at the end of the
+production. Note that compared to the grammar notations we have discussed
+so far, SDF reverses the left-hand and right-hand side of productions.
+
+Below is an SDF grammar for a subset of mobl's entities and functions syntax. 
+
+\begin{code}
+module MoblEntities
+
 context-free start symbols
 
-  Start
+  Module
   
 context-free syntax
 
-  "module" ID Entity*                 -> Start {"Module"}
+  "module" ID Entity*                 -> Module {"Module"}
   "entity" ID "{" EntityBodyDecl* "}" -> Entity {"EntityNoSuper"}
   ID ":" Type                         -> EntityBodyDecl {"PropertyNoAnnos"}
+
+  "function" ID "(" ArgList ")" ":" Type "{" Statement* "}"
+                                      -> EntityBodyDecl {"Function"}
+  "return" Exp ";"                    -> Statement {"Return"}
+
+  Exp "." ID "(" Exp  ")" -> Exp {"MethodCall"}
+  Exp "." ID              -> Exp {"FieldAccess"}
+  Exp "+" Exp             -> Exp {"Plus"}
+  ID                      -> Exp {"Var"}
+  INT                     -> Exp {"Int"}
+  
+lexical syntax
+
+  [A-Za-z][A-Za-z0-9]* -> ID
+  [0-9]+               -> INT
+  [\ \t\n]             -> LAYOUT
 \end{code}
 
-While most elements of this grammar definition should be familiar, SDF has its
-own notation and conventions. In particular, it divides grammars into different
-sections. The example grammar here uses two sections: \ic{context-free start
-symbols} to list the starting symbols of the grammar, and \ic{context-free
-syntax} to list all the context-free syntax productions. And unlike in the
-grammars we have shown until now, productions in SDF first list the pattern they
-match against and then the symbol \MV{abstract syntax element} they produce.\MV{can you explain what the stuff in "quotes" on the right side of the
-productions mean? And how do the data in the fields (the ID, the Type) of the
-pattern get into the AST elements? I see no mapping.}
+This productions in this grammar should have few suprises,
+but it is interesting to note how SDF groups a grammar in different sections.
+First, the \ic{context-free start symbols} section indicates the start
+symbol of the grammar. Then, the \ic{context-free syntax} section
+list the context-free syntax productions, forming
+the main part of the grammar. Terminals are defined in the 
+\ic{lexical syntax} section.
 
-and then
+As Spoofax uses a scannerless parser, all lexical syntax
+can be customized in the SDF grammar. It provides
+default definitions for common lexical syntax elements such as
+strings, integers, floats, whitespace and comments.
+But when needed, custom syntax can be specified. 
+In particular, for whitespace and comments a special terminal
+\ic{LAYOUT} can be used.
+SDF implicitly inserts \ic{LAYOUT} in between
+all symbols in context-free productions.
+This behavior is the key distinguishing feature
+between context-free and lexical productions:
+lexical symbols such as identifiers and integer literals cannot be interleaved
+with layout.
+The second distinguishing feature is that lexical syntax
+productions usually do not have a special label in the abstract
+syntax, as they form terminals in the abstract syntax trees.
+
+\todo{rest of this section remains to be written}
+
+- precedence, associativity
+
+- brackets
+
+- relation to abstract syntax (Sec:spoofax-aterm)
+
+- forward reference to name analysis annotations
 
 \begin{code}
 entity Store {
@@ -1438,12 +1498,9 @@ entity Store {
 can be parsed using
 
 \begin{code}
-"function" QId "(" {FArg ","}* ")" ":" Type "{" Statement* "}" -> EntityBodyDecl {"Function"}
-"return" Exp ";"                            -> Statement {cons("Return")}
+{FArg ","}*
 
-Exp "." ID "(" Exp  ")" -> Exp {cons("MethodCall")}
-Exp "." ID                -> Exp {cons("FieldAccess")}
-ID                        -> Exp {cons("Var")}
+... <= ...
 \end{code}
 
 \MV{I assume that you're planning to do this anyway, but please make sure your
