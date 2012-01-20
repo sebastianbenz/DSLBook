@@ -118,8 +118,14 @@ essentially structurally identical to the generated text.
  
 \begin{figure}[ht]
 \begin{center}
-  \includegraphics[scale=0.7]{figures/6/mps-textgen.png}
-  \caption[labelInTOC]{}
+  \includegraphics[width=8cm]{figures/6/mps-textgen.png}
+  \caption[]{Text generator for an \ic{if} statement. If first checks
+  if the condition happens to be a \ic{true} literal, in which case the \ic{if}
+  statement is optimized away and only the \ic{thenPart} is output. Otherwise
+  we generate an \ic{if} statement, the condition in parens, and then the
+  \ic{thenPart}. We then iterate over all the \ic{elseIfs}; an \ic{elseIf} has
+  its own textgen, and we generate to that one. We finally output the code for
+  the \ic{else} part.}
   \label{mps-textgen} 
 \end{center} 
 \end{figure}
@@ -211,10 +217,11 @@ This high level structure is clearly discernable from the two main templates
 shown in \fig{mps-sm-gen-1} and \fig{mps-sm-gen-2}. 
 
 \begin{figure}[h]
-\begin{center}
+\begin{center} 
   \includegraphics[width=11cm]{figures/6/mps-sm-gen-1.png}
-  \caption[labelInTOC]{}
-  \label{mps-sm-gen-1} 
+  \caption[]{The MPS generator that inserts two\ic{enum} definitions
+  and a \ic{struct} into the module which contains the \ic{StateMachine}.}
+  \label{mps-sm-gen-1}  
 \end{center} 
 \end{figure}
 
@@ -231,8 +238,11 @@ it.
 
 \begin{figure}[ht]
 \begin{center}
-  \includegraphics[scale=0.7]{figures/6/mps-gen-phases.png}
-  \caption[labelInTOC]{}
+  \includegraphics[width=11cm]{figures/6/mps-gen-phases.png}
+  \caption[]{State machines are transformed (via a model-to-model
+  transformation, if you will) into two \ic{enum}s, a \ic{struct} and a
+  function. These are then transformed to text via the regular
+  \ic{com.mbeddr.core} textgen.}
   \label{mps-gen-phases} 
 \end{center} 
 \end{figure}
@@ -259,7 +269,10 @@ will only show this part. For the literals of the events enum we use a similar e
 \begin{figure}[ht]
 \begin{center}
   \includegraphics[width=10cm]{figures/6/mps-sm-inspector1.png}
-  \caption[labelInTOC]{}
+  \caption[]{The inspector is used to provide the implementation
+  details for the macros used in the templates. This one belongs to a
+  \ic{LOOP} macro, so we provide an expression that returns a
+  collection, over which the \ic{LOOP} macro iterates.}
   \label{mps-sm-inspector1} 
 \end{center} 
 \end{figure}
@@ -311,7 +324,9 @@ macro's expression.
 \begin{figure}[ht]
 \begin{center}
   \includegraphics[width=11cm]{figures/6/mps-ref-macro.png}
-  \caption[labelInTOC]{}
+  \caption[]{A reference macro has to return either the target node,
+  or the name of the target node. The name is then resolved using the scoping
+  rules for the particular reference concept.}
   \label{mps-ref-macro} 
 \end{center} 
 \end{figure}
@@ -326,7 +341,9 @@ language's scoping rules to find and link to the correct target element.
 \begin{figure}[h]
 \begin{center}
   \includegraphics[width=11cm]{figures/6/mps-sm-gen-2.png}
-  \caption[labelInTOC]{}
+  \caption[]{The transformation template for generating the
+  \ic{switch}-based implementation of a \ic{StateMachine}. See the text for
+  details.}
   \label{mps-sm-gen-2} 
 \end{center} 
 \end{figure}
@@ -396,7 +413,8 @@ argument, and then dereferences everything.
 \begin{figure}[h]
 \begin{center}
   \includegraphics[width=11cm]{figures/6/mps-eventArgRef.png}
-  \caption[labelInTOC]{}
+  \caption[]{The reduction rule for references to event arguments (to
+  be used inside guard conditions of transitions). }
   \label{mps-eventArgRef} 
 \end{center} 
 \end{figure}
@@ -447,7 +465,10 @@ a version of the \ic{TriggerSMStatement} that does not include event arguments.
 \begin{figure}[h]
 \begin{center}
   \includegraphics[width=11cm]{figures/6/mps-trigger.png}
-  \caption[labelInTOC]{}
+  \caption[]{The reduction rule for a \ic{trigger} statement. It is
+  transformed to a call to the function that implements the behaviour of the
+  state machine that is referenced in the first argument of the \ic{trigger}
+  statement.}
   \label{mps-trigger} 
 \end{center} 
 \end{figure}
@@ -607,38 +628,45 @@ environment is popped.
 This example describes an interpreter for the cooling language. It is used to
 allow DSL users to "play" with the programs. The interpreter can execute test
 cases (and report success or failure) as well as simulate the program
-interactively.
- 
-The execution engine, as the interpreter is called here, has to handle the
-following language aspects:
+interactively. Since no code generation and no real target hardware is involved,
+the turn-around time is much shorter and the required infrastructure is trivial
+--- just the IDE. The execution engine, as the interpreter is called here, has
+to handle the following language aspects:
 
 \begin{itemize}
-  \item Statements and expressions, as described above, as supported by the DSL
-  and must be executed
+
+  \item The DSL supports expressions and statements, for example in the entry
+  and exit actions of states. These have to be supported in the way described
+  above.
+
   \item The top level structure of a cooling program is a state machine. So the
   interpreter has to deal with states, events and transitions.
-  \item The language supports deferred execution (i.e. perform the following
-  set of statements at a later time), so the interpreter has to keep track of
-  deferred parts of the program
+
+  \item The language supports deferred execution (i.e. perform a set of
+  statements at a later time), so the interpreter has to keep track of deferred
+  parts of the program
   \item The language supports writing tests for cooling programs incl. mock
   behaviour for hardware elements. A set of constructs exists to express this
   mock behaviour, specifically, ramps to change temperatures over time. These
   background tasks must be handled by the interpreter as well.
+
 \end{itemize}
+
 
 \paragraph{Expressions and Statements}
 
 We start our description of the execution engine inside out, by looking at the
 interpreter for expressions and statements first. As mentioned above, for
-interpreting expressions, there is typically an overloaded eval operation, that
-contains the implementation of expression evaluation for each kind of
-expression. However, Java doesn't have polymorphically overloaded member
-methods. Instead, and Xtext workflow fragment generates a dispatcher. The
-fragment is configured with the abstract meta classes that represent expressions
-and statements (all specific expressions and statements inherit directly or
-indirectly from these classes). The following code shows the fragment
-configuration:
-
+interpreting expressions, there is typically an overloaded \ic{eval} operation,
+that contains the implementation of expression evaluation for each subtype of a
+generic \ic{Expression} concept. However, Java doesn't have polymorphically
+overloaded member methods. We compensate this by generating a dispatcher that
+calls a \emph{different} method for each subtype of \ic{Expression}. The
+generation of this dispatcher is integrated with Xtext via an Xtext workflow
+fragment, i.e. the dispatcher is generated during the overall Xtext code
+generation process. The fragment is configured with the abstract meta classes
+for expressions and statements. The following code shows the fragment
+configuration:
 
 \begin{code}
 fragment = de.itemis.interpreter.generator.InterpreterGenerator {
@@ -649,17 +677,15 @@ fragment = de.itemis.interpreter.generator.InterpreterGenerator {
 
 
 This fragment generates an abstract class that acts as the basis for the
-interpreter for the particular set of statements and expressions. as the
-following piece of code shows, the class contains an eval method that uses
-instanceof checks to dispatch to a method specific to the subclass and thereby
-emulating polymorphically overloaded methods. The specific methods throw an
-exception and are expected to be overridden by a manually written subclass  that
-contains the actual interpreter logic for the particular language concepts. the
-class also uses a logging framework (based on the LogEntry class) that can be
-used to create a tree shaped trace of expression evaluation, which is very
-useful for debugging and understanding the execution of the interpreter.
-
-
+interpreter for the particular set of statements and expressions. As the
+following piece of code shows, the class contains an \ic{eval} method that uses
+\ic{instanceof} checks to dispatch to a method specific to the subclass and
+thereby emulating polymorphically overloaded methods. The specific methods throw
+an exception and are expected to be overridden by a manually written subclass
+that contains the actual interpreter logic for the particular language concepts.
+The class also uses a logging framework (based on the \ic{LogEntry} class) that
+can be used to create a tree shaped trace of expression evaluation, which, short
+of building an actual debugger, is very useful for debugging and understandingthe execution of the interpreter.
 
 \begin{code}
 public abstract class AbstractCoolingLanguageExpressionEvaluator 
@@ -689,32 +715,29 @@ public abstract class AbstractCoolingLanguageExpressionEvaluator
 
     protected Object evalEquals( Equals expr, LogEntry log ) 
               throws InterpreterException {
-        throw new MethodNotImplementedException(expr, 
-                 "method evalEquals not implemented");
+        throw new MethodNotImplementedException(expr, "method evalEquals not implemented");
     } 
     protected Object evalUnequals( Unequals expr, LogEntry log ) 
               throws InterpreterException {
-        throw new MethodNotImplementedException(expr, 
-              "method evalUnequals not implemented");
+        throw new MethodNotImplementedException(expr, "method evalUnequals not implemented");
     } 
     protected Object evalGreater( Greater expr, LogEntry log )
               throws InterpreterException {
-        throw new MethodNotImplementedException(expr, 
-              "method evalGreater not implemented");
+        throw new MethodNotImplementedException(expr, "method evalGreater not implemented");
     } 
     
 }
 \end{code}
 
     
-A similar class is generated for the statements. Instead of eval, the method is
-called execute and it does not return a value. In every other respect the
-statement executor is similar to the expression evaluator.
+A similar class is generated for the statements. Instead of \ic{eval}, the method is
+called \ic{execute} and it does not return a value. In every other respect the
+\ic{StatementExecutor} is similar to the \ic{ExpressionEvaluator}.
 
 Let us now take a look at some example method implementations. The following
-code shows the implementation of evalNumberLiteral which evaluates number
-literals such as 2 or 2.3 or -10.2. The following grammar is used for defining
-number literals:
+code shows the implementation of \ic{evalNumberLiteral} which evaluates number
+literals such as \ic{2} or \ic{2.3} or \ic{-10.2}. To recap, the following
+grammar is used for defining number literals:
 
 
 \begin{code}
@@ -727,12 +750,20 @@ terminal DECIMAL_NUMBER:
 \end{code}
 
 
-Before we delve into the details of this code, it is worth mentioning that the
-"global data" held by the execution engine is stored and possibly around using
-the engine execution context. For example it contains the environment that keeps
-track of symbol values, and it also has access to the type system implementation
-class for the language. Execution context is available through the eec() method.
-
+Before we delve into the details of the interpreter code below, it is worth
+mentioning that the "global data" held by the execution engine is stored and
+passed around using an instance of \ic{EngineExecutionContext}. For example, it
+contains the environment that keeps track of symbol values, and it also has
+access to the type system implementation class for the language. The
+\ic{ExecutionContext} is available through the \ic{eec()} method. With this in
+mind, the implementation of \ic{evalNumberLiteral} should be easily
+understandable. We first retrieve the actual value from the \ic{NumberLiteral}
+object, and we find out that type of the number literal using the \ic{typeof}
+function in the type system. The type system basically inspects, whether the
+value contains a dot or not and returns either a \ic{DoubleType} or
+\ic{IntType}. Based on this distinction, \ic{evalNumberLiteral} returns either a
+Java \ic{Double} or \ic{Integer} as the value of the \ic{NumberLiteral}. In
+addition, it creates log entries that document these decisions.
 
 \begin{code}
     protected Object evalNumberLiteral(NumberLiteral expr, LogEntry log) {
@@ -750,26 +781,17 @@ class for the language. Execution context is available through the eec() method.
 \end{code}
 
 
-
-With this in mind, the implementation of even outnumber literal should be
-obvious. We first retrieve the actual value from the NumberLiteral object, and
-we find out that type of the number literal. The type system basically inspects,
-whether the value contains a dot or not and returns either a DoubleType or 
-IntType. Based on this distinction the evaluate method returns either a Java
-Double or Integer as the value of the NumberLiteral. In addition, it creates log
-entries that document these decisions.
-
-The evaluator for NumberLiteral was simple because number literals are leaves
-in the AST and have no other children, so no recursive invocations of eval are
-required. This is different for the logical and for example. The following code
-shows the implementation of the logical and. It has two more children in the
-left and right properties. the first two statements recursively called the
-evaluator, for the left and right children respectively. They use a utility
-method called evalCheckNullLog which automatically creates a log entry for this
-recursive call and stops the interpreter if the value passed in is null (which
-would mean the AST is somehow broken). Once we have evaluated the two children
-we can simply return a conjunction of the two.
-
+The evaluator for \ic{NumberLiteral} was simple because number literals are
+leaves in the AST and have no other children, so no recursive invocations of
+\ic{eval} are required. This is different for the \ic{LogicalAnd}, which has two
+more children in the \ic{left} and \ic{right} properties. The following code
+shows the implementation of \ic{evalLogicalAnd}. The first two statements
+recursively call the evaluator, for the \ic{left} and \ic{right} properties,
+respectively. They use a utility method called \ic{evalCheckNullLog} which
+automatically creates a log entry for this recursive call and stops the
+interpreter if the value passed in is \ic{null} (which would mean the AST is somehow
+broken). Once we have evaluated the two children we can simply return a
+conjunction of the two.
 
 \begin{code}
 protected Object evalLogicalAnd(LogicalAnd expr, LogEntry log) {
@@ -783,9 +805,9 @@ protected Object evalLogicalAnd(LogicalAnd expr, LogEntry log) {
 
 
 So far, we haven't used the environment, since we haven't worked with variables
-and their current values. Let's now look and how variable assignment is handled.
-We first look at the assignment statement,  which is implemented  in the
-statement executor, not in the expression evaluator.
+and their (changing) values. Let's now look and how variable assignment is
+handled. We first look at the \ic{AssignmentStatement},  which is implemented 
+in the \ic{StatementExecutor}, not in the \ic{ExpressionEvaluator}.
 
 
 \begin{code}
@@ -800,19 +822,21 @@ protected void executeAssignmentStatement(AssignmentStatement s, LogEntry log){
 \end{code}
 
 
-The first two lines get the left argument as well as the value of the right
-argument. Note how only the right value is evaluated: the left argument is a
-symbol reference (made sure through a constraint). We then retrieve the symbol
-referenced by the symbol reference and create a mapping from the symbol to the
-value in the environment, effectively "assigning" the value to the symbol during
-the execution of the interpreter.
+The first two lines get the \ic{left} argument as well as the value of the
+\ic{right} argument. Note how only the right value is evaluated: the left
+argument is a symbol reference (made sure through a constraint). We then
+retrieve the symbol referenced by the symbol reference and create a mapping from
+the symbol to the value in the environment, effectively "assigning" the value to
+the symbol during the execution of the interpreter.
 
-The implementation of the evaluator for a symbol reference (if it is used not
-as an lvalue) is shown in the following code. We use the same environment to
-lookup the value for the symbol. We then check if the value is null (i.e.
+The implementation of the \ic{ExpressionEvaluator} for a symbol reference (if it is
+used not as an lvalue) is shown in the following code. We use the same environment to
+look up the value for the symbol. We then check if the value is \ic{null} (i.e.
 nothing has been assigned to the symbol as yet). In this case we return the
-default value for the respective type and log a warning. Otherwise we return the
-value.
+default value for the respective type and log a warning\footnote{This is
+specialized functionality in the cooling language; in most other languages, we
+would probably just return \ic{null}, since nothing seems to have been
+assigned to the symbol yet}. Otherwise we return the value.
 
 
 \begin{code}
@@ -834,17 +858,17 @@ protected Object evalSymbolRef(SymbolRef expr, LogEntry log) {
 
 
 The cooling language does not support function calls, so we demonstrate function
-calls with a similar language that supports it. In that language, function calls
-are expressed as symbol references that have argument lists. Below is the
+calls with a similar language that supports them. In that language, function
+calls are expressed as symbol references that have argument lists. Below is the
 grammar. Constraints make sure that argument lists are only used if the
-referenced symbol is actually a FunctionDeclaration.
+referenced symbol is actually a \ic{FunctionDeclaration}.
 
 
 \begin{code}
 FunctionDeclaration returns Symbol:
     {FunctionDeclaration} "function" type=Type name=ID "(" 
         (params+=Parameter  ("," params+=Parameter)* )?  ")" "{"    
-        (elements+=Element)*
+        (statements+=Statement)*
     "}";    
 
 Atomic returns Expression:
@@ -876,11 +900,12 @@ protected Object evalSymbolRef(SymbolRef expr, LogEntry log) {
 \end{code}
 
 
-The code for the FunctionDeclaration uses a predefined utility method
-callAndReturnWithPositionalArgs. It accepts as arguments the list of formals of
-the called function, the list of actuals passed in, the list of statements in
-the function body, a symbol that should be used for the return value as well as
-the obligatory log. The utility method is implemented as follows:
+The code for handling the \ic{FunctionDeclaration} uses a predefined utility
+method \ic{callAndReturnWithPositionalArgs}. It accepts as arguments the list of
+formals of the called function, the list of actuals passed in at the call site,
+the list of statements in the function body, a symbol that should be used for the return
+value in the environment as well as the obligatory log. The utility method is
+implemented as follows:
 
 
 \begin{code}
@@ -902,56 +927,57 @@ protected Object callAndReturnWithPositionalArgs(String name,
 \end{code}
 
 
-It first creates a new environment and pushes it on the call stack. The it
-iterates over all the actual argument, evaluates each of them and "assigns" them
-to the formals by creating an association between the formal argument symbol and
-the actual argument value in the new environment. It then uses the statement
-executor (available through the context) to execute all the statements in the
-body of the function. Notice that if they deal with their own variables and
-functions, the use the new environment pushed onto the stack by this method!
-When the execution of the body has finished, we retrieve the return value from
-the environment. The return statement in the function has put it there under a
-name we have prescribed, the returnSymbol, so we know where to find it. Finally,
-we pop the environment, restoring the caller's state of the world and return the
-return value.
+Remember from the above discussion about environments and function calls, that
+each invocation of a function has to get its own environment to handle the local
+variables for the particular invocation. We can see this in the first line of
+the implementation above: we first creates a new environment and push it on the
+call stack. Then the implementation iterates over the actual arguments,
+evaluates each of them and "assigns" them to the formals by creating an
+association between the formal argument symbol and the actual argument value in
+the new environment. It then uses the \ic{StatementExecutor} to execute all the
+statements in the body of the function. Notice that as the executed function
+deals with its own variables and function calls, it uses the \emph{new}
+environment created, pushed onto the stack and populated by this method! When
+the execution of the body has finished, we retrieve the return value from the
+environment. The \ic{return} statement in the function has put it there under a
+name we have prescribed, the \ic{returnSymbol}, so we know how to find it in the
+environment. Finally, we pop the environment, restoring the caller's state of
+the world and return the return value.
 
 
 \paragraph{States, Events and the Main program}
 
-Changing a state happens by executing a ChangeStateStatement, which simply
-references the state that should be entered. Here is the interpreter code in
-StatementExecutor:
+Changing a state from within a cooling program is done by executing a
+\ic{ChangeStateStatement}, which simply references the state that should be
+entered. Here is the interpreter code in \ic{StatementExecutor}:
 
 
 \begin{code}
 protected void executeChangeStateStatement(ChangeStateStatement s, LogEntry l) {
-    l.child(Kind.debug, s, "change state to " + s.getTargetState().getName());
     engine.enterState(s.getTargetState(), log);
 }
 
-public void enterState(State ss, LogEntry logger ) 
+public void enterState(State targetState, LogEntry logger ) 
         throws TestFailedException, InterpreterException, TestStoppedException {
-    logger.child(Kind.info, ss, "entering state "+ss.getName());
-    context.currentState = ss;
+    logger.child(Kind.info, targetState, "entering state "+targetState.getName());
+    context.currentState = targetState;
     executor.execute(ss.getEntryStatements(), logger);
     throw new NewStateEntered();
 }
 \end{code}
 
 
-It calls back to an engine method that handles the state change (since this is
-a more global operation than executing statements, it is handled by the engine
-class itself). The method simply sets the current state to the target state
-passed into the method (the current state is kept track of in the execution
-context). It then executes the set of entry statements of the new state. After
-this it throws an exception NewStateEntered which stops the current execution
-step. 
-
-The overall engine is step driven, i.e. an external "timer" triggers distinct
-execution steps of the engine. A state change always terminates the current
-step. The main method step() triggered by the external timer can be considered
-the main program of the engine. It looks as follows:
-
+\ic{executeChangeStateStatement} calls back to an engine method that handles the
+state change (since this is a more global operation than executing statements,
+it is handled by the engine class itself). The method simply sets the current
+state to the target state passed into the method (the current state is kept
+track of in the execution context). It then executes the set of entry statements
+of the new state. After this it throws an exception \ic{NewStateEntered} which
+stops the current execution step. The overall engine is step driven, i.e. an
+external "timer" triggers distinct execution steps of the engine. A state change
+always terminates the current step. The main method \ic{step()} triggered by the
+external timer can be considered the main program of the engine. It looks as
+follows:
 
 \begin{code}
 public int step(LogEntry logger) {
@@ -973,14 +999,14 @@ public int step(LogEntry logger) {
 }
 \end{code}
 
-
-It first executes the each time statements of the current state. This is
-a statement list defined by a state that needs to be re-executed in each step
-while the system is in the respective state. It then executes asynchronous
-tasks. We'll explain this in the next section. Next it checks if an event is in
-the event queue. If so, it removes the first event from the queue and executes
-it. After processing an event the step is terminated. Lastly, we process signal
-handlers (the check statements in the programs).
+It first increments a counter that keeps track of how many steps haven been
+executed since the interpreter had been started up. It then executes the
+\ic{each time} statements of the current state. This is a statement list defined
+by a state that needs to be re-executed in each step while the system is in the
+respective state. It then executes asynchronous tasks. We'll explain this below.
+Next it checks if an event is in the event queue. If so, it removes the first event from the queue and executes it. After processing an
+event the step is always terminated. Lastly, if there was no event to be
+processed, we process signal handlers (the \ic{check} statements in thecooling programs).
 
 Processing events simply checks if the current state declares and event handler
 that can deal with the currently processed event. If so, it executes the
@@ -998,13 +1024,8 @@ private void processEventFromQueue(CustomEvent event, LogEntry logger) {
 \end{code}
 
 
-Raising events is just another statement that can be put into any statement
-list. It adds the respective event to the queue. Also, events can be raised by
-external actors (the hardware in the real system, and statements in test cases).
-
 The DSL also supports executing code asynchronously, i.e. after a specified
 number of steps. The grammar looks as follows:
-
 
 \begin{code}
 PerformAsyncStatement:
@@ -1014,7 +1035,7 @@ PerformAsyncStatement:
 \end{code}
 
 
-The interpreter for this statement is simply the following method:
+The following method interprets the \ic{PerformAsyncStatement}s:
 
 
 \begin{code}
@@ -1027,9 +1048,9 @@ protected void executePerformAsyncStatement(PerformAsyncStatement s,
 \end{code}
 
 
-It registers the statement list associated with the PerformAsyncStatement in the
-list of async elements in the execution context. The call to executeAsyncStuff
-at the beginning of the step method described above checks whether the time has
+It registers the statement list associated with the \ic{PerformAsyncStatement} in the
+list of async elements in the execution context. The call to \ic{executeAsyncStuff}
+at the beginning of the \ic{step} method described above checks whether the time has
 come and executes those statements.
 
 
@@ -1049,37 +1070,39 @@ private void executeAsyncStuff(LogEntry logger) {
 \end{code}
 
 
-
-
 \todo{mention interpreter framework!}
 \todo{Say something about Xtend2}
 
 
 \subsection{An interpreter in MPS}
 
-Building an interpreter in MPS is fundamentally similar to building one in Xtext
-and EMF. All concept would apply in the same way, intead of EObjects you would
-work with the node<> types that are available on MPS to deal with ASTs. However,
-since MPS' BaseLanguage is itself built with MPS, it can be extended. So instead
-of using a generator to generate the dispatcher that calls the eval methods for 
-the expression classes, suitable language extensions can be defined in the first
-place.
-
-For example, BaseLanguage (effectively Java) could be extended with support for
-polymorphic dispatch (similar to what Xtend2 does). An alternative solution
-involves a dispatch statement, a kind of pimped switch. \fig{mps-dispatch} shows
-an example.
+Building an interpreter in MPS is essentially similar to building an interpreter
+in Xtext and EMF. All concept would apply in the same way, instead of
+\ic{EObjects} you would work with the \ic{node<>} types that are available on
+MPS to deal with ASTs. However, since MPS' BaseLanguage is itself built with
+MPS, it can be extended. So instead of using a generator to generate the
+dispatcher that calls the \ic{eval} methods for the expression classes, suitable
+language extensions can be defined in the first place.
+ 
+For example, BaseLanguage could be extended with support for polymorphic
+dispatch (similar to what Xtend2 does). An alternative solution involves a
+dispatch statement, a kind of "pimped switch". \fig{mps-dispatch} shows an
+example.
 
 \begin{figure}[ht]
 \begin{center}
-  \includegraphics[scale=0.65]{figures/6/mps-dispatch.png}
-  \caption[labelInTOC]{}
+  \includegraphics[width=14cm]{figures/6/mps-dispatch.png}
+  \caption[][4cm]{An extension to MPS' BaseLanguage that makes writing
+  interpreters simpler. The \ic{dispatch} statement has the neat feature that,
+  on the right side of the \ic{->}, the \ic{\$} reference to the \ic{ex}
+  expression is already downcast to the type mentioned on the left of the
+  \ic{->}.}
   \label{mps-dispatch} 
 \end{center}
 \end{figure}
 
-The dispatch statement tests if the argument ex is an instance of the type
-referenced in the "cases". If so, the code on the right side of the arrow is
-executed. Notice the special expression \$ used on the right side of the arrow.
-It refers to the argument ex, but it is already downcast to the type on the left
-of the case's arrow. This way, annoying downcasts can be avoided. 
+The dispatch statement tests if the argument \ic{ex} is an instance of the type
+referenced in the cases. If so, the code on the right side of the arrow is
+executed. Notice the special expression \ic{\$} used on the right side of the
+arrow. It refers to the argument \ic{ex}, but it is already downcast to the type
+on the left of the case's arrow. This way, annoying downcasts can be avoided.

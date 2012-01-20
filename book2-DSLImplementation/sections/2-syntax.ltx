@@ -45,7 +45,7 @@ names in the boxes represent language concepts that make up the abstract syntax.
 \begin{figure}[ht]
 \begin{center}
   \includegraphics[scale=0.5]{figures/1/astexample.png}
-  \caption[labelInTOC]{Abstract syntax tree for the above program. Boxes
+  \caption[]{Abstract syntax tree for the above program. Boxes
   represent instances of language concepts, solid lines represent containment,
   dotted lines represent cross-references}
   \label{astexample} 
@@ -83,7 +83,8 @@ parsing and projection.
 \begin{figure}[ht]
 \begin{center}
   \includegraphics[scale=0.6]{figures/1/astandcst.png}
-  \caption[labelInTOC]{Dimensions of defining the concrete and abstract syntax of a language.}
+  \caption[]{Dimensions of defining the concrete and abstract syntax
+  of a language.}
   \label{astandcst} 
 \end{center}
 \end{figure}
@@ -633,7 +634,7 @@ for (Customer c : SELECT customer FROM accounts WHERE balance < 0) {
   ...
 }
 \end{code}
-  \caption[labelInTOC]{A composition of Java and SQL.}
+  \caption[]{A composition of Java and SQL.}
   \label{Fig:javasql} 
 \end{center}
 \end{figure}
@@ -869,10 +870,12 @@ a UUID, \emph{move} can be distinguished from \emph{delete} and \emph{create},
 providing more useable semantics for diff and merge. \fig{fig:mps-diff.png}
 shows an example of an MPS diff.
 
-\begin{figure}[ht]
+\begin{figure}[ht] 
 \begin{center}
-  \includegraphics[scale=0.45]{figures/1/mps-diff.png}
-  \caption[labelInTOC]{}
+  \includegraphics[width=11cm]{figures/1/mps-diff.png}
+  \caption[]{The diff/merge tool presents MPS programs in their
+  concrete syntax, i.e. text for textual notations. However, other notations,
+  such as tables, would also be rendered in their native form.}
   \label{fig:mps-diff.png} 
 \end{center}
 \end{figure}
@@ -914,13 +917,13 @@ instances. EReferences can be containing or not - each EObject can be contained
 by at most one EReference instance. \fig{fig:ecore-metamodel} shows a class
 diagram of Ecore.
 
-\begin{figure}[ht]
+\begin{figure*}[ht]
 \begin{center}
-  \includegraphics[scale=0.45]{figures/1/ecore-metamodel-2.png}
-  \caption[labelInTOC]{}
+  \includegraphics[width=16cm]{figures/1/ecore-metamodel-2.png}
+  \caption[]{The Ecore meta model rendered as a UML diagram.}
   \label{fig:ecore-metamodel} 
 \end{center}
-\end{figure}
+\end{figure*}
 
 The Ecore file is at the heart. From that, all kinds of other aspects are
 derived, specifically, a generic tree editor, and a generated Java API for
@@ -1165,7 +1168,9 @@ up into the abstract \ic{State} meta class so they can be accessed polymorphical
 \begin{figure}[ht]
 \begin{center}
   \includegraphics[scale=0.7]{figures/1/xtext-metamodel.png}
-  \caption[labelInTOC]{}
+  \caption[]{Part of the EMF meta model derived from the Xtext grammar
+  for the cooling program. Grammar rules become \ic{EClass}es, assignments in
+  the grammar rules become \ic{EProperties} (i.e. attributes and references).}
   \label{Fig:xtext-metamodel}  
 \end{center}
 \end{figure}
@@ -1616,7 +1621,10 @@ new statement and hence make the respective list visible.
 \vspace{-5mm}
 \begin{center}
   \includegraphics[width=11cm]{figures/1/mps-stateeditor.png}
-  \caption[labelInTOC]{}
+  \caption[]{The definition of the editor for the \ic{State} concept.
+  In MPS, editors are made from cells. In the editor definition your arrange
+  the cells and define what they project; this defined the projection rule that
+  is then used when instances of the concept are edited.}
   \label{Fig:mps-stateeditor}  
 \end{center}
 \vspace{-10mm}
@@ -1634,7 +1642,10 @@ braces.
 \vspace{-5mm}
 \begin{center}
   \includegraphics[width=11cm]{figures/1/mps-transeditor.png}
-  \caption[labelInTOC]{}
+  \caption[]{The editor for transitions. Note how we embed the
+  guard condition expression simply by referring to the \ic{guard} child
+  relationship. We "inherit" the syntax for expressions from the
+  \ic{com.mbeddr.core.expressions} language.}
   \label{Fig:mps-transeditor}  
 \end{center}
 \vspace{-5mm}
@@ -1778,5 +1789,6 @@ consequence of the linear input method, it is sufficient to include this
 rearrangement in the side transformation shown above. 
 
 
-
+\paragraph{Context Restrictions} \todo{Use assert statement as an example of
+why and how to restrict the context of something (can be child, can be parent)}
 
