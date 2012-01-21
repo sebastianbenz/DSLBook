@@ -152,10 +152,6 @@ code) embedded in grammars? We'd like to separate these concerns\ldots}
 
 \paragraph{Parsing versus scanning}
 
-%\LK{note that I changed lexer to scanner: lexer is more commonly used
-%  nowadays but since it's called 'scannerless parsing' it probably makes more
-%  sense to use 'scanner'}
-
 Because of the complexity inherent in parsing, parser implementations tend to
 split the parsing process into a number of phases. In the majority of cases, the
 text input is first separated into a sequence of \emph{tokens} (i.e.,
@@ -274,9 +270,7 @@ refers to number literals.}
 \paragraph{Grammar classes}
 
 BNF can describe any grammar that maps textual sentences to trees based only on
-the input symbols\todo{as opposed to what?}\LK{I'm not sure if we should get into context-sensitive vs context-free grammars here...}
-These are called \emph{context-free
-grammars} and can be used to parse the majority of modern programming languages.
+the input symbols. These are called \emph{context-free grammars} and can be used to parse the majority of modern programming languages.
 In contrast, \emph{context-sensitive grammars} are those that also depend on the
 context in which a partial sentence occurs, making them suitable for natural
 language processing but at the same time, making parsing itself a lot harder
@@ -625,7 +619,8 @@ keywords such as \ic{SELECT}, even though they are not reserved in Java. Such a
 language change could break compatibility with existing Java programs which
 happen to use a variable named \ic{SELECT}. This problem can only
 be avoided by a scannerless parser, which considers the lexical syntax in
-the context it appears instead of doing a separate scanning stage.
+the context it appears instead during a separate scanning stage, where no
+context is considered.
 
 \begin{figure}[t]
 \begin{center}
@@ -967,12 +962,10 @@ tools can convert between ATerms and XML.
 
 \subsection{MPS' Structure Definition}
 
-\todo{add ics for the keywords}
-
 Every program element in MPS is a node. A node has a structure definition and
 projection rules for rendering. This is also true for language definitions.
-Nodes are instances of Concepts, which corresponds to EMF's EClass. Like
-EClasses, concepts are meta circular, i.e.\ there is a concept that defines the
+Nodes are instances of Concepts, which conceptually corresponds to EMF's \ic{EClass}. Like
+\ic{EClass}es, concepts are meta circular, i.e.\ there is a concept that defines the
 properties of concepts:
 
 \begin{code} 
@@ -1005,8 +998,8 @@ concept ConceptDeclaration extends AbstractConceptDeclaration
  
 A concept may extend a single other concept and implement any number of
 interfaces. It can declare references and child collections. It may also have a
-number of primitive-type properties as well as a couple of "static" features
-(those stating with "concept"). In addition, concepts can have behavior methods.
+number of primitive-type properties as well as a couple of "static" features. 
+In addition, concepts can have behavior methods.
                  
                  
                                                                             
@@ -1381,7 +1374,6 @@ Mobl's data modeling language provides entities, properties and functions. To
 illustrate the language, below are two data type definitions related to a
 shopping list app. It supports lists of items that can be favorited, checked,
 and so on, and are associated with some \ic{Store}.
-
 \begin{code}
 module shopping
 
@@ -1414,12 +1406,13 @@ in SDF is
 "module" ID Entity* -> Start {"Module"}
 \end{code}
 
-\noindent
-where the pattern on the left-hand side of the arrow is matched by the symbol \ic{Start}
-on the right-hand side. When the pattern is matched by the parser, it creates a new tree
-node with the name \ic{Module}, indicated by the quoted expression at the end of the
-production. Note that compared to the grammar notations we have discussed
-so far, SDF reverses the left-hand and right-hand side of productions.
+\noindent where the pattern on the left-hand side of the arrow is matched by the
+symbol \ic{Start} on the right-hand side. When the pattern is matched by the
+parser, it creates a new tree node with the name \ic{Module}, indicated by the
+quoted expression at the end of the production\MV{and do you define somewhere
+where the children go? like a property name? or are they just stored in a list,
+left to right?}. Note that compared to the grammar notations we have discussed
+so far, SDF reverses the left-hand and right-hand side of productions.
 
 Below is an SDF grammar for a subset of mobl's entities and functions syntax. 
 
@@ -1508,10 +1501,6 @@ can be parsed using
 ... <= ...
 \end{code}
 
-\MV{I assume that you're planning to do this anyway, but please make sure your
-example explains precedence etc.}
-
-%\TODO{}
  
 \section{MPS Example}
 
@@ -1546,8 +1535,6 @@ module LineFollowerStatemachine {
 }                                                                             
 \end{code}
 
-
-\todo{Add UML diagram of the language. Generate via MPS.}
 
 \paragraph{Concept Definition} MPS is projectional, so we start with the
 definition of the AS. In MPS, AS elements are called concepts. The code below
