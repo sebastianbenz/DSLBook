@@ -1776,6 +1776,60 @@ consequence of the linear input method, it is sufficient to include this
 rearrangement in the side transformation shown above. 
 
 
-\paragraph{Context Restrictions} \todo{Use assert statement as an example of
-why and how to restrict the context of something (can be child, can be parent)}
+\paragraph{Context Restrictions} MPS makes strong use of polymorphism. If a
+language concept defines a child relationship to another concept \ic{C}, then
+any subtype of {C} can also be used in this child relationship. For example, a
+function has a \ic{body} which is typed to \ic{StatementList}, which contains a
+list of \ic{Statement}s. So every subtype of \ic{Statement} can be used inside a
+function body. In general, this is the desired behaviour, but in some cases, it
+is not. Consider test cases. Here is a simple example:
+
+\begin{code}
+module UnitTestDemo from cdesignpaper.unittest imports nothing { 
+   
+  test case testMultiply { 
+    assert(0) times2(21) == 42; 
+  } 
+   
+  int8_t times2(int8_t a) { 
+    return 2 * a; 
+  } 
+}
+\end{code} 
+
+Test cases are defined in a separate language \ic{com.mbeddr.core.unittest}. The
+language defines the \ic{TestCase} concept, as well as the \ic{assert}
+statement. \ic{AssertStatement} extends \ic{Statement}, so by default, an
+\ic{assert} can be used wherever a \ic{Statement} is expected, once the
+\ic{com.mbeddr.core.unittest} is used in a program. However, this is not what
+we want: \ic{assert} statements should be restricted to be used inside a
+\ic{UnitTest}\footnote{this is, among other reasons, because the transformation
+of the \ic{assert} statement to C expects code generated from the \ic{UnitTest} to
+surround it}.
+
+To support such a use case, MPS supports a set of constraints. Here is the
+implementation for \ic{AssertStatement}:
+
+\begin{code}
+concepts constraints AssertStatement { 
+  can be child 
+    (operationContext, scope, parentNode, link, childConcept)->boolean { 
+      parentNode.ancestor<concept = TestCase, +>.isNotNull; 
+    } 
+}
+\end{code}
+
+This constraint checks that a \ic{TestCase} is among the ancestors of a
+to-be-inserted \ic{AssertStatement}. The constraint is checked \emph{before} the
+new \ic{AssertStatement} is inserted and \emph{prevents} insertion if not under
+a \ic{TestCase}. The constraint is written from the perspective of the potential
+child element. 
+
+For reasons of dependency management, it is also possible to write the
+constraint from the perspective of the parent or an ancestor. This is useful if
+a new container concept wants to restrict the use of \emph{existing} child
+concepts without changing those concepts. For example, the \ic{Closure} concept,
+which contains a statement list as well, prohibits the use of
+\ic{LocalVariableRef}s, in any of its statements.
+
 
