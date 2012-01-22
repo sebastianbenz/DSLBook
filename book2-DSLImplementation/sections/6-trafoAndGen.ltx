@@ -259,7 +259,7 @@ code.}. Inside the case we iterate over all the \ic{exitStatements} and call
 on its argument. For each statement in the cooling language, represented by a
 subclass of \ic{Statement}, there is an implementation of this method. The next
 piece of code shows some example implementations; notice the \ic{dispatch}
-keyword. 
+keyword.
 
 \begin{code}
 class StatementExtensions {
@@ -297,14 +297,53 @@ resembles the C code in the first place. Notice how the implementation for the
 \ic{IfStatement} uses a template string, whereas the one for
 \ic{AssignmentStatement} uses normal string concatenation.
 
-\todo{expressions, as seen from the AssignmentStatement above.}
+The \ic{compileStatement} methods are implemented in the
+\ic{StatementExtensions} class. However, from within the
+\ic{CoolingLanguageGenerator} they are called using method syntax
+(\ic{st.compileStatement}). This works because they are injected as extensions
+using the following statement:
+
+\begin{code}
+@Inject extension StatementExtensions
+\end{code}
 
 
+Expressions are handled in the same way as statements. The injected class
+\ic{ExpressionExtensions} defines a set of overloaded \ic{dispatch} methods for
+\ic{Expression} and all its subtypes.
 
+\begin{code}
+def dispatch String compileExpr (Equals e){
+	e.left.compileExpr + " == " + e.right.compileExpr
+}
 
+def dispatch String compileExpr (Greater e){
+	e.left.compileExpr + " > " + e.right.compileExpr
+}
 
+def dispatch String compileExpr (Plus e){
+	e.left.compileExpr + " + " + e.right.compileExpr
+}
 
+def dispatch String compileExpr (NotExpression e){
+	"!(" + e.expr.compileExpr + ")"
+}
 
+def dispatch String compileExpr (TrueExpr e){
+	"TRUE"
+}
+
+def dispatch String compileExpr (ParenExpr pe){
+	"(" + pe.expr.compileExpr + ")"
+}
+
+def dispatch compileExpr (NumberLiteral nl){
+	nl.value
+}
+\end{code}
+
+Since expressions are trees, a \ic{compileExpr} method typically calls
+\ic{compileExpr} recursively on its arguments if it has any.
 
 
 
@@ -869,12 +908,13 @@ interpreting expressions, there is typically an overloaded \ic{eval} operation,
 that contains the implementation of expression evaluation for each subtype of a
 generic \ic{Expression} concept. However, Java doesn't have polymorphically
 overloaded member methods. We compensate this by generating a dispatcher that
-calls a \emph{different} method for each subtype of \ic{Expression}. The
-generation of this dispatcher is integrated with Xtext via an Xtext workflow
-fragment, i.e. the dispatcher is generated during the overall Xtext code
-generation process. The fragment is configured with the abstract meta classes
-for expressions and statements. The following code shows the fragment
-configuration:
+calls a \emph{different} method for each subtype of \ic{Expression}\footnote{If
+we'd use Xtend to implement the interpreter, we could use the \ic{dispatch}
+multimethods instead.}. The generation of this dispatcher is integrated with
+Xtext via an Xtext workflow fragment, i.e. the dispatcher is generated during
+the overall Xtext code generation process. The fragment is configured with the
+abstract meta classes for expressions and statements. The following code shows
+the fragment configuration:
 
 \begin{code}
 fragment = de.itemis.interpreter.generator.InterpreterGenerator {
