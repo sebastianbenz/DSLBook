@@ -98,7 +98,215 @@ structure. The Spoofax example will provide details.
 
 \section{Xtext Example}
 
+Since Xtext is based on EMF, generators can be built using any tool that can
+generate code from EMF models, including Xpand 2, Acceleo, Jet and Xtend. Xtend
+is a Java-like general-purpose language that removes some of Java's noise (it
+has type inference, property access syntax and operator overloading) and adds
+syntactic sugar (extension methods, multiple-dispatch and closures). Xtend comes
+with an interpreter and a compiler, the latter generating Java source. Xtend is
+built with Xtext, so it comes with a powerful Xtext-based IDE.
+
+One particularly interesting language feature in the context of code generators
+are Xtend's template expressions. Inside these expressions, a complete template
+language is available (similar to Xpand). It also provides automatic whitespace
+management\footnote{Indentation of template code is traditionally a challenge,
+because it is not clear whether whitespace in template code is intended to go into the
+target file, or is just used for structuring the template itself.} The
+functional abstractions and higher-order functions provided by Xtend make it
+also very well suited for navigating and querying models. In the rest of this
+section we will use Xtend for writing code generators and model transformations.
+
+
+\begin{figure}[ht]
+\begin{center}
+  \includegraphics[width=11cm]{figures/6/xtext-gen-1.png}
+  \caption[]{The top level structure of a generator written in Xtext is a class
+  that implements the \ic{IGenerator} interface, which requires the
+  \ic{doGenerate} method. Inside generator methods, template expressions
+  (using the triple single quotes) are typically used. Inside those, 
+  guillemets (the small double angle brackets) are used to switch between
+  to-be-generated code (grey background) and template control code. Note also the grey whitespace in the
+  \ic{init} function. Grey whitespace is whitespace that will end up in the
+  generated code. White whitespace is used for indentation of template code.
+  Xtend figures out which is which automatically.}
+  \label{xtext-gen-1} 
+\end{center} 
+\end{figure}
+
+
 \subsection{Generator}
+
+We will take a look at generating the C code that implements cooling programs.
+\fig{xtext-gen-1} shows a screenshot of a typical generator. The generator is an
+Xtext class that implements \ic{IGenerator}, which requires the \ic{doGenerate}
+method to be defined. The method is called for each model file that has change
+(represented by the \ic{resource} argument), and it has to output the
+corresponding generated code via the \ic{fsa} (file system access)
+object\footnote{Like any other Xtext language aspect, the generator has to be
+registered in the runtime module. Once this is done, the generator is
+automatically called for each changed resource associated with the respective
+language.}.
+
+When generating code from models there are two distinct cases. In the first
+case, the majority of the generated code is fixed; only some well-defined
+part of the code depend on the input model. In this case a template language is
+the right tool, because template control code can be "injected" into code that
+looks similar to what shall be generated. On the other hand there are detailed
+structures such as expressions. Since those are basically trees, using template
+languages for these aspects of programs seems unnatural and implies a lot of
+syntactic noise. A more functional approach is useful. We will illustrate both
+cases as part of this example.
+
+We start with the high-level structure of the C code generated for a cooling
+program. The following piece of code illustrates Xtend's power to navigate a
+model as well as the template syntax for text generation.
+
+\begin{code}
+def compile(CoolingProgram program) { 
+    '''
+    <<FOR appl : program.modules.map(m|m.module).filter(typeof(Appliance))>>  
+        <<FOR c : appl.contents>>
+            #define <<c.name>> <<c.index>>
+        <<ENDFOR>>
+    <<ENDFOR>>
+  
+      // more ...
+      '''
+}
+\end{code}
+
+The \ic{FOR} loop follows the \ic{modules} collection of the \ic{program},
+follows the \ic{module} reference of each one, and then selects all
+\ic{Appliance}s from the resulting collection. The nested loop then iterates
+over the contents of each \ic{appl}iance and generates a \ic{\#define}. Notice
+how the the first two and the last two lines are enclosed in the guillemets.
+Since we are in template expression mode (''' \ldots ''') the guillemets escape
+to template control code. The \ic{\#define} is \emph{not} in guillemets, so it
+is generated into the target file. After the \ic{\#define} we generate the name
+of the respective content element and then its \ic{index}. From within
+templates, the properties and references of model elements (such as the
+\ic{name} or the \ic{module} or the \ic{contents}) can simply be accessed using
+the dot operator. \ic{map} and \ic{filter} are collection methods defined by the
+Xtend standard library. We also have to generate an \ic{enum} for the states in
+the cooling program.
+
+\begin{code}
+typedef enum states {
+    null_state, 
+    <<FOR s : program.concreteStates SEPARATOR ",">>
+        <<s.name>>
+    <<ENDFOR>>
+};
+\end{code}
+
+Here we embed a \ic{FOR} loop inside the \ic{enum} text. Note how we use the
+\ic{SEPARATOR} keyword to put a comma between two subsequent states. In the
+\ic{FOR} loop we call \ic{concreteStates} on the cooling program. However, if
+you looked at the grammar or the meta model, you will see that no
+\ic{concreteStates} property is defined there. Instead, we call an extension
+method; since it has no arguments, it looks like property access. The method is
+defined further down in the \ic{CoolingLanguageGenerator} class and looks as
+follows:
+
+\begin{code}
+def concreteStates(CoolingProgram p) {
+    p.states.filter(s | !(s instanceof BackgroundState) && !(s instanceof ShadowState))
+}
+\end{code}
+
+The following code is part of generating the code for a state transition. It
+first executes the exit actions of the current state, then performs the state
+change (\ic{current\_state = new\_state;}) and then performs the entry actions
+of the new state (not shown):
+
+\begin{code}
+if (new_state != current_state) {
+    <<IF program.concreteStatesWitExitActions.size > 0>>
+        // execute exit action for state if necessary
+        switch (current_state) {
+            <<FOR s: p.concreteStatesWitExitActions>>
+                case <<s.name>>:
+                    <<FOR st: s.exitStatements>>
+                        <<st.compileStatement>>
+                    <<ENDFOR>>
+                    break;
+            <<ENDFOR>>
+            default:
+                break;
+    }
+    <<ENDIF>>
+    
+    // The state change
+    current_state = new_state;
+    
+    // similar as above, but for entry actions
+}
+\end{code}
+
+The code first uses an \ic{IF} statement to check whether the program has any
+states with exit actions (via an extension method call). Only if we have such
+states is the following \ic{switch} statement generated. The \ic{switch}
+switches over the \ic{current\_state}, and then adds a \ic{case} for each state
+with exit actions\footnote{The \ic{s.name} expression in the \ic{case}
+is actually a reference to the enum literal generated earlier for the particular
+state. From the perspective of Xtend, we simply generate text: it is not obvious
+from the template that the name corresponds to an enum literal. Potential
+structural or type errors are only revealed upon compilation of the generated
+code.}. Inside the case we iterate over all the \ic{exitStatements} and call
+\ic{compileStatement} for each of them.
+
+\ic{compileStatement} is a multimethod. It is polymorphically overloaded based
+on its argument. For each statement in the cooling language, represented by a
+subclass of \ic{Statement}, there is an implementation of this method. The next
+piece of code shows some example implementations; notice the \ic{dispatch}
+keyword. 
+
+\begin{code}
+class StatementExtensions {
+    
+    def dispatch compileStatement(Statement s){
+        // raise error if the overload for the abstract class is called
+    }
+    
+    def dispatch compileStatement(AssignmentStatement s){
+        s.left.compileExpr +" = " + s.right.compileExpr +";"
+    }
+
+    def dispatch compileStatement(IfStatement s){
+        '''
+        if( <<s.expr.compileExpr>> ){
+            <<FOR st : s.statements>>
+                <<st.compileStatement>>
+            <<ENDFOR>>
+        }<<IF s.elseStatements.size > 0>> else {
+            <<FOR st : s.elseStatements>>
+                <<st.compileStatement>>
+            <<ENDFOR>>
+        }<<ENDIF>>
+        '''
+    }
+
+    // more ...
+}
+\end{code}
+    
+The implementation of the overloaded methods simply returns the text string that
+represents the C implementation for the respective language construct. The two
+examples shown are simple because the language construct in the DSL closely
+resembles the C code in the first place. Notice how the implementation for the
+\ic{IfStatement} uses a template string, whereas the one for
+\ic{AssignmentStatement} uses normal string concatenation.
+
+\todo{expressions, as seen from the AssignmentStatement above.}
+
+
+
+
+
+
+
+
+
 
 \subsection{Model-to-Model Transformation}
 
