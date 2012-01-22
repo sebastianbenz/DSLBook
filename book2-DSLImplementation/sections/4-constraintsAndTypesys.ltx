@@ -56,19 +56,13 @@ message:
 \end{code}
 
 Some kinds of constraints require specialized data structures to be built or
-maintained in sync with the program. A good examples is read access to an
-uninitialized variable. To be able to find these kinds of errors statically, a
+maintained in sync with the program. Examples include
+dead code detection, missing returns in some branches of a method's body or
+read access to an uninitialized variable. To be able to find these kinds of errors statically, a
 dataflow graph has to be constructed from the program. A dataflow graph models
-the various exectution paths through a (part of a) program and performs analyses
-on it. Once a dataflow graph is constructed, it can be checked whether there
-exists a path from program start to a variable read without coming across a
-write to the same variable. 
-
-\todo{Will we cover this somewhere?}
-
-\todo{Discuss diff approaches for checking constraints, and what are
-good languages for that?}
-
+the various execution paths through a (part of a) program. Once a dataflow graph
+is constructed, it can be checked whether there exists a path from program start
+to a variable read without coming across a write to the same variable. We showan example in the MPS example (\sect{mpsconstraints}).
 
 
 \section{Constraints in Xtext}
@@ -127,14 +121,16 @@ in the annotation defines when this check should run:
 
 
 \section{Constraints in MPS}
+\label{mpsconstraints}
 
-\todo{MPS dataflow}
+\subsection{Simple Constraints} 
 
-MPS' approach to constraints is very similar to Xtext's. The main difference is
-that the constraint is written in \ic{BaseLanguage}, which is an extended version of
-Java that has some of the features that makes constraints more concise. Here is
-the code for the same "state unreachable" constraint, which we can make use of
-in the state machines extension to C:
+MPS' approach to constraints is very similar to
+Xtext's. The main difference is that the constraint is written in
+\ic{BaseLanguage}, which is an extended version of Java that has some of the
+features that makes constraints more concise. Here is the code for the same
+"state unreachable" constraint, which we can make use of in the state machines
+extension to C:
 
 \begin{code}
 checking rule stateUnreachable {                                                                                                                                                                         
@@ -155,6 +151,250 @@ based on some MPS-internal algorithm. However, pressing \keystroke{F5} in a
 program or explicitly running the model checker forces all constraints to be
 reevaluated.
 
+\subsection{Dataflow}
+
+The foundation for data flow analysis is the so-called data flow graph. This is
+a data structure that describes the flow of data through a program's code. For
+example, in \ic{int i = 42; j = i + 1;} the 42 is "flowing" from the init
+expression in the local variable declaration into the variable \lcr{i} and then,
+after adding 1, into j. Data flow analysis consists of two tasks: building a
+data flow graph for a program, and then performing analysis on this data flow
+graph to detect problems in the program.
+
+MPS comes with predefined data structures for data flow graphs, a DSL for
+defining how the graph can be derived from language concepts (and hence,
+programs), a framework for defining your own analyses on the graph as well as a
+set of default analyses that can be integrated into your language. We will look
+at all these ingredients in this section.
+
+To play with the data flow graph, you can select a method in a Java program and
+then use the context menu on the method; select \lcr{Language Debug -> Show Data
+Flow Graph}. This will render the data flow graph graphically and constitutes a
+good debugging tool when building your own data flow graphs and analyses.
+
+
+\paragraph{Building a Data Flow Graph} Data flow is specified in the
+\emph{Dataflow} aspect of language definitions. There, you can add
+data flow builders (DFBs) for your language concepts. These are programs that
+build the data flow graph for instances of those concepts in programs. Here is 
+the DFB for \lcr{LocalVariableDeclaration}.
+\begin{code}
+data flow builder for LocalVariableDeclaration { 
+  (node)->void { 
+    if (node.init != null) { 
+      code for node.init 
+      write node = node.init 
+    } else {
+      nop
+    }
+  } 
+}
+\end{code}
+
+If the \lcr{LocalVariableDecaration} has an \ic{init} expression (it is
+optional!), then the DFB for the \ic{init} expression has to be executed. The
+\lcr{code for} statement calls the DFB for the node that is passed as its
+argument. Then we perform an actual data flow definition: the \ic{write node =
+node.init} specifies that write access is performed on the current node. The
+statement also expresses that whatever value was in the \ic{init} expression is
+now in the node itself.
+
+If there is no \lcr{init} expression, we still want to mark the
+\lcr{LocalVariableDeclaration} node as visited --- the program flow has come
+across this node. A subsequent analysis reports all program nodes that have
+\emph{not} been visited by a DFB as dead code. So even if a node has no further
+effect on a program's data flow, it has to be marked as visited using \lcr{nop}.
+
+To illustrate a \lcr{read} statement, we can take a look at the
+\lcr{LocalVariableRef} expression which read-accesses the variable it
+references. Its data flow is defined as \ic{read node.var}, where \lcr{var} is
+the name of the reference that points to the referenced variable. 
+
+In an \lcr{AssignmentStatement}, we first execute the DFB for the \lcr{rvalue}
+and then "flow" the \lcr{rvalue} into the \lcr{lvalue} --- the purpose of an 
+assignment:
+
+\begin{code}
+data flow builder for AssigmentStatement { 
+  (node)->void { 
+    code for node.rvalue 
+    write node.lvalue = node.rvalue 
+  } 
+}
+\end{code}
+
+For a \lcr{StatementList}, we simply mark the list as visited and then execute
+the DFBs for each statement. We are now ready to inspect the data flow graph for
+a simple function. \fig{dfgexample} shows the function and the graph.
+\begin{figure}
+\begin{center} 
+  \includegraphics[width=8cm]{figures/4/dfgexample.png}
+\end{center}
+\caption{An example for a data flow for a simple C function. You can show the
+graph by select \lcr{Language Debug -> Show Data Flow Graph} from the context
+menu.}
+\label{dfgexample}  
+\end{figure}
+
+Most interesting data flow
+analysis has to do with loops and branching. So specifying the correct DFBs for
+things like \lcr{if}, \lcr{switch} and \lcr{for} is important. As an example, we
+look at the DFB for the \lcr{IfStatement}. We start with the obligatory 
+\lcr{nop} to make the node as visited. Then we run the DFB
+for the condition, because that is evaluated in any case. Then it becomes
+interesting: depending on whether the condition is true or false, we either run
+the \lcr{thenPart} or we jump to where the \lcr{else if} parts begin. Here is
+the code so far:
+
+\begin{code}
+nop 
+code for node.condition 
+ifjump after elseIfBlock // elseIfBlock is a label defined later 
+code for node.thenPart 
+{ jump after node } 
+\end{code}
+
+The \lcr{ifjump} statement means that we may jump to the specified label (i.e.
+we then execute the \lcr{else if}s). If not (we just "run over" the
+\lcr{ifjmp}), then we execute the \lcr{thenPart}. If we execute the
+\lcr{thenPart}, we are finished with the whole \lcr{IfStatement} --- no
+\lcr{else if}s or \lcr{else} parts are relevant, so we jump after the current
+node (the \lcr{IfStatement}) and we're done. However, there is an additional
+catch: in the \lcr{thenPart}, there may be a \lcr{return} statement. So we may
+never actually arrive at the \lcr{jump after node} statement. This is why it is
+enclosed in curly braces: this says that the code in the braces is optional. If
+the data flow does not visit it, that's fine (typically because we return from
+the method before we get a chance to execute this code).
+
+Let's continue with the \lcr{else if}s. We arrive at the \lcr{elseIfBlock} label
+if the condition was false, i.e. the above \lcr{ifjump} actually happened. We
+then iterate over the \lcr{elseIf}s and execute their DFB. After that, we run
+the code for the \lcr{elsePart}, if there is one. The following code can only be
+understood if we know that, if we execute one of the \lcr{else if}s, then we
+jump \emph{after the whole \lcr{IfStatement}}. This is specified in the DFB for
+the \lcr{ElseIfPart}, which we'll illustrate below. Here is the rest of the code
+for the \lcr{IfStatement}'s DFB:
+
+\begin{code}
+label elseIfBlock 
+foreach elseIf in node.elseIfs { 
+  code for elseIf 
+} 
+if (node.elsePart != null) { 
+  code for node.elsePart 
+}
+\end{code}
+
+
+We can now inspect the DFB for the \lcr{ElseIfPart}. We first run the DFB for
+the condition. Then we may jump to after that \lcr{else if}, because the
+condition may be false and we want to try the next \lcr{else if}, if there is
+one. Alternatively, if the condition is true, we then run the DFB for the body
+of the \lcr{ElseIfPart}. Then two things can happen: either we jump to after
+the whole \lcr{IfStatement} (after all, we have found an \lcr{else if} that is
+true), or we don't do anything at all anymore because the current \lcr{else if}
+contains a return statement. So we have to use the curly braces again for the
+jump to after the whole \lcr{if}. Here is the code.
+
+\begin{code}
+code for node.condition 
+ifjump after node 
+code for node.body 
+{ jump after node.ancestor<concept = IfStatement> } 
+\end{code}
+
+An example data flow graph is shown on figure \fig{ifdfg}.
+
+\begin{marginfigure}
+\begin{center} 
+  \includegraphics[width=3cm]{figures/4/ifdfg.png}
+\end{center}
+\caption{A data flow graph for an \lcr{if} statement \ic{if ( i > 0 ) { j = 1; }
+else { j = 2; } }}
+\label{ifdfg}  
+\end{marginfigure}
+
+
+The DFB for a loop makes use of the fact that loops can be represented using
+conditional branching. Here is the DFB for the \lcr{for} loop:
+\begin{code}
+code for node.iterator 
+label start 
+code for node.condition 
+ifjump after node 
+code for node.body 
+code for node.incr 
+jump after start
+\end{code}
+
+We first execute the DFB for the \lcr{iterator} (which is a kind of
+\lcr{LocalVariableDeclaration}, so the DFB for it above works). Then we define a
+label \lcr{start} so we can jump to this place from further down. We then
+execute the \lcr{condition}. Then we have an \lcr{ifjmp} to after the whole loop
+(which covers the case where the condition is false and the loop ends). In the
+ohter case (the condition is still true) we execute the code for the \lcr{body}
+and the \lcr{incr} part of the \lcr{for} loop We then jump to after the
+\lcr{start} label we defined above.
+
+
+\paragraph{Analyses} MPS supports a number of data flow analyses out of the
+box. These analyses operate only on the data flow graph, so the same
+analyses can be used for any language, once the DFBs for that language map
+programs to data flow graphs. The following utility class uses the unreachable
+code analysis: 
+
+\begin{code}
+public class DataflowUtil { 
+
+  private Program prog; 
+   
+  public DataflowUtil(node<> root) { 
+    prog = DataFlow.buildProgram(root); // build a program object and store it  
+  } 
+   
+  public void checkForUnreachableNodes() { 
+    // grab all instructions that are unreachable (predefined functionality) 
+    sequence<Instruction> allUnreachableInstructions = 
+             ((sequence<Instruction>) prog.getUnreachableInstructions()); 
+    // remove those that may legally be unreachable 
+    sequence<Instruction> allWithoutMayBeUnreachable = 
+            allUnreachableInstructions.where({~instruction =>
+                !(Boolean.TRUE.equals(instruction.
+                       getUserObject("mayBeUnreachable"))); }); 
+    
+    // get the program nodes that correspond to the unreachable instructions 
+    sequence<node<>> unreachableNodes = allWithoutMayBeUnreachable.
+            select({~instruction => ((node<>) instruction.getSource()); }); 
+       
+    // output errors for each of those unreachable nodes 
+    foreach unreachableNode in unreachableNodes { 
+      error "unreachable code" -> unreachableNode; 
+    } 
+  } 
+} 
+\end{code}
+
+The class constructs a \lcr{Program} object in the constructor. \lcr{Program}s
+are wrappers around the data flow graph and provide access to a set of
+predefined analyses on the graph. We will make use of one of them here in the
+\lcr{checkForUnreachableNodes} method. This method extracts all unreachable
+nodes from the graph (see comments in the code above) and reports errors for
+them. To actually run the check, we call this method from a
+\lcr{NonTypesystemRule} for C functions:
+
+\begin{code}
+checking rule check_DataFlow {                            
+  applicable for concept = Function as fct                
+  overrides false                                         
+  do {                                                    
+    new DataflowUtil(fct.body).checkForUnreachableNodes();
+  }                                                       
+}                                                         
+\end{code}
+
+
+MPS also comes with a framework for developing custom analyses; however, this is
+beyond the scope of this book.
 
 
 \section{Constraints in Spoofax}
