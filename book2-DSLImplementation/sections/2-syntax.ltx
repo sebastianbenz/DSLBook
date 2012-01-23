@@ -938,19 +938,36 @@ textually similar to XML or JSON. ATerms consist of the following
 elements:
 
 \begin{itemize}
-\item Strings, e.g. \verb$"Mr. White"$
-\item Numbers, e.g. \verb$15$ 
-\item Lists, e.g. \verb$[1,2,3]$
-\item Constructor applications, e.g. \verb$Order(5, 15, "Mr. White")$
+\item Strings, e.g.\ \verb$"Mr. White"$
+\item Numbers, e.g.\ \verb$15$ 
+\item Lists, e.g.\ \verb$[1,2,3]$
+\item Constructor applications, e.g.\ \ic{Order(5, 15, "Mr. White")} for
+labelled tree nodes with a fixed number of children
 \end{itemize}
 
+Compared to XML or JSON, perhaps the most significant distinction is that
+ATerms often rely on the order of subterms rather than on labels. For example,
+a product may be modeled in JSON as follows:
+
+\begin{code}
+{
+  "product": {
+    "itemnumber": 5,
+    "quantity": 15,
+    "customer": "Mr. White"  
+  }
+}
+\end{code}
+
 \noindent
-In addition to these basic elements, ATerms can also be annotated with
-additional information, e.g.
-%
-\verb$Order(5{ProductName("Apples")}, 15, "Mr. White")$. These
-annotations are often used to represent references to other parts of a
-model.
+Note how this specification includes the actual data describing the particular product (the model), but also a
+description of each of the elements (the meta model). With XML, a product would be modeled in a similar
+fashion. An equivalent of the JSON above written as an ATerm would be
+\verb$Order([ItemNumber(5), Quantity(15), Customer("Mr. White")])$.
+However, this representation contains a lot of redundant information that also exists
+in the grammar. Instead, such a product can be written as \verb$Order(5, 15, "Mr. White")$.
+This more concise notation tends to make it slightly
+more convenient to use in handwritten transformations. 
 
 The textual notation of ATerms can be used for exchanging data between
 tools and as a notation for model transformations or code generation
@@ -959,6 +976,21 @@ rules. In memory, ATerms can be stored in a tools-specific fashion
 structure and serializability of ATerms also allows them to be
 converted to other data formats. For example, the aterm2xml/xml2aterm
 tools can convert between ATerms and XML.
+
+\noindent
+In addition to the basic elements above, ATerms support annotations
+to add additional information to terms. These are similar 
+to attributes in XML. For example, it is possible to annotate
+a product number with its product name:
+
+\begin{code}
+Order(5{ProductName("Apples")}, 15, "Mr. White")
+\end{code}
+
+\noindent
+Spoofax also uses annotations to add information about references to other
+parts of a model to an abstract syntax tree. While ATerms only form trees,
+the annotations are used to represent the graph-like references.
 
 \subsection{MPS' Structure Definition}
 
@@ -1396,6 +1428,8 @@ by a list of entity type definitions.
 In turn, each entity can have one or more property or function definitions
 (shown in the next example snippet).
 
+\paragraph{Grammar basics}
+
 In Spoofax, the syntax of languages is described using SDF.
 SDF is a modular and flexible syntax definition formalism, supported
 by the SGLR parser generator. It can generate efficient, Java-based
@@ -1407,15 +1441,25 @@ in SDF is
 \end{code}
 
 \noindent where the pattern on the left-hand side of the arrow is matched by the
-symbol \ic{Start} on the right-hand side. When the pattern is matched by the
-parser, it creates a new tree node with the name \ic{Module}, indicated by the
-quoted expression at the end of the production\MV{and do you define somewhere
-where the children go? like a property name? or are they just stored in a list,
-left to right?}. Note that compared to the grammar notations we have discussed
-so far, SDF reverses the left-hand and right-hand side of productions.
+symbol \ic{Start} on the right-hand side. Note that SDF
+uses the exact opposite order for productions as the grammars
+we've discussed so far, switching the left-hand and right-hand side.
+After the right-hand side, SDF productions may specify
+annotations using curly brackets. Most productions specify
+a quoted \emph{constructor label} that is used for the abstract syntax.
+This particular production creates a tree node with the label "Module."
 
-Below is an SDF grammar for a subset of mobl's entities and functions syntax. 
+\Figure{Fig:mobl-grammar-basic} shows an SDF grammar for a subset of mobl's entities and functions syntax. 
+The productions in this grammar should have few surprises,
+but it is interesting to note how SDF groups a grammar in different sections.
+First, the \ic{context-free start symbols} section indicates the start
+symbol of the grammar. Then, the \ic{context-free syntax} section
+list the context-free syntax productions, forming
+the main part of the grammar. Terminals are defined in the 
+\ic{lexical syntax} section.
 
+\begin{figure}[ht]
+\begin{center}
 \begin{code}
 module MoblEntities
 
@@ -1427,7 +1471,7 @@ context-free syntax
 
   "module" ID Entity*                 -> Module {"Module"}
   "entity" ID "{" EntityBodyDecl* "}" -> Entity {"EntityNoSuper"}
-  ID ":" Type                         -> EntityBodyDecl {"PropertyNoAnnos"}
+  ID ":" ID                           -> EntityBodyDecl {"Property"}
 
   "function" ID "(" ArgList ")" ":" Type "{" Statement* "}"
                                       -> EntityBodyDecl {"Function"}
@@ -1436,6 +1480,7 @@ context-free syntax
   Exp "." ID "(" Exp  ")" -> Exp {"MethodCall"}
   Exp "." ID              -> Exp {"FieldAccess"}
   Exp "+" Exp             -> Exp {"Plus"}
+  Exp "*" Exp             -> Exp {"Mul"}
   ID                      -> Exp {"Var"}
   INT                     -> Exp {"Int"}
   
@@ -1445,14 +1490,16 @@ lexical syntax
   [0-9]+               -> INT
   [\ \t\n]             -> LAYOUT
 \end{code}
+  \caption[]{A basic SDF grammar for a subset of Mobl. The grammar
+  does not yet specify the associativity, priority, or name bindings
+  of the language.}
+  \label{Fig:mobl-grammar-basic} 
+\end{center}
+\end{figure}
 
-This productions in this grammar should have few suprises,
-but it is interesting to note how SDF groups a grammar in different sections.
-First, the \ic{context-free start symbols} section indicates the start
-symbol of the grammar. Then, the \ic{context-free syntax} section
-list the context-free syntax productions, forming
-the main part of the grammar. Terminals are defined in the 
-\ic{lexical syntax} section.
+
+
+\paragraph{Lexical syntax}
 
 As Spoofax uses a scannerless parser, all lexical syntax
 can be customized in the SDF grammar. It provides
@@ -1468,38 +1515,239 @@ between context-free and lexical productions:
 lexical symbols such as identifiers and integer literals cannot be interleaved
 with layout.
 The second distinguishing feature is that lexical syntax
-productions usually do not have a special label in the abstract
+productions usually do not have a constructor label in the abstract
 syntax, as they form terminals in the abstract syntax trees.
 
-\todo{rest of this section remains to be written}
+\paragraph{Abstract syntax}
 
-- precedence, associativity
-
-- brackets
-
-- relation to abstract syntax (Sec:spoofax-aterm)
-
-- forward reference to name analysis annotations
+To produce abstract syntax trees, Spoofax uses the ATerm format, described in
+\Section{Sec:spoofax-aterm}. SDF combines the specification of concrete
+and abstract syntax, primarily through the specification of constructor labels.
+The way this works is most easily understood using an example. Spoofax
+allows users to view the abstract syntax of any input file
+using the ``Transform" button to apply a transformation.
+As an example, the following is an abridged abstract syntax term for the
+shopping module shown at the start of this section:
 
 \begin{code}
-entity Store {
-  name  : String
-  open  : Time
-  close : Time
+Module(
+  "shopping",
+  [ Entity(
+      "Item",
+      [Property("name", "String"), Property("checked", "Bool"), ...]
+    )
+  ]
+]) 
+\end{code}
 
-  function isOpen() {
-    return open <= now.getTime() && close <= now().getTime();
-  }
+\noindent
+Note how this term uses the constructor labels of the syntax
+above: \ic{Module}, \ic{Entity}, and \ic{Property}.
+The children of each node correspond to the symbols referenced in the production:
+the \ic{Module} production first referenced \ic{ID} symbol for the module name and
+then included a list of \ic{Entity} symbols.
+
+%SDF has a number of features
+%that help ensure the abstract syntax corresponds to the
+%natural structure of a program.
+%In particular, it allows left recursion in productions associativity,
+%and operator pre
+%SDF allows grammars to specify the associativity and precedence
+%of 
+
+In addition to constructor label, productions that specify parentheses can
+use the special \ic{bracket} annotation:  
+
+\begin{code}
+"(" Exp ")" -> Exp {bracket}
+\end{code}
+
+\noindent
+The \ic{bracket} annotation specifies that there should not be a
+separate tree node in the abstract syntax for the production.
+This means that an expression \ic{1+(2)} would
+produce \ic{Plus("1","2")} in the abstract syntax,
+and not \ic{Plus("1",bracket("2"))}.
+
+
+\paragraph{Precedence and associativity}
+
+SDF provides special support for specifying the associativity
+and precedence order of operators or other syntactic constructs.
+As an example, let us consider the production of the \ic{Plus}
+operator:
+
+\begin{code}
+Exp "+" Exp -> Exp {"Plus"}
+\end{code}
+
+\noindent
+Based on this operator, a parser can be generated
+that can parse an expression such as \ic{1+2} to
+a term \ic{Plus("1", "2")}. However, the 
+production does not specify if an expression
+\ic{1+2+3} should be parsed to a term
+\ic{Plus("1", Plus("2", "3"))} or
+\ic{Plus(Plus("1", "2"), "3")}. If you try the grammar
+in Spoofax, it will show both interpretations using a
+special \ic{amb} constructor:
+
+\begin{code}
+amb([
+  Plus("1", Plus("2", "3")),
+  Plus(Plus("1", "2"), "3")
+)]
+\end{code}
+
+\noindent
+The \ic{amb} node indicates an \emph{ambiguity} and shows all possible interpretations.
+Whenever an ambiguity is encountered in a file, it is marked with a warning.
+Ambiguities can be resolved by adding annotations to the grammar
+that describe the intended interpretation.
+
+For the \ic{Plus} operator, we can resolve the ambiguity
+by specifying that it is left-associative, using the \ic{left} annotation:
+
+\begin{code}
+Exp "+" Exp -> Exp {"Plus", left}
+\end{code}
+
+In a similar fashion, SDF makes it possible to describe the precedence
+order of operators. For this, the productions can be placed in
+a \ic{context-free priorities} section:
+
+\begin{code}
+context-free priorities
+  Exp "*" Exp -> Exp {"Mul", left}
+>
+  Exp "+" Exp -> Exp {"Plus", left}
+\end{code}
+
+\noindent
+This example specifies that the \ic{Mul} operator has a higher priority than
+the \ic{Plus} operator, resolving the ambiguity that arises
+for an expression such as \ic{1+2*3}. 
+
+\paragraph{Reserved keywords and production preference}
+
+Parsers generated with SDF do not use a scanner,
+but include processing of lexical syntax in the parser.
+Since scanners operate without any context information,
+they will simply recognize any token that corresponds
+to a keyword in the grammar as a reserved keyword.
+In SDF, it is also possible to use keywords that are not reserved,
+or keywords that are only reserved in a certain context.
+As an example, the following is a legal entity in mobl:
+
+\begin{code}
+entity entity {
+
 }
 \end{code}
 
-can be parsed using
+\noindent
+Since our grammar did not specify that \ic{entity} is a reserved word,
+it can be used as a normal \ic{ID} identifier.
+
+There are cases where it is useful to reserve keywords,
+for example to prevent ambiguities. Consider what would happen if
+we added a new production for a \ic{true} literal:
 
 \begin{code}
-{FArg ","}*
-
-... <= ...
+"true" -> Exp {"True"}
 \end{code}
+
+\noindent
+If we would now parse an expression \ic{true}, it would be
+ambiguous: it matches the \ic{True} production above, but
+it also matches the \ic{Var} production, as \ic{true} is
+a legal variable identifier.
+
+Keywords can be reserved in SDF by using a production
+that rejects a certain interpretation:
+
+\begin{code}
+"true" -> ID {reject}
+\end{code}
+
+\noindent
+which says that true can never be interpreted
+as an identifier.
+
+Alternatively, we could say that we ``prefer'' the
+one interpretation over the other:
+
+\begin{code}
+"true" -> Exp {"True", prefer}
+\end{code}
+
+\noindent
+which says that this production is to be preferred
+if there are any other interpretations.
+However, since these interpretations cannot always be
+foreseen as grammars are extended, it is considered
+good practice to use the more specific \ic{reject} approach instead.
+
+\paragraph{Longest match}
+
+Most scanners apply a \emph{longest match} policy for scanning
+tokens.
+This means that if it is possible to include the next character
+in the current token, the scanner will always do so.
+For most languages, this is the expected behavior,
+but in some cases longest match doesn't work.
+SDF instead allows the grammar to specify the intended behavior.
+In Spoofax, the default is specified in the "Common"
+syntax module using a \ic{lexical restrictions} section:
+
+\begin{code}
+lexical restrictions
+  ID -/- [A-Za-z0-9]
+\end{code}
+
+This section "restricts" the grammar by specifying that
+if an identifier cannot be followed by another character
+that matches \ic{[A-Za-z0-9]}. Effectively, it enforces
+a longest match policy for the \ic{ID} sort.
+
+SDF also allows the use of lexical restrictions for keywords.
+By default it does not enforce longest match, which means it
+allows the following definition of a mobl entity:
+
+\begin{code}
+entityMoblEntity {}
+\end{code}
+
+As there is no longest match, the parser can recognize the
+\ic{entity} keyword even if it is not followed by a space.
+To avoid this behavior, we can specify a longest match policy for
+the \ic{entity} keyword:
+
+\begin{code}
+lexical restrictions
+  "entity" -/- [A-Za-z0-9]
+\end{code}
+
+To specify restrictions for multiple literals, they
+can be specified as a sequence:
+
+\begin{code}
+lexical restrictions
+  "entity" "module" -/- [A-Za-z0-9]
+\end{code}
+
+\paragraph{Name bindings}
+
+So far we have discussed purely syntax specification
+in SDF. Spoofax also allows the specification of name binding annotations
+in SDF grammars, which specify semantic relations between
+productions. We discuss how these relations are specified in
+\Chapter{Ch:scopes}.  
+
+\todo{
+somewhere we should discuss at least SDF's \ic{\curlies{FArg ","}*} notation, but
+maybe also some of the other operators
+}
 
  
 \section{MPS Example}
