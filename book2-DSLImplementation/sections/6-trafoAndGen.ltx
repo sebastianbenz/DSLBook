@@ -314,31 +314,31 @@ Expressions are handled in the same way as statements. The injected class
 
 \begin{code}
 def dispatch String compileExpr (Equals e){
-	e.left.compileExpr + " == " + e.right.compileExpr
+    e.left.compileExpr + " == " + e.right.compileExpr
 }
 
 def dispatch String compileExpr (Greater e){
-	e.left.compileExpr + " > " + e.right.compileExpr
+    e.left.compileExpr + " > " + e.right.compileExpr
 }
 
 def dispatch String compileExpr (Plus e){
-	e.left.compileExpr + " + " + e.right.compileExpr
+    e.left.compileExpr + " + " + e.right.compileExpr
 }
 
 def dispatch String compileExpr (NotExpression e){
-	"!(" + e.expr.compileExpr + ")"
+    "!(" + e.expr.compileExpr + ")"
 }
 
 def dispatch String compileExpr (TrueExpr e){
-	"TRUE"
+    "TRUE"
 }
 
 def dispatch String compileExpr (ParenExpr pe){
-	"(" + pe.expr.compileExpr + ")"
+    "(" + pe.expr.compileExpr + ")"
 }
 
 def dispatch compileExpr (NumberLiteral nl){
-	nl.value
+    nl.value
 }
 \end{code}
 
@@ -348,6 +348,183 @@ Since expressions are trees, a \ic{compileExpr} method typically calls
 
 
 \subsection{Model-to-Model Transformation}
+
+For model-to-model transformations, the same argument can be made as for code
+generation. Since Xtext is based on EMF, any EMF-based model-to-model
+transformation engine can be used with Xtext models. Examples include ATL,
+QVT-O, QVT-R and Xtend\footnote{Of course you could use any JVM-based
+compatible programming language, including Java itself. However, Java is
+really not very well suited because of its clumsy support for model navigtion
+and object instantiation. Scala and Groovy are much more interesting in this
+respect}.
+
+Essentially, model-to-model transformations are similar to code generators in
+the sense that they navigate over the model. But instead of producing a text
+string as the result, they produce another object graph. So the general
+structure of a transformation is similar. In fact the two can be mixed. Let us
+go back to the first code example of the generator:
+
+\begin{code}
+def compile(CoolingProgram program) { 
+    val transformedProgram = program.transform
+    '''
+    <<FOR appl : transformedProgram.modules.map(m|m.module).filter(typeof(Appliance))>>  
+        <<FOR c : appl.contents>>
+            #define <<c.name>> <<c.index>>
+        <<ENDFOR>>
+    <<ENDFOR>>
+  
+      // more ...
+      '''
+}
+\end{code}
+
+We have added a call to a function \ic{transform} at the beginning of the
+transformation process. This program creates a new \ic{CoolingProgram} from the
+original one, and the code generator then uses the \ic{transformedProgram} as
+the object from which it generates code. In effect, we have added a
+"preprocessor" model-to-model transformation to the generator. As discussed in
+the design section, this is one of the most common uses of model-to-model
+transformations. 
+
+The transformation described below enriches the existing model. It creates a new
+state (\ic{EMERGENCY\_STOP}), creates a new event
+(\ic{emergency\_button\_pressed}) and then adds a new transition to each
+existing state that checks if the new event occured, and if so, transitions to
+the new state. Essentially, this adds emergency stop behavior to any existing
+state machine. Let us look at the implementation:
+
+\begin{code}
+class Transformation {
+    
+    @Inject extension CoolingBuilder 
+    
+    CoolingLanguageFactory factory = CoolingLanguageFactory::eINSTANCE
+    
+    def CoolingProgram transform(CoolingProgram p ) {
+        p.states += emergencyState
+        p.events += emergencyEvent
+        for ( s: p.states.filter(typeof(CustomState)).filter(s|s != emergencyState) ) {
+            s.events += s.eventHandler [
+                symbolRef [
+                    emergencyEvent()
+                ]
+                changeStateStatement(emergencyState())
+            ]
+        }
+        return p;
+    }
+    
+    def create result: factory.createCustomState emergencyState() {
+        result.name = "EMERGENCY_STOP"
+    }
+    
+    def create result: factory.createCustomEvent emergencyEvent() {
+        result.name = "emergency_stop_button_pressed"
+    }
+ 
+}
+\end{code}
+
+Let us start with the two \ic{create} methods. These methods create new objects,
+as the \ic{create} prefix suggests\footnote{The \ic{factory} is the way to
+create model elements in EMF. It is generated as part of the EMF code
+generator}. However, simply creating objects can be done with a regular method
+as well:
+
+\begin{code}
+def emergencyState() {
+    val result = factory.createCustomState
+    result.name = "EMERGENCY_STOP"
+    result
+}
+\end{code}
+
+What is different in \ic{create} methods is that they can be called several
+times, and they still only ever create one object (per combination of
+arguments). All invocations but the first returns the object \emph{created
+during the first invocation}. Such a behavior is very useful in
+transformations, because it removes the need to keep track of already created
+objects. For example, in the \ic{transform} method, we have to establish
+references to the state created by \ic{emergencyState} and the event created by
+\ic{emergencyEvent}. To do that, we simply call the same \ic{create} extension
+again. Since it returns the \emph{same} object as during the first call in the
+first two lines of \ic{transform}, this actually establishes references to those
+already created objects\footnote{This is a major difference between text
+generation and model transformation. In text, two textual occurences of a symbol
+are the same thing (in some sense, text strings are value objects). In model
+transformation the identity of elements does matter. It is not the same if we
+create \emph{one} new state and then reference it, or if we create five new
+states. So a good transformation language helps keep track of identities. The
+\ic{create} methods are a very nice implementation of this principle.}.
+
+We can now look at the implementation of \ic{transform} itself. It starts out by
+adding the \ic{emergencyState} and the \ic{emergencyEvent} to the program (these
+are the first calls to the respective functions, so the objects are actually
+created at this point). We then iterate over all \ic{CustomState}s except the
+emergency state we've just created. Notice how we just call the
+\ic{emergencyState} function again; It returns the same object! We then use a
+builder to add the following code to each of the existing states.
+
+\begin{code}
+on emergency_button_pressed {
+    state EMERGENCY_STOP
+}
+\end{code}
+
+
+This code could be constructed by procedurally calling the respective
+factory methods:
+
+\begin{code}
+val eh = factory.createEventHandler
+val sr = factory.createSymbolRef
+sr.symbol = emergencyEvent
+val css = factory.createChangeStateStatement
+css.targetState = emergencyState
+eh.statements += css
+s.events += eh
+\end{code}
+
+The notation used in the actual implementation is more concise and resembles the
+tree structure of the code much better. It uses the well-known \emph{builder}
+notation. Builders are implemented in Xtend with a clever combination of
+closures and implicit arguments and a number of functions implemented in the
+\ic{CoolingBuilder} class\footnote{Of course, if you add the line count and
+effort for implementing the builder, then using this alternative over the
+plain procedural one might not look so interesting. However, if you just
+create these builder functions once, and then create many different
+transformations, this approach makes a lot of sense.}. Since this class is
+imported with the \ic{@Inject extension} construct, the methods become available "just so":
+
+\begin{code}
+class CoolingBuilder {
+    
+    CoolingLanguageFactory factory = CoolingLanguageFactory::eINSTANCE
+    
+    def eventHandler( CustomState it, (EventHandler)=>void handler ) {
+        val res = factory.createEventHandler
+        res
+    }
+    
+    def symbolRef( EventHandler it, (SymbolRef)=>void symref ) {
+        val res = factory.createSymbolRef
+        it.events += res
+    }
+    
+    def symbol( SymbolRef it, CustomEvent event ) {
+        it.symbol = event
+    }
+    
+    def changeStateStatement( EventHandler it, CustomState target ) {
+        val res = factory.createChangeStateStatement
+        it.statements += res
+        res.targetState = target
+    }
+}
+\end{code}
+
+
 
 \section{MPS Example}
  
