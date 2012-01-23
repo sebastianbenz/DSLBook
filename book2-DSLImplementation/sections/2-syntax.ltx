@@ -1385,7 +1385,7 @@ alternative to the respective \ic{Level} rule) or to introduce a new precedence
 level (just interject a new \ic{Level} rule between two existing ones).
 
 
-
+\todo{Syntactic Predicates}
 
 
 
@@ -1430,33 +1430,30 @@ In turn, each entity can have one or more property or function definitions
 
 \paragraph{Grammar basics}
 
-In Spoofax, the syntax of languages is described using SDF.
-SDF is a modular and flexible syntax definition formalism, supported
-by the SGLR parser generator. It can generate efficient, Java-based
-scannerless and general parsers. An example of a production written
-in SDF is
+In Spoofax, the syntax of languages is described using SDF. SDF is a modular and
+flexible syntax definition formalism, supported by the SGLR parser generator. It
+can generate efficient, Java-based scannerless and general parsers. An example
+of a production written in SDF is
 
 \begin{code}
 "module" ID Entity* -> Start {"Module"}
 \end{code}
 
 \noindent where the pattern on the left-hand side of the arrow is matched by the
-symbol \ic{Start} on the right-hand side. Note that SDF
-uses the exact opposite order for productions as the grammars
-we've discussed so far, switching the left-hand and right-hand side.
-After the right-hand side, SDF productions may specify
-annotations using curly brackets. Most productions specify
-a quoted \emph{constructor label} that is used for the abstract syntax.
-This particular production creates a tree node with the label "Module."
+symbol \ic{Start} on the right-hand side. Note that SDF uses the exact opposite
+order for productions as the grammars we've discussed so far, switching the
+left-hand and right-hand side. After the right-hand side, SDF productions may
+specify annotations using curly brackets. Most productions specify a quoted
+\emph{constructor label} that is used for the abstract syntax. This particular
+production creates a tree node with the label "Module."
 
-\Figure{Fig:mobl-grammar-basic} shows an SDF grammar for a subset of mobl's entities and functions syntax. 
-The productions in this grammar should have few surprises,
-but it is interesting to note how SDF groups a grammar in different sections.
-First, the \ic{context-free start symbols} section indicates the start
-symbol of the grammar. Then, the \ic{context-free syntax} section
-list the context-free syntax productions, forming
-the main part of the grammar. Terminals are defined in the 
-\ic{lexical syntax} section.
+\Figure{Fig:mobl-grammar-basic} shows an SDF grammar for a subset of mobl's
+entities and functions syntax. The productions in this grammar should have few
+surprises, but it is interesting to note how SDF groups a grammar in different
+sections. First, the \ic{context-free start symbols} section indicates the start
+symbol of the grammar. Then, the \ic{context-free syntax} section list the
+context-free syntax productions, forming the main part of the grammar. Terminals
+are defined in the \ic{lexical syntax} section.
 
 \begin{figure}[ht]
 \begin{center}
@@ -1501,33 +1498,27 @@ lexical syntax
 
 \paragraph{Lexical syntax}
 
-As Spoofax uses a scannerless parser, all lexical syntax
-can be customized in the SDF grammar. It provides
-default definitions for common lexical syntax elements such as
-strings, integers, floats, whitespace and comments.
-But when needed, custom syntax can be specified. 
-In particular, for whitespace and comments a special terminal
-\ic{LAYOUT} can be used.
-SDF implicitly inserts \ic{LAYOUT} in between
-all symbols in context-free productions.
-This behavior is the key distinguishing feature
-between context-free and lexical productions:
+As Spoofax uses a scannerless parser, all lexical syntax can be customized in
+the SDF grammar. It provides default definitions for common lexical syntax
+elements such as strings, integers, floats, whitespace and comments. But when
+needed, custom syntax can be specified. In particular, for whitespace and
+comments a special terminal \ic{LAYOUT} can be used. SDF implicitly inserts
+\ic{LAYOUT} in between all symbols in context-free productions. This behavior is
+the key distinguishing feature between context-free and lexical productions:
 lexical symbols such as identifiers and integer literals cannot be interleaved
-with layout.
-The second distinguishing feature is that lexical syntax
-productions usually do not have a constructor label in the abstract
-syntax, as they form terminals in the abstract syntax trees.
+with layout. The second distinguishing feature is that lexical syntax
+productions usually do not have a constructor label in the abstract syntax, as
+they form terminals in the abstract syntax trees.
 
 \paragraph{Abstract syntax}
 
 To produce abstract syntax trees, Spoofax uses the ATerm format, described in
-\Section{Sec:spoofax-aterm}. SDF combines the specification of concrete
-and abstract syntax, primarily through the specification of constructor labels.
-The way this works is most easily understood using an example. Spoofax
-allows users to view the abstract syntax of any input file
-using the ``Transform" button to apply a transformation.
-As an example, the following is an abridged abstract syntax term for the
-shopping module shown at the start of this section:
+\Section{Sec:spoofax-aterm}. SDF combines the specification of concrete and
+abstract syntax, primarily through the specification of constructor labels. The
+way this works is most easily understood using an example. Spoofax allows users
+to view the abstract syntax of any input file using the ``Transform" button to
+apply a transformation. As an example, the following is an abridged abstract
+syntax term for the shopping module shown at the start of this section:
 
 \begin{code}
 Module(
@@ -1540,12 +1531,11 @@ Module(
 ]) 
 \end{code}
 
-\noindent
-Note how this term uses the constructor labels of the syntax
-above: \ic{Module}, \ic{Entity}, and \ic{Property}.
-The children of each node correspond to the symbols referenced in the production:
-the \ic{Module} production first referenced \ic{ID} symbol for the module name and
-then included a list of \ic{Entity} symbols.
+\noindent Note how this term uses the constructor labels of the syntax above:
+\ic{Module}, \ic{Entity}, and \ic{Property}. The children of each node
+correspond to the symbols referenced in the production: the \ic{Module}
+production first referenced \ic{ID} symbol for the module name and then included
+a list of \ic{Entity} symbols.
 
 %SDF has a number of features
 %that help ensure the abstract syntax corresponds to the
@@ -1562,35 +1552,28 @@ use the special \ic{bracket} annotation:
 "(" Exp ")" -> Exp {bracket}
 \end{code}
 
-\noindent
-The \ic{bracket} annotation specifies that there should not be a
-separate tree node in the abstract syntax for the production.
-This means that an expression \ic{1+(2)} would
-produce \ic{Plus("1","2")} in the abstract syntax,
-and not \ic{Plus("1",bracket("2"))}.
+\noindent The \ic{bracket} annotation specifies that there should not be a
+separate tree node in the abstract syntax for the production. This means that an
+expression \ic{1 + (2)} would produce \ic{Plus("1","2")} in the abstract syntax,
+and not \ic{Plus("1",bracket("2"))}.
 
 
 \paragraph{Precedence and associativity}
 
-SDF provides special support for specifying the associativity
-and precedence order of operators or other syntactic constructs.
-As an example, let us consider the production of the \ic{Plus}
-operator:
+SDF provides special support for specifying the associativity and precedence
+order of operators or other syntactic constructs. As an example, let us consider
+the production of the \ic{Plus} operator:
 
 \begin{code}
 Exp "+" Exp -> Exp {"Plus"}
 \end{code}
 
-\noindent
-Based on this operator, a parser can be generated
-that can parse an expression such as \ic{1+2} to
-a term \ic{Plus("1", "2")}. However, the 
-production does not specify if an expression
-\ic{1+2+3} should be parsed to a term
-\ic{Plus("1", Plus("2", "3"))} or
-\ic{Plus(Plus("1", "2"), "3")}. If you try the grammar
-in Spoofax, it will show both interpretations using a
-special \ic{amb} constructor:
+\noindent Based on this operator, a parser can be generated that can parse an
+expression such as \ic{1 + 2} to a term \ic{Plus("1", "2")}. However, the
+production does not specify if an expression \ic{1 + 2 + 3} should be parsed to
+a term \ic{Plus("1", Plus("2", "3"))} or \ic{Plus(Plus("1", "2"), "3")}. If you
+try the grammar in Spoofax, it will show \emph{both} interpretations using a
+special \ic{amb} constructor:
 
 \begin{code}
 amb([
@@ -1599,22 +1582,21 @@ amb([
 )]
 \end{code}
 
-\noindent
-The \ic{amb} node indicates an \emph{ambiguity} and shows all possible interpretations.
-Whenever an ambiguity is encountered in a file, it is marked with a warning.
-Ambiguities can be resolved by adding annotations to the grammar
-that describe the intended interpretation.
+\noindent The \ic{amb} node indicates an \emph{ambiguity} anqd shows all
+possible interpretations. Whenever an ambiguity is encountered in a file, it is
+marked with a warning \MV{in the editor?}. Ambiguities can be resolved by adding
+annotations to the grammar that describe the intended interpretation.
 
-For the \ic{Plus} operator, we can resolve the ambiguity
-by specifying that it is left-associative, using the \ic{left} annotation:
+For the \ic{Plus} operator, we can resolve the ambiguity by specifying that it
+is left-associative, using the \ic{left} annotation:
 
 \begin{code}
 Exp "+" Exp -> Exp {"Plus", left}
 \end{code}
 
-In a similar fashion, SDF makes it possible to describe the precedence
-order of operators. For this, the productions can be placed in
-a \ic{context-free priorities} section:
+In a similar fashion, SDF makes it possible to describe the precedence order of
+operators. For this, the productions can be placed in a \ic{context-free
+priorities} section:
 
 \begin{code}
 context-free priorities
@@ -1623,82 +1605,67 @@ context-free priorities
   Exp "+" Exp -> Exp {"Plus", left}
 \end{code}
 
-\noindent
-This example specifies that the \ic{Mul} operator has a higher priority than
-the \ic{Plus} operator, resolving the ambiguity that arises
-for an expression such as \ic{1+2*3}. 
+\noindent This example specifies that the \ic{Mul} operator has a higher
+priority than the \ic{Plus} operator, resolving the ambiguity that arises for an
+expression such as \ic{1+2*3}.
 
 \paragraph{Reserved keywords and production preference}
 
-Parsers generated with SDF do not use a scanner,
-but include processing of lexical syntax in the parser.
-Since scanners operate without any context information,
-they will simply recognize any token that corresponds
-to a keyword in the grammar as a reserved keyword.
-In SDF, it is also possible to use keywords that are not reserved,
-or keywords that are only reserved in a certain context.
-As an example, the following is a legal entity in mobl:
-
+Parsers generated with SDF do not use a scanner, but include processing of
+lexical syntax in the parser. Since scanners operate without any context
+information, they will simply recognize any token that corresponds to a keyword
+in the grammar as a reserved keyword. In SDF, it is also possible to use
+keywords that are not reserved, or keywords that are only reserved in a certain
+context. As an example, the following is a legal entity in mobl:
 \begin{code}
 entity entity {
 
 }
 \end{code}
 
-\noindent
-Since our grammar did not specify that \ic{entity} is a reserved word,
-it can be used as a normal \ic{ID} identifier.
+\noindent Since our grammar did not specify that \ic{entity} is a reserved word,
+it can be used as a normal \ic{ID} identifier.
 
-There are cases where it is useful to reserve keywords,
-for example to prevent ambiguities. Consider what would happen if
-we added a new production for a \ic{true} literal:
+There are cases where it is useful to reserve keywords, for example to prevent
+ambiguities. Consider what would happen if we added a new production for a
+\ic{true} literal:
 
 \begin{code}
 "true" -> Exp {"True"}
 \end{code}
 
-\noindent
-If we would now parse an expression \ic{true}, it would be
-ambiguous: it matches the \ic{True} production above, but
-it also matches the \ic{Var} production, as \ic{true} is
-a legal variable identifier.
+\noindent If we would now parse an expression \ic{true}, it would be ambiguous:
+it matches the \ic{True} production above, but it also matches the \ic{Var}
+production, as \ic{true} is a legal variable identifier.
 
-Keywords can be reserved in SDF by using a production
-that rejects a certain interpretation:
+Keywords can be reserved in SDF by using a production that rejects a certain
+interpretation:
 
 \begin{code}
 "true" -> ID {reject}
 \end{code}
 
-\noindent
-which says that true can never be interpreted
-as an identifier.
-
-Alternatively, we could say that we ``prefer'' the
-one interpretation over the other:
+\noindent which says that true can never be interpreted as an identifier.
+Alternatively, we could say that we ``prefer'' the one interpretation over the
+other:
 
 \begin{code}
 "true" -> Exp {"True", prefer}
 \end{code}
 
-\noindent
-which says that this production is to be preferred
-if there are any other interpretations.
-However, since these interpretations cannot always be
-foreseen as grammars are extended, it is considered
-good practice to use the more specific \ic{reject} approach instead.
+\noindent which says that this production is to be preferred if there are any
+other interpretations. However, since these interpretations cannot always be
+foreseen as grammars are extended, it is considered good practice to use the
+more specific \ic{reject} approach instead.
 
 \paragraph{Longest match}
 
-Most scanners apply a \emph{longest match} policy for scanning
-tokens.
-This means that if it is possible to include the next character
-in the current token, the scanner will always do so.
-For most languages, this is the expected behavior,
-but in some cases longest match doesn't work.
-SDF instead allows the grammar to specify the intended behavior.
-In Spoofax, the default is specified in the "Common"
-syntax module using a \ic{lexical restrictions} section:
+Most scanners apply a \emph{longest match} policy for scanning tokens. This
+means that if it is possible to include the next character in the current token,
+the scanner will always do so. For most languages, this is the expected
+behavior, but in some cases longest match doesn't work. SDF instead allows the
+grammar to specify the intended behavior. In Spoofax, the default is specified
+in the "Common" syntax module using a \ic{lexical restrictions} section:
 
 \begin{code}
 lexical restrictions
@@ -1707,29 +1674,29 @@ lexical restrictions
 
 This section "restricts" the grammar by specifying that
 if an identifier cannot be followed by another character
-that matches \ic{[A-Za-z0-9]}. Effectively, it enforces
-a longest match policy for the \ic{ID} sort.
+that matches \ic{[A-Za-z0-9]} \MV{The "if" in the previous sentence does not
+seem to make sense}. Effectively, it enforces a longest match policy for the
+\ic{ID} sort \MV{Have you used and explained the term "sort" already?}. 
 
-SDF also allows the use of lexical restrictions for keywords.
-By default it does not enforce longest match, which means it
-allows the following definition of a mobl entity:
+SDF also allows the use of lexical restrictions for keywords. By default it does
+not enforce longest match, which means it allows the following definition of a
+mobl entity:
 
 \begin{code}
 entityMoblEntity {}
 \end{code}
 
-As there is no longest match, the parser can recognize the
-\ic{entity} keyword even if it is not followed by a space.
-To avoid this behavior, we can specify a longest match policy for
-the \ic{entity} keyword:
+As there is no longest match, the parser can recognize the \ic{entity} keyword
+even if it is not followed by a space. To avoid this behavior, we can specify a
+longest match policy for the \ic{entity} keyword:
 
 \begin{code}
 lexical restrictions
   "entity" -/- [A-Za-z0-9]
 \end{code}
 
-To specify restrictions for multiple literals, they
-can be specified as a sequence:
+To specify restrictions for multiple literals, they can be specified as a
+sequence:
 
 \begin{code}
 lexical restrictions
@@ -1738,11 +1705,10 @@ lexical restrictions
 
 \paragraph{Name bindings}
 
-So far we have discussed purely syntax specification
-in SDF. Spoofax also allows the specification of name binding annotations
-in SDF grammars, which specify semantic relations between
-productions. We discuss how these relations are specified in
-\Chapter{Ch:scopes}.  
+So far we have discussed purely syntax specification in SDF. Spoofax also allows
+the specification of name binding annotations in SDF grammars, which specify
+semantic relations between productions. We discuss how these relations are
+specified in \Chapter{Ch:scopes}.
 
 \todo{
 somewhere we should discuss at least SDF's \ic{\curlies{FArg ","}*} notation, but
