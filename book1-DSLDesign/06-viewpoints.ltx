@@ -150,6 +150,48 @@ required (enabled via techniques described in\cite{DiskinXC10, Stevens10}).
 \end{center}
 \end{figure}
 
+\subsection{Viewpoint Consistency} 
+
+If viewpoints are used, constraints have to be written to check concistency of
+the viewpoints. A dependent viewpoint fragment contains program elements that
+reference program elements in another fragment. It is straight forward to check
+that the target elements of these actually exist, since the reference will break
+if it does not; in most tools these kinds of checks are available by default.
+
+The other direction is more interesting. Assume two viewpoints: business
+data structure and persistence mapping. There may be a constraint that says
+that every \ic{Entity} defined in the business data viewpoint has to have
+exactly one \ic{EntityPersistenceMapping} element that points to the respective
+\ic{Entity}. It is an error --- incomplete model --- if such an
+\ic{EntityPersistenceMapping} does not exit. Checking this constraint has two
+problems:
+
+The first problem may be performance. The "whole world" has to be searched to
+check if a referencing program element exists somewhere. If the tool supports
+it, this problem can be solved by automatically maintained reverse
+indices\footnote{This data should also be exploited by the IDE. UI actions
+should be available to navigate from the referenced element (the \ic{Entity})
+to the referencing elements (the \ic{PersistenceMapping}). This is more than 
+generic Find Usages, since it specifically searches for certain kinds of
+usages (the \ic{PersistenceMapping}) in this example. Further tool support may
+include creation of such referencing elements based on a policy that
+determines into which fragment the created element should go}.
+
+The second problem is more fundamental: it is not clear what constitutes
+\emph{the whole world}. The fragment with the persistence mapping for a given
+\ic{Entity} may reside on a different machine or be under the control of a
+different user. It may not be acccessible to the constraint checker when the
+user edits the business data fragment. To solve this problem, it is necessary to
+define explictly what \emph{the world} is, using some kind of configuration. For
+example, a C compiler's include path or Java's classpath are ways of defining
+the scope within which the overall system description must be consistent. This
+does not necessarily have to be done by each developer who, for example, works
+on the business data. But at the point when the final system is generated or
+built, such a "world definition" is essential.
+
+
+
+
 \subsection{Viewpoint Synchronization} 
 
 In some cases the models for the various concerns need to be synchronized. This
@@ -166,6 +208,7 @@ for each method define in each of the interfaces it implements. If a new method
 is added to an interface, all components that implement that particular
 interface must get a new, empty method implementation. This is an example of
 model synchronization.}
+
 
 
 

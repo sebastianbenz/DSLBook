@@ -44,7 +44,7 @@ same model in different notations. As a consequence of tool limitations, this is
 not always possible, however. The requirements for concrete syntax are a major
 driver in tool selection.
 
-\begin{marginfigure}[]
+\begin{marginfigure}
   \includegraphics[width=5cm]{figures-design/graphicalCause.png}
   \caption{Graphical Notation for Causality and Timing}
   \label{graphicalCause}
@@ -160,7 +160,29 @@ learning curve has been overcome.
   \label{yakreq}
 \end{figure}
 
+\updateSlides{}
+\paragraph{IDE Supportability} For textual languages, it is important to keep in
+mind if and how a syntax can be support by the IDE, especially regarding code
+completion. Consider query languages. An example SQL query looks like this:
 
+\begin{code}
+SELECT field1, field2 FROM aTable WHERE ...
+\end{code}
+
+When entering this query the IDE cannot provide code completion for the fields
+after the \ic{SELECT} because at this point the table has not yet specified. A
+more suitable syntax, with respect to IDE support, would be
+
+\begin{code}
+FROM aTable SELECT field1, field2 WHERE ...
+\end{code}
+
+\noindent because now the IDE can provide support code completion for the fields
+based on the table name that has already been entered as you specify the fields.
+
+SQL is a relatively old language and IDE concerns where probably not that
+important at the time. More modern query language such as HQL or Linq in fact
+use the more IDE friendly syntax.
 
 \paragraph{Multiple Notations} For projectional editors it is possible to define
 several notations for the same abstract syntax. By changing the projection
