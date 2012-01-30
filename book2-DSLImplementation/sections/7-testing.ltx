@@ -16,6 +16,7 @@ the whole simualtion story goes here as well. And interpreter. BSH.}
 \begin{itemize}
   \item can the syntax cover all required sentences? Is the concrete syntax
   "correct"?
+  \item do the scopes work correctly?
   \item do the constraints work? are all "wrong" programs actually detected, and
   is the right error message attached to the right program element?
   \item are the semantics correct? do transformations, generators and
@@ -33,10 +34,8 @@ Testing the syntax is simple. Developers simply try to write all relevant
 programs and see if they can be expressed with the language. 
 
 The following pieve of code is the fundamental code that needs to be written in
-Xtext to test a DSL program using the Xtext testing utilities at
-\verb#http://code.google.com/a/eclipselabs.org/p/xtext-utils/wiki/Unit_Testing#.
-It is a JUnit4 test case with special support for the Xtext infrastructure.
-
+Xtext to test a DSL program using the Xtext testing utilities\footnote{http://code.google.com/a/eclipselabs.org/p/xtext-utils/wiki/Unit_Testing}.
+It is a JUnit 4 test case with special support for the Xtext infrastructure.
 
 \begin{code}
 @RunWith(XtextRunner.class)
@@ -52,18 +51,18 @@ public class InterpreterTests extends XtextTest {
 \end{code}
 
 
-The single test method loads the \verb#interpreter/engine0.cool# program, as
+The single test method loads the \ic{interpreter/engine0.cool} program, as
 well as two more files which contain elements referenced from
-\verb#engine0.cool#. The testFileNoSerializer method loads the file, parses it,
+\ic{engine0.cool}. The \ic{testFileNoSerializer} method loads the file, parses it,
 and checks constraints. If either parsing or constraint checking fails, the test
-fails. There is also a testFile method which, after loading and parsing the
+fails. There is also a \ic{testFile} method which, after loading and parsing the
 file, reserializes the AST to the text file, writes it back, and loads it again,
-the comparing the two ASTs. This way, the (potentially adapted) serializer is
+the comparing the two ASTs. This way, the (potentially adapted) formatter is
 tested.
 
 On a more fine grained level it is often useful to test partial sentences
 instead of complete sentences or programs. The following piece of Xtext example
-code tests the CustomState parser rule:
+code tests the \ic{CustomState} parser rule:
 
 
 \begin{code}
@@ -75,20 +74,20 @@ code tests the CustomState parser rule:
     }
 \end{code}
 
+\marginnote{Note that these unit tests do not at all depend on the Eclipse UI or
+the Xtext editor, so they can be run from the command line or any other way of
+running JUnit tests. They only need a couple of Xtext libraries to be on the
+classpath. Consequently, it is simple to integrate these tests with continuous
+regression test infrastructures or a build server.} The first line asserts that
+the string \ic{state s:} can be parsed with the \ic{CustomState} parser rule.
+The second line passes in a more complex state, one with a command in an entry
+action. Line three tries the same text with the \ic{State} rule, which itself
+calls the \ic{CustomState}. Notice that these tests really just test the parser.
+No linking or constraints checks are performed. This is why we can "call"
+\ic{anOperation} on the \ic{fach1} object, although \ic{anOperation} is not
+defined as a callable operation anywhere.
 
-The first line asserts that the string \verb#state s:# is parsed with the
-CustomState parser rule. The second line passes in a more complex state, one
-with a command in an entry action. Line three tries the same text with the State
-rule, which itself calls the CustomState. Notice that these tests really just
-test the parser. No linking or constraints checks are performed. This is why we
-can "call" anOperation on the fach1 object, although anOperation is not defined
-as a callable operation anywhere.
 
-Note that these unit tests do not at all depend on the Eclipse UI or the Xtext
-editor, so they can be run from the command line or any other way of running
-JUnit tests. They only need a couple of Xtext libraries to be on the classpath.
-Consequently, it is simple to integrate these tests with continuous regression
-test infrastructures or a build server.
 
 \subsection{Constaints Testing}
 
@@ -96,13 +95,12 @@ Especially for languages with complex constraints, such as those implied by type
 systems, testing of constraints is essential. A special API is necessary to be
 able to verify that a program which makes a particular constraint fail actually
 annotates the corresponding error message to the respective program element.
-Tests can then be written which assert that a given program has a specific set
-of error annotations. 
+This way, tests can then be written which assert that a given program has a
+specific set of error annotations. 
 
 The unit testing utilities mentioned above also support testing constraints. The
 utilities come with an internal Java DSL that support checking for the presence
 of error annotations after parsing and constraint-checking a model file.
-
 
 \begin{code}
     @Test 
@@ -119,10 +117,10 @@ of error annotations after parsing and constraint-checking a model file.
 
 We first load the model file that constains constraint errors (in this case,
 type system errors). Then we assert the total number of errors in the file to be
-three (line 1). Next, in line 2, we check that the instance of Variable named v1
+three (line 1). Next, in line 2, we check that the instance of \ic{Variable} named \ic{v1}
 has exactly one error annotation, and it has the text "incompatible type" in the
 error message. Finally, in line 3 we assert that there are exactly two errors
-anywhere under (i.e. in the subtree below) a variable named w1, and one of these
+anywhere under (i.e. in the subtree below) a \ic{Variable} named \ic{w1}, and one of these
 contains "incompatible type" in the error message. Using the fluent API style
 shown by these examples, it is easy to express errors and their locations in the
 program. If a test fails, a meaningful error message is output that supports
@@ -155,20 +153,20 @@ junit.framework.AssertionFailedError: <no id> failed
 \end{code}
 
 
-A similar facility is available for MPS, it is called a NodesTest
+A similar facility is available for MPS, it is called a \ic{NodesTestCase}
 (\fig{mps-testexample}). It supports special annotations to express assertions
-on types and errors. For example, the third line of the nodes section reads
-\verb#var double d3 = d# without annotations. This is a valid variable
-declaration in our C language. After this has been written down, annotations can
-be added. They are rendered in green. Line three asserts that the type of the
-variable d is double, i.e. it tests that variable references assume the type of
-the referenced variable. In line four we assign a double to an int, which is
+on types and errors, directly in the program. For example, the third line of the
+nodes section reads \ic{var double d3 = d} without annotations. This is a valid
+variable declaration in mbeddr C. After this has been written down, annotations
+can be added. They are rendered in green. Line three asserts that the type of the
+variable \ic{d} is \ic{double}, i.e. it tests that variable references assume the type of
+the referenced variable. In line four we assign a \ic{double} to an \ic{int}, which is
 illegal according to the typing rules. The error is detected, hence the red
-squiggly. We use another annotation to assert the presence of the error message.
+squiggly. We use another annotation to assert the presence of the error.
 
 In addition to using these annotations to check models, developers can also
-write more detailed test cases. In the example I assert that the var reference
-of the node referred to as dref points to the node referred to as dnode. Note
+write more detailed test cases. In the example I assert that the \ic{var} reference
+of the node referred to as \ic{dref} points to the node referred to as \ic{dnode}. Note
 how labels (green, underlined) are used to add names to program elements so they
 can be referred to from test expressions.
 
@@ -180,60 +178,77 @@ can be referred to from test expressions.
 \end{center}
 \end{figure}
 
+Scopes can be tested in the same way: we can write example programs where
+references point to valid targets (i.e. those in scope) and invalid targets
+(i.e. not in scope). Valid references may not have errors, invalid referneces
+must have errors. But using the facilities shown above, which check for the
+presence of error annotations, scopes can be tested. Some frameworks may provide
+direct access to the scoping API to test scopes more directly.
 
-\todo{Testing Scopes}
 
 \subsection{Semantics Testing}
 
-There are fundamentally two different ways of how a transformation or a
-generator can be tested. In both cases, example programs are transformed, and 
-we expect a valid (syntax and constraints) target program. The first alternative
-then involves asserting the correctness of the structure of the generated
-program by writing additional, source-program specific constraints. Alternative
-two involves running the generated program and writing tests against it. 
+Fundamentally, testing the execution semantics of a program involves the
+writing constraints against the \emph{execution} of a program as it is executed.
+In the simplest case this can be done the following way:
 
-The second alternative is generally preferrable since it does not test syntactic
-structures of the target program, but instead really tests the semantics.
-Ideally, the test themselves are expressed as part of the DSL program (or a
-special fragment, built specifically for testing). However, the approach works
-only if the to-be-tested DSL expresses behavior and the target program can be
-executed. If the target is an intermediate representation that needs to be
-further transformed for execution, this kind of test of course tests the whole
-stack and not the single transformation. However, for testing code generators
-of behavioural languages, this approach is the best way to go. Interpreters are
-also typically tested this way.
+\begin{itemize}
+  \item write a DSL program, based on an understanding what this program is
+  expected to do
+  \item generate the program into its executable representation
+  \item \emph{manually} write unit tests that assert the generated program's
+  behavior based on the understanding of what the DSL program should do
+\end{itemize}
 
-The first alternative should be used in the remaining cases, i.e. for languages
-that express structures only (and hence programs cannot be executed and
-unit-tested), or for white-box testing of several chained transformations.
+Notice how we do \emph{not} test the structure or syntax of the generated
+artifact. Instead we test it's meaning, which is exactly what we want to test.
+An important variation of this appraoch is the following: instead of writing the
+unit tests manually in the target language, we can also write the tests in the
+DSL, assuming the DSL has syntax to express such tests\footnote{Many DSLs are
+explicitly extended to support this use case}. Writing the test cases on DSL
+level results in more concise and readable tests.\marginnote{Testing DSL
+programs by running tests expressed in the same language runs the risk of
+doubly-negating errors. If the generators for the tests and the core program in
+a compatible way, errors in either one may not be found. However, this problem
+can be alleviated by running a large enough number of tests.}
 
-\todo{can we provide an example for the latter?}
+The same approach can be used to test execution semantics based on an
+interpreter, although it may be a little bit more difficult to manually write
+the test cases in the target language; the interpreter must provide a means to
+"inspect" its execution so we can check if it is correct. If the tests are
+written in the DSL and the interpreter executes them along with the core
+program, the approach works well.
+
+Strictly speaking, this approach tests the semantics of a \emph{specific}
+program. As always in testing, we have to write many of these tests to make sure
+we have covered all of the possible executions paths through a generator or
+interpreter. If we do that, the set of tests implicitly tests the generator or
+interpreter --- which is the goal we want to achieve in semantics testing.
+
+If we have several execution backends, such as an interpreter \emph{and} a
+compiler it must be ensured that both have the same semantics. This can be
+achieved by writing the tests in the DSL and then executing them in \emph{both}
+backends. By executing enough tests, the semantic equivalence of the backends
+can be ensured.
+
 
 \subsubsection{Testing an Interpreter with Xtext}
 
 The cooling language provides a way to express test cases for the cooling
 programs within the cooling language itself. These tests are executed with an
 interpreter inside the IDE, and they can also be executed on the level of the C
-program. To make this work, the interpreter, as well as the code generator, can
-handle the cooling programs as well as the tests. 
-
-Testing DSL programs by running tests expressed in the same language runs the
-risk of doubly-negating errors. If the DSL program is wrong, and the test is
-wrong in a compatible way, the error will not be found. Also, this approach does
-cannot just be used for testing interpreters or generators, it can also be used
-to test whether a program written in the DSL works correclty. This is in fact
-why the interpreter and the test sub-language have been built in the first
-place: DSL users should be able to test the programs written in the DSL.
-However, this implicitly also tests the interpreter (and generator), since,
-unless the interpreter works "as expected", the expectations expressed as
-assertions in the test case will fail.
+program. Note that this approach cannot just be used for testing interpreters or
+generators, it can also be used to test whether a program written in the DSL
+works correclty. This is in fact why the interpreter and the test sub-language
+have been built in the first place: DSL users should be able to test the
+programs written in the DSL.
 
 The following code shows one of the simplest possible cooling programs, as well
 as a test case for that program:
 
 
 \begin{code}
-cooling program EngineProgram0 for Einzonengeraet  uses stdlib {
+cooling program EngineProgram0 for Einzonengeraet uses stdlib {
          
     var v: int
     event e1
@@ -262,17 +277,18 @@ test EngineTest0 for EngineProgram0 {
 \end{code}
 
 
-The test first asserts that, as soon as the program starts, it is in the start
-state (line 1). We then assert that v is 2. The only reasonable way how v can
-become 2 is that the code in the init block as well as the code in the entry
-action of the start start have been executed. Note that this arrangement even
-checks that the init block is executed before the entry action of the start
-state, since otherwise v would be 1!. We then perform one step in the execution
-of the program (the language is stepped) in line 3. At this point nothing should
-happen, since no even was triggered (we don't test this). Then we trigger the
-event e1 (line 4) and perform another step (line 5). After this step, the
-program must transition to the state s2, whose entry action sets v back to 0. We
-assert both of these (lines 6 and 7).
+The test first asserts that, as soon as the program starts, it is in the
+\ic{start} state (line 1). We then assert that \ic{v} is \ic{2}. The only
+reasonable way how \ic{v} can become \ic{2} is that the code in the \ic{init}
+block as well as the code in the entry action of the \ic{start} start have been
+executed. Note that this arrangement even checks that the init block is executed
+before the entry action of the start state, since otherwise \ic{v} would be
+\ic{1}!. We then perform one step in the execution of the program (the language
+is stepped) in line 3. At this point nothing should happen, since no event was
+triggered. Then we trigger the event \ic{e1} (line 4) and perform another
+\ic{step} (line 5). After this step, the program must transition to the state
+\ic{s2}, whose entry action sets \ic{v} back to 0. We assert both of these
+(lines 6 and 7).
 
 These tests can be run interactively from the IDE, in which case assertion
 failures are annotated as error marks on the program, or from within JUnit. 
@@ -292,13 +308,14 @@ public class InterpreterTests extends PKInterpreterTestCase {
 }
 \end{code}
 
-
-The runAllTestsInFile method is called, passing in the model's root element. The
-method runAllTestsInFile is defined by the PKInterpreterTestCase base class,
-which in turn inherits from XtextTest, which we have seen before. The method
-iterates over all tests in the model and executes them by creating and running a 
-TestExecutionEngine. The TestExecutionEngine is a wrapper around the interpreter
-for cooling programs. 
+This is basically a JUnit test that inherits from a base class that helps with
+loading models and running the interpreter. We call the \ic{runAllTestsInFile}
+method, passing in the model's root element. \ic{runAllTestsInFile}
+is defined by the \ic{PKInterpreterTestCase} base class, which in turn inherits from
+\ic{XtextTest}, which we have seen before. The method iterates over all tests in the
+model and executes them by creating and running a \ic{TestExecutionEngine}. The
+\ic{TestExecutionEngine} is a wrapper around the interpreter for cooling
+programs that we have discussed before.
 
 
 \begin{code}
@@ -314,103 +331,226 @@ protected void runAllTestsInFile(Model m) {
 }
 \end{code}
 
+The cooling programs are generated to C for execution in the refrigerator. To
+make sure the generated C code has the same semantics as the interpreter, we
+simply generate C code from the test cases as well. This way, the same tests are
+executed against the generated C code. By ensuring that all of them work in the
+interpreter and the generator, we ensure that both behave the same way.
 
-Testing generators in this way works similarly. The generator generates the DSL
-program to an executable representation, for example, Java or C code. The tests
-are generated to unit test code in the same language. Running the tests
-simply involves executing the program and the test code together. 
 
-The following is a test case expressed using the testing extension to C. It
-contributes test cases to modules. The first one, testSimpleAdding, simply adds
-two numbers. It then asserts that the adding algorithm works. The second test,
-testPhysicalQuantities, tests whether the encoding of physical quantities work
-correctly. Physical quantitites are another extension to C that supports the
-definition of special types (speed in the example). By specifying a min and max
-value, the optimal resolution of the value range to an underlying 16 bit
-integer is used. The test assigns 10 km/h to the variable s1 using the p<..>
-notation. In the assertion, we then assert that the actual value is 2180, which
-is 10 times 2180, the resolution factor derived from mapping 300 km/h units to
-65535 possible int16 values. Finally, the test contains an initialization
-statement that executes the tests. This statement is specific to the Osek target
-platform. 
+\subsubsection{Testing a Generator with MPS}
 
+The following is a test case expressed using the testing extension to mbeddr C.
+It contributes \ic{test case}s to modules. \ic{testMultiply} is the actual test
+case. It calls the to-be-tested function \ic{times2} several times with
+different arguments and then uses an \ic{assert} to check for the expected
+value. 
 
 \begin{code}
-module tests imports <<imports>> { 
- 
-  test testSimpleAdding / tests adding two numbers { 
-    int16 i = 0;    
-    int16 j = i + 1;
-    assert j == 1  =>  adding failed                                                                                                                                                                                                                       
+module UnitTestDemo { 
+   
+  int32_t main(int32_t argc, int8_t*[ ] argv) { 
+    return test testMultiply; 
   } 
- 
-  quantity speed range 0 .. 300 unit km/h 
- 
-  test testPhysicalQuantities / tests the encoding of physical quantities { 
-    speed s1 = p<speed:10>;                         
-    assert s1 == i<2180>  =>  speed encoding failed
+   
+  test case testMultiply { 
+    assert(0) times2(21) == 42; 
+    assert(1) times2(0) == 0; 
+    assert(2) times2(-10) == -20; 
   } 
- 
-  initialize {                       
-    run test testSimpleAdding;     
-    run test testPhysicalQuantities;
-  }
-
+   
+  int8_t times2(int8_t a) { 
+    return 2 * a; 
+  }  
 }
 \end{code}
 
-                                                                                                                                                                                                                                                                           
-From this program the following low-level C is generated (plus a makefile and
-an Osek configuration file). Notice how the generator takes into account the
-Osek platform specifics: for example, it uses ecrobot\_stats\_monitor to output
-messages to the screen of the lego robot. 
-
+Note that, while this unit testing extension can be used to test any C
+program, we use it a lot to test the generator. Consider the following example:
 
 \begin{code}
-#include "include/Tests.h"
+  assert(0) 4 * 3 + 2 == 14; 
+\end{code}
 
-// used resources
-#include "ecrobot_interface.h"
+The result of \ic{4 * 3 + 2} is only 14 if the correct operator precedences are
+observed (otherwise the result would be 20). One problem we had initially in MPS
+was to make sure that the expression tree that was created while manually
+entering expressions like \ic{4 * 3 + 2} is built correctly. If the tree were
+built in the wrong way, the generated code could end up as \ic{4 * (3 + 2)}
+leading to 20. So we've used tests like these to implicltly test quite intricate
+aspects of our language implementation\footnote{This is also the reason why
+the unit test extension was the first extension we've built for C. We needed
+it to test many other aspects of the language.}.
 
-// custom includes
-#include "kernel.h"
-#include "kernel_id.h"
-#include "stdint.h"
-#include "stdint.h"
+We have built much more elaborate support for testing various other extensions.
+It is illustrative to take a look at two of them. The next piece of code shows a
+test for a state machine:
 
-void Tests_tests_testproc_testSimpleAdding(void) {
-    ecrobot_status_monitor ("running test: testSimpleAdding" );
-    int16_t i = 0;
-    int16_t j = (i + 1);
-    if ( j != 1 ) {
-          ecrobot_status_monitor ("  FAILED: adding failed" );
-    } // end if 
-}
-
-void Tests_tests_testproc_testPhysicalQuantities(void) {
-    ecrobot_status_monitor ("running test: testPhysicalQuantities" );
-    int s1 = (10 * 218);
-    if ( 2180 != s1 ) {
-          ecrobot_status_monitor ("  FAILED: speed encoding failed" );
-    } // end if 
-}
-
-void ecrobot_device_initialize(){
-    Tests_tests_testproc_testSimpleAdding ( );
-    Tests_tests_testproc_testPhysicalQuantities ( );
+\begin{code}
+exported test case test1 { 
+  initsm(c1);   
+  assert(0) isInState<c1, initialState>; 
+  test statemachine c1 { 
+    start -> countState 
+    step(1) -> countState 
+    step(2) -> countState 
+    step(7) -> countState 
+    step(1) -> initialState 
+  } 
 }
 \end{code}
 
+\ic{c1} is an instance of a state machine. After initializing it, we assert that
+it is in the \ic{initialState}. We then use a special \ic{test statemachine}
+statement, which consists of event/state pairs: after triggering the event (on
+the left side of the \ic{->}) we expect the state machine to go into the state
+specified on the right side of the \ic{->}. We could have achieve the same goal
+by using sequences of \ic{trigger} and \ic{assert} statements, but the syntax
+used here is much more concise. 
 
-While the above examples are trivial test cases, they nontheless illustrate the
-benefit of testing semantics vs. testing syntax. Inspecting the generated C
+The second example concerns mocking. A mock is a part of a program that can be
+used in place of the real one, to simulate some kind of environment of the
+system under test. We use this in the components extension. The following is a
+test case that checks if the \ic{client} uses the \ic{PersistenceProvider} interface
+correctly. Let's start by taking a look at the interface:
+
+\begin{code}
+interface PersistenceProvider { 
+  boolean isReady() 
+  void store(DataPacket* data) 
+  void flush() 
+}
+\end{code}
+
+The interface is expected to be used in the following way: clients first have to
+call \ic{isReady}, and only if that method returns \ic{true} are they supposed
+to call \ic{store}, and then after any number of calls to \ic{store}, they have
+to call \ic{flush}\footnote{Our components language actually also supports
+protocol state machines which support the declarative specification of valid
+call sequences}. Let us assume now we want to check if a certain client
+component uses the interface correctly. Assuming it provides an operation
+\ic{run} that uses the persistence provider, we could write the following test:
+
+\begin{code}
+exported test case runTest { 
+  client.run(); 
+  // somehow check is behaved correctly 
+}
+\end{code}
+
+To check if the client behaves correctly, we can use a mock. Our mock specifies
+the \emph{icoming} methods calls it expects to see. We have provided a mocking
+extension to components to support this. Here is the mock:
+
+\begin{code}
+exported mock component PersistenceMock { 
+  ports: 
+    provides PersistenceProvider pp 
+  expectations: 
+    total no. of calls is 4 
+    sequence { 
+      0: pp.isReady return false; 
+      1: pp.isReady return true; 
+      2: pp.store { 
+          0: parameter data: data != null 
+        } 
+      3: pp.flush 
+    } 
+}
+\end{code}
+
+The mock provides the \ic{PersistenceProvider} interface, so any other component
+that wants to use this interface can use this component as the implementation.
+But instead of actually implementing the operations prescribed by
+\ic{PersistenceProvider}, we specify the sequence of invocations we're expect to
+see. We expect a total number of 4 invocations. The first one is expected to be
+to \ic{isReady}. We return false, expecting that the client tries again later.
+If it does, we return \ic{true} and expect the client to continue with
+persisting data. We can now validate the mock as part of the test case:
+
+\begin{code}
+exported test case runTest { 
+  client.run(); 
+  validate mock persistenceMock  
+}
+\end{code}
+
+In case the \ic{persistenceMock} saw behaviour different from the one specified
+above, the \ic{validate mock} statement will fail --- and with it, the whole
+test.
+
+\subsubsection{Structural Testing}
+
+What we suggested in the previous subsection tests the execution semantics of
+programs written in DSLs, and, if we have enough of these tests, it tests the
+correctness of the transformation, generator or interpreter. However, there is a
+significant drawback to this approach: it only works if the DSL actually
+specifies behavior! If the DSL only specifies structures and cannot be executed,
+the approach does not work\footnote{For testing execution semantics, this does
+not matter --- if you cannot execute something because it has no behavior, then
+there is no execution semantics to test in the first place. But you also cannot
+use the approach to implicitly test generators or transformations then}. In this
+case you have to perform a structural test. In principle, this is simple:
+
+\begin{itemize}
+  \item You write an example model
+  \item You generate it\footnote{I have never seen an interpreter to process
+  languages that only specify structures}
+  \item And then you inspect the resulting model or test for the expected
+  structures
+\end{itemize}
+
+Depending on the target formalism you can use regular expressions, XPath
+expressions or OCL-like expressions to achieve this\ic{Remember that you should
+still automate this!}. 
+
+Note that you really should only use this if you cannot use semantics testing
+based on execution. Inspecting the generated C
 code for syntactic correctness, based on the input program, would be much more
-work. Also, in case the DSL has several different generators to achieve a degree
-of platform independence, the tests automatically benefit from this platform
-independence as well. This is specifically true since in case of the unit
-testing extension, its generator output MPS-C, which is subsequently transformed
-into one of several versions of platform specific C code. The unit testing
-extension gets this platform independency "for free". 
+work. And if we evolve the generator to generate better (faster, smaller, more
+robust) code, tests based on the execution semantics will still work, while
+those that test the structure may fail because line numbers or variable names
+change.
+
+Structural testing can also be useful to unit test model-to-model
+transformations. Conside the example in \sect{m2mxtext}. There, inserted
+additional states and transitions into whatever input state machine our
+transformation processed. Testing this via execution invariably tests the
+model-to-model transformation as well as the generator (or interpreter). If we
+wanted to test the model-to-model transformation in isolation, we have to use
+structural testing. The following piece of code could be used to check that, for
+a specific input program, the transformation works correctly:
+
+\begin{code}
+// run transformation
+val tp = p.transform
+
+// test result structurally
+val states = tp.states.filter(typeof(CustomState))
+assert( states.filter(s|s.name.equals("EMERGENCY_STOP")).size == 1 )
+
+val emergencyState = states.findFirst(s|s.name.equals("EMERGENCY_STOP"))
+states.findFirst(s|s.name.equals("noCooling")).eAllContents.
+    filter(typeof(ChangeStateStatement)).
+        exists(css|css.targetState == emergencyState)
+\end{code}
+
+This program first runs the transformation, and then grabs all \ic{CustomState}s
+(those that are not start or stop states). We then assert that in those states
+there is exactly one with the name \ic{EMERGENCY_STOP}, because we assume that
+the transformation has added this state. We then check that in the
+(one and only) \ic{noCooling} state there's at least one
+\ic{ChangeStateStatement} whose target state is the \ic{emergencyState} we had
+retrieved above.
+
+Notice that we don't write an algorithmic check that closely resembles the
+transformation itself. Rather, we test a specific model for the presence of
+specific structures. For example, we explicitly look for a state called
+\ic{noCooling} and check that this one has the correct
+\ic{ChangeStateStatement}.
+
+
+\subsubsection{Model Checking}
 
 
 \subsection{Testing for language completeness}
@@ -426,6 +566,8 @@ These programs are
 made persistent and the tests can be rerun ar any time, making sure the grammar
 doesn't stop handling existing programs.
 
+
+editor testing with MPS thingy
 
 Testing the syntax: just write examples and see....
 
