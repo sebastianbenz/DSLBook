@@ -1446,6 +1446,24 @@ left-hand and right-hand side. After the right-hand side, SDF productions may
 specify annotations using curly brackets. Most productions specify a quoted
 \emph{constructor label} that is used for the abstract syntax. This particular
 production creates a tree node with the label "Module."
+The left-hand side of an SDF production is the pattern it matches against.
+SDF supports symbols, literals, and character classes in this pattern.
+Symbols are references to other productions, such as \ic{ID}.
+Literals are quoted strings such as \ic{"module"} that must appear
+in the input.
+Character classes specify a range of characters expected in the input,
+e.g.\ \ic{[A-Za-z]} specifies that an alphabetic character is expected.
+We discuss character classes in more detail below.
+
+The basic elements of SDF productions can be combined with
+operators. The \ic{A*} operator shown above specifies that zero or more
+occurrences of \ic{A} are expected. \ic{A+} specifies that
+one or more are expected. \ic{A?} specifies that
+zero or one are expected. \ic{\curlies{A B}*} specifies
+zero or more \ic{A} symbols, separated by \ic{B} symbols are expected.
+As an example, \ic{\curlies{ID ","}*} is a comma-separated list
+of identifiers. \ic{\curlies{A B}+} specifies one or more
+\ic{A} symbols separated by \ic{B} symbols.
 
 \Figure{Fig:mobl-grammar-basic} shows an SDF grammar for a subset of mobl's
 entities and functions syntax. The productions in this grammar should have few
@@ -1501,8 +1519,23 @@ lexical syntax
 As Spoofax uses a scannerless parser, all lexical syntax can be customized in
 the SDF grammar. It provides default definitions for common lexical syntax
 elements such as strings, integers, floats, whitespace and comments. But when
-needed, custom syntax can be specified. In particular, for whitespace and
-comments a special terminal \ic{LAYOUT} can be used. SDF implicitly inserts
+needed, custom syntax can be specified.
+
+Most lexical syntax is specified using character classes such as \ic{[0-9]}. 
+Each character class is enclosed in square brackets, and can consist
+of ranges of characters (\ic{c$_1$-c$_2$}), letters and digits
+(e.g.,\ \ic{x} or \ic{4}), non-alphabetic literal characters (e.g.,\ \ic{$\backslash$\_}),
+and escapes (e.g.\ \ic{$\backslash{}$n}). A complement
+of a character class can be obtained using the {\raise.17ex\hbox{$\scriptstyle\sim$}} operator, e.g.\ 
+{\raise.17ex\hbox{$\scriptstyle\sim$}}\ic{[A-Za-z]} matches all non-alphabetic characters.
+
+For whitespace and
+comments a special terminal \ic{LAYOUT} can be used.
+%
+%In the grammar shown above, \ic{LAYOUT} is defined as a character class
+%of that includes spaces, tabs, and new lines. 
+%
+SDF implicitly inserts
 \ic{LAYOUT} in between all symbols in context-free productions. This behavior is
 the key distinguishing feature between context-free and lexical productions:
 lexical symbols such as identifiers and integer literals cannot be interleaved
@@ -1582,9 +1615,9 @@ amb([
 )]
 \end{code}
 
-\noindent The \ic{amb} node indicates an \emph{ambiguity} anqd shows all
+\noindent The \ic{amb} node indicates an \emph{ambiguity} and shows all
 possible interpretations. Whenever an ambiguity is encountered in a file, it is
-marked with a warning \MV{in the editor?}. Ambiguities can be resolved by adding
+marked with a warning in the editor. Ambiguities can be resolved by adding
 annotations to the grammar that describe the intended interpretation.
 
 For the \ic{Plus} operator, we can resolve the ambiguity by specifying that it
@@ -1673,10 +1706,9 @@ lexical restrictions
 \end{code}
 
 This section "restricts" the grammar by specifying that
-if an identifier cannot be followed by another character
-that matches \ic{[A-Za-z0-9]} \MV{The "if" in the previous sentence does not
-seem to make sense}. Effectively, it enforces a longest match policy for the
-\ic{ID} sort \MV{Have you used and explained the term "sort" already?}. 
+any \ic{ID} cannot be directly followed by a character
+that matches \ic{[A-Za-z0-9]}. Effectively, it enforces a longest match policy for the
+\ic{ID} symbol. 
 
 SDF also allows the use of lexical restrictions for keywords. By default it does
 not enforce longest match, which means it allows the following definition of a
@@ -1708,12 +1740,7 @@ lexical restrictions
 So far we have discussed purely syntax specification in SDF. Spoofax also allows
 the specification of name binding annotations in SDF grammars, which specify
 semantic relations between productions. We discuss how these relations are
-specified in \Chapter{Ch:scopes}.
-
-\todo{
-somewhere we should discuss at least SDF's \ic{\curlies{FArg ","}*} notation, but
-maybe also some of the other operators
-}
+specified in \Chapter{Ch:scopes}.
 
  
 \section{MPS Example}
