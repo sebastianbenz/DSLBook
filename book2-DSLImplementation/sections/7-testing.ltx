@@ -25,8 +25,7 @@ the whole simualtion story goes here as well. And interpreter. BSH.}
   Does the language cover the complete domain?
 \end{itemize}
 
-\todo{I suggest we put the various tool examples into each of the following
-sections}
+
 
 \subsection{Syntax Testing}
 
@@ -550,8 +549,171 @@ specific structures. For example, we explicitly look for a state called
 \ic{ChangeStateStatement}.
 
 
-\subsubsection{Model Checking}
+\subsubsection{Formal Verification}
 
+Formal verification is an alternative to testing in some cases. The fundamental
+different between testing and verification is this: in testing, each test case
+specifies \ic{one} particular execution scenario. To get reasonable or full
+coverage of the whole model or generator, you have to write and execute many
+tests. This can be a lot of work, and, more importantly, you may not think about
+certain (exceptional) scenarios, and hence you may not test then. Bug may go
+unnoticed.
+
+Verification checks \ic{the whole program} at once. Varios non-trivial
+algorithms are used to do that, and understanding these algorithms in detail is
+beyond the scope of this book. However, it is very useful to know these
+appraoches exist, especially since, over the last couple of years, they have
+become scalable enough to address real-world problems. 
+
+In this section we look at three examples cases --- the first will be the most
+detailed.
+
+\paragraph{Model Checking State Machines}
+
+Model Checking is a verification technique for state machines. Here is how it
+works in principle:
+
+\begin{itemize}
+  \item a piece of functionality is expressed as a state machine
+  \item you then specify \emph{properties} of the state machine. Properties are
+  expressions that have to true about the state machine
+  \item you run the model checker with the state machine and the properties as
+  input
+  \item the output of the model checker either confirms that your properties
+  hold, or it shows a counter example\footnote{It may also report Out Of
+  Memory, in which case you have to reformulate or modularize your program and
+  try again}.
+\end{itemize}
+
+Conceptually, the model checker performs an exhaustive search as part of the
+verification process. Obviously, the more complex your state machine is, the
+more possibilities the checker has to address, a problem known as state space
+explosion. With finite memory, this limits scalability. In actual fact the model
+checker does \emph{not} perform an exhaustive search; clever algorithms have
+been devised that are semantically equivalent to an exhaustive search, but don't
+actually perform one. This makes model checking scalable and fast enough for
+real-world problems, although there is still a limit in terms of input model
+complexity.
+
+The interesting aspect of model checking is that the properties you specify are
+not just simple boolean expressions such as \emph{each state must have at least
+one outgoing transition, unless it is a stop state}. Such a check can be
+performed statically, by "just looking" at the model. The properties model
+checkers are more elaborate and are often typically expressed in (various
+flavours of) temporal logic. Here are some examples, expressed in plain English:
+
+\begin{itemize}
+  \item \emph{It is always true that after we have been in state-X we will
+  eventually be reaching state-Y}. This is a so-called Fairness
+  property. It ensures that the state machine does not get stuck in some state forever.
+  For example, \ic{state-Y} may be the green light for pedestrians, and
+  \ic{state-X} could be the green light for cars.
+  \item \emph{Whereever we are in the state machine, it is always possible to get
+  into state-X}. This is a Liveliness property. Consider a machine where
+  you always want to be able to turn it off.
+  \item \emph{It is not ever possible to get into state-X without having gone
+  through state-Y directly before}. This is a Safety property. Imagine a state
+  machine where entering \emph{state-X} turns the pedestrian lights gree and
+  entering \ic{state-X} turns the car lights red.
+\end{itemize}
+
+The important property of these temporal logic specifications is that
+quantifiers such as \emph{always}, \emph{whenever} and \emph{there exists} are
+available. Using these one can specify \emph{global truths} about the \emph{execution}
+of a system. Three different flavours of languages exist to specify these
+properties: LTL, CTL and CTL+. The concrete syntax is beyond the scope of this
+book.
+
+Model checking does come with its challenges. The input language for specifying
+state machines as well as specifying the properties is not necessarily easy to
+work with. Interpreting the replies of the model checker can be a challenge. And
+for some of the tools, the usability is really bad --- the PROMELA/SPIN model
+checker comes to mind here!
+
+To make model checking more user friendly the mbeddr C language provides a nice
+syntax for state machines and then generates the corresponding representation in
+the input language of the model checker (we use the NuSMV model checker here).
+The replies of the model checker are also reinterpreted in the context of the
+higher level state machine. Tool integration is provided as well: users can
+select the context menu on a state machine and invoke the model checker. The
+model checker input is generated, the model checker is executed, and the replies
+are rendered in a nice table in MPS. Finally, we have abstracted the property
+specification language by providing support for the most important idioms; these
+can be specified relatively easily. Also, a number of properties are
+automatically checked for each state machine. Let us look at an example. The
+following code shows a state machine that represents a counter. We can send the
+\ic{step} event into the state machine, and as a consequence, it increments the
+\ic{currentVal} counter by the \ic{size} parameter passed with the event. If the
+\ic{currentVal} would become greater than \ic{LIMIT}, the counter wraps around.
+We can also use the \ic{start} event to reset the counter to \ic{0}.
+
+\begin{code}
+verified statemachine Counter { 
+  in events 
+    start() 
+    step(int[0..10] size)  
+  local variables 
+    int[0..100] currentVal = 0 
+    int[0..100] LIMIT = 10 
+  states ( initial = initialState ) 
+    state initialState { 
+      on start [ ] -> countState {  } 
+    } 
+    state countState { 
+      on step [currentVal + size > LIMIT] -> initialState { } 
+      on step [currentVal + size <= LIMIT] -> countState { currentVal = currentVal + size; } 
+      on start [ ] -> initialState {  } 
+    }
+}
+\end{code}
+
+Since this state machine is marked as \ic{verifiable}, can run the model checker
+from the context menu. \fig{verification1} shows the result of running the model
+checker.
+
+
+\begin{figure}[ht]
+\begin{center}
+  \includegraphics[width=11cm]{figures/7/verification1.png}
+  \caption[]{}
+  \label{verification1} 
+\end{center} 
+\end{figure}
+
+Here is a subset of the properties it has checked successfully:
+
+\begin{code}
+State 'initialState' can be reached	SUCCESS	
+Variable 'currentVal' is always between its defined bounds	SUCCESS	
+Variable 'LIMIT' is always between its defined bounds	SUCCESS	
+State 'countState' has deterministic transitions	SUCCESS	
+Transition 0 of state 'initialState' is not dead	SUCCESS	
+\end{code}
+
+
+\paragraph{SAT Solving}
+
+\paragraph{Deriving Test Cases}
+
+
+
+
+
+
+
+
+In general, you have to be careful about what exactly you test. For example, if
+you automatically derive the tests from the core model that specifies the
+functionality, then successfully running these tests does not \emph{not} test
+the model. If you forget to model something important in the model, such tests
+cannot find that. Strictly speaking, it only tests that the generators for the
+core model and the tests are compatible --- possibly both wrong, but compatibly
+so.
+
+If you want to test a program, the test model \emph{must} be separate. 
+
+
+\subsection{Formally verifying semantics}
 
 \subsection{Testing for language completeness}
 
@@ -565,6 +727,8 @@ Testing whether the DSL can express what it should - review, example code...
 These programs are
 made persistent and the tests can be rerun ar any time, making sure the grammar
 doesn't stop handling existing programs.
+
+
 
 
 editor testing with MPS thingy
