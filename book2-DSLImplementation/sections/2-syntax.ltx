@@ -150,18 +150,15 @@ custom-written or generated).
 \MV{Do we want to say something regarding our dislike of actions (procedural
 code) embedded in grammars? We'd like to separate these concerns\ldots}
 
-\paragraph{Parsing versus scanning}
-
-Because of the complexity inherent in parsing, parser implementations tend to
-split the parsing process into a number of phases. In the majority of cases, the
-text input is first separated into a sequence of \emph{tokens} (i.e.,
-keywords, identifiers, literals, comments, whitespace, etc.) by
-a \emph{scanner} (sometimes also called lexer). The
-\emph{parser} then constructs the actual AST from the token
-sequence. This simplifies the implementation compared to directly parsing at
-the character level. A scanner is usually implemented using direct recognition of
-keywords and a set of regular expressions to recognize all other valid input as
-tokens.
+\parhead{Parsing versus scanning} Because of the complexity inherent in parsing,
+parser implementations tend to split the parsing process into a number of
+phases. In the majority of cases, the text input is first separated into a
+sequence of \emph{tokens} (i.e., keywords, identifiers, literals, comments,
+whitespace, etc.) by a \emph{scanner} (sometimes also called lexer). The
+\emph{parser} then constructs the actual AST from the token sequence. This
+simplifies the implementation compared to directly parsing at the character
+level. A scanner is usually implemented using direct recognition of keywords and
+a set of regular expressions to recognize all other valid input as tokens.
 
 Both the scanner and parser can be generated from grammars (see below). A
 well-known example of a scanner (lexer) generation tool is \ic{lex}. Modern
@@ -199,7 +196,7 @@ parsing.
 
 \MV{[symbol tables] should be discussed in the scoping and linking section?}
 
-% \paragraph{Symbol tables}
+% \parhead{Symbol tables}
 
 % Older compiler technology books tend to talk quite a bit about symbol tables,
 % i.e.\ a table which stores identifiers encountered in the input, their location
@@ -218,15 +215,13 @@ parsing.
 % achieve the same goal, but even comfortably across the boundaries of single
 % files. Therefore, this will be the last spot we will mention symbol tables.
 
-\paragraph{Grammars}
-
-Grammars are the formal definition for concrete textual syntax. They consist of
-so-called production rules which define how valid input ("sentences") looks
-like. They can also be used to "produce" valid input, hence their name. Grammars
-form the basis for syntax definitions in text-based workbenches such as Spoofax
-and Xtext. In these systems, the production rules are enriched with information
-beyond the pure grammatical structure of the language, such as the semantical
-relation between references and declarations. 
+\parhead{Grammars} Grammars are the formal definition for concrete textual
+syntax. They consist of so-called production rules which define how valid input
+("sentences") looks like. They can also be used to "produce" valid input, hence
+their name. Grammars form the basis for syntax definitions in text-based
+workbenches such as Spoofax and Xtext. In these systems, the production rules
+are enriched with information beyond the pure grammatical structure of the
+language, such as the semantical relation between references and declarations.
 
 Fundamentally, grammar production rules can be expressed in
 Backus-Naur Form (BNF)\footnote{}, written as \(S\) \ic{::=} \(P_1\) \ic{...} \(P_n\)
@@ -267,14 +262,14 @@ refers to number literals.}
 
 
 
-\paragraph{Grammar classes}
-
-BNF can describe any grammar that maps textual sentences to trees based only on
-the input symbols. These are called \emph{context-free grammars} and can be used to parse the majority of modern programming languages.
-In contrast, \emph{context-sensitive grammars} are those that also depend on the
-context in which a partial sentence occurs, making them suitable for natural
-language processing but at the same time, making parsing itself a lot harder
-since the parser has to be aware of a lot more than just the syntax.
+\parhead{Grammar classes} BNF can describe any grammar that maps textual
+sentences to trees based only on the input symbols. These are called
+\emph{context-free grammars} and can be used to parse the majority of modern
+programming languages. In contrast, \emph{context-sensitive grammars} are those
+that also depend on the context in which a partial sentence occurs, making them
+suitable for natural language processing but at the same time, making parsing
+itself a lot harder since the parser has to be aware of a lot more than just the
+syntax.
 
 Parser generation was first applied in command-line tools such as \ic{yacc}
 in the early seventies. As a consequence of relatively slow computers, much
@@ -400,15 +395,13 @@ to one of the restricted classes. Valid, unambiguous grammars exist that cannot
 be factored to any of the restricted grammar classes. In practice, this means
 that some languages cannot be parsed with LL or LR parsers.
 
-\paragraph{General parsers}
-
-Research into parsing algorithms has produced parser generators specific to
-various grammar classes, but there has also been research in parsers for the
-full class of context-free grammars. A naive approach to avoid the restrictions
-of LL or LR parsers may be to add backtracking, so that if any input doesn't match
-a particular production, the parser can go back and try a different production.
-Unfortunately, this approach risks exponential execution times or
-non-termination and usually exhibits poor performance.
+\parhead{General parsers} Research into parsing algorithms has produced parser
+generators specific to various grammar classes, but there has also been research
+in parsers for the full class of context-free grammars. A naive approach to
+avoid the restrictions of LL or LR parsers may be to add backtracking, so that
+if any input doesn't match a particular production, the parser can go back and
+try a different production. Unfortunately, this approach risks exponential
+execution times or non-termination and usually exhibits poor performance.
 
 There are also general parsing algorithms that can \emph{efficiently} parse the
 full class. In particular, generalized LR (GLR) and Earley parsers can parse
@@ -417,12 +410,11 @@ cubic or $O(n^3)$ time in the worst case. Spoofax is an example of a language
 workbench that uses GLR parsing.
 
 
-\paragraph{Ambiguity}
-
-Grammars can be \emph{ambiguous} meaning that at least one valid sentence in the
-language can be constructed in more than one (non-equivalent) way from the
-production rules, corresponding to multiple possible ASTs. This obviously is a problem for parser
-implementation as some decision has to be made on which AST is preferred.
+\parhead{Ambiguity} Grammars can be \emph{ambiguous} meaning that at least one
+valid sentence in the language can be constructed in more than one
+(non-equivalent) way from the production rules, corresponding to multiple
+possible ASTs. This obviously is a problem for parser implementation as some
+decision has to be made on which AST is preferred.
 
 For example, the expression language grammar given in
 \fig{Fig:exp-grammar-simple} is ambiguous. For a string \ic{1*2+3} there
@@ -460,17 +452,15 @@ grammar does not describe which interpretation should be preferred.
 Parser generators for restricted grammar classes and generalized parsers handle
 ambiguity differently. We discuss both approaches.
 
-\paragraph{Ambiguity with grammar classes}
-
-LL and LR parsers are deterministic parsers: they can only return one possible
-tree for a given input. This means they can't handle any grammar that has
-ambiguities, including the grammar in \fig{Fig:exp-grammar-simple}.
-Determining whether a grammar is ambiguous is a classical, undecidable problem.
-However, it is possible to detect violations of the LL or LR grammar class
-restrictions, in the form of conflicts. These conflicts do not always indicate
-ambiguities (as seen with the field access grammar of
-\fig{Fig:field-access-grammar}), but by resolving all conflicts (if possible)
-an unambiguous grammar can be formed.
+\parhead{Ambiguity with grammar classes} LL and LR parsers are deterministic
+parsers: they can only return one possible tree for a given input. This means
+they can't handle any grammar that has ambiguities, including the grammar in
+\fig{Fig:exp-grammar-simple}. Determining whether a grammar is ambiguous is a
+classical, undecidable problem. However, it is possible to detect violations of
+the LL or LR grammar class restrictions, in the form of conflicts. These
+conflicts do not always indicate ambiguities (as seen with the field access
+grammar of \fig{Fig:field-access-grammar}), but by resolving all conflicts (if
+possible) an unambiguous grammar can be formed.
 
 Resolving grammar conflicts in the presence of associativity, precedence, and
 other risks of ambiguity requires carefully layering the grammar in such a way
@@ -497,15 +487,14 @@ Mult ::= NUM ("*" NUM)*
 \end{code}
 
 
-\paragraph{Ambiguity with generalized parsers}
-
-General parsers accept grammars regardless of recursion or ambiguity. That is,
-the grammar of \Figure{Fig:exp-grammar-simple} is readily accepted as a valid
-grammar. In case of an ambiguity, the generated parser simply returns all
-possible abstract syntax trees, e.g.\ a left-associative tree and a
-right-associative tree for the expression \ic{1*2+3}. The different trees
-can be manually inspected to determine what ambiguities exist in the grammar, or
-the desired tree can be programmatically selected.
+\parhead{Ambiguity with generalized parsers} General parsers accept grammars
+regardless of recursion or ambiguity. That is, the grammar of
+\Figure{Fig:exp-grammar-simple} is readily accepted as a valid grammar. In case
+of an ambiguity, the generated parser simply returns all possible abstract
+syntax trees, e.g.\ a left-associative tree and a right-associative tree for the
+expression \ic{1*2+3}. The different trees can be manually inspected to
+determine what ambiguities exist in the grammar, or the desired tree can be
+programmatically selected.
 
 Language developers can use \emph{disambiguation filters} to indicate which
 interpretation should be preferred. For example, left-associativity can be
@@ -534,29 +523,23 @@ limited grammar classes.
 
 
 
-\paragraph{Compositionality of Grammars}
-
-Grammars evolve as languages change and new features are added.
-These features can be added by adding single, new productions, or
-by composing the grammar with an existing grammar. Composition
-of grammars is an efficient way of reusing grammars and quickly
-constructing or extending new grammars.
-\MV{I think evolultion of grammars is different from composition: in the
-evolution, we change an existing one, invasively. In composition, we want to
-composed independetly developed ones, ideally without change. The above
-paragraph makes it all sound "one problem".}
-\LK{true, they're not really the same. however, they are
-both affected by these challenges. for 
-composition, the problem is a just bit worse since you don't want
-to invasively change the input grammars.}
-\LK{do you think evolution should be removed here, though?
-particularly the "resistance to change" property of
-LL grammars really affects grammar evolution}
-\MV{I suggest you make it two sections. One is on evolution (where you talk
-about the "resistance to change", and the other one is about composotionality
-(where you talk about independent, no-invasive modification of grammars. You
-can still refer to the same fundamental issues in both sections, but I think
-it is two different sections.))}
+\parhead{Compositionality of Grammars} Grammars evolve as languages change and
+new features are added. These features can be added by adding single, new
+productions, or by composing the grammar with an existing grammar. Composition
+of grammars is an efficient way of reusing grammars and quickly constructing or
+extending new grammars. \MV{I think evolultion of grammars is different from
+composition: in the evolution, we change an existing one, invasively. In
+composition, we want to composed independetly developed ones, ideally without
+change. The above paragraph makes it all sound "one problem".} \LK{true, they're
+not really the same. however, they are both affected by these challenges. for
+composition, the problem is a just bit worse since you don't want to invasively
+change the input grammars.} \LK{do you think evolution should be removed here,
+though? particularly the "resistance to change" property of LL grammars really
+affects grammar evolution} \MV{I suggest you make it two sections. One is on
+evolution (where you talk about the "resistance to change", and the other one is
+about composotionality (where you talk about independent, no-invasive
+modification of grammars. You can still refer to the same fundamental issues in
+both sections, but I think it is two different sections.))}
 
 As a basic example of a grammar composition, consider an the following
 grammar for arithmetic expressions:
@@ -1086,7 +1069,7 @@ state initialCooling:
 \end{code}
 
 
-\paragraph{Grammar basics} \marginnote[5mm]{It is also possible to first create
+\parhead{Grammar basics} \marginnote[5mm]{It is also possible to first create
 the EMF meta model and then define a grammar for it. While this is a bit more work,
 it is also more flexible because not all possible Ecore meta models can be
 described implicitly by a grammar. For example, interfaces cannot be expressed
@@ -1203,13 +1186,11 @@ up into the abstract \ic{State} meta class so they can be accessed polymorphical
 
 \todo{Provide figure captions}
 
-\paragraph{References}
-
-Let us now look at statements and expressions. \ic{State}s have entry and exit
-statements, procedural code that is executed when a state is entered and left,
-respectively. \ic{set v = 1} in the hello world program is an example. \ic{Statement}
-itself is of course abstract and has the various kinds of statements as
-subtypes/alternatives:
+\parhead{References} Let us now look at statements and expressions. \ic{State}s
+have entry and exit statements, procedural code that is executed when a state is
+entered and left, respectively. \ic{set v = 1} in the hello world program is an
+example. \ic{Statement} itself is of course abstract and has the various kinds
+of statements as subtypes/alternatives:
 
 \begin{code} 
 Statement:
@@ -1269,7 +1250,7 @@ rules of the language. To control the possible reference targets, scoping
 functions are used. These will be explained in the next section.
 
 
-\paragraph{Expressions} The \ic{AssignmentStatement} shown above is one of the
+\parhead{Expressions} The \ic{AssignmentStatement} shown above is one of the
 statements that uses expressions. This leads us to discussing the implementation
 of expressions in Xtext. Let us look at the definition of expressions as a
 whole. The following snippet is a subset of the actual definition of expressions
@@ -1428,12 +1409,12 @@ by a list of entity type definitions.
 In turn, each entity can have one or more property or function definitions
 (shown in the next example snippet).
 
-\paragraph{Grammar basics}
 
-In Spoofax, the syntax of languages is described using SDF. SDF is a modular and
-flexible syntax definition formalism, supported by the SGLR parser generator. It
-can generate efficient, Java-based scannerless and general parsers. An example
-of a production written in SDF is
+\parhead{Grammar basics} In Spoofax, the syntax of languages is described using
+SDF. SDF is a modular and flexible syntax definition formalism, supported by the
+SGLR parser generator. It can generate efficient, Java-based scannerless and
+general parsers. An example of a production written in SDF is
+
 
 \begin{code}
 "module" ID Entity* -> Start {"Module"}
@@ -1514,12 +1495,10 @@ lexical syntax
 
 
 
-\paragraph{Lexical syntax}
-
-As Spoofax uses a scannerless parser, all lexical syntax can be customized in
-the SDF grammar. It provides default definitions for common lexical syntax
-elements such as strings, integers, floats, whitespace and comments. But when
-needed, custom syntax can be specified.
+\parhead{Lexical syntax} As Spoofax uses a scannerless parser, all lexical
+syntax can be customized in the SDF grammar. It provides default definitions for
+common lexical syntax elements such as strings, integers, floats, whitespace and
+comments. But when needed, custom syntax can be specified.
 
 Most lexical syntax is specified using character classes such as \ic{[0-9]}. 
 Each character class is enclosed in square brackets, and can consist
@@ -1543,15 +1522,14 @@ with layout. The second distinguishing feature is that lexical syntax
 productions usually do not have a constructor label in the abstract syntax, as
 they form terminals in the abstract syntax trees.
 
-\paragraph{Abstract syntax}
-
-To produce abstract syntax trees, Spoofax uses the ATerm format, described in
-\Section{Sec:spoofax-aterm}. SDF combines the specification of concrete and
-abstract syntax, primarily through the specification of constructor labels. The
-way this works is most easily understood using an example. Spoofax allows users
-to view the abstract syntax of any input file using the ``Transform" button to
-apply a transformation. As an example, the following is an abridged abstract
-syntax term for the shopping module shown at the start of this section:
+\parhead{Abstract syntax} To produce abstract syntax trees, Spoofax uses the
+ATerm format, described in \Section{Sec:spoofax-aterm}. SDF combines the
+specification of concrete and abstract syntax, primarily through the
+specification of constructor labels. The way this works is most easily
+understood using an example. Spoofax allows users to view the abstract syntax of
+any input file using the ``Transform" button to apply a transformation. As an
+example, the following is an abridged abstract syntax term for the shopping
+module shown at the start of this section:
 
 \begin{code}
 Module(
@@ -1591,11 +1569,10 @@ expression \ic{1 + (2)} would produce \ic{Plus("1","2")} in the abstract syntax,
 and not \ic{Plus("1",bracket("2"))}.
 
 
-\paragraph{Precedence and associativity}
-
-SDF provides special support for specifying the associativity and precedence
-order of operators or other syntactic constructs. As an example, let us consider
-the production of the \ic{Plus} operator:
+\parhead{Precedence and associativity} SDF provides special support for
+specifying the associativity and precedence order of operators or other
+syntactic constructs. As an example, let us consider the production of the
+\ic{Plus} operator:
 
 \begin{code}
 Exp "+" Exp -> Exp {"Plus"}
@@ -1642,16 +1619,15 @@ context-free priorities
 priority than the \ic{Plus} operator, resolving the ambiguity that arises for an
 expression such as \ic{1+2*3}.
 
-\paragraph{Reserved keywords and production preference}
-
-Parsers generated with SDF do not use a scanner, but include processing of
-lexical syntax in the parser. Since scanners operate without any context
-information, they will simply recognize any token that corresponds to a keyword
-in the grammar as a reserved keyword. In SDF, it is also possible to use
-keywords that are not reserved, or keywords that are only reserved in a certain
-context. As an example, the following is a legal entity in mobl:
+\parhead{Reserved keywords and production preference} Parsers generated with SDF
+do not use a scanner, but include processing of lexical syntax in the parser.
+Since scanners operate without any context information, they will simply
+recognize any token that corresponds to a keyword in the grammar as a reserved
+keyword. In SDF, it is also possible to use keywords that are not reserved, or
+keywords that are only reserved in a certain context. As an example, the
+following is a legal entity in mobl:
 \begin{code}
-entity entity {
+entity entity {
 
 }
 \end{code}
@@ -1691,14 +1667,13 @@ other interpretations. However, since these interpretations cannot always be
 foreseen as grammars are extended, it is considered good practice to use the
 more specific \ic{reject} approach instead.
 
-\paragraph{Longest match}
-
-Most scanners apply a \emph{longest match} policy for scanning tokens. This
-means that if it is possible to include the next character in the current token,
-the scanner will always do so. For most languages, this is the expected
-behavior, but in some cases longest match doesn't work. SDF instead allows the
-grammar to specify the intended behavior. In Spoofax, the default is specified
-in the "Common" syntax module using a \ic{lexical restrictions} section:
+\parhead{Longest match} Most scanners apply a \emph{longest match} policy for
+scanning tokens. This means that if it is possible to include the next character
+in the current token, the scanner will always do so. For most languages, this is
+the expected behavior, but in some cases longest match doesn't work. SDF instead
+allows the grammar to specify the intended behavior. In Spoofax, the default is
+specified in the "Common" syntax module using a \ic{lexical restrictions}
+section:
 
 \begin{code}
 lexical restrictions
@@ -1735,12 +1710,10 @@ lexical restrictions
   "entity" "module" -/- [A-Za-z0-9]
 \end{code}
 
-\paragraph{Name bindings}
-
-So far we have discussed purely syntax specification in SDF. Spoofax also allows
-the specification of name binding annotations in SDF grammars, which specify
-semantic relations between productions. We discuss how these relations are
-specified in \Chapter{Ch:scopes}.
+\parhead{Name bindings} So far we have discussed purely syntax specification in
+SDF. Spoofax also allows the specification of name binding annotations in SDF
+grammars, which specify semantic relations between productions. We discuss how
+these relations are specified in \Chapter{Ch:scopes}.
 
  
 \section{MPS Example}
@@ -1777,7 +1750,7 @@ module LineFollowerStatemachine {
 \end{code}
 
 
-\paragraph{Concept Definition} MPS is projectional, so we start with the
+\parhead{Concept Definition} MPS is projectional, so we start with the
 definition of the AS. In MPS, AS elements are called concepts. The code below
 shows the definition of the concept \ic{Statemachine}. It contains a collection
 of \ic{State}s and a collection of \ic{InEvent}s. It also contains a reference
@@ -1835,7 +1808,7 @@ system rule will be defined later to constrain this expression to be Boolean.
 The target state is a reference, i.e. we point to an existing state instead of
 owning it. \ic{actions} is another \ic{StatementList} that contains arbitrary Cstatements used as the transition actions.
 
-\paragraph{Editor Definition} Editors, i.e. the projection rules, are made of
+\parhead{Editor Definition} Editors, i.e. the projection rules, are made of
 cells. When defining editors, various cell types are arranged so that the
 resulting syntax has the desired structure. \fig{Fig:mps-stateeditor} shows the
 editor definition for the \ic{State} concept. It uses an \ic{indent} collection
@@ -1890,7 +1863,7 @@ course be bad for human readability, but technically it would still work}.
 textual notations}
 
 
-\paragraph{Intentions} Projection editors imply that only  
+\parhead{Intentions} Projection editors imply that only  
 Intentions (aka quick fixes) are an essential part of MPS' editor philosophy.
 For example, in the previous section we mentioned that we use them to add entry
 actiom statements to a \ic{State}. Here is the intention code:
@@ -1935,7 +1908,7 @@ simply rerendered to update the representation of the program in the editor.
 
 
 
-\paragraph{Expressions} Since we inherit the guard expression structure and
+\parhead{Expressions} Since we inherit the guard expression structure and
 syntax from the C core language, we don't have to define expressions ourselves.
 It is nonetheless interesting to look at their implementation in
 \ic{com.mbeddr.core.expressions}.
@@ -2017,7 +1990,7 @@ consequence of the linear input method, it is sufficient to include this
 rearrangement in the side transformation shown above. 
 
 
-\paragraph{Context Restrictions} MPS makes strong use of polymorphism. If a
+\parhead{Context Restrictions} MPS makes strong use of polymorphism. If a
 language concept defines a child relationship to another concept \ic{C}, then
 any subtype of {C} can also be used in this child relationship. For example, a
 function has a \ic{body} which is typed to \ic{StatementList}, which contains a

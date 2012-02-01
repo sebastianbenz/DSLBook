@@ -575,13 +575,10 @@ would use the guard condition of the input node (expected to be of type
 will be replaced by what the macro expression returns --- in this case, theguard of the input transition.
 
 
-\paragraph{Translating the State Machine}
-
-
-State machines live inside modules. Just like \ic{struct}s they can be
-instantiated. The following code shows an example. Notice the two global
-variables \ic{c1} and \ic{c2}, which are instances of the same state machine
-\ic{Counter}.
+\parhead{Translating the State Machine} State machines live inside modules. Just
+like \ic{struct}s they can be instantiated. The following code shows an example.
+Notice the two global variables \ic{c1} and \ic{c2}, which are instances of the
+same state machine \ic{Counter}.
 
 \begin{code}
 module Statemachine from cdesignpaper.statemachine imports nothing { 
@@ -963,7 +960,7 @@ The following list explains some typical ingredients that go
 into building interpreters for functional and procedural languages. It assumes a
 programming language that can polymorphically invoke functions or methods. 
 
-\paragraph{Expressions} For program elements that can be evaluated to values,
+\parhead{Expressions} For program elements that can be evaluated to values,
 i.e., expressions, there is typically a function \ic{eval} that is defined for
 the various expression types in the language, i.e. it is polymorphically
 overridden for subconcepts of \ic{Expression}. Since nested expressions are
@@ -983,7 +980,7 @@ classes, for example, because there may be several interpreters or because the
 interpreter is developed by other people than the AST.}.
 
   
-\paragraph{Statements} Program elements that don't produce a value only make
+\parhead{Statements} Program elements that don't produce a value only make
 sense in programming languages that have side effects. In other words, execution
 of such a language concept produces some effect either on global data in the
 program (re-assignable variables, object state) or on the environment of the
@@ -1000,7 +997,7 @@ the result (such as deciding whether to execute the then-part of the else-part
 of the \ic{if} statement). Executing the then-part and the else-part simply
 boils down to called \ic{execute} on the respective statement lists.
 
-\paragraph{Environments} Languages that have can express assignment to variables
+\parhead{Environments} Languages that have can express assignment to variables
 require an environment during execution to remember the values for the variables
 at each point during program execution. Consider \ic{int a = 1; a = a + 1;}. In
 this example, the \ic{a} in \ic{a + 1} is a variable reference. When evaluating
@@ -1022,7 +1019,7 @@ is would be \ic{*(someFunc(arg1, arg2)) = 12;}, in C, assuming that
 \ic{someFunc} returns a pointer to an integer).
   
   
-\paragraph{Call Stacks} The ability to call other entities (functions,
+\parhead{Call Stacks} The ability to call other entities (functions,
 procedures, methods) introduces further complexity, especially regarding
 parameter and return value passing. Assume a function \ic{int add(int a, int b)
 \{ return a + b; \}}. When this function is called via \ic{add(2, 3);} the
@@ -1078,21 +1075,19 @@ to handle the following language aspects:
 \end{itemize}
 
 
-\paragraph{Expressions and Statements}
-
-We start our description of the execution engine inside out, by looking at the
-interpreter for expressions and statements first. As mentioned above, for
-interpreting expressions, there is typically an overloaded \ic{eval} operation,
-that contains the implementation of expression evaluation for each subtype of a
-generic \ic{Expression} concept. However, Java doesn't have polymorphically
-overloaded member methods. We compensate this by generating a dispatcher that
-calls a \emph{different} method for each subtype of \ic{Expression}\footnote{If
-we'd use Xtend to implement the interpreter, we could use the \ic{dispatch}
-multimethods instead.}. The generation of this dispatcher is integrated with
-Xtext via an Xtext workflow fragment, i.e. the dispatcher is generated during
-the overall Xtext code generation process. The fragment is configured with the
-abstract meta classes for expressions and statements. The following code shows
-the fragment configuration:
+\parhead{Expressions and Statements} We start our description of the execution
+engine inside out, by looking at the interpreter for expressions and statements
+first. As mentioned above, for interpreting expressions, there is typically an
+overloaded \ic{eval} operation, that contains the implementation of expression
+evaluation for each subtype of a generic \ic{Expression} concept. However, Java
+doesn't have polymorphically overloaded member methods. We compensate this by
+generating a dispatcher that calls a \emph{different} method for each subtype of
+\ic{Expression}\footnote{If we'd use Xtend to implement the interpreter, we
+could use the \ic{dispatch} multimethods instead.}. The generation of this
+dispatcher is integrated with Xtext via an Xtext workflow fragment, i.e. the
+dispatcher is generated during the overall Xtext code generation process. The
+fragment is configured with the abstract meta classes for expressions and
+statements. The following code shows the fragment configuration:
 
 \begin{code}
 fragment = de.itemis.interpreter.generator.InterpreterGenerator {
@@ -1371,11 +1366,10 @@ environment. Finally, we pop the environment, restoring the caller's state of
 the world and return the return value.
 
 
-\paragraph{States, Events and the Main program}
-
-Changing a state from within a cooling program is done by executing a
-\ic{ChangeStateStatement}, which simply references the state that should be
-entered. Here is the interpreter code in \ic{StatementExecutor}:
+\parhead{States, Events and the Main program} Changing a state from within a
+cooling program is done by executing a \ic{ChangeStateStatement}, which simply
+references the state that should be entered. Here is the interpreter code in
+\ic{StatementExecutor}:
 
 
 \begin{code}

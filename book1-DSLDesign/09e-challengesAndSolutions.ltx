@@ -1,7 +1,7 @@
 \subsection{Implementation Challenges and Solutions}
 \label{challenges}
 
-\paragraph{Syntax} Referencing and Reuse keeps fragments homogeneous. Mixing of
+\parhead{Syntax} Referencing and Reuse keeps fragments homogeneous. Mixing of
 concrete syntax is not required. A reference between fragments is usually simply
 an identifier and does not have its own internal structure for which a grammar
 would be required. The name resolution phase can then create the actual
@@ -38,7 +38,7 @@ to \lcr{StateMachine}, because \lcr{StateMachine} cannot directly extend
 
 
 
-\paragraph{Type Systems} For referencing, the type system rules and constraints
+\parhead{Type Systems} For referencing, the type system rules and constraints
 of the referencing language typically have to take into account the referenced
 language. Since the referenced language is known when developing the referencing
 language, the type system can be implemented with the referenced language in
@@ -71,7 +71,7 @@ description language (which is unknown at the time of creation of the UI
 language), a mapping must be provided in the adapter language.}
 
 
-\paragraph{Transformation} In this section we use the terms
+\parhead{Transformation} In this section we use the terms
 \emph{transformation} and \emph{generation} interchangably. In general, the term
 transformation is used if one tree of program elements is mapped to another
 tree, while generation describes the case of creating text from program trees.
@@ -243,7 +243,7 @@ language. An example implementation could use AspectJ.
 
 
 
-\paragraph{Embedding} An embeddable language may not come with its own
+\parhead{Embedding} An embeddable language may not come with its own
 generator, since, at the time of implementing the embeddable language, one
 cannot know what to generate. In that case, when embedding the language, a
 suitable generator has to be developed. It will typically either generate host
@@ -280,7 +280,7 @@ interactions if multiple languages are embedded into the same host language.
 \subsection{Tool Support}
 \label{tools}
 
-\paragraph{Eclipse Xtext} Regarding syntax, language referencing is supported by
+\parhead{Eclipse Xtext} Regarding syntax, language referencing is supported by
 Xtext. The grammar language comes with special support to reference concepts
 defined in other languages (or Ecore-based meta model in general). Language
 extension is also supported, but for at most one base language. Consequently,
@@ -302,7 +302,7 @@ to override parts of generators selectively, if the original generator developer
 has delegated the relevant parts to injected classes. This facility supports the
 transformation challenges outlined in the previous section nicely.
 
-\paragraph{JetBrains MPS} MPS supports syntax composition. Since no grammar is
+\parhead{JetBrains MPS} MPS supports syntax composition. Since no grammar is
 used, the extending language simply creates new language constructs, some of
 them extending concepts from the base language. In cases where ambiguity would
 arise in a grammar-based system, MPS requires the language user to decide during
@@ -363,7 +363,7 @@ language as being \emph{incompatible} with another one. In that case an error
 could be reported as soon as the languages are used together in a fragment.
   
 
-\paragraph{SDF/Spoofax}Syntax definition in Spoofax is based on the SDF2 Syntax
+\parhead{SDF/Spoofax} Syntax definition in Spoofax is based on the SDF2 Syntax
 Definition Formalism\cite{Vis97.thesis}. Since SDF uses the Scannerless
 Generalized-LR parsing algorithm, the full class of context-free grammars is
 supported, which is the only grammar class closed under composition, unlike the

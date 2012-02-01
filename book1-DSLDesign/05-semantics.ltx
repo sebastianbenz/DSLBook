@@ -40,7 +40,7 @@ are used to this end and we describe their implementation in the DSL
 Implementation section of this book \todo{cite}. Here is a short overview.
 
 
-\paragraph{Constraints} are simply boolean expressions that
+\parhead{Constraints} are simply boolean expressions that
 establish some property of a model. For example, one might verify that the names
 of a set of attributes of some entity are unique. For a model to be statically
 correct, all constraints have to evaluate to true. Constraint checking should
@@ -90,7 +90,7 @@ able to act on these; they may have never seen the programs generated in $L_2$.
 Again, automated testing is the way to address this issue.
 
 
-\paragraph{Type Systems} are a special kind of constraints. Consider the example of 
+\parhead{Type Systems} are a special kind of constraints. Consider the example of 
 \ic{var int x = 2 * someFunction(sqrt(2));}. The type system constraint may
 check that the type of the variable is the same or a supertype of the type of the
 initialization expression. However, establishing the type of the evaluation
@@ -235,7 +235,7 @@ freedom from deadlocks, assuring liveness and specific safety properties such as
 "it will never happen that the out events \emph{pedestrian light green} and
 \emph{car light green} are set at the same time".}
 
-\paragraph{Multi-staged Transformation} In cases where the semantic gap between
+\parhead{Multi-staged Transformation} In cases where the semantic gap between
 the DSL and the target language is large, it makes sense to introduce
 intermediate languages so the transformation can be modularized. The overall
 transformation becomes a chain of subsequent transformations, and appraoch also
@@ -298,7 +298,7 @@ in the code generator, you should consider a model transformation step to do it,
 and then write a simpler generator that works with a flattened, non-hierarchical
 model.}
 
-\paragraph{Efficiency and Optimization} As mentioned, transforming from $D$ to
+\parhead{Efficiency and Optimization} As mentioned, transforming from $D$ to
 $D_{-1}$ allows the use of sophisticated optimizations, potentially resulting in
 very efficient code. Because the DSL uses domain-specific abstractions and hence
 includes a lot of domain semantics, optimizations can take advantage of this and
@@ -318,7 +318,7 @@ This argument pro tools is also used for garbage collection, transactional
 memory and optimizing compilers for higher level programming languages.
 
 
-\paragraph{Care about generated code} Ideally, generated code is a throw-away
+\parhead{Care about generated code} Ideally, generated code is a throw-away
 artifact, a bit like object files in a C compiler. However, that's not quite
 true. When integrating generated code with manually written code, you will have
 to read the generated code and understand it to some extent. At least during
@@ -369,7 +369,7 @@ cleaner code approach is possible in C.}
   \rule{1\textwidth}{0.7pt}    
 \end{figure}
 
-\paragraph{Platform} Code generators can become complex. The complexity can
+\parhead{Platform} Code generators can become complex. The complexity can
 be reduced by splitting the overall transformation into several steps ---
 see above. Another approach is to work with a manually implemented, rich domain
 specific platform. It typically consists of middleware, frameworks, drivers,

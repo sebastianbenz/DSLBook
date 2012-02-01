@@ -320,7 +320,7 @@ unqualified name using an \ic{import} statement.
 
 
 
-\paragraph{Polymorphic References} In the cooling language, expressions also
+\parhead{Polymorphic References} In the cooling language, expressions also
 include references to various other entities, such as configuration parameters,
 variables and hardware elements (compressors or fans defined in a different
 model). All of these referenceable elements extend the \ic{SymbolDeclaration}
@@ -390,7 +390,7 @@ whatever else is put into the code completion menu by the language developer) of
 the targetted element; once something is selected, the corresponding reference
 concept is instantiated, and the selected target is set.
 
-\paragraph{Simple Scopes} As an example, we begin with the scope definition for
+\parhead{Simple Scopes} As an example, we begin with the scope definition for
 the target reference of the Transition concept. To recap, it is defined as:
 
 \begin{code}
@@ -431,7 +431,7 @@ should be executed if a new reference target is set (\ic{referent set handler}),
 additional validation (\ic{validator}), as well as customized
 presentation in the code completion menu (\ic{presentation}).
 
-\paragraph{Nested Scopes} In a more complex, block oriented language with
+\parhead{Nested Scopes} In a more complex, block oriented language with
 nested scopes, a different implementation pattern is recommended:
 
 \begin{itemize}
@@ -447,14 +447,12 @@ nested scopes, a different implementation pattern is recommended:
   elements that are overshadowed from the result.
 \end{itemize}
 
-\paragraph{Polymorphic References}
-
-We have explained above how references work in principle: they are real pointers
-to the references element. In the section on Xtext (\todo{make sure we explain
-that first}) we have seen how from a given location only one kind of reference
-for any given syntactic form can be implemented. Consider the following example,
-where we refer to a global variable \ic{a} and an event parameter (\ic{timestamp})
-from within expressions:
+\parhead{Polymorphic References} We have explained above how references work in
+principle: they are real pointers to the references element. In the section on
+Xtext (\todo{make sure we explain that first}) we have seen how from a given
+location only one kind of reference for any given syntactic form can be
+implemented. Consider the following example, where we refer to a global variable
+\ic{a} and an event parameter (\ic{timestamp}) from within expressions:
 
 \begin{code}
 var int a;

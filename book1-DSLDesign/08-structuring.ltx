@@ -22,7 +22,7 @@ language designer or the consumers of the DSL as a means of managing overall
 complexity. For this reason they may be hard to "sell" to domain experts.}
 
 
-\paragraph{Modularization and Visibility} DSL often provide some kind of logical
+\parhead{Modularization and Visibility} DSL often provide some kind of logical
 unit structure, such as namespaces or modules. Visibility of symbols may be
 restricted to the same unit, or in referenced ("imported") units. Symbols may be
 declared as public or private, the latter making them changeable without
@@ -66,7 +66,7 @@ insurance business.}
 \marginnote[0.95cm]{If a repository-based tool is used, the importance of
 paritioning is greatly reduced. Although even in that case, there may be a set of federated and
 distributed repositories that can be considered partitions}
-\paragraph{Partitioning} Partitioning refers to the breaking down of programs
+\parhead{Partitioning} Partitioning refers to the breaking down of programs
 into several physical units such as files. These physical units do not have to
 correspond to the logical modularization of the models within the partitions.
 Typically each model fragment is stored in its own partition. For example, in
@@ -154,7 +154,7 @@ used the approach for a long time.
 
 
 
-\paragraph{Specification vs. Implementation} Separating specification and
+\parhead{Specification vs. Implementation} Separating specification and
 implementation supports plugging in different implementations for the same
 specification and hence provides a way to "decouple the outside from the
 inside".\marginnote{Interfaces, pure abstract classes, traits or function
@@ -180,7 +180,7 @@ refrigerator that implements the particular set of traits against which the
 program is written.}
 
 
-\paragraph{Specialization} Specialization enables one entity to be a more
+\parhead{Specialization} Specialization enables one entity to be a more
 specific variant of another one. Typically, the more specific one can be used in
 all contexts where the more general one is expected (the Liskov substitution
 principle\cite{LiskovW94}). The more general one may be incomplete, requiring
@@ -204,7 +204,7 @@ can specialize other cooling programs. Since the programs are fundamentally
 state-based, we had to define what exactly it means to override a pumping 
 program.}
 
-\paragraph{Types and Instances} Types and instances refers to the ability to
+\parhead{Types and Instances} Types and instances refers to the ability to
 define a structure that can be parametrized when it is
 instantiated.\marginnote{In programming languages we know this from classes and
 objects (where constructor parameters are used for parametrization) or from
@@ -216,7 +216,7 @@ and components (which can be instantiated and connected), state machines can
 be instantiated as well. Each instance can be in a different state at any given
 time.}
 
-\paragraph{Superposition and Aspects} Superposition\marginnote{This is
+\parhead{Superposition and Aspects} Superposition\marginnote{This is
 especially important in the context of product line engineering and is discussed
 in\cite{VoelterVisser2011} and in section of this book.} \todo{ref} refers to
 the ability to merge several model fragments according to some DSL-specific merge
@@ -251,7 +251,7 @@ particular feature. For example, in the \emph{researchr} application, a
 \lcr{Publication} entity. This extension is defined in the \lcr{tag}
 module, together with the definition of the \lcr{Tag} entity.}
 
-\paragraph{Versioning} Often, artifacts within DSL programs have to be tracked
+\parhead{Versioning} Often, artifacts within DSL programs have to be tracked
 over time. One alternative is to simply version the model files using existing
 version control systems, or the version control mechanism built into the
 language workbench. However, this requires users to interact with often complex
@@ -332,7 +332,7 @@ This section described some of the most well-known behavioural paradigms that
 can serve as useful starting points for behaviour descriptions in
 DSLs.
  
-\paragraph{Imperative} \marginnote[0.5cm]{For many people, often including
+\parhead{Imperative} \marginnote[0.5cm]{For many people, often including
 domain experts, this approach is most obvious. Hence it is often a good starting point
 for DSLs.} Imperative programs consist of a sequence of statements, or
 instructions, that change the state of a program. This state may be local to
@@ -350,7 +350,7 @@ imperative. Some of the DSLs on top of it use other paradigms.}
 \cooling{The cooling language uses various paradigms, but contains sequences
 of statements to implement aspects of the overall cooling behaviour.}
 
-\paragraph{Functional} Functional programming uses functions as the core
+\parhead{Functional} Functional programming uses functions as the core
 abstraction. A function's return value only depends on the values of its
 arguments. Functions cannot access global state, no side effects are allowed.
 Calling the same function several times with the same argument values has to
@@ -392,7 +392,7 @@ extension as well as in pre- and post-conditions for interface operations. In
 both cases it is not possible to define or call external functions. Of course,
 C's expression language is reused here.}
 
-\paragraph{Declarative} Declarative programming can be considered the opposite
+\parhead{Declarative} Declarative programming can be considered the opposite
 of imperative programming (and, to some extent, functional programming). A
 declarative program does not specify any control flow. It does not specify a
 sequence of steps of a calculation. Instead, a declarative program only
@@ -487,7 +487,7 @@ users specify logic clauses (facts and relations) as well as queries. A theorem
 prover tries to solve the queries\marginnote{The Prolog language works this
 way}.
 
-\paragraph{Reactive/Event-based/Agent} In this paradigm, behavior is triggered
+\parhead{Reactive/Event-based/Agent} In this paradigm, behavior is triggered
 based on events received by some entity. Events may be created by another entity
 or by the environment (through a device driver). Reactions are expressed by the
 production of other events. Events may be globally visible or explicitly routed
@@ -535,7 +535,7 @@ with the debugging process.}
   \caption{Graphical Notation for Flow}
   \label{graphicalFlow2}
 \end{marginfigure} 
-\paragraph{Dataflow} The dataflow paradigm is centered around variables with
+\parhead{Dataflow} The dataflow paradigm is centered around variables with
 dependencies (relationships in terms of calculation rules) among them. As a
 variable changes, those variables that depend on the changing variable are
 recalculated. We know this approach mainly from two use cases. One is
@@ -573,7 +573,7 @@ often functional. Integrating debuggers for the inside of boxes as well is a
 more challenging task.
 
 
-\paragraph{State-based} The state-based paradigm describes a system's behaviour
+\parhead{State-based} The state-based paradigm describes a system's behaviour
 in terms of the states the system can be in, the transitions between these
 states as well as events that trigger these transitions and actions that are
 executed as states change. State machines are useful for systematically

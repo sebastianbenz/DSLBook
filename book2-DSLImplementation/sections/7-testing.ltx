@@ -32,8 +32,9 @@ the whole simualtion story goes here as well. And interpreter. BSH.}
 Testing the syntax is simple. Developers simply try to write all relevant
 programs and see if they can be expressed with the language. 
 
-The following pieve of code is the fundamental code that needs to be written in
-Xtext to test a DSL program using the Xtext testing utilities\footnote{http://code.google.com/a/eclipselabs.org/p/xtext-utils/wiki/Unit_Testing}.
+The following piece of code is the fundamental code that needs to be written in
+Xtext to test a DSL program using the Xtext testing
+utilities\footnote{http://code.google.com/a/eclipselabs.org/p/xtext-utils/wiki/Unit\_Testing}. 
 It is a JUnit 4 test case with special support for the Xtext infrastructure.
 
 \begin{code}
@@ -231,16 +232,14 @@ backends. By executing enough tests, the semantic equivalence of the backends
 can be ensured.
 
 
-\subsubsection{Testing an Interpreter with Xtext}
-
-The cooling language provides a way to express test cases for the cooling
-programs within the cooling language itself. These tests are executed with an
-interpreter inside the IDE, and they can also be executed on the level of the C
-program. Note that this approach cannot just be used for testing interpreters or
-generators, it can also be used to test whether a program written in the DSL
-works correclty. This is in fact why the interpreter and the test sub-language
-have been built in the first place: DSL users should be able to test the
-programs written in the DSL.
+\parhead{Testing an Interpreter with Xtext} The cooling language provides a way
+to express test cases for the cooling programs within the cooling language
+itself. These tests are executed with an interpreter inside the IDE, and they
+can also be executed on the level of the C program. Note that this approach
+cannot just be used for testing interpreters or generators, it can also be used
+to test whether a program written in the DSL works correclty. This is in fact
+why the interpreter and the test sub-language have been built in the first
+place: DSL users should be able to test the programs written in the DSL.
 
 The following code shows one of the simplest possible cooling programs, as well
 as a test case for that program:
@@ -337,13 +336,11 @@ executed against the generated C code. By ensuring that all of them work in the
 interpreter and the generator, we ensure that both behave the same way.
 
 
-\subsubsection{Testing a Generator with MPS}
-
-The following is a test case expressed using the testing extension to mbeddr C.
-It contributes \ic{test case}s to modules. \ic{testMultiply} is the actual test
-case. It calls the to-be-tested function \ic{times2} several times with
-different arguments and then uses an \ic{assert} to check for the expected
-value. 
+\parhead{Testing a Generator with MPS} The following is a test case expressed
+using the testing extension to mbeddr C. It contributes \ic{test case}s to
+modules. \ic{testMultiply} is the actual test case. It calls the to-be-tested
+function \ic{times2} several times with different arguments and then uses an
+\ic{assert} to check for the expected value.
 
 \begin{code}
 module UnitTestDemo { 
@@ -478,18 +475,17 @@ In case the \ic{persistenceMock} saw behaviour different from the one specified
 above, the \ic{validate mock} statement will fail --- and with it, the whole
 test.
 
-\subsubsection{Structural Testing}
-
-What we suggested in the previous subsection tests the execution semantics of
-programs written in DSLs, and, if we have enough of these tests, it tests the
-correctness of the transformation, generator or interpreter. However, there is a
-significant drawback to this approach: it only works if the DSL actually
-specifies behavior! If the DSL only specifies structures and cannot be executed,
-the approach does not work\footnote{For testing execution semantics, this does
-not matter --- if you cannot execute something because it has no behavior, then
-there is no execution semantics to test in the first place. But you also cannot
-use the approach to implicitly test generators or transformations then}. In this
-case you have to perform a structural test. In principle, this is simple:
+\parhead{Structural Testing} What we suggested in the previous subsection tests
+the execution semantics of programs written in DSLs, and, if we have enough of
+these tests, it tests the correctness of the transformation, generator or
+interpreter. However, there is a significant drawback to this approach: it only
+works if the DSL actually specifies behavior! If the DSL only specifies
+structures and cannot be executed, the approach does not work\footnote{For
+testing execution semantics, this does not matter --- if you cannot execute
+something because it has no behavior, then there is no execution semantics to
+test in the first place. But you also cannot use the approach to implicitly test
+generators or transformations then}. In this case you have to perform a
+structural test. In principle, this is simple:
 
 \begin{itemize}
   \item You write an example model
@@ -536,7 +532,7 @@ states.findFirst(s|s.name.equals("noCooling")).eAllContents.
 
 This program first runs the transformation, and then grabs all \ic{CustomState}s
 (those that are not start or stop states). We then assert that in those states
-there is exactly one with the name \ic{EMERGENCY_STOP}, because we assume that
+there is exactly one with the name \ic{EMERGENCY\_STOP}, because we assume that
 the transformation has added this state. We then check that in the
 (one and only) \ic{noCooling} state there's at least one
 \ic{ChangeStateStatement} whose target state is the \ic{emergencyState} we had
@@ -549,15 +545,13 @@ specific structures. For example, we explicitly look for a state called
 \ic{ChangeStateStatement}.
 
 
-\subsubsection{Formal Verification}
-
-Formal verification is an alternative to testing in some cases. The fundamental
-different between testing and verification is this: in testing, each test case
-specifies \ic{one} particular execution scenario. To get reasonable or full
-coverage of the whole model or generator, you have to write and execute many
-tests. This can be a lot of work, and, more importantly, you may not think about
-certain (exceptional) scenarios, and hence you may not test then. Bug may go
-unnoticed.
+\parhead{Formal Verification} Formal verification is an alternative to testing
+in some cases. The fundamental different between testing and verification is
+this: in testing, each test case specifies \ic{one} particular execution
+scenario. To get reasonable or full coverage of the whole model or generator,
+you have to write and execute many tests. This can be a lot of work, and, more
+importantly, you may not think about certain (exceptional) scenarios, and hence
+you may not test then. Bug may go unnoticed.
 
 Verification checks \ic{the whole program} at once. Varios non-trivial
 algorithms are used to do that, and understanding these algorithms in detail is
@@ -568,10 +562,10 @@ become scalable enough to address real-world problems.
 In this section we look at three examples cases --- the first will be the most
 detailed.
 
-\paragraph{Model Checking State Machines}
-
-Model Checking is a verification technique for state machines. Here is how it
-works in principle:
+\parhead{Model Checking State Machines} Model Checking is a verification
+technique for state machines. In this section we can only scratch the surface;
+to learn more about model checking, we recommend \cite{BerardBidoitM2001}. Here
+is how it works in principle:
 
 \begin{itemize}
   \item a piece of functionality is expressed as a state machine
@@ -680,20 +674,94 @@ checker.
 \end{center} 
 \end{figure}
 
-Here is a subset of the properties it has checked successfully:
+Here is a subset of the properties it has checked successfully (it performs
+these checks for all states/transitions by default):
 
 \begin{code}
 State 'initialState' can be reached	SUCCESS	
 Variable 'currentVal' is always between its defined bounds	SUCCESS	
-Variable 'LIMIT' is always between its defined bounds	SUCCESS	
 State 'countState' has deterministic transitions	SUCCESS	
 Transition 0 of state 'initialState' is not dead	SUCCESS	
 \end{code}
 
+The first one reports that NuSMV has successfully proven that the
+\ic{initialState} can be reached somehow. The second one reports that the
+variable \ic{currentVal} stays within its bounds (notice how \ic{currentVal} is
+a bounded integer). Line three reports that \ic{countState} it never happens
+that in \ic{countState}, more than one transition is ready to fire at any time.
+Finally, it reports that the first of the transitions is actually used at some
+point. 
 
-\paragraph{SAT Solving}
+Let us provoke an error. We change the two transitions in \ic{countState} to 
 
-\paragraph{Deriving Test Cases}
+\begin{code}
+on step [currentVal + size >= LIMIT] -> initialState {  } 
+on step [currentVal + size <= LIMIT] -> countState { currentVal = currentVal + size; }
+\end{code}
+
+You perhaps don't even recognize the different --- which is exactly why you
+would want to use a model checker! We have changed the \ic{>} to a \ic{>=} in
+the first transition. Running the model checker again, we get, among others,
+
+\begin{code}
+State 'countState' contains nondeterministic transitions	FAIL	4
+\end{code}
+
+This reports that there is a case where the two transitions are
+non-deterministic, i.e. both are possible based on the guard, and it not clear
+which one should be used. The \ic{4} at the end means that the execution trace
+to this problem contains four steps. Clicking on the failed property check
+reveals the problematic execution trace:
+
+\begin{code} 
+State initialState	
+  LIMIT	                       10
+  currentVal                    0
+State initialState	
+  in\_event: start	start()
+  LIMIT                        10
+  currentVal                    0
+State countState	
+  in\_event: step	step(10)
+  LIMIT	                       10
+  currentVal                    0
+State initialState	
+  LIMIT	                       10
+  currentVal                   10
+\end{code}
+
+This is one (of potentially many) execution traces of this state machine that
+leads to the non-determinism: \ic{currentVal} is 10, and because of the \ic{>=},
+both transitions could fire.
+
+In addition to these default properties, it is also possible to specify custom
+properties. Instead of requiring users to be able to use the LTL or CTL
+specification languages and formulating the property on the level of the
+generated NuSMV input code (which is \emph{much} longer than the state machine
+itself!), users can use convenient patterns, where they just have to fill in
+values. Here are two examples:
+
+\begin{code}
+verification conditions 
+  never LIMIT != 10 
+  always eventually reachable initialState
+\end{code}
+
+The first one allows to express that we want the model checker to prove that any
+boolean condition will never happen. In our example, we check that the \ic{LIMIT}
+really is a constant and is never (accidentally) changed. The second one
+specifies that wherever we are in the execution of the state machine, it is
+still possible (after any number of steps) to reach the \ic{initialState}. Both
+properties hold for the example state machine.
+
+
+\parhead{SAT Solving}
+
+\parhead{Abstract Execution}
+
+
+
+\parhead{Deriving Test Cases}
 
 
 
