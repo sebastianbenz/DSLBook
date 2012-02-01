@@ -559,7 +559,7 @@ beyond the scope of this book. However, it is very useful to know these
 appraoches exist, especially since, over the last couple of years, they have
 become scalable enough to address real-world problems. 
 
-In this section we look at three examples cases --- the first will be the most
+In this section we look at two examples cases --- the first will be the most
 detailed.
 
 \parhead{Model Checking State Machines} Model Checking is a verification
@@ -678,10 +678,10 @@ Here is a subset of the properties it has checked successfully (it performs
 these checks for all states/transitions by default):
 
 \begin{code}
-State 'initialState' can be reached	SUCCESS	
-Variable 'currentVal' is always between its defined bounds	SUCCESS	
-State 'countState' has deterministic transitions	SUCCESS	
-Transition 0 of state 'initialState' is not dead	SUCCESS	
+State 'initialState' can be reached                          SUCCESS	
+Variable 'currentVal' is always between its defined bounds   SUCCESS	
+State 'countState' has deterministic transitions             SUCCESS	
+Transition 0 of state 'initialState' is not dead             SUCCESS	
 \end{code}
 
 The first one reports that NuSMV has successfully proven that the
@@ -704,7 +704,7 @@ would want to use a model checker! We have changed the \ic{>} to a \ic{>=} in
 the first transition. Running the model checker again, we get, among others,
 
 \begin{code}
-State 'countState' contains nondeterministic transitions	FAIL	4
+State 'countState' contains nondeterministic transitions     FAIL    4
 \end{code}
 
 This reports that there is a case where the two transitions are
@@ -755,33 +755,74 @@ still possible (after any number of steps) to reach the \ic{initialState}. Both
 properties hold for the example state machine.
 
 
-\parhead{SAT Solving}
+\parhead{SAT Solving} SAT solving, which is short for satisfiability solving,
+concerns the satisfiability of sets of boolean equations. Users specify a set of
+boolean equations and the solver tries to assign truth values to the free
+variables so as to satisfy all specified equations\footnote{There are also
+solvers that work with arithmetic expressions in addition to booleans.}. SAT
+solving is an NP-complete problem, so there is no analytic approach. However,
+exhaustive search (implemented, of course, in much more clever ways) is the way
+to address these problems.
 
-\parhead{Abstract Execution}
+For example, SAT solving can be used to address the following problem. In the
+mbeddr C language, we support decision tables. A decision table has a set of
+boolean conditions as row headers as well as a set of boolean conditions in the
+column headers, as well as arbitrary values in the content cells.
+\fig{dectabexample} shows an example. 
+
+\begin{figure}[ht]
+\begin{center}
+  \includegraphics[width=11cm]{figures/7/dectabexample.png}
+  \caption[]{}
+  \label{dectabexample} 
+\end{center}
+\end{figure}
+
+SAT solving can be used to check whether all cases are handled. It can detect if
+combinations of the relevant variables exit, for which no combination of row
+header and column header expressions match; in this case, the decision table
+would not return any value. 
+
+SAT solvers have some of the same challenges as model checkers regarding
+scalability, a low level and limited input language and the challenge of
+interpreting and understanding the output of a solver. Hence we use the same
+approach to solve the problem: from higher level models (such as the decision
+table) we generate the input to the solver, run it, and then report the result
+in the context of the high-level language.
 
 
+\parhead{Model Checking and Transformations}
 
-\parhead{Deriving Test Cases}
+A problem with model verification approaches is that they verify only the model.
+They can detect inconsistencies or property violations as a consequence of flaws
+in the program expressed with a DSL. However, even if we find no flaws in the
+model on DSL level, the generator may still introduce problems. In other words,
+the behaviour of the generated code may be different from the (proven correct)
+behavior expressed in the model. There are three ways to address this:
 
+\begin{itemize}
+  \item You can test your generator manually using the strategies suggested in
+  this chapter. Once you truse the generator based one a sufficiently large set
+  of tests, you then only have to verify the models --- since you know they will
+  be translated correctly.
+  \item Some tools, for example the UPAAL model checker, can also generate test
+  cases. These are stimuli to the model, together with the expected reactions.
+  You can generate those into your target language and then run these in your
+  target language. This is essentially an automated version of the first
+  approach.
+  \item Finally, you can verify the generated code. For example, there are model
+  checkers for C. You can then verify that the properties that hold on the DSL
+  level also hold on the level of the generated code. This approach runs into
+  scalability issues relatively quickly, since the state space of a C program is
+  much larger than the state space of a well-crafted state machine. Remember
+  that we use formalisms such as state machines instead of low level code
+  specifically to allow more meaningful validation. However, you can use this
+  approach to verify the generated code based on a sufficient set of relatively
+  small test cases, making sure that these cover all aspects of the generator.
+  Once you've built trust in the generator in this way, you can resort to
+  verifying just the DSL models (which scales better).
+\end{itemize}
 
-
-
-
-
-
-
-In general, you have to be careful about what exactly you test. For example, if
-you automatically derive the tests from the core model that specifies the
-functionality, then successfully running these tests does not \emph{not} test
-the model. If you forget to model something important in the model, such tests
-cannot find that. Strictly speaking, it only tests that the generators for the
-core model and the tests are compatible --- possibly both wrong, but compatibly
-so.
-
-If you want to test a program, the test model \emph{must} be separate. 
-
-
-\subsection{Formally verifying semantics}
 
 \subsection{Testing for language completeness}
 
