@@ -24,11 +24,28 @@ advanced DSL constructions & modify exisitng code in order to use it, so you
 can raise a level of abstraction in DSL or introduce more abstract DSLs ontop
 of exisitng later. -> may also help avoid DSL hell, since a lang can be extended 
 instead of creating a new one for every new problem
+-> important, since many DSLs start simple and then become more complicated over 
+time. If you can make these complicated additions into sep modules, or if you can 
+reuse existing "complicated" aspects such as expressions, you win big!
+
 
 Concrete Syntax influences what can be done with the models:
 - e.g. simulation can be nicely shown by animating diagrams (so the need for graphical/diagramatic syntax)
 - e.g. autocompletion can be easier done within textual concrete syntax
 
+
+Grafik vs. Text: Readability vs. Writability
+
+
+
+One of the primary issues is that, while the skeletons may conform to the
+ semantics of the DSL, embedding other languages that are not semantically 
+ aligned with the DSL will invariably result in corruption of the DSL semantics
+ and, hence, the design intent captured in the DSL. I have seen this happen
+ over and over again. This negative field experience is the reason we finally
+ decided to include a fully-fledged action language in UML
+ 
+DOcumenting a languge
 
 Implementation
 ----------------------------------------------------------
@@ -41,7 +58,7 @@ diese in die Zielwelt (codegen, interpreter) and run them.
 testen von ausführbarem code: testet nicht, was neben *auch noch* geht...
 ... zusätzlich zu dem was gehen soll. (security)
 
-
+IDE services: pretty printers, analyzers, debuggers, ...
 
 
 
@@ -51,3 +68,4 @@ testen von ausführbarem code: testet nicht, was neben *auch noch* geht...
 General
 ------------------------------------------------------------
 Clean up "I" and "we".
+Our
