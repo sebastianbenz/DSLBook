@@ -18,7 +18,7 @@ define a couple of important terms that will be used throughout the book.}
 
 \section{From General Purpose Languages to DSLs}
 
-\newthought{General Purpose Programming Languages} (GPLs) are means for
+General Purpose Programming Languages (GPLs) are means for
 programmers to instruct computers. All of them are Turing complete, which means
 that they can be used to implement anything that is computable with a Turing
 machine. It also means that anything expressible with one Turing complete
@@ -32,7 +32,7 @@ and why doesn't a Web developer use C?
 Of course there is the execution strategy. C code is compiled down to efficient
 native code, whereas Ruby is run by a virtual machine (a mix
 between an interpreter and a compiler). But in principle, you could compile Ruby to native
-code, and you could interpret C. Or could you? \laurie{this question is never really answered :)}
+code, and you could interpret C. 
 
 The real reason why these languages are used for what they are used for is that
 their features are tailored to the tasks that are relevant in the respective
@@ -44,10 +44,10 @@ overhead. In Ruby, closures can be used to implement "postponed" behavior
 (very useful for asynchronous web applications), you have powerful string
 manipulation features (to handle input received from a website) and the
 meta programming facility supports the definition of abstractions that are very
-suitable for Web applications (Rails is\emph{the} example for that \laurie{this seems a slightly funny place to mention such a specific technology as Rails}).
-\vaclav{Are these meta-programming facilities in Ruby really specific to Web app development? }
+suitable for Web applications (Rails is\emph{the} example for that).
 
-\newthought{By now it should be clear} that even within "general-purpose
+
+By now it should be clear that even within "general-purpose
 programming" we use different languages that provide different features tailored
 to the specific tasks at hand. The more specific the tasks get, the more reason
 there is for specialized languages. Consider relational algebra: relational
@@ -56,6 +56,7 @@ specialized language, SQL, which takes these features into account has been
 created. Or consider reactive, distributed, concurrent systems: Erlang is
 specifically made for this environment.
 
+
 So, if we want to "program" for even more specialized environments, it is
 relatively obvious that specialized languages are useful. A Domain-Specific
 Language is simply a language that is optimized for a given class of problems,
@@ -63,21 +64,20 @@ called a \emph{domain}. It is based on abstractions that are closely aligned
 with the domain for which the language is built\marginnote{SQL has tables, rows
 and columns, Erlang has lightweight tasks, message passing and pattern
 matching.}. Specialized languages also come with a syntax suitable to
-conveniently express these abstractions. In many cases these are textual
+conveniently expressing these abstractions. In many cases these are textual
 notations, but tables, symbols (as in mathematics) or graphics might also be
-useful. Assuming the semantics of the abstractions is well defined, good
-abstractions and suitable notations are a good starting point for effectively
-expressing programs for a specialized domain.
-\vaclav{I find the last sentence a bit puzzling. Do both occurencies of the word "abstractions" refer tpo the same thing?}
- 
-\newthought{Engineering a language} doesn't stop there, because the language has
-to be "brought to life" as well --- programs written in the language have to
-be executed somehow. There are two main approaches for that:
-translation/generation/compilation and interpretation. The former translates a
-DSL program to a language for which an execution engine on a given target
-platform already exists. In the latter case, you build a new execution engine
-(on top of your desired target platforms) which loads the program and executes
-it directly.
+useful. Assuming the semantics of these abstractions is well defined, this
+makes a good starting point for
+effectively expressing programs for a specialized domain.
+
+\parhead{Executing the Language} Engineering a language doesn't stop there,
+because the language has to be "brought to life" as well --- programs written in
+the language have to be executed somehow. There are two main approaches for
+that: translation/generation/compilation and interpretation. The former
+translates a DSL program to a language for which an execution engine on a given
+target platform already exists. In the latter case, you build a new execution
+engine (on top of your desired target platforms) which loads the program and
+executes it directly.
 
 If there is a big gap between the language abstractions and the target platform
 (i.e., the platform the interpreter or generated code runs on), execution can
@@ -87,17 +87,20 @@ necessary. Another example is trying to run Erlang on a system which only
 provides heavy-weight processes --- having thousands of processes as Erlang
 requires, is not going to be efficient. So, when defining a language for a given
 domain, you should be aware of the intricacies of the target platform and the
-interplay between execution and language design.
+interplay between execution and language design\footnote{This may sound
+counter-intuitive. Isn't a DSL supposed to abstract away from just these
+details of execution? Yes, but: it has to be possible to implement a
+reasonably efficient execution engine. DSL design is a compromise between
+approriate domain abstractions and the ability to get to an efficient
+execution. A good DSL allows the DSL \emph{user} to ignore execution concerns,
+but allows the DSL \emph{implementor} to implement a reasonable execution
+engine}.
 
-\vaclav{I see your point here and agree, however, isn't the purpose of DSLs to abstract away the underlying architecture?
-Now you say we should have the target platform in mind when designing the language. 
-Perhaps you could be more specific or give some examples on how and at what stage 
-of language design we should "ba aware" of the target platform}
 
-\newthought{By now you should believe} to a certain extent that specific
-problems require specific abstractions. But why do we need full blown languages?
-Aren't objects, functions, APIs and frameworks good enough? What does the
-\emph{language} add to the picture?
+\parhead{Languages vs. Libraries and Frameworks} By now you should believe to a
+certain extent that specific problems require specific abstractions. But why do
+we need full blown languages? Aren't objects, functions, APIs and frameworks
+good enough? What does the \emph{language} add to the picture?
 
 Languages (and the programs you write with them), are the clearest form of
 abstraction. You can get rid of all the unneeded clutter that an API --- or
@@ -112,16 +115,18 @@ non-programmers, one of the value propositions of DSLs: they get a clean,
 custom, productive environment that allows them to work with languages whose
 abstractions and notations are aligned with the domain they work in.}.
 
-\laurie{In this paragraph, I feel you're trying to say ``what is a DSL and what's a GPL are inherently subjective. There isn't an easily definable boundary between the two. But if a `DSL' is to big, it probably isn't really a DSL.'' or words to that effect. But it sort-of skirts around that and isn't as explicit as it might be.}
 So then how are DSLs different from "real" programming languages, and what do
-they have in common? Obviously the core abstractions are aligned with whatever
-domain the DSL is built for, and the notations are suitable as well. It may have
-custom \vaclav{Perhaps an unfinished sencence here?} Also, in many cases, DSLs are much smaller and simpler than GPLs
-(although there are some pretty sophisticated DSLs). I don't go as far as saying
-that DSLs are always declarative (it is not completely clear what this means
-anyway), or that they may never be Turing complete. But if your DSL approaches
-what Java can do, you might consider just using Java\marginnote{\ldots or, if
-your tooling allows it, extending Java with domain-specific concepts}.
+they have in common? This boundary isn't as clear as it could be. Obviously the
+core abstractions are aligned with whatever domain the DSL is built for, and the
+notations are suitable as well. Also, in many cases, DSLs are much smaller and
+simpler than GPLs (although there are some pretty sophisticated DSLs). I don't
+go as far as saying that DSLs are always declarative (it is not completely clear
+what this means anyway), or that they may never be Turing complete. But if your
+DSL approaches what Java can do, you might consider just using
+Java\marginnote{\ldots or, if your tooling allows it, extending Java with
+domain-specific concepts}. DSLs often start simple, based on an initially
+limited understanding of the domain, but then grow more and more sophisticated
+over time, a phenomenon Hudak notes in his '96 paper \todo{}.
 
 So, I guess we agree that Java is not a DSL. But what about Mathematica, SQL,
 State Charts or HTML? Are these DSLs? This is not so easy to answer. They are,
@@ -139,28 +144,18 @@ limited to) a special domain or problem. However:
   are used by (more or less) the whole world, such as the ones mentioned above.
 \end{itemize}
 
-You may know the saying in AI that "everything that works in practice isn't
-called AI anymore". Ira Baxter suggests that this is also true for DSLs: as soon
-as a DSL is really successful (like the ones mentioned above), we don't call
-them DSLs anymore. So maybe we can agree that those well-known, widely used and
-big languages are in fact DSLs, but because they are so big and widespread, not
-all of the advice I give in this book may apply. 
+\marginnote{You may know the saying in AI that "everything that works in
+practice isn't called AI anymore". Ira Baxter suggests that this is also true
+for DSLs: as soon as a DSL is really successful (like the ones mentioned above),
+we don't call them DSLs anymore. So maybe we can agree that those well-known,
+widely used and big languages are in fact DSLs, but because they are so big and
+widespread, not all of the advice I give in this book may apply.}
  
-\newthought{To build good DSLs, however,} it is not enough to just "underline
-all the nouns and verbs in the domain" and make them language
-features\marginnote{Remember the times when this was said to be a way to find
-the classes and methods in OO programming?}. This may be a good starting point,
-but it is way too simplistic. All the interesting DSLs I've built start out
-simple, with straightforward concepts, but then grow more sophisticated\laurie{This phenomenon is something Hudak notes in his '96 `domain specific embedded languages' paper.}. For
-example, the way I have used to compose variants of appliances in one DSL
-resemble Scala's way of dealing with classes and traits. So it is a good idea to
-learn from other (programming) languages, especially regarding concepts such as
-modularity, information hiding, specialization and the ability to define your
-own abstractions in programs.
 
-As we will see, domain-specificity is not black-and-white, but rather a gradual:
-a language is \emph{more} or \emph{less} domain specific. So I have to define
-how this book is not generally about programming language design. The following
+
+
+Domain-specificity is not black-and-white, but rather gradual:
+a language is \emph{more} or \emph{less} domain specific. The following
 table lists a set of language characteristics. While DSLs and general purpose
 languages (GPLs) can have characteristics from both the second and the third
 columns, DSLs are more likely to pick characteristics from the right column.
@@ -189,14 +184,16 @@ embedded in DSL programs. And DSL designers can learn a lot from GPLs.}
   \end{tabular}
 \caption[][6mm]{Domain-specific languages versus programming languages. DSLs
 tend to pick more characteristics from the third column, GPLs tend to pick more
-from the second. \laurie{This table is great. Actually, it's so great that it renders a lot of the text that comes before it slightly superfluous! Can it be moved earlier in the book?}}
+from the second. 
+\laurie{This table is great. Actually, it's so great that it renders a lot 
+of the text that comes before it slightly superfluous! Can it be moved earlier in the book?}}
 \label{fig:}
 \end{figure*}
 
 \section{Modeling and Model-Driven Development}
 
 The above approach of defining and using DSLs is a form of model-driven
-development: we create formal, tool- processable representations of certain
+development (MDD): we create formal, tool-processable representations of certain
 aspects of software systems. We then use interpretation or code generation to
 transform those representations into executable code expressed in programming
 languages and the associated XML/HTML/whatever files. With today's tools it is
@@ -207,33 +204,43 @@ the particular tool used), it is also possible to define suitable notations
 that make the abstractions accessible to non-programmers (for example opticians
 or thermodynamics engineers).
 
-\laurie{I understand what this paragraph is getting at, but I'm not sure people less familiar with MDD will. It's written with an `insider' perspective IMHO.} However, there are also limitations to the approach. The biggest one is that
+However, there are also limitations to the approach. The biggest one is that
 modeling languages, environments and tools are distinct from programming
 languages, environments and tools. The level of distinctness varies, but in many
 cases it is big enough to cause integration issues that can make adoption of MDD
 challenging. Let me provide some specific examples. Industry has settled on a
 limited number of meta meta models, EMF/EMOF being the most widespread one.
-Consequently, it is possible to navigate, query and constrain models with a
-common API. However, since every programming language and IDE has its own API
-for accessing the program's abstract syntax tree (AST), interoperability with
-source code is challenging --- you can't treats source code the same way as
-models.\ashatalin{It looks a bit unclear for me. M.b. because I was keeping in
-mind MPS architecture. :-) Are you saying: existing IDEs for GPLs (like
-eclipse/IDEA for Java) are not using EMF for representing AST, in the same
-time those GPLs are used as a target language for code generation, so if we'd
-like to introduce target GPL instructions into a model this is a big job?..)} A
-similar problem exists regarding IDE support for model-code integrated systems:
-you cannot mix (DSL) models and (GPL) programs while retaining reasonable IDE
-support.\ashatalin{again, this is because currently tools supporting modeling
-and tools supporting coding are using different technologies. Imagin eclipse
-java support was built on EMF - like we do in MPS. I just think this place cam
-be clarified a bit.} This results in generating skeletons into which source code
+Consequently, it is possible to navigate, query and constrain arbitrary models
+with a common API. However, programming language IDEs are typically \emph{not}
+built on top of EMF, but come with their own API for representing and accessing
+the syntax tree. Thus, interoperability between models and source code is
+challenging --- you can't treats source code the same way as models. A similar
+problem exists regarding IDE support for model-code integrated systems: you
+cannot mix (DSL) models and (GPL) programs while retaining reasonable IDE
+support. Again, this is because the technology stacks used by the two are
+different\footnote{Of course, an integration can be created as Xtext/Xtend/Java
+shows. However, this is a \emph{special} integration with Java. Interoperability
+with, say, C code, would require a new and different integration
+infrastructure.}. These problems often results in an artificial separation of
+models and code, where code generators create skeletons into which source code
 is inserted, or the arcane practice of pasting C snippets into 5-in sized text
 boxes in graphical state machine tools (and getting errors reported only once
-the resulting, integrated C code is compiled). 
+the resulting, integrated C code is compiled).
 
-So what really is the difference between programming and modeling today? The
-table contains some (general and broad) statements:
+
+Above we have discussed the difference between DSLs and GPLs. Now that we talk
+about modeling, I have to explain what I mean by modeling. There are two ways
+modeling can be used: descriptive and prescriptive. A \emph{descriptive} model
+represents and existing system. It abstracts away certain aspect, and
+emphasizes others. It is usually used for discussion, communication and
+analysis. A \emph{prescriptive} model is one that can be used to (automatically)
+construct the target system. It must be much more rigorous, formal, complete and
+consistent. In the context of this chapter, and of the book in general, we
+always mean prescriptive models when we use the term model.
+
+
+So what really is the difference between programming and (prescriptive) modeling
+today? The table contains some (general and broad) statements:
 
 
 \begin{figure*}[h]
@@ -241,8 +248,9 @@ table contains some (general and broad) statements:
   \begin{tabular}{lll} \toprule
 	\textbf{Aspect} & \textbf{Modeling} & \textbf{Programming}\\
 	\midrule
-	Define your own notation and language & Easy & Possible \laurie{In how many languages is it possible?!}\\
-	Syntactically integrate several  languages & possible, depends on tool & hard\\
+	Define your own notation and language & Easy & Sometimes Possible to some
+	Extent \\ 
+	Syntactically integrate several languages & possible, depends on tool & hard\\
 	Graphical Notations & possible, depends on tool & usually only visualizations\\
 	Customize Generator/Compiler & Easy & Sometimes possible based on open compilers\\
 	Navigate/Query & Easy & Sometimes possible, depends on IDE and APIs\\
@@ -256,27 +264,27 @@ table contains some (general and broad) statements:
 \label{fig:}
 \end{figure*}
 
-So one can and should ask: why is there a difference?\sidenote{We use modeling
-in its \emph{prescriptive} version here. Of course there is a reason for
-\emph{descriptive} modeling which is not intended to be executable and used
-primarily for communication and understanding among humans.\laurie{this is very important but a) this description won't make sense to non-modelling people b) it should probably come earlier}} I guess the primary
+So one can and should ask: why is there a difference? I guess the primary
 reason is history, the two worlds have different origins and have evolved in
 different directions.
 
-Programming languages have traditionally been using textual syntax. Modeling
-languages traditionally used graphical notations, because of the ill-conceived
-idea that what is represented as pictures is always easy to understand. Of
-course there are textual domain specific languages (and failed graphical general
-purpose programming languages), but the use of textual syntax for domain
-specific modeling has only recently become more prominent, see my discussion
-above. Programming languages have traditionally used storage based on concrete
-syntax \laurie{first mention of concrete syntax: the relationship between concrete and abstract syntax is poorly understood by many (most!) people and needs careful explanation.}, together with parsers that transform a character stream to an abstract
-syntax tree for further processing. Modeling languages have traditionally used
-editors that directly manipulate the abstract syntax, using projection to render
-the concrete syntax in the form of diagrams. Modeling tools have also provided
-the ability to define views, i.e. the ability to show the same model elements in
-different contexts, often using different notations. This has never really been
-a priority for programming languages.
+Programming languages have traditionally been using textual concrete syntax,
+i.e. the program is represented as a stream of characters. Modeling languages
+traditionally used graphical notations, because of the ill-conceived idea that
+what is represented as pictures is always easy to understand. Of course there
+are textual domain specific languages (and failed graphical general purpose
+programming languages), but the use of textual syntax for domain specific
+modeling has only recently become more prominent, see my discussion above.
+Programming languages have traditionally used storage based on concrete syntax
+\laurie{first mention of concrete syntax: the relationship between concrete and
+abstract syntax is poorly understood by many (most!) people and needs careful
+explanation.}, together with parsers that transform a character stream to an
+abstract syntax tree for further processing. Modeling languages have
+traditionally used editors that directly manipulate the abstract syntax, using
+projection to render the concrete syntax in the form of diagrams. Modeling tools
+have also provided the ability to define views, i.e. the ability to show the
+same model elements in different contexts, often using different notations. This
+has never really been a priority for programming languages.
 
 I want to make the point that there should be no difference. Programming
 and modeling should be based on the same fundamental approach, enabling
@@ -314,8 +322,11 @@ This vision, or goal, leads to the need for modular languages.
 Looking at today's languages, there are two major kinds of languages. Big ones
 and small ones. Big languages \fig{bigLang} have a relatively
 large set of very specific language concepts. These languages are, the
-proponents say, easy to learn, since "there's a keyword for everything". 
-Examples include Cobol or ABAP \laurie{ABAP isn't that well known outside SAP circles (I had to use Google to make sure it was the language I thought it was)}. 
+proponents say, easy to learn, since "there's a keyword for everything".
+However, expressing more sophisticated algorithms can be clumsy, because
+it is hard to write compact, dense code. Examples include Cobol (a relatively 
+old language intended for use by business users) or ABAP (SAP's language for 
+programming the R/3 system).
 
 \begin{marginfigure}
   \includegraphics[width=4cm]{figures-intro/smallLang.jpg}
@@ -325,10 +336,11 @@ Examples include Cobol or ABAP \laurie{ABAP isn't that well known outside SAP ci
 The other kind of language is the small language. It has very few, but very
 powerful language concepts that are highly composable. Users can build their own
 abstractions. Proponents of this kind of language also say that those are easy
-to learn, because "you only have to learn three concepts". Lisp is the prominent
+to learn, because "you only have to learn three concepts". But it requires
+experience to build more complex systems from these basic building blocks, and
+code can be challenging to read because of its high density. Lisp is the prominent
 example of this kind of language. 
 
-\laurie{I was surprised to see no real pros/cons given for big/small languages at this point.}
 
 \begin{marginfigure}
   \includegraphics[width=5cm]{figures-intro/modLang.jpg}
