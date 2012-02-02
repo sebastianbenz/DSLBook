@@ -13,6 +13,67 @@ challenges for adopting DSLs and describe a few application areas. Finally, I
 define a couple of important terms that will be used throughout the book.}
 
 
+\section{Very Brief Introduction to the Terminology}
+
+While we explain many of the important terms in the book, here are a few
+essential ones. You should at least roughly understand those right now.
+
+I use the terms model, program and code interchangeably because I think that any
+distinction is more or less artificial. Code can be written in what is typically
+considered a programming language, or in a DSL. Sometimes DSL code and program
+code are mixed, so separating the two makes no sense. If the distinction is
+important, I say "DSL program" or "GPL code". 
+
+I distinguish between the execution engine and the target platform. The
+\emph{target platform} is what your DSL program has to run on in the end and is
+assumed to be something we cannot change as part of the DSL development process.
+The \emph{execution engine} can be changed, and bridges the gap between the DSL
+and the platform. It may be an interpreter or a generator. An \emph{interpreter}
+is a program running on the target platform that loads, and then acts on a DSL
+program. A \emph{generator} (aka compiler) takes the DSL program and transforms
+it into an artifact (often GPL souce code) that can run directly on the target
+platform.\footnote{In an example from enterprise systems, the platform could be
+JEE and the execution engine could be an enterprise bean that runs an
+interpreter for our DSL. In embedded software, the platform could be a real-time
+operating system, and the execution engine could be a code generator that maps
+our DSL to the APIs provided by the RTOS.}.
+
+I use the term \emph{processor} to refer to any program that processes models
+expressed with a DSL. It may be the a constraint checker, a type inference
+engine, a code generator, a model transformation, an interpreter, or a
+sophisticated analysis tool.
+
+A language, domain-specific or not, consist of the following ingredients. The
+\emph{concrete syntax} defines the notation with which users can express
+programs. It may be textual, graphical, tabular, or a mix of those. The
+\emph{abstract syntax} is a data structure that can hold the semantically
+relevant information expressed by a program. It is typically a tree of a graph.
+It does not contain any details about the notation --- for example, in textual
+languages, it does not contain keywords, symbols or whitespace. The \emph{static
+semantics} of a language are the set of constraints and/or type system rules to
+which programs have to conform, in addition to being structurally correct (with
+regards to a the concrete and abstract syntax). \emph{Execution Semantics}
+refers to the meaning of a program once it is executed. It is realized using the
+\emph{execution engine}. If I use the term semantics without any qualification,
+I refer to the execution semantics, not the static semantics.
+
+Sometimes it is useful to distinguish between what I call technical DSLs and
+application domain DSLs (sometimes also called business DSLs, vertical DSLs, or
+"fachliche DSLs" in German). The distinction is not always clear and not always
+necessary. But generally I consider technical DSLs to be used by programmers and
+application domain DSLs to be used by non-programmers (i.e. domain experts).
+
+The field discussed in this book has many names. These include Model-Driven
+Development, Domain-Specific Modeling, Generative Software Development,
+Language-Oriented Programming, Model-Integrated Computing, Model-Based
+Engineering, and, if you want to stretch it a bit, Model-Driven Architecture and
+End-User Programming. Now, I don't claim that all of these are the same and I am
+very aware of the differences. However, they all have a common core which is
+designing languages for a specialized/limited domain including their execution
+environments and IDEs. With this book, I aim to cover this core.
+
+
+
 \section{From General Purpose Languages to DSLs}
 
 General Purpose Programming Languages (GPLs) are means for
@@ -116,7 +177,9 @@ So then how are DSLs different from "real" programming languages, and what do
 they have in common? This boundary isn't as clear as it could be. Obviously the
 core abstractions are aligned with whatever domain the DSL is built for, and the
 notations are suitable as well. Also, in many cases, DSLs are much smaller and
-simpler than GPLs (although there are some pretty sophisticated DSLs). I don't
+simpler\footnote{Small and simple can mean that the language has fewer concepts,
+that the type system is less sophisticated or that the expressive power is
+limited} than GPLs (although there are some pretty sophisticated DSLs). I don't
 go as far as saying that DSLs are always declarative (it is not completely clear
 what this means anyway), or that they may never be Turing complete. But if your
 DSL approaches what Java can do, you might consider just using
@@ -131,8 +194,8 @@ of course, DSLs in the sense that they are languages that are optimized for (and
 limited to) a special domain or problem. However:
 
 \begin{itemize}
-  \item These languages are really really big, complicated and involved. While
-  I don't claim that "our" DSLs are always simple, it is really rare
+  \item These languages are really really big and complicated.
+  While I don't claim that "our" DSLs are always simple, it is really rare
   that you'll build something comparable to SQL in sophistication or size.
   \item An underlying assumption of many (process) recommendations in this book
   is the closed-world assumption: as the developer of a DSL, you know the
@@ -159,7 +222,7 @@ columns, DSLs are more likely to pick characteristics from the right column.
 This makes designing DSLs a more tractable problem than designing general
 purpose languages\marginnote[-2cm]{There are many connections to general
 purpose languages. DSL programs may be translated into GPL code. DSL code may be
-embedded in DSL programs. And DSL designers can learn a lot from GPLs.}
+embedded in GPL programs. And DSL designers can learn a lot from GPLs.}
  
 \begin{figure*}[h] 
 \footnotesize
@@ -168,7 +231,7 @@ embedded in DSL programs. And DSL designers can learn a lot from GPLs.}
     \textbf{Designed by} & guru or committee & a few engineers and domain
          experts \\ 
     \textbf{Language Size} & large & small \\ 
-    \textbf{Turing-completeness} & almost always & often not \\ 
+    \textbf{Turing-completeness} & always & often not \\ 
     \textbf{User Community} & large, anonymous and widespread & small,
          accessible and local  \\ 
     \textbf{User-Defined Abstractions} & sophisticated & limited \\ 
@@ -266,12 +329,7 @@ reason is history, the two worlds have different origins and have evolved in
 different directions.
 
 Programming languages have traditionally been using textual concrete
-syntax\footnote{The \emph{concrete syntax}, or notation, of the language is the
-representation of a program the users interacts with. It is different from the
-\emph{abstract syntax}, which is a data structure (tree or graph) that contains
-the semantically relevant information expressed by a program. In textual
-languages, keywords, symbols and whitespace are part of the concrete syntax, but
-not part of the abstract syntax}, i.e. the program is represented as a stream of
+syntax, i.e. the program is represented as a stream of
 characters. Modeling languages traditionally used graphical notations, because
 of the ill-conceived idea that what is represented as pictures is always easy to
 understand. Of course there are textual domain specific languages (and failed
@@ -372,7 +430,7 @@ defines language workbenches as tools where:
 \textbf{Users can freely define languages that are fully integrated with each
 other.} This is the central idea for language workbenches, but also for 
 modular languages since you can easily argue that each language module is 
-what Martin calls a language. "Full integration" can refer
+what Martin Fowler calls a language. "Full integration" can refer
 to referencing as well as embedding, and includes type systems and semantics.
 
 \vspace{5pt}
@@ -526,21 +584,23 @@ have to master, I outline these in the next section. But let's look at the
 upside first.
 
 \subsection{Automation}
-The most obvious benefit of using DSLs is that - once you've got a language and
-an execution engine - your work in the particular aspect of software development
-covered by the DSL becomes much more efficient, simply because you don't have to
-do the grunt work manually\sidenote{Presumably, the amount of DSL code you have
-to write is much less than what you'd have to write if you'd use the target
-platform directly. If that were not the case, using DSLs in that context makes
-no sense.}. This is most obvious if you generate a whole truck load of code from
-a relatively small DSL program. There are many studies that show that the pure
-amount of code one has to write (and read!) can become a problem. The ability to
+The most obvious benefit of using DSLs is that --- once you've got a language
+and an execution engine --- your work in the particular aspect of software
+development covered by the DSL becomes much more efficient, simply because you
+don't have to do the grunt work manually\sidenote{Presumably, the amount of DSL
+code you have to write is much less than what you'd have to write if you'd use
+the target platform directly. If that were not the case, using DSLs in that
+context makes no sense.}. This is most obvious if you generate a whole truck
+load of code from a relatively small DSL program. There are many studies that
+show that just the amount of code one has to write (and read!) introduces
+complexity, independent of what the code expresses, and how. The ability to
 reduce that amount while retaining the same semantic content, is a huge
 advantage.
 
-You could argue that a good library or framework will do the job as well.
-And that is certainly true in some cases, but not in all. However, DSLs provide
-a number of additional benefits, as we will see in the next couple of items.
+You could argue that a good library or framework will do the job as well. True,
+libraries, frameworks and DSL all encapsulate knowledge and functionality,
+making it easily reusable. However, DSLs provide a number of additional
+benefits, as we will see in the next couple of items.
 
 \subsection{No Overhead}
 If you are generating source code from your DSL program (as opposed to
@@ -1020,6 +1080,8 @@ same examples. This provides a good way to compare the various tools.
 
 \section{Case Studies and Examples}
 
+\todo{There still seem to be German examples in the screenshot --- change!}
+
 I strive to make this book as accessible and practically relevant as possible,
 so I provide a lot of examples. \marginnote{I decided against a single big,
 running example because (a) it becomes increasingly complex to follow along and
@@ -1280,63 +1342,7 @@ notations only peripherally.
 
 \todo{Point at good books to read on this topic (DSM Book)}
 
-\section{Terminology}
 
-I will introduce the detailed terminology around DSLs as I explain the concept
-in the book. However, there are a couple of important ones I want to define
-right away.
-
-I use the terms model, program and code interchangeably because I think that any
-distinction is more or less artificial --- see my discussion in the previous
-section. Code can be written in what is typically considered a programming
-language, or in a DSL. Sometimes DSL code and program code are mixed, so
-separating the two makes no sense.
-
-As I elaborate on later, languages consist of a structure definition (called
-abstract syntax or meta model), one or more definitions of the notation (also
-called concrete syntaxes) and semantics. In semantics we distinguish between the
-static semantics (constraints, type system) and the operational semantics (what
-something means as it is executed). If I use the term semantics without any
-qualification, I refer to the execution semantics, not the static semantics.
-
-Sometimes it is useful to distinguish between what I call technical DSLs and
-application domain DSLs (sometimes also called business DSLs, vertical DSLs, or
-"fachliche DSLs" in German). The distinction is not always clear and not
-always necessary. But generally I consider technical DSLs to be used by
-programmers and application domain DSLs to be used by non-programmers (i.e.
-domain experts).
-
-I distinguish between the execution engine and the target platform. The target
-platform is what your DSL program has to run on in the end and is assumed to be
-something we cannot change as part of the DSL development process. The execution
-engine can be changed, and bridges the gap between the DSL and the
-platform\footnote{In an example from enterprise systems, the platform could be
-JEE and the execution engine could be an enterprise bean that runs an
-interpreter for our DSL. In embedded software, the platform could be a real-time
-operating system, and the execution engine could be a code generator that maps
-our DSL to the APIs provided by the RTOS.}. So, when interpreting DSL models,
-the execution engine is the interpreter and is a program that runs natively on
-the target platform. In case of a generative approach, the execution engine is
-the code generator which produces code that can natively run on the target
-platform. \marginnote[-3cm]{This process can be multi-stage. You can generate
-code that is then interpreted. Or you can generate code which is further
-transformed into something else, and so on. In this case each stage can be seen
-as a DSL-execution engine pair, cascading several of these combinations on top
-of each other.}
-
-I use the term \emph{processor} to refer to the program that processes models
-expressed with a DSL. It may be a code generator, a model transformation, an
-interpreter, or even a sophisticated analysis tool.
-
-The field discussed in this book has many names. These include
-Model-Driven Development, Domain-Specific Modeling, Generative Software
-Development, Language-Oriented Programming, Model-Integrated Computing,
-Model-Based Engineering, and, if you want to stretch it a bit, Model-Driven
-Architecture and End-User Programming. Now, I don't claim that all of these are
-the same and I am very aware of the differences. However, they all have a
-common core which is designing languages for a specialized/limited domain
-including their execution environments and IDEs. With this book, I aim to cover
-this core.
 
 
 \section{How to read this Book}
