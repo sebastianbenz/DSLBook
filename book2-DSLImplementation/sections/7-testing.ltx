@@ -25,7 +25,10 @@ the whole simualtion story goes here as well. And interpreter. BSH.}
   Does the language cover the complete domain?
 \end{itemize}
 
-
+\marginnote{An important ingredient to testing is that test execution can be
+automated via scripts so they can be run as part of automatic builds. All of the
+test strategies shown below can be executed from ant scripts. However, we don't
+describe in detail how this works.}
 
 \subsection{Syntax Testing}
 
@@ -178,8 +181,9 @@ can be referred to from test expressions.
 \end{center}
 \end{figure}
 
-Scopes can be tested in the same way: we can write example programs where
-references point to valid targets (i.e. those in scope) and invalid targets
+
+Scopes can be tested in the same way (Xtext and MPS): we can write example
+programs where references point to valid targets (i.e. those in scope) and invalid targets
 (i.e. not in scope). Valid references may not have errors, invalid referneces
 must have errors. But using the facilities shown above, which check for the
 presence of error annotations, scopes can be tested. Some frameworks may provide
@@ -824,38 +828,54 @@ behavior expressed in the model. There are three ways to address this:
 \end{itemize}
 
 
-\subsection{Testing for language completeness}
-
- 
 \subsection{Testing Editor Services}
 
+Testing IDE services such as code completion (beyond scopes), quick fixes,
+refactorings or outline structure has some of the challenges of UI testing in
+general. There are three ways of approaching this:
 
-Testing whether the DSL can express what it should - review, example code...
-  (short discussion, relate to process and interaction with domain experts)
+\begin{itemize}
+  \item The language workbench may provide specific APIs to hook into UI aspects
+  and script tests for those. For example, MPS supports the scripting of user
+  interactions in the editor, and hence check, if the editor behaves correctly
+  \todo{Screenshot}.
+  \item You can use generic UI testing tools to simulate typing and clicking in
+  the editor, and checking the resulting behavior.
+  \item Finally, you can islolate the algorithmic aspects of the IDE behaviour
+  (e.g. in refactorings or quick fixes) into separate modules (classes) and then
+  unit test those with the techniques discussed in the rest of this chapter,
+  independent of the actual UI.
+\end{itemize}
 
-These programs are
-made persistent and the tests can be rerun ar any time, making sure the grammar
-doesn't stop handling existing programs.
+In practice, I try to use the third alternative as far as possible: for
+non-trivial IDE functionality in quick fixes and refactorings, I isolate the
+behavior and write unit tests. For simple things I don't do any tests. For the
+actual UI, I typically don't do any automated tests at all, for three reasons.
+(1) it is simply too cumbersome and not worth the trouble, (2) as we use the
+editor to try things out, we implicitly test the UI, and (3), language
+workbenches are frameworks where, if you get the functionality right (via unit
+tests), they provide generic UIs that can be expected to work.
 
 
+\subsection{Testing for language appropriateness}
 
+A DSL is only useful if it can express what it is supposed to express. Expressed
+a bit more formally, one can say that the coverage of the DSL relative to the
+target domain should be 100\%. In practice, this questions is much more faceted,
+though:
 
-editor testing with MPS thingy
-
-Testing the syntax: just write examples and see....
-
-Coverage problematic, since unlimited number of programs
-
-Test AUtomation /Nightly
-
-
-Testing whether all constraints work: tests (e.g. using the type system f/w)
-
-Testing whether the semantics are correct
-    express "tests" in the same (or related) DSL
-
-Then interpret or generate both and see if they fit
-  ... you can easily automate that!
-
-If a DSL only describes structure: Constraints, and "xpath" on the 
-genreated stuff
+\begin{itemize}
+  \item Do we actually understand completely the domain the DSL is intended to
+  cover?
+  \item Can the DSL cover this domain completely? What does "completely" even
+  mean? Is it ok to have parts of the system written in $L_{D-1}$ or do we have
+  to express everything with the DSL?
+  \item Even if the DSL covers the domain completely: are the abstractions
+  chosen appropriate for the model purpose? 
+  \item Do the users of the DSL like the notation?
+\end{itemize}
+ 
+Answering these questions is impossible to automate. Manual reviews and
+validation relative to the (explicit or tacit) requirements for the DSL have to
+be performed. Getting these aspects right is the main reason why DSLs should be
+developed incrementally and iteratively. 
