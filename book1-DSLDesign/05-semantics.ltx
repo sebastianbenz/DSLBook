@@ -18,10 +18,13 @@ OB(q_{L_{D-1}})$$
 semantics independent of operational mappings to target languages. However, they
 don't play an important role in real-world DSL design, so we don't address them
 in this book.} 
-\noindent Equality of the two observable behaviors can be
-established with a sufficient number of tests, or with model checking and proof in rare cases. This definition of semantics reflects the hierarchy of domains and works both for
-languages that describe only structure, as well as for those that include behavioural
-aspects. 
+
+
+\noindent Equality of the two observable behaviors can be established with a
+sufficient number of tests, or with model checking and proof in some cases. This
+definition of semantics reflects the hierarchy of domains and works both for
+languages that describe only structure, as well as for those that include
+behavioural aspects.
 
 The technical implementation of the mapping to $D_{-1}$ can be
 provided in two different ways: a DSL program can literally be transformed into
@@ -151,6 +154,76 @@ harder to understand because of the missing, explicit "hard fact" about the
 program.
 
 
+\subsection{Establishing the Correctness of the Transformation}
+
+Above we have defined the meaning of the program $p$ at $D_n$ as the equivalent
+observable behavior of a program $q$ at $D_{n-1}$. This essentially defines the
+transformation or interpreter to be correct. However, this is useless in
+practice. As the language developer, we have a certain behavior in mind, and we
+want to make sure that the executing DSL program exhibits this behavior. 
+
+\begin{marginfigure}
+\begin{center}
+  \includegraphics[width=4.5cm]{figures-design/gpltesting.png}
+  \caption{Test code tests the application code based on a single understanding
+  of the requirements towards the system.}
+  \label{gpltesting}  
+\end{center}
+\end{marginfigure}
+In classical programming, we write the GPL code based on our understanding of
+the requirements. We then write unit tests, based on the same understanding,
+which test the code we wrote before (\fig{gpltesting}). 
+
+
+\begin{marginfigure}
+\begin{center}
+  \includegraphics[width=4.5cm]{figures-design/dsltesting.png}
+  \caption{Test code tests the application code based on a single understanding
+  of the requirements towards the system.}
+  \label{dsltesting}  
+\end{center}
+\end{marginfigure}
+In DSL testing, we write the DSL, the DSL program and the execution engine based
+on our understanding of the requirements towards the system. We can still write
+unit tests (in the GPL) based on this understanding to check for the correctness
+of the executing DSL program (\fig{dsltesting}). 
+
+Writing one DSL program and one unit test ensures that this one program executes
+correctly. Our goal here is, however, to ensure that the transformation
+is correct \emph{for all programs} we can write with the DSL. This can be
+achieved by writing many DSL programs and many tests --- enough to make sure
+that every branch of the transformation is covered at least once\footnote{For
+the Xpand code generator there has once been a coverage analysis tool. It
+could be used to make sure that for a given test suite, all branches of the
+transformation template had been executed at least once.}.
+
+
+A variant of this approach is to express the test cases
+in the DSL (after extending the DSL with a ways to express tests) and then
+executing the application code and the test code on the target platform
+together \fig{dsltesting2}. This is often more convenient since the tests can be
+formulated more concisely on the level of the DSL. As we will see later, this
+approach is especially useful if we have \emph{several} execution engines: we
+write the test once and then execute it on all execution engines.
+
+\begin{figure}[h] 
+\begin{center}
+  \includegraphics[width=8cm]{figures-design/dsltesting2.png}
+  \caption{Test cases can also be expressed with the DSL and then executed on
+  the target platform together with the application code.}
+  \label{dsltesting2}  
+\end{center}
+\end{figure}
+
+Note that the GPL program may have \emph{additional} behaviors not presribed by
+the DSL. These can often be exploited maliciously and are known as safety or
+security problems. These will not be found by testing the GPL code based on the
+requirements, but only by "trying to exploit" the program (known as penetration
+testing).
+
+We will elaborate more on ensuring the correctness of the execution semantics in
+this chapter, as well as in the Part III chapter on DSL testing\todo{ref}.
+
 
 \subsection{Transformation} 
 \label{semtrafo}
@@ -236,22 +309,42 @@ freedom from deadlocks, assuring liveness and specific safety properties such as
 "it will never happen that the out events \emph{pedestrian light green} and
 \emph{car light green} are set at the same time".}
 
-\parhead{Multi-staged Transformation} In cases where the semantic gap between
-the DSL and the target language is large, it makes sense to introduce
-intermediate languages so the transformation can be modularized. The overall
-transformation becomes a chain of subsequent transformations, an approach also
-known as cascading. Reusing lower $D$ languages and their subsequent
-transformations also implies reuse of potentially non-trivial analyses or
-optimizations that can be done at that particular abstraction level (compilers
-have been doing this for a long time). This aspect makes this approach much more
-useful than what the pure reuse of languages and transformations suggests.
-\marginnote{ This is on of the reasons why we usually generate GPL source code
-from DSLs, and not machine code or byte code: we want to reuse existing
-transformations and optimizations provided by the GPL compiler.} Splitting a
-transformation into a chain of smaller ones also makes each of them easier to
-understand and maintain.
 
-Multi-stage transformation can also be a natural consequence of incremental
+\parhead{Multi-staged Transformation} There are several reasons why the gap
+between a language at $D$ and its target platform may not be bridged by a single
+transformation. Instead, the overall transformation becomes a chain of
+subsequent transformations, an approach also known as cascading.
+
+In cases where the semantic gap between the DSL and the target language is
+large\footnote{One could measure this semantic gap between two languages: how
+many constructs do two languages share, how many "synonyms" exist, how many
+constructs are the same but have different meanings? In practice, the size of
+the gap is an intuition of the transformation designer.}, modularization makes
+sense because it makes each of them easier to understand, test and maintain.
+
+Another reason for multi-stage transformations is that each of the stages can
+potentially be reused. Reusing lower $D$ languages and their subsequent
+transformations also implies reuse of potentially non-trivial analyses or
+optimizations that can be done at that particular abstraction
+level\marginnote{This is on of the reasons why we usually generate GPL source
+code from DSLs, and not machine code or byte code: we want to reuse existing
+transformations and optimizations provided by the GPL compiler.}. GPL compilers,
+they can be retargetted relatively easily by exchanging the backends (machine
+code generation phases) or the frontend (programming language parsers and
+analyzers). For example, GCC can generate code for many different processor
+architectures (exchangeable backends), and it can generate backend code for
+several programming languages, among them C, C++ and Ada (exchangeable
+frontends). The same is possible for DSLs. The same high $D$ models can be
+executed differently by exchanging the lower $D$ intermediate languages and
+transformations. Or the same lower $D$ languages and transformations can be used
+for different higher $D$ languages, by mapping these different languages to the
+same intermediate language.
+
+\embc{The embedded C language (and some of its higher D extensions) have
+various translation options, for several different target platforms (Win32 and
+Osek), an example of backend reuse. All of them are C code, but we generate
+different idioms in the code and different make files.}
+ Multi-stage transformation can also be a natural consequence of incremental
 language extension along the domain hierarchy. In this case we add additional
 higher level languages on top of lower level languages. When transforming the
 higher level languages, it is natural and obvious to transform them onto the
@@ -261,20 +354,7 @@ next lower level, and not onto a language at $D_0$.
 transformation. Higher-level DSLs, for example, a simple DSL for robot control,
 are reduced to C plus some extensions such as state machines and tasks.}
 
-As we can learn from compilers, they can be retargetted relatively easily by
-exchanging the backends (machine code generation phases) or the frontend
-(programming language parsers and analyzers). For example, GCC can generate code
-for many different processor architectures (exchangeable backends), and it can
-generate backend code for several programming languages, among them C, C++ and
-Ada (exchangeable frontends). The same is possible for DSLs. The same high $D$
-models can be executed differently by exchanging the lower $D$ intermediate
-languages and transformations. Or the same lower $D$ languages and
-transformations can be used for different higher $D$ languages, by mapping these
-different languages to the same intermediate language.
 
-\embc{The embedded C language (and some of its higher D extensions) have
-various translation options, for several different target platforms (Win32 and
-Osek), an example of backend reuse.}
 
 A special case of a multi-staged transformation is as a preprocessor to a code
 generator. Here, a transformation is used to reduce the set of used language
@@ -319,10 +399,13 @@ However, this requires a competent developer and, usually, a lot of effort
 \emph{in each case}. A tool will typically address the 90\% case well: it will
 produce reasonably efficient code in the vast majority of cases with very little
 effort (once the optimizations have been defined). In most cases, this is good
-enough --- in the remaining corner cases, $D_{-1}$ has to be written manually.
+enough --- in the remaining corner cases, $D_{-1}$ has to be written
+manually\footnote{This argument pro tools is also used for in GPLs for garbage
+collection, transactional memory and optimizing compilers for higher level
+programming languages. Consider Java as an example: even though it runs on a VM
+(and not on the bare metal of the target processor) it is, in most cases, just
+as fast or faster as C.}.
 
-This argument pro tools is also used for garbage collection, transactional
-memory and optimizing compilers for higher level programming languages.
 
 
 \parhead{Care about generated code} Ideally, generated code is a throw-away
@@ -502,8 +585,8 @@ not seen this approach used for DSLs.
 
 \subsection{Sufficiency}
 
-A fragment is \emph{sufficient for transformation T} if the fragment itself
-contains all the data for the transformation to be executed. It is
+A program fragment is \emph{sufficient for transformation T} if the fragment
+itself contains all the data for the transformation to be executed. It is
 \emph{insufficient} if it is not. While dependent fragments are by definition
 not sufficient without the transitive closure of fragments they depend on, an
 independent fragment may be sufficient for one transformation, and insufficient
@@ -522,14 +605,16 @@ for execution. The semantics implied by the mapping to $L_{D-1}$ can be
 \emph{defined} to be correct. However, as soon as we transform the program to
 several different targets in $D_{-1}$ using several different transformations,
 we have to ensure that the semantics of all resulting programs are
-identical\marginnote{In practice, this case often occurs if an interpreter is
-used in the IDE for "experimenting" with the models, and a code generator
-creates efficient code for execution in the target environment.}. In this case
-we recommend providing a set of test cases that are executed in both the
-interpreted and generated versions, expecting them to succeed in both. If the
-coverage of these test cases is high enough to cover all of the observable
-behavior, then it can be assumed with reasonable certainty that the semantics
-are indeed the same.
+identical\footnote{At least to the extent we care --- we may not care if one of
+the resulting programs is faster or more scalable. In fact, these differences
+may be the very reason for having several mappings)}. In practice, this case
+often occurs if an interpreter is used in the IDE for "experimenting" with the
+models, and a code generator creates efficient code for execution in the target
+environment. To synchronize the semantics in this case we recommend providing a
+set of test cases that are executed in both the interpreted and generated versions, expecting them to
+succeed in both. If the coverage of these test cases is high enough to cover all
+of the observable behavior, then it can be assumed with reasonable certainty
+that the semantics are indeed the same.
 
 \pension{The unit tests in the pension plans DSL are executed by an interpreter
 in the IDE. However, as Java code is generated from the pension plan

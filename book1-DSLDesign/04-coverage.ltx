@@ -50,10 +50,13 @@ domain for which to build a DSL is an important part of DSL design.
 Second, the language may have been defined expressly to cover only a subset of
 $D$, typically the subset that is most commonly used. Covering all of $D$ may
 lead to a language that is too big or complicated for the intended user
-community because of its support for rarely used corner cases of the domain. In
-this case, the remaining parts of $D$ may have to be expressed with code written
-in $D_{-1}$ (see also \sect{sect:completeness}). This requires coordination
-between DSL users and $D_{-1}$ users, if this not the same group of people.
+community because of its support for rarely used corner cases of the
+domain\footnote{Incremental language extension provides a third option: you can
+put the common parts into the base language and the support for the corner cases
+into optionally usable language modules.}. In this case, the remaining parts of
+$D$ may have to be expressed with code written in $D_{-1}$ (see also
+\sect{sect:completeness}). This requires coordination between DSL users and
+$D_{-1}$ users, if this not the same group of people.
 
 \exwebdsl{WebDSL defines web pages through "page definitions" which have formal
 parameters. Navigate statements generate links to such pages. Because of this

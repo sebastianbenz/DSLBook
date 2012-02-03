@@ -78,8 +78,10 @@ documentation. In many cases, DSL users already know the domain, or would have
 to learn the domain even if no DSL were used. Learning the domain is independent
 of the language itself. It is easy to see, however, that, if a domain is
 supported by well-defined language, this can be a good reference for the domain
-itself. Learning a domain can be simplified by working with a good DSL. 
-
+itself. Learning a domain can be simplified by working with a good
+DSL\footnote{This can also be read the other way round: a measure for the
+quality of a DSL is how long it takes domain experts to learn it.}.
+ 
 \pension{The users of the pension DSL are pension experts. Most of them have
 spent years describing pension plans using prose text, tables and (informal)
 formulas. The DSL provides formal languages to express that same knowledge
@@ -114,10 +116,9 @@ complex.
 \embc{Embedded C extends the C programming language with concepts for embedded
 software including state machines, tasks, and physical quantities. The state
 machine construct, for example, has concepts representing states, events,
-transitions and guards. Much less code is required compared to switch/case
+transitions and guards. Much less code is required compared to \ic{switch/case}
 statements or cross-pointing integer arrays, two typical idioms for state
-machine implementation in C. Program analysis, such as finding states
-that can never be left because no transition leads out of them, is trivial.}
+machine implementation in C.}
 
 
 
@@ -188,28 +189,9 @@ code generation, as well as meaningful validation. For example, it is easy to
 detect states that are not reached by any transition and report this as an
 error. Detecting this same problem in a low-level C implementation requires
 sophisticated analysis on the switch-case statements or indexed arrays that
-constitute the implementation of the state machine.}
-
-\embc{Another example of how linguistic abstraction is advantageous is static
-detection of invocations on optional ports as shown in \fig{optionalport}.}
-
-Linguistic abstraction also means that no details irrelevant to the model
-purpose are expressed. Once again, this increases conciseness, and avoids the
-undesired specification of unintended semantics (over-specification).
-Overspecification is bad because it limits the degrees of freedom available to a
-transformation engine. In the example above, the loop A is over-specified: it
-expresses ordering of the operations, although this is (most likely) not
-intended by the person who wrote the code.
-
-\embc{State machines can be implemented as switch/case blocks or as arrays
-pointing into each other. The DSL program does not specify which implementation
-should be used and the transformation engine is free to chose the more
-appropriate representation, for example, based on desired program size or
-performance characteristics. Also, log statements and task declarations can be
-translated in different ways depending on the target platform.}
-
-
-
+constitute the implementation of the state machine\footnote{This assumes that
+the generator works correctly --- we'll discuss this problem in \sect{semantics}
+on semantics).}}
 \begin{marginfigure}
   \includegraphics[width=5cm]{figures-design/embc/components.png}
   \caption{Example component diagram. The top half defines components, their
@@ -250,16 +232,47 @@ statement on that same port.}
   \rule{1\textwidth}{0.7pt}
 \end{figure}
 
-Linguistic abstraction avoids the need for sophisticated analyses of progra
+
+Linguistic abstraction also means that no details irrelevant to the model
+purpose are expressed. Once again, this increases conciseness, and avoids the
+undesired specification of unintended semantics (over-specification).
+Overspecification is bad because it limits the degrees of freedom available to a
+transformation engine. In the example above, the loop A is over-specified: it
+expresses ordering of the operations, although this is (most likely) not
+intended by the person who wrote the code.
+
+\embc{State machines can be implemented as switch/case blocks or as arrays
+pointing into each other. The DSL program does not specify which implementation
+should be used and the transformation engine is free to chose the more
+appropriate representation, for example, based on desired program size or
+performance characteristics. Also, log statements and task declarations can be
+translated in different ways depending on the target platform.}
+
+
+
+
+
+
 
 \parhead{In-Lanuguage Abstraction} Conciseness can also be achieved by a
 language providing facilities to allow users to define new (non-linguistic)
-abstractions in programs. \marginnote{GPL concepts for building new abstractions include
-procedures, classes, or functions and higher-order functions.}
-It is \emph{not} a sign of a bad DSL if it has in-language abstraction
-mechanisms as long as the created abstractions don't require special treatment
-by analysis or processing tools --- at which point they should be refactored
-into linguistic abstractions.
+abstractions in programs. \marginnote{GPL concepts for building new abstractions
+include procedures, classes, or functions and higher-order functions,
+generics, traits and monads. It is worth understanding these to some extent, so
+you can make an informed decision which of these --- if any --- are useful in
+a DSL.} It is \emph{not} a sign of a bad DSL if it has in-language
+abstraction mechanisms as long as the created abstractions don't require special treatment by analysis or processing tools --- at which point they should be refactored into linguistic abstractions\footnote{The main reason why such an approach is flawed is because
+the semantics of \ic{isConnected} or \ic{OrderedList} could be changed by a
+library developer, without changing the static analyzer of code generator in a
+consistent way.}. An example of such special treatment would be if the compiler
+of the above example language would know that the \ic{OrderedList} library class
+is actually ordered, and that consequently, the respective loop cannot be
+parallelized. Another example of special treatment can be constructed in the
+context of the optional port example. If we'd solve the problem by having a
+library function \ic{isConnected(port)}, we could enforce that a call on an
+optional port is surrounded by an \ic{if (isConnected(port))} \emph{without any
+other expression} in the condition. In this case, the static analyzer would have
+to treat \ic{isConnected} specially.
 
 \cooling{The language does not support the construction of new abstractions
 since its user community are non-programmers who are not familiar with defining
@@ -267,8 +280,8 @@ abstractions. As a consequence, the language had to be modified several
 times during development as new requirements came up from the end users, and had
 to be integrated directly into the language.}
 
-\embc{Since C is extended, C's abstraction mechanisms (functions, structs,
-enums) are available. Moreover, we added new mechanisms for building
+\embc{Since C is extended, C's abstraction mechanisms (functions, \ic{struct}s,
+\ic{enum}s) are available. Moreover, we added new mechanisms for building
 abstractions including interfaces and components.}
 
 \exwebdsl{WebDSL provides \emph{template definitions} to capture partial web
@@ -289,9 +302,11 @@ language definition and processing tools.
 can be turned \lcr{on} or \lcr{off}, and for a \lcr{compressor}, the
 \lcr{rpm} can be specified. The set of properties available for the various
 building blocks is defined via a standard library and is not part of the
-language (\fig{coolinglib}). This way, if a new device driver supports a new
-property, it can be made available to cooling programs without changing and redeploying the
-language.} 
+language (\fig{coolinglib}). The reason why this is \emph{not} a contradition
+to what we discussed earlier is this: as a consequence of the framework used on
+the target platform, new properties can be added to hardware elements
+\emph{without} the need to change the generator. They are not treated
+specially!}
 
 \begin{figure}
   \rule{1\textwidth}{0.7pt}
@@ -362,11 +377,11 @@ enable the same functionality.}. Consider this when deciding about the tooling
 you want to use! 
 
 It is always a good idea to minimize those changes to a DSL that break existing
-models. Backward-compatibility and deprecation are techniques well worth keeping
-in mind when working with DSLs. For example, instead of just changing an
-existing concept in an incompatible way, you may add a new concept in addition
-to the old one, along with deprecatio of the old one and a migration script or
-wizard. Note that you might be able to instrument your model processor to
+models\footnote{This is especially true if you don't have access to all
+programs to migrate them in one fell swoop: you have to deploy migration
+scripts with the language or rely on the users to manually perform the
+migration.}. Backward-compatibility and deprecation are techniques well worth
+keeping in mind when working with DSLs. For example, instead of just changing an existing concept in an incompatible way, you may add a new concept in addition to the old one, along with deprecatio of the old one and a migration script or wizard. Note that you might be able to instrument your model processor to
 collect statistics on whether deprecated language features continue to be used.
 Once no more instances show up in models, you can safely remove the deprecated
 language feature..
@@ -403,14 +418,14 @@ from the user's perspective, since the apparent complexity is limited.
 
 Be aware of the difference between precision and algorithmic completeness. Many
 domain experts are able to formally and precisely specify facts about their
-domain (the "what" of a domain) while they are not able to define
-(Turing-complete) algorithms to implement the system (the "how"). It is the job
+domain (the "what" of a domain) while they are not able to define (efficient,
+complete, correct) algorithms to implement the system (the "how"). It is the job
 of software developers to provide a formal language for domain users to express
 facts, and then to implement generators and interpreters to map those facts into
 executable algorithms that truthfully implement the facts they expressed. The
 DSL expresses the "what", the model processor adds the "how". Consider creating
 an incomplete language (\sect{sect:completeness}), and have developers fill in
-the algorithmic details in GPL code.
+the algorithmic details in GPL code.
 
 \pension{Pension rules are declarative in the sense that a set of mathematical
 equations and calculation rules are defined. The code generator, written by
