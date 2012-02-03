@@ -13,11 +13,12 @@ domain requirements, but rather, by a desire of the language designers and
 implementers for consistency and avoidance of duplicate implementation work.}
 
 
-We have identified the following four composition strategies: referencing,
-extension, reuse and embedding. We distinguish them regarding fragment structure
-and language dependencies, as illustrated in \fig{quadrants}. \fig{fragAndLang}
-shows the relationships between fragments and languages in these cases. We
-consider these two criteria to be essential for the following reasons.
+We have identified the following four composition
+strategies: referencing, extension, reuse and embedding. We distinguish them
+regarding fragment structure and language dependencies, as illustrated in
+\fig{quadrants}. \fig{fragAndLang} shows the relationships between fragments and
+languages in these cases. We consider these two criteria to be essential for the
+following reasons.
 
 
 \begin{figure}[h]
@@ -50,6 +51,14 @@ this is not always that possible, though often desirable.
   \label{fragAndLang} 
 \end{center}
 \end{figure}
+
+
+\parhead{DSL Hell?} Reusing DSL also helps avoid the DSL Hell problem we
+discussed in the introduction. DSL hell refers to the danger that developers
+create new DSLs all the time, resulting in a large set of half-baked DSLs, each
+covering related domains, possibly with overlap, but still incompatible.
+Language modularization and reuse can help avoid this problem. Languageextension allows users to add new language constructs to existing languages.They can reuse all the features of the existing language while still addingtheir own higher level abstractions. Language lets language designers embedexisting languages into new ones. This is particularly interesting in case ofexpression or query languages, that are interesting in many different contexts.
+
 
 \input{09a-referencing.ltx}
 \input{09b-extension.ltx}

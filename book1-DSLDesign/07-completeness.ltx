@@ -24,11 +24,11 @@ its $D_{-1}$. Developers can always fall back to $D_{-1}$ to express what is not
 expressible directly with $L_D$. Since the users of this system are developers,
 falling back to $D_{-1}$ or even $D_0$ is not a problem.}
 
-\cooling{This DSL uses several viewpoints: one to define the structure of
-a refrigerator, and one to describe the actual algorithm. When
-generating the C code for the algorithm, both viewpoints are needed, because
-the structure determines how exactly some of the algorithms are implemented in
-the generated C code.}
+\cooling{This DSL uses several viewpoints: one to define the structure of a
+refrigerator, and one to describe the actual algorithm. When generating the C
+code for the algorithm, both viewpoints are needed, because the structure
+determines how exactly some of the algorithms are implemented in the generated C
+code.}
 
 \subsection{Compensating for Incompleteness} 
 
@@ -36,40 +36,44 @@ Integrating the $L_{D-1}$ in case of an incomplete $L_{D}$ language can be done
 in several ways:
 
 \begin{itemize}
+
   \item by  calling "black box" code written in $L_{D-1}$. This requires
- concepts in $L_D$ for calling $D_{-1}$ foreign functions. No syntactic
- embedding of $D_{-1}$ code is required.
+  concepts in $L_D$ for calling $D_{-1}$ foreign functions. No syntactic
+  embedding of $D_{-1}$ code is required.
 
   \item by directly embedding $L_{D-1}$ code in the $L_D$ program. This is
   useful if $L_D$ is an extension of $L_{D-1}$, or if the tool provide adequate
   support for embedding the $D_{-1}$ language into $L_D$
   programs\marginnote[-1cm]{Just "pasting text into a textfield", an approach
   used by several graphical modeling tools, is not productive, since no
-  syntactic and semantic integration between the languages is provided.}.
+  syntactic and semantic integration between the languages is provided.  In most cases there is no tool support (syntax highlighting,  code completion, error checking)}.
+  \item by using composition mechanisms of $L_{D-1}$ to "plug in" the manually
+  written code into the generated code without actually modifying the generated
+  files (also known as the Generation Gap pattern \cite{Vlissidis1996}). Example
+  techniques for realizing this approach include generating a base class with
+  abstract methods (requiring the user to implement them in a manually written
+  subclass) or with empty callback methods which the user can use to customize
+  in a subclass (for example, in user interfaces, you can return a position
+  object for a widget, the default method returns \ic{null}, default to the generic
+  layout algorithm). You can delegate, implement interfaces, use \ic{\#include}, use
+  reflection tricks, AOP or take a look at the well-known design patterns for
+  inspiration. Some languages provide partial classes, where a class definition
+  can be split over a generated file and a manually written file.
 
-  \item by using composition mechanisms of $L_{D-1}$ to "plug
-  in" the manually written code into the generated code without actually
-  modifying the generated files (also known as the Generation Gap pattern
- \cite{Vlissidis1996}). Example techniques for realizing this approach include
-  generating a base class with
-abstract methods (requiring the user to implement them in a manually written
-subclass) or with empty callback methods which the user can use to customize in
-a subclass (for example, in user interfaces, you can return a position object
-for a widget, the default method returns null, default to the generic layout
-algorithm). You can delegate, implement interfaces, use \#include, use
-reflection tricks, AOP or take a look at the well-known design patterns for
-inspiration. Some languages provide partial classes, where a class definition
-can be split over a generated file and a manually written file. 
   \item or by inserting manually-written $L_{D-1}$ code into the $L_{D-1}$ code
-generated from the $L_D$ program using protected regions.
-Protected regions are areas of the code, usually delimited by
-special comments, whose (manually written) contents are not
-overwritten during regeneration of the file\marginnote[-2cm]{We strongly
-discourage the use of protected regions. You'll run into all kinds of problems: generated code is not a throw-away product anymore, you have to check it in, and you'll run into all kinds of funny situations with your CM system. Also, often you will accumulate a "sediment" of code that has been generated
-from model elements that are no longer in the model (if you don't use protected
-regions, you can delete the whole generated source directory from time to time,
-cleaning up the sediment).}
-\end{itemize}
+  generated from the $L_D$ program using protected regions. Protected regions
+  are areas of the code, usually delimited by special comments, whose
+  (manually written) contents are not overwritten during regeneration of the
+  file\marginnote[-2cm]{We strongly discourage the use of protected regions.
+  You'll run into all kinds of problems: generated code is not a throw-away
+  product anymore, you have to check it in, and you'll run into all kinds of
+  funny situations with your CM system. Also, often you will accumulate a
+  "sediment" of code that has been generated from model elements that are no
+  longer in the model (if you don't use protected regions, you can delete the
+  whole generated source directory from time to time, cleaning up the
+  sediment).}
+
+\end{itemize}
 
 For DSLs used by developers, incomplete DSLs are usually not a problem because
 they are comfortable with providing the $D_{-1}$ code expressed in a programming
@@ -139,23 +143,29 @@ by the developer of the DSL, helping the devloper understand what exactly has
 to be done to solve the problem in the code. 
 
 
-\parhead{Broken Promises} As part of the definition of a DSL you will
+\parhead{Semantic Consistency} As part of the definition of a DSL you will
 implement constraints that validate the DSL program in order to ensure some
-property of the resulting system (see \sect{validation}).q For example, you
+property of the resulting system (see \sect{validation}). For example, you
 might check dependencies between components in an architecture model to ensure
 components can be exchanged in the actual system. Of course such a validation is
 only useful if the manually written code does not introduce dependencies that
 are not present in the model. In that case the "green light" from the constraint
 check does not help much.
 
-To ensure that promises made by the models are kept by the (manually written)
-code, use on of the following two approaches. First, generate code that does not
-allow violation of model promises. For example, don't expose a factory that allows
-components to look up and use any other component (creating dependencies), but
-rather use dependency injection to supply objects for the valid dependencies
-expressed in the model. Second, use architecture analysis tools (dependency
-checkers) to validate manually written code. You can easily generate the
-checking rules for those architecture analysis tools from the models.
+\marginnote{A better approach is to build a \emph{complete} DSL. The language
+used to express the behavior (which might otherwise plugged in manually in the
+generated code) is suitably limited and/or checked to enforce it does not lead
+to inconsistencies. This is a nice use case for language extension and
+embedding.}
+To ensure that promises made by the models are kept by the (manually
+written) code, use on of the following two approaches. First, generate code that does not
+allow violation of model promises. For example, don't expose a factory that
+allows components to look up and use any other component (creating
+dependencies), but rather use dependency injection to supply objects for the
+valid dependencies expressed in the model. Second, use architecture analysis
+tools (dependency checkers) to validate manually written code. You can easily
+generate the checking rules for those architecture analysis tools from the
+models.
 
 \comparch{The code generator to Java generates component implementation classes
 that use dependency injection to supply the targets for required ports. This
