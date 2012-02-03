@@ -239,7 +239,7 @@ freedom from deadlocks, assuring liveness and specific safety properties such as
 \parhead{Multi-staged Transformation} In cases where the semantic gap between
 the DSL and the target language is large, it makes sense to introduce
 intermediate languages so the transformation can be modularized. The overall
-transformation becomes a chain of subsequent transformations, and appraoch also
+transformation becomes a chain of subsequent transformations, an approach also
 known as cascading. Reusing lower $D$ languages and their subsequent
 transformations also implies reuse of potentially non-trivial analyses or
 optimizations that can be done at that particular abstraction level (compilers
@@ -250,6 +250,12 @@ from DSLs, and not machine code or byte code: we want to reuse existing
 transformations and optimizations provided by the GPL compiler.} Splitting a
 transformation into a chain of smaller ones also makes each of them easier to
 understand and maintain.
+
+Multi-stage transformation can also be a natural consequence of incremental
+language extension along the domain hierarchy. In this case we add additional
+higher level languages on top of lower level languages. When transforming the
+higher level languages, it is natural and obvious to transform them onto the
+next lower level, and not onto a language at $D_0$.
 
 \embc{The extensions to C are all transformed back to C idioms during
 transformation. Higher-level DSLs, for example, a simple DSL for robot control,

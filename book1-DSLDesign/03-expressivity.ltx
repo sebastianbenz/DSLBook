@@ -46,9 +46,6 @@ We can then qualify the expressivity of a language relative to another language.
 \noindent Typically, we need to qualify this statement and restrict it to the
 domain of interest.
 
-\marginnote{Note that optimizing a DSL too far towards conciseness may limit the
-DSL's ability to cover a substantial part of the relevant programs in the
-domain, making the DSL useless. We discuss coverage in \sect{coverage}.}
 \begin{center}
 A language $L_1$ is \emph{more expressive in domain $D$} than a
 language $L_2$ ($L_1 \prec_D L_2$), \\ if for each $p \in P_D \cap P_{L_1}
@@ -60,6 +57,16 @@ language is \emph{mostly} more expressive, but may not be in corner cases: DSLs
 may optimize for the common case and may require code written in a more general
 language to cover the corner cases\footnote{We discuss this aspect in the section
 on completeness (\sect{sect:completeness}).}.
+
+Note that there is a trade-off between expressivity and the scope of the
+language. We can always invent a language with exactly one symbol $\Sigma$ that
+represent exactly one single program. It is extremely expressive! It is trivial
+to write a code generator for it. However, the language is also useless because
+it can only express \emph{one single program}, and we'd have to create a new
+language if we wanted to express a different program. So in building DSLs we are
+striving for a language that has maximum expressivity while retaining enough
+coverage (see next chapter) of the target domain to be useful.
+
 
 \seppar DSLs are more expressive than GPLs in the domain they are built
 for. But there is also a disadvantage: before being able to write these concise
@@ -125,7 +132,7 @@ magnitude~\cite{Visser07}.}
 \label{lingvsinlang}
 
 \parhead{Linguistic Abstraction} By making the concepts of $D$ first class
-members of a language $L_D$, i.e. by definining linguistic abstractions for
+members of a language $L_D$, i.e. by defining linguistic abstractions for
 these concepts, they can be uniquely identified in a $D$ program and their
 structure and semantics is well defined. No semantically relevant\sidenote{By
 "semantically relevant" we mean that the tools needed to achieve the model
@@ -136,7 +143,7 @@ examples of loops in a Java-like language:
 \footnotesize
 \begin{verbatim} 
   int[] arr = ...                         int[] arr = ...
-  for (int i=0; i<arr.size(); i++) {      List<int> l = ... 
+  for (int i=0; i<arr.size(); i++) {      OrderedList<int> l = ... 
       sum += arr[i];                      for (int i=0;  i<arr.size(); i++) { 
   }                                           l.add( arr[i] );
                                           }
@@ -144,9 +151,9 @@ examples of loops in a Java-like language:
 \normalsize
 
 The left loop can be parallelized, since the order of summing up the array
-elements is irrelevant. The right one cannot, since (we presume) the order of
-the elements in the \lcr{List} class is relevant. A transformation engine that
-translates and optimizes the programs must perform (sophisticated, and sometimes
+elements is irrelevant. The right one cannot, since the order of the elements in
+the \lcr{OrderedList} class is relevant. A transformation engine that translates
+and optimizes the programs must perform (sophisticated, and sometimes
 impossible) program analysis to determine that the left loop can indeed be
 parallelized. The following alternative expression of the same behaviour uses
 better linguistic abstractions, because it is clear without analysis that the
@@ -155,7 +162,14 @@ a language $L_D$ of having first-class concepts for abstractions relevant in $D$
 is often called \emph{declarativeness}: no sophisticated pattern matching or
 program flow analysis is necessary to capture the semantics of a program
 (relative to the purpose), and treat it correspondingly.}. The decision can
-simply be based on the language concept used (\lcr{for} vs. \lcr{seqfor})
+simply be based on the language concept used (\lcr{for} vs.
+\lcr{seqfor})\footnote{Without linguistic abstraction, the processor has to
+analyze the program to "reverse engineer" the semantics to be able to act on it.
+With linguistic abstraction, we rely on the language user to use the correct
+abstraction! We assume that the user is able to do this. The trade-off makes
+sense in DSLs because we assume that DSL users are familiar with the domain,
+and we often don't have the budget or experience to build the sophisticated
+program analyses that could do the semantic reverse engineering.}.
 
 \footnotesize
 \begin{verbatim} 
@@ -233,10 +247,11 @@ statement on that same port.}
   \rule{1\textwidth}{0.7pt}
 \end{figure}
 
+Linguistic abstraction avoids the need for sophisticated analyses of progra
 
 \parhead{In-Lanuguage Abstraction} Conciseness can also be achieved by a
-language providing facilities to define new (non-linguistic) abstractions in
-programs. \marginnote{GPL concepts for building new abstractions include
+language providing facilities to allow users to define new (non-linguistic)
+abstractions in programs. \marginnote{GPL concepts for building new abstractions include
 procedures, classes, or functions and higher-order functions.}
 It is \emph{not} a sign of a bad DSL if it has in-language abstraction
 mechanisms as long as the created abstractions don't require special treatment
@@ -298,7 +313,10 @@ relevant abstractions be known in advance, or frequent evolution of the language
 is necessary. In-language abstraction is more flexible, because users can build
 just those abstractions they need. However, this requires that users are
 actually trained to build their own abstractions. This is often true for
-programmers, but it is typically not true for domain experts.
+programmers, but it is typically not true for domain experts. Using linguistic
+abstractions excessively leads to large languages. This problem can be addressed
+by modular languages where additional linguistic abstractions can be included
+into a program as needed.
 
 Using a standard library may be a good compromise where one set of users
 develops the abstractions to be used by another set of developers. This is

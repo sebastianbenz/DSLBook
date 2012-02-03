@@ -59,11 +59,14 @@ existing development infrastructures, making their adoption relatively easy.
 They are very well suited for detailed descriptions, anything that is
 algorithmic or generally resembles (traditional) program source code. Symbolic
 notations can be considered "better textual", and lend themselves to domains
-that make heavy use of symbols and special notations. tables are very useful for
+that make heavy use of symbols and special notations. Tables are very useful for
 collections of similarly structured data items, or for expressing how two
 independent dimensions of data relate. Finally, graphical notations are very
 good for describing relationships (\fig{graphicalRel}), flow
-(\fig{graphicalFlow}) or timing and causal relationships (\fig{graphicalCause}).
+(\fig{graphicalFlow}) or timing and causal relationships
+(\fig{graphicalCause})\footnote{They may also be better suited for simulating
+programs, where, for example, data flow can be animated directly on the data
+flow diagram.}.
   
 \begin{marginfigure}
   \includegraphics[width=5cm]{figures-design/pension/pensionmath.png}
@@ -184,14 +187,49 @@ SQL is a relatively old language and IDE concerns where probably not that
 important at the time. More modern query language such as HQL or Linq in fact
 use the more IDE friendly syntax.
 
+
+\parhead{Writing vs. Reading Code} Textual notations are more productive for
+writing programs. While, in principle, code completion, quick fixes and
+refactorings could also be provided for graphical notations, we see them more
+often in textual IDEs. In general, for DSLs writability
+is often more important than readability, because additional read-only
+representations can always be derived automatically.
+
+
+\parhead{Visualization} A visualization is a graphical representation of a model
+that cannot be edited. It is created from the core model using some kind of
+transformation, and it is often automatically layouted (possibly with
+layouting hints from the user). The resulting diagram may be static (i.e. an
+image file is generated) or interactive (where users can show, hide and focus
+on different parts of the diagram). It may provide drill-down back to the core
+program (double-clicking on the figure in the image opens the code editor at
+the respective location.)\footnote{Graphviz is one of the most well-known tools
+for this kind of visualization. Another one in Jan Koehnlein's tool \todo{}}.
+
+Visualizations are a good way of resolving a potential conflict where the
+primary DSL users want to use a textual notations (for reasons of writability)
+and other stakeholders still want a graphical representation to get an overview
+over the overall model.
+
+Since a visualization is not the primary notation, it is possible to create
+several different visualizations for the same model, highlighting different
+aspects of the core program.
+
+\embc{In the mbeddr components extension, we support several notations. The
+first one shows interfaces and the components that provide and require these
+interfaces. The second one shows component instances and the connections
+between their provided and required ports. Finally, there is a third
+visualization that applies to all mbeddr models, not just those that use
+components: it shows the modules, their imports (i.e. module dependencies) as
+well as the public contents of these modules (functions, structs, components,
+test cases).}
+
+
 \parhead{Multiple Notations} For projectional editors it is possible to define
 several notations for the same abstract syntax. By changing the projection
 rules, existing programs can be shown in a different way. This removes some of
 the burden of getting it right initially, because the notation can be adapted
-after the fact. In general, for the concrete syntax of a DSL writability is
-often more important than readability, because additional read-only
-representations can always be derived automatically.
-
+after the fact. 
 \embc{For state machines, the primary syntax is textual. However, a tabular
 notation is supported as well. The projection can be changed as the program is
 edited, rendering the same state machine textually or as a table. As

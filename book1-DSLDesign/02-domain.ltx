@@ -127,8 +127,9 @@ established either directly during editing (in projectional systems) or by a
 name resolution (or \emph{linking}) phase that follows parsing and tree
 construction.
 
-A program may be composed from several program \emph{fragments}. A fragment 
-is a standalone tree. $E_f$ is the set of program elements in a fragment $f$.
+A program may be composed from several program \emph{fragments}. A fragment is a
+standalone tree, a partial program\footnote{Conversely, a program is then a
+set of fragments.}. $E_f$ is the set of program elements in a fragment $f$.
 
 A language $l$ defines a set of language concepts $C_l$ and their
 relationships\footnote{We use the term concept to refer to concrete syntax,
@@ -202,6 +203,10 @@ be expressed with an independent language (1.5).
 \\ 
 \forall e \in E_f &\mid \mathit{lo(co(e))} = l 
 \end{align}
+
+We can now further refine our definition of \emph{program}: a program is a set
+of fragments; for each dependent fragment, the transitive closure of
+dependencies must be included in this set.
 
 
 \begin{marginfigure}
