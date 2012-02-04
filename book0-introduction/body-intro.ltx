@@ -171,8 +171,8 @@ graphical editing frameworks among them.
 \subsection{JetBrains MPS}
 \marginnote{http://jetbrains.com/mps}
 The Meta Programming System (MPS) is a projectional language workbench, which
-means that there is no grammar and parser involved, rather, editor gestures
-directly change the underlying AST which is projected in a way that looks like
+means that there is no grammar and parser involved. Instead, editor
+gestures directly change the underlying AST which is projected in a way that looks like
 text. As a consequence, MPS supports mixed notations (textual, symbolic,
 tabular, graphical) and a wide range of language composition features.
 
@@ -328,6 +328,7 @@ implementation of the calculation engine is generated. It is intended to be used
 by insurance mathematicians and pension experts. It has been built by Capgemini
 with the Intentional Domain Workbench.
 
+\FloatBarrier
 
 \subsection{WebDSL}
  
@@ -337,13 +338,12 @@ modeling (entity), user interface templates (define), access
 control\cite{GroenewegenV08}, data
 validation\cite{GroenewegenVisser-SOSYM-2011}, search, and more. The language
 enforces inter-concern consistency checking, providing early detection of
-failures\cite{HemelGKV11}. The fragment in \fig{webdsl} shows a data model,
-user interface templates, and access control rules for posts in a blogging
+failures\cite{HemelGKV11}. The fragment in \fig{webdsl} shows a data model, user
+interface templates, and access control rules for posts in a blogging
 application. WebDSL is implemented with the Spoofax Language
-Workbench\cite{KatsV10a} and is used in the researchr
-digital library (\url{http://researchr.org}).   
- 
-
+Workbench\cite{KatsV10a} and is used in the researchr digital library
+(\url{http://researchr.org}).
+ 
 
 
 
@@ -354,8 +354,8 @@ digital library (\url{http://researchr.org}).
 
 \chapterabstract{Domain-Specific Languages (DSLs) are becoming more
 and more important in software engineering. Tools are becoming  better as well, so
-DSLs can be developed with less effort. In this chapter I first explain the
-difference between DSLs and general-purpose languages, as well as the
+DSLs can be developed with relatively little effort. In this chapter I first
+explain the difference between DSLs and general-purpose languages, as well as the
 relationship between them. I then look at the relationship to model-driven
 development and develop a vision for modular programming languages which I
 consider the pinnacle of DSLs. I discuss the benefits of DSLs, some of the
@@ -445,7 +445,8 @@ programmers to instruct computers. All of them are Turing complete, which means
 that they can be used to implement anything that is computable with a Turing
 machine. It also means that anything expressible with one Turing complete
 programming language can also be expressed with any other Turing complete
-programming language. In that sense, all programming languages are exchangeable.
+programming language. In that sense, all programming languages are 
+interchangeable.
 
 So then, why is there more than one? Why don't we program everything in Java or
 Pascal or Ruby or Python? Why doesn't an embedded systems developer use Ruby,
@@ -458,7 +459,7 @@ code, and you could interpret C.
 
 The real reason why these languages are used for what they are used for is that
 their features are tailored to the tasks that are relevant in the respective
-usage areas. In C you can directly influence memory layout (important to
+domains: In C you can directly influence memory layout (important to
 communicate with low-level, memory mapped devices), you can use pointers
 (resulting in potentially very efficient data structures) and the preprocessor
 can be used as a (very limited) way of expressing abstractions with zero runtime
@@ -482,7 +483,7 @@ for this environment.
 
 
 So, if we want to "program" for even more specialized environments, it is
-relatively obvious that specialized languages are useful. A Domain-Specific
+obvious that specialized languages are useful. A Domain-Specific
 Language is simply a language that is optimized for a given class of problems,
 called a \emph{domain}. It is based on abstractions that are closely aligned
 with the domain for which the language is built\marginnote{SQL has tables, rows
@@ -494,30 +495,32 @@ useful. Assuming the semantics of these abstractions is well defined, this
 makes a good starting point for
 effectively expressing programs for a specialized domain.
 
-\parhead{Executing the Language} Engineering a DSL (or any language) doesn't
-stop there, because the language has to be "brought to life" as well ---
-programs written in the language have to be executed somehow. There are two main
-approaches for that: translation (a.k.a. generation or compilation) and
-interpretation. The former translates a DSL program to a language for which an
-execution engine on a given target platform already exists. In the latter case,
-you build a new execution engine (on top of your desired target platforms) which
-loads the program and executes it directly.
+\parhead{Executing the Language} Engineering a DSL (or any language) is not just
+about syntax, it also has to be "brought to life" --- programs written in the
+language have to be executed somehow. There are two main approaches for that:
+translation (a.k.a. generation or compilation) and interpretation. The former
+translates a DSL program to a language for which an execution engine on a given
+target platform already exists. In the latter case, you build a new execution
+engine (on top of your desired target platforms) which loads the program and
+executes it directly.
 
-If there is a big gap between the language abstractions and the relevant
-concepts of target platform (i.e., the platform the interpreter or generated
-code runs on), execution can become inefficient. E.g., if you try to store and
-query graph data in a relational database, this will be very inefficient because
-many joins are necessary. Another example is trying to run Erlang on a system
-which only provides heavy-weight processes --- having thousands of processes as
-Erlang requires, is not going to be efficient. So, when defining a language for
-a given domain, you should be aware of the intricacies of the target platform
-and the interplay between execution and language design\footnote{This may sound
-counter-intuitive. Isn't a DSL supposed to abstract away from just these details
-of execution? Yes, but: it has to be possible to implement a reasonably
-efficient execution engine. DSL design is a compromise between approriate domain
-abstractions and the ability to get to an efficient execution. A good DSL allows
-the DSL \emph{user} to ignore execution concerns, but allows the DSL
-\emph{implementor} to implement a reasonable execution engine}.
+If there is a big semantic gap between the language abstractions and the
+relevant concepts of target platform (i.e., the platform the interpreter or
+generated code runs on), execution can become inefficient. E.g., if you try to
+store and query graph data in a relational database, this will be very
+inefficient because many joins will be necessary to reassemble the graph from
+the normalized tabular structure. Another example is trying to run Erlang on a
+system which only provides heavy-weight processes --- having thousands of
+processes as Erlang requires, is not going to be efficient. So, when defining a
+language for a given domain, you should be aware of the intricacies of the
+target platform and the interplay between execution and language
+design\footnote{This may sound counter-intuitive. Isn't a DSL supposed to
+abstract away from just these details of execution? Yes, but: it has to be
+possible to implement a reasonably efficient execution engine. DSL design is a
+compromise between approriate domain abstractions and the ability to get to an
+efficient execution. A good DSL allows the DSL \emph{user} to ignore execution
+concerns, but allows the DSL \emph{implementor} to implement a reasonable
+execution engine}.
 
 
 \parhead{Languages vs. Libraries and Frameworks} By now you should believe to a
@@ -528,7 +531,7 @@ the picture?
 
 Languages (and the programs you write with them), are the cleanest form of
 abstraction --- essentially, you are adding a notation to a conceptual model of
-the domain. You get rid of all the unneeded clutter that an API --- or
+the domain. You get rid of all the unnecessary clutter that an API --- or
 anything else embedded in or expressed with a general-purpose language ---
 requires. You can define a notation that fits the abstractions well and makes
 interacting with programs easy and efficient. DSLs may be so limited that they
@@ -543,31 +546,32 @@ with languages whose abstractions and notations are aligned with the domain they
 work in.}.
 
 So then how are DSLs different from general purpose programming languages, and
-what do they have in common? This boundary isn't as clear as it could be. Obviously the
-core abstractions are aligned with whatever domain the DSL is built for, and the
-notations are suitable as well. Also, in many cases, DSLs are much smaller and
-simpler\footnote{Small and simple can mean that the language has fewer concepts,
-that the type system is less sophisticated or that the expressive power is
-limited} than GPLs (although there are some pretty sophisticated DSLs). I don't
-go as far as saying that DSLs are always declarative (it is not completely clear
-what this means anyway), or that they may never be Turing complete. But if your
-DSL approaches what Java can do, you might consider just using
-Java\marginnote{\ldots or, if your tooling allows it, extending Java with
-domain-specific concepts}. DSLs often start simple, based on an initially
-limited understanding of the domain, but then grow more and more sophisticated
-over time, a phenomenon Hudak notes in his '96 paper \todo{}.
+what do they have in common? This boundary isn't as clear as it could be.
+Obviously the core abstractions are aligned with whatever domain the DSL is
+built for, and the notations are suitable as well. Also, in many cases, DSLs are
+much smaller and simpler\footnote{Small and simple can mean that the language
+has fewer concepts, that the type system is less sophisticated or that the
+expressive power is limited} than GPLs (although there are some pretty
+sophisticated DSLs). I woudln't claim that DSLs are always declarative (it is
+not completely clear what declarative means anyway), or that they may never be
+Turing complete. But if your DSL becomes as big and general as, say, Java, you
+might want to consider just using Java\marginnote{\ldots or, if your tooling
+allows it, extending Java with domain-specific concepts}. DSLs often start
+simple, based on an initially limited understanding of the domain, but then grow
+more and more sophisticated over time, a phenomenon Hudak notes in his '96 paper
+\todo{}.
 
 So, I guess we agree that Java is not a DSL. But what about Mathematica, SQL,
-State Charts or HTML? Are these DSLs? This is not so easy to answer. They are,
-of course, DSLs in the sense that they are languages that are optimized for (and
-limited to) a special domain or problem. However:
+State Charts or HTML? Are these DSLs? There is no simple answer to this
+question. They are, of course, DSLs in the sense that they are languages that
+are optimized for (and limited to) a special domain or problem. However:
 
 \begin{itemize}
   \item These languages are really really big and complicated.
   While I don't claim that good DSLs are always simple, it is really rare
   that you'll build something comparable to SQL in sophistication or size.
   \item An underlying assumption of many (process) recommendations in this book
-  is that, as the developer of a DSL, you know the
+  is that, being the developer of a DSL, you know the
   users and can communicate with them. For example, you can make them remove
   deprecated language constructs from their models, or you inspect and analyze
   the models to learn how to improve the language. This is not true for
@@ -591,7 +595,7 @@ a language is \emph{more} or \emph{less} domain specific. The following
 table lists a set of language characteristics. While DSLs and general purpose
 languages (GPLs) can have characteristics from both the second and the third
 columns, DSLs are more likely to pick characteristics from the right column.
-This makes designing DSLs a more tractable problem than designing general
+This makes designing DSLs a more manageable problem than designing general
 purpose languages\marginnote[-2cm]{There are many connections to general
 purpose languages. DSL programs may be translated into GPL code. DSL code may be
 embedded in GPL programs. And DSL designers can learn a lot from GPLs.}
@@ -624,25 +628,24 @@ of the text that comes before it slightly superfluous! Can it be moved earlier i
 
 \section{Modeling and Model-Driven Development}
 
-The approach described above of defining and using DSLs is a form of
-model-driven development (MDD): we create formal, tool-processable
-representations of certain aspects of software systems\footnote{One can also do
-MDD without DSLs by, for example, generating code from general purpose modeling
-languages such as UML.}. We then use interpretation or code generation to
-transform those representations into executable code expressed in programming
-languages and the associated XML/HTML/whatever files. With today's tools it is
-technically relatively simple to define arbitrary abstractions to represent some
-aspect of a software system in a meaningful way\footnote{Designing a \emph{good}
-language is another matter --- I provide some input on designing DSLs in the
-Design part of this book.}. It is also relatively simple to build code
-generators that generate the executable artifacts (as long as you don't need
-sophisticated optimizations, which can be challenging). Ddepending on the
-particular DSL tool used, it is also possible to define suitable notations that
-make the abstractions accessible to non-programmers (for example opticians or
-thermodynamics engineers).
+Defining and using DSLs is a flavor of model-driven development (MDD): we create
+formal, tool-processable representations of certain aspects of software
+systems\footnote{One can also do MDD without DSLs by, for example, generating
+code from general purpose modeling languages such as UML.}. We then use
+interpretation or code generation to transform those representations into
+executable code expressed in general purpose programming languages and the
+associated XML/HTML/whatever files. With today's tools it is technically
+relatively simple to define arbitrary abstractions to represent some aspect of a
+software system in a meaningful way\footnote{Designing a \emph{good} language is
+another matter --- I provide some input on designing DSLs in the Design part of
+this book.}. It is also relatively simple to build code generators that generate
+the executable artifacts (as long as you don't need sophisticated optimizations,
+which can be challenging). Ddepending on the particular DSL tool used, it is
+also possible to define suitable notations that make the abstractions easily
+understandable by non-programmers (for example opticians or thermodynamicsengineers).
 
-However, there are also limitations to the approach. The biggest one is that
-modeling and programming often does not go together very well: 
+However, there are also limitations to the classical MDD approach. The biggest
+one is that modeling and programming often does not go together very well:
 modeling languages, environments and tools are distinct from programming
 languages, environments and tools. The level of distinctness varies, but in many
 cases it is big enough to cause integration issues that can make adoption of MDD
@@ -652,18 +655,19 @@ Consequently, it is possible to navigate, query and constrain arbitrary models
 with a common API. However, programming language IDEs are typically \emph{not}
 built on top of EMF, but come with their own API for representing and accessing
 the syntax tree. Thus, interoperability between models and source code is
-challenging --- you can't treat source code the same way as models. A similar
-problem exists regarding IDE support for model-code integrated systems: you
-cannot mix (DSL) models and (GPL) programs while retaining reasonable IDE
-support. Again, this is because the technology stacks used by the two are
-different\footnote{Of course, an integration can be created as Xtext/Xtend/Java
-shows. However, this is a \emph{special} integration with Java. Interoperability
-with, say, C code, would require a new and different integration
-infrastructure.}. These problems often results in an artificial separation of
-models and code, where code generators create skeletons into which source code
-is inserted, or the arcane practice of pasting C snippets into 5-in sized text
-boxes in graphical state machine tools (and getting errors reported only once
-the resulting, integrated C code is compiled).
+challenging --- you cannot treat source code the same way as models with respect
+to how you access the AST programmatically. A similar problem exists regarding
+IDE support for model-code integrated systems: you cannot mix (DSL) models and
+(GPL) programs while retaining reasonable IDE support. Again, this is because
+the technology stacks used by the two are different\footnote{Of course, an
+integration can be created as Xtext/Xtend/Java shows. However, this is a
+\emph{special} integration with Java. Interoperability with, say, C code, would
+require a new and different integration infrastructure.}. These problems often
+results in an artificial separation of models and code, where code generators
+either create skeletons into which source code is inserted (directly or via the
+generation gap pattern), or the arcane practice of pasting C snippets into 300
+pixel sized text boxes in graphical state machine tools (and getting errors
+reported only once the resulting, integrated C code is compiled).
 
 
 Above we have discussed the difference between DSLs and GPLs. Now that we talk
@@ -706,27 +710,31 @@ today? The table contains some (general and broad) statements:
 \label{fig:}
 \end{figure*}
 
-So one can and should ask: why is there a difference? I guess the primary
-reason is history, the two worlds have different origins and have evolved in
-different directions.
+So one can and should ask: why is there a difference in the first place? I guess
+the primary reason is history, the two worlds have different origins and have
+evolved in different directions.
 
 Programming languages have traditionally been using textual concrete syntax,
 i.e. the program is represented as a stream of characters. Modeling languages
-traditionally used graphical notations\footnote{There are several scenarios in
-which graphical concrete syntax makes sense (I discuss this later in the book).
-But there are also many cases where a good textual syntax, plus maybe a
-visualization, would be much more productive.}. Of course
-there are textual domain specific languages (and mostly failed graphical general purpose
+traditionally have been using graphical notations\footnote{There are several
+scenarios in which graphical concrete syntax makes sense (I discuss this later
+in the book). But there are also many cases where a good textual syntax, plus
+maybe a visualization, would be much more productive.}. Of course there are
+textual domain specific languages (and mostly failed graphical general purpose
 programming languages), but the use of textual syntax for domain specific
 modeling has only recently become more prominent. Programming languages have
-traditionally used storage based on concrete syntax, together with parsers that
-transform a character stream to an abstract syntax tree for further processing.
-Modeling languages have traditionally used editors that directly manipulate the
-abstract syntax, using projection to render the concrete syntax in the form of
-diagrams. Modeling tools have also provided the ability to define views, i.e.
-the ability to show the same model elements in different contexts, often using
-different notations. This has never really been a priority for programming
-languages beyond outline views, inheritance graphs or call graphs.
+traditionally stored programs in their textual, concrete syntax form, together
+with scanners and parsers that transform a character stream to an abstract
+syntax tree for further processing. Modeling languages have traditionally used
+editors that directly manipulate the abstract syntax, using projection to render
+the concrete syntax in the form of diagrams\footnote{This is not something we
+think about much. To most of us this is obvious. If it were different, we'd have
+to define grammars that can parse two-dimensional graphical structures. While
+this is possible, I guess, it is much too complicated.}. This approach makes it
+easy for ,odeling tools to define views, i.e. the ability to show the same model
+elements in different contexts, often using different notations. This has never
+really been a priority for programming languages beyond outline views,
+inheritance graphs or call graphs.
 
 I want to make the point that there should be no difference\footnote{This is my
 personal opinion. While I know enough people who share it, I also know people
@@ -757,7 +765,7 @@ wants to model, they want to program, but:
   other means of execution.
 \end{description}
 
-This vision, or goal, leads to the need for modular languages, as explained in
+This vision, or goal, leads to the idea of modular languages, as explained in
 the next section.
 
 
@@ -778,15 +786,14 @@ domain of general purpose programming (i.e. GPLs).
   \caption{A Big Language: Many specific language concepts}
   \label{bigLang} 
 \end{marginfigure}
-Examples of big languages include Cobol (a relatively 
-old language intended for use by business users) or ABAP (SAP's language for 
-programming the R/3 system). Big languages (\fig{bigLang}) have a relatively
-large set of very specific language concepts. These languages are, the
-proponents say, easy to learn, since "there's a keyword for everything". Tool
-support is easy to build. Interesting constraint checks and meaningful error
-messages are relatively simple to implement. However, expressing more
-sophisticated algorithms can be clumsy, because it is hard to write compact, 
-dense code. 
+Examples of big languages include Cobol (a relatively old language intended for
+use by business users) or ABAP (SAP's language for programming the R/3 system).
+Big languages (\fig{bigLang}) have a relatively large set of very specific
+language concepts. Proponents of these languages say that they are easy to
+learn, since "there's a keyword for everything". Tool support is easy to build.
+Interesting constraint checks and meaningful error messages are relatively
+simple to implement. However, expressing more sophisticated algorithms can be
+clumsy, because it is hard to write compact, dense code.
 
 \begin{marginfigure}
   \includegraphics[width=4cm]{figures-intro/smallLang.jpg}
@@ -833,9 +840,10 @@ is also provided. An extension module may even be embeddable in
 
 This idea isn't new. Charles Simonyi\cite{SimonyiCC06} and Sergey
 Dmitriev\cite{lopnextprogrammingparadigm} have written about it, so has Guy
-Steele in the context of Lisp\cite{Steele99}. The idea also relates very much to
-the notion of language workbenches as defined by Martin Fowler. \cite{Fowler2011}
-defines language workbenches as tools where: 
+Steele in the context of Lisp\cite{Steele99}. The idea of modular and extensible
+languages also relates very much to the notion of language workbenches as
+defined by Martin Fowler. \cite{Fowler2011} defines language workbenches as
+tools where:
 
 \vspace{5pt}
 \noindent
@@ -864,11 +872,12 @@ discuss this further in the book as well}, that is fine with me.
 \vspace{5pt}
 \noindent \textbf{Language designers define a DSL in three main parts: schema,
 editor(s), and generator(s).} I agree that ideally a language should be defined
-"meta model first", i.e., you first define a schema, and then the editor or
-grammar, based on the schema (MPS does it this way). However, it is also okay
-for me to start with the grammar, and have the meta model derived (the typical
-workflow with Xtext, although it can do both). From the language user's point of
-view, it does not make a big difference in most cases.
+"meta model first", i.e., you first define a schema (a.k.a. the meta model or
+AST), and then the concrete syntax (editor or grammar), based on the schema (MPS
+does it this way). However, it is also okay for me to start with the grammar,
+and have the meta model derived (the typical workflow with Xtext, although it
+can do both). From the language user's point of view, it does not make a big
+difference in most cases.
 
 
 \vspace{5pt}
@@ -885,39 +894,38 @@ language) and ideally also a debugger. A central idea of language workbenches is
 that language definition always includes IDE definition. The two should be
 integrated.
 
-A final requirement is that I want to be able to program
-complete systems within the language workbench. This means that together with
-DSL, general-purpose languages must also be available in the environment based
-on the same language definition/editing/processing infrastructure. Depending on
-the target domains, this language could be Java or C\#, but it could also be C
-for the embedded community. Starting with an existing general-purpose language
-also makes the adoption of the approach simpler: incremental language extensions
-can be developed as the need arises.
+A final requirement is that I want to be able to program complete systems within
+the language workbench. Since in most interesting systems you will still write
+parts in a GPL, GPLs must also be available in the environment based on the same
+language definition/editing/processing infrastructure. Depending on the target
+domains, this language could be Java or C\#, but it could also be C/C++ for the
+embedded community. Starting with an existing general-purpose language also
+makes the adoption of the approach simpler: incremental language extensions can
+be developed as the need arises.
 
-\parhead{Syntax} Generally I expect the syntax of DSLs to be textual. Decades of
-experience show that textual syntax, together with good tool support, is
-adequate for large and complex software systems\footnote{As I said, this is not
-true for all formalisms. Expressing hierarchical state charts textually can be a
-challenge. However, textual syntax is a good default that can be used unless
-otherwise indicated}. This becomes even more true if you consider that
-programmers will have to write less code, since the abstractions available in
-the languages will be much more closely aligned with the domain than is the case
-for traditional languages \laurie{huh?}. Programmers can always define a
-language module that fits a domain. However, there are worthwhile additions. For
-example, semi-graphical syntax would be useful, i.e. the ability to use
-graphical symbols as part of a fundamentally text-oriented editor: mathematical
-symbols, fraction bars, subscript/superscript, or even tables\footnote{Tabular
-syntax is what made Excel popular!}, can make programs represent certain domains
-much more clearly.
+\parhead{Syntax} Generally I expect the concrete syntax of DSLs to be textual.
+Decades of experience show that textual syntax, together with good tool support,
+is adequate for large and complex software systems\footnote{As I said, this is
+not true for all formalisms. Expressing hierarchical state charts textually can
+be a challenge. However, textual syntax is a good default that can be used
+unless otherwise indicated}. This becomes even more true if you consider that
+programmers will have to write less code in a DSL (compared to the same
+functionality expressed in a GPL), since the abstractions available in the
+languages will be much more closely aligned with the domain. Programmers can always define a language
+module that fits a domain. However, there are worthwhile additions. For example,
+semi-graphical syntax are useful, i.e. the ability to use graphical symbols
+as part of a basically text-oriented editor: mathematical symbols, fraction
+bars, subscript/superscript, or even tables\footnote{Tabular syntax is what made
+Excel popular!}, can make programs represent certain domains much more clearly.
 
 
 However, the need to see graphical notations to gain an overview over complex
 structures does not necessarily mean that the program has to be \emph{edited} in
 a graphical form. Custom visualizations are important as well. Visualizations
 are graphical representations of some interesting aspect of the program that is
-read-only, automatically layouted and provides drill-down back to the program (you can
-double-click on, say, a state in the diagram, and the text editor selects that
-particular state in the program text). 
+read-only, automatically layouted and supports drill-down back to the program
+(you can double-click on, say, a state in the diagram, and the text editor
+selects that particular state in the program text).
 
 
 Finally, actual graphical editing is useful for certain cases. Examples
@@ -933,14 +941,19 @@ languages varies depending on the concern at hand. Assume that you work for an
 insurance company and you want to build a domain specific language that supports
 your company's specific way of defining insurance contracts. It is essential
 that the language is exactly aligned with your business, so you have to define
-the language yourself. There are other similar examples: building DSLs to
-describe radio astronomy observations for a given telescope, a language to
-describe cooling algorithms for refrigerators, or a language for describing
-telecom billing rules (all of these are actual projects I have worked on).
+the language yourself\footnote{Examples in the insurance domain include native
+types for dates, times and time periods, currencies, support for temporal data
+and the supporting operators, as well as business rules that are "polymorphic"
+regarding their period of appicability}. There are other similar examples:
+building DSLs to describe radio astronomy observations for a given telescope, a
+language to describe cooling algorithms for refrigerators, or a language for
+describing telecom billing rules (all of these are actual projects I have worked
+on). 
 
-However, for a large range of technical or architectural concerns, the
-abstractions are well known. They could be made available for reuse (and
-adaptation) in a library of language modules. Examples include
+However, for a large range of concerns relating to software engineering or
+software architecture, abstractions are well known. They could be made
+available for reuse (and adaptation) in a library of language modules. Examples
+include
 
 \begin{itemize}
 	\item Hierarchical components, ports, component instances, and connectors. 
@@ -970,12 +983,12 @@ middleware. It is crucial that the abstractions in the language remain
 independent of specific technology solutions. In addition, when interfacing with
 a specific technology, additional (hopefully declarative) specifications might
 be necessary: such a technology mapping should be a separate model that
-references the core program. The language modules define a language for
-specifying persistence, distribution, or contract definition. Technology
-suppliers can support customized generators that map programs to the APIs
-defined by their technology, taking into account possible additional
-specifications that configure the mapping. This is a little bit like service
-provider interfaces (SPIs) in Java enterprise technology.
+references the core program that expresses the application logic. The language
+modules define a language for specifying persistence, distribution, or contract
+definition. Technology suppliers can support customized generators that map
+programs to the APIs defined by their technology, taking into account possible
+additional specifications that configure the mapping. This is a little bit like
+service provider interfaces (SPIs) in Java enterprise technology.
 
 \begin{figure*}[h]
   \includegraphics[width=18cm]{figures-intro/exampleModLang.jpg}
@@ -984,11 +997,11 @@ provider interfaces (SPIs) in Java enterprise technology.
 \end{figure*}
 
 \parhead{A Vision of Programming} For me, this is the vision of programming I am
-working towards. The distinction between modeling and programming is gone.
-People can develop code using a language directly suitable to the task. They can
-also build languages, if that makes sense. These languages will be relatively
-small, since they only address one aspect of a system. They are not
-general-purpose. They are DSLs.
+working towards. The distinction between modeling and programming vanishes.
+People can develop code using a language directly suitable to the task at hand.
+They can also build their own languages or language extensions, if that makes
+their work easier. These languages will be relatively small, since they only
+address one aspect of a system. They are not general-purpose. They are DSLs.
 
 Tools for this approach exist\marginnote{MPS is one of them, which is why I
 focus a lot on MPS in this book. Intentional's Domain Workbench is another one.
@@ -1005,23 +1018,23 @@ have to master, I outline these in the next section. But let's look at the
 upside first.
 
 \subsection{Automation & Productivity}
-The most obvious benefit of using DSLs is that --- once you've got a language
-and an execution engine --- your work in the particular aspect of software
-development covered by the DSL becomes much more efficient, simply because you
+Once you've got a language and its execution engine for a particular aspect of
+your development task, work becomes much more efficient, simply because you
 don't have to do the grunt work manually\sidenote{Presumably, the amount of DSL
 code you have to write is much less than what you'd have to write if you used
 the target platform directly. If that were not the case, using DSLs in that
-context makes no sense.}. This is most obvious if you generate a whole truck
-load of code from a relatively small DSL program. There are many studies that
-show that just the amount of code one has to write (and read!) introduces
-complexity, independent of what the code expresses, and how. The ability to
-reduce that amount while retaining the same semantic content, is a huge
-advantage.
+context makes no sense.}. This is the most obvious benefit of using a DSL. This
+is most obvious if you can replace a lot of GPL code with a few statements in
+the DSL. There are many studies that show that just the amount of code one has
+to write (and read!) introduces complexity, independent of what the code
+expresses, and how. The ability to reduce that amount while retaining the same
+semantic content, is a huge advantage.
 
 You could argue that a good library or framework will do the job as well. True,
 libraries, frameworks and DSL all encapsulate knowledge and functionality,
 making it easily reusable. However, DSLs provide a number of additional
-benefits, as we will see in the next couple of items.
+benefits, such as a suitable syntax, a static error checking or static
+optimizations. 
 
 
 \subsection{Quality}
@@ -1040,10 +1053,10 @@ quality further.
 
 
 \subsection{Analysis and Checks}
-Because DSLs capture their respective concern in a way that is uncluttered from
-the implementation, it is more semantically rich. Analyses are much easier to
-implement and error messages can use more meaningful wording, because it happens
-on the domain level. As mentioned above, some DSLs are built specifically to
+Because DSLs capture their respective concern in a way that is not cluttered
+with implementation details, it is more semantically rich. Analyses are much
+easier to implement and error messages can use more meaningful wording, 
+they can use domain concepts. As mentioned above, some DSLs are built specifically to
 enable non-trivial, formal (mathematical) analyses\footnote{Manual review
 also becomes more efficient, because the domain specific aspects are uncluttered, and domain
 experts can be involved more directly}. 
@@ -1062,21 +1075,23 @@ it), the models should largely be migratable.
 \subsection{Thinking and Communication Tool}
 If you have a way of expressing domain concerns in a language that is closely
 aligned with the domain, your thinking becomes clearer because the code you
-write is not cluttered by implementation details. In other words: using DSLs
+write is not cluttered with implementation details. In other words: using DSLs
 allows you to separate essential from incidental complexity, moving the latter
 to the execution engine. This also makes team communication and reviews simpler.
 
 But not just using the DSL is useful; also, the act of building the language can
-help you sharpen your understanding of whatever you build the language for.
-\marginnote{Building a language requires formalization and decision making: you
-can't create a DSL if you don't really know what you're talking about.} In some
-sense, a language definition is an "executable analysis model" - remember the
-days when "analysts" created "analysis models"? I have had several occasions
+help you improve your understanding of the domain you build your language
+for\marginnote{Building a language requires formalization and decision making:
+you can't create a DSL if you don't really know what you're talking about.}. It
+also helps straighten out differences in the understanding of the domain that
+arise from different people solving the same probem in different ways. In
+some sense, a language definition is an "executable analysis model" - remember
+the days when "analysts" created "analysis models"? I have had several occasions
 where customers said after a three-day DSL prototyping workshop that they had
 learned a lot about their own domain, and that even if they never used the DSL,
 this alone would be worth the effort spent on building the DSL. In effect, a DSL
-is a formalization of the ubiquitous language in the sense of Eric Evans'
-Domain Driven Design.\todo{cite}
+is a formalization of the ubiquitous language in the sense of Eric Evans' Domain
+Driven Design.\todo{cite} Building the language also helps straighten outdifferences in the understanding of the domain or of the implementations ofsystems 
 
 \subsection{Domain Expert Involvement}
 DSLs whose domain, abstractions and notations are closely aligned with how
@@ -1087,8 +1102,10 @@ details irrelevant to them. \marginnote{Of course, the domain (and the people
 working in it) must be suitable for formalization, but once you start looking,
 it is amazing how many domains fall into this category. Insurance contracts,
 hearing aids and refrigerators are just some examples where you maybe didn't
-think this is true.} And even when domain experts aren't willing to write DSL
-code, developers can at least pair with them when writing code, or use the DSL
+think this is true. I once helped to build a DSL to express governance and
+business policies. This effort failed, because the domain was much too vague
+and "stomach driven" for it to be formalizable.} And even when
+domain experts aren't willing to write DSL code, developers can at least pair with them when writing code, or use the DSL
 code to get domain experts involved in meaningful validation and reviews.
 (Fowler uses the term "business-readable DSLs" in this case.) At the very least
 you can generate visualizations, reports or even interactive simulators that are
@@ -1096,12 +1113,13 @@ suitable for use by domain experts.
 
 
 \subsection{Productive Tooling}
-In contrast to libraries, frameworks, and internal DSLs, external DSLs can come
-with tools, i.e. IDEs that are aware of the language. This can result in a much
-improved user experience. Static Analyses, code completion, visualizations,
+In contrast to libraries, frameworks, and internal DSLs (those embedded into a
+host language and implemented with language abstractions), external DSLs can
+come with tools, i.e. IDEs that are aware of the language. This can result in a
+much improved user experience. Static Analyses, code completion, visualizations,
 debuggers, simulators and all kinds of other niceties can be provided. These
 features improve developer productivity and also make it easier for new team
-members to become productive.
+members to become productive.
 
 
 
@@ -1109,10 +1127,11 @@ members to become productive.
 If you are generating source code from your DSL program (as opposed to
 interpreting it) you can use nice, domain-specific abstractions without paying
 any runtime overhead, because the generator, just like a compiler, can remove
-the abstractions and generate efficient code. This is very useful in cases where
+the abstractions and generate efficient code. And it generates the same
+low-overhead code, every time, automatically. This is very useful in cases where
 performance, throughput or resource efficiency is a concern (i.e. in embedded
 systems, but also in The Cloud where you run many, many processes in server
-farms, and energy consumption is an issue these days).
+farms, and energy consumption is an issue these days).
 
 
 
@@ -1132,7 +1151,7 @@ is absolutely feasible to change the execution engine and the target platform
 "underneath" a DSL to execute the code on a new platform. Portability is
 enhanced, as is maintainability, because DSLs support separation of concerns -
 the concerns expressed in the DSL (e.g., the application logic) is separated
-from implementation details and target platform specific.
+from implementation details and target platform specifics.
 
 
 
@@ -1145,7 +1164,7 @@ benefits is worthwhile the (undoubtably necessary) investment into the approach.
 
 There ain't no such thing as a free lunch. This is also
 true for DSLs. Let us look at the price you have to pay to get all these nice
-benefits mentioned above.
+benefits described above.
 
 \todo{Hudak's '96 paper has a wonderful graph showing the start-up costs
 (c1 and c2) of conventional / DSL approaches. I think his thoughts could
@@ -1187,7 +1206,7 @@ find out which abstractions need to go into the languages? How do you create
 significant element of experience and practice you need to build up over time.
 
 \subsection{Process Issues}
-Using DSLs inevitably leads to work share: some people build the languages,
+Using DSLs inevitably leads to work split: some people build the languages,
 others use them. Sometimes the languages have been built already when you start
 a development project, sometimes they are built as part of the project.
 Especially in the latter case it is important that you establish some kind of
@@ -1203,11 +1222,12 @@ but it also isn't any simpler and needs to be addressed.}
 A related issue is language evolution and maintenance. Again, just like any
 other asset you develop for use in related contexts, you have to plan ahead
 (people, cost, time, skills) for the maintenance phase. A language that is not
-actively maintained will get outdated over time and become a liability.
-Especially during the phase where you introduce DSLs into an organization, a
-rapid evolution based on the requirements of users is critical to build trust in
-the approach\sidenote[][-1\baselineskip]{While this is an important aspect, once
-again, it is not worse for DSLs than it is for any other shared, reused asset.}.
+actively maintained and evolved will get outdated over time and become a
+liability. Especially during the phase where you introduce DSLs into an
+organization, a rapid evolution based on the requirements of users is critical
+to build trust in the approach\sidenote[][-1\baselineskip]{While this is an
+important aspect, once again, it is not worse for DSLs than it is for any other
+shared, reused asset.}.
 
 
 \subsection{DSL Hell} Once development of DSLs is easy, there is a danger that
