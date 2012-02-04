@@ -41,12 +41,13 @@ in several ways:
   concepts in $L_D$ for calling $D_{-1}$ foreign functions. No syntactic
   embedding of $D_{-1}$ code is required.
 
+ 
   \item by directly embedding $L_{D-1}$ code in the $L_D$ program. This is
   useful if $L_D$ is an extension of $L_{D-1}$, or if the tool provide adequate
   support for embedding the $D_{-1}$ language into $L_D$
   programs\marginnote[-1cm]{Just "pasting text into a textfield", an approach
   used by several graphical modeling tools, is not productive, since no
-  syntactic and semantic integration between the languages is provided.  In most cases there is no tool support (syntax highlighting,  code completion, error checking)}.
+  syntactic and semantic integration between the languages is provided.  In most cases there is no tool support (syntax highlighting,  code completion, error checking)}. Note that $L_{D-1}$ may not be  analyzable, so mixing $L_{D-1}$ into $L_D$ code may compromise  analyzability of the $L_D$ code.
   \item by using composition mechanisms of $L_{D-1}$ to "plug in" the manually
   written code into the generated code without actually modifying the generated
   files (also known as the Generation Gap pattern \cite{Vlissidis1996}). Example
@@ -162,10 +163,7 @@ written) code, use on of the following two approaches. First, generate code that
 allow violation of model promises. For example, don't expose a factory that
 allows components to look up and use any other component (creating
 dependencies), but rather use dependency injection to supply objects for the
-valid dependencies expressed in the model. Second, use architecture analysis
-tools (dependency checkers) to validate manually written code. You can easily
-generate the checking rules for those architecture analysis tools from the
-models.
+valid dependencies expressed in the model. 
 
 \comparch{The code generator to Java generates component implementation classes
 that use dependency injection to supply the targets for required ports. This
@@ -178,7 +176,9 @@ make sure that only those dependencies are accessed that are expressed in the
 model. Using dependency injection \emph{enforces} this constraint in the
 implementation code.}
 
-
+A second approach uses architecture analysis tools (dependency checkers) to
+validate manually written code. You can easily generate the relevant checking
+rules for those architecture analysis tools from the models.
 
 \subsection{Roundtrip Transformation} 
 

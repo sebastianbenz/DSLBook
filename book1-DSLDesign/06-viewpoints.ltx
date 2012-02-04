@@ -80,9 +80,6 @@ integrity with referenced fragmwnt. The viewpoint separation has to be aligned
 with the development process: the order of creation of the fragments must be
 aligned with the dependency structure.
 
-Viewpoints are also a good fit if the independent fragment is sufficient
-for a transformation in the domain, i.e. it can be processed without the
-presence of the additional concerns expressed in sepate viewpoints.
 
 \marginnote{A final (very pragmatic) reason for using viewpoints is when the tooling used
 does not support embedding of a reusable language because syntactic composition
@@ -102,20 +99,33 @@ different algorithms can be defined for the same hardware structure. Each of
 these algorithms resides in its own fragment/file. While the C code generation
 requires both behavior and hardware structure fragments, the hardware fragment
 is sufficient for a transformation that creates a visual representation of the
-hardware structures.}
+hardware structures (see \fig{viewpointsInRefrigerators}).}
+ 
+\begin{figure}[h]
+\begin{center}
+  \includegraphics[width=10cm]{figures-design/viewpointsInRefrigerators.png}
+  \caption{The hardware fragment is independent, and sufficient for generation
+  of hardware digrams and documentation. The algorihtms fragment depends on the
+  hardware fragment. The two of them together are sufficient for generating the
+  controller code. Tests depend on the algorithm. There are many test fragments
+  for a single algorithm fragment.}
+  \label{viewpointsInRefrigerators}
+\end{center}
+\end{figure} 
 
 
 \subsection{Viewpoints as Annotation Models}
  
 A special case of viewpoint separation is annotation models (already mentioned
 in \sect{severalmapp}). An annotation provides additional, often technical or
-transformation-controlling data for elements in a core program. This is
-especially useful in a multi-stage transformation (\sect{semtrafo}) where
-additional data may have to be specified for the result of the first phase to
-control the execution of the next phase. Since that intermediate model is
-generated, it is not possible to add these additional specifications to the
-intermediate model. Externalizing it into an annotation model solves that
-problem. 
+transformation-controlling data for elements in a core program\footnote{For
+those who know Eclipse EMF: \ic{genmodel}s are annotation models for \ic{ecore}
+models.}. This is especially useful in a multi-stage transformation
+(\sect{semtrafo}) where additional data may have to be specified for the result
+of the first phase to control the execution of the next phase. Since that
+intermediate model is generated, it is not possible to add these additional
+specifications to the intermediate model. Externalizing it into an annotation
+model solves that problem.
 
 \genex{For example, if you create a relational data model from an object
 oriented data model, you might automatically derive database table names from
@@ -150,8 +160,8 @@ required (enabled via techniques described in\cite{DiskinXC10, Stevens10}).
 \end{center}
 \end{figure}
 
-\subsection{Viewpoint Consistency} 
 
+\subsection{Viewpoint Consistency} 
 \updateSlides{}
 If viewpoints are used, constraints have to be written to check concistency of
 the viewpoints. A dependent viewpoint fragment contains program elements that
@@ -188,21 +198,15 @@ example, a C compiler's include path or Java's classpath are ways of defining
 the scope within which the overall system description must be consistent. This
 does not necessarily have to be done by each developer who, for example, works
 on the business data. But at the point when the final system is generated or
-built, such a "world definition" is essential.
+built, such a "world definition" is essential. \marginnote{In some cases the
+rules for establishing consistency between viewpoints can be described formally,
+and hence the synchronzation could be automated. MPS has a nice way of
+automatically executing a quick fix for a constraint violation. If the
+constraint detects an inconsistency between viewpoints, the quick fix can
+automatically correct the problem. This solves the \emph{whole world} problem
+neatly, since every dependend fragment is "corrected" as soon as it is opened in
+the editor.}
 
-
-
-
-\subsection{Viewpoint Synchronization} 
-
-In some cases the models for the various concerns need to be synchronized. This
-means that when a change happens in a model representing one viewpoint, the
-models representing other viewpoints must change in a consistent way. It depends
-on the tools used whether synchronization is feasible: in projectional tools it
-is relatively easy to achieve, for parser-based systems it can be problematic.
-
-\todo{Say something about on demand, simple listeners, Krzysztofs work in that
-space and QVTO and look at the example below. Use the ports example instead?}
 
 \embc{Components implement interfaces. Each component provides an implementation
 for each method define in each of the interfaces it implements. If a new method

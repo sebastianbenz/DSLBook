@@ -16,10 +16,10 @@ Languages have to provide means of structuring large programs in order to keep
 them manageable. Such means include modularization and encapsulation,
 specification vs. implementation, specialization, types and instances as well as
 partitioning. \marginnote[-1.5cm]{The language design alternatives described in
-this section are usually not driven directly by the domain, or the domain experts
-guiding the design of the language. Rather, they are often brought in by the
-language designer or the consumers of the DSL as a means of managing overall
-complexity. For this reason they may be hard to "sell" to domain experts.}
+this section are usually not driven directly by the domain, or the domain
+experts guiding the design of the language. Rather, they are often brought in by
+the language designer as a means of managing overall complexity. For this reason
+they may be hard to "sell" to domain experts.}
 
 
 \parhead{Modularization and Visibility} DSL often provide some kind of logical
@@ -424,7 +424,8 @@ as is solving sets of boolean logic formulas.
 and interface operations. Based on this data, one could run an algorithm which
 allocates the component instances to computing hardware so that the hardware is
 used as efficiently as possible, while at the same time reducing the amount of
-bus traffic. This is an example of constraint solving.}
+bus traffic. This is an example of constraint solving used to synthesize a
+schedule.}
 
 \embc{This DSL supports presence conditions for product line engineering. A
 presence condition is a boolean expression over a set of configuration features
@@ -542,10 +543,11 @@ recalculated. We know this approach mainly from two use cases. One is
 spreadsheets: cell formulas express dependencies to other cells. As the values
 in these other cells change, the dependent cells are updated. The other use case
 is data flow (or block) diagrams (\fig{graphicalFlow2}, used in embedded
-software, ETL systems and enterprise messaging and complex event processing.
-There, the calculations are encapsulated in the blocks, and the lines represent
-dependencies --- the output of one blocks "flows" into input slot of another
-block. There are three different execution modes:
+software, extraction-transfer-load data processing systems and enterprise
+messaging/complex event processing. There, the calculations or transformations
+are encapsulated in the blocks, and the lines represent dependencies --- the
+output of one blocks "flows" into input slot of another block. There are three
+different execution modes:
 
 \begin{itemize}
   \item The first one considers the data values as continuous signals. At the
@@ -606,10 +608,11 @@ conforms to the specifications or provides a counter example. Specifications
 express something about sequences of states such as: "it is not possible that
 two traffic lights show green at the same time" or "whenever a pedestrian
 presses the \emph{request} button, the pedestrian lights eventually will show
-green".
-marginnote[-2cm]{A good introduction to model checking can be found in
-\cite{BerardBidoitM2001}. We elaborate on model checking in section.}
-\todo{ref}
+green". 
+\marginnote[-2cm]{We provide some details about model checking in the
+implementation part \todo{ref}. A good introduction to model checking can be
+found in \cite{BerardBidoitM2001}. We elaborate on model checking in section.}
+\todo{ref}
 
 
  

@@ -668,21 +668,23 @@ are the reason for the different transformations in the first place).
 It may be beneficial to limit the expressiveness of a language. Limited
 expressiveness often results in more sophisticated analyzability. For example,
 while state machines are not very expressive (compared to fully fledged C),
-sophisticated model checking algorithms are available (e.g. using the SPIN or
-NuSMV model checkers \todo{cite}). The same is true for first-order logic, where
+sophisticated formal verification algorithms are available (e.g. model checking
+using SPIN or NuSMV\todo{cite}). The same is true for first-order logic, where
 satisfiability (SAT) solvers\cite{Mitchell05} can be used to check programs for
 consistency. If these kinds of analysis are useful for the model purpose, then
 limiting the expressiveness to the respective formalism may be a good idea, even
-if it makes expressing certain programs in $D$ more cumbersome. Possibly a DSL
-should be partitioned into several sub-DSLs, where some of them are verifiable
-and some are not.
+if it makes expressing certain programs in $D$ more cumbersome\footnote{A simple
+example is to use integers with ranges \ic{int[0..10] x;} instead of general
+integers. This makes programs harder to write (ranges must be specified every
+time) but easier to analyze.}. Possibly a DSL should be partitioned into several
+sub-DSLs, where some of them are verifiable and some are not.
 
 \embc{This is the approach used here: model checking is provided for the state
 machines. No model checking is available for general purpose C, so behaviour
 that should be verifiable must be isolated into a state machine explicitly.
 State machines interact with their surrounding C program in a limited an
 well-defined way to isolate them and make them checkable. Also, state machines
-tagged as verifiable cannot use arbitrary C code in its actions. Instead, an
+marked as \ic{verifiable} cannot use arbitrary C code in its actions. Instead, an
 action can only change the values of variables local to the state machine and
 set output events (which are then mapped to external functions or component
 runnables). The key here is that the state machine is completely self-contained
@@ -700,7 +702,8 @@ formalism also works if the formalism is not at $D_{-1}$, as long as a mapping
 exists. The problem with this approach is the interpretation of analysis results
 in the context of the DSL. Domain users may not be able to interpret the results
 of model checkers or solvers, so they have to be translated back to the DSL.
-This may be a lot of work, or even impossible.
+Depending on the semantic gap between the generated model checker input program
+and the DSL, this can be very hard.
 
 
 \todo{talk about mapping DSLs down to state machines and reinterpreting the

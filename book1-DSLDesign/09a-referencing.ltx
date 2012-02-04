@@ -7,15 +7,14 @@ A fragment $f_2$ depends on $f_1$. $f_2$ and $f_1$ are expressed with different
 languages $l_2$ and $l_1$. The referencing language $l_2$ depends on the
 referenced language $l_1$ because at least one concept in the $l_2$ references a
 concept from $l_1$. We call $l_2$ the \emph{referencing} language, and $l_1$ the
-\emph{referenced} language. While equations (2) and (3) continue to hold, (1)
-does not. Instead
+\emph{referenced} language. While equations (2) and (3) (from the Domains
+chapter \todo{ref}) continue to hold, (1) does not. Instead
 \begin{align}
 \forall r \in \mathit{Refs_{l_2}} \mid   
-   \mathit{lo(r.from)} = l_2\; \wedge \; \mathit{lo(r.to)} = (l_1 \vee  l_2)
+   \mathit{lo(r.from)} = l_2\; \wedge \; (\mathit{lo(r.to)} = l_1 \vee 
+   \mathit{lo(r.to)} = l_2)
 \end{align}
                                   
-(we use $x=(a \vee b)$ as a shorthand for $x = a \vee x = b$).                            
-
 \begin{figure}[h]
 \begin{center}
   \includegraphics[width=9cm]{figures-design/langReferencing.png} 
