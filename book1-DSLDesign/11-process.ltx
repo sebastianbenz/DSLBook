@@ -29,32 +29,30 @@ several typical ways of how to get started.
 If you're building a technical DSL, the source for a language is often an
 existing framework, library, architecture or architectural pattern (inductive
 approach). The knowledge often already exists, and building the DSL is mainly
-about formalizing the knowledge: defining a notation, putting it into a formal
-language, and building generators to generate parts of the (potentially complex)
-implementation code. In the process, you often also want to put in place
-reasonable defaults for some of the framework features, thereby increasing the
-level of abstraction and making framework use easier.
+about factoring the knowledge into a language: defining a notation, putting it
+into a formal language, and building generators to generate parts of the
+(potentially complex) implementation code. In the process, you often also want
+to put in place reasonable defaults for some of the framework features, thereby
+increasing the level of abstraction and making framework use easier.
 
 In case of business domain DSLs, you can often mine the existing (tacit)
 knowledge of domain experts (deductive approach). In domains like insurance,
 science or logistics, domain experts are absolutely capable of precisely
 expressing domain knowledge. They do it all the time, often using Excel or Word.
-They might be unable to conceptualize their domain in a structured and
-way --- it is then the job of the language designer to provide the structure and
-consistency that is necessary for defining a language. 
-
-
 Similar to domain knowledge, other domain artifacts can also be exploited: for
 example, hardware structures or device features are good candidates for
-abstractions in the respective domains. Some domains have an agreed upon
-ontology containing concepts relevant to that domain, and recognized as such by
-a community of stakeholders. DSLs can be (partly) derived from and such domain
-ontologies. .
+abstractions in the respective domains. So are existing user interfaces. They
+face users directly, and so are likely to contains core domain abstractions.
+Other sources are standards for an industry, or training material. Some domains
+even have an agreed upon ontology containing concepts relevant to that domain,
+and recognized as such by a community of stakeholders. DSLs can be (partly)
+derived from and such domain ontologies.
 
-In both previous cases, it is pretty clear how the DSL is going to look like;
-discussions are about details, notation, how to formalize things, viewpoints,
-partitioning and the like (note that those things can be pretty non-trivial,
-too!).
+
+In these two cases, it is pretty clear how the DSL is going to look like
+regarding core abstractions; discussions will be about details, notation, how to
+formalize things, viewpoints, partitioning and the like (note that those things
+can be pretty non-trivial, too!).
 
 \marginnote{One of my most successful approaches in this case is to build
 strawmen: trying to understand something, factor it into some kind of regular
@@ -62,8 +60,11 @@ structure, and then re-explain that structure back to the stakeholders.}
 However, in the remaining third case, however, we are not so lucky. If no domain
 knowledge is easily available, we have to do an actual domain analysis, digging
 our way through requirements, stakeholder "war stories" and existing
-applications. Co-evolving language and concepts (see below) is a successful
-technique especially in this case.
+applications. People may be knowledgable, but they might be unable to
+conceptualize their domain in a structured and way --- it is then the job of the
+language designer to provide the structure and consistency that is necessary for
+defining a language. Co-evolving language and concepts (see below) is a
+successful technique especially in this case.
 
 For your first DSL, try to catch case one or two. Ideally, start with case one,
 since the people who build the DSLs and supporting tools are often the same ones
@@ -283,6 +284,8 @@ suitable to the domain. If you encounter this problem, take it as a warning sign
 and take a close look at your language.
 
 
+\subsection{Evolving DSLs}
 
+\todo{}
     
 
