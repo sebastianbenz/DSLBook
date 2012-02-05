@@ -113,7 +113,9 @@ implementation should go first. The two parts are relatively independent. As a
 consequence of the fact that the design part comes first, there are some
 references back to design concerns from within the implementation part. But
 still, I guess the two parts can be read in any order, depending on what you are
-more interested in.
+more interested in. If you are new to DSLs, I suggest you start with Part III on
+DSL implementation. Part II about DSL Design is perhaps a bit too abstract and
+dense if you don't have any hands-on experience with DSLs.
 
 The chapters in Part IV are independent from each other and can be read in any
 sequence.
@@ -232,8 +234,11 @@ implemented with Eclipse Xtext.
 \begin{figure}[h]
   \rule{1\textwidth}{0.7pt}
   \vspace{-0.5cm}
-  \includegraphics[width=8cm]{figures-intro/compArch1.png}
-  \caption[][0.3cm]{Components and interfaces}
+  \includegraphics[scale=0.35]{figures-intro/compArch1.png}
+  \caption[][0.3cm]{Components and interfaces. An interface is a collection of
+  methods (not shown) or collections of messages. Components then provide and
+  require ports, where each port has a name, an interface an optionally, a
+  cardinality.}
   \label{compArch1} 
   \rule{1\textwidth}{0.7pt}
 \end{figure}
@@ -241,8 +246,9 @@ implemented with Eclipse Xtext.
 \begin{figure}[h]
   \rule{1\textwidth}{0.7pt}
   \vspace{-0.5cm}
-  \includegraphics[width=7cm]{figures-intro/compArch2.png}
-  \caption[][0.3cm]{Component instances and connectors}
+  \includegraphics[scale=0.35]{figures-intro/compArch2.png}
+  \caption[][0.3cm]{To compose a system, components can be instantiated and
+  connected by connectors.}
   \label{compArch2} 
   \rule{1\textwidth}{0.7pt}
 \end{figure}
@@ -263,9 +269,13 @@ by thermodynamists and are implemented with Eclipse Xtext.
 \begin{figure}[h]
   \rule{1\textwidth}{0.7pt}
   \vspace{-0.5cm}
-  \includegraphics[width=6cm]{figures-intro/cooling1.png}
+  \includegraphics[scale=0.6]{figures-intro/cooling1.png}
   \caption[][0.3cm]{Hardware structure definition in the refrigerator
-  case study}
+  case study. An appliance represents the refrigerator. It consists mainly of
+  colling compartments and compressor compartments. A cooling compartment
+  contains various building blocks that are important to the cooling process in
+  a refrigerator. A compressor compartment contains the cooling infrastructure
+  itself, e.g. a compressor and a fan.}
   \label{cooling1} 
   \vspace{0.2cm}
 
@@ -276,8 +286,13 @@ by thermodynamists and are implemented with Eclipse Xtext.
 \begin{figure}[h]
   \rule{1\textwidth}{0.7pt}
   \vspace{-0.5cm}
-  \includegraphics[width=12cm]{figures-intro/cooling2.png}
-  \caption[][0.3cm]{A simple cooling algorithm.}
+  \includegraphics[scale=0.6]{figures-intro/cooling2.png}
+  \caption[][0.3cm]{A simple cooling algorithm. Cooling algorithms are
+  state based programs. States can have entry actions and exit actions. Insider
+  a state, we check whether certain conditions are true, and then change the
+  status of various hardware building blocks or change the state. It is also
+  possible to express deferred behavior with the \ic{perform \ldots after}
+  keyword.}
   \label{cooling2} 
   \rule{1\textwidth}{0.7pt}
 \end{figure}
@@ -285,8 +300,10 @@ by thermodynamists and are implemented with Eclipse Xtext.
 \begin{figure}[h]
   \rule{1\textwidth}{0.7pt}
   \vspace{-0.5cm}
-  \includegraphics[width=6cm]{figures-intro/cooling3.png}
-  \caption[][0.3cm]{A test script to test cooling programs}
+  \includegraphics[scale=0.6]{figures-intro/cooling3.png}
+  \caption[][0.3cm]{A test script to test cooling programs. It essentially
+  stimulates a cooling algorithm by changing hardware properties and then
+  asserting that the algorithm reacts in a certain way. }
   \label{cooling3} 
   \vspace{0.2cm}
 
@@ -299,23 +316,50 @@ by thermodynamists and are implemented with Eclipse Xtext.
 
 This case study (detailed in\cite{Voelter10}) covers a set of extensions to the
 C programming language tailored to embedded programming, developed as part of
-mbeddr.com \todo{cite}. Extensions include state machines, physical quantities,
+mbeddr.com\todo{cite}. Extensions include state machines, physical quantities,
 tasks, interfaces and components. Higher level DSLs are added for specific
 purposes. An example used in a showcase application is the control of a Lego
 Mindstorms robot. ANSI C is generated and subsequently compiled with GCC. 
 This DSL is intended to be used by embedded software developers and it is 
-implemented with MPS.
+implemented with MPS. We also cover this case study in more detail \todo.
 
-\begin{figure*}[h]
+\begin{figure}[h]
   \rule{1\textwidth}{0.7pt}
   \vspace{-0.5cm}
-  \includegraphics[width=18cm]{figures-intro/extendedC-2.png}
-  \caption[-5mm]{Example Code written using the Extended C
-  language. It contains C functions, constants, as well as a task and a state
-  machine.}
-  \label{extendedC} 
+  \includegraphics[scale=0.4]{figures-intro/mbeddr1.png}
+  \caption[]{A simple C module with an embedded decision table. This is a
+  nice example of MPS' capability to use non-textual notations thanks to its
+  projectional editor (which we describe in detail in the Part III of the
+  book).}
+  \label{mbeddr1} 
   \rule{1\textwidth}{0.7pt}
-\end{figure*}
+\end{figure}
+
+\begin{figure}[h]
+  \rule{1\textwidth}{0.7pt}
+  \vspace{-0.5cm}
+  \includegraphics[scale=0.4]{figures-intro/mbeddr2.png}
+  \caption[]{This extension to C supports working with physical units (such as
+  \ic{kg} and \ic{lb}). The type system has been extended to include type
+  checks for units. The example also shows the unit testing extension.}
+  \label{mbeddr2} 
+  
+  \rule{1\textwidth}{0.7pt}
+\end{figure}
+
+
+\begin{figure}[h]
+  \rule{1\textwidth}{0.7pt}
+  \vspace{-0.5cm}
+  \includegraphics[scale=0.4]{figures-intro/mbeddr3.png}
+  \caption[]{This extension shows a state machine. Notice how regular C
+  expressions are used in the guard conditions of the transitions. The inset
+  code shows how the state machine can be triggered from regular C code. }
+  \label{mbeddr3} 
+  
+  \rule{1\textwidth}{0.7pt}
+\end{figure}
+
 
 \subsection{Pension Plans}
 
@@ -327,6 +371,25 @@ families of pension plans for a large insurance company. A complete Java
 implementation of the calculation engine is generated. It is intended to be used
 by insurance mathematicians and pension experts. It has been built by Capgemini
 with the Intentional Domain Workbench.
+
+\begin{figure*}[h]
+  \includegraphics[width=16cm]{figures-intro/pension-1.png}
+  \caption{Example Code written using the Pension Plans
+  language. Notice the mathematical symbols used to express insurance
+  mathematics.}
+  \label{pension1} 
+\end{figure*} 
+
+
+\begin{figure*}[h]
+\vspace{2cm}
+  \includegraphics[width=16cm]{figures-intro/pension-2.png}
+  \caption{This example shows high-level business rules, together with a
+  tabular notation for unit tests. The prose text is in Dutch, but it is not
+  important to be able to understand it in the context of this book.}
+  \label{pensions2} 
+\end{figure*}
+
 
 \FloatBarrier
 
@@ -344,6 +407,17 @@ application. WebDSL is implemented with the Spoofax Language
 Workbench\cite{KatsV10a} and is used in the researchr digital library
 (\url{http://researchr.org}).
  
+\begin{figure*}[h]
+  \rule{1\textwidth}{0.7pt}
+  \vspace{-0.5cm}
+  \includegraphics[width=17cm]{figures-intro/webdsl.jpg}
+  \caption[-5mm]{Example Code written in WebDSL. The code shows data
+  structures, utility functions, access control rules as well as a page
+  definition.}
+  \label{webdsl} 
+  \rule{1\textwidth}{0.7pt}
+\end{figure*}
+
 
 
 
@@ -497,16 +571,44 @@ effectively expressing programs for a specialized domain.
 
 \parhead{Executing the Language} Engineering a DSL (or any language) is not just
 about syntax, it also has to be "brought to life" --- programs written in the
-language have to be executed somehow. There are two main approaches for that:
-translation (a.k.a. generation or compilation) and interpretation. The former
-translates a DSL program to a language for which an execution engine on a given
-target platform already exists. In the latter case, you build a new execution
-engine (on top of your desired target platforms) which loads the program and
-executes it directly.
+language have to be executed somehow. It is important to understand the
+separation of domain contents into DSL, execution engine and platform. A domain
+typically consists of three different kinds of concerns (see
+\fig{variableStuff}):
+
+\begin{itemize}
+  \item Some concerns are different for each program in the domain (white
+  circles). The DSL provides tailored abstractions to express this variability
+  concisely. 
+  \item Some concerns are the same for each program in the domain (black
+  circles). These typically end up in the platform.
+  \item Some concerns can be \emph{derived by fixed rules} from the program
+  written in the DSL (grey circles). While these concerns are not always
+  identical, they are always the same \emph{for a given DSL program structure}. These concerns are
+  handled by the execution engine.
+\end{itemize} 
+
+\begin{figure}
+\begin{center}
+  \includegraphics[width=8cm]{figures-intro/variableStuff.png}
+  \caption{Fixed domain concerns end up in the platform, variable concerns end
+  up in the DSL. Those concerns that can be derived by rules from the DSL
+  program end up in the execution engine.}
+  \label{variableStuff} 
+\end{center}
+\end{figure}
+
+
+There are two main approaches for building execution engines: translation
+(a.k.a. generation or compilation) and interpretation. The former translates a
+DSL program to a language for which an execution engine on a given target
+platform already exists. In the latter case, you build a new execution engine
+(on top of your desired target platforms) which loads the program and executes
+it directly.
 
 If there is a big semantic gap between the language abstractions and the
 relevant concepts of target platform (i.e., the platform the interpreter or
-generated code runs on), execution can become inefficient. E.g., if you try to
+generated code runs on), execution may become inefficient. E.g., if you try to
 store and query graph data in a relational database, this will be very
 inefficient because many joins will be necessary to reassemble the graph from
 the normalized tabular structure. Another example is trying to run Erlang on a
@@ -1485,14 +1587,6 @@ book}.
 
 \todo{Point at good books to read on this topic}
 
-\begin{figure*}[h]
-  \includegraphics[width=18cm]{figures-intro/pension-1.png}
-  \caption{Example Code written using the Pension Plans
-  language (yes, the prose is Dutch, but it is not important here to be able
-  to understand it.)}
-  \label{pension1} 
-\end{figure*} 
-
 
 \subsection{UML}
 
@@ -1523,12 +1617,6 @@ is my experience that because of that, it is much more productive, and often
 even less work, to build DSLs with "real" language engineering environments as
 opposed to UML profiles.
 
-\begin{figure*}[h]
-  \includegraphics[width=18cm]{figures-intro/pension-2.png}
-  \caption{Example Code written using the Pension Plans
-  language}
-  \label{pensions2} 
-\end{figure*}
 
 
 This is one reason why I decided not to cover it. Also, the fact that this book
@@ -1549,14 +1637,7 @@ and applicability there. However, for most programmers, textual DSLs and the
 accompanying tools are just much more usable and pragmatic.
 
 
-\begin{figure*}[h]
-  \rule{1\textwidth}{0.7pt}
-  \vspace{-0.5cm}
-  \includegraphics[width=18cm]{figures-intro/webdsl.jpg}
-  \caption[-5mm]{Example Code written in WebDSL}
-  \label{webdsl} 
-  \rule{1\textwidth}{0.7pt}
-\end{figure*}
+
 
 
 
