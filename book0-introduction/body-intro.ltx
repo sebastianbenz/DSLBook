@@ -4,55 +4,56 @@
 
 \chapter{About this Book}
 
-\chapterabstract{This book is about creating domain-specific languages. It 
+\chapterabstract{This book is about creating domain-specific languages. It
 covers three main aspects: DSL design, DSL implementation and software
-engineering with DSLs, focusing mainly on textual languages. The book will make
-use of modern language workbenches. It is not a tutorial for any specific tool,
-but of course I will provide examples and some level of detail for mainly MPS
-and Xtext, and to a lesser degree, some others. The goal of the book is to
-provide a thorough overview of modern DSL engineering. The book tries to be
-objective, but it is majorly based on my own experience and opinions.}
+engineering with DSLs. The book looks only at external DSLs and focuses mainly
+on textual syntax. The book emphasizes the use of modern language workbenches.
+It is not a tutorial for any specific tool, but of course it provides examples
+and some level of detail for some of them: Xtext, MPS and Spoofax. The goal of
+the book is to provide a thorough overview of modern DSL engineering. The book
+tries to be objective, but it is based on my own experience and opinions.}
 
 
-\section{Thank you!}
+\section{Thank you, Reviewers!}
 
 Before I do anything else, I want to thank my reviewers. This book has profited
-tremendously from the feedback they sent me. It is a lot of work to read a book
-like this concentrated enough to give meaningful feedback. All of my reviewers
-did that. So, thank you very much! Here is the list, in alphabetical order:
+tremendously from the feedback you sent me. It is a lot of work to read a book
+like this concentrated enough to give meaningful feedback. All of you did that.
+So, thank you very much! Here is the list, in alphabetical order: 
 Alexander Shatalin, Bernd Kolb, Bran Selic, Christa Schwanninger, Dan Ratiu,
 Iris Groher, Jean Bezivin, Jos Warmer, Laurence Tratt, Mats Helander, Michael
-Kircher, Nora Ludewig and Vaclav Pech.
+Kircher \todo{?}, Nora Ludewig and Vaclav Pech.
  
 A special thank you goes to my girlfriend Nora Ludewig. She didn't just
 volunteer to provide feedback on the book, she also had to endure all kinds of
-other discussions around the topic all the time. Thanks!
+other discussions around the topic all the time. Thanks Nora!
 
 
 \section{Why this book}
 
 First of all, there is currently no book available that explicitly covers DSLs
-developed with modern language workbenches, with an emphasis on textual
-languages. I feel that this way of developing DSLs is very productive and very
-useful, so I decided I'd need to provide a book to fill this gap. I wanted to
-make sure the book contains a lot of detail on how to design and build good
-DSLs, so it can act as a primer for DSL language engineering, for students as
-well as practitioners. However, I also want the book to clearly show the
-benefits of DSLs - not by pointing out general truths about the approach, but
+in the context of modern language workbenches, with an emphasis on textual
+languages. Based on my experience, I think that this way of developing DSLs is
+very productive, so I think there needs to be a book that fills this gap. I
+wanted to make sure the book contains a lot of detail on how to design and build
+good DSLs, so it can act as a primer for DSL language engineering, for students
+as well as practitioners. However, I also want the book to clearly show the
+benefits of DSLs --- not by pointing out general truths about the approach, but
 instead by providing a couple of good examples of where and how DSLs are used
-successfully. This is why the book has the three parts mentioned above.
+successfully. This is why the book has the three parts mentioned above: DSLDesign, DSL Implementation and Software Engineering with DSLs.
 
-Even though I have written a book on Model-Driven Software Development (MDSD)
-before \todo{cite}, I feel that it is time for a complete rewrite\sidenote[]{I
-have learned a lot in the meantime, my viewpoints have evolved and the tools
-that are available today have evolved significantly. The latter is a reflection
-of the fact that the whole MDD community has evolved. Ten years ago, UML was the
-mainstay for MDD, and the relationship to DSLs was not clear. Today, DSLs are
-the basis for most interesting and innovative aspects of MDSD.}. So if you are
-among the people who have read the "old" MDSD book, you really should continue
-reading. This one is very different, but in many ways a natural evolution of the
-old one. It may gloss over certain details present in the older book, but it
-will expand greatly on others.
+Even though I had written a book on Model-Driven Software Development (MDSD)
+before \cite{StahlVoelter2005}, I feel that it is time for a complete
+rewrite\marginnote[-1.2cm]{I have learned a lot in the meantime, my viewpoints
+have evolved and the tools that are available today have evolved significantly
+as well. The latter is a reflection of the fact that the whole MDSD community
+has evolved: ten years ago, UML was the mainstay for MDSD, and the relationship
+to DSLs was not clear. Today, DSLs are the basis for most interesting and
+innovative developments in MDSD.}. So if you are among the people who have read
+the "old" MDSD book, you really should continue reading. This one is very
+different, but in many ways a natural evolution of the old one. It may gloss
+over certain details present in the older book, but it will expand greatly on
+others.
 
 
 \section{Who should Read This Book}
@@ -61,25 +62,26 @@ should read this book. This book can be seen as an update to the old one, even
 though it is a complete rewrite.
 
 On a more serious note, this book is intended for developers and architects who
-want to implement their own DSLs. I expect solid knowledge in object oriented
+want to implement their own DSLs. I expect solid experience in object oriented
 programming as well as basic knowledge about functional programming and
 (classical) modeling. It also helps if readers have heard the word
 \emph{grammar} and \emph{parser} before, although I don't expect any significant
 experience with these techniques.
 
 In the MDSD book, there was a chapter of process and organizational aspects.
-Except for maybe ten pages of process-related topics, this book does not contain
-any of this. Two reasons: one, these things haven't changed much since the old
-book, and you can read them there. Second, I feel these aspects were the weakest
-part of the old book, because it is very hard to discuss process and
-organzational aspects in a general way, independent of a particular context. Any
-working software development process will work with DSLs. Any strategy to
-introduce promising new techniques into an organization applies to introducing
-DSLs. The few \emph{specific} aspects are covered in the aforementioned ten
-pages at the end of the design chapter.
+Except for maybe ten pages of process-related topics, this book does not address
+process and organization aspects at all. There are two reasons for this: one,
+these things haven't changed much since the old book, and you can read them
+there. Second, I feel these aspects were the weakest part of the old book,
+because it is very hard to discuss process and organzational aspects in a
+general way, independent of a particular context. Any working software
+development process will work with DSLs. Any strategy to introduce promising new
+techniques into an organization applies to introducing DSLs. The few
+\emph{specific} aspects are covered in the aforementioned ten pages at the end
+of the design chapter.
 
 
-\section{How to read this Book}
+\section{The Structure of this Book}
 
 The rest of this first part is a brief introduction to DSLs. It defines
 terminology, looks at the benefits and challenges of developing and using DSLs,
@@ -91,16 +93,16 @@ scientific treatment.
 Part II is about DSL design. It is a systematic exploration of eight design
 dimensions relevant to DSL design: expressivity, coverage, semantics, separation
 of concerns, completeness, large-scale model structure, language modularization
-and syntax. It uses a set of four five case studies to illustrate the concepts.
+and syntax. It uses five case studies to illustrate the concepts.
 It does not at all deal with implementation issues --- we address this in part
 III.
 
 Part III covers DSL implementation concerns. It looks at syntax definition,
 constraints and type systems, scoping, transformation and interpretation,
-debugging and IDE issues. It uses examples implemented with three different
-tools. Part III is not intended as a tutorial for any one of them, but should
-provide a solid foundation for understanding the technical challenges when
-implementing DSLs.
+debugging and IDE support. It uses examples implemented with three different
+tools (Xtext, MPS, Spoofax). Part III is not intended as a tutorial for any one
+of them, but should provide a solid foundation for understanding the technical
+challenges when implementing DSLs.
 
 Part IV looks at using DSLs in for various tasks in software engineering, among
 them requirements engineering, architecture, implementation and, a specifically
@@ -108,7 +110,9 @@ relevant topic, product line engineering. Part IV consists of a set of fairly
 independent chapters, each illustrating one of the software engineering
 challenges.
 
-\seppar I have had a lot of trouble deciding whether DSL design or DSL
+\section{How to Read this Book}
+
+I have had a lot of trouble deciding whether DSL design or DSL
 implementation should go first. The two parts are relatively independent. As a
 consequence of the fact that the design part comes first, there are some
 references back to design concerns from within the implementation part. But
@@ -126,110 +130,97 @@ think it is important to understand where I am coming from to be able to make
 sense of some of the later chapters.
 
 
-\section{Tools}
+\section{Example Tools}
 
-You could argue that this whole business about DSLs is nothing new. You could
-always build custom languages using parser generators such as lex/yacc, ANTLR or
-JavaCC. And of course you are right. Martin Fowler's DSL book\todo{cite}
-emphasizes this aspect.
+You could argue that this whole business about DSLs is nothing new. You
+could always build custom languages using parser generators such as lex/yacc,
+ANTLR or JavaCC. And of course you are right. Martin Fowler's DSL
+book\cite{Fowler2011} emphasizes this aspect.
 
 However, I feel that language workbenches, which are tools to efficiently
 create, integrate and use sets of DSLs in powerful IDEs, make a qualitative
-difference. Developers, as well as the domain experts that use the DSL are used
-to powerful, feature-rich IDEs and tools in general. If you want to establish
-the use of DSLs and you propose to your users to use \ic{vi} or \texttt{notepad.exe},
-you won't get very far.
+difference. DSL Developers, as well as the people who use the DSLs, are used to
+powerful, feature-rich IDEs and tools in general. If you want to establish the
+use of DSLs and you suggest to your users to use \ic{vi} or
+\texttt{notepad.exe}, you won't get very far in most organizations.
 
-Also, the effort to develop (groups of) DSLs and their IDEs has been
+Also, the effort to develop (sets of) DSLs and their IDEs has been
 significantly reduced by the maturation of language workbenches. This is why in
-this book I focus on DSL engineering with language workbenches, i.e. I focus
+this book I focus on DSL engineering with language workbenches: I focus
 on IDE development just as much as I focus on language development.
 
-This is not a tool-tutorial book. However, I will of course show
-how to work with different tools, but this should be understood more as
-representative examples of different tooling approaches. I tried to use diverse
-tools for the examples, but for the most part I stuck to tools I happen to
-know (well) and that have serious traction in the real-world or the potential to
-do so: SDF/Stratego/Spoofax, Eclipse Modeling + Xtext, JetBrains MPS and, to
-some extent, the Intentional Domain Workbench. Here is a brief overview over the
-tools:
+This is not a tool-tutorial book. However, I will of course show how to work
+with different tools, but this should be understood more as representative
+examples of different tooling approaches. I tried to use diverse tools for the
+examples, but for the most part I stuck to tools I happen to know (well) and
+that have serious traction in the real-world or the potential to do so: Eclipse
+Modeling + Xtext, JetBrains MPS, SDF/Stratego/Spoofax, and, to some extent, the
+Intentional Domain Workbench. Here is a brief overview over the tools:
 
 
 
 \subsection{Eclipse Modeling + Xtext}
-\marginnote{http://eclipse.org/Xtext}
-The Eclipse Modeling project is an ecosystem or frameworks and tools for
-modeling, DSLs and all that's needed or useful around it. It would easily merit
-its own book (or set of books), so I won't cover it extensively. I restrict
-myself to Xtext, the framework for building textual DSLs, Xpand, a code
-generation engine, as well as EMF/Ecore, the underlying meta meta model used to
-represent model data. Xtext may not be as advanced as SDF/Stratego, but the
-tooling is very mature and has a huge user community. Also, the surrounding
+\marginnote[3.2mm]{http://eclipse.org/Xtext} 
+The Eclipse Modeling project is an
+ecosystem or frameworks and tools for modeling, DSLs and all that's needed or
+useful around it. It would easily merit its own book (or set of books), so I
+won't cover it extensively. I restrict myself to Xtext, the framework for
+building textual DSLs, Xtend, a Java-like language optimized for code
+generation, as well as EMF/Ecore, the underlying meta meta model used to
+represent model data. Xtext may not be as advanced as SDF/Stratego or MPS, but
+the tooling is very mature and has a huge user community. Also, the surrounding
 ecosystem provides a huge number of add-ons that support the construction of
 sophisticated DSL environments. I will briefly look at some of these tools,
-graphical editing frameworks among them.
+among them graphical editing frameworks.
 
 
 \subsection{JetBrains MPS}
-\marginnote{http://jetbrains.com/mps}
+\marginnote[3.2mm]{http://jetbrains.com/mps}
 The Meta Programming System (MPS) is a projectional language workbench, which
 means that there is no grammar and parser involved. Instead, editor
 gestures directly change the underlying AST which is projected in a way that looks like
 text. As a consequence, MPS supports mixed notations (textual, symbolic,
-tabular, graphical) and a wide range of language composition features.
+tabular, graphical) and a wide range of language composition features. MPS is
+open source under the Apache 2.0 license, and developed by JetBrains. It is not
+as widely used as Xtext, but supports many advanced features.
 
 
 \subsection{SDF/Stratego/Spoofax}
-\marginnote{http://strategoxt.org/Spoofax}
+\marginnote[3.2mm]{http://strategoxt.org/Spoofax} 
 These tools are developed at the university of Delft in Eelco Visser's group.
-SDF is a formalism for defining grammars and parsers for context free grammars.
-Stratego is a term rewriting system used for AST transformations and code
-generation. Spoofax is an Eclipse-based IDE that provides a nice environment for
-working with SDF and Stratego. This tooling has a number of advanced features
-regarding language modularization and composition.
+SDF is a formalism for defining parsers for context free grammars. Stratego is a
+term rewriting system used for AST transformations and code generation. Spoofax
+is an Eclipse-based IDE that provides a nice environment for working with SDF
+and Stratego. It is also not as widely used as Xtext, but it has a number of
+advanced features regarding language modularization and composition.
 
 
 \subsection{Intentional Domain Workbench}
-\marginnote{http://intentsoft.com}
-A few examples will be based on the Intentional Domain Workbench. This is a
-commercial product that also uses the projectional approach to editing. The IDW
-has been used to build a couple of very interesting systems that can serve well
-to illustrate the power of DSLs.
+\marginnote[3.2mm]{http://intentsoft.com} 
+A few examples will be based on the Intentional Domain Workbench (IDW). This is
+a commercial product that, like MPS, uses the projectional approach to editing.
+The IDW has been used to build a couple of very interesting systems that can
+serve well to illustrate the power of DSLs. The tool is a commercial offering of
+Intentional Software.
 
 
-\seppar Way more tools exist. If you are interested, I suggest you take a
-look at the Language Workbench
-Competition\marginnote{http://languageworkbenches.net} where a number of
-language workbenches (13 at the time of writing of this book) all implement the
-same examples. This provides a good way to compare the various tools.
+\seppar Many more tools exist. If you are interested, I suggest you take a look
+at the Language Workbench Competition\marginnote{http://languageworkbenches.net}
+where a number of language workbenches (13 at the time of writing of this book)
+are illustrated by all implementing the same example DSLs. This provides a good
+way to compare the various tools.
 
 \section{Case Studies and Examples}
 
 \todo{There still seem to be German examples in the screenshot --- change!}
 
 I strove to make this book as accessible and practically relevant as possible,
-so I provide a lot of examples. \marginnote{I decided against a single big,
-running example because (a) it becomes increasingly complex to follow along and
-(b) fails to illustrate different approaches to the same problem. However, we
-use a set of case studies to illustrate many issues, especially in the part on
-DSL design} Throughout the book I use relatively simple examples, described in
-detail, to introduce principles. I use more sophisticated and elaborate
-examples, described in less detail, to showcase the power of DSLs. These
-examples are introduced below. These are mostly taken from real projects, some
-of them anonymized or stripped of all too project-specific idiosyncrasies.
-
-
-\subsection{Component Architecture}
-
-This language is an architecture DSL used to define the software architecture of
-a complex, distributed, component-based system in the transportation domain.
-Among other architectural abstractions, the DSL supports the definition of
-components and interfaces (\fig{compArch1}) as well as the definition of 
-systems, which are connected instances of components (\fig{compArch1}). 
-Code generators generate code that acts as the basis for the implementation
-of the system, as well as all the code necessary to work with the
-distribution middleware. It is used by software developers and architects and
-implemented with Eclipse Xtext.
+so I provide a lot of examples. I decided against a single big, running example
+because (a) it becomes increasingly complex to follow along and (b) fails to
+illustrate different approaches to solving the same problem. However, we use a
+set of case studies to illustrate many issues, especially in Part II, DSL
+design. These examples are introduced below. These are taken from real-world
+projects.
 
 \begin{figure}[h]
   \rule{1\textwidth}{0.7pt}
@@ -242,6 +233,20 @@ implemented with Eclipse Xtext.
   \label{compArch1} 
   \rule{1\textwidth}{0.7pt}
 \end{figure}
+
+\subsection{Component Architecture}
+
+This language is an architecture DSL used to define the software architecture of
+a complex, distributed, component-based system in the transportation domain.
+Among other architectural abstractions, the DSL supports the definition of
+components and interfaces (\fig{compArch1}) as well as the definition of 
+systems, which are connected instances of components (\fig{compArch2}). 
+Code generators generate code that acts as the basis for the implementation
+of the system, as well as all the code necessary to work with the
+distributed communication middleware. It is used by software developers and
+architects and implemented with Eclipse Xtext.
+
+
  
 \begin{figure}[h]
   \rule{1\textwidth}{0.7pt}
@@ -256,15 +261,14 @@ implemented with Eclipse Xtext.
 
 \subsection{Refrigerator Configuration}
 
-
-This case study describes a set of DSLs for cooling algorithms in refrigerators.
-Three languages are used. The first one describes the logical hardware structure
-of refrigerators (\fig{cooling1}). The second one describes cooling algorithms
-in the refrigerators using a state-based, asynchronous language
-(\fig{cooling2}). Cooling programs refer to hardware features and they can
-access the properties of hardware elements from expressions and commands. The
-third one is used to test cooling programs (\fig{cooling3}). These DSLs are used
-by thermodynamists and are implemented with Eclipse Xtext.
+This case study describes a set of DSLs for developing cooling algorithms in
+refrigerators. Three languages are used. The first one describes the logical
+hardware structure of refrigerators (\fig{cooling1}). The second one describes
+cooling algorithms in the refrigerators using a state-based, asynchronous
+language (\fig{cooling2}). Cooling programs refer to hardware features and they
+can access the properties of hardware elements from expressions and commands.
+The third one is used to test cooling programs (\fig{cooling3}). These DSLs are
+used by thermodynamists and are implemented with Eclipse Xtext.
 
 \begin{figure}[h]
   \rule{1\textwidth}{0.7pt}
@@ -314,14 +318,15 @@ by thermodynamists and are implemented with Eclipse Xtext.
 
 \subsection{Extended C}
 
-This case study (detailed in\cite{Voelter10}) covers a set of extensions to the
-C programming language tailored to embedded programming, developed as part of
-mbeddr.com\todo{cite}. Extensions include state machines, physical quantities,
-tasks, interfaces and components. Higher level DSLs are added for specific
-purposes. An example used in a showcase application is the control of a Lego
-Mindstorms robot. ANSI C is generated and subsequently compiled with GCC. 
-This DSL is intended to be used by embedded software developers and it is 
-implemented with MPS. We also cover this case study in more detail \todo.
+This case study (also covered in its own chapter in Part IV of the book) covers
+a set of extensions to the C programming language tailored to embedded
+programming, developed as part of mbeddr.com\footnote{http://mbeddr.com}.
+Extensions include state machines, physical quantities, tasks, interfaces and
+components. Higher level DSLs are added for specific purposes. An example used
+in a showcase application is the control of a Lego Mindstorms robot. ANSI C is
+generated and subsequently compiled with GCC or other, target device specific
+compilers. The DSL is intended to be used by embedded software developers and
+it is implemented with MPS. 
 
 \begin{figure}[h]
   \rule{1\textwidth}{0.7pt}
@@ -363,14 +368,14 @@ implemented with MPS. We also cover this case study in more detail \todo.
 
 \subsection{Pension Plans}
 
-The pension DSL supports mathematical abstractions and notations to allow
-insurance mathematicians to express their domain knowledge directly
-(\fig{pension1}) as well as higher level pension rules and unit tests in the
-table notation (\fig{pension2}). This DSL is used to efficiently describe
-families of pension plans for a large insurance company. A complete Java
-implementation of the calculation engine is generated. It is intended to be used
-by insurance mathematicians and pension experts. It has been built by Capgemini
-with the Intentional Domain Workbench.
+This DSL is used to efficiently describe families of pension plans for a large
+insurance company. The DSL supports mathematical abstractions and
+notations to allow insurance mathematicians to express their domain knowledge
+directly (\fig{pension1}), as well as higher level pension rules and unit tests
+using a table notation (\fig{pension2}).  A complete Java implementation of the
+calculation engine is generated. It is intended to be used by insurance
+mathematicians and pension experts. It has been built by Capgemini with the
+Intentional Domain Workbench.
 
 \begin{figure*}[h]
   \includegraphics[width=16cm]{figures-intro/pension-1.png}
@@ -706,15 +711,16 @@ embedded in GPL programs. And DSL designers can learn a lot from GPLs.}
 \footnotesize
   \begin{tabular}{lll} \toprule
     \textbf{Domain} & large and complex & smaller and well-defined \\
-    \textbf{Designed by} & guru or committee & a few engineers and domain
-         experts \\ 
     \textbf{Language Size} & large & small \\ 
     \textbf{Turing-completeness} & always & often not \\ 
-    \textbf{User Community} & large, anonymous and widespread & small,
-         accessible and local  \\ 
     \textbf{User-Defined Abstractions} & sophisticated & limited \\ 
+    \textbf{Execution} & via intermediate GPL & native \\ 
     \textbf{Lifespan} & years to decades & months to years (driven by context) 
     \\  
+    \textbf{Designed by} & guru or committee & a few engineers and domain
+         experts \\ 
+    \textbf{User Community} & large, anonymous and widespread & small,
+         accessible and local  \\ 
     \textbf{Evolution} & slow, often standardized & fast-paced  \\
     \textbf{Deprecation/Incompatible Changes} & almost impossible & feasible 
         \\ 
@@ -796,16 +802,23 @@ today? The table contains some (general and broad) statements:
   \begin{tabular}{lll} \toprule
 	\textbf{Aspect} & \textbf{Modeling} & \textbf{Programming}\\
 	\midrule
-	Define your own notation and language & Easy & Sometimes Possible to some
-	Extent \\ 
-	Syntactically integrate several languages & possible, depends on tool & hard\\
-	Graphical Notations & possible, depends on tool & usually only visualizations\\
+	Define your own notation and language & Easy & Sometimes Possible to some Extent \\ 
+	
+	Syntactically integrate several languages & possible, depends on tool & hard\\ 
+
+	Graphical Notations & possible, depends on tool & usually only visualizations\\ 
+	
 	Customize Generator/Compiler & Easy & Sometimes possible based on open compilers\\
+	
 	Navigate/Query & Easy & Sometimes possible, depends on IDE and APIs\\
+	
 	Constraints & Easy & Sometimes possible with Findbugs etc.\\
-	Sophisticated Mature IDE & Sometimes & Standard\\
+	
+	Sophisticated Mature IDE & Sometimes, effort-dependent & Standard\\
+	
 	Debugger & Rarely & Almost always\\
-	Versioning/Diff/Merge & Depends on tooling & Standard\\
+	
+	Versioning/Diff/Merge & Depends on syntax and tools & Standard\\
     \bottomrule
   \end{tabular}
 \caption[][6mm]{Comparing Modeling and Programming}
@@ -937,7 +950,9 @@ composed language, i.e. it is integrated with other modules by referencing
 symbols or by being syntactically embedded in code expressed with another
 module. Integration on the level of the type system, the semantics and the IDE
 is also provided. An extension module may even be embeddable in
-\emph{different} core languages. 
+\emph{different} core languages\footnote{Static error checking, static
+optimizations and IDE support is what differentiates this approach from
+internal DSLs.}.
 
 
 This idea isn't new. Charles Simonyi\cite{SimonyiCC06} and Sergey
@@ -947,19 +962,17 @@ languages also relates very much to the notion of language workbenches as
 defined by Martin Fowler. \cite{Fowler2011} defines language workbenches as
 tools where:
 
-\vspace{5pt}
-\noindent
-\textbf{Users can freely define languages that are fully integrated with each
+\begin{itemize}
+  \item \textbf{Users can freely define languages that are fully integrated with each
 other.} This is the central idea for language workbenches, but also for 
 modular languages since you can easily argue that each language module is 
 what Martin Fowler calls a language. "Full integration" can refer
 to referencing as well as embedding, and includes type systems and semantics.
 
-\vspace{5pt}
-\noindent \textbf{The primary source of information is a persistent abstract
+  \item \textbf{The primary source of information is a persistent abstract
 representation \emph{and} Language users manipulate a DSL through a projectional
-editor.} This implies that projectional editing be used\footnote{Projectional
-editing means that users don't write text that is subsequently parsed. Instead,
+editor.} This implies that projectional editing must be
+used\footnote{Projectional editing means that users don't write text that is subsequently parsed. Instead,
 user interactions with the concrete syntax directly change the underlying
 abstract syntax. We'll discuss this technology much more extensively later in
 this book}. I don't agree. Storing programs in their abstract representation and
@@ -971,8 +984,7 @@ do not distinguish between recognizing tokens and parsing the structure of the
 tokens, thereby avoiding certain problems with grammar composability. We'll
 discuss this further in the book as well}, that is fine with me.
 
-\vspace{5pt}
-\noindent \textbf{Language designers define a DSL in three main parts: schema,
+  \item \textbf{Language designers define a DSL in three main parts: schema,
 editor(s), and generator(s).} I agree that ideally a language should be defined
 "meta model first", i.e., you first define a schema (a.k.a. the meta model or
 AST), and then the concrete syntax (editor or grammar), based on the schema (MPS
@@ -980,13 +992,13 @@ does it this way). However, it is also okay for me to start with the grammar,
 and have the meta model derived (the typical workflow with Xtext, although it
 can do both). From the language user's point of view, it does not make a big
 difference in most cases.
-
-
-\vspace{5pt}
-\noindent \textbf{A language workbench can persist incomplete or contradictory
+  \item \textbf{A language workbench can persist incomplete or contradictory
 information.} I agree. This is trivial if the models are stored in a concrete
 textual syntax, it is not so trivial if a persistent representation based on the
 abstract syntax is used.
+
+\end{itemize}
+
 
 \vspace{5pt}
 \noindent Let me add two additional requirements. For all the languages built with the
@@ -1100,10 +1112,11 @@ service provider interfaces (SPIs) in Java enterprise technology.
 
 \parhead{A Vision of Programming} For me, this is the vision of programming I am
 working towards. The distinction between modeling and programming vanishes.
-People can develop code using a language directly suitable to the task at hand.
-They can also build their own languages or language extensions, if that makes
-their work easier. These languages will be relatively small, since they only
-address one aspect of a system. They are not general-purpose. They are DSLs.
+People can develop code using a language directly suitable to the task at hand,
+and aligned with the role in the overall development effort. They can also build
+their own languages or language extensions, if that makes their work easier.
+These languages will be relatively small, since they only address one aspect of
+a system. They are not general-purpose. They are DSLs. 
 
 Tools for this approach exist\marginnote{MPS is one of them, which is why I
 focus a lot on MPS in this book. Intentional's Domain Workbench is another one.
