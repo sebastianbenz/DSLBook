@@ -221,18 +221,18 @@ statement on that same port.}
 \begin{figure}[h]
   \rule{1\textwidth}{0.7pt}
   \vspace{-0.5cm}
-  \includegraphics[scale=0.9]{figures-design/embc/optionalport.png}
-  \caption[][0.3cm]{The \lcr{with port} statement is required to
-  surround an invocation on an optional, required port. If the port is not connected for
-  the current instance, the code inside the \lcr{with port} is not executed. It
-  acts as an \lcr{if} statement, but since it cannot contain a complete
-  expression, the correct use of the \lcr{with port} statement can be
-  statically checked.}
+  \includegraphics[width=12cm]{figures-design/embc/optionalport.png}
+  \caption[][0.3cm]{The \lcr{with port} statement is required to surround an
+  invocation on an optional, required port; othewise, an error is reported in
+  the IDE. If the port is not connected for the current instance, the code
+  inside the \lcr{with port} is not executed. It acts as an \lcr{if} statement,
+  but since it cannot contain a complete expression, the correct use of the
+  \lcr{with port} statement can be statically checked.}
   \label{optionalport}  
   \rule{1\textwidth}{0.7pt}
-\end{figure}
+\end{figure}
 
-
+ 
 Linguistic abstraction also means that no details irrelevant to the model
 purpose are expressed. Once again, this increases conciseness, and avoids the
 undesired specification of unintended semantics (over-specification).

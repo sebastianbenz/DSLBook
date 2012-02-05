@@ -40,16 +40,7 @@ all other top-level concepts reside in modules. Header files (which are
 effectively a poor way of managing symbol visibility) are only used in the
 generated low level code.}
 
-\begin{figure}[h]
-  \rule{1\textwidth}{0.7pt}
-  \vspace{-0.5cm}
-  \includegraphics[scale=0.6]{figures-design/embc/modules.png}
-  \caption[][0.3cm]{Modules are the top-level contruct in this C
-  implementation. Module contents can be exported, which means they are visible
-  to importing modules.}
-  \label{modules}
-  \rule{1\textwidth}{0.7pt}
-\end{figure}
+
 
 \comparch{Components and interfaces live in namespaces. Components are
 implementation units, and are always private. Interfaces and data types may be
@@ -317,14 +308,14 @@ interface operations (\fig{precond}).}
 \begin{figure}[h]
   \rule{1\textwidth}{0.7pt}
   \vspace{-0.5cm}
-  \includegraphics[width=8cm]{figures-design/embc/precond.png}
+  \includegraphics[width=9cm]{figures-design/embc/precond.png}
   \caption[][0.3cm]{Precondiditions can be added to interface operations. They
-  are executed whenever any runnable that implements the particular operation
-  is executed.}
+  are executed at the beginning of everry runnable that implements the
+  particular operation.}
   \label{precond}
   \rule{1\textwidth}{0.7pt}
 \end{figure} 
- 
+  
 \marginnote{This is only an overview over a few paradigms; many more
 exist. I refer to the excellent Wikipedia entry on \emph{Programming Paradigms} and to
 the book\cite{RoyH2004}}
@@ -439,16 +430,18 @@ equations is generated. A solver then makes sure they are consistent by trying
 to find an example solution that violates the boolean equations.
 \todo{cite: refer to DSL impl chapter, and to literature (Czarnecki)} }
 
-\begin{figure}
+\begin{figure}[h]
   \rule{1\textwidth}{0.7pt}
   \vspace{-0.5cm}
-  \includegraphics[width=8cm]{figures-design/embc/presencecond.png}
-  \caption[][0.3cm]{Code affected by a presence condition is highlighted in
-  blue. The presence condition is rendered on the left of the affected code. It
-  is a boolean expression over a set of (predefined) configuration parameters.}
+  \includegraphics[width=10cm]{figures-design/embc/presencecond.png}
+  \caption[][0.3cm]{This module contains variability expressed with presence
+  conditions. The affected program elements are highlighted in a color that
+  represents the condition. If the feature \ic{highRes} is selected, the code
+  uses a \ic{double} instead of an \ic{int8\_t}. The log messages are only
+  included if the \ic{logging} feature is selected.}
   \label{presencecond}
   \rule{1\textwidth}{0.7pt}
-\end{figure} 
+\end{figure} 
 
 
 \genex{The Yakindu DAMOS block diagram editor supports custom block
