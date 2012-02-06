@@ -154,6 +154,32 @@ harder to understand because of the missing, explicit "hard fact" about the
 program.
 
 
+\parhead{Multi-Level Constraints} Several sets of constraints can be used to
+enforce multiple levels of correctness/strictness/compliance for models. The
+first level are typically basic constraints (such as name uniqueness) and typing
+rules. They are checked for every program. Additional levels are often optional.
+They are triggered either by a configuration switch or by using the programs for
+a given purpose. Additional levels always constrain programs \emph{further}
+relative to more basic levels.
+
+
+\embc{A nice example of multi-level constraints can be seen in the state
+machines extension to C. Structural and type system correctness (for C and for
+state machines) is always checked for every program. However, if a state machine
+is marked as \ic{verifiable}, then the action code is further
+restricted via additional constraints. For example, it is not allowed to read
+and write the same variable within a single transition (i.e. in the total of
+exit actions, transition actions and entry actions). This is necessary to keep
+the complexity of the generated NuSMV code in check.}
+\embc{Another example concerns the use of floating point types. Some target
+devices may not have floating point units (FPUs) which means that floating point
+types (\ic{float}, \ic{double}) cannot be used in programs that should be
+deployed to such a target device. So, as the user changes the target device in
+the build configuration, additional constraints are checked that report floating
+point types as errors if the target has no FPU).}
+
+
+
 \subsection{Establishing the Correctness of the Transformation}
 
 Above we have defined the meaning of the program $p$ at $D_n$ as the equivalent
@@ -429,20 +455,28 @@ garbage collection and optimizing compilers for higher level programming languag
 artifact, like object files in a C compiler. However, that's not quite true. At
 least during development and test of the generator you may have to read,
 understand and debug the generated code. For incomplete DSLs\sidenote{We cover
-completeness in section \todo{}}, i.e. those where parts of the resulting program
-have to be written manually in $L_{D-1}$, readability and good structure is even
-more important, because the manually written code has to integrate with the
-generated parts of the $L_{D-1}$ program. Hence, generated code should use
+completeness in section \todo{}}, i.e. those where parts of the resulting
+program have to be written manually in $L_{D-1}$, readability and good structure
+is even more important, because the manually written code has to integrate with
+the generated parts of the $L_{D-1}$ program. Hence, generated code should use
 meaningful abstractions, should be designed well, use good names for
-identifiers, be documented well, and be indented correctly. Making generated
-code adhere to the same standards as manually written code also helps to diffuse
-some of the skepticism against code generation that is still widespread in some
-organizations.\marginnote{Note that in complete languages (where 100\% of the
-$L_{D-1}$ code is generated), the generated code is never seen by a DSL user.
-But even in this case, concerns for code quality apply and the code has to be
-understood and tested during DSL and generator development.}
+identifiers, be documented well, and be indented correctly. In short, generated
+code should generally adhere to the same standards as manually written code.
+This also helps to diffuse some of the skepticism against code generation that
+is still widespread in some organizations.\marginnote{Note that in complete
+languages (where 100\% of the $L_{D-1}$ code is generated), the generated code
+is never seen by a DSL user. But even in this case, concerns for code quality
+apply and the code has to be understood and tested during DSL and generator
+development.}
+However, there are several exceptions to this rule:
 
-The only exception to this rule is if the code has to be highly optimized for
+\begin{itemize}
+
+  \item Tradeoff between generator complexity and code quality
+
+  \item Exploit the Generator
+
+  \item The third exception to the rule is if the code has to be highly optimized for
 reasons of performance and code size. While you can still indent your code well
 and use meaningful names, the \emph{structure} of the code may be convoluted.
 Note, however, that the code would look the same way if it were written by hand
@@ -464,7 +498,9 @@ implementing operations in components take an additional \lcr{struct} as an
 argument which provides those function pointers for each operation of each
 required port. A call on a required port thus is a relatively ugly affair based
 on function pointers. However, to achieve the desired goal, no different,
-cleaner code approach is possible in C.}
+cleaner code approach is possible in C.} 
+
+\end{itemize}
 
 \begin{figure}[h]
   \rule{1\textwidth}{0.7pt}

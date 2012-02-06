@@ -191,7 +191,7 @@ $fo \Rightarrow \mathit{element} \to \mathit{fragment}$.
 
 We also define the following sets of relations between program elements.
 $\mathit{Cdn_f}$ is the set of parent-child relationships in a fragment $f$.
-Each $c \in C$ has the properties $parent$ and $child$. 
+Each $c \in Cdn$ has the properties $parent$ and $child$. 
 
 \embc{In \ic{int x = 3;} the local variable declaration is the parent of the
 type and the init expression 3. The concept \lcr{Local-}  \\
@@ -253,13 +253,10 @@ language $l$ can be defined as a language for which the following hold:
      \mathit{lo(c.child)} = l
 \end{align}
 An \emph{independent fragment} is one where all non-containing cross-references
-stay within the fragment (1.4). By definition, an independent fragment has to 
-be expressed with an independent language (1.5). 
+point to elements within the same fragment (1.4). 
 \begin{align}
 \forall r \in \mathit{Refs_f} &\mid \mathit{fo(r.to)} 
 	= \mathit{fo(r.from)} = f
-\\ 
-\forall e \in E_f &\mid \mathit{lo(co(e))} = l 
 \end{align}
 
 We can now further refine our definition of \emph{program}: a program is a set
@@ -286,9 +283,9 @@ We also distinguish \emph{homogeneous} and \emph{heterogeneous} fragments. A
 homogeneous fragment is one where all elements are expressed with the same
 language:
 \begin{align}
-\forall e \in E_f &\mid \mathit{lo(e)} = l \\
-\forall c \in \mathit{Cdn_f} &\mid \mathit{lo(c.parent)} = 
-	\mathit{lo(c.child)} = l
+\forall e \in E_f &\mid \mathit{lo(co(e))} = l \\
+\forall c \in \mathit{Cdn_f} &\mid \mathit{lo(co(c.parent))} = 
+	\mathit{lo(co(c.child))} = l
 \end{align}
 
 \embc{A program written in plain C is homogeneous. All program elements are
@@ -336,16 +333,18 @@ general-purpose languages\footnote{I guess we could define $D_0$ to be those
 programs expressible with Turing machines, but GPLs are a more useful approach
 for this book}. Languages for $D_n$ with $n > 0$ become more domain-specific for
 growing $n$.
-
-
 \begin{figure}[h]
   \includegraphics[scale=0.7]{figures-design/hierarchicalDomains.png}
-  \caption{Domain hierarchy. Domains with higher index are
+  \caption{The domain hierarchy. Domains with higher index are
   called subdomains of domains with a lower index ($D_1$ is a subdomain of
   $D_0$). We use just $D$ to refer to the current domain, and $\D{+1}$ and $\D{-1}$ to
   refer to the relatively more specific and more general ones.}
   \label{hierarchicalDomains} 
 \end{figure}
+
+
+
+
 
 \embc{The C base language is defined for $D_0$. Extensions for tasks, state
 machines or components can argued to be specific to embedded systems, making
