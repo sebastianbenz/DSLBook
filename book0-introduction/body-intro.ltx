@@ -1224,30 +1224,33 @@ Language in the sense of Eric Evans' Domain Driven Design\cite{Evans-2004}.
 \subsection{Domain Expert Involvement}
 DSLs whose domain, abstractions and notations are closely aligned with how
 domain experts (i.e., non-programmers) express themselves, allow for very good
-integration between the techies and the domain people: they can easily read, and
-often write the program code, since it is not cluttered with implementation
-details irrelevant to them. \marginnote{Of course, the domain (and the people
-working in it) must be suitable for formalization, but once you start looking,
+integration between techies and domain people: domain people can easily read,
+and often write program code, since it is not cluttered with implementation
+details irrelevant to them. \marginnote[-12mm]{Of course, the domain (and the
+people working in it) must be suitable for formalization, but once you start looking,
 it is amazing how many domains fall into this category. Insurance contracts,
-hearing aids and refrigerators are just some examples where you maybe didn't
-think this is true. I once helped to build a DSL to express governance and
-business policies. This effort failed, because the domain was much too vague
-and "stomach driven" for it to be formalizable.} And even when
-domain experts aren't willing to write DSL code, developers can at least pair with them when writing code, or use the DSL
-code to get domain experts involved in meaningful validation and reviews.
-(Fowler uses the term "business-readable DSLs" in this case.) At the very least
-you can generate visualizations, reports or even interactive simulators that are
-suitable for use by domain experts. 
+hearing aids and refrigerators are just some examples you maybe didn't expect.
+On the other hand, I once helped build a DSL to express enterprise governance
+and business policies. This effort failed, because the domain was much too vague
+and too "stomach driven" for it to be formalizable.} And even when domain
+experts aren't willing to write DSL code, developers can at least pair with them when
+writing code, or use the DSL code to get domain experts involved in meaningful
+validation and reviews. (Fowler uses the term "business-readable DSLs" in this
+case.) At the very least you can generate visualizations, reports or even
+interactive simulators that are suitable for use by domain experts.
 
 
 \subsection{Productive Tooling}
 In contrast to libraries, frameworks, and internal DSLs (those embedded into a
-host language and implemented with language abstractions), external DSLs can
-come with tools, i.e. IDEs that are aware of the language. This can result in a
-much improved user experience. Static Analyses, code completion, visualizations,
-debuggers, simulators and all kinds of other niceties can be provided. These
-features improve developer productivity and also make it easier for new team
-members to become productive.
+host language and implemented with host language abstractions), external DSLs
+can come with tools, i.e. IDEs that are aware of the language. This can result
+in a much improved user experience. Static Analyses, code completion,
+visualizations, debuggers, simulators and all kinds of other niceties can be
+provided. These features improve the productivity of the users and also make it
+easier for new team members to become productive\marginnote[-34.5mm]{JetBrainsonce reported the following about their \emph{webr} and \emph{dnq} Java extensionsfor web applications and database persistence: "Experience shows that thelanguage extensions are easier to learn than J2EE APIs. As an experiment, a 
+student who had no experience in web development was tasked to create a simple 
+accounting application. He was able to produce a web application with 
+sophisticated Javascript UI in about 2 weeks!"}.
 
 
 
@@ -1265,60 +1268,61 @@ farms, and energy consumption is an issue these days).
 
 \subsection{Platform isolation}
 In some cases, using DSLs can abstract from the underlying technology
-platform\footnote{Remember OMG's MDA? They introduced the whole model-driven
-concept as a means to primarily abstract from platforms (probably a consequence
-of their historical focus on interoperability). In my experience, this can be
-one driver, but it is typically not the only one, and often it's even just a
-minor side benefit. There are cases, though, where DSLs are used mainly to
-achieve platform independence: cross-platform mobile development comes to
-mind.}. Using DSLs and an execution engine makes the application logic expressed
-in the DSL code independent of the target platform\footnote{this is not
-necessarily true for architecture DSLs and utility DSLs whose abstractions may
-be tied relatively closely to the concepts provided by the target platform.}. It
-is absolutely feasible to change the execution engine and the target platform
-"underneath" a DSL to execute the code on a new platform. Portability is
-enhanced, as is maintainability, because DSLs support separation of concerns -
-the concerns expressed in the DSL (e.g., the application logic) is separated
-from implementation details and target platform specifics.
+platform\sidenote[][-6mm]{Remember OMG's MDA? They introduced the whole
+model-driven approach primarily as a means to abstract from platforms (probably
+a consequence of their historical focus on interoperability). There are cases
+where interop is the primary focus: cross-platform mobile development is an
+example. However, in my experience, platform independence is often just one
+driver in many, and it is typically not the most important one.}. Using DSLs and
+an execution engine makes the application logic expressed in the DSL code
+independent of the target platform\sidenote[][5mm]{this is not necessarily true
+for architecture DSLs and utility DSLs whose abstractions may be tied relatively
+closely to the concepts provided by the target platform.}. It is absolutely
+feasible to change the execution engine and the target platform "underneath" a
+DSL to execute the code on a new platform. Portability is enhanced, as is
+maintainability, because DSLs support separation of concerns - the concerns
+expressed in the DSL (e.g., the application logic) is separated from
+implementation details and target platform specifics.
 
 
 
-\seppar Often, no single one of the advantages would drive you to use a
-DSL. But in many cases you can benefit in multiple ways, so the sum of the
-benefits is worthwhile the (undoubtably necessary) investment into the approach.
+\seppar Often, no single one of the advantages would drive you to using a DSL.
+But in many cases you can benefit in multiple ways, so the sum of the benefits
+is often worthwhile the (undoubtably necessary) investment into the approach.
 
 
 \section{Challenges}
 
-There ain't no such thing as a free lunch. This is also
-true for DSLs. Let us look at the price you have to pay to get all these nice
-benefits described above.
+There ain't no such thing as a free lunch. This is also true for DSLs. Let us
+look at the price you have to pay to get all these nice benefits described
+above.
 
-\todo{Hudak's '96 paper has a wonderful graph showing the start-up costs
-(c1 and c2) of conventional / DSL approaches. I think his thoughts could
-usefully feed into this section.}
+\todo{Hudak's '96 paper has a wonderful graph showing the start-up costs (c1 and
+c2) of conventional / DSL approaches. I think his thoughts could usefully feed
+into this section.}
 
 \subsection{Effort of Building the DSLs}
-Before a DSL can be used, it has to be built. If it has been built already, then
-using the DSL is obviously useful. If the DSL has to be developed as part of a
-project, the effort for building it has to be factored into the overall cost-benefit
-analysis. For technical DSLs\footnote{Technical DSLs are those that address
-aspects of software engineering such as components, state machines or
-persistence mappings, not application domain DSLs for a technical domain (such
-as automotive software or machine control)}, there is a huge potential for reuse
-(e.g., a large class of web or mobile applications can be described with the
-same DSL), so here the investment is easily justified. On the other side,
-application domain-specific DSLs (e.g., mortgage contracts specifications) are
-often very narrow in focus, so the investment of building them is harder to
-justify at first glance. But these DSLs are often tied to the core know-how of a
-business and provide a way for describing this knowledge in a formal,
-uncluttered, portable and maintainable way and that should also be a priority
-for any business that wants to remain relevant. In both cases, modern tools
-reduce the effort of building DSLs considerably, making it a feasible approach
-in more and more projects. \marginnote[-4\baselineskip]{I hope that this book
-helps you master the learning curve with some of these tools. But in the end,
-you (or somebody else) have to make the decision when and how to use DSLs.
-Experience helps here.}
+Before a DSL can be used, it has to be built. If it has been built already,
+before a project, then using the DSL is obviously useful. If the DSL has to be
+developed as part of a project, the effort for building it has to be factored
+into the overall cost-benefit analysis. For technical
+DSLs\sidenote[][-2.7mm]{Technical DSLs are those that address aspects of
+software engineering such as components, state machines or persistence mappings, not
+application domain DSLs for a technical domain (such as automotive software or
+machine control)}, there is a huge potential for reuse (e.g., a large class of
+web or mobile applications can be described with the same DSL), so here the
+investment is easily justified. On the other side, application domain-specific
+DSLs (e.g., pension plan specifications) are often very narrow in focus, so the
+investment of building them is harder to justify at first glance. But these DSLs
+are often tied to the core know-how of a business and provide a way for
+describing this knowledge in a formal, uncluttered, portable and maintainable
+way. That should also be a priority for any business that wants to remain
+relevant. In both cases, modern tools reduce the effort of building DSLs
+considerably, making it a feasible approach in more and more projects.
+\marginnote[-4\baselineskip]{There are three factors that make DSL creation
+cheaper: deep knowledge about a domain, experience of the DSL developer and
+productivity of the tools. This is why focussing on tools in the context of DSLs
+is important.}
 
 \subsection{Language Engineering Skills}
 Building DSLs is not rocket science. But to do it well requires experience and
@@ -1328,13 +1332,13 @@ times" where tools like lex/yacc, ANTLR, C and Java were the only ingredients
 you would use for language engineering. Modern language workbenches have changed
 this situation radically, but of course there is still a learning curve. In
 addition, the definition of good languages --- independent of tooling and
-technicalities --- is not made simpler by better tools: how do you
-find out which abstractions need to go into the languages? How do you create
-"elegant" languages? I will elaborate on this later in the book, but there is a
-significant element of experience and practice you need to build up over time.
+technicalities --- is not made simpler by better tools: how do you find out
+which abstractions need to go into the languages? How do you create "elegant"
+languages? The book provides some guidance in Part II, DSL Design, but there is
+a significant element of experience and practice you need to build up over time.
 
 \subsection{Process Issues}
-Using DSLs inevitably leads to work split: some people build the languages,
+Using DSLs usually leads to work split: some people build the languages,
 others use them. Sometimes the languages have been built already when you start
 a development project, sometimes they are built as part of the project.
 Especially in the latter case it is important that you establish some kind of
@@ -1346,45 +1350,51 @@ challenge\sidenote[][-3\baselineskip]{This is not much different for languages
 than for any other shared artifact (frameworks, libraries, tools in general),
 but it also isn't any simpler and needs to be addressed.}
 
-\subsection{Maintenance}
+
+\subsection{Evolution and Maintenance}
 A related issue is language evolution and maintenance. Again, just like any
-other asset you develop for use in related contexts, you have to plan ahead
+other asset you develop for use in multiple contexts, you have to plan ahead
 (people, cost, time, skills) for the maintenance phase. A language that is not
 actively maintained and evolved will get outdated over time and become a
 liability. Especially during the phase where you introduce DSLs into an
 organization, a rapid evolution based on the requirements of users is critical
-to build trust in the approach\sidenote[][-1\baselineskip]{While this is an
+to build trust in the approach\sidenote[][-6.5mm]{While this is an
 important aspect, once again, it is not worse for DSLs than it is for any other
 shared, reused asset.}.
 
 
-\subsection{DSL Hell} Once development of DSLs is easy, there is a danger that
+\subsection{DSL Hell} 
+
+Once development of DSLs becomes technically easy, there is a danger that
 developers create new DSLs instead searching for and learning existing DSLs.
 This may end up in a large set of half-baked DSLs, each covering related
 domains, possibly with overlap, but still incompatible. The same problem can
 arise with libraries, frameworks or tools. They are all addressed by governance
-and effective communication in the team. It also helps if DSLs are incrementally
-extensible, so an existing language can be extended instead of creating a
-completely new language.
+and effective communication in the team\sidenote[][-12mm]{It also
+helps if DSLs are incrementally extensible, so an existing language can be
+extended instead of creating a completely new language.}.
 
 
-\subsection{Investment Prison} The more you invest into reusable artifacts
-(not just DSLs), the more productive you become. However, you may also get
-locked into a particular way of doing things. Radically changing your business
-model may seem unattractive, once you've become very efficient at the current
-one. It becomes expensive to "move outside the box"\footnote{With the advent of
-the digital age, we all know many businesses that went bankrupt because they had
-sticked too long to a dying business model. Maybe they just couldn't see that
-things will change, but maybe it way because they were so efficient at what they
-were doing, they couldn't invest into new stuff for fear of canibalizing their
-mainstream business.}. To avoid this, keep an open mind and be willing to throw
-things away and come up with more appropriate solutions. 
+\subsection{Investment Prison} 
+The more you invest into reusable artifacts, the more productive you become.
+However, you may also get locked into a particular way of doing things.
+Radically changing your business model may seem unattractive, once you've become
+very efficient at the current one. It becomes expensive to "move outside the
+box"\marginnote[-20mm]{With the advent of the digital age, we all know many
+businesses that went bankrupt because they had sticked too long to a dying business model.
+Maybe they just couldn't see that things will change, but maybe it way because
+they were so efficient at what they were doing, they couldn't invest into new
+stuff for fear of canibalizing their mainstream business.}. To avoid this, keep
+an open mind and be willing to throw things away and come up with more
+appropriate solutions.
 
 
-\subsubsection{Tool Lockin} Many of the DSL tools are open source. So you don't
-get locked into a vendor. However, today there is no interoperability between
-DSL tools, all investments regarding the DSLs and its processors are specific to
-a single tool. 
+\subsection{Tool Lock-in} 
+Many of the DSL tools are open source. So you don't get locked into a
+\emph{vendor}. But you will still get locked into a \emph{tool}. While it is
+feasible to exchange model data between tools, there is essentially no
+interoperability between DSL tools themselves, so the investments into DSL
+implementation are specific to a single tool.
 
 
 \subsection{Cultural Challenges}
@@ -1398,47 +1408,50 @@ actual technical arguments. Problems like this always arise if you want to
 introduce something new into an organization, especially if it changes
 significantly what people do, how they do it or how they interact. A lot has
 been written about introducing new ideas into organizations, and I recommend
-reading this book \todo{Linda's Book} if you're the person who is driving the
-introduction of DSLs into your organization.
+reading the Fearless Change book by Rising and
+Manns\cite{Manns:2004:FCP:1405773} if you're the person who is driving the
+introduction of DSLs into your organization.
 
 
 \seppar Of course there are other things that can go wrong: your DSL or
-generator might be buggy and you build buggy systems with it. You might have the
-DSL developed by external parties, giving away core domain knowhow. The guy who
+generator might be buggy, resulting in buggy systems. You might have the DSL
+developed by external parties, giving away core domain knowhow. The guy who
 built the DSL may leave the company. However, these things are not specific to
 DSLs, they can happen with anything. So we don't address these as challenges in
-the context of DSLs specifically.
+the context of DSLs specifically.
 
-\seppar So, is it worth it? Should you use DSLs? Presumably the only
-realistic answer is: it depends. With this book I aim to give you as much help
-as possible. The better you understand the topic, the easier it is to make an
+\parhead{Is it worth it?}  Should you use DSLs? Presumably the only realistic
+answer is: it depends. With this book I aim to give you as much help as
+possible. The better you understand the topic, the easier it is to make an
 informed decision. In the end, you have to decide for yourself or maybe ask
-people for help who have done it before. Let us look at when you should
-\emph{not} use DSLs.
+people for help who have done it before. 
 
-If you don't understand the domain you want to write a DSL for or if you
-don't have the means to learn about it (e.g., access to somebody who knows the
-domain), you're in trouble. You will identify the wrong abstractions, miss the
-expectations of your future users and generally have to iterate a lot to get it
-right\sidenote{If everyone is aware of this, then you might still want to
-try to build a language as a means of building the understanding about the domain. But
-this is risky, and should be handled with care.} Another sign of problems is
-this: if you build your DSL iteratively and over time, the changes requested by
-the domain experts don't become fewer (and concerning more and more detailed
-points), then you know you are in trouble because it seems there is no common
-understanding about the domain. It is hard to write a DSL for a set of
-stakeholders who can't agree on what the domain is about. 
+Let us look at when you should \emph{not} use DSLs. If you don't understand the
+domain you want to write a DSL for or if you don't have the means to learn about
+it (e.g., access to somebody who knows the domain), you're in trouble. You will
+identify the wrong abstractions, miss the expectations of your future users and
+generally have to iterate a lot to get it right, making the development
+expensive\sidenote{If everyone is aware of this, then you might still want to
+try to build a language as a means of building the understanding about the
+domain. But this is risky, and should be handled with care.} Another sign of
+problems is this: if you build your DSL iteratively and over time and the
+changes requested by the domain experts don't become fewer (and concerning more
+and more detailed points), then you know you are in trouble because it seems
+there is no common understanding about the domain. It is hard to write a DSL for
+a set of stakeholders who can't agree on what the domain is all about.
 
 Another problem is an unknown target platform. If you don't know how to
-implement something on the target platform in the first place, you'll have a
-hard time to implement an execution engine (generator or interpreter). You might
-want to consider writing (or inspecting) a couple of representative example
-applications manually to understand the patterns that go into the execution
-engine.
+implement a program in the domain manually, on the the target platform, you'll
+have a hard time implementing an execution engine (generator or interpreter).
+You might want to consider writing (or inspecting) a couple of representative
+example applications to understand the patterns that should go into theexecution engine.
+
 
 DSLs and the respective tooling are sophisticated software programs
 themselves. They need to be designed, tested, deployed, documented. So a certain
-level of general software development experience is a prerequisite. A related
+level of general software development proficiency is a prerequisite. If you are
+struggling with unit testing, software design or continuous builds, then you
+shoud probably master these challenges before you address DSLs. A related
 topic is the maturity of the development process. The fact that you introduce
 additional dependencies in the form of a supplier-consumer relationship into
 your development team requires that you know how to track issues, handle version
@@ -1467,30 +1480,28 @@ library or framework, or automates a particularly annoying or intricate aspect
 of software development in a given domain.}.
 
 Examples include the generation of array-based implementations for state
-machines, any number of interface/contract definitions out of which various
+machines, any number of interface/contract definitions from which various
 derived artifacts (classes, WSDL, factories) are generated, or tools that set up
 project and code skeletons for given frameworks (as exemplified in Rails' and
 Roo's scaffolding).
 
 \subsection{Architecture DSLs}	
 
-\marginnote{This is one of the most interesting use cases of DSLs and I have
-seen (and contributed to the creation of) many instances. This is why a later
-section focusses on architecture DSLs extensively} A somewhat more large-scale
-use is to use DSLs to describe the architecture (components, interfaces,
-messages, dependencies, processes, shared resources) of a (larger) software
-system or platform. In contrast to using existing architecture modeling
-languages (such as UML or the various ADLs), an the abstractions in an
-architecture DSL can be tailored specifically to the abstractions relevant to
-the particular architecture. Much more meaningful analyses and generators are
-possible this way. Architecture DSLs are usually developed during the
-architecture exploration phase of a project and make sure that the system
-architecture is consistently implemented by a potentially large development
-team. From the architecture models expressed in the DSL code skeletons are
-generated into which manually written application code is inserted. The
-generated code usually handles the integration with the runtime infrastructure.
-Often, these DSLs also capture non-functional constraints such as timing or
-resource consumption.
+A somewhat more large-scale use is to use DSLs to describe the architecture
+(components, interfaces, messages, dependencies, processes, shared resources) of
+a (larger) software system or platform. In contrast to using existing
+architecture modeling languages (such as UML or the various existing
+architecture description languages (ADLs)), the abstractions in an architecture
+DSL can be tailored specifically to the abstractions relevant to the particular
+plarform or system architecture. Much more meaningful analyses and generators
+are possible this way. From the architecture models expressed in the DSL, code
+skeletons are generated into which manually written application code is
+inserted. The generated code usually handles the integration with the runtime
+infrastructure. Often, these DSLs also capture non-functional constraints such
+as timing or resource consumption. Architecture DSLs are usually developed
+during the architecture exploration phase of a project. They can help make sure
+that the system architecture is consistently implemented by a potentially large
+development team.
 
 For example, In AUTOSAR, the architecture is specified in models and then the
 complete communication middleware for a distributed component infrastructure is
@@ -1506,28 +1517,28 @@ generated from relatively concise models.
 
 \subsection{Full Technical DSLs}
 For certain domains, DSLs can be created that don't just embody the
-architectural structure of the systems, but their complete application logic as well, so that
-100\% of the code can be generated. DSLs like these often consist of
-several language modules that play together to describe all aspects of the
-underlying system. I emphasize the word "technical", since these DSLs are
-used by developers, in contrast to the next category.
-
+architectural structure of the systems, but their complete application logic as
+well, so that 100\% of the code can be generated. DSLs like these often consist
+of several language modules that play together to describe all aspects of the
+underlying system. I emphasize the word "technical", since these DSLs are used
+by developers, in contrast to the next category.
 Examples include DSLs for (certain kinds of) Web applications, DSLs for mobile
-phone apps as well as the proverbial wrist watch (you know what I am talking
-about if you know the Finnish company Metacase :-)).
+phone apps as well as DSLs for developing state-based or dataflow-based embedded
+systems.
+
 
 \subsection{Application Domain DSLs}
 In this case, the DSLs describe the core business logic of an application system
-independent of its technical implementation. These DSLs are intended to be
-used by domain experts, usually non-programmers. This leads to more stringent
-requirements regarding notation, ease of use and tool support, and usually more
-effort in building the language, since a "messy" application domain first has
-to be understood, structured and possibly "re-taught" to the domain experts.
-In contrast, technical DSLs are often much easier to define, since they are
-guided very much by existing formal artifacts (architectures, frameworks,
-middleware infrastructures).
+independent of its technical implementation. These DSLs are intended to be used
+by domain experts, usually non-programmers. This leads to more stringent
+requirements regarding notation, ease of use and tool support. These also
+typically require  more effort in building the language, since a "messy"
+application domain first has to be understood, structured and possibly
+"re-taught" to the domain experts\sidenote[][]{In contrast, technical DSLs are
+often much easier to define, since they are guided very much by existing formal artifacts
+(architectures, frameworks, middleware infrastructures).}.
 
-Examples include DSLs for describing mortgage contracts, a DSL for describing
+Examples include DSLs for describing pension plans, a DSL for describing
 the cooling algorithms in refrigerators, a DSL for configuring hearing aids, or
 DSLs for insurance mathematics.
   
@@ -1542,27 +1553,26 @@ integrate them with "classical" requirements approaches.
 
 Examples include a DSL for helping with the trade analysis for satellite
 construction or pseudo-structured natural language DSLs that imply some formal
-meaning into domain entities and terms such as \emph{should} or \emph{must}. The
-latter kind of DSLs, also called \emph{Controlled Natural Language}, is quite
-different from the kinds of DSLs we cover in this book. I will not cover it any
-further.
+meaning into domain entities and terms such as \emph{should} or
+\emph{must}\sidenote[][-3\baselineskip]{The latter kind of DSLs, also called
+\emph{Controlled Natural Language}, is quite different from the kinds of DSLs we cover in this
+book. I will not cover it any further.}.
 
 \subsection{DSLs used for Analysis}
 Another category of DSL use is as the basis for analysis, checking and proofs.
 Of course, checking plays a role in all use cases for DSLs - you want to make
 sure that the models you release for downstream use are "correct" in a sense
-that goes beyond what the language syntax already commands. But in some cases,
+that goes beyond what the language syntax already enforces. But in some cases,
 DSLs are used to express concerns in a formalism that lends itself to formal
-analysis or model checking (concurrency, resource allocation, etc.). While code
-generation is often a part of it, code generation is not the driver why this
+verification (safety, scheduling, concurrency, resource allocation). While
+code generation is often a part of it, code generation is not the driver why this
 type of DSLs is used. This is especially relevant in complex technical systems,
 or in systems engineering, where we look beyond only software and consider a
 system as a whole (including mechanical, electric/electronic or fluid-dynamic
 aspects). Sophisticated mathematical formalisms are used here - I will cover
-this aspect only briefly in this book.
+this aspect only briefly in this book as part of the Semantics section in 
+Part III \todo{ref}.  
 
-Examples include systems to find counterexamples, allocate resources or optimize
-resource consumption, or to come up with optimal scheduling algorithms.
 
 \subsection{DSLs used in Product Line Engineering} At its core, PLE is mainly
 about expressing, managing and then later binding variability between a set of
