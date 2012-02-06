@@ -1610,72 +1610,103 @@ gives one angle on this.}
 
 Internal DSLs are DSLs that are embedded into general-purpose languages.
 Usually, the host languages are dynamically typed and the implementation of the
-DSL is based on meta programming (Scala is an exception here). I distinguish
-internal DSLs in this sense from language embedding (as covered later in the
-book) because I feel that one main ingredient is missing: IDE support. In
+DSL is based on meta programming (Scala is an exception here since it is a
+statically typed language with type inference). The difference between an API
+and an internal DSL is not always clear and there is a middle ground called a
+Fluent API. Let's look at the three:
+
+\begin{itemize}
+  \item We all know how a regular object-oriented API looks like. We instantiate
+  an object and then call a sequence of methods on the object. Each method call
+  is packaged a separate statement.
+  \item A fluent API essentially chains method calls. Each method call returns
+  an object on which subsequent calls are possible. This results in more concise
+  code, and, more importantly, by returning suitable intermediate objects from
+  method calls, a sequence of valid subsequent method calls can be enforced
+  (almost like a grammar --- this is why it could be considered a DSL). Here is
+  a Java/Easymock example, taken from Wikipedia:
+  
+\begin{code}
+Collection coll = EasyMock.createMock(Collection.class);
+EasyMock.expect(coll.remove(null)).andThrow(new NullPointerException()).atLeastOnce();
+\end{code}    
+
+  \item Fluent APIs are chained sequences of method calls. The syntax makes this
+  obvious, and there is no way how to change this syntax, typically, as a
+  consequence of the inflexible syntax rules of the host language. Host
+  languages with more flexible syntax can support internal DSL that look much
+  more like actual, custom languages. Here is a Ruby on Rails 
+  example\footnote{taken from http://rubyonrails.org}, which defines a data
+  structure (and, implicitly, a database table) for a blog post:
+  
+\begin{code}
+class Post < ActiveRecord::Base
+  validates :name,  :presence => true
+  validates :title, :presence => true,
+                    :length => { :minimum => 5 }
+end
+\end{code}
+  
+\end{itemize} 
+
+
+While I recognize the benefits of internal DSLs, I think they are fundamentally
+limited by the fact that an important ingredient is missing: IDE support. In
 classical internal DSLs, the IDE is not aware of the grammar, constraints or
 other properties of the embedded DSL (beyond what the type system can offer,
 which isn't much in the case of dynamically typed languages). Since I consider
 IDE integration an important ingredient to DSL adoption, I decided not to cover
-internal DSLs in this book\footnote{In addition, I don't have enough
-real-world experience with internal DSLs to be able to talk about them in a
-book}.
-
-\todo{mbeddr == Internal DSLs?}
-
-\todo{Point at good books to read on this topic}
+internal DSLs in this book\footnote{In addition, I don't have enough real-world
+experience with internal DSLs to be able to talk about them in a book}.
+Note that with modern language workbenches, you can also achieve language
+extension or embedding, resulting in the same (or even a somewhat cleaner)
+syntax. However, these extensions and embeddings are \emph{real} language
+extensions (as opposed to meta programs) and do come with support for static
+constraint checking and IDE support. We cover this extensively in the book.
 
 
 \subsection{UML}
 
-So what about the Unified Modeling Language - UML? \marginnote{When I wrote my
-"old" book on MDSD, the UML played an important role. At the time, I really did
-use UML a lot for projects involving models and code generation. Over the
-years, the importance of UML has diminished significantly (in spite of the OMG's
-efforts in popularizing both UML and MDA) mainly because of the advent of modern
-language workbenches.} I decided not to cover or use UML in this book. I focus
-on mostly textual DSLs and related topics. UML does show up peripherally in a
-couple of places, but if you are interested in UML-based MDSD, then this book is
-not for you. For completeness, let us briefly put UML into the context of DSLs.
+So what about the Unified Modeling Language - UML? I decided not to cover or use
+UML in this book. I focus on mostly textual DSLs and related topics. UML does
+show up peripherally in a couple of places, but if you are interested in
+UML-based MDSD, then this book is not for you. For completeness, let us briefly
+put UML into the context of DSLs. 
+\marginnote[-3\baselineskip]{When I wrote my "old" book on
+MDSD, the UML played an important role. At the time, I really did use UML a lot
+for projects involving models and code generation. Over the years, the
+importance of UML has diminished significantly (in spite of the OMG's efforts in
+popularizing both UML and MDA) mainly because of the advent of modern language
+workbenches.}
 
 
 UML is a general-purpose modeling language. Like Java or Ruby, it is not
 specific to any domain (unless you consider software development in general to
-be a domain, which renders the whole DSL discussion useless), so UML itself
+be a domain, which renders the whole DSL discussion pointless), so UML itself
 does not count as a DSL. UML can be seen as an integrated \emph{collection} of
 DSLs that describe various aspects of software systems: class structure, state
-based behavior, deployment, etc. However, these DSLs still address the overall
-domain of \emph{software}. However, UML provides profiles, which are a (bad!)
-way to define variants of UML language concepts and to effectively add new ones.
-It depends on the tool you choose how well this actually works and how far you
-can adapt the UML syntax as part of profile definition. In practice, only a very
-small part of the core UML is used (and you have to make sure your users don't
-use the other part) with the majority of concepts coming from the profiles. It
-is my experience that because of that, it is much more productive, and often
-even less work, to build DSLs with "real" language engineering environments as
-opposed to UML profiles.
-
-
-
+based behavior, or deployment. However, these DSLs still address the overall
+domain of \emph{software}. To change this, UML provides profiles, which are a
+(limited and cumbersome) way to define variants of UML language concepts and to
+effectively add new ones. It depends on the tool you choose how well this
+actually works and how far you can adapt the UML syntax as part of profile
+definition. In practice, most people only a very small part of the UML with the
+majority of concepts defined via profiles. It is my experience that because of
+that, it is much more productive, and often even less work, to build DSLs with
+"real" language engineering environments as opposed to UML profiles.
 This is one reason why I decided not to cover it. Also, the fact that this book
 has an emphasis on textual languages and UML is graphical, obviously also drove
 my decision to not cover it in any detail.
 
 So is UML used in an MDSD context? Sure. People build profiles and use UML-based
 DSLs, especially in large organizations where the perceived need for
-standardization is paramount\sidenote[][-1cm]{It's interesting to see that even
-these sectors increasingly embrace DSLs. I did a couple of projects in the
-aerospace/defense sector where I replaced general-purpose, UML-based modeling
-with very specific and much more productive DSLs. It is also interesting to see
-how sectors define their own standard languages - I hesitate to call them DSLs,
-somehow. For example, the automotive industry is in the process of standardizing
-on AUTOSAR.}. As a cross-organizational example of an OMG-related standard:
-SysML is widely used in the aerospace/defense sector and has a lot of traction
-and applicability there. However, for most programmers, textual DSLs and the
-accompanying tools are just much more usable and pragmatic.
-
-
-
+standardization is paramount\sidenote[][-8\baselineskip]{It's interesting to see
+that even these sectors increasingly embrace DSLs. I know of several projects
+in the aerospace/defense sector where UML-based modeling approaches were
+replaced with very specific and much more productive DSLs. It is also
+interesting to see how sectors define their own standard languages. While I
+hesitate to call it a DSL, the automotive industry is in the process of 
+standardizing on AUTOSAR.}. 
 
 
 
@@ -1686,20 +1717,17 @@ dynamically-typed languages debate elsewhere. Of course, there is a use for both
 flavors of notation, and in many cases, a mix is the best approach. In a number
 of cases, the distinction is even hard to make: tables or mathematical and
 chemical notations are both textual and graphical in nature\footnote{The ideal
-tool environment will allow you to use and mix all of them and we will see in
-the book how close existing tools come to this ideal situation.}.
+tool will allow you to use and mix all of them and we will see in
+the book how close existing tools come to this ideal case.}.
 
 However, this book does have a bias towards textual notations, for
 several reasons. I feel that the textual format is more generally useful,
 scales better and that the necessary tools take (far) less effort to build. In
-the vast majority of cases, starting with textual languages is a good idea -
+the vast majority of cases, starting with textual languages is a good idea ---
 graphical visualizations or editors can be built on top of the meta model later,
-if a real need has been established.
-
-This book focusses mostly on textual languages; I discuss other forms of
-notations only peripherally.
-
-\todo{Point at good books to read on this topic (DSM Book)}
+if a real need has been established. If you want to learn more about graphical
+DSLs, I suggest you read Kelly and Tolvanen's Domain Specific Modeling
+book\cite{kelly:2008}.
 
 
 
