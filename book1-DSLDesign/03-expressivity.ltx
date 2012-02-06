@@ -3,13 +3,15 @@
 \section{Expressivity}
 
  
-\noindent One of the fundamental advantages of domain-specific languages is
+\noindent One of the fundamental advantages of DSLs is
 increased expressivity over more general programming languages. Increased
 expressivity typically means that programs are shorter, and that the semantics
 are more readily accessible to processing tools (we will get back to this). By
 making assumptions about the domain of application and encapsulating knowledge
 about the domain in the language and in its execution strategy (and not just in
 programs), programs expressed using a DSL can be significantly more concise.
+
+
 
 \cooling{Cooling algorithms expressed with the cooling DSL are ca. five times
 shorter than the C version that is generated from them.}
@@ -57,6 +59,14 @@ language is \emph{mostly} more expressive, but may not be in corner cases: DSLs
 may optimize for the common case and may require code written in a more general
 language to cover the corner cases\footnote{We discuss this aspect in the section
 on completeness (\sect{sect:completeness}).}.
+
+
+Compared to GPLs, DSLs (and the programs expressed with them) are more 
+\emph{abstract}: they avoid describing details that are irrelevant to the model
+purpose. Good DSLs are also \emph{declarative}: they provide linguistic
+abstractions for relevant domain concepts that allow processors to "understand"
+the domain semantics without sophisticated analysis of the code.
+
 
 Note that there is a trade-off between expressivity and the scope of the
 language. We can always invent a language with exactly one symbol $\Sigma$ that
@@ -161,11 +171,11 @@ and optimizes the programs must perform (sophisticated, and sometimes
 impossible) program analysis to determine that the left loop can indeed be
 parallelized. The following alternative expression of the same behaviour uses
 better linguistic abstractions, because it is clear without analysis that the
-first loop can be parallelized and the second cannot\marginnote{The property of
+first loop can be parallelized and the second cannot. The property of
 a language $L_D$ of having first-class concepts for abstractions relevant in $D$
 is often called \emph{declarativeness}: no sophisticated pattern matching or
 program flow analysis is necessary to capture the semantics of a program
-(relative to the purpose), and treat it correspondingly.}. The decision can
+(relative to the purpose), and treat it correspondingly. The decision can
 simply be based on the language concept used (\lcr{for} vs.
 \lcr{seqfor})\footnote{Without linguistic abstraction, the processor has to
 analyze the program to "reverse engineer" the semantics to be able to act on it.
@@ -234,12 +244,12 @@ statement on that same port.}
 
  
 Linguistic abstraction also means that no details irrelevant to the model
-purpose are expressed. Once again, this increases conciseness, and avoids the
-undesired specification of unintended semantics (over-specification).
-Overspecification is bad because it limits the degrees of freedom available to a
-transformation engine. In the example above, the loop A is over-specified: it
-expresses ordering of the operations, although this is (most likely) not
-intended by the person who wrote the code.
+purpose are expressed. Once again, this increases
+conciseness, and avoids the undesired specification of unintended semantics
+(over-specification). Overspecification is bad because it limits the degrees of
+freedom available to a transformation engine. In the example above, the loop A
+is over-specified: it expresses ordering of the operations, although this is
+(most likely) not intended by the person who wrote the code.
 
 \embc{State machines can be implemented as switch/case blocks or as arrays
 pointing into each other. The DSL program does not specify which implementation
@@ -256,23 +266,30 @@ translated in different ways depending on the target platform.}
 
 \parhead{In-Lanuguage Abstraction} Conciseness can also be achieved by a
 language providing facilities to allow users to define new (non-linguistic)
-abstractions in programs. \marginnote{GPL concepts for building new abstractions
-include procedures, classes, or functions and higher-order functions,
-generics, traits and monads. It is worth understanding these to some extent, so
-you can make an informed decision which of these --- if any --- are useful in
-a DSL.} It is \emph{not} a sign of a bad DSL if it has in-language
-abstraction mechanisms as long as the created abstractions don't require special treatment by analysis or processing tools --- at which point they should be refactored into linguistic abstractions\footnote{The main reason why such an approach is flawed is because
-the semantics of \ic{isConnected} or \ic{OrderedList} could be changed by a
-library developer, without changing the static analyzer of code generator in a
-consistent way.}. An example of such special treatment would be if the compiler
-of the above example language would know that the \ic{OrderedList} library class
-is actually ordered, and that consequently, the respective loop cannot be
-parallelized. Another example of special treatment can be constructed in the
-context of the optional port example. If we'd solve the problem by having a
-library function \ic{isConnected(port)}, we could enforce that a call on an
-optional port is surrounded by an \ic{if (isConnected(port))} \emph{without any
-other expression} in the condition. In this case, the static analyzer would have
-to treat \ic{isConnected} specially.
+abstractions in programs. Well-known GPL concepts for building new abstractions
+include procedures, classes, or functions and higher-order functions, generics,
+traits and monads\marginnote{It is worth understanding these to some extent, so
+you can make an informed decision which of these --- if any --- are useful in a
+DSL.} It is \emph{not} a sign of a bad DSL if it has in-language abstraction
+mechanisms as long as the created abstractions don't require special treatment
+by analysis or processing tools --- at which point they should be refactored
+into linguistic abstractions\footnote{The main reason why such an approach is
+flawed is because the semantics of \ic{isConnected} or \ic{OrderedList} could be
+changed by a library developer, without changing the static analyzer of code
+generator in a consistent way.}. An example of such special treatment would be
+if the compiler of the above example language would know that the
+\ic{OrderedList} library class is actually ordered, and that consequently, the
+respective loop cannot be parallelized. Another example of special treatment can
+be constructed in the context of the optional port example. If we'd solve the
+problem by having a library function \ic{isConnected(port)}, we could enforce
+that a call on an optional port is surrounded by an \ic{if (isConnected(port))}
+\emph{without any other expression} in the condition. In this case, the static
+analyzer would have to treat \ic{isConnected} specially. 
+
+
+In-Language abstraction can, as the name suggests, provide \emph{abstraction}.
+But it cannot provide \emph{declarativeness}: a model processor has to
+"understand" what the user wanted to express by building the in-languageabstraction, in order to be able to act on it.
 
 \cooling{The language does not support the construction of new abstractions
 since its user community are non-programmers who are not familiar with defining

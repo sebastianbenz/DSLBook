@@ -15,7 +15,7 @@ for \emph{expressing} or \emph{encoding} programs. Thus, a program $p$ in $P$
 may have an expression in $L$, which we will denote $p_L$. Note that $p_{L_1}$
 and $p_{L_2}$ are representations of a single semantic (platonic) program in the
 languages $L_1$ and $L_2$. There may be multiple ways to express the same
-program in a language~$L$. From a language we can generate a \emph{finite} set 
+program in a language~$L$. From a language we can generate a \emph{finite} set
 of program encodings. That is, there must be a finite description that generates
 all program expressions in the language. As a result, it may not be possible to
 define all programs in some language~$L$. We denote as $P_L$ the subset of $P$
@@ -23,9 +23,8 @@ that can be expressed in $L$. A translation $T$ between languages $L_1$ and
 $L_2$ maps programs from their $L_1$ encoding to their $L_2$ encoding, i.e.
 $T(p_{L_1}) = p_{L_2}$.
 
-\pension{The pension language is very good at representing
-pension calculations, but cannot practically be used to express general purpose
-enterprise software}  
+\pension{The pension plan language is very good at representing pension
+calculations, but cannot practically be used to express general purpose enterprise software}
 
 
 \begin{marginfigure}
@@ -104,19 +103,21 @@ over-approximation (Figure~\ref{fig:approximation}).
 
 \subsection{Programs as Trees of Elements}
 
-\marginnote{Users use the concrete syntax as they write or change programs. The
-abstract syntax is a data structure that contains all the data expressed with
-the concrete syntax, but without the notational details. The abstract syntax is
-used for analysis and downstream processing of programs.} Programs are
-represented in two ways: concrete syntax and abstract syntax. A language
-definition includes the concrete and the abstract syntax, as well as rules for
-mapping one to the other. \emph{Parser-based} systems map the concrete syntax to
-the abstract syntax. Users interact with a stream of characters, and a parser
-derives the abstract syntax by using a grammar and mapping rules.
-\emph{Projectional} editors go the other way round. User editing gestures
-directly change the abstract syntax, the concrete syntax being a mere projection
-that looks and feels like text if a textual projection is used. SDF and Xtext
-are parser-based, MPS is projectional.
+Programs are represented in two ways: concrete syntax and abstract syntax. The
+\emph{concrete syntax} is the notation with which the user interacts as he edits
+a program. It may be textual, symbolic, tabular, graphical, or any combination
+thereof. The \emph{abstract syntax} is a data structure that represents the
+semantically relevant data expressed by a problem. It does not contain
+notational details such as keywords, symbols, whitespace or positions and
+coloring in graphical notations. The abstract syntax is used for analysis and
+downstream processing of programs. A language definition includes the concrete
+and the abstract syntax, as well as rules for mapping one to the other.
+\emph{Parser-based} systems map the concrete syntax to the abstract syntax.
+Users interact with a stream of characters, and a parser derives the abstract
+syntax by using a grammar and mapping rules. \emph{Projectional} editors go the
+other way round. User editing gestures directly change the abstract syntax, the
+concrete syntax being a mere projection that looks and feels like text if a
+textual projection is used. SDF and Xtext are parser-based, MPS is projectional.
 
 \begin{marginfigure}
 \begin{center}
@@ -215,11 +216,19 @@ paragraph. The concept \lcr{LocalVariabedRef} has a non-containing reference
 relationsip \lcr{var} that points to the respective variable.}
 
 Finally, we define an inheritance relationship that applies the
-Liskov Substitution Principle to language concepts. A concept $c_sub$ that
-extends another concept $c_super$ can be used in places where an instance of
-$c_super$ is expected. $\mathit{Inh_l}$ is the set of inheritance relationships
-for a language $l$. Each $i \in \mathit{Inh_l}$ has the properties $super$ and
+Liskov Substitution Principle\sidenote[][-5\baselineskip]{Wikipedia: "In a
+computer program, if S is a subtype of T, then objects of type T may be replaced with 
+objects of type S (i.e., objects of type S may be substitutes for objects of 
+type T) without altering any of the desirable properties of that program 
+(correctness, task performed, etc.)." It is essentially what enables
+polymorphism in OO programs.} to language concepts. A concept $c_sub$ that
+extends another concept $c_super$ can be used in places where an instance of $c_super$ is expected. $\mathit{Inh_l}$ is the set of inheritance relationships for a language $l$. Each $i \in \mathit{Inh_l}$ has the properties $super$ and
 $sub$.
+
+\embc{The \lcr{LocalVariableDeclaration} introduced above extends the concept
+\lcr{Statement}. This way, a local variable declaration can be used wherever a
+statement is expected, for example, in the body of a function, which contains a
+list of statements.}
 
 \begin{marginfigure}
 \begin{center}
@@ -229,10 +238,6 @@ $sub$.
   \label{inheritance}
 \end{center} 
 \end{marginfigure}
-\embc{The \lcr{LocalVariableDeclaration} introduced above extends the concept
-\lcr{Statement}. This way, a local variable declaration can be used wherever a
-statement is expected, for example, in the body of a function, which contains a
-list of statements.}
 
 An important concept is the notion of independence. An
 \emph{independent language} does not depend on other languages. An independent

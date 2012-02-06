@@ -294,13 +294,22 @@ functional, and the calculation tree can be extended as a way of debugging the r
   \label{testcases}  
 \end{figure}
 
-DSL programs may also be mapped to a \emph{different} language, on that is not
-"under" the DSL in the domain hierarchy, but rather "somewhere on the side".
-This is often done to establish certain properties about the DSL program. In
-many cases, these languages are \emph{not} the ones that are used to execute the
-DSL program, they are specialized formalisms to support verification or proof.
-In this case, one has to make sure that the representation in both languages is
-actually the same. We discuss this problem in \sect{synctrans}.
+DSL programs may be mapped to \emph{multiple} languages at the same time.
+Typically, there is one primary language that is used for execution of the DSL
+program (C in \fig{onTheSide}). The other languages may be used to configure the
+target platform (generated XML files) or provide input for verification tools
+(NuSMV in \fig{onTheSide}). In this case, one has to make sure that the
+semantics of all generated representations is actually the same. We discuss this
+problem in \sect{synctrans}.
+
+\begin{marginfigure}
+  \includegraphics[width=5cm]{figures-design/onTheSide.png}
+  \caption{From the C state machine extensions, we generate low-level C code
+  (for execution) as well an input file for the NuSMV model checker (for
+  verification).}
+  \label{onTheSide}  
+\end{marginfigure}
+
 
 \embc{The state machines can be transformed to a representation in
 NuSMV\todo{cite}, which is a model checker that can be used to establish
@@ -385,6 +394,17 @@ in the code generator, you should consider a model transformation step to do it,
 and then write a simpler generator that works with a flattened, non-hierarchical
 model.}
 
+
+Multi-Stage transformations can be challenging. It becomes harder to understand
+what is finally going on. Debugging the overall transformation can become hard,
+and good tool support is needed\sidenote[][-6\baselineskip]{MPS addresses this
+problem by (optionally) keeping all intermediate models around for debugging.
+The language developer can select a program element in any of the intermediate
+models and have MPS show a trace where the element was transformed from, and
+where it was transformed to. MPS also shows the transformation code involved in
+each step.}. 
+
+
 \parhead{Efficiency and Optimization} As mentioned, transforming from $D$ to
 $D_{-1}$ allows the use of sophisticated optimizations, potentially resulting in
 very efficient code. Because the DSL uses domain-specific abstractions and hence
@@ -400,28 +420,27 @@ However, this requires a competent developer and, usually, a lot of effort
 produce reasonably efficient code in the vast majority of cases with very little
 effort (once the optimizations have been defined). In most cases, this is good
 enough --- in the remaining corner cases, $D_{-1}$ has to be written
-manually\footnote{This argument pro tools is also used for in GPLs for garbage
-collection, transactional memory and optimizing compilers for higher level
-programming languages. Consider Java as an example: even though it runs on a VM
-(and not on the bare metal of the target processor) it is, in most cases, just
-as fast or faster as C.}.
+manually\sidenote[][-2\baselineskip]{This argument pro tools is used in GPLs for
+garbage collection and optimizing compilers for higher level programming languages.}.
 
 
 
 \parhead{Care about generated code} Ideally, generated code is a throw-away
-artifact, a bit like object files in a C compiler. However, that's not quite
-true. When integrating generated code with manually written code, you will have
-to read the generated code and understand it to some extent. At least during
-development and test of the generator you may have to debug it. Hence, generated
-code should use meaningful abstractions, use good names for identifiers, be
-documented well, and be indented correctly. Making generated code adhere to the
-same standards as manually written code also helps to diffuse some of the
-skepticism against code generation that is still widespread in some
-organizations.\marginnote{Note that in complete languages with full
-coverage (i.e. where 100\% of the $D_{-1}$ code is generated), the generated code is
-never seen by a DSL user. But even in this case, concerns for code quality apply
-and the code has to be understood and tested during DSL and generator
-development.}
+artifact, like object files in a C compiler. However, that's not quite true. At
+least during development and test of the generator you may have to read,
+understand and debug the generated code. For incomplete DSLs\sidenote{We cover
+completeness in section \todo{}}, i.e. those where parts of the resulting program
+have to be written manually in $L_{D-1}$, readability and good structure is even
+more important, because the manually written code has to integrate with the
+generated parts of the $L_{D-1}$ program. Hence, generated code should use
+meaningful abstractions, should be designed well, use good names for
+identifiers, be documented well, and be indented correctly. Making generated
+code adhere to the same standards as manually written code also helps to diffuse
+some of the skepticism against code generation that is still widespread in some
+organizations.\marginnote{Note that in complete languages (where 100\% of the
+$L_{D-1}$ code is generated), the generated code is never seen by a DSL user.
+But even in this case, concerns for code quality apply and the code has to be
+understood and tested during DSL and generator development.}
 
 The only exception to this rule is if the code has to be highly optimized for
 reasons of performance and code size. While you can still indent your code well

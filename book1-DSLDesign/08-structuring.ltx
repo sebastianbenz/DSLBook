@@ -342,22 +342,21 @@ imperative. Some of the DSLs on top of it use other paradigms.}
 of statements to implement aspects of the overall cooling behaviour.}
 
 \parhead{Functional} Functional programming uses functions as the core
-abstraction. A function's return value only depends on the values of its
-arguments. Functions cannot access global state, no side effects are allowed.
-Calling the same function several times with the same argument values has to
-return the same value (that value may even be cached!). No aliasing (through
-mutable memory cells) is supported, because values are immutable once they are
-created. Since all dependencies of a computed value are local to a function (the
-arguments), various kinds of analyses are possible. If assignment to variables
-is supported, then it uses a form where a variable can only be assigned once. 
+abstraction. In purely functional programming, a function's return value only
+depends on the values of its arguments. Calling the same function several times
+with the same argument values returns the same result (that value may even be
+cached!). Functions cannot access global state, no side effects are allowed.
+These characteristics make functional programs very easy to analyze and
+optimize. These same characteristics, however, also make purely functional
+programming relatively useless, because it cannot affect the environment (after
+all, this is a side effect). So, functional programming is often obly used for
+parts ("calculation core") of an overall program  that uses other
+paradigms as well. 
 
-To create real-world programs, a purely functional language is usually not
-sufficient, because it cannot affect the environment (after all, this is a side
-effect). Since there is no state to watch change as the program steps through
+Since there is no state to watch change as the program steps through
 instructions, debugging can be done by simply showing all intermediate results
 of all function calls, basically "inspecting" the state of the calculation. This
-makes building debuggers much simpler. Functional programming is often
-used for certain parts ("calculation core") of a more complex system.
+makes building debuggers relatively simple. 
 
 \pension{The calculation core of pension rules is functional. Consequently, a
 debugger has been implemented that, for a given set of input data, shows the
@@ -376,31 +375,34 @@ A relevant subset of functional programming is pure expressions (as in \ic{3*2+7
 just inline-notations for function calls. Usually the operators are hard wired
 into the language and it is not possible for users to define their own
 functional abstractions. This is the main differentiator to functional
-programming in general.
+programming in general.
 
 \embc{We use expressions in the guard conditions of the state machine
 extension as well as in pre- and post-conditions for interface operations. In
 both cases it is not possible to define or call external functions. Of course,
 C's expression language is reused here.}
 
-\parhead{Declarative} Declarative programming can be considered the opposite
-of imperative programming (and, to some extent, functional programming). A
+\parhead{Declarative} Declarative programming can be considered the opposite of
+imperative programming (and, to some extent, functional programming). A
 declarative program does not specify any control flow. It does not specify a
 sequence of steps of a calculation. Instead, a declarative program only
-specifies what the program should accomplish, not how. This is often done by
-specifying a set of properties, equations, relationships or constraints. Some
-kind of evaluation engine then tries to find solutions. The particular advantage
-of this approach is that it is not predefined how a solution is found, the
-evaluation engine has a lot of freedom in doing so, possibly using different
-solutions in different environments, or evolving the approach over
-time\footnote[][-0.5cm]{For example, the strategies for implementing SAT solvers
-have evolved quite a bit over time. SAT solvers are much more scalable today.
-However, the formalism for describing the logic formulas that are processed by
-SAT solvers have not changed}. This large degree of freedom often makes finding
-the solution expensive --- trial and error, backtracking or exhaustive search
-may be used. Debugging declarative programs can be hard since the solution
-algorithm may be very complex and possibly not even be know to the user of
-the language.
+specifies \emph{what} the program should accomplish, not \emph{how}. This is
+often done by specifying a set of properties, equations, relationships or
+constraints. Some kind of evaluation engine then tries to find solutions. The
+particular advantage of this approach is that it is not predefined how a
+solution is found, the evaluation engine has a lot of freedom in doing so,
+possibly using different solutions in different environments, or evolving the
+approach over time\footnote[][-0.5cm]{For example, the strategies for
+implementing SAT solvers have evolved quite a bit over time. SAT solvers are
+much more scalable today. However, the formalism for describing the logic
+formulas that are processed by SAT solvers have not changed}. This large degree
+of freedom often makes finding the solution expensive --- trial and error,
+backtracking or exhaustive search may be used\sidenote{So, often users have to
+provide hints to the engine to make it run fast enough or scale to programs of
+relevant size. In practice, declarative programming is often not as "pure" as it
+is in theory.}. Debugging declarative programs can be hard since the solution
+algorithm may be very complex and possibly not even be known to the user of the
+language.
 
 Declarative programming has many important subgroups and use cases. For
 \emph{concurrent programs}, a declarative approach allows the efficient
@@ -594,18 +596,24 @@ of hardware building blocks. Note that this language is an example where a
 behavioral paradigm is used without significant alterations, but working with
 domain-specific data structures: refrigerator hardware and their properties.}
 
-As mentioned before, state-based behavior description is also interesting
-because it support model checking: a state chart is verified against a set of
-specifications. The model checker either determines that the state chart
-conforms to the specifications or provides a counter example. Specifications
-express something about sequences of states such as: "it is not possible that
-two traffic lights show green at the same time" or "whenever a pedestrian
-presses the \emph{request} button, the pedestrian lights eventually will show
-green". 
-\marginnote[-2cm]{We provide some details about model checking in the
+As mentioned before, state-based behavior description is also interesting in the
+context of model checking. The model checker either determines that the state
+chart conforms to a set of specifications or provides a counter example.
+Specifications express something about sequences of states such as: "it is not
+possible that two traffic lights show green at the same time" or "whenever a
+pedestrian presses the \ic{request} button, the pedestrian lights eventually
+will show green"\marginnote[-2cm]{We provide some details about model checking in the
 implementation part \todo{ref}. A good introduction to model checking can be
 found in \cite{BerardBidoitM2001}. We elaborate on model checking in section.}
-\todo{ref}
+\todo{ref}. 
+
+In principle, any program can be represented as a state machine and then model
+checked. However, creating state machines from, say, a procedural C program is
+non-trivial, and the state machines also become very big very quickly.
+State-based programs \emph{are already} a state machine, and, they are typically
+not that big either (after all, they have to be understood by the developer who
+creates and maintains them). Consequently, many realistically-sized state
+machines can be model checked efficiently.
 
 
  
