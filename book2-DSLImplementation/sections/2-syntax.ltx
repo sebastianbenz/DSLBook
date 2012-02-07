@@ -1466,11 +1466,12 @@ context-free start symbols
 context-free syntax
 
   "module" ID Entity*                 -> Module {"Module"}
-  "entity" ID "{" EntityBodyDecl* "}" -> Entity {"EntityNoSuper"}
+  "entity" ID "{" EntityBodyDecl* "}" -> Entity {"Entity"}
   ID ":" ID                           -> EntityBodyDecl {"Property"}
 
-  "function" ID "(" ArgList ")" ":" Type "{" Statement* "}"
+  "function" ID "(" {Param ","}* ")" ":" ID "{" Statement* "}"
                                       -> EntityBodyDecl {"Function"}
+  ID ":" ID                           -> Param {"Param"}
   "return" Exp ";"                    -> Statement {"Return"}
 
   Exp "." ID "(" Exp  ")" -> Exp {"MethodCall"}
@@ -1492,8 +1493,6 @@ lexical syntax
   \label{Fig:mobl-grammar-basic} 
 \end{center}
 \end{figure}
-
-
 
 \parhead{Lexical syntax} As Spoofax uses a scannerless parser, all lexical
 syntax can be customized in the SDF grammar. It provides default definitions for
