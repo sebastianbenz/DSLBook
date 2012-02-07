@@ -87,10 +87,204 @@ particular location. Our notion is more convenient from the cross-reference
 viewpoint, however, as it centers around resolving particular cross-references
 one at a time. From an implementation perspective, both views are exchangable.
 
-\section{Name resolution in Spoofax}
+\section{Name Resolution in Spoofax}
 
 \MV{Explain this one first, since this one is the most low level; good fit to
 introduce the basic mechanism}
+
+In Spoofax, annotations can be used to describe to describe which
+elements of the language reference a concept and which elements define a concept.
+Each concept has its own namespace: for example, \ic{Function} for functions and \ic{Property}
+for properties. Annotations can also control the basic scoping structure of these
+namespaces.
+%
+Once the references, definitions, and basic scopes have been specified, they can be
+customized using rewrite rules.
+
+\subsection{References and Definitions}
+
+In the previous chapter we described how to specify a grammar
+for a subset of the Mobl language. This chapter shows how
+to add annotations and rules to define Mobl's name analysis.
+
+Definitions of concepts are indicated using the notation \ic{Namespace@=Symbol},
+where \ic{Namespace} is the namespace of the definition, and \ic{Symbol}
+is the grammatical symbol for its name. As an example, we can add this notation to
+the production for entity definitions:
+
+\begin{code}
+"entity" Type@=ID "{" EntityBodyDecl* "}" -> Entity {"Entity"}
+\end{code}
+
+The annotation indicates that every program fragment that the syntactic
+element that corresponds to this production 
+is a concept in the \ic{Type} namespace. It also says that
+the name of that concept is indicated by the identifier \ic{ID} that follows
+after the \ic{entity} keyword.
+
+References to definitions are defined similarly, using the notation \ic{Namespace@Symbol}:
+
+\begin{code}
+Property@=ID ":" Type@ID -> EntityBodyDecl {"Property"}
+\end{code}
+
+This production shows that a property defines a concept in the \ic{Property} namespace,
+while it references something in the \ic{Type} namespace.
+
+\subsection{Basic Scoping Rules}
+
+Scoping annotations customize how the relation between references
+and definitions is resolved. Scoping annotations can be specified
+by adding \ic{scope(Namespace)} at the end of a production:
+
+\begin{code}
+"entity" Type@=ID "{" EntityBodyDecl* "}" -> Entity {"Entity", scope(Property)}
+\end{code}
+
+Here, the \ic{scope} annotation indicates that every entity scopes
+the properties inside it. This means that properties in different entities can
+be distinguished:
+
+\begin{code}
+entity Customer {
+  name : String
+}
+
+entity Product {
+  name : String
+}
+\end{code}
+
+In this example, the two \ic{name} properties live in the same namespace,
+but they exist in different scopes. This means that if \ic{name} is
+referenced in a function inside \ic{Customer}, then it references the first one,
+not the one in \ic{Product}.
+
+The full grammar of the mobl entities language with annotations is the following
+(leaving out the lexical syntax):
+
+\begin{code}
+module MoblEntities
+
+context-free start symbols
+
+  Module
+  
+context-free syntax
+
+  "module" Module@=ID Entity* -> Module {"Module", scope(Entity)}
+  "entity" Type@=ID "{" EntityBodyDecl* "}"
+                              -> Entity {"Entity", scope(Property,Function)}
+  Property@=ID ":" Type@ID    -> EntityBodyDecl {"Property"}
+
+  "function" Function@=ID "(" {Param ","}* ")" ":" Type@ID "{" Statement* "}"
+                              -> EntityBodyDecl {"Function", scope(Var)}
+  Var@=ID ":" Type@ID         -> Param {"Param"}
+  "return" Exp ";"            -> Statement {"Return"}
+
+  Exp "." Function@ID "(" Exp  ")" -> Exp {"MethodCall"}
+  Exp "." Property@ID              -> Exp {"FieldAccess"}
+  Exp "+" Exp                      -> Exp {"Plus"}
+  Exp "*" Exp                      -> Exp {"Mul"}
+  Var@ID                           -> Exp {"Var"}
+  INT                              -> Exp {"Int"}
+\end{code}
+
+
+\subsection{URIs for Concepts}
+
+Each concept in Spoofax has a URI that uniquely identifies
+it across a project. By default, these URIs are constructed on the
+concept definitions and scoping annotations. As
+an example, consider the following entity.
+
+
+\begin{code}
+module storage
+
+entity Store {
+  name    : String
+  address : Address
+}
+\end{code}
+
+Following the annotated mobl grammar, there are two scopes in this
+fragment: one at the module level and one at the entity level.
+These scopes also correspond to the definitions
+of \ic{storage} in the \ic{Module} namespace and \ic{Store}
+in the \ic{Type} namespace. Spoofax constructs
+URIs by simply combining the names in the scoping hierarchy: the URI for
+\ic{Store} is \ic{Type://storage.Store}, and
+the URI for \ic{name} is \ic{Property://storage.}\linebreak[0]\ic{Store.name}.
+
+Using URIs makes it possible to identify a concept across
+a project and to distinguish it from concepts with the same
+name in a different scope (such as \ic{name} in the \ic{Customer}
+entity).
+
+URIs are internally represented as lists of terms, that start
+with the namespace, followed by a reverse hierarchy of the
+path names:
+
+\begin{code}
+[Property(), "name", "Store", "storage"]
+\end{code}
+
+The reverse order used in the representation makes it easier
+to efficiently store and manipulate URIs in memory.
+In most cases, path parts are simple strings, such as \ic{"Store"},
+but they can be complex terms when needed.
+
+Some scopes are \emph{anonymous} and do not have a name associated
+with them. Block statements in C-like languages are an example of
+this. These scopes are handled differently from named scopes.
+We can add a block statement to our grammar by adding the following production:
+
+\begin{code}
+"{" Stm* "}" -> Stm {"Block", Scope(Var)}
+\end{code}
+
+The block statement does not define a definition name, but it still
+defines a scope, and therefore should be included in any URIs.
+Spoofax handles these cases by adding an anon element to the URI:
+
+\begin{code}
+[Var(), "v", Anon(15), "f", "Store", "storage"]
+\end{code}
+
+\noindent
+would be a valid URI for a variable \ic{v} in an anonymous block
+inside some function \ic{f}.
+
+When needed, the path elements that are created for
+a scope can be customized using a rewrite rule:
+
+\begin{code}
+adjust-index-path(is-def | namespace, path):
+  Entity(name, body) -> [Entity(), name]
+\end{code}
+
+\TODO{}
+
+\subsection{Hardcoded Concepts}
+
+e.g., String, Int
+
+\TODO{}
+
+\subsection{Customizing Scopes with Rewrite Rules}
+
+unifying Var and Property namespace?
+
+type-based: property access, function calls
+
+\TODO{}
+
+\subsection{Constraints and Type Systems}
+
+order of scopes, duplicates, unresolved references:
+
+next section!
 
 \section{Scoping in Xtext}
 
@@ -102,7 +296,7 @@ Guice, a dependency injection framework. A lot of functionality is provided
 out-of-the-box with minimal configuration, but it's easy to swap out specific
 parts by binding another or a custom class through Guice.
 
-\subsection{Simple, local Scopes}
+\subsection{Simple, Local Scopes}
 
 To implement scopes, language developers have to contribute a class that
 implements the \ic{IScopeProvider} interface. It has one method that returns an
