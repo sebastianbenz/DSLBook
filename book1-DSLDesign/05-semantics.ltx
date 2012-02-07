@@ -180,7 +180,7 @@ point types as errors if the target has no FPU).}
 
 
 
-\subsection{Establishing the Correctness of the Transformation}
+\subsection{Establishing the Correctness of the Execution Engine}
 
 Above we have defined the meaning of the program $p$ at $D_n$ as the equivalent
 observable behavior of a program $q$ at $D_{n-1}$. This essentially defines the
@@ -292,33 +292,7 @@ implemented. The formal definition of the semantics are implied by the mapping
 to the executable code.}
 
 
-Formally, defining semantics happens by mapping the DSL concepts to $D_{-1}$
-concepts for which the semantics is known. For DSLs used by developers, and for
-domains that are defined bottom-up, this works well. For application domain
-DSLs, and for domains defined top-down, this approach is not necessarily good
-enough, since the $D_{-1}$ concepts has no inherent meaning to the users and/or
-the domain. An additional way of defining the meaning of the DSL is required.
-Useful approaches include prose documentation as well as test cases or
-simulators. These can be written in (another part of the) DSL itself; this way,
-domain users can play with the DSL and write down their expectations in the
-testing aspect.
 
-\cooling{This DSL has a separate viewpoint for defining test cases where
-domain experts can codify their expectations regarding the behaviour of cooling
-programs. An interpreter is available to simulate the programs, observe their
-progress and stimulate them to see how they react.}
-
-\pension{This DSL supports an Excel-like tabular notation for expressing test
-cases for pension calculation rules (\fig{testcases}). The calculations are
-functional, and the calculation tree can be extended as a way of debugging the rules.}
-
-\begin{figure}[h] 
-  \includegraphics[width=11cm]{figures-design/pension/testcases.png}
-  \caption{Test cases in the pension language allow users to specify test data
-  for each input value of a rule. The rules are then evaluated by an
-  interpreter, providing immediate feedback about incorrect rules.}
-  \label{testcases}  
-\end{figure}
 
 DSL programs may be mapped to \emph{multiple} languages at the same time.
 Typically, there is one primary language that is used for execution of the DSL
@@ -766,6 +740,36 @@ runnables). The key here is that the state machine is completely self-contained
 regarding verification: adapting the state machine to its surrounding C program
 is a separate concern and irrelevant to the model checker.}
 
+
+\subsection{Documentation} 
+
+Formally, defining semantics happens by mapping the
+DSL concepts to $D_{-1}$ concepts for which the semantics is known. For DSLs used by developers, and for
+domains that are defined bottom-up, this works well. For application domain
+DSLs, and for domains defined top-down, this approach is not necessarily good
+enough, since the $D_{-1}$ concepts has no inherent meaning to the users and/or
+the domain. An additional way of defining the meaning of the DSL is required.
+Useful approaches include prose documentation as well as test cases or
+simulators. These can be written in (another part of the) DSL itself; this way,
+domain users can play with the DSL and write down their expectations in the
+testing aspect.
+
+\cooling{This DSL has a separate viewpoint for defining test cases where
+domain experts can codify their expectations regarding the behaviour of cooling
+programs. An interpreter is available to simulate the programs, observe their
+progress and stimulate them to see how they react.}
+
+\pension{This DSL supports an Excel-like tabular notation for expressing test
+cases for pension calculation rules (\fig{testcases}). The calculations are
+functional, and the calculation tree can be extended as a way of debugging the rules.}
+
+\begin{figure}[h] 
+  \includegraphics[width=11cm]{figures-design/pension/testcases.png}
+  \caption{Test cases in the pension language allow users to specify test data
+  for each input value of a rule. The rules are then evaluated by an
+  interpreter, providing immediate feedback about incorrect rules.}
+  \label{testcases}  
+\end{figure}
 
 However, the language may have to be reduced to the point where domain experts
 are not able to use the language because the connection to the domain is too

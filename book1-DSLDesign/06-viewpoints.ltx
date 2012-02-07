@@ -4,15 +4,17 @@
 \label{sec:viewpoints}
  
 \marginnote[0.35cm]{For embedded software, these could be component and
-interface definitions (A), component instantiation and connections (B), as well as
-scheduling and bus allocation (C).} 
-A domain $D$ can be composed from different
-concerns. \fig{compositionalDomains} shows $D_{1.1}$ composed from the concerns
-A, B and C. To describe a complete program for $D$, the program needs to address
-all the concerns.
+interface definitions (A), component instantiation and connections (B), as well
+as scheduling and bus allocation (C).} A domain $D$ is may be composed from
+different concerns. Each concern covers a different aspect of the overall
+domain. When developing a system in a domain, all the concerns in that domain
+have to be addressed. Separation into concerns is often driven by different
+aspects of the system being specified by different stakeholders or at different
+times in the development process. \fig{compositionalDomains} shows $D_{1.1}$
+composed from the concerns A, B and C. 
 
 \begin{figure}[b]
-  \includegraphics[scale=0.7]{figures-design/compositionalDomains.png}
+  \includegraphics[width=9cm]{figures-design/compositionalDomains.png}
   \caption{A domain may consist of several concerns. A domain is
   covered either by a DSL that addresses all of these concerns, or by a set of
   related, concern-specific DSLs.}
@@ -256,5 +258,42 @@ with and without requirements traces and documentation text.}
   \rule{1\textwidth}{0.7pt}
 \end{figure}
 
+
+
+\subsection{Cross-Cutting Concerns}
+
+In the discussion so far we have considered concerns that can be modularized
+clearly. \fig{compositionalDomains} emphasizes this: the concern boxes are
+neatly arranged next to each other. However, there may also be concerns that are
+\emph{not} modularizable. These are typically called \emph{cross-cutting
+concerns}, see \fig{crosscutting}.
+
+\begin{figure}[h]
+\begin{center}
+  \includegraphics[width=8cm]{figures-design/cross-cutting.png}
+  \caption[][0.3cm]{Cross-cutting concerns cannot be modularized. The permeate
+  other concerns.}
+  \label{crosscutting}
+\end{center}
+\end{figure}
+
+In the context of DSLs we have to separate several kinds of cross-cutting
+concerns:
+
+\parhead{Handled by Execution Engine} If we are lucky, a concern that is
+cross-cutting in the domain can be handled completely by the execution engine.
+For example the collection of performance data, billing information
+or audit logs typically does not have to be described in the DSL at all. Since
+every program in the domain has to address this concern in the same way, the
+implementation can be handled by the exection engine by inserting the respective
+code at the relevant locations (in case of a generator). 
+
+\comparch{The component architecture DSL supports the collection of performance
+data. Using mock objects, we started running load tests early on. For a load
+test, we have to collect the times it takes to execute operations on
+components. Based on a configuration switch, the generator would add the
+necessary code automatically.}
+
+\parhead{Modularized in DSL} 
 
 
