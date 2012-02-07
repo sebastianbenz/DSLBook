@@ -472,9 +472,27 @@ However, there are several exceptions to this rule:
 
 \begin{itemize}
 
-  \item Tradeoff between generator complexity and code quality
-
-  \item Exploit the Generator
+  \item Sometimes generating really well structured code makes the generator
+  \emph{much} more complicated. You then have to decide whether you want to live
+  with some less nicely structured generated code, or whether you want to
+  increase generator complexity --- after all, the generator also needs to be
+  maintained! A good example is \emph{import} statements in Java. It can be a
+  lot of work to find out exactly which imports are needed in a generated class.
+  In this case it may be better to keep the generator simple and use fully qualified
+  class names throughout the code, and/or to import a few too many
+  classes\sidenote{Xtend provides special support for this problem based on an
+  \ic{ImportManager}. It makes generating the correct imports relatively
+  simple}.
+  
+  \item Using a generator opens up additional options you wouldn't consider when
+  writing code manually (and which are hence considered ugly). An example is
+  generated collection classes. Imagine your models define entities, and from
+  each entity you generate a Java Bean. In Java version 1.4 and earlier, Java
+  did not have generics, so in order to work with collections of entities you
+  would use the generic \ic{List} class. In the context of generated code you
+  might want to consider generating a specific collection class for each entity,
+  with an API typed to the respective Java Bean. This makes live much more
+  convenient for those people who write Java code that uses the generated Beans.
 
   \item The third exception to the rule is if the code has to be highly optimized for
 reasons of performance and code size. While you can still indent your code well
@@ -658,7 +676,7 @@ the C code generator, since the behavior fragment is required as well.}
 The approach suggested so far works well if we have only one mapping of a DSL
 for execution. The semantics implied by the mapping to $L_{D-1}$ can be
 \emph{defined} to be correct. However, as soon as we transform the program to
-several different targets in $D_{-1}$ using several different transformations,
+several different targets using several different transformations,
 we have to ensure that the semantics of all resulting programs are
 identical\footnote{At least to the extent we care --- we may not care if one of
 the resulting programs is faster or more scalable. In fact, these differences
@@ -666,10 +684,10 @@ may be the very reason for having several mappings)}. In practice, this case
 often occurs if an interpreter is used in the IDE for "experimenting" with the
 models, and a code generator creates efficient code for execution in the target
 environment. To synchronize the semantics in this case we recommend providing a
-set of test cases that are executed in both the interpreted and generated versions, expecting them to
-succeed in both. If the coverage of these test cases is high enough to cover all
-of the observable behavior, then it can be assumed with reasonable certainty
-that the semantics are indeed the same.
+set of test cases that are executed all executable representations expecting
+them to succeed in all. If the coverage of these test cases is high enough to
+cover all of the observable behavior, then it can be assumed with reasonable 
+certainty that the semantics are indeed the same.
 
 \pension{The unit tests in the pension plans DSL are executed by an interpreter
 in the IDE. However, as Java code is generated from the pension plan

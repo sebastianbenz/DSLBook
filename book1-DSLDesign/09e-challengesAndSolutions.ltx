@@ -30,11 +30,10 @@ language's \lcr{Module} construct contains a collection of \lcr{ModuleContents},
 and the \lcr{StateMachine} concept extends the \lcr{ModuleContent} concept. This
 state machine language is designed specifically for being embedded into C, so it
 can access and extend the \lcr{ModuleContent} concept
-(\fig{statemachinmodules}). If the state machine language were reusable with any 
-host language in addition to C, then an adapter
-language would provide a language concept that adapts C's \lcr{IModuleContent}
-to \lcr{StateMachine}, because \lcr{StateMachine} cannot directly extend
-\lcr{IModuleContent} --- it does now depend on the C language.}
+(\fig{statemachinmodules}). If the state machine language were embeddable in
+any host language in addition to C, this dependency on \lcr{ModuleContent}
+(from the C base language) would not be allowed. An adapter language would have
+to be created which adapts a \lcr{StateMachine} to \lcr{IModuleContent}.}
 
 
 
