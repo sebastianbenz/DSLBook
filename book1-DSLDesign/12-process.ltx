@@ -23,7 +23,7 @@ abstractions and notations? This is a non-trivial issue, in fact, it is one of
 the key issues in using DSLs. It requires a lot of domain expertise, thought and
 iteration. The core problem is that you're trying to not just understand one
 problem, but rather a \emph{class} of problems. Understanding and defining the
-extent and nature of this class of problems can be non-trivial. There are
+extent and nature of this class of problems can be a lot of work. There are
 several typical ways of how to get started.
 
 If you're building a technical DSL, the source for a language is often an
@@ -34,6 +34,14 @@ into a formal language, and building generators to generate parts of the
 (potentially complex) implementation code. In the process, you often also want
 to put in place reasonable defaults for some of the framework features, thereby
 increasing the level of abstraction and making framework use easier.
+\embc{This was the approach taken by the extensible C case study. There is a
+lot of experience in embedded software development, and some of the most
+pressing challenges are the same throughout the industry. When the DSL was 
+built, we talked to expert embedded software developers to find out what these
+central challenges were. We also used an inductive approach and looked at
+exising C code to indentify idioms and patterns. We then defined extensions
+to C that contained linguistic abstractions for the most important ones.}
+
 
 In case of business domain DSLs, you can often mine the existing (tacit)
 knowledge of domain experts (deductive approach). In domains like insurance,
@@ -47,6 +55,17 @@ Other sources are standards for an industry, or training material. Some domains
 even have an agreed upon ontology containing concepts relevant to that domain,
 and recognized as such by a community of stakeholders. DSLs can be (partly)
 derived from and such domain ontologies.
+
+\pension{The company for which the pension DSL was built had a lot of
+experience with pension plans. This experience was mostly in the heads of
+(soon to be retiring) senior domain experts. They also already had the core of
+the DSL: a "rules language". The people who defined the pension plans would
+write rules into Word documents to formally describe the pension plan behavior.
+This was not terribly productive because of the missing tool support, but it
+meant that the core of the DSL was there. We still had to run a long series of
+workshops to figure out necessary changes to the language, clean up loose ends
+and discuss modularization and reuse in pension plans.}
+
 
 
 In these two cases, it is pretty clear how the DSL is going to look like
@@ -66,9 +85,20 @@ language designer to provide the structure and consistency that is necessary for
 defining a language. Co-evolving language and concepts (see below) is a
 successful technique especially in this case.
 
+\cooling{At the beginning of the project, all cooling algorithms were
+implemented in C. Specifications were written as prose (with tables and some
+physical formulas) in Word documents. It was not really clear at the beginning
+what the right abstraction level would be for a DSL suitable for the
+thermodynamics experts. It took several iterations to settle on the
+asynchronous, state-based structure described earlier.}
+
+
 For your first DSL, try to catch case one or two. Ideally, start with case one,
 since the people who build the DSLs and supporting tools are often the same ones
 as the domain experts --- software architects and developers.
+
+
+
 
 
 \subsection{Iterative Development}
@@ -84,10 +114,20 @@ of generator and develop a small example model to verify what you just did.
 Ideally, implement all aspects of the language and processor for each new domain
 requirement before focusing on new requirements.
 
+
 Especially newbies to DSLs tend to get languages and meta models wrong because
 they are not used to think meta. You can avoid this pitfall by immediately
 trying out your new language feature by building an example model and developing
 a compatible generator.
+
+
+\cooling{In order to solidify our choices regarding language abstractions, we
+prototypically implemented several example refrigerators. During this process we
+found the need for more and more language abstractions. We noticed early that we
+needed a way to test the example programs, so we implemented the interpreter and
+simulator relatively early. In each iteration, we extended the language as well
+as the interpreter, so the domain experts could experiment with the language
+even though we did not have a code generator yet.}
 
 \begin{marginfigure}
   \includegraphics[width=5cm]{figures-design/languageWaves.png}
@@ -106,6 +146,15 @@ changes in language size and complexity (error bars in \fig{languageWaves})
 should become smaller, and the language size and complexity should approach a
 stable level (\emph{ss} in \fig{languageWaves}).
 
+\comparch{A nice example of spotting a systematic nature behind a set of
+special cases was the introduction of data replication as a core abstraction in
+the architecture DSL (we also discuss this in the case study \todo{ref}). After
+modeling a number of message based communication channels, we noticed that the
+interfaces all had the same set of methods, just for different data structures.
+At one point we saw the pattern behind it and created new linguistic
+abstractions: data replication.}
+
+
 
 \subsection{Co-evolve concepts and language}
 
@@ -115,14 +164,26 @@ real time as you discuss the concepts.
 
 Defining a language requires formalization. It requires becoming very clear
 and unambiguous about the concepts that go into the language. In
-fact, building the language, because of the need for formalization, helps you become clear about
+fact, building the language, because of the need for formalization, helps you 
+become clear about
 the concepts in the first place. Language construction acts as a catalyst for
 understanding the domain! I recommend actually building a language in real time
 as you analyze your domain.
 
+\cooling{This is what we did in the cooling language. Everybody learned a lot
+about the possible structure of refrigerators and the limited in feature
+combinations (based on limitations imparted by how some of the hardware
+devices work). }
+
 To make this feasible, your DSL tool needs to be lightweight enough so support
 language evolution during domain analysis workshops. Turnaround time should be
 minimal to avoid overhead.
+
+\cooling{The cooling DSL is built with Xtext. Xtext allows very fast turnaround
+regarding grammar evolution, and, to a lesser extent, scopes, validation and
+type systems. We typically evolved the grammar in real-time, during the
+language design workshops, together with the domain experts. We then spent a
+day offline finishing scopes, constraints, the type system and the interpreter.}
 
 
 
@@ -138,7 +199,9 @@ lot of time testing, digging and tuning. Once they found out what works best,
 they can put their knowledge into platforms and execution engines, efficiently
 spreading the knowledge across the team. For the latter task, they will
 collaborate with generator experts and language designer --- our second example
-role.
+role.
+
+\comparch{In building the language, an OSGi expert was involved in building thegeneration templates.}
 
 The language designer works with domain experts to define abstractions,
 notations and constraints to accurately capture domain knowledge. The language
@@ -181,6 +244,15 @@ the actual target audience.
 Hence, make sure that when defining the language, you actually cross-check with
 real domain users whether they are able to work with the language.
 
+\pension{The core domain abstractions were contributed by Herman. Herman was
+the most senior pension expert in the company. In workshops we worked with a
+number of other domain users who didn't have as much experience. We used them
+to validate that our DSL would work for the average future user. Of course they
+also found actual problems with the language, so they contributed to the
+evolution of the DSL beyond just acting as guinea pigs.}
+
+
+
 \subsection{DSL as a Product}
 
 The language, constraints, interpreters and generators are usually developed by
@@ -188,15 +260,24 @@ one (smaller) group of people and used by another (larger) group of people. To
 make this work, consider the metaware a product developed by one group for use
 by another. Make sure there's a well defined release schedule, development
 happens in short increments, requirements and issues are reported and tracked,
-errors are fixed reasonably quickly, there is ample documentation (examples,
-examples, examples!) and there's support staff available to help with problems
-and the unavoidable learning curve. These things are critical for acceptance.
-
+errors are fixed reasonably quickly, there is ample documentation and there's
+support staff available to help with problems and the unavoidable learning
+curve. These things are critical for acceptance.
 A specific best practice is to exchange people: from time to time, make
 application developers part of the generator team to appreciate the challenges
 of "meta", and make meta people participate in actual application development to
 make sure they understand if and how their metaware suits the people who do the
 real application development.
+
+\embc{One of our initial proof-of-concept projects didn't really work out. So
+in order to try out our first C extensions and come up with a showcase for an
+upcoming exhibition, the language developers "had" to build the
+proof-of-concept themselves. As it turned out, this was really helpful. We
+didn't just find a big number of bugs, we also experienced first-hand some of
+the usability challenges of the system at the time. It was easy for us to fix,
+because it was us who experienced the problems in the first place.}
+
+
 
 \subsection{Documentation is still necessary}
 
@@ -214,6 +295,13 @@ the tools change are good choices, too.
 Also keep in mind that hardly anybody reads reference documentation. If
 you want to be successful, make sure the majority of your documentation is
 example-driven or task-based.
+
+\comparch{The documentation for the component architecture DSL contains a set
+of example applications. Each of them guides a new user through building an
+increasingly complex application. It explains installation of the
+DSL into Eclipse, concepts of the target architecture and how they map to 
+language syntax, use of the editor and generator, as well as how to integrated
+manually written code into the generated base classes.}
 
 
 
@@ -244,6 +332,7 @@ designers: maybe what the users expect is actually correct, and the language
 needs to be adapted.
 
 
+
 \subsection{Compatible Organization}
 
 Done right, MD* requires a lot of cross-project work. In many settings the same
@@ -259,6 +348,10 @@ not invest into assets that are reusable in other projects if the cost for
 developing this asset is billed only to the particular project. Assets that are
 useful for several projects (or the company as a whole) must also billed by
 those several projects (or the company in general). 
+
+
+
+
 
 
 \subsection{Domain Users Programming?}
@@ -290,9 +383,5 @@ not necessarily be the domain users' fault. Maybe your language isn't really
 suitable to the domain. If you encounter this problem, take it as a warning sign
 and take a close look at your language.
 
-
-\subsection{Evolving DSLs}
-
-\todo{}
     
 

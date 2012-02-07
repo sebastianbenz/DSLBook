@@ -1,3 +1,40 @@
+\chapter{Design Dimensions}
+
+
+
+
+\chapterabstract{DSLs are languages with high
+expressivity for a specific, narrow problem domain. They are a powerful tool for
+software engineering, because they can be tailor-made for a specific class of
+problems. However, because of the large degree of freedom in designing DSLs, and
+because they are supposed to cover the right domain, completely, and at the
+right abstraction level, DSL design is also hard. In this chapter we present a
+framework for describing and characterizing external domain specific languages.
+We identify seven design dimensions that span the space within which DSLs are
+designed: expressivity, coverage, semantics, separation of concerns,
+completeness, language modularization and syntax.
+We illustrate the design alternatives along each of these dimensions with
+examples from our case studies.}
+
+\vspace{10mm}
+\noindent This part of the book has been written together with Eelco Visser of
+TU Delft. Reach him via \verb#e.visser@tudelft.nl#.
+\vspace{10mm}
+
+\noindent The dimensions provide a vocabulary for describing and comparing the
+design of existing DSLs and help guide the design of new ones. We also describe
+drivers, or forces, that lead to using one design alternative over another one.
+This chapter is not a complete methodology. It does not present a recipe that
+guarantees a great DSL if followed. I don't believe in methodologies, because
+they pretend precision where there isn't any. Building a DSL is a craft. This
+means that, while there are certain established approaches and conventions,
+building a good DSL also requires experience and practice.
+
+
+
+
+
+
 \FloatBarrier
 
 \section{Expressivity}
@@ -29,8 +66,8 @@ depends on the ratio between writing and reading code whether a DSL's
 conciseness is important.}. 
 
 The Kolomogorov complexity\cite{LiVitanyi2008} of an object is the smallest
-program in some description language that produces the object. In our case the
-objects of interest are programs in $P$ and we are interested in designing
+description in some language that produces the object. In our case
+the objects of interest are programs in $P$ and we are interested in designing
 languages that minimize the size of encodings of programs. We use
 the notation $|p_L|$ to indicate the size of program $p$ as encoded in
 language~$L$\sidenote{We will abstract over the exact way to measure the size of
@@ -41,15 +78,7 @@ smallest encoding of $p$ in $L$, i.e. does not contain dead or convoluted code.
 We can then qualify the expressivity of a language relative to another language.
 
 \begin{center}
-   A language $L_1$ is \emph{more expressive} than a language $L_2$
-   ($L_1 \prec L_2$), \\ if for each $p \in P_{L_1} \cap P_{L_2}$, $|p_{L_1}| < |p_{L_2}|$. 
-\end{center}
-
-\noindent Typically, we need to qualify this statement and restrict it to the
-domain of interest.
-
-\begin{center}
-A language $L_1$ is \emph{more expressive in domain $D$} than a
+A language $L_1$ is \emph{more expressive in domain $D$} \\ than a
 language $L_2$ ($L_1 \prec_D L_2$), \\ if for each $p \in P_D \cap P_{L_1}
 \cap P_{L_2}$, $|p_{L_1}| < |p_{L_2}|$.
 \end{center}
@@ -61,11 +90,13 @@ language to cover the corner cases\footnote{We discuss this aspect in the sectio
 on completeness (\sect{sect:completeness}).}.
 
 
-Compared to GPLs, DSLs (and the programs expressed with them) are more 
+Compared to GPLs, DSLs (and the programs expressed with them) are more
 \emph{abstract}: they avoid describing details that are irrelevant to the model
-purpose. Good DSLs are also \emph{declarative}: they provide linguistic
-abstractions for relevant domain concepts that allow processors to "understand"
-the domain semantics without sophisticated analysis of the code.
+purpose. The execution engine then provides the missing details consistently,
+throughout the system. Good DSLs are also \emph{declarative}: they provide
+linguistic abstractions for relevant domain concepts that allow processors to
+"understand" the domain semantics without sophisticated analysis of the code.Linguistic abstraction means that a language contains concepts for the
+abstractions relevant in the domain. We discuss this in more detail below.
 
 
 Note that there is a trade-off between expressivity and the scope of the
@@ -78,25 +109,31 @@ striving for a language that has maximum expressivity while retaining enough
 coverage (see next chapter) of the target domain to be useful.
 
 
-\seppar DSLs are more expressive than GPLs in the domain they are built
-for. But there is also a disadvantage: before being able to write these concise
-programs, users have to learn the language. This task can be separated into
-learning the domain itself, and learning the syntax of the language. For people
-who know the domain, learning the syntax can be simplified by using good IDEs
-with code completion and quick fixes, as well as with good, example-based
-documentation. In many cases, DSL users already know the domain, or would have
-to learn the domain even if no DSL were used. Learning the domain is independent
-of the language itself. It is easy to see, however, that, if a domain is
-supported by well-defined language, this can be a good reference for the domain
-itself. Learning a domain can be simplified by working with a good
-DSL\footnote{This can also be read the other way round: a measure for the
-quality of a DSL is how long it takes domain experts to learn it.}.
+\seppar DSLs are more expressive than GPLs in the domain they are built for. But
+there is also a disadvantage: before being able to write these concise programs,
+users have to learn the language\sidenote[][]{While a GPL also has to be
+learned, we assume that there is a relatively small number of GPLs and
+developers already know it. Using DSLs, there may be a larger number of them
+used in any given project or organization, and new team members cannot expected
+to know them.}. This task can be separated into learning the domain itself, and
+learning the syntax of the language. For people who know the domain, learning
+the syntax can be simplified by using good IDEs with code completion and quick
+fixes, as well as with good, example-based documentation. In many cases, DSL
+users already know the domain, or would have to learn the domain even if no DSL
+were used. Learning the domain is independent of the language itself. It is easy
+to see, however, that, if a domain is supported by well-defined language, this
+can be a good reference for the domain itself. Learning a domain can be
+simplified by working with a good DSL\footnote{This can also be read the other
+way round: a measure for the quality of a DSL is how long it takes domain
+experts to learn it.}. In conclusion, the learning overhead of DSLs is usually
+not a problem in practice.
  
 \pension{The users of the pension DSL are pension experts. Most of them have
 spent years describing pension plans using prose text, tables and (informal)
-formulas. The DSL provides formal languages to express that same knowledge
-about the domain.}
+formulas. The DSL provides formal languages to express that same knowledge about
+the domain.}
 
+\todo{does this fit here? Can this be moved somewhere else?}
 The same is true for the act of \emph{building} the DSL. The domain has to be
 scoped, fully explored and systematically structured to be able to build a
 language that covers that domain. This leads to a deep understanding of the
@@ -141,6 +178,12 @@ magnitude~\cite{Visser07}.}
 
 \subsection{Linguistic vs. In-Language Abstraction} 
 \label{lingvsinlang}
+
+There are two major ways of defining abstractions. They can be built into the
+language (in which case they the process is called \emph{linguistic}
+abstraction), or they can be expressed by concepts available in the language
+(\emph{in-language} abstraction). DSLs typically rely heavily on
+linguistic abstraction, whereas GPLs rely more on in-language abstraction.
 
 \parhead{Linguistic Abstraction} A specific domain concept can be modeled with
 the help of existing abstractions, or one can come up with a \emph{new}
@@ -246,8 +289,8 @@ statement on that same port.}
 Linguistic abstraction also means that no details irrelevant to the model
 purpose are expressed. Once again, this increases
 conciseness, and avoids the undesired specification of unintended semantics
-(over-specification). Overspecification is bad because it limits the degrees of
-freedom available to a transformation engine. In the example above, the loop A
+(over-specification). Overspecification is usually bad because it limits the
+degrees of freedom available to a transformation engine. In the example above, the loop A
 is over-specified: it expresses ordering of the operations, although this is
 (most likely) not intended by the person who wrote the code.
 
@@ -310,15 +353,19 @@ abstraction, these facilities can be used by the language \emph{designer} to
 provide functionality to language users. Instead of adding language features, a
 standard library is deployed along with the language to all its
 users\marginnote{This approach is of course well known from programming
-languages. All of them come with a standard library, and the language can hardly be used without relying on it. It
-is effectively a part of the language}. This approach keeps the language itself
-small, and allows subsequent extensions of the library without changing the
-language definition and processing tools.
+languages. All of them come with a standard library, and the language can hardly
+be used without relying on it. It is effectively a part of the language}. It
+contains abstractions relevant to the domain, expressed as in-language
+abstractions. This approach keeps the language itself small, and allows
+subsequent extensions of the library without changing the language definition
+and processing tools.
+
+\todo{Do we have to say something here about "not treating stuff specially"? oris this even ok in a standardlib?}
 
 \cooling{Hardware building blocks have properties. For example, a \lcr{fan}
 can be turned \lcr{on} or \lcr{off}, and for a \lcr{compressor}, the
-\lcr{rpm} can be specified. The set of properties available for the various
-building blocks is defined via a standard library and is not part of the
+speed can be specified (\lcr{rpm}). The set of properties available for the
+various building blocks is defined via a standard library and is not part of the
 language (\fig{coolinglib}). The reason why this is \emph{not} a contradition
 to what we discussed earlier is this: as a consequence of the framework used on
 the target platform, new properties can be added to hardware elements
@@ -414,37 +461,38 @@ accessible, much more effort must be put into keeping backward compatibility,
 the need for evolution should be reduced\sidenote{This is the reason why many
 GPLs can never get rid of deprecated language features.}.
 
-Using a set of well-isolated viewpoint-specific DSLs prevents rippling effects
-on the overall model in case something changes in one DSL.
-
-
-\subsection{Configuration vs. Customization}
-
-Note the difference between configuration and customization. A customization DSL
-provides a vocabulary which you can creatively combine into sentences of
-potentially arbitrary complexity. A configuration DSL consists of a well-defined
-set of parameters for which users can specify values\marginnote{Think: feature
-models. We will elaborate on this in the section of product lines}\todo{ref}.
-Configuration languages are more limited, since you cannot easily express
-instantiation and the relationship between things. However, they are also
-typically less complex. Hence, the more you can lean towards the configuration
-side, the easier it usually is to build model processors. It is also simpler
-from the user's perspective, since the apparent complexity is limited.
 
 \subsection{Precision vs. Algorithm}
 
-Be aware of the difference between precision and algorithmic completeness. Many
-domain experts are able to formally and precisely specify facts about their
-domain (the "what" of a domain) while they are not able to define (efficient,
-complete, correct) algorithms to implement the system (the "how"). It is the job
-of software developers to provide a formal language for domain users to express
-facts, and then to implement generators and interpreters to map those facts into
-executable algorithms that truthfully implement the facts they expressed. The
-DSL expresses the "what", the model processor adds the "how". Consider creating
-an incomplete language (\sect{sect:completeness}), and have developers fill in
-the algorithmic details in GPL code.
+We discussed earlier that some DSLs may be Turing-complete (and feel more like
+a programming language) whereas others are purely declarative, and maybe just
+describe facts, structures and relationships in a domain. The latter may not be
+usable by domain users (i.e. non-programmers). They are often able to
+formally and precisely specify facts, structures and relationships about their
+domain, but they are often not able to define algorithmic behavior.
 
-\pension{Pension rules are declarative in the sense that a set of mathematical
-equations and calculation rules are defined. The code generator, written by
-developers, creates a scalable and sufficiently fast optimization from the
-models.}
+In this case, a DSL has to be defined that abstracts far enough to hide these
+algorithmic details. Alternatively, you can create an incomplete language
+(\sect{sect:completeness}), and have developers fill in the algorithmic details
+in GPL code. One way to do this is to provide a set of predefined
+behaviours (in some kind of library) which are then just parametrized or
+configured by the users. 
+
+
+\pension{Pension rules are at the boundary between being declarative and
+algorithmic. The majority of the models define data structures (customers,
+pension plans, payment schedules). However, there are also mathematical
+equations and calculation rules. These are algorithmic, but in the pension
+insurance domain, the domain users are well capable of dealing with these.}
+\subsection{Configuration Languages}
+
+Configuration languages are purely declarative. They consist of a well-defined
+set of configuration parameters and constraints among them. "Writing programs"
+boils down to setting values for these parameters. In many cases, the parameters
+are booleans, in which case a program is basically a selection of a subset of
+the configuration switches. A well-known formalism for configuration is feature
+models.  We discuss configuration languages in more detail in the chapter on
+DSLs and Product Line Engineering (\todo{ref}).
+
+
+
