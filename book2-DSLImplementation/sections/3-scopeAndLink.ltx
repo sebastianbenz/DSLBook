@@ -2,9 +2,9 @@
 \label{Ch:scopes}
 
 As we have elaborated in the previous section, the concrete syntax in its
-simplest form is a tree. However, the information represented by the program is
+simplest form is shaped like a tree. However, the information represented by the program is
 semantically almost always a graph, i.e.\ in addition to the tree's containment
-hierarchy, it contains non-containment cross-references. Examples abound and
+hierarchy, it contains non-containment cross-references. Examples are abound and
 include variable references, procedure calls and target states in transitions of
 state machines. The challenge thus is: how to get from the "syntactical tree" to
 the "semantic graph", or: how to establish the cross-links.
@@ -31,8 +31,8 @@ There is a marked difference between the projectional and parser-based case:
 
 \end{itemize}
 
-Often \MV{also for Spoofax?}, a language's structure definition defines what
-concepts constitute valid target concpets for references (e.g. a \ic{Function},
+Often\MV{also for Spoofax?}\LK{yep}, a language's structure definition defines what
+concepts constitute valid target concepts for references (e.g. a \ic{Function},
 a \ic{Variable}, or a \ic{State}), but this is usually too imprecise.
 Language-specific visibility rules determine which instances of these concepts
 are actually visible. For example, only the function and variables in the local
@@ -46,12 +46,23 @@ target concept of the cross-reference but also on its surroundings, e.g.\ a
 namespace prefix, the location inside the larger structure of the site of the
 cross-reference or something that's essentially non-structural in nature.
 
-A scope, the collection of valid targets for a refernce, has two uses. First, it
+A scope, the collection of valid targets for a reference, has two uses. First, it
 can be shown in the code completion menu in the IDE if the user presses
 \keystroke{Ctrl-Space} at the reference site. Second, independent of the IDE,
 the scope is used for checking the validity of an existing reference: if the
 reference target is not among those elements in the scope, the reference is
 invalid.
+
+\LK{There seem to be three concepts of scope here:
+1) the lexical scope as a primarily syntactic concept that marks part of a program and can be nested;
+2) the local variable scope as a collection of variables associated with a particular lexical scope;
+3) the scope as a collection of all names that are reachable from a certain lexical scope.
+
+The last one I really only know from Xtext, and I've always found it rather confusing.
+Is it used more generally?
+It's really more like a symbol table than anything else, that combine names from different
+lexical scopes.
+}
 
 Scopes can be hierarchical, in which case they are organized as a stack of
 collections --- confusingly, these collections are often called scopes
@@ -80,7 +91,6 @@ one at a time. From an implementation perspective, both views are exchangable.
 
 \MV{Explain this one first, since this one is the most low level; good fit to
 introduce the basic mechanism}
-
 
 \section{Scoping in Xtext}
 
@@ -296,7 +306,7 @@ references are checked against this name in the index, not against the actual
 object. If the actual object has to be resolved, the URI stored in the index is
 used. Only then is the respective file loaded (this is what improved
 scalability; files are only loaded if a reference target is accessed, not to
-check a refernce for validity). The index is updated whenever a file is saved,
+check a reference for validity). The index is updated whenever a file is saved,
 or a rebuild is performed. This way, if an element is moved to a different file
 while keeping its qualified name (based on the logical program structure)
 constant, the reference remains valid. Only the URI in the index is updated.
@@ -304,7 +314,7 @@ constant, the reference remains valid. Only the URI in the index is updated.
 There are two ways to customize what gets stored in the index, and how. The
 \ic{IQualifiedNameProvider} returns a qualified name for each program element. If it
 returns \ic{null}, the element is not stored in the index, which means it is not
-referenceable. The other way is the \ic{IDefaultResourceDescriptionStrategy} which
+referenceble. The other way is the \ic{IDefaultResourceDescriptionStrategy} which
 allows language developers to build their own \ic{IEObjectDescription} for program
 elements. This is important if custom user data has to be stored in the
 \ic{IEObjectDescription} for later use during scoping.
@@ -323,7 +333,7 @@ unqualified name using an \ic{import} statement.
 \parhead{Polymorphic References} In the cooling language, expressions also
 include references to various other entities, such as configuration parameters,
 variables and hardware elements (compressors or fans defined in a different
-model). All of these referenceable elements extend the \ic{SymbolDeclaration}
+model). All of these referenceble elements extend the \ic{SymbolDeclaration}
 meta class. This means that all of them can be referenced by the single
 \ic{SymbolRef} construct.
 \begin{code} 
@@ -387,7 +397,7 @@ to represent the respective element in the code completion menu.
 As we have explained above, smart references are an important ingredient to make
 this work conveniently. They make sure that users can simply type the name (or
 whatever else is put into the code completion menu by the language developer) of
-the targetted element; once something is selected, the corresponding reference
+the targeted element; once something is selected, the corresponding reference
 concept is instantiated, and the selected target is set.
 
 \parhead{Simple Scopes} As an example, we begin with the scope definition for
