@@ -277,7 +277,7 @@ concerns}, see \fig{crosscutting}.
 \end{center}
 \end{figure}
 
-In the context of DSLs we have to separate several kinds of cross-cutting
+In the context of DSLs we have to separate several classes of cross-cutting
 concerns:
 
 \parhead{Handled by Execution Engine} If we are lucky, a concern that is
@@ -294,6 +294,46 @@ test, we have to collect the times it takes to execute operations on
 components. Based on a configuration switch, the generator would add the
 necessary code automatically.}
 
-\parhead{Modularized in DSL} 
+\parhead{Modularized in DSL} Another class of cross-cutting concerns are those
+that crosscut in the resulting executable system, but can be modularized on DSL
+level. A good example is permissions. Specifying users, roles and permissions to
+access certain resources in the system can be modularized into a concern,
+typically even into a separate viewpoint. It is then the job of the execution
+engine to consider the specified permissions in all relevant places in the
+resulting system.
 
+\exwebdsl{WebDSL has a means to specify access control for web pages. The
+generator injects the necessary code to check these permissions into the
+client side and server side parts of the resulting web application.}
+ 
+\parhead{Cross-Cutting in the DSL} The third class is when the concern
+cross-cuts the programs written in the DSL and can \emph{not} be modularized, as
+in the previous class. In this case we have to deal with cross-cutting concerns
+in the same way as we do it today in programming languages: we either have to
+manually insert the code in \emph{all} the relevant places in the DSL program,
+or we have to resort to aspect weaving on DSL
+level\sidenote[][-5\baselineskip]{Building an typically relatively limited
+aspect weaver on DSLs level is not a big problem, since we already have access to the AST, and transforming it in a way where we
+inject additional code based on a DSL-specific pointcut specification is
+relatively straight forward.}.
+
+\comparch{We implemented a simple weaver that is able to introduce additional
+ports into existing components. It was used, among other things, to modularize
+the monitoring concern: if monitoring was enabled, this aspect component would
+add the \ic{mon} port to all other components, enabling the
+\ic{MonitoringConsole} to connect to the other components and query monitoring
+data (see the code below).}
+
+\begin{code}
+namespace monitoring feature monitoring {
+
+  component MonitoringConsole ...
+  instance monitor: ...
+  dynamic connect monitor.devices .. .
+
+  aspect (*) component {
+    provides mon: IMonitoring
+  }
+}
+\end{code}
 
