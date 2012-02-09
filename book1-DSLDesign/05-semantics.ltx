@@ -92,6 +92,16 @@ using abstractions from $L_2$ (e.g. compiler errors), users of $L_1$ will not be
 able to act on these; they may have never seen the programs generated in $L_2$.
 Again, automated testing is the way to address this issue.
 
+Many or complex constraints (or type system rules) when executed on a large
+model may become a performance issue. Even if the DSL tool is clever about this
+and only revalidates the constraints for those program elements that change, it
+can still be a problem if some kind of whole-model validation is tied to a
+particular element. To solve this problem, many DSL tools allow users to
+classify the constraints according to their cost. Cheap constraints are executed
+for each changing program element, as it changes. Progressively more expensive
+constraints are checked, for example, as a fragment is saved or only upon
+explicit request by the user.
+
 
 \parhead{Type Systems} are a special kind of constraints. Consider the example of 
 \ic{var int x = 2 * someFunction(sqrt(2));}. The type system constraint may
@@ -103,7 +113,7 @@ as well as type checking constraints. We cover the implementation of type
 systems in the DSL implementation part of the book \todo{ref}.
 
 
-When designing constraints and type system in a language, a
+\seppar When designing constraints and type system in a language, a
 decision has to be made between one of two approaches:  (a) declaration of
 intent and checking for conformance and (b) deriving characteristics and
 checking for consistency. Consider the following examples.

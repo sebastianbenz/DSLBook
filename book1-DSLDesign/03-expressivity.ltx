@@ -418,6 +418,53 @@ unnecessarily. The resulting language may be judged as being ugly, especially
 by programmers.
 
 
+\subsection{Platform Influence}
+
+In theory, the design of the abstractions used in a language should be
+indepenent of the execution engine and the platform. However, this is not always
+the case\footnote{It is obviously not the case for architecture DSLs where you
+build a language that resembles the architectural abstractions in a platform.
+But that's not what we're talking about here.} There are two reasons why the
+platform may influence the language.
+
+\parhead{Runtime efficiency} In most systems, the resulting system has to run
+reasonably efficient. Efficiency can mean performance, scalability as well as resource
+consumption (memory, disk space, network bandwidth). Depending on the semantic
+gap between the platform and the language, building efficient code generators
+can be a lot of work (we discuss this in some detail in the section on
+semantics \todo{ref}). Instead of building the necessary optimizers, you can
+also change the language to use abstractions that make global optimizations
+simpler to build. \sitenote{While this may be considered "cheating", in may nonetheless be
+the only practical way given project constraints.}.
+
+\embc{The language does not support dynamically growing lists because it is
+hard to implement them in an efficient way considering we are targetting
+embedded software. Dynamic allocation of memory is often now allowed, and even
+if it were, the necessary copying of existing list data into a new, bigger
+buffer is too expensive for practical use. The incured overhead is also
+\emph{not} obvious to the languge user (he just increases list size or adds
+another element that triggers list growth), making it all the more dangerous.}
+
+\embc{Another example includes floating point arithmetics. If the target platform has
+no FPU, floating point arithmetics are expensive to emulate. We had to build
+the language in a way that could prevent the use of \ic{float} and \ic{double}
+types if the target platform has no FPU.}
+
+
+\parhead{Platform Limitations} The platform may have limitations regarding the
+size of the memory or disk or the bandwidth of the network that limit or
+otherwise influence language design. 
+
+\cooling{In the cooling language we had to introduce time units (seconds,
+minutes, hours) into the DSL after we'd noticed that the time periods relevant
+for cooling algorithms are so diverse, that no single unit could fit all
+necessary values into the available integer types. If used only seconds, the
+days or months periods would not fit into the available \ic{int}s. Using only
+hours or days obviously would not let us express the short periods. So the
+language now has the ability to express periods as in \ic{3s} or \ic{30d}.}
+
+
+
 \subsection{Language Evolution Support}
 
 If a language uses a lot of linguistic abstraction, it is likely, especially
