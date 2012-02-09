@@ -62,7 +62,7 @@ feature together in one module.}
 
 \subsection{Viewpoints for Concern Separation}
 
-If viewpoints are used, the concern-specific languages, and consequently the
+If viewpoints are used, the concern-specific DSLs, and consequently the
 viewpoint models, should have well-defined dependencies; cycles should be
 avoided. \marginnote{The IDE should provide navigational support: If an element
 in viewpoint B points to an element in viewpoint A then it should be possible to
@@ -136,31 +136,7 @@ names, use an annotation model that specifies an alternate name. The downstream
 processor knows that the name in the annotation model overrides the name in the
 original model.}
 
-\subsection{Viewpoints for Progressive Refinement} 
-\label{progref}
 
-There is an additional use case for viewpoint models not related to the concerns
-of a domain, but to progressive refinement. Consider complex systems.
-Development starts with requirements, proceeds to high-level component design
-and specification of non-functional properties, and finishes with the
-implementation of the components. Each of these refinement steps may be
-expressed with a suitable DSL, realizing the various "refinement viewpoints" of
-the system (\fig{progressiveRefinement}). The references between model elements
-are called traces\cite{JirapanthongZ05}. Since the same conceptual elements may
-be represented on different refinement levels (e.g. component design and
-component implementation), synchronization between the viewpoint models is often
-required (enabled via techniques described in\cite{DiskinXC10, Stevens10}).
-
-\begin{figure}[t]
-\begin{center}
-  \includegraphics[scale=0.6]{figures-design/progressiveRefinement.png}
-  \caption{Progressive refinement: the boxes represent models
-  expressed with corresponding languages. The dotted arrows express
-  dependencies, whereas the solid arrows represent references between model
-  elements.}
-  \label{progressiveRefinement}
-\end{center}
-\end{figure}
 
 
 \subsection{Viewpoint Consistency} 
@@ -216,6 +192,35 @@ is added to an interface, all components that implement that particular
 interface must get a new, empty method implementation. This is an example of
 model synchronization.}
 
+
+\subsection{Viewpoints for Progressive Refinement} 
+\label{progref}
+
+There is an additional use case for viewpoint models not related to the concerns
+of a domain, but to progressive refinement. Consider the development of complex
+systems, which typically proceeds in phases: it starts with requirements,
+proceeds to high-level component design and specification of non-functional
+properties, and finishes with the implementation of the components. In each of
+these phases, models can be used to represent the system with abstractions that
+are appropriate for the phase. An appropriate DSL is needed to represent the
+models in each phase (\fig{progressiveRefinement}). The references between model
+elements are called traces\cite{JirapanthongZ05}. Since the same conceptual
+elements may be represented on different refinement levels (e.g. component
+design and component implementation), synchronization between the viewpoint
+models is often required (enabled via techniques described in\cite{DiskinXC10,
+Stevens10}).
+
+
+\begin{figure}[t]
+\begin{center}
+  \includegraphics[scale=0.6]{figures-design/progressiveRefinement.png}
+  \caption{Progressive refinement: the boxes represent models
+  expressed with corresponding languages. The dotted arrows express
+  dependencies, whereas the solid arrows represent references between model
+  elements.}
+  \label{progressiveRefinement}
+\end{center}
+\end{figure}
 
 
 

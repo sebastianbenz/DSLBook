@@ -159,7 +159,7 @@ non-regular domain and capturing it in a language. Especially in the deductive
 approach, membership of programs to the domain is determined by a human oracle.
 A DSL for the domain hence typically represents an explanation or interpretation
 of the domain, and often requires trade-offs by under- or over-approximation
-(Figure~\ref{fig:approximation}). This is especially true while we develop theDSL: an iterative approach is necessary that evolves the language as ourunderstanding of the domain becomes more and more refined over time.
+(Figure~\ref{fig:approximation}). This is especially true while we develop theDSL: an iterative approach is necessary that evolves the language as ourunderstanding of the domain becomes more and more refined over time. In a DSL$l$ that adequate for the domain, the sets $P_l$ and $P_D$ are the same. 
 
 \begin{marginfigure}[-3.3cm]
 \begin{center}
@@ -277,17 +277,18 @@ precisely the inherently imprecise notion of domains. Let us now move into the
 field of langugae engineering. Here we can describe the relevant concepts much
 more clearly.
 
-\begin{marginfigure}[52mm]
+\begin{marginfigure}[-10mm]
 \begin{center}
-  \includegraphics[width=4cm]{figures-design/csVsAs.png} 
+  \includegraphics[width=3cm]{figures-design/csVsAs.png} 
   \caption{Concrete and abstract syntax for a textual variable declaration.
   Notice how the abstract syntax does not contain the keyword \ic{var} or the symbols
   \ic{:} and \ic{;}.}
-  \label{csVsAs}
+  \label{csVsAs} 
 \end{center} 
 \end{marginfigure}
 \parhead{Concrete and Abstract Syntax} Programs are represented in two ways:
-concrete syntax and abstract syntax. The \emph{concrete syntax} is the notation with which the user interacts as he edits
+concrete syntax and abstract syntax. The \emph{concrete syntax} is the notation 
+with which the user interacts as he edits
 a program. It may be textual, symbolic, tabular, graphical, or any combination
 thereof. The \emph{abstract syntax} is a data structure that represents the
 semantically relevant data expressed by a problem. It does not contain
@@ -300,9 +301,17 @@ Users interact with a stream of characters, and a parser derives the abstract
 syntax by using a grammar and mapping rules. \emph{Projectional} editors go the
 other way round. User editing gestures directly change the abstract syntax, the
 concrete syntax being a mere projection that looks and feels like text if a
-textual projection is used. Spoofax and Xtext are parser-based tools, MPS isprojectional.
+textual projection is used. Spoofax and Xtext are parser-based tools, MPS isprojectional.\marginnote[-55mm]{The abstract syntax is very similar to a meta model in that
+it represents only a data structure and ignores notation. The two are also
+different: the abstract syntax is usually automatically derived from a grammar,
+whereas a meta model is typically defined \emph{first}, independent of a
+notation. This means that, while the abstract syntax may be structurally
+affected by the grammar, the meta model is "clean" and represents purely the 
+structure of the domain. In practice, the latter isn't strictly true
+either, since editing and tool considerations typically influence a meta model 
+as well. In this book, we consider the two to be synonyms.}
 
-\begin{marginfigure}[10mm] \begin{center}  
+\begin{marginfigure}[-5mm] \begin{center}  
 \includegraphics[width=3cm]{figures-design/programsAsTrees.png}
   \caption{A program is a tree of program elements, with a single root element.}
   \label{programsAsTrees}
@@ -556,12 +565,14 @@ syntax\sidenote{While in the past projectional text editors
 have gotten a bad reputation, as of 2011, the tools have become good enough, and
 computers have become fast enough to make this approach feasible, productive and
 convenient to use.}, Example tools in this category include the Intentional
-Domain Workbench (\url{http://intentsoft.com}) and JetBrains MPS. In this
-section, we do not discuss the relative advantages and drawbacks of parser-based
-vs. projectional editors in any detail (we do discuss the tradeoffs in the
-chapter on language implementation \todo{ref}). However, we will point out if
-and when there are different DSL design options depending on which of the two
-approaches is used.
+Domain Workbench (\url{http://intentsoft.com}) and JetBrains MPS. 
+
+
+In this section, we do not discuss the relative advantages and drawbacks of
+parser-based vs. projectional editors in any detail (we do discuss the tradeoffs
+in the chapter on language implementation \todo{ref}). However, we will point
+out if and when there are different DSL design options depending on which of the
+two approaches is used.
 
 
 
