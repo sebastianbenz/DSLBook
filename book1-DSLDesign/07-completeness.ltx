@@ -4,8 +4,8 @@
 \label{sect:completeness}
 
  
-Completeness refers to the degree to which a language $L$ is able to express
-\emph{complete} programs. Let us introduce a function $G$ ("code generator")
+Completeness\sidenote{This has nothing to do with Turing-completeness.} refers
+to the degree to which a language $L$ is able to express \emph{complete} programs. Let us introduce a function $G$ ("code generator")
 that transforms a program $p$ in ${L_D}$ to a program $q$ in $L_{D-1}$. For a
 complete language, $p$ and $q$ have the same semantics, i.e. $OB(p) == OB(G(p))
 == OB(q) $. For incomplete languages where $OB(G(p)) \subset OB(p)$ we have to
@@ -39,7 +39,10 @@ in several ways:
 
   \item by  calling "black box" code written in $L_{D-1}$. This requires
   concepts in $L_D$ for calling $D_{-1}$ foreign functions. No syntactic
-  embedding of $D_{-1}$ code is required.
+  embedding of $D_{-1}$ code is required, beyond the ability to call
+  functions\sidenote[][-2\baselineskip]{In the simplest case, these functions
+  don't even have arguments, so the syntax to call such a function is essentially just the
+  funcition name.}.
 
  
   \item by directly embedding $L_{D-1}$ code in the $L_D$ program. This is
@@ -114,7 +117,7 @@ framework represents aspects of $D$ outside the scope of $L_D$.
 \cooling{The cooling DSL only supports reactive, state based systems that
 make up the core of the cooling algorithm. The drivers used in the lower
 layers of the system, or the control algorithms controlling the actual
-compressors, cannot expressed with the DSL. However, these aspects are
+compressors, cannot be expressed with the DSL. However, these aspects are
 developed once and can be reused without adaptations, so using DSLs is not
 sensible. These parts are implemented manually in C.}
 
@@ -140,7 +143,7 @@ and idioms interactive. One way to do this is to generate checks/constraints
 \emph{against the code base} and have them evaluated by the IDE, for example
 using Findbugs or similar code checking tools\todo{cite}. qIf one fails, an
 error message is reported to the developer. That error message can be worded
-by the developer of the DSL, helping the devloper understand what exactly has
+by the developer of the DSL, helping the developer understand what exactly has
 to be done to solve the problem in the code. 
 
 

@@ -4,7 +4,7 @@
 
 
 \chapterabstract{DSLs are languages with high
-expressivity for a specific, narrow problem domain. They are a powerful tool for
+expressivity for a specific, narrow problem domain. They are powerful tools for
 software engineering, because they can be tailor-made for a specific class of
 problems. However, because of the large degree of freedom in designing DSLs, and
 because they are supposed to cover the right domain, completely, and at the
@@ -50,8 +50,9 @@ programs), programs expressed using a DSL can be significantly more concise.
 
 
 
-\cooling{Cooling algorithms expressed with the cooling DSL are ca. five times
-shorter than the C version that is generated from them.}
+\cooling{Cooling algorithms expressed with the cooling DSL are approximately
+five times shorter than the C version that that users would have to write
+manually.}
 
 While it is always possible to produce short but incomprehensible programs,
 overall, shorter programs require less effort to read and write than longer
@@ -140,8 +141,9 @@ language that covers that domain. This leads to a deep understanding of the
 domain itself.
 
 \cooling{Building the cooling DSL has helped the thermodynamicists and software
-developers to understand the domain, its degrees of freedom and the variability
-in refrigerator hardware and cooling algorithms. Also, the architecture of the
+developers to understand the details of the domain, its degrees of
+freedom and the variability in refrigerator hardware and cooling algorithms in a
+much more structured and thorough way than before. Also, the architecture of the
 to-be-generated C application that will run on the device became much more
 well-structured as a consequence of the separation between reusable frameworks,
 device drivers and generated code.}
@@ -178,6 +180,9 @@ magnitude~\cite{Visser07}.}
 
 \subsection{Linguistic vs. In-Language Abstraction} 
 \label{lingvsinlang}
+
+\todo{Linguistic Abstraction requires the user to know (and clearly express)
+what he wants. Do we say that somewhere?}
 
 There are two major ways of defining abstractions. They can be built into the
 language (in which case they the process is called \emph{linguistic}
@@ -252,31 +257,34 @@ on semantics).}}
   shows instances whose ports are connected by a connector.}
   \label{components}
 \end{marginfigure}
+
+
 \embc{Another good example is optional ports in components. Components (see
-\fig{components}) define required ports that specify the interfaces they \emph{use}. For each component
-instance, a required port is connected to the provided port of an instance of a
-component that provides a port with a compartible interfaces. Required ports my
-be optional, so for a given instance, it may be connected or not. Invoking an
-operation on an unconnected required port would result in an error, so this has
-to be prevented. This can be done by enclosing the invocation on a required
-port in an if statement, checking whether the port is connected. However, an
-if statement can contain any arbitrary boolean expression as its condition 
-(e.g. \ic{if (isConnected(port) || true) \{ port.doSomething(); \}}). So
-checking \emph{statically} that the invocation only happens if the port is connected is
+\fig{components}) define required ports that specify the interfaces they
+\emph{use}. For each component instance, a required port is connected to the
+provided port of an instance of a component that provides a port with a
+compartible interfaces. Required ports may be optional, so for a given instance,
+an optional port may be connected or not. Invoking an operation on an
+unconnected required port would result in an error, so this has to be prevented.
+This can be done by enclosing the invocation on a required port in an if
+statement, checking whether the port is connected. However, an \ic{if} statement
+can contain any arbitrary boolean expression as its condition (e.g. \ic{if
+(isConnected(rp) || somethingRandom()) \{ port.doSomething(); \}}). So checking
+\emph{statically} that the invocation only happens if the port is connected is
 impossible. An better solution based on linguistic abstraction is to introduce a
-new language concept that checks for a connected port directly: 
-\ic{with port (port) \{ port.doSomething(); \}}. The \lcr{with port}
-statement doesn't use a complete expression as its argument, but only a reference to a
-an optional required port (\fig{optionalport}). This way, the IDE can check that
-an invocation on a required optional port \lcr{port} is only done inside of a \lcr{with port}
-statement on that same port.}
+new language concept that checks for a connected port directly:
+\ic{with port (rp) \{ rp.doSomething(); \}}. The \lcr{with port}
+statement doesn't use a complete expression as its argument, but only a
+reference to a an optional required port (\fig{optionalport}). This way, the IDE
+can check that an invocation on a required optional port \lcr{rp} is only done
+inside of a \lcr{with port} statement on that same port.}
 
 \begin{figure}[h]
   \rule{1\textwidth}{0.7pt}
   \vspace{-0.5cm}
   \includegraphics[width=12cm]{figures-design/embc/optionalport.png}
   \caption[][0.3cm]{The \lcr{with port} statement is required to surround an
-  invocation on an optional, required port; othewise, an error is reported in
+  invocation on an optional required port; othewise, an error is reported in
   the IDE. If the port is not connected for the current instance, the code
   inside the \lcr{with port} is not executed. It acts as an \lcr{if} statement,
   but since it cannot contain a complete expression, the correct use of the
@@ -284,7 +292,7 @@ statement on that same port.}
   \label{optionalport}  
   \rule{1\textwidth}{0.7pt}
 \end{figure}
-
+ 
  
 Linguistic abstraction also means that no details irrelevant to the model
 purpose are expressed. Once again, this increases
@@ -296,7 +304,7 @@ is over-specified: it expresses ordering of the operations, although this is
 
 \embc{State machines can be implemented as switch/case blocks or as arrays
 pointing into each other. The DSL program does not specify which implementation
-should be used and the transformation engine is free to chose the more
+should be used and the transformation engine is free to chsose the more
 appropriate representation, for example, based on desired program size or
 performance characteristics. Also, log statements and task declarations can be
 translated in different ways depending on the target platform.}
@@ -307,7 +315,7 @@ translated in different ways depending on the target platform.}
 
 
 
-\parhead{In-Lanuguage Abstraction} Conciseness can also be achieved by a
+\parhead{In-Language Abstraction} Conciseness can also be achieved by a
 language providing facilities to allow users to define new (non-linguistic)
 abstractions in programs. Well-known GPL concepts for building new abstractions
 include procedures, classes, or functions and higher-order functions, generics,
@@ -360,7 +368,9 @@ abstractions. This approach keeps the language itself small, and allows
 subsequent extensions of the library without changing the language definition
 and processing tools.
 
-\todo{Do we have to say something here about "not treating stuff specially"? oris this even ok in a standardlib?}
+\todo{Do we have to say something here about "not treating stuff specially"? oris this even ok in a standardlib?}
+
+\todo{The isConnected function in the req port example would be one such caseof treating things specially.}
 
 \cooling{Hardware building blocks have properties. For example, a \lcr{fan}
 can be turned \lcr{on} or \lcr{off}, and for a \lcr{compressor}, the
@@ -384,8 +394,8 @@ specially!}
 \end{figure}
 
 
-\parhead{Linguistic vs. In-Language Abstraction} A language that contains
-linguistic abstractions for all relevant domain concepts is simple to transform;
+\parhead{Comparing Linguistic and In-Language Abstraction} A language that
+contains linguistic abstractions for all relevant domain concepts is simple to transform;
 the transformation rules can be tied to the identities of the language concepts.
 It also makes the language suitable for domain experts, because relevant domain
 concepts have a direct representation in the language. Code completion can
@@ -405,11 +415,11 @@ develops the abstractions to be used by another set of developers. This is
 especially useful if the same language should be used for several, related
 projects or user groups. Each can build their own set of abstractions in the
 library. It should be kept in mind that in-language abstraction only works if
-the transformation of these abstractions is not specific to the abstraction. In
-such case, linguistic abstraction is better suited. \marginnote[-2cm]{Modular
-language extension, as discussed later in \sect{lext}, provides a middle ground
-between the two approaches. A language can be flexibly extended, while
-retaining the advantages of linguistic abstraction.} 
+the transformation of these abstractions is not specific to the
+abstraction\todo{rephrase}. In such case, linguistic abstraction is better
+suited. \marginnote[-2cm]{Modular language extension, as discussed later in
+\sect{lext}, provides a middle ground between the two approaches. A language can
+be flexibly extended, while retaining the advantages of linguistic abstraction.}
 
 Note that languages that provide good support for in-language abstraction feel
 different from those that use a lot of linguistic abstraction (compare Scala or
@@ -434,8 +444,8 @@ gap between the platform and the language, building efficient code generators
 can be a lot of work (we discuss this in some detail in the section on
 semantics \todo{ref}). Instead of building the necessary optimizers, you can
 also change the language to use abstractions that make global optimizations
-simpler to build. \sitenote{While this may be considered "cheating", in may nonetheless be
-the only practical way given project constraints.}.
+simpler to build. \sidenote{While this may be considered "cheating", in may 
+nonetheless be the only practical way given project constraints.}.
 
 \embc{The language does not support dynamically growing lists because it is
 hard to implement them in an efficient way considering we are targetting
@@ -488,14 +498,17 @@ enable the same functionality.}. Consider this when deciding about the tooling
 you want to use! 
 
 It is always a good idea to minimize those changes to a DSL that break existing
-models\footnote{This is especially true if you don't have access to all
-programs to migrate them in one fell swoop: you have to deploy migration
-scripts with the language or rely on the users to manually perform the
-migration.}. Backward-compatibility and deprecation are techniques well worth
-keeping in mind when working with DSLs. For example, instead of just changing an existing concept in an incompatible way, you may add a new concept in addition to the old one, along with deprecatio of the old one and a migration script or wizard. Note that you might be able to instrument your model processor to
-collect statistics on whether deprecated language features continue to be used.
-Once no more instances show up in models, you can safely remove the deprecated
-language feature..
+models\footnote{This is especially true if you don't have access to all programs
+to migrate them in one fell swoop: you have to deploy migration scripts with the
+language or rely on the users to manually perform the migration.}.
+Backward-compatibility and deprecation are techniques well worth keeping in mind
+when working with DSLs. For example, instead of just changing an existing
+concept in an incompatible way, you may add a new concept in addition to the old
+one, along with deprecation of the old one and a migration script or wizard.
+Note that you might be able to instrument your model processor to collect
+statistics on whether deprecated language features continue to be used. Once no
+more instances show up in models, you can safely remove the deprecated language
+feature.
 
 If the DSL is used by a closed, known user community that is accessible to the
 DSL designers, it will be much easier to evolve the language over time because

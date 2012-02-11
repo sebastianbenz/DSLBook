@@ -24,7 +24,7 @@ the language designer as a means of managing overall complexity. For this reason
 they may be hard to "sell" to domain experts.}
 
 
-\parhead{Modularization and Visibility} DSL often provide some kind of logical
+\parhead{Modularization and Visibility} DSLs often provide some kind of logical
 unit structure, such as namespaces or modules. Visibility of symbols may be
 restricted to the same unit, or in referenced ("imported") units. Symbols may be
 declared as public or private, the latter making them changeable without
@@ -58,7 +58,7 @@ insurance business.}
 
 \marginnote[0.95cm]{If a repository-based tool is used, the importance of
 paritioning is greatly reduced. Although even in that case, there may be a set of federated and
-distributed repositories that can be considered partitions}
+distributed repositories that can be considered partitions.}
 \parhead{Partitioning} Partitioning refers to the breaking down of programs
 into several physical units such as files. These physical units do not have to
 correspond to the logical modularization of the models within the partitions.
@@ -89,7 +89,7 @@ design decision lead to a significant reimplementation effort because all kinds
 of naming and scoping strategies changed.}
 
 
-Other concerns influence the design of a partitioning strategy:
+\noindent Other concerns influence the design of a partitioning strategy:
 
 \begin{description}
 
@@ -186,9 +186,9 @@ variants or of evolving a program over time.
 \pension{The customer using this DSL had the challenge of creating a huge set of
 pension plans, implementing changes in relevant law over time, or implementing
 related plans for different customer groups. Copying complete plans and then
-making adaptations was not feasible for obvious reasons. Hence the DSL provides
-a way for pension plans to inherit from one another. Calculation rules can be
-marked \emph{abstract} (requiring overwriting in sub-plans), \emph{final} rules
+making adaptations was not feasible, because this resulted in a maintenance
+nightmare --- a large number of similar, but not identical pension plans. Hence
+the DSL provides a way for pension plans to inherit from one another. Calculation rules can be marked \emph{abstract} (requiring overwriting in sub-plans), \emph{final} rules
 are not overwritable. Visibility modifiers control which rules are considered
 "implementation details".}
 

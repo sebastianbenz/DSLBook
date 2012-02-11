@@ -78,8 +78,8 @@ adequatly cover the domain?", since it always does, by definition.
 There are two more useful approaches. In the \emph{inductive} or
 \emph{bottom-up} approach we define a domain in terms of existing software. That
 is, a domain $D$ is identified as a subset $P_D$ of $P$, i.e. a set of programs
-with common characteristics or similar purpose. Notice how we do \emph{not}
-imply a special language to express them. They could be expressed in any Turing
+with common characteristics or similar purpose. Notice how at this point we do
+\emph{not} imply a special language to express them. They could be expressed in any Turing
 complete language. Often, such domains do not exist outside the realm of
 software. An especially interesting case of the inductive approach is where we
 define a domain as a subset of programs written in a specific language $P_l$
@@ -114,7 +114,7 @@ support. In this case, $P_D$ is the subset of programs in $P$ that
 implement interesting computations in $D$. This case is much harder to addressusing DSLs, because we first have to understand precisely the nature of thedomain and of the interesting programs in that domain.
 
 \pension{The pensions domain has been defined this way. The customer had been
-working in the field of old age pansions for decades and had a very detailed
+working in the field of old age pensions for decades and had a very detailed
 understanding of what the pension domain entails. That knowledge was mainly
 contained in the heads of pension experts, in pension plan requirements
 documents, and, to a limited extent, encoded in the source of existing
@@ -125,13 +125,15 @@ software.}
 
 \begin{marginfigure}
   \includegraphics[width=5cm]{figures-design/domain.png}
-  \caption{Programs, Languages, Domains}
+  \caption{The programs relevant to a domain $P_D$ and the programs expressible
+  with a language $P_L$ are both subsets of the set of all programs $P$. A good
+  DSL has a large overlap with its target domain ($P_L \approx P_D$).}
   \label{fig:programs}
 \end{marginfigure}
-Whether we take the deductive or inductive route, we can ultimately identify a
-domain $D$ by a set of programs $P_D$. There can be multiple languages
-in which we can express $P_D$ programs. Possibly, $P_D$ can only be partially
-expressed in a language $l$ (Figure~\ref{fig:programs}). 
+In the context of DSLs, we can ultimately consider a domain $D$ by a set of
+programs $P_D$, whether we take the deductive or inductive route. There can be
+multiple languages in which we can express $P_D$ programs. Possibly, $P_D$ can
+only be partially expressed in a language $l$ (Figure~\ref{fig:programs}).
 
 
 \parhead{Domain-Specific Languages} We can now understand the notion of a
@@ -161,7 +163,7 @@ A DSL for the domain hence typically represents an explanation or interpretation
 of the domain, and often requires trade-offs by under- or over-approximation
 (Figure~\ref{fig:approximation}). This is especially true while we develop theDSL: an iterative approach is necessary that evolves the language as ourunderstanding of the domain becomes more and more refined over time. In a DSL$l$ that adequate for the domain, the sets $P_l$ and $P_D$ are the same. 
 
-\begin{marginfigure}[-3.3cm]
+\begin{marginfigure}[-5cm]
 \begin{center}
   \includegraphics[width=5cm]{figures-design/domainApprox.png}
   \caption{Languages L1 and L2 under-approximate and over-approximate domain D.}
@@ -172,11 +174,13 @@ of the domain, and often requires trade-offs by under- or over-approximation
 
 \parhead{Domain Hierarchy} In the discussion of DSLs and progressively higher
 abstraction levels it is useful to consider domains organized in a
-hierarchy\sidenote[][-1\baselineskip]{In reality, domains are not always as
+hierarchy\sidenote[][-2\baselineskip]{In reality, domains are not always as
 neatly hierarchical as we make it seem in this section. Domains may overlap, for
 example. Nonetheless, this ierarchy is very useful to discuss many of the
-advanced topics in this book.}, where higher domains are a subset (in terms of
-scope) of the lower domains (\fig{hierarchicalDomains}). 
+advanced topics in this book. In terms of DSLs, overlap may be addressed by
+factoring the common aspects into a separate language module that can be used in
+both of the overlapping domains.}, where higher domains are a subset (in terms
+of scope) of the lower domains (\fig{hierarchicalDomains}).
 
 
 At the bottom we find the most general domain $D_0$. It is the domain of all
@@ -228,19 +232,19 @@ We have said earlier that there can be several languages for the same domain.
 These languages differ regarding the abstractions they use as part of the
 language. Deciding which abstractions should go into a particular language for
 $D$ is not always obvious. The basis for the decision is to consider the
-\emph{model purpose}. Models\footnote{As mentioned in the introduction in Part
-I\todo{ref}, we use the terms program and model as synomyms.}, and hence the
+\emph{model purpose}. Models\sidenote[][-4\baselineskip]{As mentioned in the
+introduction in Part I\todo{ref}, we use the terms program and model as synomyms.}, and hence the
 languages to express them, are intended for a specific purpose. Examples of
 model purpose include automatic derivation of a $D_{-1}$ program, formal
 analysis and model checking, platform independent specification of functionality
-or generation of documentation\footnote{Generation of documentation is typically
+or generation of documentation\sidenote[][-4\baselineskip]{Generation of documentation is typically
 not the main or sole model purpose, but may be an important secondary concern.
 In general, we consider models that only serve communication among humans
 outside the scope of this book, because they don't have to be formally defined
 to achieve their purpose.}. The same domain concepts can often be abstracted in
 different ways, for different purposes. When defining a DSL, we have to identify
 the different purposes required, and then decide whether we can create one DSL
-that fits all purposes, or create a DSL for each purpose.
+that fits all purposes, or create a DSL for each purpose\footnote{This isespecially useful if different stakeholders want to express different aspectsof the domain with languages suitable to their particular aspect. We discussthis in the chapter on Viewpoints \sect{sec:viewpoints}}.
 
 \embc{The model purpose is the generation of an efficient low-level C
 implementation of the system, while at the same time providing software
@@ -248,8 +252,8 @@ developers with meaningful abstractions. Since \emph{efficient} C code has to be
 generated, certain abstractions, such as dynamically growing lists or runtime
 polymorphic dispatch are not supported even though they would be convenient for
 the user. The state machines in the statemachines language have an additional
-model purpose: model checking, i.e. proofing certain properties about the state
-machines (e.g. proofing that a certain state is definitely going to be reached
+model purpose: model checking, i.e. proving certain properties about the state
+machines (e.g. proving that a certain state is definitely going to be reached
 after some event occurs). To make this possible, the action code used in the
 state machines are limited: it is not possible, for example, to read and writethe same variable in the same action.}
 
@@ -386,10 +390,10 @@ $fo \Rightarrow \mathit{element} \to \mathit{fragment}$ (\fig{fragmentOf}).
 \end{center} 
 \end{marginfigure}
 
-\parhead{Relations} We also define the following sets of relations between
+\parhead{Relations} We also define the following sets of relationships between
 program elements. $\mathit{Cdn_f}$ is the set of parent-child relationships in a
 fragment $f$. Each $c \in Cdn$ has the properties $parent$ and $child$ (see
-figure \fig{sets}).
+figure \fig{sets}; $Cdn$ are all the parent-child "lines" in the picture).
 
 \embc{In \ic{int x = 3;} the local variable declaration is the $parent$ of the
 \ic{type} and the \ic{init} expression \ic{3}. The concept \lcr{Local-}  \\
@@ -420,8 +424,8 @@ with objects of type S (i.e., objects of type S may be substitutes for objects
 of type T) without altering any of the desirable properties of that program
 (correctness, task performed, etc.)." The LSP is well known in the context of
 object-oriented programming. In the context of language design it implies that A
-concept $c_sub$ that extends another concept $c_super$ can be used in places
-where an instance of $c_super$ is expected. $\mathit{Inh_l}$ is the set of
+concept $c_{sub}$ that extends another concept $c_{super}$ can be used in places
+where an instance of $c_{super}$ is expected. $\mathit{Inh_l}$ is the set of
 inheritance relationships for a language $l$. Each $i \in \mathit{Inh_l}$ has
 the properties $super$ and $sub$.\begin{marginfigure}[-40mm]
 \begin{center}
@@ -486,7 +490,10 @@ definition fragment that contains the referenced building block.}
 are expressed with the same language (1.5). This means that for all parent/child
 relationships ($Cdn_f$), the elements at both ends of the relationship have to
 be instances of concepts defined in one language $l$ (1.6):
-\begin{align}
+\sidenote{An independent language can only express homogeneous fragments. However, a
+homogeneous fragment can be expressed with a dependent language if the
+dependencies all come via the $Refs$ relationship.}
+\begin{align} 
 \forall e \in E_f &\mid \mathit{lo(co(e))} = l \\
 \forall c \in \mathit{Cdn_f} &\mid \mathit{lo(co(c.parent))} = 
 	\mathit{lo(co(c.child))} = l
@@ -569,8 +576,8 @@ Domain Workbench (\url{http://intentsoft.com}) and JetBrains MPS.
 
 
 In this section, we do not discuss the relative advantages and drawbacks of
-parser-based vs. projectional editors in any detail (we do discuss the tradeoffs
-in the chapter on language implementation \todo{ref}). However, we will point
+parser-based vs. projectional editors in any detail (we do discuss the
+trade-offs in the chapter on language implementation \todo{ref}). However, we will point
 out if and when there are different DSL design options depending on which of the
 two approaches is used.
 
