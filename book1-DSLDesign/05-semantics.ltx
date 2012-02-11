@@ -6,10 +6,10 @@
 Semantics can be partitioned into static semantics and execution semantics.
 Static semantics are implemented by the constraints and type system rules
 (and, if you will, the language structure). Execution semantics denote the
-observable behaviour of a program $p$ as it is executed. In this section we
+observable behavior of a program $p$ as it is executed. In this section we
 focus on execution semantics unless stated otherwise.
 
-Using a function $OB$ that defines this observable behaviour we can define the
+Using a function $OB$ that defines this observable behavior we can define the
 semantics of a program $p_{L_D}$ by mapping it to a program $q$ in a language
 for $D_{-1}$ that has the same observable behavior:
 $$semantics( p_{L_D} ) := q_{L_{D-1}}\;\;\;where\;OB(p_{L_D}) ==
@@ -24,7 +24,7 @@ in this book.}
 sufficient number of tests, or with model checking and proof in some cases. This
 definition of semantics reflects the hierarchy of domains and works both for
 languages that describe only structure, as well as for those that include
-behavioural aspects.
+behavioral aspects.
 
 The technical implementation of the mapping to $D_{-1}$ can be
 provided in two different ways: a DSL program can literally be transformed into
@@ -538,7 +538,7 @@ cleaner code approach is possible in C.}
   \caption[][0.3cm]{The required port \lcr{lowlevel} is not just bound to the
   \lcr{ILowLevel} interface, but restricted tot the \lcr{ll} port of the
   \lcr{LowLevelCode} component. This way, it is statically known which C
-  function implements the behaviour and the generated code can be optimized.}
+  function implements the behavior and the generated code can be optimized.}
   \label{restrictedport} 
   \rule{1\textwidth}{0.7pt}    
 \end{figure}
@@ -778,7 +778,7 @@ time) but easier to analyze.}. Possibly a DSL should be partitioned into several
 sub-DSLs, where some of them are verifiable and some are not.
 
 \embc{This is the approach used here: model checking is provided for the state
-machines. No model checking is available for general purpose C, so behaviour
+machines. No model checking is available for general purpose C, so behavior
 that should be verifiable must be isolated into a state machine explicitly.
 State machines interact with their surrounding C program in a limited an
 well-defined way to isolate them and make them checkable. Also, state machines
@@ -804,7 +804,7 @@ domain users can play with the DSL and write down their expectations in the
 testing aspect.
 
 \cooling{This DSL has a separate viewpoint for defining test cases where
-domain experts can codify their expectations regarding the behaviour of cooling
+domain experts can codify their expectations regarding the behavior of cooling
 programs. An interpreter is available to simulate the programs, observe their
 progress and stimulate them to see how they react.}
 

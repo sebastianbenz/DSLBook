@@ -284,7 +284,7 @@ and the setters are called. The generators are separate but they are
 \emph{dependent}, they share information. Specifically, the forms generator
 knows about the names of the generated entity classes, as well as the names of
 the setters and getters. This is implemented by defining a couple of
-behaviour methods on the \ic{Attribute} concept that are called from both
+behavior methods on the \ic{Attribute} concept that are called from both
 generators (the colon represents the node cast operator and binds tightly; the
 code below casts the attribute's parent to \ic{Entity} and then accesses the
 \ic{name} property).
@@ -529,7 +529,7 @@ Database CompanyDB
 \phead{Type System} The type of a column is the type of its \ic{type} property.
 In addition, the type of the column must also conform to the type of the column
 mapper, so the concrete subtype must provide a type mapping as well. This
-"typing hook" is implemented as an abstract behaviour method \ic{typeMappedToDB}
+"typing hook" is implemented as an abstract behavior method \ic{typeMappedToDB}
 on the \ic{ColumnMapper}. It is acceptable from a dependency perspective to have
 this typing hook, since relmapping is designed to be extensible. The typing
 rules then look as follows:
