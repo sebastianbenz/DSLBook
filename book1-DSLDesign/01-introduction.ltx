@@ -14,7 +14,12 @@ We use a the following notation:
 \pension{This refers to the pension plans case study desribed in .}
 \exwebdsl{This refers to the WebDSL case study desribed in .}
 
-
+Some aspects of DSL Design have been formalized with mathematical formulae.
+These are intended as an additional means of explaining some of the concepts.
+Formulae are able to state properties of programs and languages in an
+unambiguous way. However, I want to emphasize that reading or understanding the
+formulae is \emph{not} essential for understanding the language design
+discussion. So if you're not into mathematical formulae, just ignore them.
  
 
 
@@ -447,7 +452,10 @@ list of statements.}
 \emph{independent language} does not depend on other languages. This means that
 for all parent/child, reference and inheritance relationships, both ends refer
 to concepts in the same language. Based on our definitions above we can define
-an independent language $l$ as a language for which the following hold:
+an independent language $l$ as a language for which the following
+hold\footnote{As I said in the introduction to this part of the book, formulae
+like these are not essential for understanding. You may ignore them if you
+like.}:
 \begin{align}
 \forall r \in \mathit{Refs_l} &\mid \mathit{lo(r.to)} = 
 	\mathit{lo(r.from)} = l
