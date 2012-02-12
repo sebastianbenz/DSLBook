@@ -827,6 +827,20 @@ behavior expressed in the model. There are three ways to address this:
   verifying just the DSL models (which scales better).
 \end{itemize}
 
+\begin{figure}[h]
+\begin{center}
+  \includegraphics[width=10cm]{figures/7/editorTesting.png}
+  \caption[]{This test tests whether code completion works correctly. We start
+  with an "empty" variable declaration in the \ic{before} slot. It is marked
+  with \ic{cell}, an special annotation used in UI tests to mark the editor cell for that has the focus for
+  the subsequent scripted behavior. In the \ic{result} slot, we describe the
+  state of the editor \emph{after} the script code has been executed. The script
+  code then simulates typing the word \ic{myVariable}, pressing \ic{TAB},
+  pressing \ic{CTRL-SPACE}, typing \ic{boo} (as a prefix of \ic{boolean}) and
+  pressing \ic{ENTER}.}
+  \label{editorTesting} 
+\end{center} 
+\end{figure}
 
 \subsection{Testing Editor Services}
 
@@ -838,7 +852,7 @@ general. There are three ways of approaching this:
   \item The language workbench may provide specific APIs to hook into UI aspects
   and script tests for those. For example, MPS supports the scripting of user
   interactions in the editor, and hence check, if the editor behaves correctly
-  \todo{Screenshot}.
+  (see \fig{editorTesting}).
   \item You can use generic UI testing tools to simulate typing and clicking in
   the editor, and checking the resulting behavior.
   \item Finally, you can islolate the algorithmic aspects of the IDE behavior
@@ -846,6 +860,8 @@ general. There are three ways of approaching this:
   unit test those with the techniques discussed in the rest of this chapter,
   independent of the actual UI.
 \end{itemize}
+
+
 
 In practice, I try to use the third alternative as far as possible: for
 non-trivial IDE functionality in quick fixes and refactorings, I isolate the
