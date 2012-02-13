@@ -1,9 +1,171 @@
 \section{Editor Services}
 
+In this chapter we illustrate typical services provided by the IDE that are
+\emph{not} automatically derived from the language definition itself. Additional
+configuration of programming is required. Note that we are not going to show
+every service with every example tool. So, if we don't show how X works in some
+tool, this does \emph{not} mean that you cannot do X with this particular tool.
+
 
 \subsection{Code Completion}
 
+Code completion is perhaps the most essential service provided by an IDE. We
+already saw that code completion is automatically influenced by
+scopes\todo{ref}: if you press \keystroke{Ctrl-Space} at the location of a
+reference, the IDE will show you the valid targets of this reference (as
+defined in the scope) in the code completion menu. Selecting one establishes the
+reference by "pasting" the reference string into the program at the reference
+site. 
+
+\parhead{Customizing code completion for a reference} Consider the cooling DSL.
+Cooling programs can reference symbols. Symbols can be hardware building blocks, local
+variables or configuration parameters. It would be useful in the code completion
+menu to show what kind of symbol a particular symbol is (\fig{xtext-cc}).
+
+\begin{marginfigure}
+\begin{center}
+  \includegraphics[width=65mm]{figures/ide/xtext-cc.png}
+  \caption[]{}
+  \label{xtext-cc} 
+\end{center}
+\end{marginfigure}
+
+This effect can be achieved by overriding the content assist provider for the
+particular reference. To customize code completion, you have to implement a
+\ic{complete...} method in the \ic{ProposalProvider} for your language. The
+method name has to correspond to rule/property whose code completion menu you
+want to customize. In this example, we want to customize the \ic{symbol}
+property of the \ic{Atomic} expression:
+
+\begin{code}
+Atomic returns Expression:
+    ...
+	({SymbolRef} symbol=[appliances::SymbolDeclaration|QID]);
+\end{code}
+
+The method takes various arguments, the first one, \ic{model}, represents the
+program element for which the \ic{symbol} property should be completed. 
+
+\begin{code}
+public class CoolingLanguageProposalProvider 
+             extends AbstractCoolingLanguageProposalProvider {
+    
+    @Override
+    public void completeAtomic_Symbol(EObject model, Assignment assignment,
+                                      ContentAssistContext context, 
+                                      ICompletionProposalAcceptor acceptor) { 
+        ...
+    }
+}
+\end{code}
+
+Let us now look at the actual implementation of the method. In line three we get
+the scope for the particular reference so we can iterate over all the elements
+and change their appearance in the code completion menu. To be able to get the
+scope, we need the \ic{EReference} for the particular reference. The first two
+lines in this method are used to this end.
+
+\begin{code}
+CrossReference crossReference = ((CrossReference)assignment.getTerminal()); 
+EReference ref = GrammarUtil.getReference(crossReference);
+IScope scope = getScopeProvider().getScope(model, ref);
+Iterable<IEObjectDescription> candidates = scope.getAllElements();
+for (IEObjectDescription od: candidates) {
+    String ccText = od.getName()+" ("+od.getEClass().getName()+")";
+    String ccInsert = od.getName().toString();
+    acceptor.accept(createCompletionProposal(ccInsert, ccText, null, context));
+}
+\end{code}
+
+Once we have the scope we can iterate over all its contents (i.e. the target
+elements). Note how the scope does not directly contain the target
+\ic{EObjects}, but rather \ic{IEObjectDescription}s. This is because the code
+completion is resolved against the index, a data structure maintained by Xtext
+that contains all referencable elements. This approach has the advantage that
+the target resource, i.e. the file that contains the target element, does not
+have to be loaded just to be able to reference into it. 
+
+Inside the loop we then use the name of the target object plus the name of the
+\ic{EClass} to construct the string to be shown in the code completion menu
+(\ic{ccText})\footnote{Note that we could use a rich string to add some nice
+formatting to the string.}. The last line then calls the \ic{accept} method on
+the \ic{ICompletionProposalAcceptor} to finally create a proposal. Note how we
+also pass in \ic{ccInsert}, which is the text to be inserted into the program in
+case the particular code completion menu item is selected.
+
+
+The contents of the code completion menu for references can be customized in MPS
+as well. It is instructive to take a look at this in addition to Xtext for two
+reasons. The first one is brevity. Consider the following code:
+
+\begin{code}
+link {function} 
+  referent set handler:<none> 
+  search scope: 
+    ... 
+  presentation : 
+    (parameterNode, visible, smartReference, inEditor, model, scope, referenceNode, 
+               linkTarget, enclosingNode, operationContext)->string {
+        parameterNode.signatureInfo(); 
+  } 
+\end{code}
+
+To customize the contents of the code completion menu, one simply has to provide
+the expression that calculates the text in the \ic{presentation} section of the
+scope provider. In this example we call a method that calculates a string that
+represents the complete signature of the function.
+
+The second reason why this is interesting in MPS is that we don't have to
+specify the text that should be inserted if an element is selected from the code
+completion menu: the reference is established based on the UUID of the target
+node, and the editor of the referencing node determines the presentation of this
+reference. In the example of the function call, it projects the name of the
+called function (plus the actual arguments).
+
+
+\parhead{Code completion from simple properties} In Xtext, code completion can
+be provided for any property of a rule, not just for references. The mechanism
+to do that is the same as the one shown above.
+
+In MPS, the mechanism is different. Since this is a pure editor customization
+and has nothing to do with scopes, this behavior is customized in the editor
+definition. Consider a \ic{LocalVariableDeclaration} as in \ic{int x =
+0;}, where we want to customize the suggested name of the variable. So if you
+press \keystroke{Ctrl-Space} in the name field of the variable, we want to
+suggest one or more reasonable names for the variable. \fig{cellmenu} shows the
+necessary code.
+
+\begin{figure}[h]
+\begin{center}
+  \includegraphics[width=10cm]{figures/ide/cellmenu.png}
+  \caption[]{A cell menu for the \ic{name} property of a
+  \ic{LocalVariableDeclaration}. In the editor definition (top window) we
+  select the cell that renders the \ic{name}. In the inspector we can then
+  define additional properties for the selected cell. In this case we
+  contribute an additional cell menu that provides the suggested names.}
+  \label{cellmenu} 
+\end{center}
+\end{figure}
+
+Every editor cell can have a cell menu (the menu you see when you press
+\ic{Ctrl-Space}). The cell menu consists of several parts. Each part contributes
+a set of menu entries. In the example in \fig{cellmenu}, we add a cell menu part
+of type \ic{property values}, in which we simply return a list of values (one,
+in the example; we use the local variable's type's name, prefixed by an \ic{a}).
+
+\parhead{Editor Templates}
+
+
+
+
+
+Note that the customization of 
+
 Beyond what the scope gives you
+
+MPS: CC for everything
+
+\subsection{Templates}
 
 \subsection{Syntax Coloring}
 
@@ -40,3 +202,5 @@ Jan's Dingens in Xtext
 
 \subsection{In-IDE Intepreter}
 
+
+\subsection{Diff and Merge}
