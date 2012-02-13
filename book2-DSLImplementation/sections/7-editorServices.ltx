@@ -153,23 +153,129 @@ a set of menu entries. In the example in \fig{cellmenu}, we add a cell menu part
 of type \ic{property values}, in which we simply return a list of values (one,
 in the example; we use the local variable's type's name, prefixed by an \ic{a}).
 
-\parhead{Editor Templates}
+\parhead{Editor Templates} Templates are more complex syntactic structures that
+can be selected from the code completion menu. For example, the code completion
+menu may contain an \ic{if-then-else} entry, which, if you select it, gets
+expanded into the following code in the program:
+
+\begin{code}
+if ( expr ) {
+
+} else {
+
+}
+\end{code}
+
+Xtext provides templates for this purpose. These can be defined either as part
+of the language, or by the user in the IDE. \fig{xtext-template} shows the
+if/then/else example as defined in the IDE.
+
+\begin{figure}[h]
+\begin{center}
+  \includegraphics[width=11cm]{figures/ide/xtext-template.png}
+  \caption[]{Template definitions contain a name (the text shown in the code
+  completion menu), a description as well as the context and the pattern. The
+  context refers to a grammar rule. The template can be inserted in the editor
+  where that grammar rule would be valid as well. The pattern is the actual
+  text that will be inserted into the editor if the template is selected. It
+  can contain so-called variables. Once inserted, the user can use \ic{Tab} to
+  step through the variables and replace them with text. In the example, we
+  define the condition expression as a variable.}
+  \label{xtext-template} 
+\end{center}
+\end{figure}
+
+
+In MPS there are several ways to address this. One is simply an intention
+(explained in more detail in \todo{ref}). It will not be activated via
+\ic{Ctrl-Space}, but rather via \ic{Alt-Enter}. In every other respect it is 
+identical: the intention can insert arbitrary code into the program. To use the
+code completion menu, we use another cell menu. \fig{ifthenelsecellmenu} shows
+the code.
+
+\begin{figure}[h]
+\begin{center}
+  \includegraphics[width=9cm]{figures/ide/ifthenelsecellmenu.png}
+  \caption[]{A cell menu to insert the if-then-else statement. Note how we
+  contribute \emph{two} menu parts. The first one inserts the default code
+  completion contents for \ic{Statement}. The second one provides an
+  if/then/else statement under the menu text \ic{if-then-else}. Notice how we
+  can use a quotation (concrete syntax expression) in the code. Because of
+  MPS's excellent support for language composition, the editor even provides
+  code completion etc. \emph{for the contents of the quotation}.}
+  \label{ifthenelsecellmenu} 
+\end{center}
+\end{figure}
 
 
 
-
-
-Note that the customization of 
-
-Beyond what the scope gives you
-
-MPS: CC for everything
-
-\subsection{Templates}
 
 \subsection{Syntax Coloring}
 
+There are two cases for syntax coloring: syntactic highlighting and semantic
+highlighting. Syntactic highlighting is used to color keywords, for example.
+These keywords are readily available the colorer from the grammar. No
+customization is necessary beyond configuring the actual color. Semantic
+coloring colors code fragments based on some query over the AST structure. For
+example, in a state machine, if a state is unreachable (no incoming
+transitions) the state may be colored in grey instead of black.
+
+\begin{figure}[h]
+\begin{center}
+  \includegraphics[width=10cm]{figures/ide/globalvareditor.png}
+  \caption[]{Syntax coloring is achieved by simply associating one or more
+  style properties with the elements at hand. In this case we assign a
+  \ic{darkGreen} text foreground color as well as a \ic{bold} font style.}
+  \label{globalvareditor} 
+\end{center}
+\end{figure}
+
+Let us first look at syntax coloring in MPS, starting with purely syntactic
+highlighting. \fig{globalvareditor} shows a collage of several ingredients: at
+the top we see the editor for \ic{GlobalVariableDeclaration}.
+\ic{GlobalVariableDeclaration} implements the interface \ic{IModuleContent}.
+\ic{IModuleContent}s can be exported, so we define an editor component (a
+reusable editor fragment) for \ic{IModuleContent} that renders the \ic{exported}
+flag. This editor component is embedded into the editor of
+\ic{GlobalVariableDeclaration} (it is also embedded into the editor of all other
+concepts that implement \ic{IModuleContent}). The editor component simply
+defines a keyword \ic{exported} that is rendered in dark green and in bold font.
+This can be achieved by simply specifying the respective style properties for
+the editor cell\footnote{Groups of style definitions can also be modularized
+into style sheets and reused for several cells.}.
+
+Semantic highlighting works essentially the same way. Instead of using a
+constant (\ic{darkGreen}) for the color we can also embed a query expression.
+The code in \fig{stylequery} renders a the \ic{state} keyword of a
+\ic{State} in a \emph{Statemachine} grey if that particular state has no 
+incoming transitions.
+
+\begin{figure}[h]
+\begin{center}
+  \includegraphics[width=11cm]{figures/ide/stylequery.png}
+  \caption[]{A style query that renders the associated cell in grey if the
+  \ic{state} (to which the cell belongs) has no incoming transitions. We first
+  find out if the state has incoming transitions by finding the
+  \ic{Statemachine} ancestor of the state, finding all the \ic{Transitions} in
+  the subtree under the \ic{Statemachine}, and then check if one exists whose
+  \ic{targetState} is the current state (\ic{node}). We then use the result of
+  this query to color the cell appropriately.}
+  \label{stylequery} 
+\end{center}
+\end{figure}
+
+
+
+
+
+
+
+
 Xtext, MPS, Semantic Coloring
+
+
+Xtext: User definable actual colors.
+
 
 \subsection{Go-to-Definition and Find References}
 
