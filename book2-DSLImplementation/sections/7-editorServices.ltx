@@ -1,4 +1,4 @@
-\section{Editor Services}
+\section{IDE Services}
 
 In this chapter we illustrate typical services provided by the IDE that are
 \emph{not} automatically derived from the language definition itself. Additional
@@ -40,7 +40,7 @@ property of the \ic{Atomic} expression:
 \begin{code}
 Atomic returns Expression:
     ...
-	({SymbolRef} symbol=[appliances::SymbolDeclaration|QID]);
+    ({SymbolRef} symbol=[appliances::SymbolDeclaration|QID]);
 \end{code}
 
 The method takes various arguments, the first one, \ic{model}, represents the
@@ -265,16 +265,90 @@ incoming transitions.
 \end{figure}
 
 
+Xtext uses a two-phase approach. First, you have to define the styles you want
+to apply to parts of the text. This is done in a the highlighting configuration
+of the particular language:
 
 
+\begin{code}
+public class CLHighlightingConfiguration extends DefaultHighlightingConfiguration {
+    
+    public static final String VAR = "var";
+    
+    @Override
+    public void configure(IHighlightingConfigurationAcceptor acceptor) {
+        super.configure(acceptor);
+        acceptor.acceptDefaultHighlighting(VAR, "variables", varTextStyle());
+    }
+    
+    private TextStyle varTextStyle() {
+        TextStyle t = defaultTextStyle().copy();
+        t.setColor(new RGB(100,100,200)); 
+        t.setStyle(SWT.ITALIC | SWT.BOLD );
+        return t;
+    }
+}
+\end{code}
 
+The \ic{varTextStyle} method creates a \ic{TextStyle} object. The method
+\ic{configure} then registers this style with the framework using a unique
+identifier (the constant \ic{VAR}). The reason for registering it with the
+framework is that the styles can be changed by the user in the running
+application using the preferences dialog (\fig{coloringprefs}). 
+\begin{marginfigure}[-13\baselineskip]
+\begin{center}
+  \includegraphics[width=50mm]{figures/ide/coloringprefs.png}
+  \caption[]{Preferences dialog that allows users to change the styles
+  registered with the framework from a highlighting configuration.}
+  \label{coloringprefs} 
+\end{center}
+\end{marginfigure}
 
+We now have to associate the style with program syntax. The semantic
+highlighting calculator for the target language is used to this end. It requires
+a method \ic{provideHighlightingFor} to be implemented. To highlight references
+to variables (not the variables themselves!) with the style defined above works
+the following way:
 
+\begin{code}
+public void provideHighlightingFor(XtextResource resource, IHighlightedPositionAcceptor acceptor) {
+    EObject root = resource.getContents().get(0);
+    TreeIterator<EObject> eAllContents = root.eAllContents();
+    while (eAllContents.hasNext()) {
+        EObject ref = (EObject) eAllContents.next();
+        if ( ref instanceof SymbolRef ) {
+            SymbolDeclaration sym = ((SymbolRef) o).getSymbol();
+            if ( sym instanceof Variable ) {
+                ICompositeNode n = NodeModelUtils.findActualNodeFor(ref);
+                acceptor.addPosition(n.getOffset(), n.getLength(), CLHighlightingConfiguration.VAR);
+            }
+        }
+    }
+}
+\end{code}
 
-Xtext, MPS, Semantic Coloring
+The method gets passed in an \ic{XtextResource}, which represents a model
+file. From it we get the root element and iterate over all its contents. If we
+find a \ic{SymbolRef}, we continue with coloring. Notice that in the cooling
+language we refernece \emph{any} symbol (variable, event, hardware element) with
+a \ic{SymbolRef}, so we now have to check whether we reference a \ic{Variable}
+or not\sidenote{This is the place where we could perform any other structural
+or semantic analysis (such as the check for no incoming transitions) as well.}.
 
-
-Xtext: User definable actual colors.
+If we have successfully identified a reference to a variable, we now have to
+move from the abstract syntax tree (on which we have worked all the time so far)
+to the concrete syntax tree. It is a complete representation of the parse
+result, including keywords, symbols and whitespace\sidenote{It is represented as an EMF
+model as well so we can access it with the usual means.}. We use a utility
+method to find the \ic{ICompositeNode} that represents the \ic{SymbolRef} in the
+concrete syntax tree. Finally we use the \ic{acceptor} to perform the actual
+highlighting using the position of the text string in the text. We pass in the
+\ic{VAR} style defined before. Notice how we color the \emph{complete}
+reference. Since it is only one text string anyway, this is just as well. If we
+had more structured concrete syntax (as in \ic{state someState \{\}}), and we
+only wanted to highlight parts of it (e.g. the \ic{state} keyword), we'd have
+to do some further analysis on the \ic{ICompositeNode} to find out the actual
+concrete syntax node for the keyword.
 
 
 \subsection{Go-to-Definition and Find References}
