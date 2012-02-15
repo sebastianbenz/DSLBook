@@ -230,19 +230,19 @@ transitions) the state may be colored in grey instead of black.
 \end{center}
 \end{figure}
 
-Let us first look at syntax coloring in MPS, starting with purely syntactic
-highlighting. \fig{globalvareditor} shows a collage of several ingredients: at
-the top we see the editor for \ic{GlobalVariableDeclaration}.
-\ic{GlobalVariableDeclaration} implements the interface \ic{IModuleContent}.
-\ic{IModuleContent}s can be exported, so we define an editor component (a
-reusable editor fragment) for \ic{IModuleContent} that renders the \ic{exported}
-flag. This editor component is embedded into the editor of
-\ic{GlobalVariableDeclaration} (it is also embedded into the editor of all other
-concepts that implement \ic{IModuleContent}). The editor component simply
-defines a keyword \ic{exported} that is rendered in dark green and in bold font.
-This can be achieved by simply specifying the respective style properties for
-the editor cell\footnote{Groups of style definitions can also be modularized
-into style sheets and reused for several cells.}.
+\parhead{An example with MPS} Let us first look at syntax coloring in MPS,
+starting with purely syntactic highlighting. \fig{globalvareditor} shows a
+collage of several ingredients: at the top we see the editor for
+\ic{GlobalVariableDeclaration}. \ic{GlobalVariableDeclaration} implements the
+interface \ic{IModuleContent}. \ic{IModuleContent}s can be exported, so we
+define an editor component (a reusable editor fragment) for \ic{IModuleContent}
+that renders the \ic{exported} flag. This editor component is embedded into the
+editor of \ic{GlobalVariableDeclaration} (it is also embedded into the editor of
+all other concepts that implement \ic{IModuleContent}). The editor component
+simply defines a keyword \ic{exported} that is rendered in dark green and in
+bold font. This can be achieved by simply specifying the respective style
+properties for the editor cell\footnote{Groups of style definitions can also be
+modularized into style sheets and reused for several cells.}.
 
 Semantic highlighting works essentially the same way. Instead of using a
 constant (\ic{darkGreen}) for the color we can also embed a query expression.
@@ -265,8 +265,8 @@ incoming transitions.
 \end{figure}
 
 
-Xtext uses a two-phase approach. First, you have to define the styles you want
-to apply to parts of the text. This is done in a the highlighting configuration
+\parhead{An example with Xtext} Xtext uses a two-phase approach. First, you have
+to define the styles you want to apply to parts of the text. This is done in a the highlighting configuration
 of the particular language:
 
 
@@ -353,12 +353,148 @@ concrete syntax node for the keyword.
 
 \subsection{Go-to-Definition and Find References}
 
-Adaptable in Xtext (Type System DSL)
-Finders in MPS
+Following a reference (go to definition, \keystroke{Ctrl-Click}) as well as
+finding references to a given program element works automatically without any
+customization in any of the language workbenches. However, one might want to
+change the default behavior.
+
+\parhead{Customizing the Target with Xtext} Let us first take a look at how to
+change the target of the go-to-definition functionality. Strictly speaking, we
+don't change go-to-definition at all. We just define a new hyperlinking
+functionality. Go-to-Definition is just the default hyperlinking
+behavior\sidenote{This gets its name from the fact that, if you mouse over an
+element while keeping the \keystroke{Ctrl} key depressed you see the
+respective element turn blue and underlined. You can the click on to it to
+follow the hyperlink}. As a consequence, 
+
+\begin{itemize}
+  \item you can define hyperlinking for elements that are \emph{not} references
+  in terms of the grammar (a hyperlink can be provided for any program element)
+  \item and you can have several hyperlinks for the same element. If you
+  \keystroke{Ctrl-Click}, a little menu opens up and you can select the target
+  you are interested in.
+\end{itemize}
+
+To add hyperlinks to a language concepts, Xtext provides the
+\ic{IHyperlinkHelper}. It can be implemented by language developers to customize
+hyperlinking behavior. It requires one method, \ic{createHyperlinksTo}, that has
+to be implemented. Typically, language developers will inerit from one of the
+existing base classes, such as the \ic{TypeAwareHyperlinkHelper}. A typical
+implementation looks as follows:
+
+\begin{code}
+public void createHyperlinksTo(XtextResource from, Region region, 
+                               EObject to, IHyperlinkAcceptor acceptor) {
+    if ( to instanceof TheEConceptIAmInterestedIn ) {
+        EObject target = // find the target of the hyperlink
+        super.createHyperlinksTo(from, region, target, acceptor);
+    } else {
+        super.createHyperlinksTo(from, region, to, acceptor);
+    }
+}
+\end{code}
+
+
+\parhead{Customized Finders im MPS} In many cases, there are different kinds of
+references. For example, for an \ic{Interface} in the mbeddr components
+language, references to that interface can either be sub-interfaces or
+components. Components can either \emph{provide} a an interface (so other
+components can call the interface's operation) or it can \emph{require} an
+interface, in which case the component itself calls operations defined by the
+interface. When finding references, we may want to distinguish between these
+different cases.
+
+\begin{marginfigure}[-5\baselineskip]
+\begin{center}
+  \includegraphics[width=50mm]{figures/ide/finders.png}
+  \caption[]{In the Find Usages dialog for \ic{Interfaces}. The two additional
+  Finders in the top left box are contributed by the language.}
+  \label{finders} 
+\end{center}
+\end{marginfigure} 
+MPS provides so-called finders to achieve this. \fig{finders} shows the
+resulting Find Usages dialog for an \ic{Interface} after we have added two
+finders to the language: one for components providing the interface and one for
+components requiring the interface.
+
+Implementing finders is simple, since, as usual, MPS provides a DSL for
+specifying them. The following code shows the implementation.
+
+\begin{code}
+simple finder findProviders for concept Interface
+  description: Providers 
+ 
+  find(node, scope)->void { 
+    nlist<> nodes = execute NodeUsages ( node , <same scope> ); 
+    foreach n in nodes { 
+      if (n.isInstanceOf(ProvidedPort)) { 
+        add result n.parent ; 
+      } 
+    } 
+  }  
+  
+  getCategory(node)->string { 
+    "Providers"; 
+  }  
+\end{code}
+
+\begin{marginfigure}[49mm]
+\begin{center}
+  \includegraphics[width=50mm]{figures/ide/finder-result.png}
+  \caption[]{The result dialog of running Find Usages with our customized
+  finders. Note the \ic{Providers} and \ic{Users} categories; these correspongf
+  to the strings returned from \ic{getCategory} in the two finders.}
+  \label{finder-result} 
+\end{center}
+\end{marginfigure} 
+We specify a name for the finder (\ic{findProviders}) as well as the type to
+which it applies (references to which it will find, \ic{Interface} in the
+example). We then have to implement the \ic{find} method. Notice how in the
+first line of the implementation we delegate to an existing finder, \ic{Node
+Usages}, which finds \emph{all} references. We then simply check if the
+referencing element is a \ic{ProvidedPort}, and if so, we add the parent of the
+port, i.e. a \ic{Component}, to the result. Note how we make use of extensions
+to the MPS BaseLanguage to concisely specify finders: \ic{execute} and \ic{add
+result} are only available in the finder specification language. Finally,
+\ic{getCategory} returns a string that is use to structure the result.
+\fig{finder-result} shows an example result.
+
 
 \subsection{Pretty Printing}
 
-in Xtext and Spoofax; no issue in MPS
+Pretty printing refers to the reverse activity from parsing. A parser transforms
+a character sequence into an abstract syntax tree. A pretty printer (re-)creates
+the text string from the AST. As the term \emph{pretty} printing suggests, the
+resulting text should be \emph{pretty}, i.e. whitespace must be managed
+properly. 
+
+\parhead{Pretty Printing in MPS} is a non-issue. The editor always pretty prints
+as part of the projection. 
+
+\parhead{Pretty Printing in Xtext} In Xtext, the whitespace in the grammar is
+irrelevant. In other words, MPS cannot infer the "correct" use of whitespace
+from the grammar. Consequently, the use of whitespace has to be specified
+explicitly. This is done in a language's \ic{Formatter}. Formatters use a Java
+API to specify whitespace policies for a grammar. Let us consider an example
+from the cooling language. Assume we enter the following code:
+
+\begin{code}
+    state Hallo   : entry { if true { } }
+\end{code}
+
+If we run the formatter (e.g. by pressing \keystroke{Ctrl-Shift-F} in the IDE),
+we want it to format it to look like this:
+
+\begin{code}
+    state Hallo: 
+        entry { 
+            if true { } 
+        }
+\end{code}
+
+
+
+
 
 \subsection{Quick Fixes}
 
