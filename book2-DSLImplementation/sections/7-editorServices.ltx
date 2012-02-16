@@ -1,22 +1,544 @@
-\section{Editor Services}
+\section{IDE Services}
+
+In this chapter we illustrate typical services provided by the IDE that are
+\emph{not} automatically derived from the language definition itself. Additional
+configuration of programming is required. Note that we are not going to show
+every service with every example tool. So, if we don't show how X works in some
+tool, this does \emph{not} mean that you cannot do X with this particular tool.
 
 
 \subsection{Code Completion}
 
-Beyond what the scope gives you
+Code completion is perhaps the most essential service provided by an IDE. We
+already saw that code completion is automatically influenced by
+scopes\todo{ref}: if you press \keystroke{Ctrl-Space} at the location of a
+reference, the IDE will show you the valid targets of this reference (as
+defined in the scope) in the code completion menu. Selecting one establishes the
+reference by "pasting" the reference string into the program at the reference
+site. 
+
+\parhead{Customizing code completion for a reference} Consider the cooling DSL.
+Cooling programs can reference symbols. Symbols can be hardware building blocks, local
+variables or configuration parameters. It would be useful in the code completion
+menu to show what kind of symbol a particular symbol is (\fig{xtext-cc}).
+
+\begin{marginfigure}
+\begin{center}
+  \includegraphics[width=65mm]{figures/ide/xtext-cc.png}
+  \caption[]{}
+  \label{xtext-cc} 
+\end{center}
+\end{marginfigure}
+
+This effect can be achieved by overriding the content assist provider for the
+particular reference. To customize code completion, you have to implement a
+\ic{complete...} method in the \ic{ProposalProvider} for your language. The
+method name has to correspond to rule/property whose code completion menu you
+want to customize. In this example, we want to customize the \ic{symbol}
+property of the \ic{Atomic} expression:
+
+\begin{code}
+Atomic returns Expression:
+    ...
+    ({SymbolRef} symbol=[appliances::SymbolDeclaration|QID]);
+\end{code}
+
+The method takes various arguments, the first one, \ic{model}, represents the
+program element for which the \ic{symbol} property should be completed. 
+
+\begin{code}
+public class CoolingLanguageProposalProvider 
+             extends AbstractCoolingLanguageProposalProvider {
+    
+    @Override
+    public void completeAtomic_Symbol(EObject model, Assignment assignment,
+                                      ContentAssistContext context, 
+                                      ICompletionProposalAcceptor acceptor) { 
+        ...
+    }
+}
+\end{code}
+
+Let us now look at the actual implementation of the method. In line three we get
+the scope for the particular reference so we can iterate over all the elements
+and change their appearance in the code completion menu. To be able to get the
+scope, we need the \ic{EReference} for the particular reference. The first two
+lines in this method are used to this end.
+
+\begin{code}
+CrossReference crossReference = ((CrossReference)assignment.getTerminal()); 
+EReference ref = GrammarUtil.getReference(crossReference);
+IScope scope = getScopeProvider().getScope(model, ref);
+Iterable<IEObjectDescription> candidates = scope.getAllElements();
+for (IEObjectDescription od: candidates) {
+    String ccText = od.getName()+" ("+od.getEClass().getName()+")";
+    String ccInsert = od.getName().toString();
+    acceptor.accept(createCompletionProposal(ccInsert, ccText, null, context));
+}
+\end{code}
+
+Once we have the scope we can iterate over all its contents (i.e. the target
+elements). Note how the scope does not directly contain the target
+\ic{EObjects}, but rather \ic{IEObjectDescription}s. This is because the code
+completion is resolved against the index, a data structure maintained by Xtext
+that contains all referencable elements. This approach has the advantage that
+the target resource, i.e. the file that contains the target element, does not
+have to be loaded just to be able to reference into it. 
+
+Inside the loop we then use the name of the target object plus the name of the
+\ic{EClass} to construct the string to be shown in the code completion menu
+(\ic{ccText})\footnote{Note that we could use a rich string to add some nice
+formatting to the string.}. The last line then calls the \ic{accept} method on
+the \ic{ICompletionProposalAcceptor} to finally create a proposal. Note how we
+also pass in \ic{ccInsert}, which is the text to be inserted into the program in
+case the particular code completion menu item is selected.
+
+
+The contents of the code completion menu for references can be customized in MPS
+as well. It is instructive to take a look at this in addition to Xtext for two
+reasons. The first one is brevity. Consider the following code:
+
+\begin{code}
+link {function} 
+  referent set handler:<none> 
+  search scope: 
+    ... 
+  presentation : 
+    (parameterNode, visible, smartReference, inEditor, model, scope, referenceNode, 
+               linkTarget, enclosingNode, operationContext)->string {
+        parameterNode.signatureInfo(); 
+  } 
+\end{code}
+
+To customize the contents of the code completion menu, one simply has to provide
+the expression that calculates the text in the \ic{presentation} section of the
+scope provider. In this example we call a method that calculates a string that
+represents the complete signature of the function.
+
+The second reason why this is interesting in MPS is that we don't have to
+specify the text that should be inserted if an element is selected from the code
+completion menu: the reference is established based on the UUID of the target
+node, and the editor of the referencing node determines the presentation of this
+reference. In the example of the function call, it projects the name of the
+called function (plus the actual arguments).
+
+
+\parhead{Code completion from simple properties} In Xtext, code completion can
+be provided for any property of a rule, not just for references. The mechanism
+to do that is the same as the one shown above.
+
+In MPS, the mechanism is different. Since this is a pure editor customization
+and has nothing to do with scopes, this behavior is customized in the editor
+definition. Consider a \ic{LocalVariableDeclaration} as in \ic{int x =
+0;}, where we want to customize the suggested name of the variable. So if you
+press \keystroke{Ctrl-Space} in the name field of the variable, we want to
+suggest one or more reasonable names for the variable. \fig{cellmenu} shows the
+necessary code.
+
+\begin{figure}[h]
+\begin{center}
+  \includegraphics[width=10cm]{figures/ide/cellmenu.png}
+  \caption[]{A cell menu for the \ic{name} property of a
+  \ic{LocalVariableDeclaration}. In the editor definition (top window) we
+  select the cell that renders the \ic{name}. In the inspector we can then
+  define additional properties for the selected cell. In this case we
+  contribute an additional cell menu that provides the suggested names.}
+  \label{cellmenu} 
+\end{center}
+\end{figure}
+
+Every editor cell can have a cell menu (the menu you see when you press
+\ic{Ctrl-Space}). The cell menu consists of several parts. Each part contributes
+a set of menu entries. In the example in \fig{cellmenu}, we add a cell menu part
+of type \ic{property values}, in which we simply return a list of values (one,
+in the example; we use the local variable's type's name, prefixed by an \ic{a}).
+
+\parhead{Editor Templates} Templates are more complex syntactic structures that
+can be selected from the code completion menu. For example, the code completion
+menu may contain an \ic{if-then-else} entry, which, if you select it, gets
+expanded into the following code in the program:
+
+\begin{code}
+if ( expr ) {
+
+} else {
+
+}
+\end{code}
+
+Xtext provides templates for this purpose. These can be defined either as part
+of the language, or by the user in the IDE. \fig{xtext-template} shows the
+if/then/else example as defined in the IDE.
+
+\begin{figure}[h]
+\begin{center}
+  \includegraphics[width=11cm]{figures/ide/xtext-template.png}
+  \caption[]{Template definitions contain a name (the text shown in the code
+  completion menu), a description as well as the context and the pattern. The
+  context refers to a grammar rule. The template can be inserted in the editor
+  where that grammar rule would be valid as well. The pattern is the actual
+  text that will be inserted into the editor if the template is selected. It
+  can contain so-called variables. Once inserted, the user can use \ic{Tab} to
+  step through the variables and replace them with text. In the example, we
+  define the condition expression as a variable.}
+  \label{xtext-template} 
+\end{center}
+\end{figure}
+
+
+In MPS there are several ways to address this. One is simply an intention
+(explained in more detail in \todo{ref}). It will not be activated via
+\ic{Ctrl-Space}, but rather via \ic{Alt-Enter}. In every other respect it is 
+identical: the intention can insert arbitrary code into the program. To use the
+code completion menu, we use another cell menu. \fig{ifthenelsecellmenu} shows
+the code.
+
+\begin{figure}[h]
+\begin{center}
+  \includegraphics[width=9cm]{figures/ide/ifthenelsecellmenu.png}
+  \caption[]{A cell menu to insert the if-then-else statement. Note how we
+  contribute \emph{two} menu parts. The first one inserts the default code
+  completion contents for \ic{Statement}. The second one provides an
+  if/then/else statement under the menu text \ic{if-then-else}. Notice how we
+  can use a quotation (concrete syntax expression) in the code. Because of
+  MPS's excellent support for language composition, the editor even provides
+  code completion etc. \emph{for the contents of the quotation}.}
+  \label{ifthenelsecellmenu} 
+\end{center}
+\end{figure}
+
+
+
 
 \subsection{Syntax Coloring}
 
-Xtext, MPS, Semantic Coloring
+There are two cases for syntax coloring: syntactic highlighting and semantic
+highlighting. Syntactic highlighting is used to color keywords, for example.
+These keywords are readily available the colorer from the grammar. No
+customization is necessary beyond configuring the actual color. Semantic
+coloring colors code fragments based on some query over the AST structure. For
+example, in a state machine, if a state is unreachable (no incoming
+transitions) the state may be colored in grey instead of black.
+
+\begin{figure}[h]
+\begin{center}
+  \includegraphics[width=10cm]{figures/ide/globalvareditor.png}
+  \caption[]{Syntax coloring is achieved by simply associating one or more
+  style properties with the elements at hand. In this case we assign a
+  \ic{darkGreen} text foreground color as well as a \ic{bold} font style.}
+  \label{globalvareditor} 
+\end{center}
+\end{figure}
+
+\parhead{An example with MPS} Let us first look at syntax coloring in MPS,
+starting with purely syntactic highlighting. \fig{globalvareditor} shows a
+collage of several ingredients: at the top we see the editor for
+\ic{GlobalVariableDeclaration}. \ic{GlobalVariableDeclaration} implements the
+interface \ic{IModuleContent}. \ic{IModuleContent}s can be exported, so we
+define an editor component (a reusable editor fragment) for \ic{IModuleContent}
+that renders the \ic{exported} flag. This editor component is embedded into the
+editor of \ic{GlobalVariableDeclaration} (it is also embedded into the editor of
+all other concepts that implement \ic{IModuleContent}). The editor component
+simply defines a keyword \ic{exported} that is rendered in dark green and in
+bold font. This can be achieved by simply specifying the respective style
+properties for the editor cell\footnote{Groups of style definitions can also be
+modularized into style sheets and reused for several cells.}.
+
+Semantic highlighting works essentially the same way. Instead of using a
+constant (\ic{darkGreen}) for the color we can also embed a query expression.
+The code in \fig{stylequery} renders a the \ic{state} keyword of a
+\ic{State} in a \emph{Statemachine} grey if that particular state has no 
+incoming transitions.
+
+\begin{figure}[h]
+\begin{center}
+  \includegraphics[width=11cm]{figures/ide/stylequery.png}
+  \caption[]{A style query that renders the associated cell in grey if the
+  \ic{state} (to which the cell belongs) has no incoming transitions. We first
+  find out if the state has incoming transitions by finding the
+  \ic{Statemachine} ancestor of the state, finding all the \ic{Transitions} in
+  the subtree under the \ic{Statemachine}, and then check if one exists whose
+  \ic{targetState} is the current state (\ic{node}). We then use the result of
+  this query to color the cell appropriately.}
+  \label{stylequery} 
+\end{center}
+\end{figure}
+
+
+\parhead{An example with Xtext} Xtext uses a two-phase approach. First, you have
+to define the styles you want to apply to parts of the text. This is done in a the highlighting configuration
+of the particular language:
+
+
+\begin{code}
+public class CLHighlightingConfiguration extends DefaultHighlightingConfiguration {
+    
+    public static final String VAR = "var";
+    
+    @Override
+    public void configure(IHighlightingConfigurationAcceptor acceptor) {
+        super.configure(acceptor);
+        acceptor.acceptDefaultHighlighting(VAR, "variables", varTextStyle());
+    }
+    
+    private TextStyle varTextStyle() {
+        TextStyle t = defaultTextStyle().copy();
+        t.setColor(new RGB(100,100,200)); 
+        t.setStyle(SWT.ITALIC | SWT.BOLD );
+        return t;
+    }
+}
+\end{code}
+
+The \ic{varTextStyle} method creates a \ic{TextStyle} object. The method
+\ic{configure} then registers this style with the framework using a unique
+identifier (the constant \ic{VAR}). The reason for registering it with the
+framework is that the styles can be changed by the user in the running
+application using the preferences dialog (\fig{coloringprefs}). 
+\begin{marginfigure}[-13\baselineskip]
+\begin{center}
+  \includegraphics[width=50mm]{figures/ide/coloringprefs.png}
+  \caption[]{Preferences dialog that allows users to change the styles
+  registered with the framework from a highlighting configuration.}
+  \label{coloringprefs} 
+\end{center}
+\end{marginfigure}
+
+We now have to associate the style with program syntax. The semantic
+highlighting calculator for the target language is used to this end. It requires
+a method \ic{provideHighlightingFor} to be implemented. To highlight references
+to variables (not the variables themselves!) with the style defined above works
+the following way:
+
+\begin{code}
+public void provideHighlightingFor(XtextResource resource, IHighlightedPositionAcceptor acceptor) {
+    EObject root = resource.getContents().get(0);
+    TreeIterator<EObject> eAllContents = root.eAllContents();
+    while (eAllContents.hasNext()) {
+        EObject ref = (EObject) eAllContents.next();
+        if ( ref instanceof SymbolRef ) {
+            SymbolDeclaration sym = ((SymbolRef) o).getSymbol();
+            if ( sym instanceof Variable ) {
+                ICompositeNode n = NodeModelUtils.findActualNodeFor(ref);
+                acceptor.addPosition(n.getOffset(), n.getLength(), CLHighlightingConfiguration.VAR);
+            }
+        }
+    }
+}
+\end{code}
+
+The method gets passed in an \ic{XtextResource}, which represents a model
+file. From it we get the root element and iterate over all its contents. If we
+find a \ic{SymbolRef}, we continue with coloring. Notice that in the cooling
+language we refernece \emph{any} symbol (variable, event, hardware element) with
+a \ic{SymbolRef}, so we now have to check whether we reference a \ic{Variable}
+or not\sidenote{This is the place where we could perform any other structural
+or semantic analysis (such as the check for no incoming transitions) as well.}.
+
+If we have successfully identified a reference to a variable, we now have to
+move from the abstract syntax tree (on which we have worked all the time so far)
+to the concrete syntax tree. It is a complete representation of the parse
+result, including keywords, symbols and whitespace\sidenote{It is represented as an EMF
+model as well so we can access it with the usual means.}. We use a utility
+method to find the \ic{ICompositeNode} that represents the \ic{SymbolRef} in the
+concrete syntax tree. Finally we use the \ic{acceptor} to perform the actual
+highlighting using the position of the text string in the text. We pass in the
+\ic{VAR} style defined before. Notice how we color the \emph{complete}
+reference. Since it is only one text string anyway, this is just as well. If we
+had more structured concrete syntax (as in \ic{state someState \{\}}), and we
+only wanted to highlight parts of it (e.g. the \ic{state} keyword), we'd have
+to do some further analysis on the \ic{ICompositeNode} to find out the actual
+concrete syntax node for the keyword.
+
 
 \subsection{Go-to-Definition and Find References}
 
-Adaptable in Xtext (Type System DSL)
-Finders in MPS
+Following a reference (go to definition, \keystroke{Ctrl-Click}) as well as
+finding references to a given program element works automatically without any
+customization in any of the language workbenches. However, one might want to
+change the default behavior.
+
+\parhead{Customizing the Target with Xtext} Let us first take a look at how to
+change the target of the go-to-definition functionality. Strictly speaking, we
+don't change go-to-definition at all. We just define a new hyperlinking
+functionality. Go-to-Definition is just the default hyperlinking
+behavior\sidenote{This gets its name from the fact that, if you mouse over an
+element while keeping the \keystroke{Ctrl} key depressed you see the
+respective element turn blue and underlined. You can the click on to it to
+follow the hyperlink}. As a consequence, 
+
+\begin{itemize}
+  \item you can define hyperlinking for elements that are \emph{not} references
+  in terms of the grammar (a hyperlink can be provided for any program element)
+  \item and you can have several hyperlinks for the same element. If you
+  \keystroke{Ctrl-Click}, a little menu opens up and you can select the target
+  you are interested in.
+\end{itemize}
+
+To add hyperlinks to a language concepts, Xtext provides the
+\ic{IHyperlinkHelper}. It can be implemented by language developers to customize
+hyperlinking behavior. It requires one method, \ic{createHyperlinksTo}, that has
+to be implemented. Typically, language developers will inerit from one of the
+existing base classes, such as the \ic{TypeAwareHyperlinkHelper}. A typical
+implementation looks as follows:
+
+\begin{code}
+public void createHyperlinksTo(XtextResource from, Region region, 
+                               EObject to, IHyperlinkAcceptor acceptor) {
+    if ( to instanceof TheEConceptIAmInterestedIn ) {
+        EObject target = // find the target of the hyperlink
+        super.createHyperlinksTo(from, region, target, acceptor);
+    } else {
+        super.createHyperlinksTo(from, region, to, acceptor);
+    }
+}
+\end{code}
+
+
+\parhead{Customized Finders im MPS} In many cases, there are different kinds of
+references. For example, for an \ic{Interface} in the mbeddr components
+language, references to that interface can either be sub-interfaces or
+components. Components can either \emph{provide} a an interface (so other
+components can call the interface's operation) or it can \emph{require} an
+interface, in which case the component itself calls operations defined by the
+interface. When finding references, we may want to distinguish between these
+different cases.
+
+\begin{marginfigure}[-5\baselineskip]
+\begin{center}
+  \includegraphics[width=50mm]{figures/ide/finders.png}
+  \caption[]{In the Find Usages dialog for \ic{Interfaces}. The two additional
+  Finders in the top left box are contributed by the language.}
+  \label{finders} 
+\end{center}
+\end{marginfigure} 
+MPS provides so-called finders to achieve this. \fig{finders} shows the
+resulting Find Usages dialog for an \ic{Interface} after we have added two
+finders to the language: one for components providing the interface and one for
+components requiring the interface.
+
+Implementing finders is simple, since, as usual, MPS provides a DSL for
+specifying them. The following code shows the implementation.
+
+\begin{code}
+simple finder findProviders for concept Interface
+  description: Providers 
+ 
+  find(node, scope)->void { 
+    nlist<> nodes = execute NodeUsages ( node , <same scope> ); 
+    foreach n in nodes { 
+      if (n.isInstanceOf(ProvidedPort)) { 
+        add result n.parent ; 
+      } 
+    } 
+  }  
+  
+  getCategory(node)->string { 
+    "Providers"; 
+  }  
+\end{code}
+
+\begin{marginfigure}[49mm]
+\begin{center}
+  \includegraphics[width=50mm]{figures/ide/finder-result.png}
+  \caption[]{The result dialog of running Find Usages with our customized
+  finders. Note the \ic{Providers} and \ic{Users} categories; these correspongf
+  to the strings returned from \ic{getCategory} in the two finders.}
+  \label{finder-result} 
+\end{center}
+\end{marginfigure} 
+We specify a name for the finder (\ic{findProviders}) as well as the type to
+which it applies (references to which it will find, \ic{Interface} in the
+example). We then have to implement the \ic{find} method. Notice how in the
+first line of the implementation we delegate to an existing finder, \ic{Node
+Usages}, which finds \emph{all} references. We then simply check if the
+referencing element is a \ic{ProvidedPort}, and if so, we add the parent of the
+port, i.e. a \ic{Component}, to the result. Note how we make use of extensions
+to the MPS BaseLanguage to concisely specify finders: \ic{execute} and \ic{add
+result} are only available in the finder specification language. Finally,
+\ic{getCategory} returns a string that is use to structure the result.
+\fig{finder-result} shows an example result.
+
 
 \subsection{Pretty Printing}
 
-in Xtext and Spoofax; no issue in MPS
+Pretty printing refers to the reverse activity from parsing. A parser transforms
+a character sequence into an abstract syntax tree. A pretty printer (re-)creates
+the text string from the AST. As the term \emph{pretty} printing suggests, the
+resulting text should be \emph{pretty}, i.e. whitespace must be managed
+properly. 
+
+\parhead{Pretty Printing in MPS} is a non-issue. The editor always pretty prints
+as part of the projection. 
+
+\parhead{Pretty Printing in Xtext} In Xtext, the whitespace in the grammar is
+irrelevant. In other words, MPS cannot infer the "correct" use of whitespace
+from the grammar. Consequently, the use of whitespace has to be specified
+explicitly. This is done in a language's \ic{Formatter}. Formatters use a Java
+API to specify whitespace policies for a grammar. Let us consider an example
+from the cooling language. Assume we enter the following code:
+
+\begin{code}
+    state Hallo   : entry { if true { } }
+\end{code}
+
+If we run the formatter (e.g. by pressing \keystroke{Ctrl-Shift-F} in the IDE),
+we want it to format it to look like this:
+
+\begin{code}
+    state Hallo: 
+        entry { 
+            if true { } 
+        }
+\end{code}
+
+The following formatter code implements this. 
+
+\begin{code}
+protected void configureFormatting(FormattingConfig c) {
+    CoolingLanguageGrammarAccess f = (CoolingLanguageGrammarAccess) getGrammarAccess();
+
+    c.setNoSpace().before(f.getCustomStateAccess().getColonKeyword_3());
+    c.setIndentationIncrement().after(f.getCustomStateAccess().getColonKeyword_3());
+    c.setLinewrap().before(f.getCustomStateAccess().getEntryKeyword_5_0());
+
+    c.setLinewrap().after(f.getCustomStateAccess().getLeftCurlyBracketKeyword_5_1());
+    c.setIndentationIncrement().after(f.getCustomStateAccess().getLeftCurlyBracketKeyword_5_1());
+    
+    c.setLinewrap().before(f.getCustomStateAccess().getRightCurlyBracketKeyword_5_3());
+    c.setIndentationDecrement().before(f.getCustomStateAccess().getRightCurlyBracketKeyword_5_3());
+}
+\end{code}
+
+In the first line we get the \ic{CoolingLanguageGrammarAccess} object, an API to
+refer to the grammar of the language itself. It is the basis for an
+internal Java DSL for expressing formatting rules. You'll understand its purpose
+in the next paragraph.
+
+Let us look at the first block of three lines. In the first line we express that
+there should be no space before the colon in the \ic{CustomState} rule. Line two
+states that we want to have indentation after the colon. And the third line
+specifies that the \ic{entry} keyword should be on a new line. 
+
+The next two blocks of two lines manage the indentation of the entry action
+code. In the first block we express a line wrap and incremented
+indentation after the opening curly brace. The second expresses a wrap before
+the closing curly brace as well as a decrement in the indentation
+level\sidenote[][-8\baselineskip]{As you can see, specifying the formatting for
+a complete grammar can become a lot of code! In my opinion, there are two approaches to
+improve this: one is reasonable defaults or global configurations. Curly
+braces, for example, are typically formatted the same way. Second, a mor
+efficient way of specifying the formatting should be provided. Annotations in
+the grammar, or a DSL for specifying the formatting should go a long way.}.
+
+So when and where is a formatter useful? There is the obvious use case: users
+somehow screw up formatting, and they want to press \keystroke{Ctrl-Shift-F} to
+clean it up. However, there is more essential reason. If the AST is modified by
+a transformation, the updated text has to be rendered correctly. An AST is
+modified, for example, as part of a quick fix (see next paragrap) or by a
+graphical editor that operates in parallel to a text editor on the same AST.
+
+
 
 \subsection{Quick Fixes}
 
@@ -40,3 +562,5 @@ Jan's Dingens in Xtext
 
 \subsection{In-IDE Intepreter}
 
+
+\subsection{Diff and Merge}
