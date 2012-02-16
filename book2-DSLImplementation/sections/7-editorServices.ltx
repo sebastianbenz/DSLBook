@@ -492,7 +492,51 @@ we want it to format it to look like this:
         }
 \end{code}
 
+The following formatter code implements this. 
 
+\begin{code}
+protected void configureFormatting(FormattingConfig c) {
+    CoolingLanguageGrammarAccess f = (CoolingLanguageGrammarAccess) getGrammarAccess();
+
+    c.setNoSpace().before(f.getCustomStateAccess().getColonKeyword_3());
+    c.setIndentationIncrement().after(f.getCustomStateAccess().getColonKeyword_3());
+    c.setLinewrap().before(f.getCustomStateAccess().getEntryKeyword_5_0());
+
+    c.setLinewrap().after(f.getCustomStateAccess().getLeftCurlyBracketKeyword_5_1());
+    c.setIndentationIncrement().after(f.getCustomStateAccess().getLeftCurlyBracketKeyword_5_1());
+    
+    c.setLinewrap().before(f.getCustomStateAccess().getRightCurlyBracketKeyword_5_3());
+    c.setIndentationDecrement().before(f.getCustomStateAccess().getRightCurlyBracketKeyword_5_3());
+}
+\end{code}
+
+In the first line we get the \ic{CoolingLanguageGrammarAccess} object, an API to
+refer to the grammar of the language itself. It is the basis for an
+internal Java DSL for expressing formatting rules. You'll understand its purpose
+in the next paragraph.
+
+Let us look at the first block of three lines. In the first line we express that
+there should be no space before the colon in the \ic{CustomState} rule. Line two
+states that we want to have indentation after the colon. And the third line
+specifies that the \ic{entry} keyword should be on a new line. 
+
+The next two blocks of two lines manage the indentation of the entry action
+code. In the first block we express a line wrap and incremented
+indentation after the opening curly brace. The second expresses a wrap before
+the closing curly brace as well as a decrement in the indentation
+level\sidenote[][-8\baselineskip]{As you can see, specifying the formatting for
+a complete grammar can become a lot of code! In my opinion, there are two approaches to
+improve this: one is reasonable defaults or global configurations. Curly
+braces, for example, are typically formatted the same way. Second, a mor
+efficient way of specifying the formatting should be provided. Annotations in
+the grammar, or a DSL for specifying the formatting should go a long way.}.
+
+So when and where is a formatter useful? There is the obvious use case: users
+somehow screw up formatting, and they want to press \keystroke{Ctrl-Shift-F} to
+clean it up. However, there is more essential reason. If the AST is modified by
+a transformation, the updated text has to be rendered correctly. An AST is
+modified, for example, as part of a quick fix (see next paragrap) or by a
+graphical editor that operates in parallel to a text editor on the same AST.
 
 
 
