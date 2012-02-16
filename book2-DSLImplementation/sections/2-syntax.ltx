@@ -1469,13 +1469,15 @@ context-free start symbols
   
 context-free syntax
 
-  "module" ID Entity*                 -> Module {"Module"}
-  "entity" ID "{" EntityBodyDecl* "}" -> Entity {"Entity"}
+  "module" ID Decl*                   -> Module {"Module"}
+  "import" ID                         -> Decl   {"Import"}
+  "entity" ID "{" EntityBodyDecl* "}" -> Decl {"Entity"}
   ID ":" ID                           -> EntityBodyDecl {"Property"}
 
   "function" ID "(" {Param ","}* ")" ":" ID "{" Statement* "}"
                                       -> EntityBodyDecl {"Function"}
   ID ":" ID                           -> Param {"Param"}
+  "var" ID "=" Expr ";"               -> Statement {"Declare"}
   "return" Exp ";"                    -> Statement {"Return"}
 
   Exp "." ID "(" Exp  ")" -> Exp {"MethodCall"}
@@ -1549,7 +1551,7 @@ Module(
 \ic{Module}, \ic{Entity}, and \ic{Property}. The children of each node
 correspond to the symbols referenced in the production: the \ic{Module}
 production first referenced \ic{ID} symbol for the module name and then included
-a list of \ic{Entity} symbols.
+a list of \ic{Decl} symbols.
 
 %SDF has a number of features
 %that help ensure the abstract syntax corresponds to the

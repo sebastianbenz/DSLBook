@@ -1,4 +1,5 @@
 \chapter{Constraints}
+\label{ch:constraints}
 
 Constraints are boolean conditions that have to evaluate to \ic{true} in order for
 the model to be correct ("does \ic{expr} hold?"). An error message that is reported
@@ -399,6 +400,34 @@ beyond the scope of this book.
 
 \section{Constraints in Spoofax}
 
+(...)
+
+A basic rewrite rules that transforms a term pattern \ic{term1}
+to a term pattern \ic{term2} takes the following form:
+
+\begin{code}
+rule-name:
+  term1 -> term2
+\end{code}
+
+Term patterns have the same form as terms: any term is a legal term pattern.
+In addition to the basic constructors, string literals, integer literals, and so on,
+they also support variables (e.g., \ic{v} or \ic{name}) and wildcards (indicated by \ic{\_}).
+%
+As an example, the following rewrite rule rewrites an \ic{Entity} to
+a list of properties:
+
+\begin{code}
+entity-to-properties:
+  Entity(name, properties) -> properties
+\end{code}
+
+(...)
+
+To customize the name resolution strategy, rewrite rules can be used
+to rewrite rewrite a reference to their definition.
+If there is no rewrite rule defined for
+a reference, then the default resolution strategy is used.
 
 
 
