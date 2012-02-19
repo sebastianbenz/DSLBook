@@ -542,9 +542,148 @@ graphical editor that operates in parallel to a text editor on the same AST.
 
 \subsection{Quick Fixes}
 
-General Intentions already discussed in the editor section for MPS
-Xtext Quick Fix on Errors
-MPS QUick Fix on Errors; Auto-Execute
+A quick fix is a semi-automatic fix for a constraint violation. It is
+semi-automatic in the sense that it is made available to the user in a menu, and
+after selecting the respective quick fix from the menu, the code that implements
+the quick fix rectifies the problem that caused the constraint
+violation\sidenote{Notice that a quick fix only makes sense for problems that
+have one or more "obvious" fixes. This is not true for all problems.}.
+
+\parhead{Quick fixes in Xtext} Xtext supports quick fixes for constraint
+violations. Quick fixes can either be implemented using the concrete syntax
+(i.e. via text replacement) or via the abtract syntax (i.e. via a model
+modification and subsequent serizalization). 
+
+As an example, consider the following constraint defined in the cooling
+language's \ic{CoolingLanguageJavaValidator}:
+
+\begin{code}
+public static final String VARIABLE_LOWER_CASE = "VARIABLE_LOWER_CASE"; 
+
+@Check
+public void checkVariable( Variable v ) {
+    if ( !Character.isLowerCase( v.getName().charAt(0) ) ) {
+        warning("Variable name should start with a lower case letter", 
+                al.getSymbolDeclaration_Name(), VARIABLE_LOWER_CASE ); 
+    }
+}
+\end{code}
+
+Based on our discussion of constraint checks (in \todo{ref}), this code should
+be fairly self-explaing. What is interesting is the third argument to the
+\ic{warning} method: we pas in a constant to uniquely identify the problem. The
+quick fix will be ties to this constant.
+
+The following code is the quick fix, implemented in the
+\ic{CoolingLanguageQuickfixProvider}. Notice how in the \ic{@Fix} annotation we
+refer to the same constant that was used in the constraint check.
+
+\begin{code}
+@Fix(CoolingLanguageJavaValidator.VARIABLE_LOWER_CASE)
+public void capitalizeName(final Issue issue, IssueResolutionAcceptor acceptor) {
+	acceptor.accept(issue, "Deapitalize name", "Decapitalize the name.", "upcase.png", new IModification() {
+		public void apply(IModificationContext context) throws BadLocationException {
+			IXtextDocument xtextDocument = context.getXtextDocument();
+			String firstLetter = xtextDocument.get(issue.getOffset(), 1);
+			xtextDocument.replace(issue.getOffset(), 1, firstLetter.toLowerCase());
+		}
+	});
+}
+\end{code}
+
+Quick fix methods accept the \ic{Issue} that caused the problem as well as an
+\ic{IssueResolutionAcceptor} that is used to register the fixes so they can be
+shown in the quick fix menu. The core of the fix is the anonymous instance of
+\ic{IModification} that, when executed after it has been selected by the user,
+fixes the problem. In our example, we grab the document that contains the
+problem and use a text replacement API to replace the first letter of the
+offending variable with its lower case version. 
+
+Notice that we use a text replacement API --- for simple problems like this one,
+working on the concrete syntax is appropriate. More complex problems should be
+solved on the abstract syntax though\sidenote{Imagine a problem that requires
+changes to the model in several places. Often it is easy to navigate to these
+places via the abstract syntax (following references, climbing up the tree),
+while finding the respective locations on the concrete syntax would be
+cumbersome and brittle}. For these cases, one can use an instance of
+\ic{ISemanticModification} instead:
+
+
+\begin{code}
+	@Fix(CoolingLanguageJavaValidator.VARIABLE_LOWER_CASE)
+	public void fixName(final Issue issue, IssueResolutionAcceptor acceptor) {
+		acceptor.accept(issue, "Decapitalize name", "Decapitalize the name", "upcase.png", 
+			new ISemanticModification() {
+				public void apply(EObject element, IModificationContext context) {
+					((Variable) element).setName( Strings.toFirstLower(issue.getData()[0]));
+				}
+			});
+	}
+\end{code}
+
+A quick fix using an \ic{ISemanticModification} basically works the same way;
+however, inside the \ic{apply} method we now use the EMF Java API to fix the
+problem\sidenote{Notice that after the problem is solved, the changed AST is
+serialized back into text. Depending on the scope of the change, a formatter
+has to be implemented for the language to make sure the resulting serialized
+text looks ok.}.
+ 
+
+\parhead{Quick Fixes in MPS} Quick fixes work essentially the same way as in
+Xtext. Of couse there are only quick fixes that act on the abstract syntax ---
+the concrete syntax is projected in any case. Here is a constraint that checks
+that the name of an element that implements \ic{INameAllUpperCase} actually
+consists of only upper case letter:
+
+\begin{code}
+checking rule check_INameAllUpperCase {                                                                          
+  applicable for concept = INameAllUpperCase as alluc                                                            
+                                                                                                                 
+  do {                                                                                                           
+    if (!(alluc.name.equals(alluc.name.toUpperCase()))) { 
+      warning "name should be all upper case" -> alluc; 
+    }
+  }                                                                                                              
+}                                                                                                                
+\end{code}
+
+The quick fix below upper cases the name if necessary. The quick fix is
+associated with the constraint check by simply referencing the fix from the
+error message. Quick fixes are executed by selecting them from the intentions
+menu (\ic{Alt-Enter}).
+
+\begin{code}
+quick fix fixAllUpperCase                                                                                                                                                                                                                                                                                                                                                                                           
+                                                                                                                                                                                                                                                                                                                                                                                                                
+arguments:                                                                                                                                                                                                                                                                                                                                                                                                      
+  node<IIdentifierNamedConcept> node                                                                                                                                                                                                                                                                                                                                                                              
+                                                                                                                                                                                                                                                                                                                                                                                                                
+description(node)->string { "Fix name"; }
+                                                                                                                                                                                                                                                                                                                                                                                                                
+execute(node)->void { 
+    node.name = node.name.toUpperCase(); 
+}
+\end{code}
+
+
+\parhead{Model Synchronization via Quick Fixes} A particularly interesting
+feature of MPS' quick fixes is that they can be executed \emph{automatically}. This can
+be used for synchronizing different parts of a model: a constraint check detects
+an inconsistency in the model, and the automatically executed quick fix resolves
+the inconsistency.
+
+Here is an example where this makes sense. Consider the interfaces and
+components extension to C. An interface declares a couple of operations, each
+with their own unique signature. A component that provides the interface has to
+provide implementations for each of the operations, and the implementations must
+have the same signature as the operation it implements. A constraint checks the
+consistency between interfaces and implementing components. An automatically
+executed quick fix adds missing operation implementations and synchronizes their
+signatures with the signatures of the operations in the interface.
+
+
+
+
 
 \subsection{Refactoring}
 

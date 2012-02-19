@@ -1,5 +1,66 @@
 \section{Debugging DSLs}	
 
+
+
+\subsection{Debugging the DSL}
+
+
+\subsection{Debugging DSL Programs}
+
+Debugging, as the name suggests, is about removing bugs, or errors, from
+programs\sidenote{Errors lead to faults, a state of the running program that
+leads to a failure, i.e. an externally visible "misbehavior" of the program}.
+However, this understanding of the term debugging refers to its \emph{purpose}. From
+the perspective of building debuggers, it is more important to look at the
+\ic{mechanisms} debuggers use to this end.
+
+
+The program source is a descriptions of the behavior of a
+program. As programmers, we care about the correct behavior, and we have to
+write the correct source that leads this behavior. There are two important
+differences between the program source and the program behavior:
+
+\begin{itemize}
+
+  \item The program source is a \emph{static} description of the \emph{dynamic}
+  behavior of a program.
+
+  \item The program source describes the behavior of the program for \emph{all}
+  possible sets of input data, whereas, when a program executes, it always
+  executes for a \emph{specific} set of input values.
+
+\end{itemize}
+
+Debugging addresses this discrepancy by allowing programmers to \emph{inspect}
+and \emph{animate} the execution of a program for a specific set of input
+values. This helps programmers better make the connection between program source
+and program execution, and in this way, helps to find errors.
+
+The specific way in which this animation happens depends on the behavioral
+paradigm used in the programs: For imperative or object oriented programs, the
+well-known step-through metaphor is used. This is mainly because this paradigm
+is based on changing (global) state as the program executes, and the debugger
+lets users inspect this state and observe it change while stepping through
+instructions. 
+
+While this is the most well-known approach to debugging, this is not the only
+one. For example, purely functional expressions, which don't change any global
+state, can be debugged by showing the values associated with each
+sub-expression in a tree. Time-triggered dataflow programs can be debugged by
+executing one time step at a time, and showing the values on input and output
+pins for each block. 
+
+
+
+
+
+challenge in ext debuggers: paradigms
+
+
+
+
+
+
 debugging the DSL definition (use the debugger of your favourite LWB)
   
 debugging the models: only makes sense for models with behavior
