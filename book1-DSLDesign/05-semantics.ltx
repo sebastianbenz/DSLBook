@@ -21,14 +21,14 @@ in this book.}
 
 
 \noindent Equality of the two observable behaviors can be established with a
-sufficient number of tests, or with model checking and proof in some cases. This
-definition of semantics reflects the hierarchy of domains and works both for
-languages that describe only structure, as well as for those that include
-behavioral aspects.
+sufficient number of tests, or with model checking and proof (which is a lot of
+effort and hence rarely done). This definition of semantics reflects the
+hierarchy of domains and works both for languages that describe only structure,
+as well as for those that include behavioral aspects.
 
 The technical implementation of the mapping to $D_{-1}$ can be
 provided in two different ways: a DSL program can literally be transformed into
-a program, or an $L_{D-1}$ an interpreter can be written in $L_{D-1}$ or
+a program in an $L_{D-1}$, or an interpreter can be written in $L_{D-1}$ or
 $L_{D_0}$ to execute the program. Before we spend the rest of this section
 looking at these two options in detail, we first briefly look at static
 semantics.
@@ -274,8 +274,9 @@ Transformations define the execution semantics of a DSL by mapping it to another
 language. In the context of the domain hierarchy, a transformation for $L_D$ recreates
 those patterns and idioms in $L_{D-1}$ for which it provides linguistic
 abstraction. The result may be transformed further, until a level is reached for
-which a language with an execution infrastructure exists --- often $D_0$. Code
-generation from a DSL is thus a special case where $L_{D_0}$ code is generated.
+which a language with an execution infrastructure exists --- often $D_0$.
+Generating GPL code from a DSL ("code generation") is thus a special case where
+$L_{D_0}$ code is generated.
 
 \begin{marginfigure}
   \includegraphics[width=6cm]{figures-design/embc/lego.png}
@@ -402,7 +403,7 @@ are reduced to C plus some extensions such as state machines and tasks
 
 
 A special case of a multi-staged transformation is as a preprocessor to a code
-generator. Here, a transformation is used to reduce the set of used language
+generator. Here, a transformation reduces the set of used language
 concepts in a fragment to a minimal core, and only the minimal core is supported
 in the code generator. 
 
@@ -565,8 +566,7 @@ the generator) or provides statically typed facades around otherwise dynamic
 data structures. Don't go too far towards this end, however: in cases where you
 need to consider resource or timing constraints, or when the target platform is
 predetermined and perhaps limited, code generation does open up a new set of
-options and it is often a very good approach (after all, it's basically the same
-as compilation, and that's a proven and important technique).
+options and it is often a very good approach.
 
 \begin{marginfigure}[1cm]
   \includegraphics[width=5cm]{figures-design/cave.png}
@@ -620,9 +620,9 @@ inspect all intermediate results.}
 
 \subsection{Transformation vs. Interpretation} 
 
-A primary concern in semantics is the decision between transformation (code
-generation) and interpretation. Here are a couple of criteria to help with this
-decision.
+When defining the execution semantics for a language, a decision has to be made
+between transformation (code generation) and interpretation. Here are a couple 
+of criteria to help with this decision.
 
 \begin{description}
 	\item[Code Inspection] When using code generation, the resulting code can
@@ -799,9 +799,8 @@ DSLs, and for domains defined top-down, this approach is not necessarily good
 enough, since the $D_{-1}$ concepts has no inherent meaning to the users and/or
 the domain. An additional way of defining the meaning of the DSL is required.
 Useful approaches include prose documentation as well as test cases or
-simulators. These can be written in (another part of the) DSL itself; this way,
-domain users can play with the DSL and write down their expectations in the
-testing aspect.
+simulators. This way, domain users can "play" with the DSL and write down their
+expectations formally in test cases.
 
 \cooling{This DSL has a separate viewpoint for defining test cases where
 domain experts can codify their expectations regarding the behavior of cooling

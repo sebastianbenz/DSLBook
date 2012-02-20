@@ -7,7 +7,7 @@
 expressivity for a specific, narrow problem domain. They are powerful tools for
 software engineering, because they can be tailor-made for a specific class of
 problems. However, because of the large degree of freedom in designing DSLs, and
-because they are supposed to cover the right domain, completely, and at the
+because they are supposed to cover the right domain, consistently, and at the
 right abstraction level, DSL design is also hard. In this chapter we present a
 framework for describing and characterizing external domain specific languages.
 We identify seven design dimensions that span the space within which DSLs are
@@ -55,7 +55,7 @@ five times shorter than the C version that that users would have to write
 manually.}
 
 While it is always possible to produce short but incomprehensible programs,
-overall, shorter programs require less effort to read and write than longer
+in general, shorter programs require less effort to read and write than longer
 programs, and should therefore be more efficient in software engineering. We
 will thus assume that, all other things being equal, shorter programs are
 preferable over longer programs.\footnote[][-1cm]{The size of a program may not
@@ -353,8 +353,8 @@ abstractions. As a consequence, the language had to be modified several
 times during development as new requirements came up from the end users, and had
 to be integrated directly into the language.}
 
-\embc{Since C is extended, C's abstraction mechanisms (functions, \ic{struct}s,
-\ic{enum}s) are available. Moreover, we added new mechanisms for building
+\embc{Since C is extended, C's abstraction mechanisms (functions,
+\ic{struct}s, \ic{enum}s) are available. Moreover, we added new mechanisms for building
 abstractions including interfaces and components.}
 
 \exwebdsl{WebDSL provides \emph{template definitions} to capture partial web
@@ -363,15 +363,15 @@ User defined templates can be used to build complex user interfaces.}
 
 \parhead{Standard Library} If a language provides support for in-language
 abstraction, these facilities can be used by the language \emph{designer} to
-provide functionality to language users. Instead of adding language features, a
-standard library is deployed along with the language to all its
-users\marginnote{This approach is of course well known from programming
-languages. All of them come with a standard library, and the language can hardly
-be used without relying on it. It is effectively a part of the language}. It
-contains abstractions relevant to the domain, expressed as in-language
-abstractions. This approach keeps the language itself small, and allows
-subsequent extensions of the library without changing the language definition
-and processing tools.
+provide collections of domain specific abstractions to language users. Instead
+of adding language features, a standard library is deployed along with the
+language to all its users\marginnote{This approach is of course well known from
+programming languages. All of them come with a standard library, and the
+language can hardly be used without relying on it. It is effectively a part of
+the language}. It contains abstractions relevant to the domain, expressed as
+in-language abstractions. This approach keeps the language itself small, and
+allows subsequent extensions of the library without changing the language
+definition and processing tools.
 
 \todo{Do we have to say something here about "not treating stuff specially"? oris this even ok in a standardlib?}
 

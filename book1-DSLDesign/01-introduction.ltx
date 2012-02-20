@@ -209,7 +209,7 @@ singleton domains that consist of a single program (a non-interesting boundary c
   \label{hierarchicalDomains} 
 \end{figure}
 
-Languages are typically designed for a particular $D$. Languages
+Languages are typically designed for a particular domain $D$. Languages
 for $\D{0}$ are called general-purpose languages\footnote{I guess we could
 define $D_0$ to be those programs expressible with Turing machines, but GPLs are
 a more useful approach for this book}. Languages for $D_n$ with $n > 0$ become
@@ -295,30 +295,32 @@ more clearly.
   \label{csVsAs} 
 \end{center} 
 \end{marginfigure}
-\parhead{Concrete and Abstract Syntax} Programs are represented in two ways:
-concrete syntax and abstract syntax. The \emph{concrete syntax} is the notation 
-with which the user interacts as he edits
-a program. It may be textual, symbolic, tabular, graphical, or any combination
-thereof. The \emph{abstract syntax} is a data structure that represents the
-semantically relevant data expressed by a problem. It does not contain
-notational details such as keywords, symbols, whitespace or positions and
-coloring in graphical notations. The abstract syntax is used for analysis and
-downstream processing of programs. A language definition includes the concrete
-and the abstract syntax, as well as rules for mapping one to the other.
-\emph{Parser-based} systems map the concrete syntax to the abstract syntax.
-Users interact with a stream of characters, and a parser derives the abstract
-syntax by using a grammar and mapping rules. \emph{Projectional} editors go the
-other way round. User editing gestures directly change the abstract syntax, the
-concrete syntax being a mere projection that looks and feels like text if a
-textual projection is used. Spoofax and Xtext are parser-based tools, MPS isprojectional.\marginnote[-55mm]{The abstract syntax is very similar to a meta model in that
-it represents only a data structure and ignores notation. The two are also
-different: the abstract syntax is usually automatically derived from a grammar,
-whereas a meta model is typically defined \emph{first}, independent of a
-notation. This means that, while the abstract syntax may be structurally
-affected by the grammar, the meta model is "clean" and represents purely the 
-structure of the domain. In practice, the latter isn't strictly true
-either, since editing and tool considerations typically influence a meta model 
-as well. In this book, we consider the two to be synonyms.}
+\parhead{Concrete and Abstract Syntax} Programs can be represented in their
+abstract syntax and the concrete syntax forms. The \emph{concrete syntax} is the
+notation with which the user interacts as he edits a program. It may be textual,
+symbolic, tabular, graphical, or any combination thereof. The \emph{abstract
+syntax} is a data structure that represents the semantically relevant data
+expressed by a problem. It does not contain notational details such as keywords,
+symbols, whitespace or positions and coloring in graphical notations. The
+abstract syntax is used for analysis and downstream processing of programs. A
+language definition includes the concrete and the abstract syntax, as well as
+rules for mapping one to the other. \emph{Parser-based} systems map the concrete
+syntax to the abstract syntax. Users interact with a stream of characters, and a
+parser derives the abstract syntax by using a grammar and mapping rules.
+\emph{Projectional} editors go the other way round. User interactions
+with the concrete syntax \emph{directly} change the abstract syntax. The
+concrete syntax is a mere projection that looks and feels like text (if a
+textual projection is used). No parsing takes place. Spoofax and Xtext are
+parser-based tools, MPS is projectional.  \marginnote[-55mm]{The abstract syntax 
+is very similar to a meta model in that it represents only a
+data structure and ignores notation. The two are also different: the abstract
+syntax is usually automatically derived from a grammar, whereas a meta model is
+typically defined \emph{first}, independent of a notation. This means that,
+while the abstract syntax may be structurally affected by the grammar, the meta
+model is "clean" and represents purely the structure of the domain. In practice,
+the latter isn't strictly true either, since editing and tool considerations
+typically influence a meta model as well. In this book, we consider the two to
+be synonyms.}
 
 \begin{marginfigure}[-5mm] \begin{center}  
 \includegraphics[width=3cm]{figures-design/programsAsTrees.png}
@@ -329,9 +331,11 @@ as well. In this book, we consider the two to be synonyms.}
 While concrete syntax modularization and composition can be a challenge and
 requires a discussion of textual concrete syntax details, we will illustrate
 most language design concerns based on the abstract syntax. The abstract syntax
-of programs are primarily trees of program \emph{elements}. Every element
-(except the root) is contained by exactly one parent element. Syntactic nesting
-of the concrete syntax corresponds to a parent-child relationship in the
+of programs are primarily trees of program \emph{elements}. Each element is an
+instance of a \emph{language concept}, or just \emph{concept} for short (and a
+language is essentially a set of concepts. We'll come back to this below).
+Every element (except the root) is contained by exactly one parent element.
+Syntactic nesting of the concrete syntax corresponds to a parent-child relationship in the
 abstract syntax. There may also be any number of non-containing cross-references
 between elements, established either directly during editing (in projectional
 systems) or by a name resolution (or \emph{linking}) phase that follows parsing
@@ -358,15 +362,17 @@ elements in a fragment $f$.
   \label{langAsSetOfConcepts}
 \end{center} 
 \end{marginfigure}
-\parhead{Languages} A language $l$ defines a set of language concepts $C_l$ and
-their relationships. We use the term concept to refer to concrete syntax,
-abstract syntax plus the associated type system rules and constraints as well as 
-some definition of its semantics. In a fragment, each element $e$ is an
+\parhead{Languages} A language $l$ consists a set of language concepts $C_l$ and
+their relationships\sidenote{In the world of grammars, a concept is 
+essentially a \emph{Nonterminal}. We will discuss the details about grammars in
+the implementation section of this book}. We use the term concept to refer to
+concrete syntax, abstract syntax plus the associated type system rules and 
+constraints as well as some definition of its semantics. In a fragment, each element $e$ is an
 instance of a concept $c$ defined in some language $l$. 
 
 \embc{In C, the statement \ic{int x = 3;} is an instance of the
-\lcr{LocalVariableDeclaration}. \ic{int} is an instance of \lcr{IntType}, and
-the 3 is an instance of \lcr{NumberLiteral}.}
+\lcr{LocalVariableDeclaration} concept. \ic{int} is an instance of
+\lcr{IntType}, and the 3 is an instance of \lcr{NumberLiteral}.}
 
 \begin{figure}[h] 
 \begin{center}
@@ -564,7 +570,7 @@ way. Example tools in this category include Spoofax and Xtext.
 Projectional editors (also known as structured editors) work \emph{without}
 grammars and parsers. A language is specified by defining the abstract syntax
 tree, and then defining projection rules that render the concrete syntax of the
-language concepts defined by the abstract syntax. Editing actions directly
+language concepts defined by the abstract syntax. Editing actions \emph{directly}
 modify the abstract syntax tree. Projection rules then render a textual (or
 other) representation of the program. Users read and write programs through this
 projected notation. Programs are stored as abstract syntax trees, usually as
