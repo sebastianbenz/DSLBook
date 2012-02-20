@@ -64,8 +64,8 @@ feature together in one module.}
 
 If viewpoints are used, the concern-specific DSLs, and consequently the
 viewpoint models, should have well-defined dependencies; cycles should be
-avoided. \marginnote{The IDE should provide navigational support: If an element
-in viewpoint B points to an element in viewpoint A then it should be possible to
+avoided. \marginnote[-2\baselineskip]{The IDE should provide navigational
+support: If an element in viewpoint B points to an element in viewpoint A then it should be possible to
 follow this reference ("Ctrl-Click"). It should also be possible to query the
 dependencies in the opposite direction ("find the persistence mapping for this
 entity" or "find all UI forms that access this entity").} If dependencies
@@ -73,14 +73,25 @@ between viewpoint fragments are kept cycle-free, the independent fragments may
 be sufficient for certain transformations; this can be a driver for using
 viewpoints in the first place.
 
+The dependent viewpoint fragment (and the language to express it) have to
+provide a way of pointing to the referenced element. In practice, this usually
+means that the referenced element has to provide a qualified name that can be
+used in the reference\sidenote{In projectional editors one can use the UUID of
+the target element for the reference}.
+
 Separating out a domain concern into a separate viewpoint fragment can be useful
 for several reasons. If different concerns of a domain are specified by
 different stakeholders then separate viewpoints make sure that each stakeholder
 has to deal only with the information they care about. The various fragments can
 be modified, stored and checked in/out separately, maintaining only referential
-integrity with referenced fragment. The viewpoint separation has to be aligned
-with the development process: the order of creation of the fragments must be
-aligned with the dependency structure.
+integrity with referenced fragment\sidenote[][-4\baselineskip]{Projectional
+editors can use a different approach. They can store the information of all
+concerns in a single model, but then use different projections to address the
+needs of different stakeholders. This solves the problem of referential
+integrity. However, this approach does not support separate store and check
+in/out. }. The viewpoint separation has to be aligned with the development
+process: the order of creation of the fragments must be aligned with the
+dependency structure.
 
 
 \marginnote{A final (very pragmatic) reason for using viewpoints is when the tooling used
@@ -134,7 +145,9 @@ oriented data model, you might automatically derive database table names from
 the name of the class in the OO model. If you need to "change" some of those
 names, use an annotation model that specifies an alternate name. The downstream
 processor knows that the name in the annotation model overrides the name in the
-original model.}
+original model\sidenote[][-4\baselineskip]{This is a typical example of where
+the easiest thing in a projectional editor would be to just place a field for
+holding an overriding table name under program element that represents thetable. Users can edit that table name in a special view.}.}
 
 
 
@@ -232,7 +245,8 @@ materialize the various viewpoints. The particular benefit of this approach is
 that additional concern-specific views can be defined later, after programs have
 been created.\marginnote{ MPS also provides so-called annotations, where
 additional model data can be "attached" to any model element, and shown
-optionally.}
+optionally.} It also avoids the need for defining sophisticated ways of
+referencing program elements from other viewpoints.
 
 \pension{Pension plans can be shown in a graphical notation highlighting the
 dependency structure (\fig{dependencies}). The dependencies can still be edited

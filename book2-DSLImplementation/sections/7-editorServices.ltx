@@ -581,13 +581,13 @@ refer to the same constant that was used in the constraint check.
 \begin{code}
 @Fix(CoolingLanguageJavaValidator.VARIABLE_LOWER_CASE)
 public void capitalizeName(final Issue issue, IssueResolutionAcceptor acceptor) {
-	acceptor.accept(issue, "Deapitalize name", "Decapitalize the name.", "upcase.png", new IModification() {
-		public void apply(IModificationContext context) throws BadLocationException {
-			IXtextDocument xtextDocument = context.getXtextDocument();
-			String firstLetter = xtextDocument.get(issue.getOffset(), 1);
-			xtextDocument.replace(issue.getOffset(), 1, firstLetter.toLowerCase());
-		}
-	});
+    acceptor.accept(issue, "Deapitalize name", "Decapitalize the name.", "upcase.png", new IModification() {
+        public void apply(IModificationContext context) throws BadLocationException {
+            IXtextDocument xtextDocument = context.getXtextDocument();
+            String firstLetter = xtextDocument.get(issue.getOffset(), 1);
+            xtextDocument.replace(issue.getOffset(), 1, firstLetter.toLowerCase());
+        }
+    });
 }
 \end{code}
 
@@ -610,15 +610,15 @@ cumbersome and brittle}. For these cases, one can use an instance of
 
 
 \begin{code}
-	@Fix(CoolingLanguageJavaValidator.VARIABLE_LOWER_CASE)
-	public void fixName(final Issue issue, IssueResolutionAcceptor acceptor) {
-		acceptor.accept(issue, "Decapitalize name", "Decapitalize the name", "upcase.png", 
-			new ISemanticModification() {
-				public void apply(EObject element, IModificationContext context) {
-					((Variable) element).setName( Strings.toFirstLower(issue.getData()[0]));
-				}
-			});
-	}
+    @Fix(CoolingLanguageJavaValidator.VARIABLE_LOWER_CASE)
+    public void fixName(final Issue issue, IssueResolutionAcceptor acceptor) {
+        acceptor.accept(issue, "Decapitalize name", "Decapitalize the name", "upcase.png", 
+            new ISemanticModification() {
+                public void apply(EObject element, IModificationContext context) {
+                    ((Variable) element).setName( Strings.toFirstLower(issue.getData()[0]));
+                }
+            });
+    }
 \end{code}
 
 A quick fix using an \ic{ISemanticModification} basically works the same way;

@@ -225,8 +225,8 @@ is often called \emph{declarativeness}: no sophisticated pattern matching or
 program flow analysis is necessary to capture the semantics of a program
 (relative to the purpose), and treat it correspondingly. The decision can
 simply be based on the language concept used (\lcr{for} vs.
-\lcr{seqfor})\footnote{Without linguistic abstraction, the processor has to
-analyze the program to "reverse engineer" the semantics to be able to act on it.
+\lcr{seqfor})\sidenote[][-9\baselineskip]{Without linguistic abstraction, the
+processor has to analyze the program to "reverse engineer" the semantics to be able to act on it.
 With linguistic abstraction, we rely on the language user to use the correct
 abstraction! We assume that the user is able to do this. The trade-off makes
 sense in DSLs because we assume that DSL users are familiar with the domain,
@@ -247,37 +247,42 @@ code generation, as well as meaningful validation. For example, it is easy to
 detect states that are not reached by any transition and report this as an
 error. Detecting this same problem in a low-level C implementation requires
 sophisticated analysis on the switch-case statements or indexed arrays that
-constitute the implementation of the state machine\footnote{This assumes that
-the generator works correctly --- we'll discuss this problem in \sect{semantics}
-on semantics).}}
-\begin{marginfigure}
+constitute the implementation of the state
+machine\sidenote[][-6\baselineskip]{This assumes that the generator works
+correctly --- we'll discuss this problem in \sect{semantics} on semantics).}}
+
+
+\begin{marginfigure}[-1.5cm]
   \includegraphics[width=5cm]{figures-design/embc/components.png}
   \caption{Example component diagram. The top half defines components, their
   ports and the relationship of these ports to interfaces. The bottom half
   shows instances whose ports are connected by a connector.}
   \label{components}
 \end{marginfigure}
-
-
 \embc{Another good example is optional ports in components. Components (see
 \fig{components}) define required ports that specify the interfaces they
 \emph{use}. For each component instance, a required port is connected to the
 provided port of an instance of a component that provides a port with a
-compartible interfaces. Required ports may be optional, so for a given instance,
-an optional port may be connected or not. Invoking an operation on an
-unconnected required port would result in an error, so this has to be prevented.
-This can be done by enclosing the invocation on a required port in an if
-statement, checking whether the port is connected. However, an \ic{if} statement
-can contain any arbitrary boolean expression as its condition (e.g. \ic{if
-(isConnected(rp) || somethingRandom()) \{ port.doSomething(); \}}). So checking
-\emph{statically} that the invocation only happens if the port is connected is
-impossible. An better solution based on linguistic abstraction is to introduce a
-new language concept that checks for a connected port directly:
+compartible interfaces. Required ports may be optional\sidenote[][1cm]{The
+terminology may be a bit confusing here: \emph{required} means that the component invokes
+operations on the port (as opposed to providing them for other to invoke).
+\emph{optional} refers to the fact that, for any given instance of that
+component, the port may be connected or not.}, so for a given instance, an
+optional port may be connected or not. Invoking an operation on an unconnected
+required port would result in an error, so this has to be prevented. This can be
+done by enclosing the invocation on a required port in an if statement, checking
+whether the port is connected. However, an \ic{if} statement can contain any
+arbitrary boolean expression as its condition (e.g. \ic{if (isConnected(rp) ||
+somethingRandom()) \{ port.doSomething(); \}}). So checking \emph{statically}
+that the invocation only happens if the port is connected is impossible. An
+better solution based on linguistic abstraction is to introduce a new language
+concept that checks for a connected port directly:
 \ic{with port (rp) \{ rp.doSomething(); \}}. The \lcr{with port}
 statement doesn't use a complete expression as its argument, but only a
 reference to a an optional required port (\fig{optionalport}). This way, the IDE
 can check that an invocation on a required optional port \lcr{rp} is only done
 inside of a \lcr{with port} statement on that same port.}
+
 
 \begin{figure}[h]
   \rule{1\textwidth}{0.7pt}
