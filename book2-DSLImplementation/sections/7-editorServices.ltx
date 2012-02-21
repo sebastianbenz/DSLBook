@@ -841,9 +841,153 @@ support. The implementation effort is reduced to essentially the algorithmic
 complexity of the refactoring itself. Depending on the refactoring, this can be
 non-trivial.
 
-\subsection{Outline View}
+\subsection{Labels and Icons}
 
-Icons, Text, Structure
+Labels and icons for language concepts are used in several places, among them
+the outline view and the code completion menu. 
+
+\parhead{Labels and icons in Xtext} Labels and icons are defined in
+the language's \ic{LabelProvider}. To define the label text, you simply override
+the \ic{text} method for your element. For the icon, override the \ic{image}
+method. Here are a couple of examples from the cooling langauage:
+
+\begin{code}
+public class CoolingLanguageLabelProvider extends DefaultEObjectLabelProvider {
+
+    String text(CoolingProgram prg) {
+        return "program "+prg.getName();
+    }
+         
+    String image(CoolingProgram prg) {
+        return "program.png";
+    }
+    
+    String text(Variable v) {
+        return v.getName()+": "+v.getType();
+    }
+         
+    String image(Variable v) {
+        return "variable.png";
+    }
+}
+\end{code}
+
+Notice how the label and the image are defined via methods, you can can change
+the text and the icon dynamically, based on some property of the model.
+
+\parhead{Labels and Icons in MPS} Labels are defined by overriding the
+\ic{get-\\Presentation} behavior method on the respective concept. This way,
+the label can also be adjusted dynamically. The icon can be selected in the
+inspector (see \fig{iconInMPS}) if we select a language concept. The icon is
+fixed and cannot be changed dynamically.
+\begin{marginfigure}[-6\baselineskip]
+\begin{center}
+  \includegraphics[width=60mm]{figures/ide/iconInMPS.png}
+  \caption[]{Assigning an icon to a language concept}
+  \label{iconInMPS} 
+\end{center}
+\end{marginfigure}
+
+
+\subsection{Outline}
+
+The outline provides an overview over the contents of some part of the overall
+model, typically a file. By default, it usually shows more or less the AST, up a
+certain level. For example, the implementations of functions or methods are
+typically not shown. The contents of the outline view must be definable; at the
+very least, we have to define where to stop the tree. Also, the tree structure
+may be completely different from the nesting structure of the AST: the elements
+may have to be grouped based on their concept (first show all variables, then
+all functions) or they may have to be sorted alphabetically.
+
+\parhead{Customizing the structure in Xtext} Xtext provides an
+\ic{OutlineTree-\\Provider} for your language that can be used to customize the
+outline view structure (labels and icons are taken from the \ic{LabelProvider}
+discussed above). As an example, let us customize the outline view for cooling
+programs to look the one shown in \fig{outlineXtext}. 
+\begin{marginfigure}[-14\baselineskip]
+\begin{center}
+  \includegraphics[width=50mm]{figures/ide/outlineXtext.png}
+  \caption[]{A customized outline view for cooling programs in Xtext}
+  \label{outlineXtext} 
+\end{center}
+\end{marginfigure}
+
+The tree view organizes the contents of a file by first showing all programs and
+then all tests. To do this, we provide a suitable \ic{_createChildren}:
+
+\begin{code}
+protected void _createChildren(DocumentRootNode parentNode, Model m) {
+    for (EObject prg : m.getCoolingPrograms()) {
+        createNode(parentNode, prg);
+    }
+    for (EObject t : m.getTests()) {
+        createNode(parentNode, t);
+    }
+}
+\end{code}
+
+Inside the method, we first grab all the \ic{CoolingProgram}s from the root
+element \ic{Model} and create a node for them using the \ic{createNote} API,
+which takes the parent (in terms of the outline view) and the program element
+for which should be represented by the new outline node. The text and icon for
+the outline node is taken from the label provider. We then do the same for
+tests.
+
+Inside a program, we want to show variabes and states in separate sections, i.e.
+under separate intermediate nodes (see \fig{outlineXtext}). Here is how this
+works:
+
+\begin{code}
+protected void _createChildren(IOutlineNode parentNode, CoolingProgram p) {
+    TextOnlyOutlineNode vNode = new TextOnlyOutlineNode(parentNode, 
+                                    imageHelper.getImage("variable.png"),
+                                    "variables"); 
+    for (EObject v: p.getVariables()) {
+        createNode(vNode, v);
+    }
+    TextOnlyOutlineNode sNode = new TextOnlyOutlineNode(parentNode, 
+                                    imageHelper.getImage("state.png"),
+                                   "states"); 
+    for (EObject s: p.getStates()) {
+        createNode(sNode, s);
+    }
+}
+\end{code}
+
+As you can see, we introduce intermediate nodes that do not represent a program
+element; they are used purely for structuring the tree. The
+\ic{TextOnlyOutlineNode} is a class we created; it simply extends the class
+\ic{AbstractOutlineNode} provided by Xtext.
+
+\begin{code}
+public class TextOnlyOutlineNode extends AbstractOutlineNode {
+
+    protected TextOnlyOutlineNode(IOutlineNode parent, Image image, Object text) { 
+        super(parent, image, text, false); 
+    }
+}
+\end{code}
+
+Xtext provides alphabetical sorting for outlines by default. There is also
+support for styling the outline (i.e. using styled labels as opposed to simple
+text) as well as for filtering the tree.
+
+
+\parhead{The Outline in MPS} MPS does not have a cutomizable outline view. It
+shows the AST of the complete program as part of the project explorer, but the
+structure cannot be customized. However, it is of course possible to arbitrary
+additional views (called \emph{tools} in MPS) to MPS. We discuss this briefly
+below\sidenote{The MPS tutorial at \ic{http://bit.ly/xU78ys} shows how to
+implement your own outline view.}.
+
+
+
+\subsection{Code Folding}
+
+
+
+
 
 \subsection{Visualization}
 
@@ -853,6 +997,9 @@ Jan's Dingens in Xtext
 \subsection{In-IDE Intepreter}
 
 
+\subsection{Tooltip}
+
 \subsection{Diff and Merge}
 
-Code Collapsing
+\subsection{Aribtrary additional views}
+
