@@ -746,7 +746,7 @@ target: node<Expression>
 \end{code}
                        
 The code above specifies the name of the refacroring
-(\ic{introduceLocalVariable}), the label used in the refactoring menu, the
+(\ic{introduce-\\LocalVariable}), the label used in the refactoring menu, the
 keystroke to execute it directly (\ic{Ctrl-Alt-V}) as well as the target. The
 target defines the language concept on which the refactoring can be executed. In
 our case, we want to refactor \ic{Expression}s, but only if these expressions
@@ -978,18 +978,175 @@ text) as well as for filtering the tree.
 shows the AST of the complete program as part of the project explorer, but the
 structure cannot be customized. However, it is of course possible to arbitrary
 additional views (called \emph{tools} in MPS) to MPS. We discuss this briefly
-below\sidenote{The MPS tutorial at \ic{http://bit.ly/xU78ys} shows how to
-implement your own outline view.}.
+below\sidenote[][-2\baselineskip]{The MPS tutorial at \ic{http://bit.ly/xU78ys}
+shows how to implement your own outline view.}.
 
 
 
 \subsection{Code Folding}
 
 
+Code folding refers to the small minuses in the gutter of an editor that lets
+you collapse code regions (see \fig{folding}). The editor shows an ellipsis
+(\ic{\ldots}) for the folded parts of the code. Clicking on the \ic{+} or on
+the ellipsis shows the full code again.
+\begin{marginfigure}[-4mm]
+\begin{center}
+  \includegraphics[width=50mm]{figures/ide/folding.png}
+  \caption[]{Code folding in Xtext. If you hover over the folded code, a popup
+  shows the hidden code.}
+  \label{folding} 
+\end{center}
+\end{marginfigure}
 
 
 
-\subsection{Visualization}
+\parhead{Folding in Xtext} Xtext automatically provides folding for all language
+concepts that stretch over more than one line. To turn off this default
+behavior, you have to implement your own subclass of
+\ic{DefaultFoldingRegionProvider} and overwrite \ic{isHandled} in a suitable
+way. For example, to \emph{not} provide folding for \ic{CustomState}s, you could
+do the following:
+
+\begin{code}
+public class CLFoldingRegionProvider extends DefaultFoldingRegionProvider {
+
+    @Override
+    protected boolean isHandled(EObject eObject) {
+        if ( eObject instanceof CustomState ) {
+            return false;
+        }
+        return super.isHandled(eObject);
+    }
+}
+\end{code}
+
+\parhead{Folding in MPS} In MPS, folding can be activated for any vertical
+collection. For example, in a state machine, each state contains a vertical list
+of transitions. \fig{statefolding} shows the definition of the \ic{State}
+editor. It contains the \ic{transitions} collection, which is an indent
+collection with the option \ic{new-line-children} set. This arranges the
+transitions vertically.
+\begin{marginfigure}
+\begin{center}
+  \includegraphics[width=65mm]{figures/ide/statefolding.png}
+  \caption[]{Code folding in Xtext. If you hover over the folded code, a popup
+  shows the hidden code.}
+  \label{statefolding} 
+\end{center}
+\end{marginfigure}
+
+To enable folding for this collection, we simple set the \ic{uses folding}
+property for the collection to \ic{true}. It can also be set to \ic{query}, in
+which case code can be written that determines at runtime whether folding should
+be enabled or not. For example, folding could be enable if there are more than
+three transitions. Once we've set the property to \ic{true}, we have provide a
+cell that is rendered in case the user selects to fold the code. 
+
+\begin{figure}[h]
+\begin{center}
+  \includegraphics[width=110mm]{figures/ide/statefolding2.png}
+  \caption[]{Folding enabled for states}
+  \label{statefolding2} 
+\end{center}
+\end{figure}
+
+As \fig{statefolding2} shows, we use a \ic{read only model access} cell, which
+allows us to return an arbitrary string. In the example, we essentially output
+the number of "hidden" transitions.
+
+MPS provides a second mechanism that can be used to the same effect. Since MPS
+is a projectional editor, some parts of the editor may be projected
+conditionally. \fig{requirementsCollapsed} shows an list/tree of requirements.
+\begin{marginfigure}
+\begin{center}
+  \includegraphics[width=65mm]{figures/ide/requirementsCollapsed.png}
+  \caption[]{A list/tree of requirements}
+  \label{requirementsCollapsed} 
+\end{center}
+\end{marginfigure}
+
+After pressing \keystroke{Ctrl-Shift-D} on a requirement, the editor shows the
+requirements details (\fig{requirementsExpanded}). This effect of "expanding
+editors" is implemented by making the detail part optional. \fig{reqEditor}
+shows the editor definition.
+\begin{marginfigure} 
+\begin{center}
+  \includegraphics[width=65mm]{figures/ide/requirementsExpanded.png}
+  \caption[]{Optionally, the details about a requirement can be shown online in
+  the editor.}
+  \label{requirementsExpanded} 
+\end{center}
+\end{marginfigure}
+ 
+\begin{figure}[h]
+\begin{center}
+  \includegraphics[width=80mm]{figures/ide/reqEditor.png}
+  \caption[][55mm]{The part of the editor that includes the details pane is
+  only projected if the \ic{open} property is true. This property is toggled
+  using \keystroke{Ctrl-Shift-D}.}
+  \label{reqEditor} 
+\end{center}
+\end{figure}
+
+
+\subsection{Diff and Merge}
+
+Highlighting the differences between versions of a program and the allowing the
+resolution of conflicts is important in the context of version control
+integration. For tools like Xtext that store models as ASCII text this is a
+non-issue: existing diff/merge tools can be used, be they in the IDE or on the
+command line. 
+
+For projectional editors such as MPS, the story is more complicated. Diff and
+merge has to be performed on the concrete projected syntax. MPS provides this
+feature. MPS also annotates the editor with gutter annotations that highlight
+whether a part of the program has changed relative to the last checkout. 
+
+
+\subsection{Additional IDE Services}
+
+The IDE services discussed so far are the essentials that language workbenches
+should provide. However, there are of course many additional services an IDE may
+provide. We outline some of them in this section.
+
+\parhead{Tooltips/Hover} A tooltip, or hover, is a small, typically yellow
+window that is shown if the user hovers the mouse over a program element. A
+hover may show the documentation of the target element, or, when hovering over a
+reference, some information about the referenced element. While Xtext does not
+support tooltips directly, the tooltip framework provided by JFace can be used.
+
+MPS does not support tooltips at this time, however, there is an acceptable
+workaround: the additional information for a program element can be shown in the
+inspector. For example, if users click on a reference to a requirement in
+program code, the inspector shows information about the referenced requirement
+(see \fig{detailsInInspector}).
+\begin{marginfigure}[-30mm] 
+\begin{center}
+  \includegraphics[width=55mm]{figures/ide/detailsInInspector.png}
+  \caption[]{If a user selects a reference to a requirement in a requirements
+  trance (\ic{Arg2} in the example), the inspector shows information about the
+  referenced requirement.}
+  \label{detailsInInspector} 
+\end{center}
+\end{marginfigure}
+
+Looking at the editor definition for a \ic{RequirementRef}, you can see that the
+actual editor (top in \fig{inspectedCellLayout}) shows only the name of the
+referenced element. The bottom part, the \ic{inspected cell layout} projects the
+details about the referenced element.   
+\begin{figure}[h]
+\begin{center}
+  \includegraphics[width=80mm]{figures/ide/inspectedCellLayout.png}
+  \caption[]{The editor definition for the \ic{RequirementRef} projects details
+  about the referenced element in the inspector. Notice the use of the
+  \ic{\$swing component\$} as a means to embed the Swing \ic{JTextArea} that
+  shows the prose description of the requirement.}
+  \label{inspectedCellLayout} 
+\end{center}
+\end{figure}
+
+
 
 GraphView in MPS
 Jan's Dingens in Xtext
