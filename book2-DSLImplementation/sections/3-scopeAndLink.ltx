@@ -103,12 +103,12 @@ In the previous chapter we described how to specify a grammar for a subset of
 the Mobl language. This chapter shows how to add annotations and rules to define
 name resolution for this language.
 
-\MV{I have added the following for clarity. Delete/change it if you don't like
-it.} To understand naming in Spoofax, the notation of a \emph{namespace} is
+To understand naming in Spoofax, the notion of a \emph{namespace} is
 essential. A namespace is essentially a collection of names. A namespace
 is not necessarily connected to a specific language concept. Different concepts
-can contribute names to a namespace. During reference resolution, names are
-resolved against namespaces.
+can contribute names to a namespace.
+%During reference resolution, names are
+%resolved against namespaces.
 
 Language elements that contribute names to a a namespace can be annotated with
 \ic{Namespace@=Symbol}, where \ic{Namespace} is the namespace of the definition,
@@ -144,11 +144,15 @@ namespace, while the second says that the \ic{ID} after the colon referencessom
 
 \subsection{Basic Scoping Rules}
 
-\MV{Is what I have addded here correct?}
-Scoping annotations define the block structures of a language. The essentially
-express that a set of names in a namespace must be unique within the particular
-scope. Also, the name of the scoped elements becomes qualified with the name of
-the scoping element. Scopes can be specified by adding \ic{scope(Namespace)} at
+Scoping annotations define the block structures of a language.
+Block structures can be nested and determine the
+visibility of names. For example, functions are block structures
+that can contain local variable definitions that are not visible
+from outside the function. Internally, the local variables are then assigned
+a qualified name based on the name of the function.
+The same principle applies to fields in a Java class, properties in a mobl entity, and so on.
+
+Block structures can be specified by adding \ic{scope(Namespace)} at
 the end of a production:
 
 \begin{code}
@@ -211,8 +215,7 @@ context-free syntax
 
 \subsection{URIs for Program Elements}
 
-\MV{isn't it each *program* element?}
-Each language element that defines something is assigned a URI. The URI uniquely
+Each program element that defines something is assigned a URI. The URI uniquely
 identifies the element across a project. By default, these URIs are constructed
 automatically, based on the namespace and scope annotations in the grammar. As
 an example, consider the following entity.
@@ -231,7 +234,7 @@ fragment: one at the module level and one at the entity level. We can assign
 names to these blocks: \ic{storage} and \ic{Store}, by using the namespace
 definition annotations. By creating a hierarchy of these names, Spoofax creates
 URIs: the URI for \ic{Store} is \ic{Type://storage.Store}, and the one for
-\ic{name} is \ic{Property://storage.Store.name}. URIs are represented internally
+\ic{name} is \ic{Property://}\linebreak[0]\ic{storage.}\linebreak[0]\ic{Store.name}. URIs are represented internally
 as lists of terms, that start with the namespace, followed by a reverse
 hierarchy of the path names:
 
@@ -326,19 +329,16 @@ information, as we show in the next chapter. By collecting all this summary
 information about files in a project together, it ensures fast access to global
 information. The index is updated automatically with changes to the file system
 (e.g., files being deleted or removed) and is persisted as Eclipse exits.
-\MV{I think you have never really introduced the notion of "terms" anywhere. I
-think you should do that somwehre above, before you use the word.}
-
 All entries in the index have a URI, forming a hierarchy. Index entries can be
-represented as terms. For example, \ic{Def([Module(),"banking"])}
+represented in the ATerm format. For example, \ic{Def([}\linebreak[0]\ic{Module(),"banking"])}
 is a definition entry for a banking module. In the form of terms, they can be
 used in the same way as abstract syntax tree fragments in transformations and
 analyses. \Chapter{ch:constraints} shows how the index can be used for such
 tasks.
-
 Internally, index entries are stored in tables for efficient random access. They
 also contain meta-data such as the file name and line number of the definition.
-\MV{add a sentence on why this is important?} Note that there is no requirement
+With this meta-data, Spoofax can provide editor services such as reference resolving.
+Note that there is no requirement
 that file names correspond to the URIs: a \ic{banking.Bank} entity could be
 defined in any file, as long as there are no constraints in the language that
 prevent that.
@@ -374,43 +374,30 @@ the editor.
 
 The default resolution strategy makes few assumptions about a specific language.
 It does not care about file boundaries: if an \ic{Address} is defined in a
-different file, it will still find it. It also does not care about duplicate
+different file, it will still find it. It also does not pose a constraint on duplicate
 definitions: if there are multiple definitions of \ic{Address}, it will just
 find multiple definitions\MV{And then what does it do in the example? There can
-only be one target for the reference}. Lastly, the default knows nothing about
+only be one target for the reference}\LK{there could be more than one
+unless a language only allows singular references}. Lastly, the default strategy knows nothing about
 how import definitions work for a specific language, as these can vary quite a
-bit among languages. Spoofax allows the use of \emph{rewrite
-rules}\footnote{rewrite rules} \MV{Please add a footnote that explains what arewrite rule is.} to customize the behavior of the default resolution strategy.
+bit among languages.
+However, Spoofax allows customization of the
+default strategy and the addition of constraints
+to address these matters.
 
 \subsection{Customizing the Name Resolution Strategy}
 
-The default name resolution strategy provides a good basis for resolving
-references, but there are a number of cases that it cannot handle. The most
-common examples are:
+Spoofax provides support for adding constraints 
+and for customization of the behavior of the default resolution strategy
+by means of \emph{rewrite rules}.
+Rewrite rules are functions that operate on terms,
+transforming one term to another.
+%In the next chapter, we show how rewrite rules
+%can be used to specify constraints, type systems,
+%and to customize the name resolution strategy.
 
-\begin{itemize}
-  \item resolving references to built-in language concepts such as the 
-  \ic{int} type; \MV{Are these actual references?}
-  \item resolving references based on import declarations;
-  \item and resolving references based on types (e.g., property access or
-  qoverloaded functions).
-\end{itemize}
-
-The grammar annotations alone are not expressive enough to cover these advanced
-cases. To address this issue, Spoofax supports \emph{rewrite rules} that can
-specify analyses, transformations, and code generation. In
-\Chapter{ch:constraints} we show how rewrite rules can be used to define type
-analyses and subsequently customize the name resolution strategy.
-
-\LK{I think I'll have to postpone any sort of rewrite rules until the
-next chapter .. This structure doesn't work so well for Spoofax: it
-would be more natural to first show basic code generation rewrite rules,
-and then the more advanced rules for type analysis, and then, after that,
-the rules for name analysis}
-
-\MV{i took a look at what you wrote in the constraints section. Why don't you
-simply add this here? You can always say that you will describe more details
-abot rewrite rules later.}
+\TODO{show rules for handling imports here.
+can't really show anything else interesting without types.}
 
 %unifying Var and Property namespace?
 %
@@ -431,6 +418,11 @@ abot rewrite rules later.}
 %order of scopes, duplicates (no need to be unique), unresolved references:
 %
 %next section!
+
+\begin{code}
+adjust-index-path(target | namespace, path, prefix):
+  Var(<target>) -> 
+\end{code}
 
 \section{Scoping in Xtext}
 

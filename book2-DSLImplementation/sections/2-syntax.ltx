@@ -891,7 +891,7 @@ The Eclipse Modeling Framework (EMF) is at the core of all of Eclipse's modeling
 related activities. Its core component is the Ecore meta meta model, a version
 of the EMOF standard. The central concepts are: EClass, EAttribute, EReference
 and EObject, the latter providing an in-memory/run-time representation of EClass
-instances. EReferences can be containing or not - each EObject can be contained
+instances. EReferences can be containing or not -- each EObject can be contained
 by at most one EReference instance. \fig{fig:ecore-metamodel} shows a class
 diagram of Ecore.
 
@@ -915,10 +915,10 @@ with Ecore for meta model definition.
 \subsection{Spoofax' ATerm}
 \label{Sec:spoofax-aterm}
 
-Spoofax uses the ATerm format to represent abstract syntax. ATerms are
+Spoofax uses the ATerm format to represent abstract syntax. ATerm provides
 a generic tree structure representation format that can be serialized
-textually similar to XML or JSON. ATerms consist of the following
-elements:
+textually similar to XML or JSON. Each tree node is called an ATerm, or simply a "term".
+Terms consist of the following elements:
 
 \begin{itemize}
 \item Strings, e.g.\ \verb$"Mr. White"$
@@ -945,10 +945,10 @@ a product may be modeled in JSON as follows:
 \noindent
 Note how this specification includes the actual data describing the particular product (the model), but also a
 description of each of the elements (the meta model). With XML, a product would be modeled in a similar
-fashion. An equivalent of the JSON above written as an ATerm would be
-\verb$Order([ItemNumber(5), Quantity(15), Customer("Mr. White")])$.
+fashion. An equivalent of the JSON above written as in ATerm format would be
+\ic{Order([ItemNumber(5), Quantity(15), Customer("Mr.\ White")])}.
 However, this representation contains a lot of redundant information that also exists
-in the grammar. Instead, such a product can be written as \verb$Order(5, 15, "Mr. White")$.
+in the grammar. Instead, such a product can be written as \ic{Order(5, 15, "Mr.\ White")}.
 This more concise notation tends to make it slightly
 more convenient to use in handwritten transformations. 
 
