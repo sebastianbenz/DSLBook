@@ -429,7 +429,9 @@ to rewrite rewrite a reference to their definition.
 If there is no rewrite rule defined for
 a reference, then the default resolution strategy is used.
 
+(...)
 
+order of scopes, duplicates (no need to be unique), unresolved references:
 
 \chapter{Type Systems}
 
@@ -525,9 +527,9 @@ instance depends on what kinds of arguments the particular instance has.
 The core of a type system can be considered to be a function \ic{typeof} that
 calculates the type for a program element: $$typeof ::= element => type$$ 
 Types are often represented with the same technology as the language concepts.
-As we will see, in case of MPS types are just nodes, i.e. instances of concepts.
-In Xtext, we use \ic{EObjects}, i.e. instances of \ic{EClasses} as types \MV{Spoofax?}. In
-both cases, we even define the concepts as part of the language. This is useful
+As we will see, in case of MPS types are just nodes, i.e.\ instances of concepts.
+In Xtext, we use \ic{EObjects}, i.e.\ instances of \ic{EClasses} as types. In Spoofax, any ATerm can be used as a type. In
+all cases, we can even define the concepts as part of the language. This is useful
 because most of the concepts used as types also have to be used in the program
 text whenever types are explicitly declared (as in \ic{var x: int}).
 
@@ -544,6 +546,12 @@ these conceptually, and then provide examples in the tool sections.
 \MV{Eelco mentioned something about Data Flow stuff in Scala. Should we add
 this? Does anyone know something about that?}
 
+\LK{I'm not sure how that works. it's a form of local type inference, so it's not as
+complicated/messy as Hindley-Milner. it's a bit like the 
+local type inference in C\# or mobl, nothing fancy.
+they probably use dataflow analysis for determining the return type
+of methods?
+}
 
 \subsection{Recursion}
 
@@ -696,7 +704,7 @@ variables in the type equations.
 The interesting property of this approach is that there is no distinction
 between typing rules and type checks. We simply specify a set of equations that
 must be true for the types to check. If an equation cannot be satisfied for any
-assigment of type values to type variables, a type error is detected. To
+assignment of type values to type variables, a type error is detected. To
 illustrate this, we return to the \ic{LocalVarDecl} example introduced above.
  
 \begin{code}
@@ -1308,3 +1316,57 @@ explicit types vs. full type inference vs. local type inference
 Recursion, Unification, Pattern Matching, Data Flow stuff (Scala, Eelco?)
 
 attribute grammars
+
+\begin{code}
+
+
+  type-of:
+    Property(_, t) -> t
+  
+  type-of:
+    Entity(t, _) -> t
+  
+  type-of:
+    VarDecl(_, t) -> t
+  
+  type-of:
+    VarDeclInit(_, t, _) -> t
+  
+  type-of:
+    Param(_, t) -> t
+  
+  type-of:
+    Var(v) -> <type-of> <index-lookup> v
+  
+  type-of:
+    PropAccess(e, p) -> <type-of> <index-lookup> p
+
+  type-of:
+    Def(uri) -> <index-get-data(|Type())> Def(uri)
+
+rules
+
+  is-params-compatible(|arg-types):
+    Def(uri) -> <id>
+    with
+      param-types := <index-get-data(|ParamTypes())>
+    where
+      <eq> (<length> arg-types, <length> param-types);
+      <zip(is-assignable-to)> (arg-types, param-types)
+
+  is-assignable-to:
+    (to-type, from-type) -> to-type
+    where
+      <eq> (from-type, to-type)
+
+  adjust-index-def-data(store-results |namespace, path):
+    def -> <store-results> DefData([namespace | path], Type(), type)
+    where
+      type := <type-of> def
+  
+  adjust-index-def-data(store-results |namespace, path):
+    Function(_, params, _) -> <store-results> DefData([namespace | path], ParamTypes(), types)
+    with
+      types := <map(type-of)> params
+\end{code}
+\end{code}
