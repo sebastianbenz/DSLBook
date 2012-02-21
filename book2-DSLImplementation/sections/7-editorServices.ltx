@@ -1147,16 +1147,30 @@ details about the referenced element.
 \end{figure}
 
 
+\parhead{Visualizations} To provide an overview over the structure of the
+programs, graphical representations are useful. In Xtext, Jan Koehnlein's
+Generic Graph View\footnote{http://bit.ly/AluxnB} can be used to render digrams
+of Xtext models in real time --- the Generic Graph View is an interpreter, so
+changes in the model lead to updates in the graph immediately. The mapping from
+the model to the graph is expressed with an Xtext-based mapping DSL. In
+addition, a separate styling DSL supports the definition of shapes, colors and
+line styles. Double clicking a node in the graph opens the corresponding program
+element in the Xtext editor.
 
-GraphView in MPS
-Jan's Dingens in Xtext
+In MPS we have integrated ZGRViewer\footnote{http://bit.ly/qvJJ2}, a Java-based
+renderer for GraphViz\footnote{http://bit.ly/2BqWbh} dot files. 
 
-\subsection{In-IDE Intepreter}
-
-
-\subsection{Tooltip}
-
-\subsection{Diff and Merge}
-
-\subsection{Aribtrary additional views}
-
+\begin{figure}[h]
+\begin{center}
+  \includegraphics[width=110mm]{figures/ide/visualizationInMPS.png}
+  \caption[][4mm]{Clicking on a node in the graphview opens the respective
+  program element in the MPS editor.}
+  \label{visualizationInMPS} 
+\end{center}
+\end{figure}
+ 
+As part of the transformations, we map the model to model expressed in a graph
+description language. This model is then generated into a \ic{dot} file. The
+graph viewer scans the output directory for \ic{dot} files and shows them in the
+tree view at the top. Double-clicking on a graph node in the tree opens a
+rendered \ic{dot} file in the graph view. 
