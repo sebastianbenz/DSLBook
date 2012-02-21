@@ -683,9 +683,24 @@ signatures with the signatures of the operations in the interface.
 
 
 
-
-
 \subsection{Refactoring}
+
+\parhead{Renaming in Xtext} One of the most essential refactorings is renaming a
+program element. The reason why it is a refactoring (and not just typing a new
+name) is because all references to this element have to be adapted. In textual
+languages, such references are by name, and if the name of the target element
+changes, so has the text of the reference. Xtext comes with a rename refactoring
+that handles this. Every language supports a rename refactoring automatically.
+The only thing the user has to remember is to not just type a new name, but
+instead invoke the Rename refactoring, for example with via
+\keystroke{Ctrl-Alt-R}\marginnote[-5\baselineskip]{Note that in a projectional
+editor such as MPS renaming is not even a refactoring. A reference is established with the UUID of
+the target element. Renaming it does not lead to any structural change. And
+since the editor for the \emph{referencing} element defines how to render the
+reference, it will just display the updated name in case it changes.}.
+
+
+
 
 Default Refactoring for names in Xtext
 
@@ -703,3 +718,5 @@ Jan's Dingens in Xtext
 
 
 \subsection{Diff and Merge}
+
+Code Collapsing
