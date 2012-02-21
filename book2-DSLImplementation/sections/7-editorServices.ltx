@@ -699,11 +699,147 @@ the target element. Renaming it does not lead to any structural change. And
 since the editor for the \emph{referencing} element defines how to render the
 reference, it will just display the updated name in case it changes.}.
 
+\parhead{Introduce Local Variable in MPS} A very typical refactoring for a
+procedural language such as C is to introduce a new, local variable. Consider
+the following code:
+
+\begin{code}
+int8_t someFunction(int8_t v) { 
+  int8_t y = somethingElse(FACTOR * v); 
+  if ( FACTOR * v > 20 ) { 
+    return 1; 
+  } else { 
+    return 0; 
+  }  
+} 
+\end{code}
+
+As you can see, the first two lines contain the same expression (\ic{10*v})
+twice. A nicer version of this code could look like this:
+
+\begin{code}
+int8_t someFunction(int8_t v) { 
+  int8_t product = FACTOR * v;
+  int8_t y = somethingElse(product); 
+  if ( product > 20 ) { 
+    return 1; 
+  } else { 
+    return 0; 
+  }  
+} 
+\end{code}
+
+The \emph{Introduce Local Variable} refactoring performs just this change. MPS
+provides a DSL for specifying refactorings. Using it, the implementation is ca. 
+20 lines of code. We'll go through it in steps. We start with the declaration of
+the refactoring itself.
 
 
+\begin{code}
+refactoring introduceLocalVariable ( "Introduce Local Variable" ) 
+keystroke: <ctrl+alt>+<V>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
+target: node<Expression>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+        allow multiple: false                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
+        isApplicableToNode(node)->boolean { 
+            node.ancestor<concept = Statement>.isNotNull; 
+        }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
+\end{code}
+                       
+The code above specifies the name of the refacroring
+(\ic{introduceLocalVariable}), the label used in the refactoring menu, the
+keystroke to execute it directly (\ic{Ctrl-Alt-V}) as well as the target. The
+target defines the language concept on which the refactoring can be executed. In
+our case, we want to refactor \ic{Expression}s, but only if these expressions
+are used in a \ic{Statement} (we cannot refactor an expression if it is used,
+for example, as the init expression for a global constant). We find out about
+that by checking whether the \ic{Expression} has a \ic{Statement} among its
+ancestors in the tree. Next, we define a parameter for the refactoring:
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+\begin{code}
+parameters:                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
+  varName chooser: type: string                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
+                   title: Name of the new Variable                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
 
-Default Refactoring for names in Xtext
+init(refactoringContext)->boolean { 
+  return ask for varName; 
+}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+\end{code}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+The parameter represents the name of the newly introduced variable. In the
+refactoring's \ic{init} block we ask the user for this parameter. The \ic{ask
+for} epression returns \ic{false} if the user selects \ic{Cancel} in the dialog
+that prompts the user for the name. The refactoring stops in this case.
 
+We are now ready to implement the refactoring algorithm itself in the
+\ic{refactor} block. We first declare two local variables that represent the
+expression on which we invoked the refactoring. We can get it from the \ic{refactoringContext}. We then grab the
+\ic{Statement} in which this expression lives. Finally, we get the \ic{index} of 
+the \ic{Statement}. \ic{.index} returns the index of an element in its owning
+collection.
+           
+\begin{code}
+node<Expression> targetExpr = refactoringContext.node;
+node<Statement> targetStmt = targetExpr.ancestor<concept = Statement>;
+int index = targetStmt.index;
+\end{code}
+     
+Next, we iterate over all \ic{siblings} of the statement in which the expression
+lives. As we do that, we look for all expressions that are structurally similar
+to the one we're executing the refactoring on (using
+\ic{MatchingUtil.matchNodes}). We remember a matching expression if it occurs in
+a statement that us \emph{after} the one that contains our target expression.
+     
+\begin{code}
+nlist<Expression> matchingExpressions = new nlist<Expression>; 
+sequence<node<>> siblings = targetStmt.siblings.union(new singleton<node<Statement>>(stmt)); 
+foreach s in siblings { 
+  if (s.index >= index) { 
+    foreach e in s.descendants<concept = Expression> { 
+      if (MatchingUtil.matchNodes(targetExpr, e)) { 
+        matchingExpressions.add(e); 
+      } 
+    } 
+  } 
+} 
+\end{code}     
+     
+The next step is to actually introduce the new local variable. We simply create
+a new \ic{LocalVariableDeclaration} using the tree API. We set the \ic{name} to
+the one we've asked the user for (\ic{varName}), we set it's type to a copy of
+the type calculated by the type system for the target expression, and we
+initialize the vatiable with a copy of the target expression itself. We then add
+this new variable to the list of statements, just \ic{before} the on which
+contains our target expression. We use the very handy \ic{add prev-sibling}
+built-in function for that.
+     
+\begin{code}
+node<LocalVariableDeclaration> lvd = new node<LocalVariableDeclaration>(); 
+lvd.name = varName; 
+lvd.type = targetExpr.type.copy; 
+lvd.init = targetExpr.copy; 
+targetStmt.add prev-sibling(lvd); 
+\end{code}     
+
+There is one more step we have to do. We have to replace all the occurences of
+our target expression with a reference to the newly introduced local variable.
+We had collected the \ic{matchingExpressions} above, so we can now iterate over
+this collection\sidenote{Note how the actual replacement is done with the
+\ic{replace with} built-in function. It comes in very handy since we don't have
+to manually find out in which property or collection the expression lives in
+order to replace it.}:
+     
+\begin{code}
+foreach e in matchingExpressions { 
+  node<LocalVarRef> ref = new node<LocalVarRef>(); 
+  ref.var = lvd; 
+  e.replace with(ref); 
+} 
+\end{code}     
+
+All in all, building refactorings is straight forward with MPS' refactoring
+support. The implementation effort is reduced to essentially the algorithmic
+complexity of the refactoring itself. Depending on the refactoring, this can be
+non-trivial.
 
 \subsection{Outline View}
 
