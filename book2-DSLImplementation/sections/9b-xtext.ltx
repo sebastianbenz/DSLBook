@@ -1,0 +1,40 @@
+\section{Xtext Example}
+
+
+\subsection{Referencing}
+
+GuiDSL -> Entity DSL
+
+ResourceServiceProvider: Referenzieren von "nicht Xtext, aber EMF" Artekfakten
+
+
+\subsection{Extension}
+ 
+die Entity DSL von Xbase erben lassen und die Expressions einbauen
+dabei: einführen von JVMElement in Eneitty DSL damit bspw. ENtity Attribute 
+aus Expressns referenzierbar sind (Expressions bspw. beo derived entity
+attributes)
+
+Sagen dass alles so funkt wie in Java - so lange man sich da dran hält ist alles
+gut, wenn man aus dieser box raus will wirds schnell anstrengend
+
+
+\subsection{Reuse}
+
+Persoistence DSL die "abstrakt" auf Datenstrukturen referenziert,
+die ADapter, Untersrprache fügt die konkreten Referenzen etc. hinzu auf unsere
+Entity Sprache.
+
+\subsection{Embedding}
+
+Geht net, weil man nicht von 2 Spachen erben kann.
+Copy & paste als alternative
+
+Aber, klar: syntaktisches einbetten geht durch vererbung, aber nicht unter
+beibehaltung der Unabhängigkeit der Sprachen --- damit structly speaking kein
+Embedding, sondern Extension "mit Embedding FLavor"
+Extension etwender
+- "einbetten" von expressions der oberspache in "meine" untersprache
+- Neue "top level" DInge hinzufügen
+
+Als Beispiel warum: Unab. SQL und Java einbetten
