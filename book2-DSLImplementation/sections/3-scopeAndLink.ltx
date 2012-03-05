@@ -87,7 +87,7 @@ particular location. Our notion is more convenient from the cross-reference
 viewpoint, however, as it centers around resolving particular cross-references
 one at a time. From an implementation perspective, both views are exchangable.
 
-\section{Name Resolution in Spoofax}
+\section{Scoping in Spoofax}
 
 In Spoofax, each language concept has its own private namespace. For example,
 functions may live in the \ic{Functions} namespace and properties may live in the \ic{Property}
@@ -100,7 +100,7 @@ for block constructs.
 \subsection{Definitions and References}
 
 In the previous chapter we described how to specify a grammar for a subset of
-the Mobl language. This chapter shows how to add annotations and rules to define
+the mobl language. This chapter shows how to add annotations and rules to define
 name resolution for this language.
 
 To understand naming in Spoofax, the notion of a \emph{namespace} is
@@ -306,7 +306,7 @@ Module(
               MethodCall(..., ...{[Function(),"toUpperCase","String","mobl"]})
             ),
             Return(
-              "result"{[Var(),"result",Anon(125),"toCapitals","BankAccount","banking"]}
+              Var("result"{[Var(),"result",Anon(125),"toCapitals","BankAccount","banking"]})
             )
           ])
         )
@@ -320,8 +320,11 @@ The annotations indicate the URIs of each definition and reference.
 They can be used to get an unrefined view of all URIs at a glance, but
 also have a role in transformations on abstract syntax, as we discuss later.
 
+Any references that cannot be resolved are annotated with a special \ic{Unresolved} constructor. For example, a variable \ic{nonexistent} could be represented as
+\ic{Var("nonexistent"\curlies{[Unresolved(Var()),"nonexistent",...]})}. This makes it easy to recognize any unresolved references in analyses or transformations. 
 
 \subsection{Persistence of Naming Information}
+\label{Sec:spoofax-index}
 
 Spoofax stores all definitions and references in an in-memory data structure
 called the index. It can also store information about definitions, such as type
@@ -385,19 +388,19 @@ However, Spoofax allows customization of the
 default strategy and the addition of constraints
 to address these matters.
 
-\subsection{Customizing the Name Resolution Strategy}
+%\subsection{Customizing the Name Resolution Strategy}
 
 Spoofax provides support for adding constraints 
 and for customization of the behavior of the default resolution strategy
 by means of \emph{rewrite rules}.
 Rewrite rules are functions that operate on terms,
 transforming one term to another.
-%In the next chapter, we show how rewrite rules
-%can be used to specify constraints, type systems,
-%and to customize the name resolution strategy.
+In the next chapter, we show how rewrite rules
+can be used to specify constraints, type systems,
+and to customize the name resolution strategy.
 
-\TODO{show rules for handling imports here.
-can't really show anything else interesting without types.}
+%\TODO{show rules for handling imports here.
+%can't really show anything else interesting without types.}
 
 %unifying Var and Property namespace?
 %
@@ -413,16 +416,11 @@ can't really show anything else interesting without types.}
 %\MV{What is a rewrite rule? Why do you want to rewrite the scopes?}
 %%
 %
-%\subsection{Constraints and Type Systems}
 %
-%order of scopes, duplicates (no need to be unique), unresolved references:
-%
-%next section!
-
-\begin{code}
-adjust-index-path(target | namespace, path, prefix):
-  Var(<target>) -> 
-\end{code}
+%\begin{code}
+%adjust-index-path(target | namespace, path, prefix):
+%  Var(<target>) -> 
+%\end{code}
 
 \section{Scoping in Xtext}
 
