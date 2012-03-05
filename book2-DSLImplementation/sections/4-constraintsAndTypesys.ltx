@@ -420,7 +420,9 @@ In addition to the basic constructors, string literals, integer literals, and so
 they also support variables (e.g., \ic{v} or \ic{name}) and wildcards (indicated by \ic{\_}).
 %
 As an example, the following rewrite rule rewrites an \ic{Entity} to
-a list of properties:
+a list of properties:\MV{I think this should be said differently. It does not
+transform any entity to any old list of properties. It transforms the entity to
+the list of properties contained in that entity!}
 
 \begin{code}
 get-properties:
@@ -428,18 +430,29 @@ get-properties:
 \end{code}
 
 While rewrite rules can be viewed as functions, they have one important difference:
-they can be defined multiple times for different patterns. In the case of \ic{get-properties},
-we could add another definition that works for property access expressions:
+they can be defined multiple times for different patterns\MV{Not uncommon for
+functions, is it? Erlang?}.
+In the case of \ic{get-properties}, we could add another definition that works 
+for property access expressions:\MV{In this example, the "return type" is
+different (one property instead of many). Why is this not a problem?}
+
 
 \begin{code}
 get-properties:
   FieldAccess(expr, property) -> property
 \end{code} 
 
-Rules can have complex, overlapping patterns.
-As we will show next, they can also have conditions and perform
-arbitrary computations.
-When a rule is defined multiple times, the first one that matches simply "wins". 
+\MV{Maybe worth saying/repeating tht expr and property are variables, and that
+their positin determines what they are assigned to. This positin corresponds to
+the one used in the construction in grammars, right? Is there a 'formal'
+definition of the AST structure somewhere that people can use as a reference
+when working with a particular language?}
+
+Rules can have complex, overlapping patterns.\MV{If this is important enough to
+mention, then please also show an example or explain how it is important} As we
+will show next, they can also have conditions and perform arbitrary computations.
+When a rule is defined multiple times, the first one that matches simply "wins".
+\MV{"the first one" in which order?} 
 
 Rewrite rules can be invoked using the syntax \ic{<rule-name> term}. For example,
 \ic{<get-properties> Entity("Unit", [])} would return an empty
@@ -451,6 +464,7 @@ term expressions:
 invoke-get-properties:
   Entity(name, properties) -> <get-properties> Entity(name, properties)
 \end{code}
+\MV{This one is kinda funny. Any particular reason why you chose this example?}
 
 Stratego also provides a \ic{with} clause that can be used
 for additional code that should be considered for rewrite rules.
@@ -508,7 +522,7 @@ holds. That is, it succeeds as long as an entity has an empty list (indicated by
 of properties. Rewrite rules can have any number of \ic{where} and \ic{with} clauses,
 which are evaluated in the order they appear.
 
-\Figure{Fig:stratego-operators}
+%\Figure{Fig:stratego-operators} 
 
 \subsection{Basic Constraint Rules}
 
@@ -517,7 +531,7 @@ which are evaluated in the order they appear.
 %contains a number of these examples, which we will discuss here.
 By convention, Spoofax  projects uses rules by the name \ic{constraint-error} to
 indicate constraints that trigger errors, \ic{constraint-warning} for warnings,
-and \ic{constraint-note} for notes.
+and \ic{constraint-note} for notes.\MV{Not clear what you do with these.}
 
 When a new language project is created in Spoofax, it includes a number of example
 constraints. One simply reports a note that is marked on the name of any
@@ -560,8 +574,10 @@ uses string interpolation to report a warning:
 \end{code}
 \ignore{$}
 
+\MV{Use 'theName' or 'name' instead of 'x'?}
+
 Here, a standard library rule \ic{string-starts-with-capitals} is used. These
-and other library rules are documented on the Spoofax website.
+and other library rules are documented on the Spoofax website.\MV{refernece?}
 
 \subsection{Index-Based Constraint Rules}
 
@@ -602,14 +618,14 @@ of the list is \ic{Unresolved(t)} and the tail matches \ic{\_}.
 %
 For dynamic languages, or languages with optional types, the constraint
 could be removed or relaxed. In those cases, name resolution may only
-play a role in providing editor services such as content completion. 
+play a role in providing editor services such as code completion. 
 
 In addition to annotations, the Spoofax index provides an API for
 inspecting naming relations in programs. 
 \Figure{Fig:spoofax-index-api} shows some of the key rules
 the index provides.
 
-\begin{figure}
+\begin{figure}[h]
 \begin{tabular}{|l|l|}
 \hline
 \ic{index-uri} & Gets the URI of a term. \\
@@ -644,7 +660,10 @@ constraint-error:
 is-duplicates-allowed:
   Var() -> True()
 \end{code}\ignore{$}
+\MV{Do we have to also define is-duplicates-allowed for other concepts than
+Var()?}
 
+\MV{Where does the 'key' come from? }
 Again, this rule is provided by Spoofax by default, but
 it provides an interesting showcase of the index API.
 This rule matches any tree node \ic{x} and starts
@@ -656,7 +675,8 @@ we never report this error for definitions in the \ic{Var()} namespace.
 Next, the constraint rule determines all definitions of the reference.
 Only if the list of definitions has a single element
 does the rule report an error, which is checked
-by matching it against \ic{[\_]}.
+by matching it against \ic{[\_]}. 
+\MV{How does this represent a single element?}
 
 Another important constraint for names is \emph{definition before use}:
 for many program elements, it is an error if it is used
@@ -761,6 +781,17 @@ a reference, then the default resolution strategy is used.
 (...)
 
 order of scopes, duplicates (no need to be unique), unresolved references:
+
+
+
+
+
+
+
+
+
+
+
 
 \chapter{Type Systems}
 
