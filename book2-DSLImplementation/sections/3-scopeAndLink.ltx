@@ -160,10 +160,8 @@ the end of a production:
 \end{code}
 
 Here, the \ic{scope} annotation indicates that every entity scopes
-the properties inside it. This means that properties in different entities can
-be distinguished:\MV{does this automatically imply that the names inside a
-scope have to be unique? (I know I asked that before, but I think it should be
-said here. People will ask themselves this quesiton.)}
+the properties inside it. These scopes are used to qualify the names of
+every property inside an entity:
 
 \begin{code}
 entity Customer {
@@ -177,9 +175,14 @@ entity Product {
 
 In this example, the two \ic{name} properties both live the \ic{Property}
 namespace, but we can still distinguish them: one can be reached as
-\ic{Customer.name}, the other as \ic{Product.name}.  This means that if
+\ic{Customer.name}, the other as \ic{Product.name}.
+  This means that if
 \ic{name} is referenced in a function inside \ic{Customer}, then it references
 the first one, not the one in \ic{Product}.
+Note that Spoofax does not require each name inside a block structure to be
+unique: by default, it is not an error if users add an additional property
+called name to \ic{Product}. However, in most languages it is desirable to
+forbid duplicate names. We show how to specify a constraint for that later on.
 
 The full grammar of the mobl entities language with annotations is the following
 (leaving out the lexical syntax):
@@ -209,11 +212,18 @@ context-free syntax
   Exp "." Property@ID              -> Exp {"FieldAccess"}
   Exp "+" Exp                      -> Exp {"Plus"}
   Exp "*" Exp                      -> Exp {"Mul"}
-  Var@ID                           -> Exp {"Var"}
+  _@ID                             -> Exp {"Var"}
   INT                              -> Exp {"Int"}
 \end{code}
 
-
+A special case in this grammar is the rule for \ic{"Var"},
+which can refer to multiple namespaces. Consider the statement \ic{return x.y;}.
+In such a statement, \ic{x} can be a local variable (\ic{Var}) or a local property (\ic{Property}).
+In the full mobl language, it can even be a type (\ic{Type}).
+As this more complicated scenario is not covered by the annotations, 
+we specify an \ic{\_} in the grammar instead.
+The \ic{\_} indicates that we specify additional, manual rules
+for resolving this case. We show how to specify these at the end of this section.
 
 \subsection{URIs for Program Elements}
 
@@ -239,7 +249,6 @@ URIs: the URI for \ic{Store} is \ic{Type://storage.Store}, and the one for
 \ic{name} is \ic{Property://}\linebreak[0]\ic{storage.}\linebreak[0]\ic{Store.name}. URIs are represented internally
 as lists of terms, that start with the namespace, followed by a reverse
 hierarchy of the path names:
-
 \begin{code}
 [Property(), "name", "Store", "storage"]
 \end{code}
@@ -325,7 +334,7 @@ also have a role in transformations on abstract syntax, as we discuss later.
 Any references that cannot be resolved are annotated with a special
 \ic{Unresolved} constructor. For example, a variable \ic{nonexistent} could be
 represented as
-\ic{Var("nonexistent"\curlies{[Unresolved(Var()),"nonexistent",...]})}. This
+\ic{Var("nonexistent"\curlies{[Unresolved(Var()),"non\-existent",...]})}. This
 makes it easy to recognize any unresolved references in analyses or
 transformations.
 
@@ -339,15 +348,14 @@ information, as we show in the next chapter. By collecting all this summary
 information about files in a project together, it ensures fast access to global
 information. The index is updated automatically with changes to the file system
 (e.g., files being deleted or removed) and is persisted as Eclipse exits.
-
-All entries in the index have a URI, forming a hierarchy. Index entries can be
+All entries in the index have a URI as we showed previously. Index entries can be
 represented in the ATerm format\MV{I think you never said what the ATerm format
-is} For example, \ic{Def([}\linebreak[0]\ic{Module(),"banking"])} is a
+is}
+\LK{it's in the AST section now, along with an explanation what we mean by "term"}
+For example, \icb{Def([}\ic{Module(),"banking"])} is a
 definition entry for a banking module. In the form of terms, they can be used in
 the same way as abstract syntax tree fragments in transformations and analyses.
 \Chapter{ch:constraints} shows how the index can be used for such tasks.
-\MV{Are these the same URIs as the ones discused in the previois subsection? If
-so, please say so.}
 
 Internally, index entries are stored in tables for efficient random access. They
 also contain meta-data such as the file name and line number of the definition.
@@ -367,7 +375,7 @@ prevent that.
 The structure of URIs forms the basis of the default name resolution strategy of
 Spoofax. The default strategy can be customized, but we first take a closer look
 at how name resolution works just based on the annotations in the grammar.
-Consider the \ic{address} property in the \ic{Store} entity:
+Consider the \ic{address} property in the \ic{Store} entity:
 
 \begin{code}
 module storage
@@ -379,33 +387,35 @@ entity Store {
 \end{code}
 
 The \ic{address} property references something named \ic{Address}. According to
-the grammar, that something lives in the \ic{Type} namespace. Spoofax resoles
+the grammar, that something lives in the \ic{Type} namespace. Spoofax resolves
 this name by looking at the context: is there an \ic{Address} in
-\ic{Type://storage.Store}? If not, it will keep trying the parent URI:
+\icb{Type://}\ic{storage.Store}? If not, it will keep trying the parent URI:
 \ic{Type://storage} and finally \ic{Type://}. If it is successful in finding it
 this way, it can resolve the reference, otherwise it displays an error marker in
 the editor.
-
-The default resolution strategy makes few assumptions about a specific language.
-It does not care about file boundaries: if an \ic{Address} is defined in a
-different file, it will still find it. It also does not pose a constraint on
-duplicate definitions: if there are multiple definitions of \ic{Address}, it
-will just find multiple definitions\MV{And then what does it do in the example?
-There can only be one target for the reference}\LK{there could be more than one
-unless a language only allows singular references}\MV{How do you specify that?
-How does the grammar have to change? Constraints?}.
-Lastly, the default strategy knows nothing about how import definitions work for
+The default resolution strategy makes is designed
+to be generic and makes few assumptions about a specific language.
+Spoofax expects language designers to \emph{manage by exception}.
+By default, it does not care about file boundaries: if an \ic{Address} is defined in a
+different file, it will still find it. There is also no default constraint for
+duplicate names: two definitions of \ic{Address} are fine. 
+Lastly, the default strategy knows nothing about import definitions for
 a specific language, as these can vary quite a bit among languages.
-However, Spoofax allows customization of the default strategy and the addition
-of constraints to address these matters.
+%However, Spoofax allows customization of the default strategy and the addition
+%of constraints to address these matters.
 
 %\subsection{Customizing the Name Resolution Strategy}
 
-Spoofax provides support for adding constraints and for customization of the
-behavior of the default resolution strategy by means of \emph{rewrite rules}.
-Rewrite rules are functions that operate on terms, transforming one term to
-another. In the next chapter, we show how rewrite rules can be used to specify
-constraints, type systems, and to customize the name resolution strategy.
+Spoofax provides support for adding constraints 
+and for customization of the behavior of the default resolution strategy
+by means of \emph{rewrite rules}.
+Rewrite rules are functions that operate on terms,
+transforming one term to another.
+We give a primer on rewrite rules next,
+and show how they can be used to customize name resolution.
+%In the next chapter, we show how rewrite rules
+%can be used to specify more sophisticated customizations,
+%constraints, and type systems using rewrite rules.
 
 %\TODO{show rules for handling imports here.
 %can't really show anything else interesting without types.}
@@ -429,6 +439,278 @@ constraints, type systems, and to customize the name resolution strategy.
 %adjust-index-path(target | namespace, path, prefix):
 %  Var(<target>) -> 
 %\end{code}
+
+\subsection{Rewrite Rules}
+\label{Sec:rewrite-rules}
+
+Rewrite rules in Spoofax are provided as  part of the Stratego program
+transformation language.
+%
+A basic rewrite rule that transforms a term pattern \ic{term1}
+to a term pattern \ic{term2} has the following form:
+
+\begin{code}
+rule-name:
+  term1 -> term2
+\end{code}
+
+Term patterns have the same form as terms: any term is a legal term pattern.
+In addition to the basic constructors, string literals, integer literals, and so on,
+they also support variables (e.g., \ic{v} or \ic{name}) and wildcards (indicated by \ic{\_}).
+%
+As an example, the following rewrite rule rewrites an \ic{Entity} to
+the list of properties contained in that entity:
+
+\begin{code}
+get-properties-types:
+  Entity(name, properties) -> properties
+\end{code}
+
+So, for an entity \ic{Entity("User", [Property("name", String)])}, it binds
+\ic{"User"} to the variable \ic{name}, and \icb{[Property(}\ic{"name", "String")]}
+to the variable \ic{properties}. It then returns \ic{properties}.
+
+While rewrite rules can be viewed as functions, they have one important difference:
+they can be defined multiple times for different patterns. In the case of \ic{get-properties},
+we could add another definition that works for property access expressions:
+
+\begin{code}
+get-properties:
+  FieldAccess(expr, property) -> property
+\end{code} 
+
+Rules can have complex patterns. For example, it is possible
+to write a rule that succeeds only for entities with just a \ic{name} property:
+
+\begin{code}
+is-name-only-entity:
+  Entity(_, [Property("name", "String")]) -> True()
+\end{code}
+
+Note how this rule uses a wildcard since it doesn't care about the name of the entity.
+
+%\MV{If this is important enough to
+%mention, then please also show an example or explain how it is important}
+%As we will show next, they can also have conditions and perform
+%arbitrary computations.
+%When a rule is defined multiple times, the first one that matches simply "wins". 
+%\MV{"the first one" in which order?} 
+
+Rewrite rules can be invoked using the syntax \ic{<rule-name> term}. For example,
+\ic{<get-properties> Entity("Unit", [])} would return an empty
+list of properties. The pointy brackets make it easy to distinguish
+rule invocations from terms, and makes it possible to use invocations in
+term expressions.
+
+Stratego provides a \ic{with} clause that can be used
+for additional code that should be considered for rewrite rules.
+The \ic{with} clause is most commonly used for assignments and
+calls to other rules. As an example, we can write the rule above
+using a \ic{with}:
+
+\begin{code}
+invoke-get-properties:
+  Entity(name, properties) -> result
+  with
+    result := <get-properties> Entity(name, properties)
+\end{code}
+
+This rule assigns the value of \ic{get-properties} to a variable \ic{result}
+and returns that as the result value of the rule.
+
+Rules can also have conditions. These can be specified using \ic{where}.
+If the pattern of a rule does not match, or if its conditions do not succeed,
+a rule is said to \emph{fail}. These clauses typically use the operators listed
+in \Figure{Fig:stratego-operators}.
+%
+An example of a rule with a \ic{where} clause
+is the following:
+
+\begin{code}
+has-properties:
+  Entity(name, properties) -> True()
+  with
+    properties := <get-properties> Entity(name, properties);
+  where
+    not(!properties => [])  
+\end{code}
+
+\begin{figure}[t]
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Expression} & \textbf{Description} \\ 
+\hline
+\ic{<e> t} & Applies \ic{e} to \ic{t}, or fails if \ic{e} is unsuccessful. \\
+\ic{v := t} & Assign a term expression \ic{t} to a variable \ic{v}. \\ 
+\ic{!t => p} & Match a term \ic{t} against a pattern \ic{p}, or fail. \\
+\ic{not(e)} & Succeeds if \ic{e} does not succeed. \\
+\ic{e1; e2} & Sequence: apply \ic{e1}. If it succeeds, apply \ic{e2}. \\ % Fail if either \ic{e1} or \ic{e2} fails. \\
+\ic{e1 <+ e2} & Choice: apply \ic{e1}, if it fails apply {e2} instead. \\
+%\ic{if e then e1 else e2 end} & If \ic{e} succeeds, then apply \ic{e1}, else \ic{e2}. \\
+\hline
+\end{tabular}
+\caption{Operators in Stratego expressions.}
+\label{Fig:stratego-operators}
+\end{figure}
+
+This rule only succeeds for entities where the condition \icb{not(}\ic{!prop\-erties => [])}
+holds. That is, it succeeds as long as an entity has an empty list (indicated by \ic{[]})
+of properties. Rewrite rules can have any number of \ic{where} and \ic{with} clauses,
+which are evaluated in the order they appear.
+
+Like functions or methods in other languages, rewrite rules
+can have parameters. Stratego distinguishes between parameters that
+pass other rules and parameters that pass terms, using a vertical
+bar to separate them two separate lists. Rules that
+take both rule and term parameters have a signature of the form \ic{rule(r|t)},
+those with only rule parameters \ic{rule(r)}, and those with
+only term parameters \ic{rule(|t)}.
+
+The Stratego standard library provides a number of higher-order
+rules, i.e.\ rules that take other rules as their argument. 
+These rules are used for common operations on abstract syntax trees:
+for example, \ic{map(r)} applies a rule \ic{r} to all elements
+of a list:
+
+\begin{code}
+get-property-types:
+  Entity(_, properties) -> types
+  with
+    types := <map(get-property-type)> properties
+
+get-property-type:
+  Property(_, type) -> type
+\end{code}
+
+Rules like \ic{map} specify a \emph{traversal} on a certain term
+structure: they specify how a certain rule should be applied to
+a term and its subterms. Rules that specify traversals are
+also called \emph{strategies}. In Spoofax, strategies are used
+to control traversals in constraints, transformation, and code generation.
+
+\subsection{Customizing the Name Resolution Strategy}
+
+%Stratego provides a standard library with a large number of useful 
+%\todo{...}
+
+To customize the name resolution strategy, Spoofax language
+definitions can include \ic{adjust-index-lookup} rules.
+These rules have a specific signature, and are invoked by the
+name resolution strategy for each reference that 
+is resolved.
+
+As an example, consider how a reference to a local property
+is resolved in mobl:
+
+\begin{code}
+entity BankAccount {
+  function getNumber() : number {
+    return number;
+  }
+  
+  name   : String
+  number : Num
+}
+\end{code}
+
+Here, the function \ic{getNumber} references the local \ic{number} property.
+The production rule we previously specified for these kinds of references
+used an underscore to indicate that we would manually specify how to resolve it:
+
+\begin{code}
+_@ID -> Exp {"Var"}
+\end{code}
+
+So, we need to specify a \ic{adjust-index-lookup} rule for the variables:
+
+\begin{code}
+adjust-index-lookup(target |namespace, path, name):
+  Var(<target>) -> adjusted-uris
+  with
+    adjusted-uris := ...
+\end{code}
+
+\TODO{complete this explanation}
+
+Each \ic{adjust-index-lookup} rule has this exact signature:
+it gets a \ic{target} rule argument, and term arguments
+with the namespace, path, and name of the reference to
+be resolved. On the left-hand side, it specifies what
+construct it matches against: 
+
+
+\begin{code}
+adjust-index-lookup(target |namespace, path, prefix):
+  Var(<target>) -> adjusted-uris
+  with
+    adjusted-uris := [[Var() | path], [Property() | path]]
+\end{code}
+
+
+\begin{code}
+  adjust-index-lookup(target | namespace, path, prefix):
+    element -> results
+\end{code}
+
+
+
+\begin{code}
+  adjust-index-lookup(target |namespace, path, prefix):
+    Var(<target>) -> [[Var() | path], [Property() | path]]
+\end{code}
+
+
+\begin{code}
+"import" Module@ID -> Decl {"import"}
+\end{code}
+
+\ic{Import("customers")}
+
+\begin{code}
+  adjust-index-lookup(target |namespace, path, prefix): 
+    Type(<target>) -> <concat> [primitives, [[Type() | path]], importPaths]
+    with
+      importPaths := <filter(import-to-path)> <index-get-all-in-file(|Import)> <index-get-current-file>;
+      primitives := <map(type-of; type-to-def)> <primitive-types>
+    
+  import-to-path:
+    Def([Import(), EntityImport(mod, ent)|_]) -> Def([Type(), ent, mod])
+\end{code}
+
+
+
+%\todo{show rules for handling imports here.
+%can't really show anything else interesting without types.}
+
+%unifying Var and Property namespace?
+%
+%
+%When needed, the path elements that are created for a scope can be customized
+%using a rewrite rule:
+%
+%\begin{code}
+%adjust-index-path(is-def | namespace, path, prefix):
+%  Entity(name, body) -> [Entity(), name]
+%\end{code}
+%
+%\MV{What is a rewrite rule? Why do you want to rewrite the scopes?}
+%%
+%
+%
+%\begin{code}
+%adjust-index-path(target | namespace, path, prefix):
+%  Var(<target>) -> 
+%\end{code}
+
+
+To customize the name resolution strategy, rewrite rules can be used
+to rewrite rewrite a reference to their definition.
+If there is no rewrite rule defined for
+a reference, then the default resolution strategy is used.
+
+(...)
+
+order of scopes, duplicates (no need to be unique), unresolved references:
 
 \section{Scoping in Xtext}
 

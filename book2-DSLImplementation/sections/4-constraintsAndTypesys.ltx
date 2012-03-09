@@ -400,129 +400,8 @@ beyond the scope of this book.
 \section{Constraints in Spoofax}
 
 Spoofax uses \emph{rewrite rules} to specify all semantic parts of a language definition.
-These rewrite rules are part of the Stratego program transformation language.
-Rewrite rules are functions that operate on terms,
-transforming one term to another. As such, an understanding of rewrite
-rules is essential for specifying semantic constraints and type systems. 
-
-\subsection{Rewrite Rules}
-
-A basic rewrite rules that transforms a term pattern \ic{term1}
-to a term pattern \ic{term2} has the following form:
-
-\begin{code}
-rule-name:
-  term1 -> term2
-\end{code}
-
-Term patterns have the same form as terms: any term is a legal term pattern.
-In addition to the basic constructors, string literals, integer literals, and so on,
-they also support variables (e.g., \ic{v} or \ic{name}) and wildcards (indicated by \ic{\_}).
-%
-As an example, the following rewrite rule rewrites an \ic{Entity} to
-a list of properties:\MV{I think this should be said differently. It does not
-transform any entity to any old list of properties. It transforms the entity to
-the list of properties contained in that entity!}
-
-\begin{code}
-get-properties:
-  Entity(name, properties) -> properties
-\end{code}
-
-While rewrite rules can be viewed as functions, they have one important difference:
-they can be defined multiple times for different patterns\MV{Not uncommon for
-functions, is it? Erlang?}.
-In the case of \ic{get-properties}, we could add another definition that works 
-for property access expressions:\MV{In this example, the "return type" is
-different (one property instead of many). Why is this not a problem?}
-
-
-\begin{code}
-get-properties:
-  FieldAccess(expr, property) -> property
-\end{code} 
-
-\MV{Maybe worth saying/repeating tht expr and property are variables, and that
-their positin determines what they are assigned to. This positin corresponds to
-the one used in the construction in grammars, right? Is there a 'formal'
-definition of the AST structure somewhere that people can use as a reference
-when working with a particular language?}
-
-Rules can have complex, overlapping patterns.\MV{If this is important enough to
-mention, then please also show an example or explain how it is important} As we
-will show next, they can also have conditions and perform arbitrary computations.
-When a rule is defined multiple times, the first one that matches simply "wins".
-\MV{"the first one" in which order?} 
-
-Rewrite rules can be invoked using the syntax \ic{<rule-name> term}. For example,
-\ic{<get-properties> Entity("Unit", [])} would return an empty
-list of properties. The pointy brackets make it easy to distinguish
-rule invocations from terms, and makes it possible to use invocations in
-term expressions:
-
-\begin{code}
-invoke-get-properties:
-  Entity(name, properties) -> <get-properties> Entity(name, properties)
-\end{code}
-\MV{This one is kinda funny. Any particular reason why you chose this example?}
-
-Stratego also provides a \ic{with} clause that can be used
-for additional code that should be considered for rewrite rules.
-The \ic{with} clause is most commonly used for assignments and
-calls to other rules. As an example, we can write the rule above
-using a \ic{with}:
-
-\begin{code}
-invoke-get-properties:
-  Entity(name, properties) -> result
-  with
-    result := <get-properties> Entity(name, properties)
-\end{code}
-
-This rule assigns the value of \ic{get-properties} to a variable \ic{result}
-and returns that as the result value of the rule.
-
-Rules can also have conditions. These can be specified using \ic{where}.
-If the pattern of a rule does not match, or if its conditions do not succeed,
-a rule is said to \emph{fail}. These clauses typically use the operators listed
-in \Figure{Fig:stratego-operators}.
-%
-An example of a rule with a \ic{where} clause
-is the following:
-
-\begin{code}
-has-properties:
-  Entity(name, properties) -> True()
-  with
-    properties := <get-properties> Entity(name, properties);
-  where
-    not(!properties => [])  
-\end{code}
-
-\begin{figure}
-\begin{tabular}{|l|l|}
-\hline
-\textbf{Expression} & \textbf{Description} \\ 
-\hline
-\ic{<e> t} & Applies \ic{e} to \ic{t}, or fails if \ic{e} is unsuccessful. \\
-\ic{v := t} & Assign a term expression \ic{t} to a variable \ic{v}. \\ 
-\ic{!t => p} & Match a term \ic{t} against a pattern \ic{p}, or fail. \\
-\ic{not(e)} & Succeeds if \ic{e} does not succeed. \\
-\ic{e1; e2} & Sequence: apply \ic{e1}. If it succeeds, apply \ic{e2}. Fail if either \ic{e1} or \ic{e2} fails. \\
-\ic{e1 <+ e2} & Choice: apply \ic{e1}, if it fails apply {e2} instead. \\
-%\ic{if e then e1 else e2 end} & If \ic{e} succeeds, then apply \ic{e1}, else \ic{e2}. \\
-\hline
-\end{tabular}
-\caption{Operators in Stratego expressions.}
-\label{Fig:stratego-operators}
-\end{figure}
-
-This rule only succeeds for entities where the condition \icb{not(}\ic{!prop\-erties => [])}
-holds. That is, it succeeds as long as an entity has an empty list (indicated by \ic{[]})
-of properties. Rewrite rules can have any number of \ic{where} and \ic{with} clauses,
-which are evaluated in the order they appear.
-
-%\Figure{Fig:stratego-operators} 
+In \Section{Sec:rewrite-rules} we gave a primer on rewrite rules, and in the present
+section we show how they can be used to specify constraints in language definitions.
 
 \subsection{Basic Constraint Rules}
 
@@ -538,10 +417,10 @@ constraints. One simply reports a note that is marked on the name of any
 module called "example":
 
 \begin{code}
-  constraint-note:
-    Module(x, _) -> (x, "This is just an example program.")
-    where
-      !x => "example"
+constraint-note:
+  Module(x, _) -> (x, "This is just an example program.")
+  where
+    !x => "example"
 \end{code}
 
 Note how the rule returns a tuple with the tree node where the marker should appear
@@ -577,7 +456,7 @@ uses string interpolation to report a warning:
 \MV{Use 'theName' or 'name' instead of 'x'?}
 
 Here, a standard library rule \ic{string-starts-with-capitals} is used. These
-and other library rules are documented on the Spoofax website.\MV{refernece?}
+and other library rules are documented on the Spoofax website.\footnote{\url{http://www.spoofax.org/}.}
 
 \subsection{Index-Based Constraint Rules}
 
@@ -694,104 +573,8 @@ is-ordered-namespace:
   Var() -> True()
 \end{code}
 
-\subsection{Customizing the Spoofax Index}
-
-\todo{...}
-
-constraints ... other customizations
-
-Like functions or methods in other languages, rewrite rules
-can have parameters. Stratego distinguishes between parameters that
-pass other rules and parameters that pass terms, using a vertical
-bar to separate them two separate lists. Rules that
-take both rule and term parameters have a signature of the form \ic{rule(r|t)},
-those with only rule parameters \ic{rule(r)}, and those with
-only term parameters \ic{rule(|t)}.
-
-%Stratego provides a standard library with a large number of useful 
-%\todo{...}
-
-To customize the name resolution strategy, Spoofax provides rules of a fixed
-signature th \todo{...}
-
-\begin{code}
-  adjust-index-lookup(target | namespace, path, prefix):
-    element -> results
-\end{code}
-
-
-\begin{code}
-  adjust-index-lookup(target |namespace, path, prefix):
-    Var(<target>) -> [[Var() | path], [Property() | path]]
-\end{code}
-
-
-\begin{code}
-"import" Module@ID -> Decl {"import"}
-\end{code}
-
-\ic{Import("customers")}
-
-\begin{code}
-  adjust-index-lookup(target |namespace, path, prefix): 
-    Type(<target>) -> <concat> [primitives, [[Type() | path]], importPaths]
-    with
-      // TODO: Don't use index-get-all-in-file.
-      importPaths := <filter(import-to-path)> <index-get-all-in-file> <index-get-current-file>;
-      primitives := <map(type-of; type-to-def)> <primitive-types>
-        
-  import-to-path:
-    Def([Import(), WildcardImport(mod)|_]) -> [Type(), mod]
-    
-  import-to-path:
-    Def([Import(), EntityImport(mod, ent)|_]) -> Def([Type(), ent, mod])
-\end{code}
-
-
-
-%\todo{show rules for handling imports here.
-%can't really show anything else interesting without types.}
-
-%unifying Var and Property namespace?
-%
-%
-%When needed, the path elements that are created for a scope can be customized
-%using a rewrite rule:
-%
-%\begin{code}
-%adjust-index-path(is-def | namespace, path, prefix):
-%  Entity(name, body) -> [Entity(), name]
-%\end{code}
-%
-%\MV{What is a rewrite rule? Why do you want to rewrite the scopes?}
-%%
-%
-%
-%\begin{code}
-%adjust-index-path(target | namespace, path, prefix):
-%  Var(<target>) -> 
-%\end{code}
-
-
-To customize the name resolution strategy, rewrite rules can be used
-to rewrite rewrite a reference to their definition.
-If there is no rewrite rule defined for
-a reference, then the default resolution strategy is used.
-
-(...)
-
-order of scopes, duplicates (no need to be unique), unresolved references:
-
-
-
-
-
-
-
-
-
-
-
+More sophisticated constraints and error messages
+can be specified using a type system, as we show next.
 
 \chapter{Type Systems}
 
