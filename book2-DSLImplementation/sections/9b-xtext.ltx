@@ -188,27 +188,27 @@ grammar org.xtext.example.lmrc.db.DbDsl with org.eclipse.xtext.common.Terminals
 generate dbDsl "http://www.xtext.org/example/lmrc/db/DbDsl"
 
 Root:
-  	Database;
+      Database;
 
 Database:
-	"database" name=ID
-	tables+=Table*;
-	
+    "database" name=ID
+    tables+=Table*;
+    
 Table:
-	"table" name=ID
-	columns+=Column*	;
-	
+    "table" name=ID
+    columns+=Column*    ;
+    
 Column:
-	type=AbstractDataType name=ID (mapper=AbstractColumnMapper)?;
+    type=AbstractDataType name=ID (mapper=AbstractColumnMapper)?;
 
 AbstractColumnMapper: {AbstractColumnMapper}"not mapped";
 
 AbstractDataType: 
-	CharType | NumberType;
+    CharType | NumberType;
 
 CharType: {CharType}"char";
 
-NumberType: {NumberType}"number";		
+NumberType: {NumberType}"number";        
 \end{code}
 
 The \ic{Column} rule has an optional \ic{mapper} property of type
@@ -252,7 +252,7 @@ We now have to overwrite the \ic{AbstractColumnMapper} rule defined in the
 
 \begin{code}
 AbstractColumnMapper returns db::AbstractColumnMapper:
-	{EntityColumnMapper} "<-" entity=[entity::Attribute|FQN];
+    {EntityColumnMapper} "<-" entity=[entity::Attribute|FQN];
 \end{code}
 
 We create a rule that has the same name as the rule in the super-grammar. So
@@ -277,12 +277,99 @@ won't work. We have to add the real root, which is simply the same one as in the
 
 \begin{code}
 Root returns db::Root :
-	Database;
+    Database;
 \end{code}
 
 
 
 \subsection{Extension}
+
+We have already seen the mechanics of extension in the previous example, since,
+as a way of building the reuse infrastructure, we have extended the \ic{db}
+language. In this section we look at extension in more detail. Extension is
+defined as syntactic integration with explicit dependencies. However, there are
+two use cases that feel different:
+
+\begin{enumerate}
+  \item In one case we provide (small scale) additional syntax to an otherwise
+  unchanged language. The \ic{db2entity} language shown above is an example of
+  this. The \ic{db2entity} programs look essentially like programs written in
+  the \ic{db} base language, but in one (or few) particular places, something is
+  different. In the example, the syntax for referencing attributes is such as
+  small scale change.
+  \item The other case is where we create a completely new language, but reuse
+  some of the syntax provided by the base language. This use case \emph{feels}
+  like embedding (we embed syntax from the base language in our new language),
+  but in the classification according to syntactic integration and dependencies,
+  it is still extension. Embedding would prevent explicit dependencies. In this
+  section we look at extension with an embedding flavor.
+\end{enumerate}
+
+To illustrate extension-with-embedding-flavor, we will show how to embed XBase
+expressions in a custom DSL. XBase is a reusable expression language that ships
+with Xtext. It provides primitive types, various unary and binary operators,
+functions and closures. As we will see it is very tightly integrated with
+Java\sidenote{This is a mixed blessing. As long as you stay in a JVM world (use
+Java types, generate Java code), it means that many things are very simple.
+However, as soon as you go outside of the JVM world, a lot of things become
+quite complex and it is questionable whether using Xbase makes sense in this
+case at all.}. As an example, we essentially create another entity language;
+thanks to Xbase, we will be able to write:
+
+\begin{code}
+module sample {
+    entity Person {
+        lastname : String
+        firstname : String
+        String fullName(String from) {
+            return "Hello " + firstname + " "  + lastname + " from " + from
+        }
+    }
+}
+\end{code}
+
+Here is the essential part of the grammar. Note how it extends the Xbase grammar
+(\ic{with} clause) and how it uses various elements from Xbase throughout the
+code (those whose names start with an \ic{X}).
+
+\begin{code}
+grammar org.xtext.example.lmrc.entityexpr.EntityWithExprDsl with org.eclipse.xtext.xbase.Xbase
+
+generate entityWithExprDsl "http://www.xtext.org/example/lmrc/entityexpr/EntityWithExprDsl"
+
+Module:
+	"module" name=ID "{"
+		entities+=Entity*
+	"}";
+
+Entity:
+	"entity" name=ID "{"
+		attributes+=Attribute*
+		operations+=Operation*
+	"}";
+
+Attribute:
+	name=ID ":" type=JvmTypeReference;
+
+Operation:
+	type=JvmTypeReference name=ID "("  (parameters+=FullJvmFormalParameter (',' parameters+=FullJvmFormalParameter)*)? ")"
+		body=XBlockExpression;
+\end{code}
+
+Let's look at some of the details. First, the types (of the \ic{Attribute}
+and the \ic{Operation}) are not defined by our grammar, instead we use a
+\ic{JvmTypeReference}. This makes all Java types legal in this place. Limiting
+this to the primitive types (or some subset) requires a scoping rule. On the
+other hand, one can automatically use any valid Java type here. We use an
+\ic{XBlockExpression} as the body of \ic{Operation}, which essentially allows us
+to use the full Xbase programming language inside the body of the
+\ic{Operation}. To make the \ic{parameters} visible, we use the
+\ic{FullJvmFormalParameter} rule.
+
+Above I wrote that Xbase is tightly integrated with the JVM and Java. The use of 
+\ic{FullJvmFormalParameter} and \ic{JvmTypeReference} is a sign of this.
+However, the next piece of code makes this even clearer:
+
 
 
 
