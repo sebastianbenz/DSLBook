@@ -165,10 +165,124 @@ function object. Xtext's scoping framework uses the function object to determine
 the name by which each of the attributes is referencable from this particular
 context.
 
+\todo{In the whole chapter: discuss type systems and generators}
+
+\subsection{Reuse}
+
+Referencing concerns the case where the referencing language is built with the
+knowledge about the referenced language, so it can have direct dependencies. In
+the example above, the \ic{uispec} language uses \ic{Entity}
+and \ic{Attribute} from the \ic{entities} language. It directly imports the meta
+model, so it has a direct dependency.
+
+In case of reuse, such a direct dependency is not allowed. Our goal is to
+combine two \emph{independent} languages. To show this case, we again use the
+same example as in the MPS section. We first introduce a \ic{db} language. It is
+a trivial DSL for defining relational table structures. These can optionally be
+mapped to a data source, but the language makes no assumption about how this
+data source looks (and which language is used to define it). Consequently, the
+grammar has no dependency on another other one, and imports no other meta model:
+
+\begin{code}
+grammar org.xtext.example.lmrc.db.DbDsl with org.eclipse.xtext.common.Terminals
+generate dbDsl "http://www.xtext.org/example/lmrc/db/DbDsl"
+
+Root:
+  	Database;
+
+Database:
+	"database" name=ID
+	tables+=Table*;
+	
+Table:
+	"table" name=ID
+	columns+=Column*	;
+	
+Column:
+	type=AbstractDataType name=ID (mapper=AbstractColumnMapper)?;
+
+AbstractColumnMapper: {AbstractColumnMapper}"not mapped";
+
+AbstractDataType: 
+	CharType | NumberType;
+
+CharType: {CharType}"char";
+
+NumberType: {NumberType}"number";		
+\end{code}
+
+The \ic{Column} rule has an optional \ic{mapper} property of type
+\ic{AbstractColumnMapper}. Since it is not possible to explicitly mark rules as
+generating astract meta classes, we simply define the syntax to be "not mapped". 
+This language has been designed \emph{for} reuse, because it has this hook
+\ic{AbstractColumnMapper}, which can be customized later. But the language is
+still independent. In the next step, we want to be able to reference
+\ic{Attribute}s from the entities language:
+
+\begin{code}
+database CompanyDB
+
+table Departments
+  number id          <- Department.id
+  char descr         <- Department.description
+  
+table People
+  number id          <- Employee.id
+  char name          <- Employee.name
+  char role          <- Employee.role
+  char isFreelancer  <- Employee.freelancer
+\end{code}
+
+To make this possible, we create a new language \ic{db2entity} which \emph{extends} the
+\ic{db} language and \emph{references} the \ic{entities} language. This is
+reflected by the header of the \ic{db2entity} language (notice the \ic{with}
+clause):
+
+\begin{code}
+grammar org.xtext.example.lmrc.db2entity.Db2EntityDsl with org.xtext.example.lmrc.db.DbDsl
+
+import "http://www.xtext.org/example/lmrc/db/DbDsl" as db
+import "http://www.xtext.org/example/lmrc/entity/EntityDsl" as entity
+
+generate db2EntityDsl "http://www.xtext.org/example/lmrc/db2entity/Db2EntityDsl"
+\end{code}
+
+We now have to overwrite the \ic{AbstractColumnMapper} rule defined in the
+\ic{db} language. 
+
+\begin{code}
+AbstractColumnMapper returns db::AbstractColumnMapper:
+	{EntityColumnMapper} "<-" entity=[entity::Attribute|FQN];
+\end{code}
+
+We create a rule that has the same name as the rule in the super-grammar. So
+when the new grammar calls the \ic{AbstractColumnMapper} rule, our new
+definition is used. Inside, we define the new syntax we would like to use, and
+as part of it, we reference an \ic{Attribute} from the imported \ic{entity} meta
+model. We then use the \ic{\{EntityColumnMapper\}} action to force instantiation
+of an \ic{EntityColumnMapper} object: this also implicitly leads to the creation
+of an \ic{EntityColumnMapper} class in the generated \ic{db2entity} meta model.
+Since our new rule \ic{returns} an \ic{db::AbstractColumnMapper}, this new meta
+class extends \ic{AbstractColumnMapper} from the \ic{db} meta model --- which is
+exactly what we want.
+
+There are two more things we have to do to make it work. First, we have to
+register the two \ic{genmodel} files in the \ic{db2entity}'s
+\ic{StandaloneSetup} bean in the workflow file. Second, we have to address the
+fact that in Xtext, the first rule in a grammar file is the entry rule for the
+grammar, i.e. the parser starts consuming a model file using this rule. In our
+\ic{db2entity} grammar, the first rule is \ic{AbstractColumnMapper}, so this
+won't work. We have to add the real root, which is simply the same one as in the
+\ic{db} language:
+
+\begin{code}
+Root returns db::Root :
+	Database;
+\end{code}
 
 
 
-
+\subsection{Extension}
 
 
 
