@@ -1,40 +1,213 @@
 \section{Xtext Example}
 
+In this section we look at an example similar to the one for MPS discussed in
+the previous section. We start out with a DSL for entities.  Here is an example
+program:
+
+\begin{code}
+module company {
+    entity Employee {
+        id : int
+        name : string
+        role : string
+        worksAt : Department
+        freelancer : boolean
+    }
+    entity Department {
+        id : int
+        description : string
+    }
+}
+\end{code}
+
+The grammar is straight forward and should be clear if you have read the
+implementation part so far.
+
+\begin{code}
+grammar org.xtext.example.lmrc.entity.EntityDsl with org.eclipse.xtext.common.Terminals
+
+generate entityDsl "http://www.xtext.org/example/lmrc/entity/EntityDsl"
+
+Module:
+    "module" name=ID "{"
+        entities+=Entity*
+    "}";
+
+Entity:
+    "entity" name=ID "{"
+        attributes+=Attribute*
+    "}";
+
+Attribute:
+    name=ID ":" type=AbstractType;
+
+Named: Module|Entity|Attribute;
+
+AbstractType:
+    BooleanType|IntType|StringType|EntityReference;
+
+BooleanType: {BooleanType} "boolean";
+
+IntType: {IntType} "int";
+
+StringType: {StringType} "string";
+
+EntityReference: ref=[Entity|FQN];
+
+FQN: ID ("." ID)*;
+\end{code}
+
 
 \subsection{Referencing}
 
-GuiDSL -> Entity DSL
+Referencing describes the case where programs written in one DSL reference (by
+name) program elements written in another DSL, both programs reside in different
+fragments and no syntactic composition is required. The example we use is the UI
+specification language where a \ic{Form} defined in the UI model refers to
+\ic{Entities} from the language defined above, and \ic{Field}s in a form refers
+to entity \ic{Attribute}. Here is some example code:
 
-ResourceServiceProvider: Referenzieren von "nicht Xtext, aber EMF" Artekfakten
+\begin{code}
+form CompanyStructure
+  uses Department // reference to Department entity
+  uses Employee   // reference to Employee entity
+
+field Name: textfield(30)              -> Employee.worksAt
+field Role: combobox(Boss, TeamMember) -> Employee.role
+field Freelancer: checkbox             -> Employee.freelancer
+field Office: textfield(20)            -> Department.description
+\end{code}
+
+Note that the references to entities and fields do not technically reference
+into an entity source file. Instead, these references refer to the EMF objects
+in the AST that has been parsed from the source file. So, a similar approach can
+be used to reference to other \ic{EObject}s. It does not matter whether these
+are created via Xtext or not. This is reflected by the fact that the grammar of
+the \ic{uispec} language does not refer to the \emph{grammar} of the \ic{entity}
+language, but to the derived meta model. Here is the header of the \ic{uispec}
+language:
+
+\begin{code}
+grammar org.xtext.example.lmrc.uispec.UispecDsl with org.eclipse.xtext.common.Terminals
+
+import "http://www.xtext.org/example/lmrc/entity/EntityDsl" as entity
+
+generate uispecDsl "http://www.xtext.org/example/lmrc/uispec/UispecDsl"
+\end{code}
+
+Importing a meta model means that the respective \emph{meta classes} can now be
+used. Note that the meta model import does not make the \emph{grammar rules}
+visilble, so the meta classes can only be used in references and as base types
+(as we will see later). In case of referencing, we use them in references:
+
+\begin{code}
+EntityReference:
+    "uses" entity=[entity::Entity|FQN];
+
+Field:
+    "field" label=ID ":" widget=Widget "->" attribute=[entity::Attribute|FQN];
+\end{code}
+
+To make this work, no change is required in the \ic{entities} language as long
+as the target elements are in the index. The index is used by Xtext to resolve
+references against elements that reside in a different model file. By default,
+all elements that have a \ic{name} attribute are in the index. \ic{Entity} and
+\ic{Attribute} have names, so this works automatically. To make the referencing
+work, the workflow generarting the \ic{uispec} language has to be changed as
+well. The \ic{genmodel} file for the meta model has to be registered in the
+\ic{StandaloneSetup}\sidenote{This is necessary so that the EMF code
+generator, when generating the meta classes for the \ic{uispec} language knows
+where the generated Java classes for the \ic{entities} languages reside. This
+is an EMF technicality and we won't discuss it in any more detail}.
+
+\begin{code}
+bean = StandaloneSetup {
+    ...
+    registerGenModelFile = "platform:/resource/org.xtext.example.lmrc.entity/
+                src-gen/org/xtext/example/lmrc/entity/EntityDsl.genmodel"
+}
+\end{code}
+
+We have to do one more customization to make the language work smoothly. The
+only \ic{Attribute}s that should be visible are those from the entities
+referenced in the current \ic{Form}'s \ic{uses} clauses, and they should be
+referenced with a qualified name (\ic{Employee.role} instead of just \ic{role}).
+Scoping has to be customized to achieve this:
+
+\begin{code}
+public IScope scope_Field_attribute(Field context, EReference ref) {
+    Form form = EcoreUtil2.getContainerOfType(context, Form.class);
+    List<Attribute> visibleAttributes = new ArrayList<Attribute>();
+    for (EntityReference useClause : form.getUsedEntities()) {
+        visibleAttributes.addAll(useClause.getEntity().getAttributes());
+    }
+    Function<Attribute, QualifiedName> nameComputation = new Function<Attribute, QualifiedName>() {
+        @Override
+        public QualifiedName apply(Attribute a) {
+            return QualifiedName.create(((Entity)a.eContainer()).getName(), a.getName());
+        }
+    };
+    return Scopes.scopeFor(visibleAttributes, nameComputation , IScope.NULLSCOPE);
+}
+\end{code}
+
+This scoping function performs two tasks: first, it finds all the
+\ic{Attribute}s of all \ic{used} entities. We collect them into a list
+\ic{visibleAttributes}. The second part of the scoping function defines a
+\ic{Function} object\sidenote{Note how we have to use the ugly function object
+notation, because Java does not provide support for closures or lambdas at this
+point!} that represents a function from \ic{Attribute} to \ic{QualifiedName}. In
+the implementation method \ic{apply} we create a qualified name made from two
+parts: the entity name and the attribute name (the dot between the two is
+default behavior for the \ic{QualifiedName} class). When we create the scope
+itself in the last line we pass in the list of attributes as well as the
+function object. Xtext's scoping framework uses the function object to determine
+the name by which each of the attributes is referencable from this particular
+context.
 
 
-\subsection{Extension}
- 
-die Entity DSL von Xbase erben lassen und die Expressions einbauen
-dabei: einführen von JVMElement in Eneitty DSL damit bspw. ENtity Attribute 
-aus Expressns referenzierbar sind (Expressions bspw. beo derived entity
-attributes)
-
-Sagen dass alles so funkt wie in Java - so lange man sich da dran hält ist alles
-gut, wenn man aus dieser box raus will wirds schnell anstrengend
 
 
-\subsection{Reuse}
 
-Persoistence DSL die "abstrakt" auf Datenstrukturen referenziert,
-die ADapter, Untersrprache fügt die konkreten Referenzen etc. hinzu auf unsere
-Entity Sprache.
 
-\subsection{Embedding}
 
-Geht net, weil man nicht von 2 Spachen erben kann.
-Copy & paste als alternative
 
-Aber, klar: syntaktisches einbetten geht durch vererbung, aber nicht unter
-beibehaltung der Unabhängigkeit der Sprachen --- damit structly speaking kein
-Embedding, sondern Extension "mit Embedding FLavor"
-Extension etwender
-- "einbetten" von expressions der oberspache in "meine" untersprache
-- Neue "top level" DInge hinzufügen
 
-Als Beispiel warum: Unab. SQL und Java einbetten
+
+% \subsection{Referencing}
+% 
+% GuiDSL -> Entity DSL
+% 
+% ResourceServiceProvider: Referenzieren von "nicht Xtext, aber EMF" Artekfakten
+% 
+% 
+% \subsection{Extension}
+%  
+% die Entity DSL von Xbase erben lassen und die Expressions einbauen
+% dabei: einführen von JVMElement in Eneitty DSL damit bspw. ENtity Attribute 
+% aus Expressns referenzierbar sind (Expressions bspw. beo derived entity
+% attributes)
+% 
+% Sagen dass alles so funkt wie in Java - so lange man sich da dran hält ist alles
+% gut, wenn man aus dieser box raus will wirds schnell anstrengend
+% 
+% 
+% \subsection{Reuse}
+% 
+% Persoistence DSL die "abstrakt" auf Datenstrukturen referenziert,
+% die ADapter, Untersrprache fügt die konkreten Referenzen etc. hinzu auf unsere
+% Entity Sprache.
+% 
+% \subsection{Embedding}
+% 
+% Geht net, weil man nicht von 2 Spachen erben kann.
+% Copy & paste als alternative
+% 
+% Aber, klar: syntaktisches einbetten geht durch vererbung, aber nicht unter
+% beibehaltung der Unabhängigkeit der Sprachen --- damit structly speaking kein
+% Embedding, sondern Extension "mit Embedding FLavor"
+% Extension etwender
+% - "einbetten" von expressions der oberspache in "meine" untersprache
+% - Neue "top level" DInge hinzufügen
+% 
+% Als Beispiel warum: Unab. SQL und Java einbetten
