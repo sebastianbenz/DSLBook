@@ -62,7 +62,9 @@ experience in the domain. The extensions can be factored into a separate
 language module that extends the core DSL. The use of these extensions can then
 initially be restricted to a few users in order to find out if they really
 needed. Different experiments can even be performed at the same time, with
-different groups of users using different extensions. Even later, "advanced"language feature are restrictable to a small group of "advanced" users whohandle the hard cases.
+different groups of users using different extensions. Even later, "advanced"
+language feature are restrictable to a small group of "advanced" users who
+handle the hard cases. 
 
 
 \marginnote{Language extension is especially interesting if $D_0$ languages are
@@ -75,6 +77,17 @@ Language extensions for the subdomain of real-time systems may include ways of
 specifying deterministic scheduling and worst-case execution time. For the
 avionics subdomain support for remote communication using some of the bus
 systems used in avionics could be added. \todo{cite Models Paper}}
+
+Incremental extension can help avoid the feared customization cliff. The
+customization cliff is a term introduced by Steve
+Cook\sidenote{http://bit.ly/yzZb1u}: \emph{once you step outside of what is
+covered by your DSL, you plunge down a cliff onto the rocks of the low-level
+platform.} If DSLs are built as incremental extensions of the next lower
+language, then stepping outside any DSL on level $D$ will only plunge you down
+to the language for $D_{-1}$. And presumably you can always create an additional
+extension that extends your DSL to cover an additional, initially unexpected
+aspect.
+
 
 Defining a $D$ languages as an extension of a $D_{-1}$ language can also have
 drawbacks. The language is tightly bound to the $D_{-1}$ language it is extended
@@ -94,6 +107,9 @@ back to $D_{-1}$ to implement the rest. Since DSL users see the $D_{-1}$ code
 all the time anyway, they will be comfortable falling back to $D_{-1}$ in
 exceptional cases. This makes extensions suitable only for DSLs used by
 developers. Domain expert DSLs are typically not implemented as extensions.
+
+
+
 
 \parhead{Restriction} Sometimes language extension is also used to
 \emph{restrict} the set of language constructs available in the subdomain. For
