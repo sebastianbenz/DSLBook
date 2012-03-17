@@ -144,22 +144,22 @@ so, mark the state machine as not verifiable.}
 pension calculation rule overrides a rule in the base plan, then the overriding
 rule has to marked as \emph{overrides}. This way, if the rule in the base plan
 is removed or renamed, validation of the sub plan will report an error. An
-alternative design would simply derive the fact that a rule overrides
-another one if they have the same name and signature.}
+alternative design would simply derive the fact that a rule overrides another
+one if they have the same name and signature.}
 
 Note how in all three cases the constraint checking is based on two steps. First
 we declare an intent (variable is intended to be int, this state machine is
-intended to be verifiable, a rule is intended to override another one). We
-can then check if the program conforms to this intention. The alternative
-approach would derive the fact from the program (the variable's type is whatever
-the expression's type evaluates to, state machines are verifiable if the
-"forbidden" features aren't used, rules override another one if they have the
-same name and signature) without any explicitly specified intent. 
+intended to be verifiable, a rule is intended to override another one). We can
+then check if the program conforms to this intention. The alternative approach
+would derive the fact from the program (the variable's type is whatever the
+expression's type evaluates to, state machines are verifiable if the "forbidden"
+features aren't used, rules override another one if they have the same name and
+signature) without any explicitly specified intent.
 
 When designing constraints and type systems, a decision has to be made regarding
 when to use which approach. Here are some trade-offs. The
-specification/conformance approach requires a bit more code to be written,
-but results in more meaningful and specific error messages. The message can express
+specification/conformance approach requires a bit more code to be written, but
+results in more meaningful and specific error messages. The message can express
 that fact that one part of a program does not conform to a specification made by
 another part of the program. It also anchors the constraint checker, because a
 fixed fact about the program is explicitly given instead of having it derived
@@ -168,6 +168,21 @@ approach is less effort to write and can hence be seen to be more convenient,
 but it requires more effort in constraint checking, and error messages may be
 harder to understand because of the missing, explicit "hard fact" about the
 program.
+
+
+The specification/conformance approach can also be used to decouple models and
+increase scalability. Consider the following example. A program contains a
+function call, and the type checker needs to check the typing for this call. To
+do so, it has to determine the type of the called function. Assume this function
+does \emph{not} specify the return type explicitly, instead it is inferred 
+from the returned expressions. These expressions may be calls to other functions, 
+so the process repeats. In the worst case, a whole chain of function calls must be
+tracked down in this way to calculate the type of the function initially called
+by your program. Notice that this requires accessing all the downstream programs, so these all
+have to be loaded! In large systems, this can lead to serious performance and
+scalability issues\sidenote{We have seen such problems in practice with
+large-scale models.}. If, instead, the type of the called function were given
+explicitly, no downstream models need to be accessed or loaded. To improvescalability even further.
 
 
 \parhead{Multi-Level Constraints} Several sets of constraints can be used to

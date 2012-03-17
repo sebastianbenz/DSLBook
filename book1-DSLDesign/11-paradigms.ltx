@@ -146,16 +146,21 @@ to be preferred by developers, maybe because well-known versioning tools have
 used the approach for a long time.
 
 
-
 \parhead{Specification vs. Implementation} Separating specification and
 implementation supports plugging in different implementations for the same
 specification and hence provides a way to "decouple the outside from the
-inside".\marginnote{Interfaces, pure abstract classes, traits or function
-signatures are a realization of this concept in programming languages.} This
-supports the exchange of several implementations behind a single interface. This
-is often required as a consequence of the development process: one stakeholder
-defines the specification and a client, whereas another stakeholder provides one
-or more implementations.
+inside". Interfaces, pure abstract classes, traits or function signatures are a
+realization of this concept in programming languages. This supports the exchange
+of several implementations behind a single interface. This is often required as
+a consequence of the development process: one stakeholder defines the
+specification and a client, whereas another stakeholder provides one or more
+implementations.\marginnote[-35mm]{The separation of specification and implementation can also
+have positive effects on scalability and performance. If the specification and
+implementation are separated into different fragments, then, in order to 
+type check a client's access to some provided service, only the
+fragment that contains the specification has to be loaded/parsed/checked, which
+is obviously faster than processing complete implementation.}
+
 
 \embc{This DSL adds interfaces and components to C. Components provide or use
 one or more interfaces. Different components can be plugged in behind the same
