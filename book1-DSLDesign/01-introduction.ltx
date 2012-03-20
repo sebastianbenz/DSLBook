@@ -12,11 +12,19 @@ Throughout this part of the book we refer back to the five case studies
 introduced in Part I of the book\todo{ref; also for all the paragraphs below}.
 We use a the following notation:
 
-\comparch{This refers to the component architecture case study desribed in .}
-\cooling{This refers to the refrigerator configuration case study desribed in .}
-\embc{This refers to the mbeddr.com extensible C case study desribed in .}
-\pension{This refers to the pension plans case study desribed in .}
-\exwebdsl{This refers to the WebDSL case study desribed in .}
+\comparch{This refers to the component architecture case study desribed in
+\sect{cscomparch}.}
+\cooling{This refers to the refrigerator configuration case study desribed in
+\sect{cscooling}.}
+\embc{This refers to the mbeddr.com extensible C case study desribed in
+\sect{csextc}.}
+\pension{This refers to the pension plans case study desribed in
+\sect{cspension}.}
+\exwebdsl{This refers to the WebDSL case study desribed in \sect{cswebdsl}.}
+
+Note that, in this part of the book, the examples will only be used to
+illustrate DSL \emph{design} and the driving design decisions. Part II of the
+book will then discuss the implementation aspects.
 
 Some aspects of DSL Design have been formalized with mathematical formulae.
 These are intended as an additional means of explaining some of the concepts.
@@ -25,10 +33,17 @@ unambiguous way. However, I want to emphasize that reading or understanding the
 formulae is \emph{not} essential for understanding the language design
 discussion. So if you're not into mathematical formulae, just ignore them.
  
-
+The part consists of three chapters. In \Chapter{foundations} we introduce
+important terms and concepts including domain, model purpose and the structure
+of programs and languages. In \Chapter{dimensions} we discuss a set of seven
+dimensions that guide the design of DSLs: expressivity, coverage, semantics,
+separation of concerns, completeness, language modularization and syntax.Finally, in \Chapter{learnFromGPLs} we look at well-known structural
+and behavioral paradigms (such as inheritance or state based beviour) and
+discuss their applicability to DSLs.
 
 
 \chapter{Conceptual Foundations}
+\label{foundations}
 
 \chapterabstract{This chaper provides the conceptual foundations for the
 discussion of the design dimensions. It consists of three sections. The first
@@ -49,58 +64,66 @@ TU Delft. Reach him via \verb#e.visser@tudelft.nl#.
 
 Domain-specific languages live in the realm of \emph{programs},
 \emph{languages}, and \emph{domains}. So we should start out by explaining what
-these things are, at least in a conceptual way. We will then use these concepts
-throught this part of the book. 
+these things are. We will then use these concepts throughout this part of the
+book.
 
 
-As part of this book, we are primarily interested in \emph{computation}. All the
-DSLs we consider are aimed at creating executable software\footnote{... as
-opposed to just communicating among humans or describing complete systems.}. So,
-let's first consider the relation between programs and languages. Let's define
-$P$ to be the set of all conceivable programs. A \emph{program} $p$ in $P$ is
-the \emph{conceptual} representation of some \emph{computation} that runs on a
-universal computer (Turing machine). A \emph{language} $l$ defines a structure
-and notation for \emph{expressing} or \emph{encoding} programs from $P$. Thus, a
-program $p$ in $P$ may have an expression in $L$, which we will denote as $p_l$.
+As part of this book's treatment of DSLs, we are primarily interested in
+\emph{computation}, i.e. we are aimed at creating executable
+software\footnote{... as opposed to just communicating among humans or
+describing complete systems.}. So let's first consider the relation between
+programs and languages. Let's define $P$ to be the set of all conceivable
+programs. A \emph{program} $p$ in $P$ is the \emph{conceptual} representation of
+some \emph{computation} that runs on a universal computer (Turing machine). A
+\emph{language} $l$ defines a structure and notation for \emph{expressing} or
+\emph{encoding} programs from $P$. Thus, a program $p$ in $P$ may have an
+expression in $L$, which we will denote as $p_l$.
 
-We can have several languages $l_1$ and $l_2$ that express the \emph{same}
-conceptual program $p$ differently as $p_{l_1}$ and $p_{l_2}$ (\ic{factorial}
+There can be several languages $l_1$ and $l_2$ that express the \emph{same}
+conceptual program $p$ in different way $p_{l_1}$ and $p_{l_2}$ (\ic{factorial}
 can be expressed in Java and Lisp, for example). There may even be multiple ways
 to express the same program in a single language~$l$ (in Java, \ic{factorial}
 can be expressed via recursion or with a loop). A transformation $T$ between
 languages $l_1$ and $l_2$ maps programs from their $l_1$ encoding to their $l_2$
-encoding, i.e. $T(p_{l_1}) = p_{l_2}$\marginnote[-5\baselineskip]{Notice thatthis transformation only changes the language used to express the program. The conceptual programdoes not change. In other words, the transformation preserves the semantics of$p_{l_1}$. We will come back to this notion as we discuss semantics in moredetail in \todo{ref}.}.
+encoding, i.e. $T(p_{l_1}) = p_{l_2}$\marginnote[-5\baselineskip]{Notice that
+this transformation only changes the language used to express the program. The
+conceptual program does not change. In other words, the transformation preserves
+the semantics of $p_{l_1}$. We will come back to this notion as we discuss
+semantics in more detail in \sect{semantics}.}.
 
 It may not be possible to encode all programs from $P$ in a given language $l$.  
-We denote as $P_l$ the subset of $P$ that can be expressed in$l$\marginnote{Turing-complete languages can by definition express all of $P$}.
+We denote as $P_l$ the subset of $P$ that can be expressed in$l$\marginnote{Turing-complete languages can by definition express all of $P$}.More importantly, some languages may be \emph{better} at expressing certainprograms from $P$: the program may be shorter, more readable or moreanalyzable.
 
 \pension{The pension plan language is very good at representing pension
-calculations, but cannot practically be used to express general purpose enterprise software}
+calculations, but cannot practically be used to express general purpose
+enterprise software}
+
 \parhead{Domains} What are domains? We have seen one way of defining domains in
 the previous paragraph. When we said that a language $l$ covers a subset of $P$,
 we can simply call this subset the \emph{domain} covered with $l$. However, this
-is not a very useful approach, since it equates the scope of a domain (the
-subset of $P$ in that domain, $P_D$ with the subset of $P$ we can express with
-a language $l$ $P_l$). We cannot ask questions such as: "does the language
-adequatly cover the domain?", since it always does, by definition.
+is not a very useful approach, since it equates the scope of a domain trivially
+with the scope of a language (the subset of $P$ in that domain $P_D$ is equal to
+the subset of $P$ we can express with a language $l$ $P_l$). We cannot ask
+questions such as: "does the language adequately cover the domain?", since it
+always does, by definition.
 
 There are two more useful approaches. In the \emph{inductive} or
 \emph{bottom-up} approach we define a domain in terms of existing software. That
-is, a domain $D$ is identified as a subset $P_D$ of $P$, i.e. a set of programs
+is, a domain $D$ is identified as a set of programs
 with common characteristics or similar purpose. Notice how at this point we do
 \emph{not} imply a special language to express them. They could be expressed in any Turing
 complete language. Often, such domains do not exist outside the realm of
 software. An especially interesting case of the inductive approach is where we
 define a domain as a subset of programs written in a specific language $P_l$
-instead of the more general set $P$. In this special case we can often clearly
-identify the commonality between programs in the domain, in the form of their
-consistent use of a set of domain-specific patterns or idioms\footnote{Some
+instead of the more general set $P$. In this case we can often clearly
+identify the commonalities among the programs in the domain, in the form of
+their consistent use of a set of domain-specific patterns or idioms\footnote{Some
 people have argued for a long time that the need to use idioms or patterns in a
-language is a smell: patterns and idioms are in fact hints at missing language
-features: http://bit.ly/715wiF}. This makes building a DSL for $D$ relativelysimple, because we know exactly what the DSL has to cover, and we know what codeto generate from DSL programs.
+language is a smell, and should be understood as hints at missing
+language features: http://bit.ly/715wiF}. This makes building a DSL for $D$ relativelysimple, because we know exactly what the DSL has to cover, and we know what codeto generate from DSL programs.
 
 \embc{The domain of this DSL has been defined bottom-up. Based on idioms
-commonly used when using C for embedded software development, linguistic
+commonly employed when using C for embedded software development, linguistic
 abstractions have been defined that provide a "shorthand" for those idioms.
 These linguistic abstractions form the basis of the language extensions.}
 
@@ -108,19 +131,19 @@ The above examples can be considered relatively general --- the domain of
 embedded software development is relatively broad. In contrast, a domain may
 also be very specific.
 
-\cooling{The cooling DSL is tailored specifically to expressing refrigerator
+\cooling{The cooling DSL is tailored specifically at expressing refrigerator
 cooling programs for a very specific organization. No claim is made for
-widespread usefulness of the DSL. However, it perfectly fits into the way
+broad applicability of the DSL. However, it perfectly fits into the way
 cooling algorithms are described and implemented in that particular
 organization.}
 
 
 The second approach for defining a domain is \emph{deductive} or
-\emph{top-down}. There, a domain is considered a body of knowledge in the real
-world, i.e. outside the realm of software. From this perspective, a domain $D$
+\emph{top-down}. In this approach, a domain is considered a body of knowledge in
+the real world, i.e. outside the realm of software. From this perspective, a domain $D$
 is a body of knowledge for which we want to provide some form of software
-support. In this case, $P_D$ is the subset of programs in $P$ that
-implement interesting computations in $D$. This case is much harder to addressusing DSLs, because we first have to understand precisely the nature of thedomain and of the interesting programs in that domain.
+support. $P_D$ is the subset of programs in $P$ that
+implement interesting computations in $D$. This case is much harder to addressusing DSLs, because we first have to understand precisely the nature of thedomain and identify the interesting programs in that domain.
 
 \pension{The pensions domain has been defined this way. The customer had been
 working in the field of old age pensions for decades and had a very detailed
@@ -152,11 +175,11 @@ That is, $l_D$ is more efficient in some respect in representing $P_D$ programs
 than other languages, and thus, is particularly well suited for $P_D$.
 It achieves this by using \emph{abstractions} suitable to the domain, and
 avoiding details that are irrelevant to programs in $D$ (typically because they
-are similar in a programs and can be added automatically by the execution
+are similar in all programs and can be added automatically by the execution
 engine).
 
 
-It is still possible to express programs in $P_D$ with a general-purposelanguage. But this is less efficient --- we may have to write much more code,because a GPL is not specialized to that particular domain. Depending on theexpressivity of a DSL, we may also be able to use it to describe programsoutside of $D$\footnote{For example, you \emph{can} write any program with some
+It is of course possible to express programs in $P_D$ with a general-purposelanguage. But this is less efficient --- we may have to write much more code,because a GPL is not specialized to that particular domain. Depending on theexpressivity of a DSL, we may also be able to use it to describe programsoutside of $D$\footnote{For example, you \emph{can} write any program with some
 dialects of SQL.}. However, this is often not efficient at all, because, by
 specializing a DSL for $D$, we also restrict its efficiency for expressing
 programs outside of $D$. This is not a problem as long as we have scoped $D$
@@ -167,10 +190,14 @@ problem.
 
 This leads us to the crucial challenge in DSL design: finding regularity in a
 non-regular domain and capturing it in a language. Especially in the deductive
-approach, membership of programs to the domain is determined by a human oracle.
-A DSL for the domain hence typically represents an explanation or interpretation
-of the domain, and often requires trade-offs by under- or over-approximation
-(Figure~\ref{fig:approximation}). This is especially true while we develop theDSL: an iterative approach is necessary that evolves the language as ourunderstanding of the domain becomes more and more refined over time. In a DSL$l$ that adequate for the domain, the sets $P_l$ and $P_D$ are the same. 
+approach, membership of programs in the domain is determined by a human an is,
+in some sense, arbitrary. A DSL for the domain hence typically represents an
+explanation or interpretation of the domain, and often requires trade-offs by
+under- or over-approximation (Figure~\ref{fig:approximation}). This is
+especially true while we develop the DSL: an iterative approach is necessary
+that evolves the language as our understanding of the domain becomes more and
+more refined over time. In a DSL $l$ that is adequate for the domain, the sets
+$P_l$ and $P_D$ are the same.
 
 \begin{marginfigure}[-5cm]
 \begin{center}
@@ -185,8 +212,8 @@ of the domain, and often requires trade-offs by under- or over-approximation
 abstraction levels it is useful to consider domains organized in a
 hierarchy\sidenote[][-2\baselineskip]{In reality, domains are not always as
 neatly hierarchical as we make it seem in this section. Domains may overlap, for
-example. Nonetheless, this ierarchy is very useful to discuss many of the
-advanced topics in this book. In terms of DSLs, overlap may be addressed by
+example. Nonetheless, the notion of a hierarchy is very useful to discuss many
+of the advanced topics in this book. In terms of DSLs, overlap may be addressed by
 factoring the common aspects into a separate language module that can be used in
 both of the overlapping domains.}, where higher domains are a subset (in terms
 of scope) of the lower domains (\fig{hierarchicalDomains}).
@@ -213,23 +240,23 @@ singleton domains that consist of a single program (a non-interesting boundary c
   \label{hierarchicalDomains} 
 \end{figure}
 
-Languages are typically designed for a particular domain $D$. Languages
-for $\D{0}$ are called general-purpose languages\footnote{I guess we could
-define $D_0$ to be those programs expressible with Turing machines, but GPLs are
-a more useful approach for this book}. Languages for $D_n$ with $n > 0$ become
-more domain-specific for growing $n$. Languages for a particular $D_n$ can also
-be used to express programs in $D_{n+1}$. However, DSLs for $D_{n+1}$ may add
-additional abstractions or remove some of the abstractions found in languages
-for $D_{n}$. To get back to the embedded systems domain, a DSL for $\D{1.1}$ could
-include components, state machines and data types with physical units. A
-language for $\D{2.1.1}$, automotive software, will retain these extensions, but
-in addition provide direct support for the AUTOSAR standard.
+Languages are typically designed for a particular domain $D$. Languages for
+$\D{0}$ are called general-purpose languages\footnote{I guess we could define
+$D_0$ to be those programs expressible with Turing machines, but using GPLs for
+$D_0$ is a more useful approach for this book.}. Languages for $D_n$ with $n >
+0$ become more domain-specific for growing $n$. Languages for a particular $D_n$
+can also be used to express programs in $D_{n+1}$. However, DSLs for $D_{n+1}$
+may add additional abstractions or remove some of the abstractions found in
+languages for $D_{n}$. To get back to the embedded systems domain, a DSL for
+$\D{1.1}$ could include components, state machines and data types with physical
+units. A language for $\D{2.1.1}$, automotive software, will retain these
+extensions, but in addition provide direct support for the AUTOSAR standard. Toconform to the MISRA-C standard, C's \ic{void*} may be prohibited or removed.
 
 
 \embc{The C base language is defined for $D_0$. Extensions for tasks, state
 machines or components can argued to be specific to embedded systems, making
 those sit in $D_{1.1}$. Progressive specialization is possible; for example, a
-language for controlling small lego robots sits on top of state machines and
+language for controlling small Lego robots sits on top of state machines and
 tasks. It could be allocated to $D_{2.1.1}$.}
 
 
@@ -238,39 +265,44 @@ tasks. It could be allocated to $D_{2.1.1}$.}
 \section{Purpose}
 
 We have said earlier that there can be several languages for the same domain.
-These languages differ regarding the abstractions they use as part of the
-language. Deciding which abstractions should go into a particular language for
-$D$ is not always obvious. The basis for the decision is to consider the
-\emph{model purpose}. Models\sidenote[][-4\baselineskip]{As mentioned in the
-introduction in Part I\todo{ref}, we use the terms program and model as synomyms.}, and hence the
-languages to express them, are intended for a specific purpose. Examples of
-model purpose include automatic derivation of a $D_{-1}$ program, formal
-analysis and model checking, platform independent specification of functionality
-or generation of documentation\sidenote[][-4\baselineskip]{Generation of documentation is typically
-not the main or sole model purpose, but may be an important secondary concern.
-In general, we consider models that only serve communication among humans
+These languages differ regarding the abstractions they make use of. Deciding
+which abstractions should go into a particular language for $D$ is not always
+obvious. The basis for the decision is to consider the \emph{model purpose}.
+Models\sidenote[][-4\baselineskip]{As we discuss below, we use the terms program
+and model as synomyms.}, and hence the languages to express them, are intended
+for a specific purpose. Examples of model purpose include automatic derivation
+of a $D_{-1}$ program, formal analysis and model checking, platform independent
+specification of functionality or generation of
+documentation\sidenote[][-4\baselineskip]{Generation of documentation is
+typically not the main or sole model purpose, but may be an important secondary
+one. In general, we consider models that only serve communication among humans
 outside the scope of this book, because they don't have to be formally defined
 to achieve their purpose.}. The same domain concepts can often be abstracted in
 different ways, for different purposes. When defining a DSL, we have to identify
 the different purposes required, and then decide whether we can create one DSL
-that fits all purposes, or create a DSL for each purpose\footnote{This isespecially useful if different stakeholders want to express different aspectsof the domain with languages suitable to their particular aspect. We discussthis in the chapter on Viewpoints \sect{sec:viewpoints}}.
+that fits all purposes, or create a DSL for each purpose\footnote{Defining
+several DSLs for a single domain is especially useful if different stakeholders
+want to express different aspects of the domain with languages suitable to their
+particular aspect. We discuss this in the chapter on Viewpoints
+\sect{sec:viewpoints}}.
 
 \embc{The model purpose is the generation of an efficient low-level C
 implementation of the system, while at the same time providing software
 developers with meaningful abstractions. Since \emph{efficient} C code has to be
 generated, certain abstractions, such as dynamically growing lists or runtime
 polymorphic dispatch are not supported even though they would be convenient for
-the user. The state machines in the statemachines language have an additional
+the user. The state machines in the \ic{statemachines} language have an additional
 model purpose: model checking, i.e. proving certain properties about the state
 machines (e.g. proving that a certain state is definitely going to be reached
 after some event occurs). To make this possible, the action code used in the
-state machines are limited: it is not possible, for example, to read and writethe same variable in the same action.}
+state machines is limited: it is not possible, for example, to read and write
+the same variable in the same action.}
 
 \cooling{The model purpose is the generation of efficient implementation code
-for various different target devices (different types of refrigerators use
+for various different target platforms (different types of refrigerators use
 different electronics). A secondary purpose is enabling domain experts to
 express the algorithms and experiment with them using simulations and tests. The
-DSL is not expected to be used to visualize the actual refrigerator device or
+DSL is not expected to be used to visualize the actual refrigerator device 
 for sales or marketing purposes.}
 
 \pension{The model purpose of the pension DSL is to enable insurance
@@ -287,7 +319,7 @@ of the complete calculation engine for the computing center and the website.}
 
 The discussion above was relatively theoretical, trying to capture somewhat
 precisely the inherently imprecise notion of domains. Let us now move into the
-field of langugae engineering. Here we can describe the relevant concepts much
+field of language engineering. Here we can describe the relevant concepts much
 more clearly.
 
 \begin{marginfigure}[-10mm]
@@ -304,18 +336,18 @@ abstract syntax and the concrete syntax forms. The \emph{concrete syntax} is the
 notation with which the user interacts as he edits a program. It may be textual,
 symbolic, tabular, graphical, or any combination thereof. The \emph{abstract
 syntax} is a data structure that represents the semantically relevant data
-expressed by a problem. It does not contain notational details such as keywords,
-symbols, whitespace or positions and coloring in graphical notations. The
-abstract syntax is used for analysis and downstream processing of programs. A
+expressed by a program. It does not contain notational details such as keywords,
+symbols, white space or positions, sizes and coloring in graphical notations.
+The abstract syntax is used for analysis and downstream processing of programs. A
 language definition includes the concrete and the abstract syntax, as well as
 rules for mapping one to the other. \emph{Parser-based} systems map the concrete
 syntax to the abstract syntax. Users interact with a stream of characters, and a
 parser derives the abstract syntax by using a grammar and mapping rules.
-\emph{Projectional} editors go the other way round. User interactions
-with the concrete syntax \emph{directly} change the abstract syntax. The
-concrete syntax is a mere projection that looks and feels like text (if a
-textual projection is used). No parsing takes place. Spoofax and Xtext are
-parser-based tools, MPS is projectional.  \marginnote[-55mm]{The abstract syntax 
+\emph{Projectional} editors go the other way round. User interactions, although
+performed on the concrete syntax, \emph{directly} change the abstract
+syntax. The concrete syntax is a mere projection (that looks and feels like text
+in case a textual projection is used). No parsing takes place. Spoofax and
+Xtext are parser-based tools, MPS is projectional.  \marginnote[-55mm]{The abstract syntax 
 is very similar to a meta model in that it represents only a
 data structure and ignores notation. The two are also different: the abstract
 syntax is usually automatically derived from a grammar, whereas a meta model is
@@ -324,7 +356,7 @@ while the abstract syntax may be structurally affected by the grammar, the meta
 model is "clean" and represents purely the structure of the domain. In practice,
 the latter isn't strictly true either, since editing and tool considerations
 typically influence a meta model as well. In this book, we consider the two to
-be synonyms.}
+be synonyms.}
 
 \begin{marginfigure}[-5mm] \begin{center}  
 \includegraphics[width=3cm]{figures-design/programsAsTrees.png}
