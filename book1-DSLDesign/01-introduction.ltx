@@ -8,6 +8,8 @@
 \part{DSL Design}
 
 
+
+
 Throughout this part of the book we refer back to the five case studies
 introduced in Part I of the book\todo{ref; also for all the paragraphs below}.
 We use a the following notation:
@@ -344,11 +346,11 @@ rules for mapping one to the other. \emph{Parser-based} systems map the concrete
 syntax to the abstract syntax. Users interact with a stream of characters, and a
 parser derives the abstract syntax by using a grammar and mapping rules.
 \emph{Projectional} editors go the other way round. User interactions, although
-performed on the concrete syntax, \emph{directly} change the abstract
+performed through the concrete syntax, \emph{directly} change the abstract
 syntax. The concrete syntax is a mere projection (that looks and feels like text
 in case a textual projection is used). No parsing takes place. Spoofax and
-Xtext are parser-based tools, MPS is projectional.  \marginnote[-55mm]{The abstract syntax 
-is very similar to a meta model in that it represents only a
+Xtext are parser-based tools, MPS is projectional.  \marginnote[-55mm]{The 
+abstract syntax is very similar to a meta model in that it represents only a
 data structure and ignores notation. The two are also different: the abstract
 syntax is usually automatically derived from a grammar, whereas a meta model is
 typically defined \emph{first}, independent of a notation. This means that,
@@ -368,18 +370,19 @@ While concrete syntax modularization and composition can be a challenge and
 requires a discussion of textual concrete syntax details, we will illustrate
 most language design concerns based on the abstract syntax. The abstract syntax
 of programs are primarily trees of program \emph{elements}. Each element is an
-instance of a \emph{language concept}, or just \emph{concept} for short (and a
-language is essentially a set of concepts. We'll come back to this below).
+instance of a \emph{language concept}, or \emph{concept} for short. A
+language is essentially a set of concepts (we'll come back to this below).
 Every element (except the root) is contained by exactly one parent element.
-Syntactic nesting of the concrete syntax corresponds to a parent-child relationship in the
-abstract syntax. There may also be any number of non-containing cross-references
+Syntactic nesting of the concrete syntax corresponds to a parent-child 
+relationship in the abstract syntax. There may also be any number of 
+non-containing cross-references
 between elements, established either directly during editing (in projectional
 systems) or by a name resolution (or \emph{linking}) phase that follows parsing
 and tree construction.
 
 \parhead{Fragments} A program may be composed from several program
 \emph{fragments}. A fragment is a standalone tree, a partial program.
-Conversely, a program is then a set of fragments. $E_f$ is the set of program
+Conversely, a program is a set of fragments. $E_f$ is the set of program
 elements in a fragment $f$.
 \begin{marginfigure}
 \begin{center}
@@ -401,14 +404,14 @@ elements in a fragment $f$.
 \parhead{Languages} A language $l$ consists a set of language concepts $C_l$ and
 their relationships\sidenote{In the world of grammars, a concept is 
 essentially a \emph{Nonterminal}. We will discuss the details about grammars in
-the implementation section of this book}. We use the term concept to refer to
+the implementation section of this book}. We use the term \emph{concept} to refer to
 concrete syntax, abstract syntax plus the associated type system rules and 
-constraints as well as some definition of its semantics. In a fragment, each element $e$ is an
-instance of a concept $c$ defined in some language $l$. 
+constraints as well as some definition of its semantics. In a fragment, each 
+element $e$ is an instance of a concept $c$ defined in some language $l$. 
 
 \embc{In C, the statement \ic{int x = 3;} is an instance of the
 \lcr{LocalVariableDeclaration} concept. \ic{int} is an instance of
-\lcr{IntType}, and the 3 is an instance of \lcr{NumberLiteral}.}
+\lcr{IntType}, and the \ic{3} is an instance of \lcr{NumberLiteral}.}
 
 \begin{figure}[h] 
 \begin{center}
@@ -443,8 +446,8 @@ fragment $f$. Each $c \in Cdn$ has the properties $parent$ and $child$ (see
 figure \fig{sets}; $Cdn$ are all the parent-child "lines" in the picture).
 
 \embc{In \ic{int x = 3;} the local variable declaration is the $parent$ of the
-\ic{type} and the \ic{init} expression \ic{3}. The concept \lcr{Local-}  \\
-\lcr{VariableDeclaration} defines the containment relationships \lcr{type} and
+\ic{type} and the \ic{init} expression \ic{3}. The concept \lcr{Local-
+VariableDeclaration} defines the containment relationships \lcr{type} and
 \lcr{init}, respectively.}
 
 \begin{marginfigure}
@@ -461,16 +464,23 @@ relationship (see figure \fig{sets}).
 
 \embc{For example, in the \ic{x = 10;} assignment, \ic{x} is a reference to
 a variable of that name, for example, the one declared in the previous example
-paragraph. The concept \lcr{LocalVariabedRef} has a non-containing reference
+paragraph. The concept \lcr{LocalVariableRef} has a non-containing reference
 relationsip \lcr{var} that points to the respective variable.}
 
 Finally, we define an inheritance relationship that applies the Liskov
-Substitution Principle (LSP) to language concepts. The LSP states that, "In a
+Substitution Principle (LSP) to language concepts. The LSP states that, 
+
+
+\vspace{2mm}
+\noindent\emph{in a
 computer program, if S is a subtype of T, then objects of type T may be replaced
 with objects of type S (i.e., objects of type S may be substitutes for objects
 of type T) without altering any of the desirable properties of that program
-(correctness, task performed, etc.)." The LSP is well known in the context of
-object-oriented programming. In the context of language design it implies that A
+(correctness, task performed, etc.)} 
+\vspace{2mm}
+
+The LSP is well known in the context of
+object-oriented programming. In the context of language design it implies that a
 concept $c_{sub}$ that extends another concept $c_{super}$ can be used in places
 where an instance of $c_{super}$ is expected. $\mathit{Inh_l}$ is the set of
 inheritance relationships for a language $l$. Each $i \in \mathit{Inh_l}$ has
@@ -485,16 +495,16 @@ the properties $super$ and $sub$.\begin{marginfigure}[-40mm]
 
 \embc{The \lcr{LocalVariableDeclaration} introduced above extends the concept
 \lcr{Statement}. This way, a local variable declaration can be used wherever a
-statement is expected, for example, in the body of a function, which contains a
-list of statements.}
+\lcr{Statement} is expected, for example, in the body of a function, which
+is a \ic{StatementList}.}
 
 
 
 \parhead{Independence} An important concept is the notion of independence. An
 \emph{independent language} does not depend on other languages. This means that
 for all parent/child, reference and inheritance relationships, both ends refer
-to concepts in the same language. Based on our definitions above we can define
-an independent language $l$ as a language for which the following
+to concepts defined in the same language. Based on our definitions above we can
+define an independent language $l$ as a language for which the following
 hold\footnote{As I said in the introduction to this part of the book, formulae
 like these are not essential for understanding. You may ignore them if you
 like.}:
@@ -535,14 +545,14 @@ definition fragment that contains the referenced building block.}
 \end{marginfigure}
 
 
-\parhead{Homogeneity} We distinguish \emph{homogeneous} and
-\emph{heterogeneous} fragments. A homogeneous fragment is one where all elements
-are expressed with the same language (1.5). This means that for all parent/child
+\parhead{Homogeneity} We distinguish \emph{homogeneous} and \emph{heterogeneous}
+fragments. A homogeneous fragment is one where all elements are expressed with
+the same language (see formula 1.5). This means that for all parent/child
 relationships ($Cdn_f$), the elements at both ends of the relationship have to
 be instances of concepts defined in one language $l$ (1.6):
-\sidenote{An independent language can only express homogeneous fragments. However, a
-homogeneous fragment can be expressed with a dependent language if the
-dependencies all come via the $Refs$ relationship.}
+\sidenote{An independent language can only express homogeneous fragments.
+However, a homogeneous fragment can be expressed with a dependent language if
+the dependencies all come via the $Refs$ relationship.}
 \begin{align} 
 \forall e \in E_f &\mid \mathit{lo(co(e))} = l \\
 \forall c \in \mathit{Cdn_f} &\mid \mathit{lo(co(c.parent))} = 
@@ -627,9 +637,9 @@ Domain Workbench (\url{http://intentsoft.com}) and JetBrains MPS.
 
 In this section, we do not discuss the relative advantages and drawbacks of
 parser-based vs. projectional editors in any detail (we do discuss the
-trade-offs in the chapter on language implementation \todo{ref}). However, we will point
-out if and when there are different DSL design options depending on which of the
-two approaches is used.
+trade-offs in the chapter on language implementation \todo{ref}). However, we
+will point out if and when there are different DSL design options depending on
+which of the two approaches is used.
 
 
 

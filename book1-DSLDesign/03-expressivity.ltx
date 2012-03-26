@@ -2,6 +2,10 @@
 \label{dimensions}
 
 
+\vspace{10mm}
+\noindent This chapter has been written together with Eelco Visser
+of TU Delft. Contact him via \ic{e.visser@tudelft.nl}.
+\vspace{10mm}
 
 
 \chapterabstract{DSLs are languages with high
@@ -15,21 +19,19 @@ We identify seven design dimensions that span the space within which DSLs are
 designed: expressivity, coverage, semantics, separation of concerns,
 completeness, language modularization and syntax.
 We illustrate the design alternatives along each of these dimensions with
-examples from our case studies.}
+examples from our case studies.
 
-\vspace{10mm}
-\noindent This part of the book has been written together with Eelco Visser of
-TU Delft. Reach him via \verb#e.visser@tudelft.nl#.
-\vspace{10mm}
-
-\noindent The dimensions provide a vocabulary for describing and comparing the
+The dimensions provide a vocabulary for describing and comparing the
 design of existing DSLs and help guide the design of new ones. We also describe
 drivers, or forces, that lead to using one design alternative over another one.
 This chapter is not a complete methodology. It does not present a recipe that
 guarantees a great DSL if followed. I don't believe in methodologies, because
 they pretend precision where there isn't any. Building a DSL is a craft. This
 means that, while there are certain established approaches and conventions,
-building a good DSL also requires experience and practice.
+building a good DSL also requires experience and practice.}
+
+
+
 
 
 
@@ -41,23 +43,23 @@ building a good DSL also requires experience and practice.
 \section{Expressivity}
 
  
-\noindent One of the fundamental advantages of DSLs is
-increased expressivity over more general programming languages. Increased
-expressivity typically means that programs are shorter, and that the semantics
-are more readily accessible to processing tools (we will get back to this). By
-making assumptions about the domain of application and encapsulating knowledge
-about the domain in the language and in its execution strategy (and not just in
-programs), programs expressed using a DSL can be significantly more concise.
+\noindent One of the fundamental advantages of DSLs is increased expressivity
+over more general programming languages. Increased expressivity typically means
+that programs are shorter, and that the semantics are more readily accessible to
+processing tools (we will get back to this). By making assumptions about the
+target domain and encapsulating knowledge about the domain in the
+language and in its execution strategy (and not just in programs), programs
+expressed using a DSL can be significantly more concise.
 
 
 
 \cooling{Cooling algorithms expressed with the cooling DSL are approximately
 five times shorter than the C version that that users would have to write
-manually.}
+instead.}
 
 While it is always possible to produce short but incomprehensible programs,
 in general, shorter programs require less effort to read and write than longer
-programs, and should therefore be more efficient in software engineering. We
+programs, and are therefore be more efficient in software engineering. We
 will thus assume that, all other things being equal, shorter programs are
 preferable over longer programs.\footnote[][-1cm]{The size of a program may not
 be the only relevant metric to asses the usefulness of a DSL. For example, if the
@@ -65,12 +67,7 @@ DSL required only a third of the code to write, but it takes four times as long
 to write the code per line, the there is no benefit for writing programs.
 However, often when reading programs, less code is clearly a benefit. So it
 depends on the ratio between writing and reading code whether a DSL's
-conciseness is important.}. 
-
-The Kolomogorov complexity\cite{LiVitanyi2008} of an object is the smallest
-description in some language that produces the object. In our case
-the objects of interest are programs in $P$ and we are interested in designing
-languages that minimize the size of encodings of programs. We use
+conciseness is important.}. We use
 the notation $|p_L|$ to indicate the size of program $p$ as encoded in
 language~$L$\sidenote{We will abstract over the exact way to measure the size of
 a program, which can be textual lines of code or nodes in a syntax tree, for
@@ -94,11 +91,13 @@ on completeness (\sect{sect:completeness}).}.
 
 Compared to GPLs, DSLs (and the programs expressed with them) are more
 \emph{abstract}: they avoid describing details that are irrelevant to the model
-purpose. The execution engine then provides the missing details consistently,
-throughout the system. Good DSLs are also \emph{declarative}: they provide
-linguistic abstractions for relevant domain concepts that allow processors to
-"understand" the domain semantics without sophisticated analysis of the code.Linguistic abstraction means that a language contains concepts for the
-abstractions relevant in the domain. We discuss this in more detail below.
+purpose. The execution engine then fills in the missing details consistently,
+throughout the system in accordance with the knowledge about the domain encoded
+in the execution engine. Good DSLs are also \emph{declarative}:
+they provide linguistic abstractions for relevant domain concepts that allow
+processors to "understand" the domain semantics without sophisticated analysis
+of the code. Linguistic abstraction means that a language contains concepts for
+the abstractions relevant in the domain. We discuss this in more detail below.
 
 
 Note that there is a trade-off between expressivity and the scope of the
@@ -111,35 +110,36 @@ striving for a language that has maximum expressivity while retaining enough
 coverage (see next chapter) of the target domain to be useful.
 
 
-\seppar DSLs are more expressive than GPLs in the domain they are built for. But
-there is also a disadvantage: before being able to write these concise programs,
-users have to learn the language\sidenote[][]{While a GPL also has to be
-learned, we assume that there is a relatively small number of GPLs and
-developers already know it. Using DSLs, there may be a larger number of them
-used in any given project or organization, and new team members cannot expected
-to know them.}. This task can be separated into learning the domain itself, and
-learning the syntax of the language. For people who know the domain, learning
-the syntax can be simplified by using good IDEs with code completion and quick
-fixes, as well as with good, example-based documentation. In many cases, DSL
-users already know the domain, or would have to learn the domain even if no DSL
-were used. Learning the domain is independent of the language itself. It is easy
-to see, however, that, if a domain is supported by well-defined language, this
-can be a good reference for the domain itself. Learning a domain can be
-simplified by working with a good DSL\footnote{This can also be read the other
-way round: a measure for the quality of a DSL is how long it takes domain
-experts to learn it.}. In conclusion, the learning overhead of DSLs is usually
-not a problem in practice.
+\seppar DSLs have the advantage of being more expressive than GPLs in the domain
+they are built for. But there is also a disadvantage: before being able to write
+these concise programs, users have to learn the language\sidenote[][]{While a
+GPL also has to be learned, we assume that there is a relatively small number of
+GPLs and developers already know it. Using DSLs, there may be a larger number of
+them used in any given project or organization, and new team members cannot be
+expected to know them.}. This task can be separated into learning the domain
+itself, and learning the syntax of the language. For people who know the domain,
+learning the syntax can be simplified by using good IDEs with code completion
+and quick fixes, as well as with good, example-based documentation. In many
+cases, DSL users already know the domain, or would have to learn the domain even
+if no DSL were used to express programs in the domain: learning the domain is
+independent of the language itself. It is easy to see, however, that, if a
+domain is supported by well-defined language, this can be a good reference for
+the domain itself. Learning a domain can be simplified by working with a good
+DSL\footnote{This can also be read the other way round: a measure for the
+quality of a DSL is how long it takes domain experts to learn it.}. In
+conclusion, the learning overhead of DSLs is usually not a huge problem in
+practice.
  
 \pension{The users of the pension DSL are pension experts. Most of them have
 spent years describing pension plans using prose text, tables and (informal)
-formulas. The DSL provides formal languages to express that same knowledge about
-the domain.}
+formulas. The DSL provides formal languages to express that same in a way thatcan be processed by tools.}
 
-\todo{does this fit here? Can this be moved somewhere else?}
-The same is true for the act of \emph{building} the DSL. The domain has to be
-scoped, fully explored and systematically structured to be able to build a
-language that covers that domain. This leads to a deep understanding of the
-domain itself.
+The close alignment between a domain and the DSL can also be exploited during
+the construction of the DSL. While it is not a good idea to start building a DSL
+for a domain about which we don't know much, the process of building the DSL can
+help deepen the understanding about a domain. The domain has to
+be scoped, fully explored and systematically structured to be able to build a
+language. 
 
 \cooling{Building the cooling DSL has helped the thermodynamicists and software
 developers to understand the details of the domain, its degrees of
@@ -151,11 +151,11 @@ device drivers and generated code.}
 
 
 
-
+\todo{HERE}
 \subsection{Expressivity and the Domain Hierarchy}
 
-In the definition of expressivity above we are comparing arbitrary languages.
-The central idea behind domain-specific languages is that progressive
+In the definition of expressivity above we compare arbitrary languages.
+An important idea behind domain-specific languages is that progressive
 specialization of the domain enables progressively more expressive languages.
 Programs for domain $D_n \subset D_{n-1}$ expressed in a language $L_{D_{n-1}}$
 typically use a set of characteristic idioms and patterns. A language for $D_n$
@@ -169,8 +169,6 @@ machine construct, for example, has concepts representing states, events,
 transitions and guards. Much less code is required compared to \ic{switch/case}
 statements or cross-pointing integer arrays, two typical idioms for state
 machine implementation in C.}
-
-
 
 
 \exwebdsl{WebDSL entity declarations abstract over the boilerplate code required
@@ -192,7 +190,7 @@ abstraction), or they can be expressed by concepts available in the language
 linguistic abstraction, whereas GPLs rely more on in-language abstraction.
 
 \parhead{Linguistic Abstraction} A specific domain concept can be modeled with
-the help of existing abstractions, or one can come up with a \emph{new}
+the help of existing abstractions, or one can introduct a \emph{new}
 abstraction for that concept. If we do the latter, we use \emph{linguistic}
 abstraction. By making the concepts of $D$ first class members of a language
 $L_D$, i.e. by defining linguistic abstractions for these concepts, they can be
@@ -220,7 +218,18 @@ and optimizes the programs must perform (sophisticated, and sometimes
 impossible) program analysis to determine that the left loop can indeed be
 parallelized. The following alternative expression of the same behavior uses
 better linguistic abstractions, because it is clear without analysis that the
-first loop can be parallelized and the second cannot. The property of
+first loop can be parallelized and the second cannot: 
+
+\footnotesize
+\begin{verbatim} 
+    for (int i in arr) {             seqfor (int i in arr) { 
+        sum += i;                        l.add( arr[i] );
+    }                                }
+\end{verbatim}
+\normalsize
+
+
+The property of
 a language $L_D$ of having first-class concepts for abstractions relevant in $D$
 is often called \emph{declarativeness}: no sophisticated pattern matching or
 program flow analysis is necessary to capture the semantics of a program
@@ -234,13 +243,6 @@ sense in DSLs because we assume that DSL users are familiar with the domain,
 and we often don't have the budget or experience to build the sophisticated
 program analyses that could do the semantic reverse engineering.}.
 
-\footnotesize
-\begin{verbatim} 
-    for (int i in arr) {             seqfor (int i in arr) { 
-        sum += i;                        l.add( arr[i] );
-    }                                }
-\end{verbatim}
-\normalsize
 
 
 \embc{State machines are represented with first class concepts. This enables
