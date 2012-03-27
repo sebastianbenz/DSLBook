@@ -1444,6 +1444,138 @@ BaseLanguage code can be used to implement type checks as well.
 
 \section{Spoofax Example}
 
+Spoofax' rewrite rules support both the recursive approach and pattern matching in specifying type systems.
+The basic idea is to rewrite language constructs to their types.
+For example, the following rule rewrites integer numbers to the integer type: 
+
+\begin{code}
+  type-of:
+    Int(_) -> IntType()
+\end{code}
+
+This is an example for assigning a fixed type to a language element.
+Similarly, we can calculate the type of an element from the types of its arguments as follows:
+
+\begin{code}
+  type-of:
+    Add(e1, e2) -> t
+    where
+    	t1 := <type-of> e1 ;
+    	t2 := <type-of> e2 ;
+    	t  := <common-type-of> (t1, t2)
+\end{code}
+
+The rule rewrites an addition expression to the common type of its subexpressions.
+The strategy \ic{common-type-of} is defined generically based on a subtype relationship:
+
+\begin{code}
+  common-type-of: 
+    (t, t)  -> t
+  
+  common-type-of: 
+    (t, t') -> t
+  	where
+  	  <is-subtype-of(|t)> t'
+  
+  common-type-of: 
+    (t, t') -> t'
+  	where
+  	  <is-subtype-of(|t')> t
+\end{code} 
+
+The subtyping rules of a language are then defined in rewrite rules for \ic{is-subtype-of(|t)}:
+
+\begin{code}
+  is-subtype-of(|t):
+    IntType() -> <id>
+    where
+      !t => DoubleType()
+\end{code}  	  
+
+\parhead{Persistence of Typing Information}
+%
+As we discussed earlier, Spoofax can store information about definitions in an in-memory data structure called the index.
+Consider the following typing rules, which rewrite property and variable declarations to their declared types:
+
+\begin{code}
+  type-of:
+    Property(_, t) -> t
+  
+  type-of:
+    VarDecl(_, t) -> t
+  
+  type-of:
+    VarDeclInit(_, t, _) -> t
+  
+  type-of:
+    Param(_, t) -> t
+\end{code}
+
+Spoofax relies on these rules to store type information about these declarations in the index.
+This is achieved by the following generic rewrite rule:
+
+\begin{code}
+  adjust-index-def-data(store-results |namespace, path):
+    def -> <store-results> DefData([namespace | path], Type(), type)
+    where
+      type := <type-of> def
+\end{code}
+
+Spoofax tries to apply this rule for every definition.
+If the definition has a type, it is stored in the index.
+If the definition has no type, nothing is stored.
+%
+The stored type information can then be used in the typing rules for variable references and property accesses:
+
+\begin{code}
+  type-of:
+    Var(v) -> <type-of> <index-lookup> v
+  
+  type-of:
+    PropAccess(_, p) -> <type-of> <index-lookup> p
+\end{code}
+
+Both rules rewrite references to the type of their definition sites. 
+First, the definition of a reference is looked-up in the index.
+Next, this definition is rewritten to its type.
+Therefor, the stored type information has to be retrieved.
+This is again achieved by a generic rewrite rule:
+
+\begin{code}
+  type-of:
+    Def(uri) -> <index-get-data(|Type())> Def(uri)
+\end{code}
+
+\parhead{Semantic Types}
+%
+\begin{itemize}
+  \item so far all types come from syntax definition
+  \item most type systems have additional types with no syntactic representation
+  \item examples: bottom types, null types
+\end{itemize}
+
+\begin{code}
+signature constructors
+
+         : Type -> SemType
+  FunType: List(Type) * Type -> SemType
+\end{code}
+
+
+\begin{code}
+  type-of:
+    Function(_, p*, t) -> FunType(t*, t)
+    with
+      t* := <map(type-of)> p*
+
+  type-of:
+    Call(f, a*) -> t
+    where
+      Fun(_, t) := <type-of> <index-lookup> f
+\end{code}
+
+
+\parhead{Typing Constraints}
 
 Explain why expressions are different than "normal" programs
 (precedence, etc.)
@@ -1465,30 +1597,8 @@ attribute grammars
 \begin{code}
 
 
-  type-of:
-    Property(_, t) -> t
-  
-  type-of:
-    Entity(t, _) -> t
-  
-  type-of:
-    VarDecl(_, t) -> t
-  
-  type-of:
-    VarDeclInit(_, t, _) -> t
-  
-  type-of:
-    Param(_, t) -> t
-  
-  type-of:
-    Var(v) -> <type-of> <index-lookup> v
-  
-  type-of:
-    PropAccess(e, p) -> <type-of> <index-lookup> p
-
-  type-of:
-    Def(uri) -> <index-get-data(|Type())> Def(uri)
-
+ 
+ 
 rules
 
   is-params-compatible(|arg-types):
@@ -1504,10 +1614,6 @@ rules
     where
       <eq> (from-type, to-type)
 
-  adjust-index-def-data(store-results |namespace, path):
-    def -> <store-results> DefData([namespace | path], Type(), type)
-    where
-      type := <type-of> def
   
   adjust-index-def-data(store-results |namespace, path):
     Function(_, params, _) -> <store-results> DefData([namespace | path], ParamTypes(), types)
