@@ -400,7 +400,7 @@ beyond the scope of this book.
 \section{Constraints in Spoofax}
 
 Spoofax uses \emph{rewrite rules} to specify all semantic parts of a language definition.
-In \Section{Sec:rewrite-rules} we gave a primer on rewrite rules, and in the present
+In \Section{Sec:rewrite-rules} we gave a primer on rewrite rules, and in this
 section we show how they can be used to specify constraints in language definitions.
 
 \subsection{Basic Constraint Rules}
@@ -408,9 +408,9 @@ section we show how they can be used to specify constraints in language definiti
 %The use of rewrite rules for specifying language constraints can
 %best be explained using examples. The default project Spoofax creates
 %contains a number of these examples, which we will discuss here.
-By convention, Spoofax  projects uses rules by the name \ic{constraint-error} to
+By convention, Spoofax  uses rules by the name \ic{constraint-error} to
 indicate constraints that trigger errors, \ic{constraint-warning} for warnings,
-and \ic{constraint-note} for notes.\MV{Not clear what you do with these.}
+and \ic{constraint-note} for notes. \MV{Not clear what you do with these.}
 
 When a new language project is created in Spoofax, it includes a number of example
 constraints. One simply reports a note that is marked on the name of any
@@ -425,6 +425,7 @@ constraint-note:
 
 Note how the rule returns a tuple with the tree node where the marker should appear
 and a string message that should be shown. All constraint rules have this form.
+\MV{remind us what the exclamation mark does, please :-)}
 
 %In general, constraint rules have the following form:
 %\begin{code}
@@ -447,30 +448,30 @@ uses string interpolation to report a warning:
 
 \begin{code}  
   constraint-warning:
-    Entity(x, _) -> (x, $[Entity [x] does not have a capitalized name])
+    Entity(theName, _) -> (theName, $[Entity [theName] does not have a capitalized name])
     where
-      not(<string-starts-with-capital> x)
+      not(<string-starts-with-capital> theName)
 \end{code}
 \ignore{$}
 
-\MV{Use 'theName' or 'name' instead of 'x'?}
 
 Here, a standard library rule \ic{string-starts-with-capitals} is used. These
-and other library rules are documented on the Spoofax website.\footnote{\url{http://www.spoofax.org/}.}
+and other library rules are documented on the Spoofax
+website\footnote{\url{http://www.spoofax.org/}.}
 
 \subsection{Index-Based Constraint Rules}
 
-Some constraint rules interact with the Spoofax index of \Section{Sec:spoofax-index}.
-Notable examples include constraints that forbid references to undefined
-program elements, duplicate definitions, and
-references to undefined program elements. New Spoofax projects
+Some constraint rules interact with the Spoofax index discussed in
+\Section{Sec:spoofax-index}.
+Notable examples include constraints that forbid references to undefined program
+elements, duplicate definitions, and references to undefined program
+elements\MV{ref to undefined in mentioned twice}. Newly created Spoofax projects
 provide default constraint rules for these cases, which can be customized.
 
 One way to interact with Spoofax's name resolution index and resolution algorithm
-is using the URI annotations on the abstract syntax.
-These are placed on each reference and definition.
-For example, a valid reference to mobl variables \iv{v} is represented
-in abstract syntax with an annotated term such as
+is using the URI annotations on the abstract syntax. These are placed on each 
+reference and definition. For example, a valid reference to mobl variables 
+\iv{v} is represented in abstract syntax with an annotated term such as
 %
 \icb{Var("v"}\icb{\char123{}[Var(),"v",}\ic{"function","module"]\char125{})}.
 %
@@ -478,8 +479,10 @@ Unresolved references are represented by terms such as
 %
 \icb{Var("u"\char123{}[}\icb{Unresolved(Var()),"u","function",}\ic{"module"]\char125{})}.
 
-In most languages, references that cannot be statically resolved indicate a programming error.
-The following constraint rule reports an error for these cases:
+\MV{Can you say a word or two about what these structures mean?}
+In most languages, references that cannot be statically resolved indicate a 
+programming error. The following constraint rule reports an error for these 
+cases:
 
 \begin{code}
   constraint-error:
@@ -488,21 +491,19 @@ The following constraint rule reports an error for these cases:
       !x => _{[Unresolved(t) | _]}
 \end{code}\ignore{$}
 
-This rule matches any term \ic{x} in the abstract syntax,
-and reports an error if it has an \ic{Unresolved} annotation.
-Note that the pattern \ic{\_\curlies{[Unresolved(t) | \_]}}
-matches any term (indicated by the wildcard \ic{\_})
-that has a list annotation where the head
-of the list is \ic{Unresolved(t)} and the tail matches \ic{\_}. 
-%
-For dynamic languages, or languages with optional types, the constraint
-could be removed or relaxed. In those cases, name resolution may only
-play a role in providing editor services such as code completion. 
 
-In addition to annotations, the Spoofax index provides an API for
-inspecting naming relations in programs. 
-\Figure{Fig:spoofax-index-api} shows some of the key rules
-the index provides.
+This rule matches any term \ic{x} in the abstract syntax, and reports an error
+if it has an \ic{Unresolved} annotation. Note that the pattern
+\ic{\_\curlies{[Unresolved(t) | \_]}} matches any term (indicated by the
+wildcard \ic{\_}) that has a list annotation where the head of the list is
+\ic{Unresolved(t)} and the tail matches \ic{\_}. For dynamic languages, or
+languages with optional types, the constraint could be removed or relaxed. In
+those cases, name resolution may only play a role in providing editor services
+such as code completion.
+
+In addition to annotations, the Spoofax index provides an API for inspecting
+naming relations in programs. \Figure{Fig:spoofax-index-api} shows some of the
+key rules the index provides.
 
 \begin{figure}[h]
 \begin{tabular}{|l|l|}
@@ -520,12 +521,11 @@ the index provides.
 \label{Fig:spoofax-index-api}
 \end{figure}
 
-We can use the index API to detect duplicate definitions.
-In most languages, duplicate definitions are always disallowed.
-In the case of mobl, duplicate definitions are not allowed for
-functions or entities, but they are allowed for variables,
-just as in JavaScript. The following constraint rule checks
-for duplicates definitions:
+We can use the index API to detect duplicate definitions. In most languages,
+duplicate definitions are always disallowed. In the case of mobl, duplicate
+definitions are not allowed for functions or entities, but they are allowed for
+variables, just as in JavaScript. The following constraint rule checks for
+duplicates definitions:
 
 \begin{code}
 constraint-error:
@@ -541,40 +541,38 @@ is-duplicates-allowed:
 \end{code}\ignore{$}
 \MV{Do we have to also define is-duplicates-allowed for other concepts than
 Var()?}
-
 \MV{Where does the 'key' come from? }
-Again, this rule is provided by Spoofax by default, but
-it provides an interesting showcase of the index API.
-This rule matches any tree node \ic{x} and starts
-by determining its namespace using \ic{index-namespace}. Then, it
-fires a helper rule \ic{is-duplicates-allowed}.
-We only report duplicate definitions if the helper does not succeed
-(indicated by the \ic{not}). For mobl, that means
-we never report this error for definitions in the \ic{Var()} namespace.
-Next, the constraint rule determines all definitions of the reference.
-Only if the list of definitions has a single element
-does the rule report an error, which is checked
-by matching it against \ic{[\_]}. 
-\MV{How does this represent a single element?}
 
-Another important constraint for names is \emph{definition before use}:
-for many program elements, it is an error if it is used
-before it is defined. In mobl, this property is enforced
-for variables, but not for entities or functions.
-The rule to check for this property
-follows the same pattern as the rule for duplicates,
-and should normally not be changed by users.
-Instead, like before, the rule uses a helper rule
-that can be customized to determine which namespaces
-require definition before use:
+
+Again, this rule is created automatically in a new Spoofax project, but it
+provides an interesting showcase of the index API. This rule matches any tree
+node \ic{x} and starts by determining its namespace using \ic{index-namespace}.
+Then, it fires a helper rule \ic{is-duplicates-allowed}. We only report
+duplicate definitions if the helper does not succeed (indicated by the
+\ic{not}). For mobl, that means we never report this error for definitions in
+the \ic{Var()} namespace. Next, the constraint rule determines all definitions
+of the reference. Only if the list of definitions has a single element does the
+rule report an error, which is checked by matching it against \ic{[\_]}.
+\MV{How does this represent a single element?}
+\MV{Isn't a 'not' missing in the last sentence?}
+
+Another important constraint for names is \emph{definition before use}: for many
+program elements, it is an error if it is used before it is defined. In mobl,
+this property is enforced for variables, but not for entities or functions.
+The rule to check for this property follows the same pattern as the rule for
+duplicates, and should normally not be changed by users.
+Instead, like before, the rule uses a helper rule that can be customized to
+determine which namespaces require definition before use:
 
 \begin{code}
 is-ordered-namespace:
   Var() -> True()
 \end{code}
 
-More sophisticated constraints and error messages
-can be specified using a type system, as we show next.
+More sophisticated constraints and error messages can be specified using a type
+system, as we show in the next chapter.
+
+
 
 \chapter{Type Systems}
 
@@ -1444,12 +1442,14 @@ BaseLanguage code can be used to implement type checks as well.
 
 \section{Spoofax Example}
 
-Spoofax' rewrite rules support both the recursive approach and pattern matching in specifying type systems.
-In the remainder of this section, we will focus on the recursive approach.
+Spoofax' rewrite rules support both the recursive approach and pattern matching
+in specifying type systems. In the remainder of this section, we will focus on
+the recursive approach.\MV{Why?}
 
 \parhead{Typing Rules in Spoofax}
 %
-The basic idea is to instrument ordinary rewrite rules which rewrite language constructs to their types as typing rules.
+The basic idea is to instrument ordinary rewrite rules which rewrite language
+constructs to their types as typing rules. 
 For example, the following rule rewrites integer numbers to the integer type: 
 
 \begin{code}
@@ -1463,8 +1463,8 @@ Similarly, we can rewrite an addition expression to the integer type:
   type-of: Add(exp1, exp2) -> IntType()
 \end{code}
 
-However, it is good practice to assign types only to well-typed language constructs.
-Thus, we should add type checks for the subexpressions:
+However, it is good practice to assign types only to well-typed language 
+constructs. Thus, we should add type checks for the subexpressions:
 
 \begin{code}
   type-of:
@@ -1475,8 +1475,9 @@ Thus, we should add type checks for the subexpressions:
 \end{code}
 
 Spoofax allows for multiple typing rules for the same language construct.
-This is particular useful for typing overloaded operators, since each case can be handled by a separate typing rule.
-For example, when the operator \ic{+} is overloaded to support string concatenation, we can add the following typing rule:
+This is particular useful for typing overloaded operators, since each case can 
+be handled by a separate typing rule. For example, when the operator \ic{+} is 
+overloaded to support string concatenation, we can add the following typing rule:
 
 \begin{code}
   type-of:
@@ -1486,11 +1487,13 @@ For example, when the operator \ic{+} is overloaded to support string concatenat
       <type-of> exp2 => StringType()
 \end{code}
 
+
 \parhead{Persistence of Typing Information}
 %
-As we discussed earlier, Spoofax stores information about definitions in an in-memory data structure called the index.
-This typically includes information about types.
-Consider the following typing rules, which rewrite property and variable declarations to their declared types:
+As we discussed earlier, Spoofax stores information about definitions in an 
+in-memory data structure called the index. This typically includes information 
+about types. Consider the following typing rules, which rewrite property and 
+variable declarations to their declared types:
 
 \begin{code}
   type-of: Property(name, type) -> type
@@ -1502,8 +1505,12 @@ Consider the following typing rules, which rewrite property and variable declara
   type-of: Param(name, type) -> type
 \end{code}
 
-Spoofax relies on these rules to store type information about property and variable declarations in the index.
-This is achieved by the following generic rewrite rule:
+\MV{This is actually a really nice and concise syntax. Rewriting rules are well
+suited to this!}
+
+Spoofax relies on these rules storing type information about property and
+variable declarations in the index. This is achieved by the following generic
+rewrite rule:
 
 \begin{code}
   adjust-index-def-data(store-results |namespace, path):
@@ -1512,11 +1519,12 @@ This is achieved by the following generic rewrite rule:
       type := <type-of> def
 \end{code}
 
-Spoofax tries to apply this rule for every definition.
-If the definition has a type, it is stored in the index.
-If the definition has no type, nothing is stored.
+Spoofax tries to apply this rule for every definition. If the definition has a 
+type, it is stored in the index. If the definition has no type, nothing is 
+stored. \MV{How and where is this distinction made in the above rule?}
 %
-The stored type information can then be used in the typing rules for variable references and property accesses:
+The stored type information can then be used in the typing rules for variable 
+references and property accesses:
 
 \begin{code}
   type-of:
@@ -1528,9 +1536,8 @@ The stored type information can then be used in the typing rules for variable re
 
 Both rules rewrite references to the type of their definition sites. 
 First, the definition of a reference is looked-up in the index.
-Next, this definition is rewritten to its type.
-Therefor, the stored type information has to be retrieved.
-This is again achieved by a generic rewrite rule:
+Next, this definition is rewritten to its type. This uses the
+\ic{index-lookup-type} rule, which is another generic rewrite rule:
 
 \begin{code}
   index-lookup-type:
@@ -1540,27 +1547,36 @@ This is again achieved by a generic rewrite rule:
       type := <index-lookup> def 
 \end{code}
 
+
 \parhead{Additional Types}
 %
-In Spoofax, types are represented as terms. 
-The constructors for these terms are specified in the syntax definition as labels to productions.
-Without the ability to define additional constructors, type systems are restricted to types which users can explicitely state in programs, for example in variable declarations.
-But many type systems require additional types which do not originate from the syntax of the language.
+In Spoofax, types are represented as terms. The constructors for these terms 
+are specified in the syntax definition as labels to productions \MV{Not sure I
+understand the last sentence}. Without the ability to define additional 
+constructors, type systems are restricted to types which users can explicitely 
+state in programs, for example in variable declarations. But many type systems 
+require additional types which do not originate from the syntax of the language.
 Typical examples are top and bottom types in type hierarchies.
-For example, Java's type system has a special type for \ic{null} values at the bottom of its type hierarchy, which cannot be used as a type in Java programs.
+For example, Java's type system has a special type for \ic{null} values at the 
+bottom of its type hierarchy, which cannot be used as a type in Java programs.
+\MV{Maybe say that these types are special; for example, the null bottom type
+is considered a subtype of every other type.}
 
 Spoofax allows to define constructors for additional types in signatures:
+\MV{We now use a different example, not the null? That's an unexpected break in
+flow.}
 
 \begin{code}
-signature constructors
+signature constructors 
 
   FunType: List(Type) * Type -> FunType
 \end{code}
+\MV{what is the 'signature constructors' thing in the above code snippet?}
 
 This defines a binary constructor \ic{FunType} for function types.
-The first subterm of a function type is a list of parameter types (\ic{List(Type)}).
-The second subterm is the return type.
-We can employ the so defined function type in the typing rules for function definitions and calls:
+The first subterm of a function type is a list of parameter types
+(\ic{List(Type)}). The second subterm is the return type. We can employ the so 
+defined function type in the typing rules for function definitions and calls:
 
 \begin{code}
   type-of:
@@ -1577,7 +1593,8 @@ We can employ the so defined function type in the typing rules for function defi
 
 \parhead{Type Constraints}
 %
-Like any other constraint, type constraints are specified in Spoofax by rewrite rules which rewrite language constructs to errors, warnings, or notes.
+Like any other constraint, type constraints are specified in Spoofax by rewrite 
+rules which rewrite language constructs to errors, warnings, or notes.
 For example, we can define a constraint on additions:
 
 \begin{code}
@@ -1589,12 +1606,15 @@ For example, we can define a constraint on additions:
       type1 := <type-of> exp1 ;
       type2 := <type-of> exp2 
 \end{code}
+\MV{Don't we have to use constraint-error in the above code?}
 
-Basically, an expression is non-well-typed or \emph{ill-typed}, if it cannot be rewritten to a type.
-But reporting an error on all ill-typed expressions will make it hard to discover the root cause of the error, 
-since every expression with an ill-typed subexpression is also ill-typed.
-That is why we also check the subexpressions of the addition to be well-typed.
-The types of the subexpressions are then used to construct a meaningful error message.
+
+Basically, an expression is non-well-typed or \emph{ill-typed}, if it cannot be 
+rewritten to a type. But reporting an error on all ill-typed expressions will 
+make it hard to discover the root cause of the error, since every expression 
+with an ill-typed subexpression is also ill-typed. That is why we also check 
+the subexpressions of the addition to be well-typed. The types of the 
+subexpressions are then used to construct a meaningful error message.
 %
 Similar to expressions, we can define type constraints on statements:
 
@@ -1612,15 +1632,18 @@ Similar to expressions, we can define type constraints on statements:
       type2 := <type-of> exp;
       <not(is-compatible-to)> (type1, type2)
 \end{code}
+\MV{Again: constraint-error?}
 
-In an assignment, the type of the expression on the right-hand side has to be compatible with the variable or property on the left-hand side.
+In an assignment, the type of the expression on the right-hand side has to be 
+compatible with the type of the variable or property on the left-hand side.
 The same holds for the initializing expression in a variable declaration.
+
 
 \parhead{Type Compatibility}
 %
-If two types are compatible, is again defined by rewrite rules in Spoofax.
-These rules rewrite a pair of types to the second element of the pair, if the first one is compatible to it.
-In the simplest case, both types are the same:
+Whether two types are compatible is again defined by rewrite rules in Spoofax.
+These rules rewrite a pair of types to the second element of the pair, if the 
+first one is compatible to it. In the simplest case, both types are the same:
 
 \begin{code}
   is-compatible-to: (type, type) -> type
@@ -1636,14 +1659,17 @@ A type might also be compatible to a type, to which its supertype is compatible:
       <is-compatible-to> (supertype, type)
 \end{code}    
 
-For this case, the subtype relation is defined by a rewrite rule, which rewrites a type to its supertype:
+For this case, the subtype relation is defined by a rewrite rule, which 
+rewrites a type to its supertype:
 
 \begin{code}
   supertype: IntType() -> FloatType()
 \end{code}    
 
-This approach only works for type systems, where each type has at most one supertype.
-When a type system allows for multiple supertypes, we have to use lists of supertypes and need to adapt the rule for \ic{is-compatible-to} accordingly:
+This approach only works for type systems where each type has at most one 
+supertype. When a type system allows for multiple supertypes, we have to use 
+lists of supertypes and need to adapt the rule for \ic{is-compatible-to} 
+accordingly:
  
 \begin{code}
   supertypes: IntType() -> [ FloatType() ]
@@ -1655,11 +1681,11 @@ When a type system allows for multiple supertypes, we have to use lists of super
       <fetch-elem(is-compatible-to(|type))> supertype*
 \end{code}    
 
-Here, \ic{fetch-elem} tries to find an element in a list of supertypes, which is compatible to \ic{type}.
-It uses a variant of \ic{is-compatible-to} in order to deal with a list of types.
-This variant does not rewrite a pair of types but only the first type.
-The second type is passed as a parameter to the rewrite rule.
-It can be defined in terms of the variant for pairs:
+Here, \ic{fetch-elem} tries to find an element in a list of supertypes, 
+which is compatible to \ic{type}. It uses a variant of \ic{is-compatible-to} 
+in order to deal with a list of types. This variant does not rewrite a pair of 
+types but only the first type. The second type is passed as a parameter to the 
+rewrite rule. It can be defined in terms of the variant for pairs:
 
 \begin{code}
   is-compatible-to(|type2): type1 ->  <is-compatible-to> (type1, type2)
@@ -1674,10 +1700,15 @@ The compability of types can easily be extended to compability of lists of types
       type* := <zip(is-compatible-to)> (type1*, type2*)
 \end{code}    
 
-A list \ic{type1*} of types is compatible to another list \ic{type2*} of types, if each type in \ic{type1*} is compatible to the corresponding type in \ic{type2*}.
-Thereby, \ic{zip} pairs up the types from both lists, rewrites each of these pairs by applying \ic{is-compatible-to} to them, and collects the results in a new list \ic{type*}.
+A list \ic{type1*} of types is compatible to another list \ic{type2*} of types, 
+if each type in \ic{type1*} is compatible to the corresponding type in 
+\ic{type2*}. Thereby, \ic{zip} pairs up the types from both lists, rewrites 
+each of these pairs by applying \ic{is-compatible-to} to them, and collects the 
+results in a new list \ic{type*}.
 
-With the extension on lists, we can define a constraint for function calls, which ensures that the types of the actual arguments are compatible to the types of the formal parameters:
+With the extension on lists, we can define a constraint for function calls, 
+which ensures that the types of the actual arguments are compatible to the 
+types of the formal parameters:
 
 \begin{code}
   constraint: 
@@ -1688,18 +1719,26 @@ With the extension on lists, we can define a constraint for function calls, whic
       arg-type* := <map(type-of)> arg* ;
       <not(is-compatible-to)> (arg-type*, par-type*)
 \end{code}
+\MV{constraint-error?}
 
-\parhead{Grades of Type Compability}
+
+\parhead{Degrees of Type Compability}
 %
-While typing rules should be named \ic{type-of} in order to work correctly with the index, Spoofax imposes no restrictions on the names of compatibility rules.
-This allows us to use different rule names to define different grades of type compability, as they occur in many type systems.
-In Java, for example, \ic{"a" + 42} is a well-typed expression of type \ic{String}.
-The integer number (primitive type \ic{int}) is autoboxed to an object (class type \ic{Integer}) which is then implicitly converted into a string (class type \ic{String}) by calling \ic{toString()} on it.
-%Notably, autoboxing and implicit conversion work without establishing a subtype relationship between types. 
-Though in assignments, only autoboxing but no implicit conversion might take place.
-While \ic{Integer i = 42} is a valid assignment, \ic{String s = 42} gives a type error.
+While typing rules should be named \ic{type-of} in order to work correctly 
+with the index, Spoofax imposes no restrictions on the names of compatibility 
+rules. This allows us to use different rule names to define different degrees of 
+type compability, as they occur in many type systems. In Java, for example, 
+\ic{"a" + 42} is a well-typed expression of type \ic{String}. The integer number 
+(primitive type \ic{int}) is autoboxed to an object (class type \ic{Integer}) 
+which is then implicitly converted into a string (class type \ic{String}) by 
+calling \ic{toString()} on it.
 %
-In Spoofax, we can capture this in different compatibility rules:
+Notably, autoboxing and implicit conversion work without establishing a subtype 
+relationship between types. Though in assignments, only autoboxing but no 
+implicit conversion might take place. While \ic{Integer i = 42} is a valid 
+assignment, \ic{String s = 42} results in a type error.
+%
+In Spoofax, we can capture this with different compatibility rules:
 
 \begin{code}
   boxed-type: IntType() -> ClassType("Integer")
@@ -1719,6 +1758,19 @@ In Spoofax, we can capture this in different compatibility rules:
       boxed := <boxed-type> type1 ;
       <is-convertible> (boxed, type2)
 \end{code}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 \section{Probably old stuff?}
 
