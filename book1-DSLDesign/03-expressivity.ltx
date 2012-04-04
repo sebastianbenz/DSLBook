@@ -61,7 +61,7 @@ While it is always possible to produce short but incomprehensible programs,
 in general, shorter programs require less effort to read and write than longer
 programs, and are therefore be more efficient in software engineering. We
 will thus assume that, all other things being equal, shorter programs are
-preferable over longer programs.\footnote[][-1cm]{The size of a program may not
+preferable over longer programs.\footnote[][-20mm]{The size of a program may not
 be the only relevant metric to asses the usefulness of a DSL. For example, if the
 DSL required only a third of the code to write, but it takes four times as long
 to write the code per line, the there is no benefit for writing programs.
@@ -151,23 +151,22 @@ device drivers and generated code.}
 
 
 
-\todo{HERE}
 \subsection{Expressivity and the Domain Hierarchy}
 
 In the definition of expressivity above we compare arbitrary languages.
 An important idea behind domain-specific languages is that progressive
-specialization of the domain enables progressively more expressive languages.
-Programs for domain $D_n \subset D_{n-1}$ expressed in a language $L_{D_{n-1}}$
-typically use a set of characteristic idioms and patterns. A language for $D_n$
-can provide linguistic abstractions for those idioms or patterns, which makes
-their expression much more concise and their analysis and translation less
-complex.
+specialization of the domain enables progressively more specialized and
+expressive languages. Programs for domain $D_n \subset D_{n-1}$ expressed in a
+language $L_{D_{n-1}}$ typically use a set of characteristic idioms and
+patterns. A language for $D_n$ can provide linguistic abstractions for those
+idioms or patterns, which makes their expression much more concise and their
+analysis and translation less complex.
 
 \embc{Embedded C extends the C programming language with concepts for embedded
 software including state machines, tasks, and physical quantities. The state
 machine construct, for example, has concepts representing states, events,
 transitions and guards. Much less code is required compared to \ic{switch/case}
-statements or cross-pointing integer arrays, two typical idioms for state
+statements or cross-indexed integer arrays, two typical idioms for state
 machine implementation in C.}
 
 
@@ -176,16 +175,17 @@ by the Hibernate framework for annotating Java classes with object-relational
 mapping annotations. This reduces code size by an order of
 magnitude~\cite{Visser07}.}
 
-
+\vspace{-2mm}
 \subsection{Linguistic vs. In-Language Abstraction} 
 \label{lingvsinlang}
 
-There are two major ways of defining abstractions. They can be built into the
-language (in which case they the process is called \emph{linguistic}
-abstraction), or they can be expressed by concepts available in the language
-(\emph{in-language} abstraction). DSLs typically rely heavily on
-linguistic abstraction, whereas GPLs rely more on in-language abstraction.
+There are two major ways of defining abstractions. Abstrations can be built into
+the language (in which case they are called \emph{linguistic} abstraction), or
+they can be expressed by concepts available in the language (\emph{in-language}
+abstraction). DSLs typically rely heavily on linguistic abstraction, whereas
+GPLs rely more on in-language abstraction.
 
+\vspace{-2mm}
 \parhead{Linguistic Abstraction} A specific domain concept can be modeled with
 the help of existing abstractions, or one can introduct a \emph{new}
 abstraction for that concept. If we do the latter, we use \emph{linguistic}
@@ -210,12 +210,12 @@ language:
 
 The left loop can be parallelized, since the order of summing up the array
 elements is irrelevant. The right one cannot, since the order of the elements in
-the \lcr{OrderedList} class is relevant. A transformation engine that translates
-and optimizes the programs must perform (sophisticated, and sometimes
+the \lcr{OrderedList} class \emph{is} relevant. A transformation engine that
+translates and optimizes the programs must perform (sophisticated, and sometimes
 impossible) program analysis to determine that the left loop can indeed be
 parallelized. The following alternative expression of the same behavior uses
 better linguistic abstractions, because it is clear without analysis that the
-first loop can be parallelized and the second cannot: 
+first loop can be parallelized and the second cannot:
 
 \footnotesize
 \begin{verbatim} 
@@ -234,7 +234,7 @@ can simply be based on the language concept used (\lcr{for} vs.
 \lcr{seqfor})\sidenote[][-9\baselineskip]{Without linguistic abstraction, the
 processor has to analyze the program to "reverse engineer" the semantics to be
 able to act on it. With linguistic abstraction, we rely on the language user to
-use the correct abstraction! We assume that the user is able to do this. The
+use the correct abstraction. We assume that the user is able to do this! The
 trade-off makes sense in DSLs because we assume that DSL users are familiar with
 the domain, and we often don't have the budget or experience to build the
 sophisticated program analyses that could do the semantic reverse engineering.}.
@@ -247,40 +247,41 @@ detect states that are not reached by any transition and report this as an
 error. Detecting this same problem in a low-level C implementation requires
 sophisticated analysis on the switch-case statements or indexed arrays that
 constitute the implementation of the state
-machine\sidenote[][-6\baselineskip]{This assumes that the generator works
-correctly --- we'll discuss this problem in \sect{semantics} on semantics).}}
+machine\sidenote[][-6\baselineskip]{This approach assumes that the generator
+works correctly --- we'll discuss this problem in \sect{semantics} on semantics).}}
 
-\todo{HERE}
 \begin{marginfigure}[-1.5cm]
   \includegraphics[width=5cm]{figures-design/embc/components.png}
   \caption{Example component diagram. The top half defines components, their
-  ports and the relationship of these ports to interfaces. The bottom half
-  shows instances whose ports are connected by a connector.}
+  ports and the relationship of these ports to interfaces. The bottom half shows
+  instances whose ports are connected by a connector.}
   \label{components}
 \end{marginfigure}
+
+
 \embc{Another good example is optional ports in components. Components (see
 \fig{components}) define required ports that specify the interfaces they
 \emph{use}. For each component instance, a required port is connected to the
 provided port of an instance of a component that provides a port with a
-compartible interfaces. Required ports may be optional\sidenote[][1cm]{The
-terminology may be a bit confusing here: \emph{required} means that the component invokes
-operations on the port (as opposed to providing them for other to invoke).
-\emph{optional} refers to the fact that, for any given instance of that
-component, the port may be connected or not.}, so for a given instance, an
+compartible interface. Required ports may be optional\sidenote[][1cm]{The
+terminology may be a bit confusing here: \emph{required} means that the
+component invokes operations on the port (as opposed to providing them for other
+to invoke). \emph{optional} refers to the fact that, for any given instance of
+that component, the port may be connected or not.}, so for a given instance, an
 optional port may be connected or not. Invoking an operation on an unconnected
 required port would result in an error, so this has to be prevented. This can be
-done by enclosing the invocation on a required port in an if statement, checking
+done by enclosing the invocation on a required port in an \ic{if} statement, checking
 whether the port is connected. However, an \ic{if} statement can contain any
-arbitrary boolean expression as its condition (e.g. \ic{if (isConnected(rp) ||
+arbitrary Boolean expression as its condition (e.g. \ic{if (isConnected(rp) ||
 somethingRandom()) \{ port.doSomething(); \}}). So checking \emph{statically}
-that the invocation only happens if the port is connected is impossible. An
+that the invocation only happens if the port is connected is impossible. A
 better solution based on linguistic abstraction is to introduce a new language
 concept that checks for a connected port directly:
 \ic{with port (rp) \{ rp.doSomething(); \}}. The \lcr{with port}
-statement doesn't use a complete expression as its argument, but only a
+statement doesn't use an expression as its argument, but only a
 reference to a an optional required port (\fig{optionalport}). This way, the IDE
 can check that an invocation on a required optional port \lcr{rp} is only done
-inside of a \lcr{with port} statement on that same port.}
+inside of a \lcr{with port} referencing that same port.}
 
 
 \begin{figure}[h]
@@ -288,10 +289,10 @@ inside of a \lcr{with port} statement on that same port.}
   \vspace{-0.5cm}
   \includegraphics[width=12cm]{figures-design/embc/optionalport.png}
   \caption[][0.3cm]{The \lcr{with port} statement is required to surround an
-  invocation on an optional required port; othewise, an error is reported in
-  the IDE. If the port is not connected for the current instance, the code
-  inside the \lcr{with port} is not executed. It acts as an \lcr{if} statement,
-  but since it cannot contain a complete expression, the correct use of the
+  invocation on an optional required port; othewise, an error is reported in the
+  IDE. If the port is not connected for any given instance, the code inside the
+  \lcr{with port} is not executed. It acts like an \lcr{if} statement, but since
+  it cannot contain an expression as its condition, the correct use of the
   \lcr{with port} statement can be statically checked.}
   \label{optionalport}  
   \rule{1\textwidth}{0.7pt}
@@ -299,19 +300,20 @@ inside of a \lcr{with port} statement on that same port.}
  
  
 Linguistic abstraction also means that no details irrelevant to the model
-purpose are expressed. Once again, this increases
-conciseness, and avoids the undesired specification of unintended semantics
-(over-specification). Overspecification is usually bad because it limits the
-degrees of freedom available to a transformation engine. In the example above, the loop A
-is over-specified: it expresses ordering of the operations, although this is
-(most likely) not intended by the person who wrote the code.
+purpose are expressed. Once again, this increases conciseness, and avoids the
+undesired specification of unintended semantics (over-specification).
+Overspecification is usually bad because it limits the degrees of freedom
+available to a transformation engine. In the example with the parallelizable
+loops, the fist loop is over-specified: it expresses ordering of the operations,
+although this is (most likely) not intended by the person who wrote the code.
 
 \embc{State machines can be implemented as switch/case blocks or as arrays
-pointing into each other. The DSL program does not specify which implementation
-should be used and the transformation engine is free to chsose the more
+indexing into each other. The DSL program does not specify which implementation
+should be used and the transformation engine is free to chose the more
 appropriate representation, for example, based on desired program size or
-performance characteristics. Also, log statements and task declarations can be
-translated in different ways depending on the target platform.}
+performance characteristics. Also, \ic{log} statements and \ic{task}
+declarations can be translated in different ways depending on the target
+platform.}
 
 
 
@@ -319,32 +321,31 @@ translated in different ways depending on the target platform.}
 
 
 
-\parhead{In-Language Abstraction} Conciseness can also be achieved by a
-language providing facilities to allow users to define new (non-linguistic)
-abstractions in programs. Well-known GPL concepts for building new abstractions
-include procedures, classes, or functions and higher-order functions, generics,
-traits and monads\marginnote{It is worth understanding these to some extent, so
-you can make an informed decision which of these --- if any --- are useful in a
-DSL.} It is \emph{not} a sign of a bad DSL if it has in-language abstraction
-mechanisms as long as the created abstractions don't require special treatment
-by analysis or processing tools --- at which point they should be refactored
-into linguistic abstractions\footnote{The main reason why such an approach is
-flawed is because the semantics of \ic{isConnected} or \ic{OrderedList} could be
-changed by a library developer, without changing the static analyzer of code
-generator in a consistent way.}. An example of such special treatment would be
-if the compiler of the above example language would know that the
-\ic{OrderedList} library class is actually ordered, and that consequently, the
-respective loop cannot be parallelized. Another example of special treatment can
-be constructed in the context of the optional port example. If we'd solve the
-problem by having a library function \ic{isConnected(port)}, we could enforce
-that a call on an optional port is surrounded by an \ic{if (isConnected(port))}
-\emph{without any other expression} in the condition. In this case, the static
-analyzer would have to treat \ic{isConnected} specially. 
-
-
-In-Language abstraction can, as the name suggests, provide \emph{abstraction}.
-But it cannot provide \emph{declarativeness}: a model processor has to
-"understand" what the user wanted to express by building the in-languageabstraction, in order to be able to act on it.
+\parhead{In-Language Abstraction} Conciseness can also be achieved by a language
+providing facilities to allow users to define new (non-linguistic) abstractions
+in programs. Well-known GPL concepts for building new abstractions include
+procedures, classes, or functions and higher-order functions, generics, traits
+and monads\marginnote{It is worth understanding these to some extent, so you can
+make an informed decision which of these --- if any --- are useful in a DSL.} It
+is \emph{not} a sign of a bad DSL if it has in-language abstraction mechanisms
+as long as the created abstractions don't require special treatment by analysis
+or processing tools --- at which point they should be refactored into linguistic
+abstractions. An example of such special treatment would be if the compiler of
+the above example language would know that the \ic{OrderedList} library class is
+actually ordered, and that, consequently, the respective loop cannot be
+parallelized. Another example of special treatment can be constructed in the
+context of the optional port example. If we'd solve the problem by having a
+library function \ic{isConnected(port)}, we could enforce that a call on an
+optional port is surrounded by an \ic{if (isConnected(port))} \emph{without any
+other expression} in the condition. In this case, the static analyzer would have
+to treat \ic{isConnected} specially\footnote{Treating program elements specially
+is dangerous because the semantics of \ic{isConnected} or \ic{OrderedList} could
+be changed by a library developer, without changing the static analyzer of code
+generator in a consistent way.}. In-Language abstraction can, as the name
+suggests, provide \emph{abstraction}. But it cannot provide
+\emph{declarativeness}: a model processor has to "understand" what the user
+wanted to express by building the in-language abstraction, in order to be able
+to act on it.
 
 \cooling{The language does not support the construction of new abstractions
 since its user community are non-programmers who are not familiar with defining
@@ -353,15 +354,15 @@ times during development as new requirements came up from the end users, and had
 to be integrated directly into the language.}
 
 \embc{Since C is extended, C's abstraction mechanisms (functions,
-\ic{struct}s, \ic{enum}s) are available. Moreover, we added new mechanisms for building
-abstractions including interfaces and components.}
+\ic{struct}s, \ic{enum}s) are available. Moreover, we added new mechanisms for 
+building abstractions including interfaces and components.}
 
 \exwebdsl{WebDSL provides \emph{template definitions} to capture partial web
 pages including rendering of data from the database and form request handling.
 User defined templates can be used to build complex user interfaces.}
 
 \parhead{Standard Library} If a language provides support for in-language
-abstraction, these facilities can be used by the language \emph{designer} to
+abstraction, these facilities can be used by the \emph{language developer} to
 provide collections of domain specific abstractions to language users. Instead
 of adding language features, a standard library is deployed along with the
 language to all its users\marginnote{This approach is of course well known from
@@ -370,20 +371,16 @@ language can hardly be used without relying on it. It is effectively a part of
 the language}. It contains abstractions relevant to the domain, expressed as
 in-language abstractions. This approach keeps the language itself small, and
 allows subsequent extensions of the library without changing the language
-definition and processing tools.
-
-\todo{Do we have to say something here about "not treating stuff specially"? oris this even ok in a standardlib?}
-
-\todo{The isConnected function in the req port example would be one such caseof treating things specially.}
+definition and processing tools.  
 
 \cooling{Hardware building blocks have properties. For example, a \lcr{fan}
-can be turned \lcr{on} or \lcr{off}, and for a \lcr{compressor}, the
-speed can be specified (\lcr{rpm}). The set of properties available for the
-various building blocks is defined via a standard library and is not part of the
-language (\fig{coolinglib}). The reason why this is \emph{not} a contradition
-to what we discussed earlier is this: as a consequence of the framework used on
-the target platform, new properties can be added to hardware elements
-\emph{without} the need to change the generator. They are not treated
+can be turned \lcr{on} or \lcr{off}, and for a \lcr{compressor}, the speed can
+be specified (\lcr{rpm}). The set of properties available for the various
+building blocks is defined via a standard library and is not part of the
+language (\fig{coolinglib}). The reason why this is \emph{not} a contradition to
+what we discussed earlier is this: as a consequence of the structure of the
+framework used on the target platform, new properties can be added to hardware
+elements \emph{without} the need to change the generator. They are not treated
 specially!}
 
 \begin{figure}
@@ -397,31 +394,37 @@ specially!}
   \rule{1\textwidth}{0.7pt}
 \end{figure}
 
+Some languages treat some abstractions defined in the standard library
+specially. For example, Java's \ic{WeakReference} has special behavior in the
+context of garbage collection. While an argument can be made that special
+treatment is acceptable for a standard library (after all, it can be considered
+an essential companion to the language itself), it is still risky and dangerous.
+Considering that, in the case of DSLs, we can change the language relatively
+easily, I would suggest to avoid special treatment even in a standard library
+and recommend providing linguistic abstractions for these cases.
+
 
 \parhead{Comparing Linguistic and In-Language Abstraction} A language that
-contains linguistic abstractions for all relevant domain concepts is simple to transform;
-the transformation rules can be tied to the identities of the language concepts.
-It also makes the language suitable for domain experts, because relevant domain
-concepts have a direct representation in the language. Code completion can
-provide specific and meaningful support for "exploring" how a program should be
-written. However, using linguistic abstractions extensively requires that the
-relevant abstractions be known in advance, or frequent evolution of the language
-is necessary. In-language abstraction is more flexible, because users can build
-just those abstractions they need. However, this requires that users are
-actually trained to build their own abstractions. This is often true for
-programmers, but it is typically not true for domain experts. Using linguistic
-abstractions excessively leads to large languages. This problem can be addressed
-by modular languages where additional linguistic abstractions can be included
-into a program as needed.
+contains linguistic abstractions for all relevant domain concepts is simple to
+process; the transformation rules can be tied to the identities of the language
+concepts. It also makes the language suitable for domain experts, because
+relevant domain concepts have a direct representation in the language. Code
+completion can provide specific and meaningful support for "exploring" how a
+program should be written. However, using linguistic abstractions extensively
+requires that the relevant abstractions be known in advance, or frequent
+evolution of the language is necessary. It also can lead to languages that feel
+large, bloated or even inelegant. In-language abstraction is more flexible,
+because users can build just those abstractions they need. However, this
+requires that users are actually trained to build their own abstractions.
+This is often true for programmers, but it is typically not true for domain
+experts. 
+
 
 Using a standard library may be a good compromise where one set of users
 develops the abstractions to be used by another set of developers. This is
 especially useful if the same language should be used for several, related
 projects or user groups. Each can build their own set of abstractions in the
-library. It should be kept in mind that in-language abstraction only works if
-the transformation of these abstractions is not specific to the
-abstraction\todo{rephrase}. In such case, linguistic abstraction is better
-suited. \marginnote[-2cm]{Modular language extension, as discussed later in
+library. \marginnote[-2cm]{Modular language extension, as discussed later in
 \sect{lext}, provides a middle ground between the two approaches. A language can
 be flexibly extended, while retaining the advantages of linguistic abstraction.}
 
@@ -432,50 +435,7 @@ unnecessarily. The resulting language may be judged as being ugly, especially
 by programmers.
 
 
-\subsection{Platform Influence}
 
-In theory, the design of the abstractions used in a language should be
-indepenent of the execution engine and the platform. However, this is not always
-the case\footnote{It is obviously not the case for architecture DSLs where you
-build a language that resembles the architectural abstractions in a platform.
-But that's not what we're talking about here.} There are two reasons why the
-platform may influence the language.
-
-\parhead{Runtime efficiency} In most systems, the resulting system has to run
-reasonably efficient. Efficiency can mean performance, scalability as well as resource
-consumption (memory, disk space, network bandwidth). Depending on the semantic
-gap between the platform and the language, building efficient code generators
-can be a lot of work (we discuss this in some detail in the section on
-semantics \todo{ref}). Instead of building the necessary optimizers, you can
-also change the language to use abstractions that make global optimizations
-simpler to build. \sidenote{While this may be considered "cheating", in may 
-nonetheless be the only practical way given project constraints.}.
-
-\embc{The language does not support dynamically growing lists because it is
-hard to implement them in an efficient way considering we are targetting
-embedded software. Dynamic allocation of memory is often now allowed, and even
-if it were, the necessary copying of existing list data into a new, bigger
-buffer is too expensive for practical use. The incured overhead is also
-\emph{not} obvious to the languge user (he just increases list size or adds
-another element that triggers list growth), making it all the more dangerous.}
-
-\embc{Another example includes floating point arithmetics. If the target platform has
-no FPU, floating point arithmetics are expensive to emulate. We had to build
-the language in a way that could prevent the use of \ic{float} and \ic{double}
-types if the target platform has no FPU.}
-
-
-\parhead{Platform Limitations} The platform may have limitations regarding the
-size of the memory or disk or the bandwidth of the network that limit or
-otherwise influence language design. 
-
-\cooling{In the cooling language we had to introduce time units (seconds,
-minutes, hours) into the DSL after we'd noticed that the time periods relevant
-for cooling algorithms are so diverse, that no single unit could fit all
-necessary values into the available integer types. If used only seconds, the
-days or months periods would not fit into the available \ic{int}s. Using only
-hours or days obviously would not let us express the short periods. So the
-language now has the ability to express periods as in \ic{3s} or \ic{30d}.}
 
 
 
@@ -484,14 +444,12 @@ language now has the ability to express periods as in \ic{3s} or \ic{30d}.}
 If a language uses a lot of linguistic abstraction, it is likely, especially
 during the development of the language, that these abstractions change. Changing
 language constructs may break existing models, so special care has to be taken
-regarding language evolution.
-
-Doing this requires any or all of the following: a strict configuration
-management discipline, versioning information in the models to trigger
-compatible editors and model processors, keeping track of the language changes
-as a sequence of change operations that can be "replayed" on existing models, or
-model migration tools to transform models based on the old language into the new
-language.
+regarding language evolution. This requires any or all of the following: a
+strict configuration management discipline, versioning information in the models
+to trigger compatible editors and model processors, keeping track of the
+language changes as a sequence of change operations that can be "replayed" on
+existing models, or model migration tools to transform models based on the old
+language into the new language.
 
 Whether model migration is a challenge or not depends on the tooling. There are
 tools that make model evolution a very smooth, but many environments
@@ -499,7 +457,7 @@ don't\marginnote{In parser-based languages, you can always at the very least
 open the file in a text editor and run some kind of global search/replace to
 migrate the program. In projectional editor, special care has to be taken to
 enable the same functionality.}. Consider this when deciding about the tooling
-you want to use! 
+you want to use!  
 
 It is always a good idea to minimize those changes to a DSL that break existing
 models\footnote{This is especially true if you don't have access to all programs
@@ -516,21 +474,22 @@ feature.
 
 If the DSL is used by a closed, known user community that is accessible to the
 DSL designers, it will be much easier to evolve the language over time because
-users can be reached, making them migrate to newer versions\sidenote{The
-instrumentation mentioned above may even report back uses of deprecated language
-features after the official expiration date.}. Alternatively, the set of all
-models can be migrated to a newer version using a script provided by the
-language developers. In case the set of users, and the DSL programs, are not easily
-accessible, much more effort must be put into keeping backward compatibility,
-the need for evolution should be reduced\sidenote{This is the reason why many
-GPLs can never get rid of deprecated language features.}.
+users can be reached, making them migrate to newer
+versions\sidenote[][-3\baselineskip]{The instrumentation mentioned above may
+even report back uses of deprecated language features after the official
+expiration date.}. Alternatively, the set of all models can be migrated to a
+newer version using a script provided by the language developers. In case the
+set of users, and the DSL programs, are not easily accessible, much more effort
+must be put into keeping backward compatibility, the need for coordinated
+evolution should be reduced\sidenote[][-1\baselineskip]{This is the reason why
+many GPLs can never get rid of deprecated language features.}.
 
 
 \subsection{Precision vs. Algorithm}
 
 We discussed earlier that some DSLs may be Turing-complete (and feel more like
 a programming language) whereas others are purely declarative, and maybe just
-describe facts, structures and relationships in a domain. The latter may not be
+describe facts, structures and relationships in a domain. The former may not be
 usable by domain users (i.e. non-programmers). They are often able to
 formally and precisely specify facts, structures and relationships about their
 domain, but they are often not able to define algorithmic behavior.
@@ -548,15 +507,67 @@ algorithmic. The majority of the models define data structures (customers,
 pension plans, payment schedules). However, there are also mathematical
 equations and calculation rules. These are algorithmic, but in the pension
 insurance domain, the domain users are well capable of dealing with these.}
+
 \subsection{Configuration Languages}
 
 Configuration languages are purely declarative. They consist of a well-defined
 set of configuration parameters and constraints among them. "Writing programs"
 boils down to setting values for these parameters. In many cases, the parameters
 are booleans, in which case a program is basically a selection of a subset of
-the configuration switches. A well-known formalism for configuration is feature
-models.  We discuss configuration languages in more detail in the chapter on
+the configuration switches. A well-known configuration language is feature
+models. We discuss configuration languages in more detail in the chapter on
 DSLs and Product Line Engineering (\todo{ref}).
+
+
+\subsection{Platform Influence}
+
+In theory, the design of the abstractions used in a language should be
+indepenent of the execution engine and the platform. However, this is not always
+the case\footnote{It is obviously not the case for architecture DSLs where you
+build a language that resembles the architectural abstractions in a platform.
+But that's not what we're talking about here.} There are two reasons why the
+platform may influence the language.
+
+\parhead{Runtime efficiency} In most systems, the resulting system has to
+execute in a reasonably efficient way. Efficiency can mean performance,
+scalability as well as resource consumption (memory, disk space, network
+bandwidth). Depending on the semantic gap between the platform and the language,
+building efficient code generators can be a lot of work (we discuss this in some
+detail in the section on semantics \todo{ref}). Instead of building the
+necessary optimizers, you can also change the language to use abstractions that
+make global optimizations simpler to build. \sidenote{While this may be
+considered "cheating", in may nonetheless be the only practical way given
+project constraints.}.
+
+\embc{The language does not support dynamically growing lists because it is
+hard to implement them in an efficient way considering we are targetting
+embedded software. Dynamic allocation of memory is often now allowed, and even
+if it were, the necessary copying of existing list data into a new, bigger
+buffer is too expensive for practical use. The incured overhead is also
+\emph{not} obvious to the languge user (he just increases list size or adds
+another element that triggers list growth), making it all the more dangerous.}
+
+\embc{Another example includes floating point arithmetics. If the target
+platform has no floating point unit, floating point arithmetics are expensive to
+emulate (FPU). We had to build the language in a way that could prevent the use
+of \ic{float} and \ic{double} types if the target platform has no FPU.}
+
+
+\parhead{Platform Limitations} The platform may have limitations regarding the
+size of data structures, the memory or disk space, or the bandwidth of the
+network that limit or otherwise influence language design. 
+
+\cooling{In the cooling language we had to introduce time units (seconds,
+minutes, hours) into the DSL after we'd noticed that the time periods relevant
+for cooling algorithms are so diverse, that no single unit could fit all
+necessary values into the available integer types. If we had used only seconds,
+the days or months periods would not fit into the available \ic{int}s. Using
+only hours or days obviously would not let us express the short periods without
+using fractions of floating point data types. So the language now has the
+ability to express periods as in \ic{3s} or \ic{30d}.}
+
+
+
 
 
 
