@@ -1445,73 +1445,64 @@ BaseLanguage code can be used to implement type checks as well.
 \section{Spoofax Example}
 
 Spoofax' rewrite rules support both the recursive approach and pattern matching in specifying type systems.
-The basic idea is to rewrite language constructs to their types.
+In the remainder of this section, we will focus on the recursive approach.
+
+\parhead{Typing Rules in Spoofax}
+%
+The basic idea is to instrument ordinary rewrite rules which rewrite language constructs to their types as typing rules.
 For example, the following rule rewrites integer numbers to the integer type: 
 
 \begin{code}
-  type-of:
-    Int(_) -> IntType()
+  type-of: Int(value) -> IntType()
 \end{code}
 
 This is an example for assigning a fixed type to a language element.
-Similarly, we can calculate the type of an element from the types of its arguments as follows:
+Similarly, we can rewrite an addition expression to the integer type:
+
+\begin{code}
+  type-of: Add(exp1, exp2) -> IntType()
+\end{code}
+
+However, it is good practice to assign types only to well-typed language constructs.
+Thus, we should add type checks for the subexpressions:
 
 \begin{code}
   type-of:
-    Add(e1, e2) -> t
+    Add(exp1, exp2) -> IntType()
     where
-    	t1 := <type-of> e1 ;
-    	t2 := <type-of> e2 ;
-    	t  := <common-type-of> (t1, t2)
+      <type-of> exp1 => IntType() ;
+      <type-of> exp2 => IntType()
 \end{code}
 
-The rule rewrites an addition expression to the common type of its subexpressions.
-The strategy \ic{common-type-of} is defined generically based on a subtype relationship:
+Spoofax allows for multiple typing rules for the same language construct.
+This is particular useful for typing overloaded operators, since each case can be handled by a separate typing rule.
+For example, when the operator \ic{+} is overloaded to support string concatenation, we can add the following typing rule:
 
 \begin{code}
-  common-type-of: 
-    (t, t)  -> t
-  
-  common-type-of: 
-    (t, t') -> t
-  	where
-  	  <is-subtype-of(|t)> t'
-  
-  common-type-of: 
-    (t, t') -> t'
-  	where
-  	  <is-subtype-of(|t')> t
-\end{code} 
-
-The subtyping rules of a language are then defined in rewrite rules for \ic{is-subtype-of(|t)}:
-
-\begin{code}
-  is-subtype-of(|t):
-    IntType() -> <id>
+  type-of:
+    Add(exp1, exp2) -> StringType()
     where
-      !t => DoubleType()
-\end{code}  	  
+      <type-of> exp1 => StringType() ;
+      <type-of> exp2 => StringType()
+\end{code}
 
 \parhead{Persistence of Typing Information}
 %
-As we discussed earlier, Spoofax can store information about definitions in an in-memory data structure called the index.
+As we discussed earlier, Spoofax stores information about definitions in an in-memory data structure called the index.
+This typically includes information about types.
 Consider the following typing rules, which rewrite property and variable declarations to their declared types:
 
 \begin{code}
-  type-of:
-    Property(_, t) -> t
+  type-of: Property(name, type) -> type
   
-  type-of:
-    VarDecl(_, t) -> t
+  type-of: VarDecl(name, type) -> type
   
-  type-of:
-    VarDeclInit(_, t, _) -> t
+  type-of: VarDeclInit(name, type, init-exp) -> type
   
-  type-of:
-    Param(_, t) -> t
+  type-of: Param(name, type) -> type
 \end{code}
 
-Spoofax relies on these rules to store type information about these declarations in the index.
+Spoofax relies on these rules to store type information about property and variable declarations in the index.
 This is achieved by the following generic rewrite rule:
 
 \begin{code}
@@ -1529,10 +1520,10 @@ The stored type information can then be used in the typing rules for variable re
 
 \begin{code}
   type-of:
-    Var(v) -> <type-of> <index-lookup> v
+    Var(name) -> <index-lookup-type> name
   
   type-of:
-    PropAccess(_, p) -> <type-of> <index-lookup> p
+    PropAccess(exp, name) -> <index-lookup-type> name
 \end{code}
 
 Both rules rewrite references to the type of their definition sites. 
@@ -1542,40 +1533,194 @@ Therefor, the stored type information has to be retrieved.
 This is again achieved by a generic rewrite rule:
 
 \begin{code}
-  type-of:
-    Def(uri) -> <index-get-data(|Type())> Def(uri)
+  index-lookup-type:
+    ref -> type
+    where
+      def  := <index-get-data(|Type())> ref ;
+      type := <index-lookup> def 
 \end{code}
 
-\parhead{Semantic Types}
+\parhead{Additional Types}
 %
-\begin{itemize}
-  \item so far all types come from syntax definition
-  \item most type systems have additional types with no syntactic representation
-  \item examples: bottom types, null types
-\end{itemize}
+In Spoofax, types are represented as terms. 
+The constructors for these terms are specified in the syntax definition as labels to productions.
+Without the ability to define additional constructors, type systems are restricted to types which users can explicitely state in programs, for example in variable declarations.
+But many type systems require additional types which do not originate from the syntax of the language.
+Typical examples are top and bottom types in type hierarchies.
+For example, Java's type system has a special type for \ic{null} values at the bottom of its type hierarchy, which cannot be used as a type in Java programs.
+
+Spoofax allows to define constructors for additional types in signatures:
 
 \begin{code}
 signature constructors
 
-         : Type -> SemType
-  FunType: List(Type) * Type -> SemType
+  FunType: List(Type) * Type -> FunType
 \end{code}
 
+This defines a binary constructor \ic{FunType} for function types.
+The first subterm of a function type is a list of parameter types (\ic{List(Type)}).
+The second subterm is the return type.
+We can employ the so defined function type in the typing rules for function definitions and calls:
 
 \begin{code}
   type-of:
-    Function(_, p*, t) -> FunType(t*, t)
+    Function(name, param*, type) -> FunType(type*, type)
     with
-      t* := <map(type-of)> p*
+      type* := <map(type-of)> param*
 
   type-of:
-    Call(f, a*) -> t
+    Call(name, arg*) -> type
     where
-      Fun(_, t) := <type-of> <index-lookup> f
+      <index-lookup-type> name => FunType(type*, type)
 \end{code}
 
 
-\parhead{Typing Constraints}
+\parhead{Type Constraints}
+%
+Like any other constraint, type constraints are specified in Spoofax by rewrite rules which rewrite language constructs to errors, warnings, or notes.
+For example, we can define a constraint on additions:
+
+\begin{code}
+  constraint:
+    exp -> Error(exp, $[Operator + cannot be applied to arguments [<pprint> type1], [<pprint> type2].])
+	where
+      !exp  => Add(exp1, exp2) ;
+      <not(type-of)> exp ;
+      type1 := <type-of> exp1 ;
+      type2 := <type-of> exp2 
+\end{code}
+
+Basically, an expression is non-well-typed or \emph{ill-typed}, if it cannot be rewritten to a type.
+But reporting an error on all ill-typed expressions will make it hard to discover the root cause of the error, 
+since every expression with an ill-typed subexpression is also ill-typed.
+That is why we also check the subexpressions of the addition to be well-typed.
+The types of the subexpressions are then used to construct a meaningful error message.
+%
+Similar to expressions, we can define type constraints on statements:
+
+\begin{code}
+  constraint:
+    Assign(lhs, rhs) -> Error(rhs, $[Type mismatch: Cannot convert from [<pprint> type1] to [<pprint> type2].])
+    where
+      type1 := <type-of> lhs ;
+      type2 := <type-of> rhs ;
+      <not(is-compatible-to)> (type1, type2)
+      
+  constraint:
+    VarDeclInit(var, type1, exp) -> (exp, $[Type mismatch: Cannot convert from [<pprint> type1] to [<pprint> type2].])
+    where
+      type2 := <type-of> exp;
+      <not(is-compatible-to)> (type1, type2)
+\end{code}
+
+In an assignment, the type of the expression on the right-hand side has to be compatible with the variable or property on the left-hand side.
+The same holds for the initializing expression in a variable declaration.
+
+\parhead{Type Compatibility}
+%
+If two types are compatible, is again defined by rewrite rules in Spoofax.
+These rules rewrite a pair of types to the second element of the pair, if the first one is compatible to it.
+In the simplest case, both types are the same:
+
+\begin{code}
+  is-compatible-to: (type, type) -> type
+\end{code}    
+
+A type might also be compatible to a type, to which its supertype is compatible:
+
+\begin{code}
+  is-compatible-to: 
+    (subtype, type) -> type
+    where
+      supertype := <supertype> subtype ;
+      <is-compatible-to> (supertype, type)
+\end{code}    
+
+For this case, the subtype relation is defined by a rewrite rule, which rewrites a type to its supertype:
+
+\begin{code}
+  supertype: IntType() -> FloatType()
+\end{code}    
+
+This approach only works for type systems, where each type has at most one supertype.
+When a type system allows for multiple supertypes, we have to use lists of supertypes and need to adapt the rule for \ic{is-compatible-to} accordingly:
+ 
+\begin{code}
+  supertypes: IntType() -> [ FloatType() ]
+  
+  is-compatible-to: 
+    (subtype, type) -> type
+    where
+      supertype* := <supertypes> subtype ;
+      <fetch-elem(is-compatible-to(|type))> supertype*
+\end{code}    
+
+Here, \ic{fetch-elem} tries to find an element in a list of supertypes, which is compatible to \ic{type}.
+It uses a variant of \ic{is-compatible-to} in order to deal with a list of types.
+This variant does not rewrite a pair of types but only the first type.
+The second type is passed as a parameter to the rewrite rule.
+It can be defined in terms of the variant for pairs:
+
+\begin{code}
+  is-compatible-to(|type2): type1 ->  <is-compatible-to> (type1, type2)
+\end{code}
+
+The compability of types can easily be extended to compability of lists of types:
+
+\begin{code}
+  is-compatible-to: 
+    (type1*, type2*) -> type*
+    where
+      type* := <zip(is-compatible-to)> (type1*, type2*)
+\end{code}    
+
+A list \ic{type1*} of types is compatible to another list \ic{type2*} of types, if each type in \ic{type1*} is compatible to the corresponding type in \ic{type2*}.
+Thereby, \ic{zip} pairs up the types from both lists, rewrites each of these pairs by applying \ic{is-compatible-to} to them, and collects the results in a new list \ic{type*}.
+
+With the extension on lists, we can define a constraint for function calls, which ensures that the types of the actual arguments are compatible to the types of the formal parameters:
+
+\begin{code}
+  constraint: 
+    Call(name, arg*) -> (arg*, $[Function [name] cannot be applied to arguments [<pprint> arg-type*].])
+    where
+      fun-type  := <index-lookup-type> name ;
+      !fun-type => FunType(para-type*, type) ;
+      arg-type* := <map(type-of)> arg* ;
+      <not(is-compatible-to)> (arg-type*, par-type*)
+\end{code}
+
+\parhead{Grades of Type Compability}
+%
+While typing rules should be named \ic{type-of} in order to work correctly with the index, Spoofax imposes no restrictions on the names of compatibility rules.
+This allows us to use different rule names to define different grades of type compability, as they occur in many type systems.
+In Java, for example, \ic{"a" + 42} is a well-typed expression of type \ic{String}.
+The integer number (primitive type \ic{int}) is autoboxed to an object (class type \ic{Integer}) which is then implicitly converted into a string (class type \ic{String}) by calling \ic{toString()} on it.
+%Notably, autoboxing and implicit conversion work without establishing a subtype relationship between types. 
+Though in assignments, only autoboxing but no implicit conversion might take place.
+While \ic{Integer i = 42} is a valid assignment, \ic{String s = 42} gives a type error.
+%
+In Spoofax, we can capture this in different compatibility rules:
+
+\begin{code}
+  boxed-type: IntType() -> ClassType("Integer")
+  
+  is-compatible: 
+    (type1, type2) -> type2
+    where
+      boxed := <boxed-type> type1 ;
+      <is-compatible> (boxed, type2)
+      
+  is-convertible: 
+    (ClassType(_), ClassType("String")) -> ClassType("String")
+  
+  is-convertible: 
+    (type1, type2) -> type2
+    where
+      boxed := <boxed-type> type1 ;
+      <is-convertible> (boxed, type2)
+\end{code}
+
+\section{Probably old stuff?}
 
 Explain why expressions are different than "normal" programs
 (precedence, etc.)
@@ -1594,55 +1739,3 @@ type conversions: assignment conversion, etc.
 
 attribute grammars
 
-\begin{code}
-
-
- 
- 
-rules
-
-  is-params-compatible(|arg-types):
-    Def(uri) -> <id>
-    with
-      param-types := <index-get-data(|ParamTypes())>
-    where
-      <eq> (<length> arg-types, <length> param-types);
-      <zip(is-assignable-to)> (arg-types, param-types)
-
-  is-assignable-to:
-    (to-type, from-type) -> to-type
-    where
-      <eq> (from-type, to-type)
-
-  
-  adjust-index-def-data(store-results |namespace, path):
-    Function(_, params, _) -> <store-results> DefData([namespace | path], ParamTypes(), types)
-    with
-      types := <map(type-of)> params
-      
-rules
-    
-  constraint-error:
-    e@Assign(lhs, rhs) -> (e, $[Expected [<print-type> type1] but found [<print-type> type2].])
-    where
-    	type1 := <type-of> lhs;
-    	type2 := <type-of> rhs;
-      not(<is-assignable-to> (type1, type2))
-      
-  constraint-error:
-    e@VarDeclInit(var, type, exp) -> (e, $[Expected [<print-type> type1] but found [<print-type> type2].])
-    where
-      type1 := <type-of> type;
-      type2 := <type-of> exp;
-      not(<is-assignable-to> (type1, type2))
-    
-  constraint-error:
-    Call(f, a*) -> (f, $[Illegal argument types, expected ([<print-type> param-types]) not ([<print-type> arg-types])])
-    where
-      arg-types    := <map(type-of)> a*;
-      def@Def(uri) := <index-lookup> f;
-      param-types  := <index-get-all-values> ParamTypes(uri, ());
-      not(
-        <is-params-compatible(|arg-types)> def
-      )
-\end{code}
