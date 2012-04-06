@@ -243,8 +243,8 @@ singleton domains that consist of a single program (a non-interesting boundary c
 \end{figure}
 
 Languages are typically designed for a particular domain $D$. Languages for
-$\D{0}$ are called general-purpose languages\footnote{I guess we could define
-$D_0$ to be those programs expressible with Turing machines, but using GPLs for
+$\D{0}$ are called general-purpose languages\sidenote[][-10mm]{I guess we could
+define $D_0$ to be those programs expressible with Turing machines, but using GPLs for
 $D_0$ is a more useful approach for this book.}. Languages for $D_n$ with $n >
 0$ become more domain-specific for growing $n$. Languages for a particular $D_n$
 can also be used to express programs in $D_{n+1}$. However, DSLs for $D_{n+1}$
@@ -324,7 +324,7 @@ precisely the inherently imprecise notion of domains. Let us now move into the
 field of language engineering. Here we can describe the relevant concepts much
 more clearly.
 
-\begin{marginfigure}[-10mm]
+\begin{marginfigure}[-35mm]
 \begin{center}
   \includegraphics[width=3cm]{figures-design/csVsAs.png} 
   \caption{Concrete and abstract syntax for a textual variable declaration.
@@ -333,6 +333,17 @@ more clearly.
   \label{csVsAs} 
 \end{center} 
 \end{marginfigure}
+
+\marginnote[3mm]{The 
+abstract syntax is very similar to a meta model in that it represents only a
+data structure and ignores notation. The two are also different: the abstract
+syntax is usually automatically derived from a grammar, whereas a meta model is
+typically defined \emph{first}, independent of a notation. This means that,
+while the abstract syntax may be structurally affected by the grammar, the meta
+model is "clean" and represents purely the structure of the domain. In practice,
+the latter isn't strictly true either, since editing and tool considerations
+typically influence a meta model as well. In this book, we consider the two to
+be synonyms.}
 \parhead{Concrete and Abstract Syntax} Programs can be represented in their
 abstract syntax and the concrete syntax forms. The \emph{concrete syntax} is the
 notation with which the user interacts as he edits a program. It may be textual,
@@ -349,18 +360,9 @@ parser derives the abstract syntax by using a grammar and mapping rules.
 performed through the concrete syntax, \emph{directly} change the abstract
 syntax. The concrete syntax is a mere projection (that looks and feels like text
 in case a textual projection is used). No parsing takes place. Spoofax and
-Xtext are parser-based tools, MPS is projectional.  \marginnote[-55mm]{The 
-abstract syntax is very similar to a meta model in that it represents only a
-data structure and ignores notation. The two are also different: the abstract
-syntax is usually automatically derived from a grammar, whereas a meta model is
-typically defined \emph{first}, independent of a notation. This means that,
-while the abstract syntax may be structurally affected by the grammar, the meta
-model is "clean" and represents purely the structure of the domain. In practice,
-the latter isn't strictly true either, since editing and tool considerations
-typically influence a meta model as well. In this book, we consider the two to
-be synonyms.}
+Xtext are parser-based tools, MPS is projectional.  
 
-\begin{marginfigure}[-5mm] \begin{center}  
+\begin{marginfigure}[-3mm] \begin{center}  
 \includegraphics[width=3cm]{figures-design/programsAsTrees.png}
   \caption{A program is a tree of program elements, with a single root element.}
   \label{programsAsTrees}
@@ -384,7 +386,7 @@ and tree construction.
 \emph{fragments}. A fragment is a standalone tree, a partial program.
 Conversely, a program is a set of fragments. $E_f$ is the set of program
 elements in a fragment $f$.
-\begin{marginfigure}
+\begin{marginfigure}[-30mm]
 \begin{center}
   \includegraphics[width=3cm]{figures-design/fragment.png} 
   \caption{A fragment is a program subtree.}
@@ -394,20 +396,20 @@ elements in a fragment $f$.
 
 
 
-\begin{marginfigure}
+
+\parhead{Languages} A language $l$ consists a set of language concepts $C_l$ and
+their relationships\sidenote[][-1\baselineskip]{In the world of grammars, a
+concept is essentially a \emph{Nonterminal}. We will discuss the details about grammars in
+the implementation section of this book}. We use the term \emph{concept} to refer to
+concrete syntax, abstract syntax plus the associated type system rules and 
+constraints as well as some definition of its semantics. In a fragment, each 
+element $e$ is an instance of a concept $c$ defined in some language $l$. \begin{marginfigure}
 \begin{center}
   \includegraphics[width=4cm]{figures-design/langAsSetOfConcepts.png} 
   \caption{A language is a set of concepts.}
   \label{langAsSetOfConcepts}
 \end{center} 
 \end{marginfigure}
-\parhead{Languages} A language $l$ consists a set of language concepts $C_l$ and
-their relationships\sidenote{In the world of grammars, a concept is 
-essentially a \emph{Nonterminal}. We will discuss the details about grammars in
-the implementation section of this book}. We use the term \emph{concept} to refer to
-concrete syntax, abstract syntax plus the associated type system rules and 
-constraints as well as some definition of its semantics. In a fragment, each 
-element $e$ is an instance of a concept $c$ defined in some language $l$. 
 
 \embc{In C, the statement \ic{int x = 3;} is an instance of the
 \lcr{LocalVariableDeclaration} concept. \ic{int} is an instance of
@@ -416,7 +418,7 @@ element $e$ is an instance of a concept $c$ defined in some language $l$.
 \begin{figure}[h] 
 \begin{center}
   \includegraphics[width=8cm]{figures-design/conceptOf.png}
-  \caption[][0.3cm]{The statement \ic{int x = 3;} is an instance of the
+  \caption[][30mm]{The statement \ic{int x = 3;} is an instance of the
 \lcr{LocalVariableDeclaration}. $co$ returns the concept for a given element.}
   \label{conceptOf} 
 \end{center}
