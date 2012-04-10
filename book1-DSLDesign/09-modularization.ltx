@@ -1,49 +1,48 @@
 \FloatBarrier
 
-\todo{here}
-
-
-
 
 \section{Language Modularity}
 \label{sec:extAndComp}
  
 Reuse of modularized parts makes software development more efficient, since
 similar functionality does not have to be developed over and over again. A
-similar argument can be made for languages. Being able to reuse languages in new
-contexts makes designing DSLs more efficient. 
+similar argument can be made for languages. Being able to reuse languages, or
+parts of languages, in new contexts makes designing DSLs more efficient.
 
-\marginnote{Language modularization and reuse is often not driven by end user or
-domain requirements, but rather, by the experience of the language designers and
-implementers striving for consistency and avoidance of duplicate implementation
-work.}
+\marginnote[-4\baselineskip]{Language modularization and reuse is often not
+driven by end user or domain requirements, but rather, by the experience of the
+language designers and implementers striving for consistency and avoidance of
+duplicate implementation work.}
 
 
-We have identified the following four composition
-strategies: referencing, extension, reuse and embedding. We distinguish them
-regarding fragment structure and language dependencies, as illustrated in
-\fig{quadrants}. \fig{fragAndLang} shows the relationships between fragments and
-languages in these cases. We consider these two criteria to be essential for the
-following reasons.
+We have identified the following four composition strategies: referencing,
+extension, reuse and embedding. We distinguish them regarding fragment structure
+and language dependencies, as illustrated in \fig{quadrants}. \fig{fragAndLang}
+shows the relationships between fragments and languages in these
+cases\sidenote[][-3\baselineskip]{Note how in both cases the language
+definitions are modular: \emph{invasive} modification of a language definition
+is not something we consider language modularity!}.
 
 
 \begin{figure}[h]
 \begin{center}
   \includegraphics[width=8.2cm]{figures-design/quadrants.png}
-  \caption{We distinguish the four modularization and composition
+  \caption[][7mm]{We distinguish the four modularization and composition
   approaches regarding their consequences for fragment structure and language
   dependencies.}
   \label{quadrants} 
 \end{center}
 \end{figure} 
 
+We consider these two criteria to be relevant for the following reasons.
 \emph{Language dependencies} capture whether a language has to be designed with
 knowledge about a particular composition partner in mind in order to be
 composable with that partner. It is desirable in many scenarios that languages
 be composable \emph{without} previous knowledge about all possible composition
 partners. \emph{Fragment Structure} captures whether the two composed languages
-can be syntactically mixed. Since modular concrete syntax can be a challenge,
-this is not always that possible, though often desirable.
+can be syntactically mixed, or whether separate viewpoints are used. Since
+modular concrete syntax can be a challenge, this is not always possible, though often
+desirable.
 
  
 \begin{figure}[h] 
@@ -63,7 +62,7 @@ this is not always that possible, though often desirable.
 discussed in the introduction. DSL hell refers to the danger that developers
 create new DSLs all the time, resulting in a large set of half-baked DSLs, each
 covering related domains, possibly with overlap, but still incompatible.
-Language modularization and reuse can help avoid this problem. Languageextension allows users to add new language constructs to existing languages.They can reuse all the features of the existing language while still addingtheir own higher level abstractions. Language lets language designers embedexisting languages into new ones. This is particularly interesting in case ofexpression or query languages, that are interesting in many different contexts.
+Language modularization and reuse can help avoid this problem. Languageextension allows users to add new language constructs to existing languages.They can reuse all the features of the existing language while still addingtheir own higher level abstractions. Language embedding lets language designersembed existing languages into new ones. This is particularly interesting in case ofexpression or query languages, that are relevant in many different contexts.
 
 
 \input{09a-referencing.ltx}
