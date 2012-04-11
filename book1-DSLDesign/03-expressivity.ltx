@@ -179,15 +179,15 @@ magnitude~\cite{Visser07}.}
 \subsection{Linguistic vs. In-Language Abstraction} 
 \label{lingvsinlang}
 
-There are two major ways of defining abstractions. Abstrations can be built into
-the language (in which case they are called \emph{linguistic} abstraction), or
+There are two major ways of defining abstractions. Abstractions can be built
+into the language (in which case they are called \emph{linguistic} abstraction), or
 they can be expressed by concepts available in the language (\emph{in-language}
 abstraction). DSLs typically rely heavily on linguistic abstraction, whereas
 GPLs rely more on in-language abstraction.
 
 \vspace{-2mm}
 \parhead{Linguistic Abstraction} A specific domain concept can be modeled with
-the help of existing abstractions, or one can introduct a \emph{new}
+the help of existing abstractions, or one can introduce a \emph{new}
 abstraction for that concept. If we do the latter, we use \emph{linguistic}
 abstraction. By making the concepts of $D$ first class members of a language
 $L_D$, i.e. by defining linguistic abstractions for these concepts, they can be
@@ -263,7 +263,7 @@ works correctly --- we'll discuss this problem in \sect{semantics} on semantics)
 \fig{components}) define required ports that specify the interfaces they
 \emph{use}. For each component instance, a required port is connected to the
 provided port of an instance of a component that provides a port with a
-compartible interface. Required ports may be optional\sidenote[][1cm]{The
+compatible interface. Required ports may be optional\sidenote[][1cm]{The
 terminology may be a bit confusing here: \emph{required} means that the
 component invokes operations on the port (as opposed to providing them for other
 to invoke). \emph{optional} refers to the fact that, for any given instance of
@@ -289,8 +289,8 @@ inside of a \lcr{with port} referencing that same port.}
   \vspace{-0.5cm}
   \includegraphics[width=12cm]{figures-design/embc/optionalport.png}
   \caption[][0.3cm]{The \lcr{with port} statement is required to surround an
-  invocation on an optional required port; othewise, an error is reported in the
-  IDE. If the port is not connected for any given instance, the code inside the
+  invocation on an optional required port; otherwise, an error is reported in
+  the IDE. If the port is not connected for any given instance, the code inside the
   \lcr{with port} is not executed. It acts like an \lcr{if} statement, but since
   it cannot contain an expression as its condition, the correct use of the
   \lcr{with port} statement can be statically checked.}
@@ -377,8 +377,8 @@ definition and processing tools.
 can be turned \lcr{on} or \lcr{off}, and for a \lcr{compressor}, the speed can
 be specified (\lcr{rpm}). The set of properties available for the various
 building blocks is defined via a standard library and is not part of the
-language (\fig{coolinglib}). The reason why this is \emph{not} a contradition to
-what we discussed earlier is this: as a consequence of the structure of the
+language (\fig{coolinglib}). The reason why this is \emph{not} a contradiction
+to what we discussed earlier is this: as a consequence of the structure of the
 framework used on the target platform, new properties can be added to hardware
 elements \emph{without} the need to change the generator. They are not treated
 specially!}
@@ -513,7 +513,7 @@ insurance domain, the domain users are well capable of dealing with these.}
 Configuration languages are purely declarative. They consist of a well-defined
 set of configuration parameters and constraints among them. "Writing programs"
 boils down to setting values for these parameters. In many cases, the parameters
-are booleans, in which case a program is basically a selection of a subset of
+are Booleans, in which case a program is basically a selection of a subset of
 the configuration switches. A well-known configuration language is feature
 models. We discuss configuration languages in more detail in the chapter on
 DSLs and Product Line Engineering (\todo{ref}).
@@ -522,8 +522,8 @@ DSLs and Product Line Engineering (\todo{ref}).
 \subsection{Platform Influence}
 
 In theory, the design of the abstractions used in a language should be
-indepenent of the execution engine and the platform. However, this is not always
-the case\footnote{It is obviously not the case for architecture DSLs where you
+independent of the execution engine and the platform. However, this is not
+always the case\footnote{It is obviously not the case for architecture DSLs where you
 build a language that resembles the architectural abstractions in a platform.
 But that's not what we're talking about here.} There are two reasons why the
 platform may influence the language.
@@ -540,11 +540,11 @@ considered "cheating", in may nonetheless be the only practical way given
 project constraints.}.
 
 \embc{The language does not support dynamically growing lists because it is
-hard to implement them in an efficient way considering we are targetting
+hard to implement them in an efficient way considering we are targeting
 embedded software. Dynamic allocation of memory is often now allowed, and even
 if it were, the necessary copying of existing list data into a new, bigger
-buffer is too expensive for practical use. The incured overhead is also
-\emph{not} obvious to the languge user (he just increases list size or adds
+buffer is too expensive for practical use. The incurred overhead is also
+\emph{not} obvious to the language user (he just increases list size or adds
 another element that triggers list growth), making it all the more dangerous.}
 
 \embc{Another example includes floating point arithmetics. If the target

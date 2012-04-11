@@ -120,14 +120,14 @@ references to that element from other partitions)
 that logically "points to" another one)?, and if not, how/where/when to control
 reference/link storage.
 
-\item[Model Organzation] Partitions may be used as a way of organizing the
+\item[Model Organization] Partitions may be used as a way of organizing the
 overall model. This is particularly important if the tool does not provide a
 good means of presenting the overall logical structure of models and finding
 elements by name and type. Organizing files with meaningful names in directory
 structures is a workable alternative.
 
 \item[Tool Chain Integration] Integration with existing, file based tool chains.
-Files may be the unit of checkin/checkout, versioning, branching or permission
+Files may be the unit of check in/check out, versioning, branching or permission
 checking. 
 \end{description}
 
@@ -136,8 +136,8 @@ the DSL tool. Beyond a certain file size, the editor may become sluggish.}
 
 
 It is often useful to ensure that each partition is processable separately to
-reduce processing times. An alternative approach supports the explict definition
-of those partitions that should be processed in a given processor run (or at
+reduce processing times. An alternative approach supports the explicit
+definition of those partitions that should be processed in a given processor run (or at
 least a search path, a set of directories, to find the partitions, like an
 include path in C compilers or the Java classpath). You might even consider a
 separate build step to combine the results created from the separate processing
@@ -206,7 +206,7 @@ checked (at runtime) for all components that provide the respective interface.}
   values of arguments for validity. Postconditions express constraints on the
   values of \ic{query} operations after the execution of the operation. Notice
   how the value of the \ic{query} before executing the operation can be
-  referred to (the \ic{old} keyword used in the postconditin for
+  referred to (the \ic{old} keyword used in the postcondition for
   \ic{accelerateBy}). In addition, protocols constrain the valid sequence of
   operation invocations. For example, the \ic{accelerateBy} operation can only
   be used if the protocol state machine is already in the \ic{forward} state.
@@ -348,7 +348,7 @@ problem.}
 component In this case, the new version may specify or additional
 provided ports with the same interfaces or new versions of these interfaces. It
 may deprecate required ports. Effectively, this means that the new version of
-something must be replacement-compabible with the old version (the Liskov
+something must be replacement-compatible with the old version (the Liskov
 substitution principle again).}
 
 \pension{In the pension workbench, calculation rules declare applicability
@@ -371,7 +371,7 @@ Note that there are two kinds of DSLs that don't make use of these kinds of
 behavior descriptions. Some DSLs really just specify structures. Examples
 include data definition languages or component description languages (although
 both of them often use expressions for derived data, data validation or pre- and
-post-conditions). Other DSLs specify a set of exepectations regarding some
+post-conditions). Other DSLs specify a set of expectations regarding some
 behavior (declaratively), and the generator creates the algorithmic
 implementation. For example, a DSL may specify, simply with a tag such as
 \emph{async}, that the communication between two components shall be
@@ -503,8 +503,8 @@ compiler or runtime system can allocate the program to available computational
 resources. In \emph{constraint programming}, the programmer specifies
 constraints between a set of variables. The engine tries to find values for
 these variables that satisfy all constraints. Solving mathematical equation
-systems is an example, as is solving sets of boolean logic formulas. \emph{Logic
-programming} is another subparadigm of declarative programming where users
+systems is an example, as is solving sets of Boolean logic formulas. \emph{Logic
+programming} is another sub-paradigm of declarative programming where users
 specify logic clauses (facts and relations) as well as queries. A theorem prover
 tries to solve the queries\marginnote{The Prolog language works this way}.
 
@@ -516,15 +516,15 @@ network traffic. This is an example of constraint solving used to synthesize a
 schedule.}
 
 \embc{This DSL supports presence conditions for product line engineering. A
-presence condition is a boolean expression over a set of configuration features
+presence condition is a Boolean expression over a set of configuration features
 that determines whether the associated piece of code is present for a given
 combination of feature selections (\fig{presencecond}). To verify the structural
 integrity of programs in the face of varying feature combinations, constraint
 programming is used (to ensure that there is no configuration of the program
 where a reference to a symbol is included, but the referenced symbol is not).
-From the program, the presence conditions and the feature model a set of boolean
+From the program, the presence conditions and the feature model a set of Boolean
 equations is generated. A solver then makes sure they are consistent by trying
-to find an example solution that violates the boolean equations.}
+to find an example solution that violates the Boolean equations.}
 
 \begin{figure}[h]
   \rule{1\textwidth}{0.7pt}
@@ -745,7 +745,7 @@ research :-)}. A couple of combinations are very typical:
 \noindent Note that these combinations can be used to make well-established
 paradigms domain specific. For example, in the Yakindu State Chart Tools
 (\fig{statemachines}), a custom DSL can be plugged into an existing, reusable
-state machine language and edtor. One concrete example is an action language
+state machine language and editor. One concrete example is an action language
 that references another DSL that describes UI structures. This way, the state
 machine can be used to orchestrate the behavior of the UI.
 

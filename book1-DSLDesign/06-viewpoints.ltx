@@ -131,7 +131,7 @@ hardware structures (see \fig{viewpointsInRefrigerators}).}
 \begin{center}
   \includegraphics[width=10cm]{figures-design/viewpointsInRefrigerators.png}
   \caption{The hardware fragment is independent, and sufficient for generation
-  of hardware digrams and documentation. The algorihtms fragment depends on the
+  of hardware diagrams and documentation. The algorithms fragment depends on the
   hardware fragment. The two of them together are sufficient for generating the
   controller code. Tests depend on the algorithm. There are many test fragments
   for a single algorithm fragment.}
@@ -167,7 +167,7 @@ holding an overriding table name under program element that represents thetable
 
 \subsection{Viewpoint Consistency} 
 \updateSlides{}
-If viewpoints are used, constraints have to be defined to check concistency of
+If viewpoints are used, constraints have to be defined to check consistency of
 the viewpoints. A dependent viewpoint fragment contains program elements that
 reference program elements in another fragment. It is straight forward to check
 that the target elements of these actually exist, since the reference will break
@@ -195,10 +195,10 @@ determines into which fragment the created element should go}.
 The second problem is more fundamental: it is not clear what constitutes
 \emph{the whole world}. The fragment with the persistence mapping for a given
 \ic{Entity} may reside on a different machine or be under the control of a
-different user. It may not be acccessible to the constraint checker when the
+different user. It may not be accessible to the constraint checker when the
 user edits the business data fragment. To solve this problem, it is necessary to
-define explictly what \emph{the world} is, using some kind of configuration. For
-example, a C compiler's include path or Java's classpath are ways of defining
+define explicitly what \emph{the world} is, using some kind of configuration.
+For example, a C compiler's include path or Java's classpath are ways of defining
 the scope within which the overall system description must be complete. This
 does not necessarily have to be done by each developer who, for example, works
 on the business data. But at the point when the final system is generated or
@@ -208,7 +208,7 @@ and hence the synchronization could be automated. MPS has a nice way of
 automatically executing a quick fix for a constraint violation. If the
 constraint detects an inconsistency between viewpoints, the quick fix can
 automatically correct the problem. This solves the \emph{whole world} problem
-neatly, since every dependend fragment is "corrected" as soon as it is opened in
+neatly, since every dependent fragment is "corrected" as soon as it is opened in
 the editor.}
 
 
@@ -244,8 +244,8 @@ cross-cutting in the domain can be handled completely by the execution engine.
 For example the collection of performance data, billing information
 or audit logs typically does not have to be described in the DSL at all. Since
 every program in the domain has to address this concern in the same way, the
-implementation can be handled by the exection engine by inserting the respective
-code at the relevant locations (in case of a generator). 
+implementation can be handled by the execution engine by inserting the
+respective code at the relevant locations (in case of a generator). 
 
 \comparch{The component architecture DSL supports the collection of performance
 data. Using mock objects, we started running load tests early on. For a load
