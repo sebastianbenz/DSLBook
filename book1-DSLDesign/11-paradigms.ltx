@@ -24,16 +24,17 @@ the language designer as a means of managing overall complexity. For this reason
 they may be hard to "sell" to domain experts.}
 
 
-\subsection{Modularization and Visibility} DSLs often provide some kind of logical
-unit structure, such as namespaces or modules. Visibility of symbols may be
-restricted to the same unit, or to referencing ("importing") units. Symbols may
-be declared as public or private, the latter making them changeable without
-consequences for using modules.\marginnote{Most contemporary programming
-languages use some form of namespaces and visibility restriction as their top
-level structure.} Some form of namespaces and visibility is necessary in almost
-any DSL. Often there are domain concepts that can play the role of the module,
-possibly oriented towards the structure of the organization in which the DSL is
-used. 
+\subsection{Modularization and Visibility} 
+
+DSLs often provide some kind of logical unit structure, such as namespaces or
+modules. Visibility of symbols may be restricted to the same unit, or to
+referencing ("importing") units. Symbols may be declared as public or private,
+the latter making them changeable without consequences for using
+modules.\marginnote{Most contemporary programming languages use some form of
+namespaces and visibility restriction as their top level structure.} Some form
+of namespaces and visibility is necessary in almost any DSL. Often there are
+domain concepts that can play the role of the module, possibly oriented towards
+the structure of the organization in which the DSL is used.
 
 
 \embc{As a fundamental extension to C, this DSL contains modules with visibility
@@ -57,18 +58,20 @@ coarse-grained packages that are aligned with the structure of the pension
 insurance business.}
 
 
+\subsection{Partitioning} 
+
 \marginnote[0.95cm]{If a repository-based tool is used, the importance of
 paritioning is greatly reduced. Although even in that case, there may be a set
 of federated and distributed repositories that can be considered partitions.}
-\subsection{Partitioning} Partitioning refers to the breaking down of programs into
-several physical units such as files (typically each model fragment is stored in
-its own partition). These physical units do not have to correspond to the
-logical modularization of the models within the partitions. For example, in Java
-a public class has to live in a file of the same name (logical module ==
-physical partition), whereas in C\# there is no relationship between namespace,
-class names and the physical file and directory structure. A similar
-relationship exists between partitions and viewpoints, although in most cases,
-different viewpoints are stored in different partitions.
+Partitioning refers to the breaking down of programs into several physical units
+such as files (typically each model fragment is stored in its own partition).
+These physical units do not have to correspond to the logical modularization of
+the models within the partitions. For example, in Java a public class has to
+live in a file of the same name (logical module == physical partition), whereas
+in C\# there is no relationship between namespace, class names and the physical
+file and directory structure. A similar relationship exists between partitions
+and viewpoints, although in most cases, different viewpoints are stored in
+different partitions.
 
 
 Note that a reference to an element should not take into account the partition
@@ -163,20 +166,22 @@ because well-known versioning tools have used the approach for a long time.
 
 
 
-\subsection{Specification vs. Implementation} Separating specification and
-implementation supports plugging in different implementations for the same
-specification and hence provides a way to "decouple the outside from the
-inside"\footnote{Interfaces, pure abstract classes, traits or function
-signatures are a realization of this concept in programming languages.}. This
-supports the exchange of several implementations behind a single interface. This
-is often required as a consequence of the development process: one stakeholder
-defines the specification and a client, whereas another stakeholder provides one
-or more implementations\marginnote{The separation of specification and
-implementation can also have positive effects on scalability and performance. If
-the specification and implementation are separated into different fragments,
-then, in order to type check a client's access to some provided service, only
-the fragment that contains the specification has to be loaded/parsed/checked,
-which is obviously faster than processing complete implementation.}. 
+\subsection{Specification vs. Implementation} 
+
+Separating specification and implementation supports plugging in different
+implementations for the same specification and hence provides a way to "decouple
+the outside from the inside"\footnote{Interfaces, pure abstract classes, traits
+or function signatures are a realization of this concept in programming
+languages.}. This supports the exchange of several implementations behind a
+single interface. This is often required as a consequence of the development
+process: one stakeholder defines the specification and a client, whereas another
+stakeholder provides one or more implementations\marginnote{The separation of
+specification and implementation can also have positive effects on scalability
+and performance. If the specification and implementation are separated into
+different fragments, then, in order to type check a client's access to some
+provided service, only the fragment that contains the specification has to be
+loaded/parsed/checked, which is obviously faster than processing complete
+implementation.}.
 
 A challenge for this approach is how to ensure that all implementations are
 consistent with the specification. Traditionally, only the
@@ -227,14 +232,16 @@ program is written.}
 
 
 
-\subsection{Specialization} Specialization enables one entity to be a more
-specific variant of another one. Typically, the more specific one can be used in
-all contexts where the more general one is expected (the Liskov substitution
-principle\cite{LiskovW94}). The more general one may be incomplete, requiring
-the specialized ones to "fill in the holes".\marginnote{In GPLs, we know this
-approach from class inheritance. "Leaving holes" is realized by abstract
-methods.} Specialization in the context of DSLs can be used for implementing
-variants or for evolving a program over time.
+\subsection{Specialization} 
+
+Specialization enables one entity to be a more specific variant of another one.
+Typically, the more specific one can be used in all contexts where the more
+general one is expected (the Liskov substitution principle\cite{LiskovW94}). The
+more general one may be incomplete, requiring the specialized ones to "fill in
+the holes".\marginnote{In GPLs, we know this approach from class inheritance.
+"Leaving holes" is realized by abstract methods.} Specialization in the context
+of DSLs can be used for implementing variants or for evolving a program over
+time.
  
 Note that defining the semantics of inheritance for domain-specific language
 concepts is not always easy. The various approaches found in programming
@@ -265,27 +272,30 @@ super-program cannot be removed.}
 
 
 
-\subsection{Types and Instances} Types and instances refers to the ability to
-define a structure that can be parametrized when it is
-instantiated\marginnote{In programming languages we know this from classes and
-objects (where constructor parameters are used for parametrization) or from
-components (where different instances can be connected differently to other
-instances).}. It supports reusing the fixed parts, and expressing variability
-via the parameters.
+\subsection{Types and Instances} 
+
+Types and instances refers to the ability to define a structure that can be
+parametrized when it is instantiated\marginnote{In programming languages we know
+this from classes and objects (where constructor parameters are used for
+parametrization) or from components (where different instances can be connected
+differently to other instances).}. It supports reusing the fixed parts, and
+expressing variability via the parameters.
 
 \embc{Apart from C's \lcr{structs} (which are instantiatable data structures)
 and components (which can be instantiated and connected), state machines can
 be instantiated as well. Each instance can be in a different state at any given
 time.}
 
-\subsection{Superposition and Aspects} Superposition\marginnote{This is
-especially important in the context of product line engineering and is discussed
-in section \todo{ref} of this book.} refers to the ability to merge several
-model fragments according to some DSL-specific merge operator. Aspects provide a
-way of "pointing to" several locations in a program based on a pointcut operator
-(essentially a query over a program or its execution), adapting the model in
-ways specified by the aspect. Both approaches support the compositional creation
-of many different model variants from the same set of model fragments.
+\subsection{Superposition and Aspects} 
+
+Superposition\marginnote{This is especially important in the context of product
+line engineering and is discussed in section \todo{ref} of this book.} refers to
+the ability to merge several model fragments according to some DSL-specific
+merge operator. Aspects provide a way of "pointing to" several locations in a
+program based on a pointcut operator (essentially a query over a program or its
+execution), adapting the model in ways specified by the aspect. Both approaches
+support the compositional creation of many different model variants from the
+same set of model fragments.
 
 \comparch{This DSL provides a way of advising component definitions from an
 aspect (\fig{monitoring}). An aspect may introduce an additional port
@@ -312,12 +322,14 @@ essentially a use of superposition.}
 
 
 
-\subsection{Versioning} Often, variability over time of elements in DSL programs
-have to be tracked. One alternative is to simply version the model files using
-existing version control systems, or the version control mechanism built into
-the language workbench. However, this requires users to interact with often
-complex version control systems and prevents domain-specific adaptations of the
-version control strategy.
+\subsection{Versioning} 
+
+Often, variability over time of elements in DSL programs have to be tracked. One
+alternative is to simply version the model files using existing version control
+systems, or the version control mechanism built into the language workbench.
+However, this requires users to interact with often complex version control
+systems and prevents domain-specific adaptations of the version control
+strategy.
 
 The other alternative is to make versioning and tracking over time a part of the
 language. For example, model elements may be tagged with version numbers or
@@ -347,10 +359,6 @@ plans can be shown with only the version of a rule valid for a given point in
 time.}
 
 
-\todo{here}
-
-
-
 \section{Behavior}
 \label{parabeh}
 
@@ -363,11 +371,12 @@ Note that there are two kinds of DSLs that don't make use of these kinds of
 behavior descriptions. Some DSLs really just specify structures. Examples
 include data definition languages or component description languages (although
 both of them often use expressions for derived data, data validation or pre- and
-post-conditions). Other DSLs only specify the kind of behavior expected, and the
-generator creates the algorithmic implementation. For example, a DSL may
-specify, simply with a tag such as \emph{async}, that the communication between
-two components shall be asynchronous. The generator then maps this to an
-implementation that behaves according to this specification.
+post-conditions). Other DSLs specify a set of exepectations regarding some
+behavior (declaratively), and the generator creates the algorithmic
+implementation. For example, a DSL may specify, simply with a tag such as
+\emph{async}, that the communication between two components shall be
+asynchronous. The generator then maps this to an implementation that behaves
+according to this specification.
 
 \comparch{The component architecture DSL is an example of a structure-only DSL,
 since it only describes black box components and their interfaces and
@@ -377,60 +386,60 @@ component port is intended for synchronous or asynchronous communication.}
 \embc{The component extension to provides a similar notion of interfaces, ports
 and components as in the previous example. However, since here they are directly
 integrated with C, C expression can be used for pre- and post-conditions of
-interface operations (\fig{precond}).}
+interface operations (see \fig{ppc}).}
 
-\begin{figure}[h]
-  \rule{1\textwidth}{0.7pt}
-  \vspace{-0.5cm}
-  \includegraphics[width=9cm]{figures-design/embc/precond.png}
-  \caption[][0.3cm]{Precondiditions can be added to interface operations. They
-  are executed at the beginning of everry runnable that implements the
-  particular operation.}
-  \label{precond}
-  \rule{1\textwidth}{0.7pt}
-\end{figure} 
-  
+
 \marginnote{This is only an overview over a few paradigms; many more
 exist. I refer to the excellent Wikipedia entry on \emph{Programming Paradigms} and to
 the book\cite{RoyH2004}}
 This section describes some of the most well-known behavioral paradigms that
 can serve as useful starting points for behavior descriptions in
-DSLs.
+DSLs. In addition to describing the paradigm, we also briefly investigate how
+easy programs using the paradigm can be analyzed, and how complicated it is to
+build debuggers.
  
-\subsection{Imperative} \marginnote[0.5cm]{For many people, often including
-domain experts, this approach is most obvious. Hence it is often a good starting point
-for DSLs.} Imperative programs consist of a sequence of statements, or
-instructions, that change the state of a program. This state may be local to
-some kind of module (e.g. a procedure or an object), global (as in global
-variables) or external (when talking to periphery). Procedural and
-object-oriented programming are both imperative, using different means for
-structuring and (in case of OO) specialization. Because of aliasing and side
-effects imperative programs are expensive to analyse. Debugging imperative
-programs is straight forward and involves stepping through the instructions and
-watching the state change.
+\subsection{Imperative} 
+
+\marginnote[4mm]{For many people, often including domain experts, this approach
+is easy to understand. Hence it is often a good starting point for DSLs.}
+Imperative programs consist of a sequence of statements, or instructions, that
+change the state of the program. This state may be local to some kind of module
+(e.g. a procedure or an object), global (as in global variables) or external
+(when communicating with peripheral devices). Procedural and object-oriented
+programming are both imperative, using different means for structuring and (in
+case of OO) specialization. Because of aliasing and side effects, imperative
+programs are expensive to analyse. Debugging imperative programs is straight
+forward and involves stepping through the instructions and watching the state
+change.
 
 \embc{Since C is used as a base language, this language is fundamentally
-imperative. Some of the DSLs on top of it use other paradigms.}
+imperative. Some of the DSLs on top of it use other paradigms (the state
+machine extension is state-based, for example).}
 
-\cooling{The cooling language uses various paradigms, but contains sequences
-of statements to implement aspects of the overall cooling behavior.}
+\cooling{The cooling language integrates various paradigms, but contains
+sequences of statements to implement aspects of the overall cooling behavior.}
 
-\subsection{Functional} Functional programming uses functions as the core
-abstraction. In purely functional programming, a function's return value only
-depends on the values of its arguments. Calling the same function several times
-with the same argument values returns the same result (that value may even be
-cached!). Functions cannot access global mutable state, no side effects are
-allowed. These characteristics make functional programs very easy to analyze and
-optimize. These same characteristics, however, also make purely functional
-programming relatively useless, because it cannot affect the environment (after
-all, this is a side effect). So, functional programming is often obly used for
-parts ("calculation core") of an overall program  that uses other
-paradigms as well. 
+
+
+
+\subsection{Functional} 
+
+Functional programming uses functions as the core abstraction. In purely
+functional programming, a function's return value only depends on the values of
+its arguments. Calling the same function several times with the same argument
+values returns the same result (that value may even be cached!). Functions
+cannot access global mutable state, no side effects are allowed. These
+characteristics make functional programs very easy to analyze and optimize.
+These same characteristics, however, also make purely functional programming
+relatively useless, because it cannot affect its environment (after all, this
+would be a side effect). So, functional programming is often only used for parts
+("calculation core") of an overall program and integrates with, for example, an
+imperative part that deals with IO.
 
 Since there is no state to watch change as the program steps through
 instructions, debugging can be done by simply showing all intermediate results
-of all function calls, basically "inspecting" the state of the calculation. This
-makes building debuggers relatively simple. 
+of all function calls as some kind of tree, basically "inspecting" the state of
+the calculation. This makes building debuggers relatively simple. 
 
 \pension{The calculation core of pension rules is functional. Consequently, a
 debugger has been implemented that, for a given set of input data, shows the
@@ -444,54 +453,66 @@ rules as a tree where all intermediate results of each function call are shown
   \label{debugger}
 \end{figure}
 
-A relevant subset of functional programming is pure expressions (as in \ic{3*2+7
-> i}. Instead of calling functions, operators are used. However, operators are
-just inline-notations for function calls. Usually the operators are hard wired
-into the language and it is not possible for users to define their own
-functional abstractions. This is the main differentiator to functional
-programming in general.
+An important subset of functional programming is pure expressions (as in \ic{i >
+3*2 + 7}. Instead of calling functions, operators are used. However, operators
+are just infix notations for function calls. Usually the operators are hard
+wired into the language and it is not possible for users to define their own
+functional abstractions. The latter the main differentiator to functional
+programming in general. It also limits expressivity, since it is not possible to
+modularize an expression or to reuse expressions by packaging into a
+user-defined function. Consequently, only relatively simply tasks can be
+addressed with a pure expression language\sidenote{However, many DSLs do not
+require anything more sophisticated, especially if powerful domain-specific
+operators are available. So, while expression languages are limited in some
+sense, they are still extremely useful and widespread.}.
 
 \embc{We use expressions in the guard conditions of the state machine
 extension as well as in pre- and post-conditions for interface operations. In
 both cases it is not possible to define or call external functions. Of course,
-C's expression language is reused here.}
+(a subset of) C's expression language is reused here.}
 
-\subsection{Declarative} Declarative programming can be considered the opposite of
-imperative programming (and, to some extent, functional programming). A
-declarative program does not specify any control flow. It does not specify a
-sequence of steps of a calculation. Instead, a declarative program only
-specifies \emph{what} the program should accomplish, not \emph{how}. This is
-often done by specifying a set of properties, equations, relationships or
-constraints. Some kind of evaluation engine then tries to find solutions. The
-particular advantage of this approach is that it is not predefined how a
-solution is found, the evaluation engine has a lot of freedom in doing so,
-possibly using different solutions in different environments, or evolving the
-approach over time\footnote[][-0.5cm]{For example, the strategies for
-implementing SAT solvers have evolved quite a bit over time. SAT solvers are
-much more scalable today. However, the formalism for describing the logic
-formulas that are processed by SAT solvers have not changed}. This large degree
-of freedom often makes finding the solution expensive --- trial and error,
-backtracking or exhaustive search may be used\sidenote{So, often users have to
-provide hints to the engine to make it run fast enough or scale to programs of
-relevant size. In practice, declarative programming is often not as "pure" as it
-is in theory.}. Debugging declarative programs can be hard since the solution
-algorithm may be very complex and possibly not even be known to the user of the
-language.
+
+
+\subsection{Declarative} 
+
+Declarative programming can be considered the opposite of imperative programming
+(and, to some extent, functional programming). A declarative program does not
+specify any control flow, it does not specify a sequence of steps of a
+calculation. A declarative program only specifies \emph{what} the
+program should accomplish, not \emph{how}. This is often achieved by specifying
+a set of properties, equations, relationships or constraints. Some kind of
+evaluation engine then tries to find solutions. The particular advantage of this
+approach is that it is not predefined how a solution is found, the evaluation
+engine has a lot of freedom in doing so, possibly using different approaches in
+different environments, or evolving the approach over
+time\footnote[][-0.5cm]{For example, the strategies for implementing SAT solvers
+have evolved quite a bit over time. SAT solvers are much more scalable today.
+However, the formalism for describing the logic formulas that are processed by
+SAT solvers have not changed}. This large degree of freedom often makes finding
+the solution expensive --- trial and error, backtracking or exhaustive search
+may be used\sidenote{So, often users have to provide hints to the engine to make
+it run fast enough or scale to programs of relevant size. In practice,
+declarative programming is often not as "pure" as it is in theory.}. Debugging
+declarative programs can be hard since the solution algorithm may be very
+complex and possibly not even be known to the user of the language.
 
 Declarative programming has many important subgroups and use cases. For
 \emph{concurrent programs}, a declarative approach allows the efficient
-execution of the same program on different parallel hardware. The compiler or
-runtime system can allocate the program to available computational resources. In
-\emph{constraint programming}, the programmer specifies constraints between a
-set of variables. The engine tries to find values for these variables that
-satisfy all constraints. Solving mathematical equation systems is an example,
-as is solving sets of boolean logic formulas.
+execution of a single program on different parallel hardware structures. The
+compiler or runtime system can allocate the program to available computational
+resources. In \emph{constraint programming}, the programmer specifies
+constraints between a set of variables. The engine tries to find values for
+these variables that satisfy all constraints. Solving mathematical equation
+systems is an example, as is solving sets of boolean logic formulas. \emph{Logic
+programming} is another subparadigm of declarative programming where users
+specify logic clauses (facts and relations) as well as queries. A theorem prover
+tries to solve the queries\marginnote{The Prolog language works this way}.
 
 \comparch{This DSL specifies timing and resource characteristics for component
 and interface operations. Based on this data, one could run an algorithm which
 allocates the component instances to computing hardware so that the hardware is
 used as efficiently as possible, while at the same time reducing the amount of
-bus traffic. This is an example of constraint solving used to synthesize a
+network traffic. This is an example of constraint solving used to synthesize a
 schedule.}
 
 \embc{This DSL supports presence conditions for product line engineering. A
@@ -503,8 +524,7 @@ programming is used (to ensure that there is no configuration of the program
 where a reference to a symbol is included, but the referenced symbol is not).
 From the program, the presence conditions and the feature model a set of boolean
 equations is generated. A solver then makes sure they are consistent by trying
-to find an example solution that violates the boolean equations.
-\todo{cite: refer to DSL impl chapter, and to literature (Czarnecki)} }
+to find an example solution that violates the boolean equations.}
 
 \begin{figure}[h]
   \rule{1\textwidth}{0.7pt}
@@ -543,8 +563,6 @@ calculates the output of an overall block diagram.}
 
 
 
-
-
 \genex{Another example for declarative programming is the type system DSL used
 by MPS itself. Language developers specify a set of type equations containing
 free type variables, among other things. A unification engine tries to solve the
@@ -552,20 +570,21 @@ set of equations by assigning actual types to the free type variables so that
 the set of equations is consistent. We describe this approach in detail in
 section \todo{ref}}
 
-\emph{Logic programming} is another subparadigm of declarative programming where
-users specify logic clauses (facts and relations) as well as queries. A theorem
-prover tries to solve the queries\marginnote{The Prolog language works this
-way}.
 
-\subsection{Reactive/Event-based/Agent} In this paradigm, behavior is triggered
-based on events received by some entity. Events may be created by another entity
-or by the environment (through a device driver). Reactions are expressed by the
-production of other events. Events may be globally visible or explicitly routed
-between entities, possibly using filters and/or using priority queues. This
-approach is often used in embedded systems that have to interact with the real
-world, where the real world produces events as it changes. A variant of this
-approach queries input signals at intervals controlled by a scheduler and
-considers changes in input signals as the events.
+
+
+
+\subsection{Reactive/Event-based/Agent} 
+
+In this paradigm, behavior is triggered based on events received by some entity.
+Events may be created by another entity or by the environment (through a device
+driver). Reactions are expressed by the creation of other events. Events may
+be globally visible or explicitly routed between entities, possibly using
+filters and/or using priority queues. This approach is often used in embedded
+systems that have to interact with the real world, where the real world produces
+events as it changes. A variant of this approach queries input signals at
+intervals controlled by a scheduler and considers changes in input signals as
+the events.
 
 \cooling{The cooling algorithms are reactive programs that control the cooling
 hardware based on environment events. Such events include the opening of a
@@ -600,27 +619,29 @@ with the debugging process.}
 \end{figure} 
 
 
+\subsection{Dataflow} 
+
 \begin{marginfigure}[3cm]
   \includegraphics[width=4cm]{figures-design/graphicalFlow.png}
   \caption{Graphical Notation for Flow}
   \label{graphicalFlow2}
 \end{marginfigure} 
-\subsection{Dataflow} The dataflow paradigm is centered around variables with
-dependencies (relationships in terms of calculation rules) among them. As a
-variable changes, those variables that depend on the changing variable are
-recalculated. We know this approach mainly from two use cases. One is
-spreadsheets: cell formulas express dependencies to other cells. As the values
-in these other cells change, the dependent cells are updated. The other use case
-is data flow (or block) diagrams (\fig{graphicalFlow2}, used in embedded
-software, extraction-transfer-load data processing systems and enterprise
+The dataflow paradigm is centered around variables with dependencies (in terms
+of calculation rules) among them. As a variable
+changes, those variables that depend on the changing variable are recalculated. We know
+this approach mainly from two use cases. One is spreadsheets: cell formulas
+express dependencies to other cells. As the values in these other cells change,
+the dependent cells are updated. The other use case is data flow (or block)
+diagrams (\fig{graphicalFlow2}, used in embedded software,
+extraction-transfer-load data processing systems and enterprise
 messaging/complex event processing. There, the calculations or transformations
 are encapsulated in the blocks, and the lines represent dependencies --- the
 output of one blocks "flows" into input slot of another block. There are three
-different execution modes:
+different execution modes:
 
 \begin{itemize}
   \item The first one considers the data values as continuous signals. At the
-  time one of the inputs changes, all dependent values are recalculated, the
+  time one of the inputs changes, all dependent values are recalculated. The
   change triggers the recalculation, and the recalculation ripples through the
   dependency graph. This is the model used in spreadsheets.
   \item The second one considers the the data values quantized, unique messages.
@@ -636,25 +657,29 @@ different execution modes:
 \end{itemize}
 
 \noindent Debugging these kinds of systems is relatively straight forward
-because the calculation is always in a distinct state. Dependencies and data flow, or the
-currently active block and the available messages can easily be visualized in a
-block diagram notation. Note that the calculation rules themselves are
-considered black boxes here, whose inside may be built from any other paradigm,
-often functional. Integrating debuggers for the inside of boxes as well is a
-more challenging task.
+because the calculation is always in a distinct state. Dependencies and data
+flow, or the currently active block and the available messages can easily be
+visualized in a block diagram notation. Note that the calculation rules
+themselves are considered black boxes here, whose inside may be built from any
+other paradigm, often functional. Integrating debuggers for the inside of boxes
+is a more challenging task.
 
 
-\subsection{State-based} The state-based paradigm describes a system's behavior
-in terms of the states the system can be in, the transitions between these
-states as well as events that trigger these transitions and actions that are
-executed as states change. State machines are useful for systematically
-organizing the behavior of an entity. It can also be used to describe valid
-sequences of events, messages or procedure calls. State machines can be used in
-an event-driven mode where incoming events actually trigger transitions and the
-associated actions. Alternatively a state machine can be run in a timed mode,
-where a scheduler determines when event queues are checked and processed. Except
-for possible real-time issues, state machines are easy to debug by highlighting
-the contents of event queues and the current state.
+\subsection{State-based} 
+
+The state-based paradigm describes a system's behavior in terms of the states
+the system can be in, the transitions between these states as well as events
+that trigger these transitions and actions that are executed as states change.
+State machines are useful for systematically organizing the behavior of an
+entity. It can also be used to describe valid sequences of events, messages or
+procedure calls. State machines can be used in an event-driven mode where
+incoming events actually trigger transitions and the associated actions.
+Alternatively a state machine can be run in a timed mode, where a scheduler
+determines when event queues are checked and processed. Except for possible
+real-time issues, state machines are easy to debug by highlighting the contents
+of event queues and the current state\footnote{Except for the imperative
+paradigm and simple expression languages, state machines are probably the
+paradigm that is most often used in DSLs.}.
 
 \embc{As mentioned before, this language provides an extension that supports
 directly working with state machines. Events can be passed into a state machine
@@ -672,17 +697,16 @@ domain-specific data structures: refrigerator hardware and their properties.}
 
 As mentioned before, state-based behavior description is also interesting in the
 context of model checking. The model checker either determines that the state
-chart conforms to a set of specifications or provides a counter example.
-Specifications express something about sequences of states such as: "it is not
-possible that two traffic lights show green at the same time" or "whenever a
-pedestrian presses the \ic{request} button, the pedestrian lights eventually
-will show green"\marginnote[-2cm]{We provide some details about model checking in the
-implementation part \todo{ref}. A good introduction to model checking can be
-found in \cite{BerardBidoitM2001}. We elaborate on model checking in section.}
-\todo{ref}. 
+chart conforms to a set of specifications or provides a counter example that
+violates the specifications. Specifications express something about sequences of
+states such as: "it is not possible that two traffic lights show green at the
+same time" or "whenever a pedestrian presses the \ic{request} button, the
+pedestrian lights eventually will show green"\marginnote[-2cm]{We provide some
+details about model checking in the implementation part \todo{ref}. A good
+introduction to model checking can be found in \cite{BerardBidoitM2001}.}.
 
-In principle, any program can be represented as a state machine and then model
-checked. However, creating state machines from, say, a procedural C program is
+In principle, any program can be represented as a state machine and can then
+model checked. However, creating state machines from, say, a procedural C program is
 non-trivial, and the state machines also become very big very quickly.
 State-based programs \emph{are already} a state machine, and, they are typically
 not that big either (after all, they have to be understood by the developer who
@@ -721,11 +745,16 @@ research :-)}. A couple of combinations are very typical:
 \noindent Note that these combinations can be used to make well-established
 paradigms domain specific. For example, in the Yakindu State Chart Tools
 (\fig{statemachines}), a custom DSL can be plugged into an existing, reusable
-state machine language and edtor. Some of the case studies used in this section
-of the book also use combinations of several paradigms.
+state machine language and edtor. One concrete example is an action language
+that references another DSL that describes UI structures. This way, the state
+machine can be used to orchestrate the behavior of the UI.
+
+
+Some of the case studies used as examples in this part of the book also use
+combinations of several paradigms.
 
 \pension{The pension language uses functional abstractions with mathematical
-symbols for the core actuary mathematics. A functional language with a normal
+symbols for the core actuary mathematics. A functional language with a plain
 textual syntax is used for the higher-level pension calculation rules. A
 spreadsheet/data flow language is used for expressing unit tests for pension
 rules. Various nesting levels of namespaces are used to organize the rules, the
