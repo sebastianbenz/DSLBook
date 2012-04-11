@@ -678,11 +678,11 @@ of criteria to help with this decision.
 	be inspected to check whether it resembles code that had previously been written
 	manually in the DSL's domain. Writing the transformation rules can be guided by
 	the established patterns and idioms in $L_{D-1}$. Interpreters are meta
-	programs and as such harder to relate to existing code
-	patterns.
+	programs and as such harder to relate to existing code patterns.
+	
 	\item[Debugging] Debugging generated code is straight forward if the code
 	is well structured (which is up to the transformation) and an execution
-	paradigm is used for which a decent debugging appraoch exists (not the case
+	paradigm is used for which a decent debugging approach exists (not the case
 	for many declarative approaches). Debugging interpreters is harder, because,
 	they are meta programs. For example, setting breakpoints in the DSL program
 	requires the use of conditional breakpoints in the interpreter, which are 
@@ -692,6 +692,7 @@ of criteria to help with this decision.
 	DSL. However, since building DSL debuggers is not directly supported by most
 	language workbenches, this is a lot of work --- and users are required to debug
 	on $L_{D-1}$.}
+	
 	\item[Performance and Optimization] The code generator can perform
 	optimizations that result in small and tight generated code. The compiler for
 	the generated code may come with its own optimizations which are used
@@ -703,6 +704,7 @@ of criteria to help with this decision.
 	Generally, performance is better in generated environments, since 
 	interpreters always imply an additional layer of indirection during the
 	execution of the program.
+	
 	\item[Platform Conformance] Generated code can be tailored to any target
 	platform. The code can look exactly as manually written code would look, no
 	support libraries are required. This is important for systems where the source code
@@ -710,28 +712,62 @@ of criteria to help with this decision.
 	and/or certification. Also if artifacts need to be supplied to the
 	platform that are not directly executable (descriptors, meta data), code generation is
 	more suitable.
+	
 	\item[Modularization] When incrementally building DSLs on top of existing
 	languages, it is natural to use transformations to $L_{D-1}$. \sidenote{While it is
 	theoretically possible to also extend interpreters incrementally along a
 	hierarchy of languages, I have not seen this in practice. Interpreters are
 	typically written in a GPL.}
+	
 	\item[Turnaround Time] Turnaround time for interpretation is better than
 	for generation: no generation, compilation and packaging step is required.
 	Especially for target languages with slow compilers, large amounts of generated
 	code can be a problem.
+	
 	\item[Runtime Change] In interpreted environments, the DSL program can be
 	changed as the target system runs; the DSL editor can even be integrated into
 	the target system\sidenote{The term data-driven system is often used in this
 	case.}.
 \end{description}
 
+
+\cooling{There were two reasons for implementing the interpreter for the
+cooling programs. The first was that initially we didn't have a code generator
+because the target architecture was not yet defined. To be able to execute
+cooling programs, we needed an interpreter and simulator. Second, the
+turn-around time for the domain experts as the experimented with the DSL
+programs is much reduced compared to generating, compiling and running C code.
+The (interpreted) simulator also allowed the domain experts to run the programs
+at a speed they could follow. This proved an important means of understanding
+and debugging the asynchronous reactive cooling programs.}
+
+\embc{This DSL exploits incremental extension to the C programming language
+(inductive DSL definition). In this case it is natural to use transformation to
+$L_{D-1}$ as a means of defining the semantics of extensions. Also, since the
+target domain is embedded software, performance, code size and reuse of the
+optimizations provided by the C compiler is essential. Interpretation was never
+an option.}
+
+\comparch{The driving factor for using generation over interpretation was
+platform conformance. The reason for the DSL is to automate the generation of
+target platform artifacts and thereby make working with the platform more
+efficient.}
+
+\pension{Turnaround time was important for the pension contract specification.
+Also, the domain experts, as the created the pension plans, did not have access
+to the final execution platform. An in-IDE interpreter was clearly the best
+choice.}
+
+\exwebdsl{Platform conformance was key here. Web applications have to use the
+established web standards, and the necessary artifacts have to be generated. An
+interpreted approach would not work in this scenario.}
+
+
 Combinations between the two approaches are also possible. For example,
 transformation can create an intermediate representation which is then
 interpreted. Or an interpreter can generate code on the fly as a means of
 optimization. While this approach is common in GPLs (e.g. the JVM), we
 have not seen this approach used for DSLs. 
-
-\todo{here}
 
 \subsection{Sufficiency}
 

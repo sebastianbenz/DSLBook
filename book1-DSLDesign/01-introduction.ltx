@@ -110,19 +110,22 @@ questions such as: "does the language adequately cover the domain?", since it
 always does, by definition.
 
 There are two more useful approaches. In the \emph{inductive} or
-\emph{bottom-up} approach we define a domain in terms of existing software. That
-is, a domain $D$ is identified as a set of programs
-with common characteristics or similar purpose. Notice how at this point we do
-\emph{not} imply a special language to express them. They could be expressed in any Turing
-complete language. Often, such domains do not exist outside the realm of
-software. An especially interesting case of the inductive approach is where we
-define a domain as a subset of programs written in a specific language $P_l$
-instead of the more general set $P$. In this case we can often clearly
-identify the commonalities among the programs in the domain, in the form of
-their consistent use of a set of domain-specific patterns or idioms\footnote{Some
-people have argued for a long time that the need to use idioms or patterns in a
-language is a smell, and should be understood as hints at missing
-language features: http://bit.ly/715wiF}. This makes building a DSL for $D$ relativelysimple, because we know exactly what the DSL has to cover, and we know what codeto generate from DSL programs.
+\emph{bottom-up} approach we define a domain in terms of existing software used
+to address a particular class of problems or products. That is, a domain $D$ is
+identified as a set of programs with common characteristics or similar purpose.
+Notice how at this point we do \emph{not} imply a special language to express
+them. They could be expressed in any Turing complete language. Often, such
+domains do not exist outside the realm of software. An especially interesting
+case of the inductive approach is where we define a domain as a subset of
+programs written in a specific language $P_l$ instead of the more general set
+$P$. In this case we can often clearly identify the commonalities among the
+programs in the domain, in the form of their consistent use of a set of
+domain-specific patterns or idioms\footnote{Some people have argued for a long
+time that the need to use idioms or patterns in a language is a smell, and
+should be understood as hints at missing language features:
+http://bit.ly/715wiF}. This makes building a DSL for $D$ relatively simple,
+because we know exactly what the DSL has to cover, and we know what code to
+generate from DSL programs.
 
 \embc{The domain of this DSL has been defined bottom-up. Based on idioms
 commonly employed when using C for embedded software development, linguistic
@@ -141,9 +144,9 @@ organization.}
 
 
 The second approach for defining a domain is \emph{deductive} or
-\emph{top-down}. In this approach, a domain is considered a body of knowledge in
-the real world, i.e. outside the realm of software. From this perspective, a domain $D$
-is a body of knowledge for which we want to provide some form of software
+\emph{top-down}. In this approach, a domain is considered a body of knowledge
+about the real world, i.e. outside the realm of software. From this perspective,
+a domain $D$ is a body of knowledge for which we want to provide some form of software
 support. $P_D$ is the subset of programs in $P$ that
 implement interesting computations in $D$. This case is much harder to addressusing DSLs, because we first have to understand precisely the nature of thedomain and identify the interesting programs in that domain.
 
@@ -314,6 +317,10 @@ correctness using various forms of tests. A secondary purpose is the generation
 of the complete calculation engine for the computing center and the website.}
 
 
+The purpose of a DSL may also change over time. Consequently, this may require
+changes to the abstractions or notations used in the language. From a technical
+perspective, this is just like any other case of language evolution (discussed
+in \sect{process}).
 
 
 
@@ -385,8 +392,8 @@ and tree construction.
 
 \parhead{Fragments} A program may be composed from several program
 \emph{fragments}. A fragment is a standalone tree, a partial program.
-Conversely, a program is a set of fragments. $E_f$ is the set of program
-elements in a fragment $f$.
+Conversely, a program is a set of fragments connected by references (discussed
+below). $E_f$ is the set of program elements in a fragment $f$.
 \begin{marginfigure}[-30mm]
 \begin{center}
   \includegraphics[width=3cm]{figures-design/fragment.png} 

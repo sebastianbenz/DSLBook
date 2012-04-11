@@ -6,19 +6,19 @@
 
  
 Completeness\sidenote{This has nothing to do with Turing-completeness.} refers
-to the degree to which a language $L$ is able to express \emph{complete} programs. 
-Let us introduce a function $G$ ("code generator")
-that transforms a program $p$ in ${L_D}$ to a program $q$ in $L_{D-1}$. For a
-complete language, $p$ and $q$ have the same semantics, i.e. $OB(p) == OB(G(p))
-== OB(q)$ (see \sect{semantics}). For incomplete languages where $OB(G(p))
-\subset OB(p)$ we have to write additional code in $L_{D-1}$, to obtain a 
-program in $D_{-1}$ that has the
-same semantics as intended by the original program in $L_D$.\marginnote{Another
-way of stating this is that $G$ produces a program in $L_{D-1}$ that is not
-sufficient for a subsequent transformation (e.g. a compiler), only the manually
-written $L_{D-1}$ code leads the sufficiency.} In cases where we use several
-viewpoints to represent various concerns of $D$, the set of fragments written
-for these concerns must be enough for complete $D_{-1}$ generation. 
+to the degree to which a language $L$ is able to express programs that contain
+all information for them to be executed. Let us introduce a function $G$ ("code
+generator") that transforms a program $p$ in ${L_D}$ to a program $q$ in
+$L_{D-1}$. For a complete language, $p$ and $q$ have the same semantics, i.e.
+$OB(p) == OB(G(p)) == OB(q)$ (see \sect{semantics}). For incomplete languages
+where $OB(G(p)) \subset OB(p)$ we have to write additional code in $L_{D-1}$, to
+obtain a program in $D_{-1}$ that has the same semantics as intended by the
+original program in $L_D$.\marginnote{Another way of stating this is that $G$
+produces a program in $L_{D-1}$ that is not sufficient for a subsequent
+transformation (e.g. a compiler), only the manually written $L_{D-1}$ code leads
+the sufficiency.} In cases where we use several viewpoints to represent various
+concerns of $D$, the set of fragments written for these concerns must be enough
+for complete $D_{-1}$ generation.
 
 \embc{The Embedded C language is complete regarding $D_{-1}$, or even $D_{-m}$
 for higher levels of $D$, since higher levels are always built as extensions of

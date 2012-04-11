@@ -3,6 +3,7 @@
 
 
 \chapter{Process Issues} 
+\label{process}
 
 \chapterabstract{Software development with DSLs requires a compatible
 development process. A lot of what's required is similar to what's required for
@@ -395,4 +396,89 @@ suitable to the domain. If you encounter this problem, take it as a warning sign
 and consider changing the language.
 
     
+\subsection{DSL Evolution}
+
+A DSL that is successfully used will have to evolved. Just as for any other
+software artifact, requirements evolve over time and the software has to reflect
+these changes. In the context of DSLs, the changes can be driven by several
+different concerns:
+
+\begin{description}
+
+  \item[Target Platform Changes] The target platform may change because of the
+  availability of new technologies that provide better performance, scalability
+  or usability. Ideally, no changes to either the language or the models are
+  necessary: a new execution engine for the changed target platform can be
+  created. In practice it is now always so clean: the DSL may make assumptions
+  about the target platform that are no longer true for the changed or new
+  platform. These may have to be removed from the languages and existing models.
+  Also, the new platform may support different execution options, and the
+  existing models do not contain enough information to make the decision which
+  option to take. In this case, additional annotation models may become
+  necessary\footnote{Despite the caveats discussed in this paragraph, the
+  target platform change is typically relatively simple to handle.}.
+
+  \item[Domain Changes] As the domain evolves, it is likely that the language
+  has to evolve as well\footnote{If you use a lot of in-language abstraction or
+  a standard library, you may be lucky and the changes can be realized without
+  changes to the language.}. The problem then is: what do you do with existing
+  models? You have two fundamental changes: keep the old language around and
+  don't change the models or evolve the existing models to work with the new
+  language. The former is often not really practical, especially in the face of
+  several such changes. 
+  
+  The degree to which evolving existing models is painful depends a lot on the
+  nature of the change\footnote{... as well as the DSL tool. Different tools
+  support model evolution in different ways.}. The most pragmatic approach keeps
+  the new version of the language backward compatible, so that existing models
+  can still be edited and processed. Under this premise, adding new language
+  concepts is never a problem. However, you must never just delete existing
+  concepts or change them in an incompatible way. Instead, these old concepts
+  should be marked as \emph{deprecated}, and the editor will show an
+  corresponding warning in the IDE. The IDE may also provide a quick fix to
+  change the old, deprecated concept to a new (version of the) concept, if such
+  a mapping is straight forward. Otherwise the migration must be done manually.
+  If you have access to \emph{all} models, you may also run a batch
+  transformation during a quiet period to migrate them all at once. Notice that,
+  although deprecation has a bad rep from programming languages where deprecated
+  concepts are never removed, this is not necessarily comparable to DSLs: if,
+  after a while, people still use the deprecated concepts, you can have the IDE
+  send an email to the language developers who can then work with the "offending
+  user" to migrate the programs.
+  
+  Note that for the above approach to work, you have to have a structure process
+  for versioning the languages and tools, otherwise you will end up in version
+  chaos quickly. 
+
+  \item[DSL Tool Changes] The third change is driven by evolution of the DSL
+  tool. Of course, the language definition (and potentially, the existing
+  models) may have to evolve if the DSL tool changes in an incompatible way
+  (which, one could argue, it shouldn't!). This is similar to every other tool,
+  library of framework you may use. People seem particularly afraid of the
+  situation where they have to switch to a completely new DSL tool because the
+  current one is no longer supported, or a new one is just better. Of course it
+  is very likely that you'll have to completely redo the language definitions:
+  there is no portability in terms of language definitions among DSL tools (not
+  even among those that reside on Eclipse). However, if you had designed your
+  languages well you will likely be able to \emph{automatically transform existing
+  models} into the new tool's data structures\sidenote[][-1\baselineskip]{It is
+  easy to see that over time the real value is in the \emph{models}, and not so much in the
+  language definitions and IDEs. Rebuilding those is hence not such a big
+  deal, especially if we consider that a new, better tool likely requires less
+  effort to build the languages.}. 
+  
+  One central pillar of using DSLs is the high degree to which they support
+  separation of concerns and expressing domain knowledge at a level of
+  abstraction that makes the domain semantics obvious, avoiding complex reverse
+  engineering problems. Consequently you can generate all kinds of artifacts
+  from the models. This characteristic also means that it is relatively straight
+  forward to write a generator that creates a representation of the model in a
+  new tool's data structures\sidenote[][-2\baselineskip]{For example, we have
+  built a generic MPS to EMF exporter. It works for meta models as well as for the models.}.
+  
+\end{description}
+
+
+\subsection{Avoiding Uncontrolled Growth and Fragmentation}
+
 
