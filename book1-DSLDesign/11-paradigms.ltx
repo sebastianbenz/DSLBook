@@ -3,19 +3,16 @@
 \chapter{Fundamental Paradigms}
 \label{learnFromGPLs}
 
-\todo{here}
-
-
-\chapterabstract{Every DSL is different. It is driven by the domain to which it applies. However,
-as it turns out, there are also a number of commonalities between DSLs. These
-can be handled by modularizing and reusing (parts of) DSLs as discussed in the
-\emph{next} section. In \emph{this} section we look at common paradigms for
-describing DSL structure and behavior.}
+\chapterabstract{Every DSL is different. It is driven by the domain for which it
+is built. However, as it turns out, there are also a number of commonalities
+between DSLs. These can be handled by modularizing and reusing (parts of) DSLs
+as discussed in the last section of the previous chapter. In \emph{this} section
+we look at common paradigms for describing DSL structure and behavior.}
 
 
 
 
-\subsection{Structure}
+\section{Structure}
 
 Languages have to provide means of structuring large programs in order to keep
 them manageable. Such means include modularization and encapsulation,
@@ -27,10 +24,10 @@ the language designer as a means of managing overall complexity. For this reason
 they may be hard to "sell" to domain experts.}
 
 
-\parhead{Modularization and Visibility} DSLs often provide some kind of logical
+\subsection{Modularization and Visibility} DSLs often provide some kind of logical
 unit structure, such as namespaces or modules. Visibility of symbols may be
-restricted to the same unit, or in referenced ("imported") units. Symbols may be
-declared as public or private, the latter making them changeable without
+restricted to the same unit, or to referencing ("importing") units. Symbols may
+be declared as public or private, the latter making them changeable without
 consequences for using modules.\marginnote{Most contemporary programming
 languages use some form of namespaces and visibility restriction as their top
 level structure.} Some form of namespaces and visibility is necessary in almost
@@ -40,10 +37,10 @@ used.
 
 
 \embc{As a fundamental extension to C, this DSL contains modules with visibility
-specifications and imports (\fig{modules}). Functions, state machines, tasks and
+specifications and imports. Functions, state machines, tasks and
 all other top-level concepts reside in modules. Header files (which are
 effectively a poor way of managing symbol visibility) are only used in the
-generated low level code.}
+generated low level code and not relevant to the user of mbeddr C.}
 
 
 
@@ -59,25 +56,37 @@ distributed system, only the interface bundle is deployed on the client.}
 coarse-grained packages that are aligned with the structure of the pension
 insurance business.}
 
+
 \marginnote[0.95cm]{If a repository-based tool is used, the importance of
-paritioning is greatly reduced. Although even in that case, there may be a set of federated and
-distributed repositories that can be considered partitions.}
-\parhead{Partitioning} Partitioning refers to the breaking down of programs
-into several physical units such as files. These physical units do not have to
-correspond to the logical modularization of the models within the partitions.
-Typically each model fragment is stored in its own partition. For example, in
-Java a public class has to live in a file of the same name (logical module ==
+paritioning is greatly reduced. Although even in that case, there may be a set
+of federated and distributed repositories that can be considered partitions.}
+\subsection{Partitioning} Partitioning refers to the breaking down of programs into
+several physical units such as files (typically each model fragment is stored in
+its own partition). These physical units do not have to correspond to the
+logical modularization of the models within the partitions. For example, in Java
+a public class has to live in a file of the same name (logical module ==
 physical partition), whereas in C\# there is no relationship between namespace,
 class names and the physical file and directory structure. A similar
 relationship exists between partitions and viewpoints, although in most cases,
 different viewpoints are stored in different partitions.
 
-Partitioning may have consequences for language design. Consider a DSL where an
-concept A contains a list of instances of concept B. The B instances then have
-to be physically nested within an instance of A in the concrete syntax. If there
-are many instances of B in a given model, they cannot be split into several
-files. If such a split should be possible, this has to be designed into the
-language. 
+
+Note that a reference to an element should not take into account the partition
+in which the target element lives. Instead, it should only use the logical
+structure. Consider an element \ic{E} that lives in a namespace \ic{x.y},
+stored in a partition \ic{mainmodel}. A reference to that element should
+be expressed as \ic{x.y.E}, not as \ic{mainmodel.E} or \ic{mainmodel/x.y.E}.
+This is important to allow elements to move freely between partitions without
+this leading to updates of all references to the element. 
+
+
+Partitioning may have consequences for language design. Consider a textual DSL
+where an concept A contains a list of instances of concept B. The B instances
+then have to be physically nested within an instance of A in the concrete
+syntax. If there are many instances of B in a given model, they cannot be split
+into several files, so these files may become big and result in performance
+problems. If such a split should be possible, this has to be designed into the
+language.
 
 \comparch{A variant of this DSL that was used in another project had to be
 changed to allow a namespaces to be spread over several files for
@@ -92,25 +101,29 @@ design decision lead to a significant reimplementation effort because all kinds
 of naming and scoping strategies changed.}
 
 
-\noindent Other concerns influence the design of a partitioning strategy:
+
+
+
+\noindent Other concerns influence the design of a partitioning strategy as
+well:
 
 \begin{description}
 
-\item[Change Impact] which partition changes as a consequence of a particular
+\item[Change Impact] Which partition changes as a consequence of a particular
 change of the model (changing an element name might require changes to all
 references to that element from other partitions)
 
-\item[Link Storage] where are links stored (are they always stored in the model
+\item[Link Storage] Where are links stored (are they always stored in the model
 that logically "points to" another one)?, and if not, how/where/when to control
 reference/link storage.
 
 \item[Model Organzation] Partitions may be used as a way of organizing the
 overall model. This is particularly important if the tool does not provide a
-good means of showing the overall logical structure of models and finding
+good means of presenting the overall logical structure of models and finding
 elements by name and type. Organizing files with meaningful names in directory
 structures is a workable alternative.
 
-\item[Tool Chain Integration] integration with existing, file based tool chains.
+\item[Tool Chain Integration] Integration with existing, file based tool chains.
 Files may be the unit of checkin/checkout, versioning, branching or permission
 checking. 
 \end{description}
@@ -123,52 +136,84 @@ It is often useful to ensure that each partition is processable separately to
 reduce processing times. An alternative approach supports the explict definition
 of those partitions that should be processed in a given processor run (or at
 least a search path, a set of directories, to find the partitions, like an
-include path in C compilers). You might even consider a separate build step to
-combine the results created from the separate processing steps of the various
-partitions (again like a C compiler: it compiles every file separately into an
-object file, and then the linker handles overall symbol/reference resolution and
-binding).
+include path in C compilers or the Java classpath). You might even consider a
+separate build step to combine the results created from the separate processing
+steps of the various partitions (again like a C compiler: it compiles every file
+separately into an object file, and then the linker handles overall
+symbol/reference resolution and binding).
 
 The partitioning scheme may also influence users' team collaboration when
 editing models. There are two major collaboration models: real-time and
-commit-based. In real-time collaboration, a user sees his model change when
-another user changes that same model. Change propagation is immediate. A
+commit-based. In real-time collaboration, a user sees his model change in real
+time as another user changes that same model. Change propagation is immediate. A
 database-backed repository is often a good choice regarding storage, since the
 granularity tracked by the repository is the model element. In this case, the
 partitioning may not be visible to the end user, since they just work "on the
 repository". This approach is often (at least initially) preferred by
-non-programmer DSL users.
-
-The other collaboration mode is commit-based where a user's changes only make it
-to the repository if he performs a \emph{commit}, and incoming changes are only
-visible after a user has performed an \emph{update}. While this approach can be
-used with database-backed repositories, it is most often used with file-based
-storage. In this case, the partitioning scheme is visible to DSL users, because
-it is those files they commit or update. This approach tends
-to be preferred by developers, maybe because well-known versioning tools have
-used the approach for a long time.
+non-programmer DSL users. The other collaboration mode is commit-based where a
+user's changes only make it to the repository if he performs a \emph{commit},
+and incoming changes are only visible after a user has performed an
+\emph{update}. While this approach can be used with database-backed
+repositories, it is most often used with file-based storage. In this case, the
+partitioning scheme is visible to DSL users, because it is those files they
+commit or update. This approach tends to be preferred by developers, maybe
+because well-known versioning tools have used the approach for a long time.
 
 
-\parhead{Specification vs. Implementation} Separating specification and
+
+
+
+\subsection{Specification vs. Implementation} Separating specification and
 implementation supports plugging in different implementations for the same
 specification and hence provides a way to "decouple the outside from the
-inside". Interfaces, pure abstract classes, traits or function signatures are a
-realization of this concept in programming languages. This supports the exchange
-of several implementations behind a single interface. This is often required as
-a consequence of the development process: one stakeholder defines the
-specification and a client, whereas another stakeholder provides one or more
-implementations.\marginnote[-35mm]{The separation of specification and implementation can also
-have positive effects on scalability and performance. If the specification and
-implementation are separated into different fragments, then, in order to 
-type check a client's access to some provided service, only the
-fragment that contains the specification has to be loaded/parsed/checked, which
-is obviously faster than processing complete implementation.}
+inside"\footnote{Interfaces, pure abstract classes, traits or function
+signatures are a realization of this concept in programming languages.}. This
+supports the exchange of several implementations behind a single interface. This
+is often required as a consequence of the development process: one stakeholder
+defines the specification and a client, whereas another stakeholder provides one
+or more implementations\marginnote{The separation of specification and
+implementation can also have positive effects on scalability and performance. If
+the specification and implementation are separated into different fragments,
+then, in order to type check a client's access to some provided service, only
+the fragment that contains the specification has to be loaded/parsed/checked,
+which is obviously faster than processing complete implementation.}. 
+
+A challenge for this approach is how to ensure that all implementations are
+consistent with the specification. Traditionally, only the
+structural/syntactic/signature compatibility is checked. To ensure 
+semantic compatibility, additional means that specify the expected
+\emph{behavior} are required. This can be achieved with pre or post conditions,
+invariants or protocol state machines. 
 
 
 \embc{This DSL adds interfaces and components to C. Components provide or use
 one or more interfaces. Different components can be plugged in behind the same
-interface. In contrast to C++, no runtime polymorphism is supported, the
-translation to plain C maps method invocation to flat function calls.}
+interface. To support semantic specifications, the interfaces support pre- and
+post conditions as well as protocol state machines. \fig{ppc} shows an example.
+Although these specifications are attached to interfaces, they are actually
+checked (at runtime) for all components that provide the respective interface.}
+
+\begin{figure}[h]
+  \rule{1\textwidth}{0.7pt}
+  \vspace{-0.5cm}
+  \includegraphics[width=90mm]{figures-design/embc/ppc.png}
+  \caption{An interface using semantic specifications. Preconditions check the
+  values of arguments for validity. Postconditions express constraints on the
+  values of \ic{query} operations after the execution of the operation. Notice
+  how the value of the \ic{query} before executing the operation can be
+  referred to (the \ic{old} keyword used in the postconditin for
+  \ic{accelerateBy}). In addition, protocols constrain the valid sequence of
+  operation invocations. For example, the \ic{accelerateBy} operation can only
+  be used if the protocol state machine is already in the \ic{forward} state.
+  The system gets into the \ic{forward} state by invoking the
+  \ic{driveContinuoslyForward} operation.}
+  \vspace{2mm}
+  \label{ppc} 
+  \rule{1\textwidth}{0.7pt} 
+\end{figure}  
+
+
+
 
 \cooling{Cooling programs can refer to entities defined as part of the
 refrigerator hardware as a means of accessing hardware elements (compressors,
@@ -181,56 +226,70 @@ refrigerator that implements the particular set of traits against which the
 program is written.}
 
 
-\parhead{Specialization} Specialization enables one entity to be a more
+
+\subsection{Specialization} Specialization enables one entity to be a more
 specific variant of another one. Typically, the more specific one can be used in
 all contexts where the more general one is expected (the Liskov substitution
 principle\cite{LiskovW94}). The more general one may be incomplete, requiring
 the specialized ones to "fill in the holes".\marginnote{In GPLs, we know this
 approach from class inheritance. "Leaving holes" is realized by abstract
 methods.} Specialization in the context of DSLs can be used for implementing
-variants or of evolving a program over time.
+variants or for evolving a program over time.
+ 
+Note that defining the semantics of inheritance for domain-specific language
+concepts is not always easy. The various approaches found in programming
+languages, as well as the fact that some of them lead to problems (multiple
+inheritance, diamond inheritance, linearization, or code duplication in Java's
+interface inheritance) shows that this is not a trivial topic. It is a good idea
+to just copy a suitable approach \emph{completely} from a programming language
+where inheritance seems to work well. Even small changes can make the whole
+approach inconsistent.
  
  
 \pension{The customer using this DSL had the challenge of creating a huge set of
 pension plans, implementing changes in relevant law over time, or implementing
 related plans for different customer groups. Copying complete plans and then
 making adaptations was not feasible, because this resulted in a maintenance
-nightmare --- a large number of similar, but not identical pension plans. Hence
-the DSL provides a way for pension plans to inherit from one another. Calculation rules can be marked \emph{abstract} (requiring overwriting in sub-plans), \emph{final} rules
-are not overwritable. Visibility modifiers control which rules are considered
-"implementation details".}
+nightmare: a large number of similar, but not identical pension plans. Hence the
+DSL provides a way for pension plans to inherit from one another. Calculation
+rules can be marked \emph{abstract} (requiring to be overwritten in sub-plans),
+\emph{final} rules are not overwritable. Visibility modifiers control which
+rules are considered "implementation details".}
 
 \cooling{A similar approach is used in the refrigerator DSL. Cooling programs
 can specialize other cooling programs. Since the programs are fundamentally
-state-based, we had to define what exactly it means to override a pumping 
-program.}
+state-based, we had to define what exactly it means to override a cooling
+program: a subprogram can add additional event handlers and transitions to
+states. New states can also be added. However, states defined in the
+super-program cannot be removed.}
 
-\parhead{Types and Instances} Types and instances refers to the ability to
+
+
+\subsection{Types and Instances} Types and instances refers to the ability to
 define a structure that can be parametrized when it is
-instantiated.\marginnote{In programming languages we know this from classes and
+instantiated\marginnote{In programming languages we know this from classes and
 objects (where constructor parameters are used for parametrization) or from
 components (where different instances can be connected differently to other
-instances).}
+instances).}. It supports reusing the fixed parts, and expressing variability
+via the parameters.
 
 \embc{Apart from C's \lcr{structs} (which are instantiatable data structures)
 and components (which can be instantiated and connected), state machines can
 be instantiated as well. Each instance can be in a different state at any given
 time.}
 
-\parhead{Superposition and Aspects} Superposition\marginnote{This is
+\subsection{Superposition and Aspects} Superposition\marginnote{This is
 especially important in the context of product line engineering and is discussed
-in\cite{VoelterVisser2011} and in section of this book.} \todo{ref} refers to
-the ability to merge several model fragments according to some DSL-specific merge
-operator. Aspects provide a way of "pointing to" several locations in a program
-based on a pointcut operator (essentially a query over a program or its
-execution), adapting the model in ways specified by the aspect. Both approaches
-support the compositional creation of many different model variants from the
-same set of model fragments.
+in section \todo{ref} of this book.} refers to the ability to merge several
+model fragments according to some DSL-specific merge operator. Aspects provide a
+way of "pointing to" several locations in a program based on a pointcut operator
+(essentially a query over a program or its execution), adapting the model in
+ways specified by the aspect. Both approaches support the compositional creation
+of many different model variants from the same set of model fragments.
 
-
-\comparch{This DSL provides a way of advising component definitions, for example
-to introduce additional ports from an aspect (\fig{monitoring}). An aspect may
-introduce a port \ic{provided port mon: IMonitoring} that allows a central monitoring component
+\comparch{This DSL provides a way of advising component definitions from an
+aspect (\fig{monitoring}). An aspect may introduce an additional port
+\ic{provided port mon: IMonitoring} that allows a central monitoring component
 to query the adviced components via the \lcr{IMonitoring} interface.}
 
 \begin{figure}[h]
@@ -243,42 +302,42 @@ to query the adviced components via the \lcr{IMonitoring} interface.}
   \rule{1\textwidth}{0.7pt}
 \end{figure} 
 
-
-
 \exwebdsl{Entity declarations can be \emph{extended} in separate modules. This
 makes it possible to declare in one module all data model declarations of a
 particular feature. For example, in the \emph{researchr} application, a
 \lcr{Publication} can be \lcr{Tag}ged, which requires an extension of the
 \lcr{Publication} entity. This extension is defined in the \lcr{tag}
-module, together with the definition of the \lcr{Tag} entity.}
+module, together with the definition of the \lcr{Tag} entity. This is
+essentially a use of superposition.}
 
-\parhead{Versioning} Often, artifacts within DSL programs have to be tracked
-over time. One alternative is to simply version the model files using existing
-version control systems, or the version control mechanism built into the
-language workbench. However, this requires users to interact with often complex
-version control systems and prevents domain-specific adaptations of the version
-control strategy.
+
+
+\subsection{Versioning} Often, variability over time of elements in DSL programs
+have to be tracked. One alternative is to simply version the model files using
+existing version control systems, or the version control mechanism built into
+the language workbench. However, this requires users to interact with often
+complex version control systems and prevents domain-specific adaptations of the
+version control strategy.
 
 The other alternative is to make versioning and tracking over time a part of the
-language. For example, model elements can be tagged with version numbers or
-specify a revision chain by pointing to a previous revision, and enforcing
+language. For example, model elements may be tagged with version numbers or
+specify a revision chain by pointing to a previous revision, enforcing
 compatibility constraints between those revisions. Instead of declaring explicit
 versions, business data is often time-dependent, where different revisions of a
 business rule apply to different periods of time. Support for these approaches
 can be built directly into the DSL, with various levels of tool support.
 
 \embc{No versioning is defined into the DSL. Users work with MPS'
-integration with popular version control systems.}
+integration with popular version control systems. Since this DSL is intended
+for use by programmers, working with existing version control systems is not a
+problem.}
 
-\comparch{Interfaces can specify a \lcr{new version of} reference to another
-interface. If they do so, a constraint enforces that the new version provides at
-least the same operations as the old version, plus optional additional ones.
-\lcr{new version of} can also be used between components. In this case, the new
-version has to have the same (or additional) provided ports with the same
-interfaces or new versions of these interfaces. It must have the same or fewer
-required ports. Effectively, this means that the new version of something must
-be replacement-compabible with the old version (the Liskov substitution
-principle again).}
+\comparch{Components can specify a \lcr{new version of} reference to another
+component In this case, the new version may specify or additional
+provided ports with the same interfaces or new versions of these interfaces. It
+may deprecate required ports. Effectively, this means that the new version of
+something must be replacement-compabible with the old version (the Liskov
+substitution principle again).}
 
 \pension{In the pension workbench, calculation rules declare applicability
 periods. This supports the evolution of calculation rules over time, while
@@ -287,7 +346,12 @@ time. Since the Intentional Domain Workbench is a projectional tool, pension
 plans can be shown with only the version of a rule valid for a given point in
 time.}
 
-\subsection{Behavior}
+
+\todo{here}
+
+
+
+\section{Behavior}
 \label{parabeh}
 
 The behavior expressed with a DSL must of course be aligned with the needs of
@@ -333,7 +397,7 @@ This section describes some of the most well-known behavioral paradigms that
 can serve as useful starting points for behavior descriptions in
 DSLs.
  
-\parhead{Imperative} \marginnote[0.5cm]{For many people, often including
+\subsection{Imperative} \marginnote[0.5cm]{For many people, often including
 domain experts, this approach is most obvious. Hence it is often a good starting point
 for DSLs.} Imperative programs consist of a sequence of statements, or
 instructions, that change the state of a program. This state may be local to
@@ -351,7 +415,7 @@ imperative. Some of the DSLs on top of it use other paradigms.}
 \cooling{The cooling language uses various paradigms, but contains sequences
 of statements to implement aspects of the overall cooling behavior.}
 
-\parhead{Functional} Functional programming uses functions as the core
+\subsection{Functional} Functional programming uses functions as the core
 abstraction. In purely functional programming, a function's return value only
 depends on the values of its arguments. Calling the same function several times
 with the same argument values returns the same result (that value may even be
@@ -392,7 +456,7 @@ extension as well as in pre- and post-conditions for interface operations. In
 both cases it is not possible to define or call external functions. Of course,
 C's expression language is reused here.}
 
-\parhead{Declarative} Declarative programming can be considered the opposite of
+\subsection{Declarative} Declarative programming can be considered the opposite of
 imperative programming (and, to some extent, functional programming). A
 declarative program does not specify any control flow. It does not specify a
 sequence of steps of a calculation. Instead, a declarative program only
@@ -493,7 +557,7 @@ users specify logic clauses (facts and relations) as well as queries. A theorem
 prover tries to solve the queries\marginnote{The Prolog language works this
 way}.
 
-\parhead{Reactive/Event-based/Agent} In this paradigm, behavior is triggered
+\subsection{Reactive/Event-based/Agent} In this paradigm, behavior is triggered
 based on events received by some entity. Events may be created by another entity
 or by the environment (through a device driver). Reactions are expressed by the
 production of other events. Events may be globally visible or explicitly routed
@@ -541,7 +605,7 @@ with the debugging process.}
   \caption{Graphical Notation for Flow}
   \label{graphicalFlow2}
 \end{marginfigure} 
-\parhead{Dataflow} The dataflow paradigm is centered around variables with
+\subsection{Dataflow} The dataflow paradigm is centered around variables with
 dependencies (relationships in terms of calculation rules) among them. As a
 variable changes, those variables that depend on the changing variable are
 recalculated. We know this approach mainly from two use cases. One is
@@ -580,7 +644,7 @@ often functional. Integrating debuggers for the inside of boxes as well is a
 more challenging task.
 
 
-\parhead{State-based} The state-based paradigm describes a system's behavior
+\subsection{State-based} The state-based paradigm describes a system's behavior
 in terms of the states the system can be in, the transitions between these
 states as well as events that trigger these transitions and actions that are
 executed as states change. State machines are useful for systematically
@@ -627,7 +691,7 @@ machines can be model checked efficiently.
 
 
  
-\subsection{Combinations}
+\section{Combinations}
 
 Many DSLs use combinations of various behavioral and structural paradigms
 described in this section\footnote{Note how this observation leads to the
