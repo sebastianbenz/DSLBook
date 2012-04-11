@@ -1,8 +1,11 @@
                                  
 \subsection{Language Embedding} 
 
+
+
 Language embedding (\fig{langEmbedding}) enables \emph{heterogeneous} fragments
-with \emph{independent} languages. It is similar to reuse in that there are two independent
+with \emph{independent} languages. It is similar to reuse in that there are two 
+independent
 languages $l_1$ and $l_2$, but instead of establishing references
 between two homogeneous fragments, we now embed instances of concepts from $l_2$
 in a fragment $f$ expressed with $l_1$, so
@@ -29,11 +32,12 @@ can be used to achieve this, where
   adapter language $l_A$ is
   added. It depends on both $l_1$ and $l_2$, and uses inheritance and
   composition to adapt $l_1$ to $l_2$ (this is the almost the same structure
-  as in the case of reuse; the difference is that $B5$ now contains $A3$,
+  as in the case of reuse; the difference is that $B5$ now \emph{contains} $A3$,
   instead of just referencing it.)}
   \label{langEmbedding}  
 \end{center} 
 \end{figure}
+
 
 
 Embedding supports syntactic composition of independently developed languages. 
@@ -42,20 +46,38 @@ number of programming languages such as Java or C. If the state machine
 language is used together with Java, then the guard conditions used in the
 transitions should be Java expressions. If it is used with C, then the
 expressions should be C expressions. The two expression languages, or in fact,
-any other one, must be embeddable in the transitions. So the state
+any other one, must be embeddable in the guard conditions. So the state
 machine language cannot depend on any particular expression language, and the
 expression languages of C or Java obviously cannot be designed with knowledge
 about the state machine language. Both have to remain independent, and have to
-be embedded using an adapter language. 
-
-When embedding a language, the embedded language must often be
-extended as well. In the above example, new kinds of expressions must be added
-to support referencing event parameters. These additional expressions will
-typically reside in the adapter language as well.
-
-\marginnote{Note that if the state machine language is specifically built to
-"embed" C expressions, then this is a case of Language Extension, since the
+be embedded using an adapter language.
+\marginnote[-10mm]{Note that if the state machine language is specifically built
+to "embed" C expressions, then this is a case of Language Extension, since the
 state machine language depends on the C expression language.}
+
+Another example is embedding a database query language such as Linq
+or SQL in \emph{different} programming languages (Java, C\#, C). Again, the
+query language may not have a dependency on any programming language (otherwise it
+would not be embeddable in all of them). The problem could be solved by
+extension (with embedding flavor), but then the programming language would have
+to be invasively changed --- it now has to get a dependency on the query
+language. Using embedding, this dependency can be avoided.
+
+When embedding a language, the embedded language must often be extended as well.
+In the state machine example, new kinds of expressions must be added to support
+referencing event parameters defined in the host language. In case of the query
+language, method arguments and local variables should probably me usable as part
+of the queries (\ic{... WHERE somecolumn = someMethodArg}).
+These additional expressions will typically reside in the adapter language as
+well.
+
+Just as in the embedding-flavored extension case (cf. \sect{lext}), sometimes
+the embedded language must also be restricted. If you embed the C expression
+language in state machine guard conditions, you may want to restrict the user
+from using pointer types or all the expressions related to pointers in C.
+
+
+
 
 \exwebdsl{In order to support queries over persistent data, WebDSL embeds the
 Hibernate Query Language (HQL) such that HQL queries can be used as
@@ -63,13 +85,16 @@ expressions. Queries can refer to entity declarations in the program and to
 variables in the scope of the query.}
 
 \pension{The pension workbench DSL embeds a spreadsheet language for expressing
-unit tests for pension plan calculation rules.}
+unit tests for pension plan calculation rules. The spreadsheet language comes
+with its own simple expression language to be used inside the cells. A new
+expression as been added to reference pension rule input parameters so they can
+be used inside the cells.}
 
 
 \parhead{Cross-Cutting Embedding, Metadata} A special case of embedding is
 handling meta data. We define meta data as program elements that are not
 essential to the semantics of the program, and are typically not handled by the
-primary model processor. Nonetheless these data need to related to program
+primary model processor. Nonetheless these data must relate to program
 elements, and, at least from a user's perspective, they often need to be
 embedded in programs. Since most of them are rather generic, embedding is the
 right composition mechanism: no dependency to any specific language should be
@@ -80,8 +105,8 @@ data includes:
   \item[Documentation] should be attachable to any program element, and in the
   documentation text, other program elements should be referencable. 
   \item[Traces] capture typed relationships between program elements or between
-  program elements and requirements or other documentation ("this element
-  \emph{implements} that requirement")
+  program elements and requirements or other documentation ("this program
+  element \emph{implements} that requirement")
   \item[Presence Conditions] in product line engineering describe whether a
   program element should be available in the program for a given product
   configuration ("this procedure is only in the program in the
@@ -89,14 +114,14 @@ data includes:
 \end{description}
 
 In projectional editors, this meta data can be stored in the program tree, and
-shown only if switched on. In textual editors, meta data is often stored in
-separate files, using pointers to refer to the respective model elements. The
-data may be shown in hovers or views adjacent to the editor itself.
+shown only optionally, if some global configuration switch is \ic{true}. In
+textual editors, meta data is often stored in separate files, using pointers to
+refer to the respective model elements. The data may be shown in hovers or views
+adjacent to the editor itself.
 
 \embc{The system supports various kinds of meta data, including traces to
 requirements and documentation. They are implemented with MPS' \emph{attribute}
-mechanism which is discussed in part on MPS in section \sect{tools}. As a
+mechanism which is discussed in part on MPS in \sect{tools}. As a
 consequence of how MPS attributes work, these meta data can be applied to
 program elements defined in any arbitrary language.}
  
-\todo{Discuss the use of restriction for embedding}

@@ -1,23 +1,36 @@
 \subsection{Implementation Challenges and Solutions}
 \label{challenges}
 
+The previous subsections discussed four strategies for language composition. In
+this section we describe some of the challenges regarding syntax, type systems
+and transformations for these four strategies.
+
 \parhead{Syntax} Referencing and Reuse keeps fragments homogeneous. Mixing of
 concrete syntax is not required. A reference between fragments is usually simply
 an identifier and does not have its own internal structure for which a grammar
-would be required. The name resolution phase can then create the actual
-cross-reference between abstract syntax objects. 
+would be required\sidenote{Sometimes the reference use qualified names, in which
+case the strings use dots and colons. However, this is still a trivial token
+structure, so it is acceptable to define the structure separately in both
+languages.}. The name resolution phase can then create the actual
+cross-reference between abstract syntax objects.
 
 \cooling{The algorithm language contains cross-references into the hardware language.
-Those references are simple, dotted names ($a.b.c$).}
+Those references are simple, dotted names such as \ic{compartment1.valve}.}
 
 \genex{In the UI example, the adapter language simply introduces dotted names to
 refer to fields of data structures.}
 
 Extension and Embedding requires modular concrete syntax definitions because
-additional language elements must be "mixed" with programs written with the base
-language. 
+additional language elements must be "mixed" with programs written with the
+base/host language. As we discuss in Part III \todo{ref} of the book, combining
+independently developed languages after the fact can be a problem: depending on
+the parser technology, the combined grammar may not be parseable with the parser
+technology at hand. There are parser technologies that do not exhibit this
+problem, and projectional editors avoid it by definition. However, several
+widely used language workbenches have problems in this respect. For more
+details, see  \todo{ref}.
 
-\begin{marginfigure}
+\begin{marginfigure}[30mm]
   \includegraphics[width=5cm]{figures-design/embc/statemachinmodules.png}
   \caption{The core language (above the dotted line) defines an interface
   \lcr{IModuleContent}. Anything that should be hosted inside a \lcr{Module}
@@ -26,18 +39,19 @@ language.
   \label{statemachinmodules}
 \end{marginfigure}
 \embc{State machines are hosted in regular C programs. This works because the C
-language's \lcr{Module} construct contains a collection of \lcr{ModuleContents},
-and the \lcr{StateMachine} concept extends the \lcr{ModuleContent} concept. This
-state machine language is designed specifically for being embedded into C, so it
-can access and extend the \lcr{ModuleContent} concept
-(\fig{statemachinmodules}). If the state machine language were embeddable in
-any host language in addition to C, this dependency on \lcr{ModuleContent}
-(from the C base language) would not be allowed. An adapter language would have
-to be created which adapts a \lcr{StateMachine} to \lcr{IModuleContent}.}
+language's \lcr{Module} construct contains a collection of
+\lcr{IModuleContents}, and the \lcr{StateMachine} concept implements the
+\lcr{IModuleContent} concept interface. This state machine language is designed
+specifically for being embedded into C, so it can access and extend 
+\lcr{IModuleContent} (\fig{statemachinmodules}). If the state machine
+language were embeddable in any host language in addition to C, this dependency
+on \lcr{ModuleContent} (from the C base language) would not be allowed. An
+adapter language would have to be created which adapts a \lcr{StateMachine} to
+\lcr{IModuleContent}.}
 
 
 
-\parhead{Type Systems} For referencing, the type system rules and constraints
+\parhead{Type Systems} For Referencing, the type system rules and constraints
 of the referencing language typically have to take into account the referenced
 language. Since the referenced language is known when developing the referencing
 language, the type system can be implemented with the referenced language in
@@ -49,18 +63,21 @@ are used to determine which properties can be accessed on the hardware elements
 (e.g. a compressor has a property \lcr{active} that controls if it is turned on
 or off).}
 
-In case of extension, the type systems of the base language must be designed in
+In case of Extension, the type systems of the base language must be designed in
 a way that allows adding new typing rules in language extensions. For example,
 if the base language defines typing rules for binary operators, and the
 extension language defines new types, then those typing rules may have to be
 overridden to allow the use of existing operators with the new types. 
 
-\embc{A language extension provides types with physical units (as in 100 kg).
+\embc{A language extension provides types with physical units (as in \ic{100 kg}).
 Additional typing rules are needed to override the typing rules for C's basic
-operators (+, -, *, /, etc.).}
+operators (+, -, *, /, etc.). MPS supports declarative type system
+specification, so you can just \emph{add} additional typing rules for the case
+where one or both of the arguments have a type with a physical unit.}
 
-For reuse and embedding, the typing rules that affect the interplay between the
-two languages reside in the adapter language.
+For Reuse and Embedding, the typing rules that affect the interplay between the
+two languages reside in the adapter language. The type systems of both languages
+must be extensible in the way described in the previous paragraph on Extension.
 
 \genex{In the UI example the adapter language will have to adapt the data types
 of the fields in the data description to the types the UI widgets expect. For
@@ -77,35 +94,36 @@ tree, while generation describes the case of creating text from program trees.
 However, for the discussions in this section, this distinction is generally not
 relevant.
 
-\begin{marginfigure}
+\begin{marginfigure}[42mm]
   \includegraphics[width=3cm]{figures-design/referencingCaseA.png}
   \caption{Referencing: Two separate, dependent, single-source transformations}
   \label{referencingCaseA}
 \end{marginfigure}
 
-Three cases have to be considered for referencing. The first one
-(\fig{referencingCaseA}) propagates the referencing structure to the
-target fragments. We call these two transformations single-sourced, since each
+Three cases have to be considered for Referencing. The first one
+(\fig{referencingCaseA}) propagates the referencing structure to the target
+fragments. We call these two transformations \emph{single-sourced}, since each
 of them only uses a single, homogeneous fragment as input and creates a single,
-homogeneous fragment, perhaps with references between them. Since the
-referencing language is created with the knowledge about the referenced
+homogeneous fragment as output, typically with references between them. Since
+the referencing language is created with the knowledge about the referenced
 language, the generator for the referencing language can be written with
 knowledge about the names of the elements that have to be referenced in the
-other fragment. If a generator for the referenced language already exists, it
-can be reused unchanged. The two generators basically share naming information.
+fragment generated from the referenced fragment. If a generator for the
+referenced language already exists, it can be reused unchanged. The two
+generators basically share knowledge about the names of generated elements.
 
 \comparch{In the types viewpoint, interfaces and components are defined. The
 types viewpoint is independent, and it is sufficient for the generation of the
 code necessary for implementing component behavior: Java base classes are
 generated that act as the component implementations (expected to be extended by
 manually written subclasses). A second, dependent viewpoints describes component
-instances and their connections (it depends on the types viewpoint). A third one
+instances and their connections;it depends on the types viewpoint. A third one
 describes the deployment of the instances to execution nodes (servers,
 essentially). The generator for the deployment viewpoint generates code that
 actually instantiates the classes that implement components, so it has to know
 the names of those generated (and hand-written) classes.}
   
-\begin{marginfigure}[3.3cm]
+\begin{marginfigure}[2mm]
   \includegraphics[width=3cm]{figures-design/referencingCaseB.png}
   \caption{A single multi-sourced transformation.}
   \label{referencingCaseB}
@@ -113,10 +131,10 @@ the names of those generated (and hand-written) classes.}
 The second case (\fig{referencingCaseB}) is a multi-sourced transformation that
 creates one single homogeneous fragment. This typically occurs if the
 referencing fragment is used to guide the transformation of the referenced
-fragment, for example by specifying target transformation strategies. In this
-case, a new transformation has to be written that takes the referencing fragment
-into account. The possibly existing generator for the referenced language cannot
-be reused as is. 
+fragment, for example by specifying transformation strategies (annotation
+models). In this case, a new transformation has to be written that takes the
+referencing fragment into account. The possibly existing generator for the
+referenced language cannot be reused as is.
 
 \cooling{The refrigerator example uses this case. The code generator that
 generates the C code that implements the cooling algorithm takes into account
@@ -125,7 +143,7 @@ generated from the two input models. The generated code is C-only, so the
 fragment remains homogeneous.}
 
 
-\begin{marginfigure}[3cm]
+\begin{marginfigure}
   \includegraphics[width=3cm]{figures-design/referencingCaseC.png}
   \caption{A preprocessing transformation that changes the referenced fragment in a way
 specified by the referencing fragment}
@@ -133,7 +151,7 @@ specified by the referencing fragment}
 \end{marginfigure}
 The third case, an alternative to rewriting the generator, is the use of a
 preprocessing transformation (\fig{referencingCaseC}), that changes the
-referenced fragment in a way consistent with what the referenced fragment
+referenced fragment in a way consistent with what the referencing fragment
 prescribes. The existing transformations for the referenced fragment can then be
 reused.
 
@@ -141,38 +159,50 @@ reused.
 \seppar As we have discussed above, language extensions are usually created
 by defining linguistic abstractions for common idioms of a domain $D$. A
 generator for the new language concepts can simply recreate those idioms when
-mapping $L_D$ to $L_{D-1}$, a process called assimilation. In other words,
+mapping $L_D$ to $L_{D-1}$, a process also called assimilation. In other words,
 transformations for language extensions map a heterogeneous fragment (containing
 $L_{D-1}$ and $L_D$ code) to a homogeneous fragment that contains only $L_{D-1}$
 code (\fig{transExtension}). In some cases additional files may be generated,
-often configuration files. 
+often configuration files. In any case, the subsequent transformations for
+$L_{D-1}$, if any, can be reused unchanged.
 
-\embc{State machines are generated down to a function that contains a switch/case
-statement, as well as enums for states and events.}
-
-\begin{marginfigure}
+\begin{marginfigure}[-40mm]
   \includegraphics[width=5cm]{figures-design/transExtension.png}
   \caption{Extension: transformation usually
   happens by assimiliation, i.e. generating code in the host language from code
   expressed in the extension language. Optionally, additional files are
-  generated, often some configuration files.}
+  generated, often configuration files.}
   \label{transExtension} 
 \end{marginfigure} 
 
 
+\embc{State machines are generated down to a function that contains a \ic{switch}
+statement, as well as enums for states and events. Then the existing C-to-text
+transformations are reused unchanged. In addition, the state machines are also
+transformed into a dot file that is used to render the state machine
+graphically via graphviz.}
+
 
 Sometimes a language extension requires rewriting transformations defined by the
-base language. 
+base language. In this case, the transformation engine must support
+\emph{overriding} transformations by transformations defined in another
+language.
 
 \embc{In the data-types-with-physical-units example, the language also provides
 range checking and overflow detection. So if two such quantities are added, the
 addition is transformed into a call to a special \lcr{add} function instead of
 using the regular plus operator. This function performs overflow checking and
-addition.}
+addition. MPS supports transformation priorities that can be used to override
+the existing transformation with a new one.}
 
 Language Extension introduces the risk of semantic interactions. The
 transformations associated with several independently developed extensions of
-the same base language may interact with each other.
+the same base language may interact with each other. To avoid the problem,
+transformations should be built in a way so that they do not "consume scarce
+resources" such as inheritance links.\sidenote[][-4\baselineskip]{It would be
+nice if DSL tools would detect such conflicts statically, or at least supported a way of marking
+two languages or extensions as \emph{incompatible}. However, none of the tools
+I know support such features.}
 
 \genex{Consider the (somewhat constructed) example of two extensions to Java
 that each define a new statement. When assimilated to pure Java, both new
@@ -182,38 +212,34 @@ base class.}
 
 Interactions may also be more subtle and affect memory usage or execution
 performance. Note that this problem is not specific to languages, it can occur
-whenever several independent extensions of a base concept can be used together,
-ad hoc. To avoid the problem, transformations should be built in a way so that
-they do not "consume scarce resources" such as inheritance links. A more
-thorough discussion of the problem of semantic interactions is beyond the scope
-of this book.
+whenever several independent extensions of a something can be used together,
+ad hoc. A more thorough discussion of the problem of semantic interactions is
+beyond the scope of this book.
 
-In the reuse scenario, it is likely that both the reused and the
+\seppar In the Reuse scenario, it is likely that both the reused and the
 context language already come with their own generators. If these generators
 transform to different, incompatible target languages, no reuse is possible. If
 they transform to a common target languages (such as Java or C) then the
 potential for reusing previously existing transformations exists.
 
-\begin{marginfigure}[-9cm]
+\begin{marginfigure}[-100mm]
   \includegraphics[width=4cm]{figures-design/reuseCaseA.png}
   \caption{Reuse: Reuse of existing transformations for both fragments plus
   generation of adapter code}
   \label{reuseCaseA} 
 \end{marginfigure} 
 
-
-
 There are three cases to consider. The first one, illustrated in
 \fig{reuseCaseA}, describes the case where there is an existing transformation
 for the reused fragment and an existing transformation for the context fragment
 --- the latter being written with the knowledge that later extension will be
 necessary. In this case, the generator for the adapter language may "fill in the
-holes" left by the reusable generator for the referencing language For example,
+holes" left by the reusable generator for the context language. For example,
 the generator of the context language may generate a class with abstract
 methods; the adapter may generate a subclass and implement these abstract
 methods. 
 
-\begin{marginfigure}[-8cm]
+\begin{marginfigure}[-95mm]
   \includegraphics[width=4cm]{figures-design/reuseCaseB.png}
   \caption{Reuse: composing transformations}
   \label{reuseCaseB} 
@@ -222,10 +248,9 @@ methods.
 
 In the second case, \fig{reuseCaseB}, the existing generator for the
 reused fragment has to be enhanced with transformation code specific to the
-context language. In this case, a mechanism for composing transformations is
-needed. 
+context language. A mechanism for composing transformations is needed. 
 
-\begin{marginfigure}[-2cm]
+\begin{marginfigure}[-30mm]
   \includegraphics[width=4cm]{figures-design/reuseCaseC.png}
   \caption{Reuse: generating
   separate artifacts plus a weaving specification}
@@ -241,13 +266,13 @@ language. An example implementation could use AspectJ.
 
 
 
-\parhead{Embedding} An embeddable language may not come with its own
-generator, since, at the time of implementing the embeddable language, one
-cannot know what to generate. In that case, when embedding the language, a
-suitable generator has to be developed. It will typically either generate host
-language code (similar to generators in the case of language extension) or
-directly generate to the same target language that is generated to by the host
-language.
+\seppar An embeddable language may not come with its own generator, since, at
+the time of implementing the embeddable language, one cannot know what to
+generate --- its purpose is to be embedded! In that case, when embedding the
+language, a suitable generator has to be developed. It will typically either
+generate host language code (similar to generators in the case of language
+extension) or directly generate to the same target language that is generated to
+by the host language.
 
 \begin{marginfigure}
   \includegraphics[width=5cm]{figures-design/transEmbedding.png} 
@@ -264,122 +289,6 @@ target language as the embedding language, then the generator for the
 adapter language can coordinate the two, and make sure a single, consistent
 fragment is generated. \fig{transEmbedding} illustrates this case.
 
-Just a language extension, language embedding may also lead to semantic
+Just as language extension, language embedding may also lead to semantic
 interactions if multiple languages are embedded into the same host language. 
-
-
-
-
-
-\endinput
-
-\todo{This whole tool story needs to go into the implementation section.}
-
-\subsection{Tool Support}
-\label{tools}
-
-\parhead{Eclipse Xtext} Regarding syntax, language referencing is supported by
-Xtext. The grammar language comes with special support to reference concepts
-defined in other languages (or Ecore-based meta model in general). Language
-extension is also supported, but for at most one base language. Consequently,
-language reuse is possible as well. However language embedding is not supported
-because of the limitation to extend only one other language.
-
-Constraints are implemented in Xtext as Java methods that query the AST and
-report errors. Xtext does not directly support a concise definition of type
-systems, but third party solutions exist, (e.g. the Xtext Typesystem
-Framework\footnote{http://code.google.com/a/eclipselabs.org/p/xtext-typesystem/}.
-Xtext also comes with XBase, a reusable expression language. Languages can
-extend Xbase to reuse these expressions. Xbase comes with a framework for type
-calculations. This framework can be extended in a principled way to integrate
-the typing rules of a language that extends XBase.
-
-Xtext comes with a transformation and code generation language called Xtend. It
-supports dependency injection as a first class citizen. This makes it possible
-to override parts of generators selectively, if the original generator developer
-has delegated the relevant parts to injected classes. This facility supports the
-transformation challenges outlined in the previous section nicely.
-
-\parhead{JetBrains MPS} MPS supports syntax composition. Since no grammar is
-used, the extending language simply creates new language constructs, some of
-them extending concepts from the base language. In cases where ambiguity would
-arise in a grammar-based system, MPS requires the language user to decide during
-input which of the alternatives should be used. A language in MPS can extend any
-number of languages. In particular, for a given base language, a program can be
-written using any number of languages extending this base language, without
-first defining a composed language explicitly. For example, a set of extensions
-to C can be developed independently, and users can then decide ad hoc which
-extensions to use in a program (as long as the extensions are semantically
-compatible). From a syntactic perspective, all \lmrc\ approaches are supported
-by MPS without any limits.
-
-MPS also supports restriction. A language concept can restrict under which
-parents it can be used, or which children a concept may have. These constraints
-literally remove the ability to enter constructs that would violate the
-constraints. Using this approach, the unit testing extension to C enforces that
-\lcr{assert} statements can only be used in unit tests and not in any other
-statement list.
-
-MPS has another approach for language embedding called \emph{attributes}. An
-attribute introduces additional parent-child relationships into concepts defined
-in other languages, without invasively changing the definition of that other
-language. By making an attribute apply to \lcr{BaseConcept}, the super concept
-of all concepts (comparable to \lcr{java.lang.Object}), attributes can be made
-applicable to arbitrary program elements, effectively supporting AOP-like
-introductions on language level. Attributes are typically used for
-adding "meta data" such as documentation, presence conditions in product line
-engineering \todo{cite VoelterWorkshopPaper} or requirements traces. 
-
-MPS comes with a DSL for expressing type system rules. It is based on a
-unification engine and supports type inference. For typing rules that should be
-extensible, MPS supports so-called overloaded operation containers. This
-mechanism supports plugging in additional typing rules by adding them to the
-language definition. For example, the typing rules for binary operators in C are
-implemented this way. The language extension that adds types with physical units
-provides additional typing rules for the case when the left and/or right
-argument of a binary operator is a type with a physical unit.
-
-Regarding transformations, MPS distinguishes two cases. The first one covers
-text generation. Text generators are relatively inflexible regarding
-modularization, but they are used only for the lowest level languages (typically
-GPLs covering $D_0$ such as Java or C). All other "generations" happens by
-transformation rules that work on the projected tree, typically using
-assimilation. For example, the concepts in a state machine extension to C are
-transformed back to the concepts in the C language it extends. Overwriting
-existing generators is also possible by modularizing generators in a suitable
-way and then using generator priorities to make the overriding generator run
-before the overridden one. It is also possible to define hooks in generators by
-generating output elements whose only purpose is to be transformed further by
-subsequent generators. By plugging in different subsequent generators, the same
-hook can be transformed into different end results.
-
-Note that MPS does not provide support for systematically handling semantic
-interactions. Transformations will just fail in case an unintended interaction
-occurs. To avoid this, transformations have to be designed carefully. Note that
-a simple approach to lessening the problem would be to be able to declare a
-language as being \emph{incompatible} with another one. In that case an error
-could be reported as soon as the languages are used together in a fragment.
-  
-
-\parhead{SDF/Spoofax} Syntax definition in Spoofax is based on the SDF2 Syntax
-Definition Formalism\cite{Vis97.thesis}. Since SDF uses the Scannerless
-Generalized-LR parsing algorithm, the full class of context-free grammars is
-supported, which is the only grammar class closed under composition, unlike the
-restricted grammar classes of other parser generators. Furthermore, the parser
-does not use a separate lexical analysis phase, but rather considers individual
-tokens as characters, which entails that it supports combination of languages
-with a different lexical syntax, as demonstrated, for example, in the syntax
-definition for AspectJ~\cite{BravenboerTV06}. Thus, SDF supports both extension
-and embedding of languages.
-
-Semantic analysis, transformation, and code generation in Spoofax are defined
-with the Stratego transformation language\cite{VisserBT98,BravenboerKVV08},
-which is based on the paradigm of term rewriting with programmable strategies.
-Basic transformations are defined with rewrite rules and can be combined into
-composite transformations using strategies. Thus, basic rules defining type
-analysis, static semantic constraints, desugarings, and other transformations
-for separate language components can be composed into transformations for
-language compositions. Stratego provides aspects for overriding and adapting
-transformation strategy definitions~\cite{KatsVisser-SCAM-2010}. 
-
 

@@ -1,8 +1,6 @@
 
 \subsection{Language Reuse} 
 
-\todo{here}
-
 Language reuse (\fig{langReuse}) enables \emph{homogenous} fragments with
 \emph{independent} languages. Given are two independent languages $l_2$ and
 $l_1$ and two fragment $f_2$ and $f_1$. $f_2$ depends on $f_1$, so that
@@ -11,7 +9,7 @@ $l_1$ and two fragment $f_2$ and $f_1$. $f_2$ depends on $f_1$, so that
 		f_2\; \wedge \nonumber \\ 
 	&\mathit{fo(r.to)} = (f_1 \vee f_2)
 \end{align}
-\marginnote[-1cm]{One could argue that in this case reuse is just a clever
+\marginnote[-7mm]{One could argue that in this case reuse is just a clever
 combination of referencing and extension. While this is true from an implementation
 perspective, it is worth describing as a separate approach, because it enables
 the combination of two \emph{independent languages} by adding an adapter
@@ -26,18 +24,13 @@ the \emph{context} language and $l_1$ the \emph{reused} language.
 
 
 One way of realizing dependent fragments while retaining independent languages
-is using an adapter language $l_A$ where $l_A$
-\emph{extends} $l_2$ and
+is using an adapter language $l_A$ where $l_A$ \emph{extends} $l_2$ and
 \begin{align}
 \exists r \in \mathit{Refs_{l_A}} \mid \mathit{lo(r.from)} =
 l_A\; \wedge \;\mathit{lo(r.to)} = l_1
 \end{align}    
 
-While language referencing supports reuse of the referenced language, language
-reuse supports the reuse of the \emph{referencing} language as well. This makes
-sense for concern DSLs that have the potential to be reused in many domains,
-with minor adjustments. Examples include role-based access control, relational
-database mappings and UI specification.
+
 
            
 \begin{figure}[h]
@@ -51,14 +44,19 @@ database mappings and UI specification.
   \label{langReuse}  
 \end{center} 
 \end{figure} 
-           
+       
+While language referencing supports reuse of the referenced language, language
+reuse supports the reuse of the \emph{referencing} language as well. This makes
+sense for concern DSLs that have the potential to be reused in many domains,
+with minor adjustments. Examples include role-based access control, relational
+database mappings and UI specification.    
 
-\genex{Consider a language for describing user interfaces. It
-provides language concepts for various widgets, layout definition and
-disable/enable strategies. It also supports data binding, where data structures
-are associated with widgets, to enable two-way synchronization between the UI
-and the data. Using language reuse, the same UI language can be used with
-different data description languages. Referencing is not enough because the UI
+\genex{Consider a language for describing user interfaces. It provides language
+concepts for various widgets, layout definition and disable/enable strategies.
+It also supports data binding, where data structures are associated with
+widgets, to enable two-way synchronization between the UI and the data. Using
+language reuse, the same UI language can be used with \emph{different} data
+description languages. Referencing would not achieve this goal because the UI
 language would have a direct dependency on a particular data description
 language. Changing the dependency direction to $data \rightarrow ui$ doesn't
 solve the problem either, because this would go against the generally accepted
