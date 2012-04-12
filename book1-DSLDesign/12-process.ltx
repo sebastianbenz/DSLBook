@@ -481,4 +481,38 @@ different concerns:
 
 \subsection{Avoiding Uncontrolled Growth and Fragmentation}
 
+If you use DSLs successfully, there may be the danger of uncontrolled growth and
+diversification in languages with the obvious problems for maintenance, training
+and interoperability\footnote{While this may become a problem, this may also
+become a problem with libraries or frameworks ... the solution is also the same,
+as we will see.}. To avoid this, there is an organizational technical approach.
+
+The organizational approach requires putting in place governance structures for
+language development. Maybe developers have to coordinate with a central entity
+before they are "allowed" to define a new language. Or an open-source like model
+is used, where languages are developed in public and the most successful ones
+will strive and attract contributions. Maybe you want to limit language
+development to some central "language team"\footnote{Please don't overdo this!
+Don't make it a bureaucratic nightmare to develop a language!}. Larger
+organizations in which uncontrolled language growth and fragmentation might
+become a problem are likely to already have established processes for
+coordinating reusable or cross-cutting work. You should just plug into these
+processes.
+
+
+The technical approach (which should be used in together with the organizational
+one) exploits language modularization, extension and composition. If (parts of)
+languages can be reused, the drive to develop something completely new (that
+does more or less the same as somebody else's language) is reduced. Of course
+this requires that language reuse actually works with your tool of choice. It
+also requires that the potentially reusable languages are robust, stable and
+documented --- otherwise nobody will use them. In an large organization I would
+assume that a few language will be strategic: aligned with the needs of the
+whole organization, well-designed, well tested and documented, implemented by a
+central group, used by many developers and reusable by design\footnote{The
+development of these languages should be governed by the organizational approach
+discussed above}. In addition, small teams my decide to develop their own,
+smaller languages or extensions, reusing the strategic ones. Their focus is much
+more local, and the development requires much less coordination. 
+
 
