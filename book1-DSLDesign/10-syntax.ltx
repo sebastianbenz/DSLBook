@@ -29,23 +29,12 @@ same model in different notations. As a consequence of tool limitations, this is
 not always possible, however. The requirements for concrete syntax are a major
 driver in tool selection.
 
-\begin{marginfigure}
+\begin{marginfigure}[10\baselineskip]
   \includegraphics[width=3cm]{figures-design/graphicalRel.png}
   \caption{Graphical Notation for Relationships}
   \label{graphicalRel}
 \end{marginfigure}
 
-\begin{marginfigure}
-  \includegraphics[width=4cm]{figures-design/graphicalFlow.png}
-  \caption{Graphical Notation for Flow}
-  \label{graphicalFlow} 
-\end{marginfigure}
-
-\begin{marginfigure}
-  \includegraphics[width=5cm]{figures-design/graphicalCause.png}
-  \caption{Graphical Notation for Causality and Timing}
-  \label{graphicalCause}
-\end{marginfigure}
 
 
 \parhead{When to use which form} We do not want to make this section a complete
@@ -63,6 +52,17 @@ graphical notations are very good for describing relationships
 (\fig{graphicalRel}), flow (\fig{graphicalFlow}) or timing and causal
 relationships (\fig{graphicalCause}).
 
+ \begin{marginfigure}[-15\baselineskip]
+  \includegraphics[width=4cm]{figures-design/graphicalFlow.png}
+  \caption{Graphical Notation for Flow}
+  \label{graphicalFlow} 
+\end{marginfigure}
+
+\begin{marginfigure}[-3\baselineskip]
+  \includegraphics[width=5cm]{figures-design/graphicalCause.png}
+  \caption{Graphical Notation for Causality and Timing}
+  \label{graphicalCause}
+\end{marginfigure}
  
   
 \begin{marginfigure}
@@ -296,8 +296,8 @@ graphical notations. In case this is not supported by the tool, viewpoints may
 be an option. One viewpoint could use a graphical notation to define
 coarse-grained structures, and a second viewpoint uses a textual notation to
 provide "implementation details" for the structures defined by the graphical
-viewpoint\sidenote{Not every tool can support every (combination of) form of
-concrete syntax, so this aspect is limited by the tool, or drives tool
+viewpoint\sidenote[][-2\baselineskip]{Not every tool can support every
+(combination of) form of concrete syntax, so this aspect is limited by the tool, or drives tool
 selection.}.
  
 \embc{As the graphical notation for state machines will become available, the C

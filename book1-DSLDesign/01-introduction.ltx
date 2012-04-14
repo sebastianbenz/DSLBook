@@ -8,7 +8,7 @@
 \part{DSL Design}
 
 
-
+ 
 
 Throughout this part of the book we refer back to the five case studies
 introduced in Part I of the book\todo{ref; also for all the paragraphs below}.
@@ -246,7 +246,7 @@ singleton domains that consist of a single program (a non-interesting boundary c
 \end{figure}
 
 Languages are typically designed for a particular domain $D$. Languages for
-$\D{0}$ are called general-purpose languages\sidenote[][-10mm]{I guess we could
+$\D{0}$ are called general-purpose languages\sidenote{I guess we could
 define $D_0$ to be those programs expressible with Turing machines, but using GPLs for
 $D_0$ is a more useful approach for this book.}. Languages for $D_n$ with $n >
 0$ become more domain-specific for growing $n$. Languages for a particular $D_n$
@@ -332,7 +332,7 @@ precisely the inherently imprecise notion of domains. Let us now move into the
 field of language engineering. Here we can describe the relevant concepts much
 more clearly.
 
-\begin{marginfigure}[-35mm]
+\begin{marginfigure}[-85mm]
 \begin{center}
   \includegraphics[width=3cm]{figures-design/csVsAs.png} 
   \caption{Concrete and abstract syntax for a textual variable declaration.
@@ -342,7 +342,7 @@ more clearly.
 \end{center} 
 \end{marginfigure}
 
-\marginnote[3mm]{The 
+\marginnote[-5mm]{The 
 abstract syntax is very similar to a meta model in that it represents only a
 data structure and ignores notation. The two are also different: the abstract
 syntax is usually automatically derived from a grammar, whereas a meta model is
@@ -461,7 +461,7 @@ figure \fig{sets}; $Cdn$ are all the parent-child "lines" in the picture).
 VariableDeclaration} defines the containment relationships \lcr{type} and
 \lcr{init}, respectively.}
 
-\begin{marginfigure}
+\begin{marginfigure}[10mm]
 \begin{center}
   \includegraphics[width=4cm]{figures-design/sets.png} 
   \caption{$fo$ returns the fragment for a given element.}
@@ -495,7 +495,7 @@ object-oriented programming. In the context of language design it implies that a
 concept $c_{sub}$ that extends another concept $c_{super}$ can be used in places
 where an instance of $c_{super}$ is expected. $\mathit{Inh_l}$ is the set of
 inheritance relationships for a language $l$. Each $i \in \mathit{Inh_l}$ has
-the properties $super$ and $sub$.\begin{marginfigure}[-40mm]
+the properties $super$ and $sub$.\begin{marginfigure}[-63mm]
 \begin{center}
   \includegraphics[width=5.5cm]{figures-design/inheritance.png} 
   \caption{Concepts can extend other concepts. The base concept may be defined
@@ -548,7 +548,7 @@ Consequently, if a cooling program refers to a hardware setup using an instance 
 \lcr{BuildingBlockRef}, the fragment becomes dependent on the hardware
 definition fragment that contains the referenced building block.}
 
-\begin{marginfigure}[-40mm]
+\begin{marginfigure}[-50mm]
   \includegraphics[width=6cm]{figures-design/cooling/dependent.png} 
   \caption{A \lcr{BuildingBlockRef} references a hardware element from within a
   cooling algorithm fragment.}
@@ -561,7 +561,8 @@ fragments. A homogeneous fragment is one where all elements are expressed with
 the same language (see formula 1.5). This means that for all parent/child
 relationships ($Cdn_f$), the elements at both ends of the relationship have to
 be instances of concepts defined in one language $l$ (1.6):
-\sidenote{An independent language can only express homogeneous fragments.
+\sidenote[][-20mm]{An independent language can only express homogeneous
+fragments.
 However, a homogeneous fragment can be expressed with a dependent language if
 the dependencies all come via the $Refs$ relationship.}
 \begin{align} 
