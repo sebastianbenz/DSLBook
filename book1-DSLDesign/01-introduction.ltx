@@ -14,15 +14,15 @@ Throughout this part of the book we refer back to the five case studies
 introduced in Part I of the book\todo{ref; also for all the paragraphs below}.
 We use a the following notation:
 
-\comparch{This refers to the component architecture case study desribed in
+\comparch{This refers to the component architecture case study described in
 \sect{cscomparch}.}
-\cooling{This refers to the refrigerator configuration case study desribed in
+\cooling{This refers to the refrigerator configuration case study described in
 \sect{cscooling}.}
-\embc{This refers to the mbeddr.com extensible C case study desribed in
+\embc{This refers to the mbeddr.com extensible C case study described in
 \sect{csextc}.}
-\pension{This refers to the pension plans case study desribed in
+\pension{This refers to the pension plans case study described in
 \sect{cspension}.}
-\exwebdsl{This refers to the WebDSL case study desribed in \sect{cswebdsl}.}
+\exwebdsl{This refers to the WebDSL case study described in \sect{cswebdsl}.}
 
 Note that, in this part of the book, the examples will only be used to
 illustrate DSL \emph{design} and the driving design decisions. Part II of the
@@ -40,14 +40,14 @@ important terms and concepts including domain, model purpose and the structure
 of programs and languages. In \Chapter{dimensions} we discuss a set of seven
 dimensions that guide the design of DSLs: expressivity, coverage, semantics,
 separation of concerns, completeness, language modularization and syntax.Finally, in \Chapter{learnFromGPLs} we look at well-known structural
-and behavioral paradigms (such as inheritance or state based beviour) and
+and behavioral paradigms (such as inheritance or state based behaviour) and
 discuss their applicability to DSLs.
 
 
 \chapter{Conceptual Foundations}
 \label{foundations}
 
-\chapterabstract{This chaper provides the conceptual foundations for the
+\chapterabstract{This chapter provides the conceptual foundations for the
 discussion of the design dimensions. It consists of three sections. The first
 one, \emph{Program, Languages and Domain} defines some of the terminology around
 DSL design we will use in the rest of this chapter. The second section briefly
@@ -110,19 +110,22 @@ questions such as: "does the language adequately cover the domain?", since it
 always does, by definition.
 
 There are two more useful approaches. In the \emph{inductive} or
-\emph{bottom-up} approach we define a domain in terms of existing software. That
-is, a domain $D$ is identified as a set of programs
-with common characteristics or similar purpose. Notice how at this point we do
-\emph{not} imply a special language to express them. They could be expressed in any Turing
-complete language. Often, such domains do not exist outside the realm of
-software. An especially interesting case of the inductive approach is where we
-define a domain as a subset of programs written in a specific language $P_l$
-instead of the more general set $P$. In this case we can often clearly
-identify the commonalities among the programs in the domain, in the form of
-their consistent use of a set of domain-specific patterns or idioms\footnote{Some
-people have argued for a long time that the need to use idioms or patterns in a
-language is a smell, and should be understood as hints at missing
-language features: http://bit.ly/715wiF}. This makes building a DSL for $D$ relativelysimple, because we know exactly what the DSL has to cover, and we know what codeto generate from DSL programs.
+\emph{bottom-up} approach we define a domain in terms of existing software used
+to address a particular class of problems or products. That is, a domain $D$ is
+identified as a set of programs with common characteristics or similar purpose.
+Notice how at this point we do \emph{not} imply a special language to express
+them. They could be expressed in any Turing complete language. Often, such
+domains do not exist outside the realm of software. An especially interesting
+case of the inductive approach is where we define a domain as a subset of
+programs written in a specific language $P_l$ instead of the more general set
+$P$. In this case we can often clearly identify the commonalities among the
+programs in the domain, in the form of their consistent use of a set of
+domain-specific patterns or idioms\footnote{Some people have argued for a long
+time that the need to use idioms or patterns in a language is a smell, and
+should be understood as hints at missing language features:
+http://bit.ly/715wiF}. This makes building a DSL for $D$ relatively simple,
+because we know exactly what the DSL has to cover, and we know what code to
+generate from DSL programs.
 
 \embc{The domain of this DSL has been defined bottom-up. Based on idioms
 commonly employed when using C for embedded software development, linguistic
@@ -141,9 +144,9 @@ organization.}
 
 
 The second approach for defining a domain is \emph{deductive} or
-\emph{top-down}. In this approach, a domain is considered a body of knowledge in
-the real world, i.e. outside the realm of software. From this perspective, a domain $D$
-is a body of knowledge for which we want to provide some form of software
+\emph{top-down}. In this approach, a domain is considered a body of knowledge
+about the real world, i.e. outside the realm of software. From this perspective,
+a domain $D$ is a body of knowledge for which we want to provide some form of software
 support. $P_D$ is the subset of programs in $P$ that
 implement interesting computations in $D$. This case is much harder to addressusing DSLs, because we first have to understand precisely the nature of thedomain and identify the interesting programs in that domain.
 
@@ -271,7 +274,7 @@ These languages differ regarding the abstractions they make use of. Deciding
 which abstractions should go into a particular language for $D$ is not always
 obvious. The basis for the decision is to consider the \emph{model purpose}.
 Models\sidenote[][-4\baselineskip]{As we discuss below, we use the terms program
-and model as synomyms.}, and hence the languages to express them, are intended
+and model as synonyms.}, and hence the languages to express them, are intended
 for a specific purpose. Examples of model purpose include automatic derivation
 of a $D_{-1}$ program, formal analysis and model checking, platform independent
 specification of functionality or generation of
@@ -314,10 +317,15 @@ correctness using various forms of tests. A secondary purpose is the generation
 of the complete calculation engine for the computing center and the website.}
 
 
+The purpose of a DSL may also change over time. Consequently, this may require
+changes to the abstractions or notations used in the language. From a technical
+perspective, this is just like any other case of language evolution (discussed
+in \sect{process}).
 
 
 
 \section{The Structure of Programs and Languages}
+\label{structureofprograms}
 
 The discussion above was relatively theoretical, trying to capture somewhat
 precisely the inherently imprecise notion of domains. Let us now move into the
@@ -384,12 +392,13 @@ and tree construction.
 
 \parhead{Fragments} A program may be composed from several program
 \emph{fragments}. A fragment is a standalone tree, a partial program.
-Conversely, a program is a set of fragments. $E_f$ is the set of program
-elements in a fragment $f$.
+Conversely, a program is a set of fragments connected by references (discussed
+below). $E_f$ is the set of program elements in a fragment $f$.
 \begin{marginfigure}[-30mm]
 \begin{center}
   \includegraphics[width=3cm]{figures-design/fragment.png} 
-  \caption{A fragment is a program subtree.}
+  \caption{A fragment is an program tree that stands for itself and
+  potentially references other fragments.}
   \label{fragment}
 \end{center} 
 \end{marginfigure}
@@ -437,7 +446,7 @@ $fo \Rightarrow \mathit{element} \to \mathit{fragment}$ (\fig{fragmentOf}).
 \begin{marginfigure}[-17mm]
 \begin{center}
   \includegraphics[width=5cm]{figures-design/fragmentOf.png} 
-  \caption{$fo$ returns the fragement for a given element.}
+  \caption{$fo$ returns the fragment for a given element.}
   \label{fragmentOf}
 \end{center} 
 \end{marginfigure}
@@ -455,7 +464,7 @@ VariableDeclaration} defines the containment relationships \lcr{type} and
 \begin{marginfigure}
 \begin{center}
   \includegraphics[width=4cm]{figures-design/sets.png} 
-  \caption{$fo$ returns the fragement for a given element.}
+  \caption{$fo$ returns the fragment for a given element.}
   \label{sets}
 \end{center} 
 \end{marginfigure}
@@ -611,7 +620,7 @@ way. Example tools in this category include Spoofax and Xtext.
   \includegraphics[width=4cm]{figures-design/projectional.png}
   \caption{In projectional systems, the user sees the concrete syntax, but all
   editing gestures directly influence the AST. The AST is \emph{not} extracted
-  from the concrete syntax, which means the CS does not have to be parseable.}
+  from the concrete syntax, which means the CS does not have to be parsable.}
   \label{projectional}
 \end{marginfigure}
 
@@ -628,8 +637,8 @@ tree.
 Projectional editing is well known from graphical editors, virtually all
 of them use this approach\sidenote[][-1\baselineskip]{You could argue that they
 are not \emph{purely} projectional because the user can move the shapes around
-and the position information has to be persistet. Nonetheless, graphical editors
-are fundamentally projectional.}. However, they can also be used for textual
+and the position information has to be persistent. Nonetheless, graphical
+editors are fundamentally projectional.}. However, they can also be used for textual
 syntax\sidenote{While in the past projectional text editors
 have gotten a bad reputation, as of 2011, the tools have become good enough, and
 computers have become fast enough to make this approach feasible, productive and

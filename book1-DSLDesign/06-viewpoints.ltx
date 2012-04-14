@@ -1,7 +1,5 @@
 \FloatBarrier
 
-\todo{here}
-
 \section{Separation of Concerns}
 \label{sec:viewpoints}
   
@@ -15,7 +13,7 @@ aspects of the system being specified by different stakeholders or at different
 times in the development process. \fig{compositionalDomains} shows $D_{1.1}$
 composed from the concerns A, B and C. 
 
-\begin{figure}[b]
+\begin{figure}[h]
   \includegraphics[width=9cm]{figures-design/compositionalDomains.png}
   \caption{A domain may consist of several concerns. A domain is
   covered either by a DSL that addresses all of these concerns, or by a set of
@@ -27,12 +25,15 @@ Two fundamentally different approaches are possible to deal with the set of
 concerns in a domain. Either a single, integrated language can be designed that
 addresses all concerns of $D$ in one integrated model. Alternatively, separate
 concern-specific DSLs can be defined, each addressing one or more of the
-domain's concerns. A complete program then consists of a set of
-dependent, concern-specific fragments that relate to each other in a well-defined way.
-Viewpoints support this separation of domain concerns into separate DSL.
-\fig{viewpoints} illustrates the two different approaches.
+domain's concerns\footnote{Strictly speaking, this is not quite true: some
+concerns are typically also addressed by the execution engine. We discuss this
+below in the section on Cross-Cutting Concerns.}. A complete program then
+consists of a set of dependent, concern-specific fragments that relate to each
+other in a well-defined way. Viewpoints support this separation of domain
+concerns into separate DSL. \fig{viewpoints} illustrates the two different
+approaches.
 
-\begin{figure}[t]
+\begin{figure}[h]
 \begin{center}
   \includegraphics[width=9cm]{figures-design/viewpoints.png}
   \caption{\emph{Left:} An integrated DSL, where the various
@@ -52,7 +53,7 @@ concerns that could have been separated. We opted against this, because both
 concerns are specified by the same person. The language used for implementation
 code is \lcr{med.core}, whereas the task constructs are defined in the
 \lcr{med.tasks} language. So the languages are modularized, but they are
-used in a single integrated model.}
+used together in a single heterogeneous fragment.}
 
 \exwebdsl{Web programs consists of multiple concerns including persistent data,
 user interface, and access control. WebDSL provides specific languages for these
@@ -62,12 +63,21 @@ WebDSL modules. A WebDSL developer can choose how to factor declarations into
 modules; e.g. all access control rules in one module, or all aspects of some
 feature together in one module.}
 
+\comparch{The specification of interfaces and components is done with one DSL
+in one viewpoint. A separate viewpoint is used to describe component
+instantiation and connection. This choice has been made because the same set of
+interfaces and components will be instantiated and connected \emph{differently}
+in different usage scenarios, so separate fragments are useful.}
+
+
+
 \subsection{Viewpoints for Concern Separation}
 
 If viewpoints are used, the concern-specific DSLs, and consequently the
 viewpoint models, should have well-defined dependencies; cycles should be
 avoided. \marginnote[-2\baselineskip]{The IDE should provide navigational
-support: If an element in viewpoint B points to an element in viewpoint A then it should be possible to
+support: If an element in viewpoint B points to an element in viewpoint A then 
+it should be possible to
 follow this reference ("Ctrl-Click"). It should also be possible to query the
 dependencies in the opposite direction ("find the persistence mapping for this
 entity" or "find all UI forms that access this entity").} If dependencies
@@ -78,8 +88,9 @@ viewpoints in the first place.
 The dependent viewpoint fragment (and the language to express it) have to
 provide a way of pointing to the referenced element. In practice, this usually
 means that the referenced element has to provide a qualified name that can be
-used in the reference\sidenote{In projectional editors one can use the UUID of
-the target element for the reference}.
+used in the reference\sidenote{In projectional editors one can \emph{technically} use
+the UUID of the target element for the reference, but for the user, some kind
+of qualified name is still necessary.}.
 
 Separating out a domain concern into a separate viewpoint fragment can be useful
 for several reasons. If different concerns of a domain are specified by
@@ -101,9 +112,9 @@ does not support embedding of a reusable language because syntactic composition
 is not supported.}
 Another reason for separate viewpoints is a 1:n relationship between the
 independent and the dependent fragments. If a single core concern may be
-enhanced by several different additional concerns, then it is crucial to keep
-the core concern independent of the information in the additional concerns.
-Viewpoints make this possible.
+enhanced by several different additional concerns, then it is
+crucial to keep the core concern independent of the information in the 
+additional concerns. Viewpoints make this possible.
 
 
 \cooling{One concern in this DSL specifies the logical hardware structure of
@@ -111,7 +122,7 @@ refrigerators installations. The other one describes the refrigerator cooling
 algorithm. Both are implemented as separate viewpoints, where the algorithm DSL
 references the hardware structure DSL. Using this dependency structure,
 different algorithms can be defined for the same hardware structure. Each of
-these algorithms resides in its own fragment/file. While the C code generation
+these algorithms resides in its own fragment. While the C code generation
 requires both behavior and hardware structure fragments, the hardware fragment
 is sufficient for a transformation that creates a visual representation of the
 hardware structures (see \fig{viewpointsInRefrigerators}).}
@@ -120,7 +131,7 @@ hardware structures (see \fig{viewpointsInRefrigerators}).}
 \begin{center}
   \includegraphics[width=10cm]{figures-design/viewpointsInRefrigerators.png}
   \caption{The hardware fragment is independent, and sufficient for generation
-  of hardware digrams and documentation. The algorihtms fragment depends on the
+  of hardware diagrams and documentation. The algorithms fragment depends on the
   hardware fragment. The two of them together are sufficient for generating the
   controller code. Tests depend on the algorithm. There are many test fragments
   for a single algorithm fragment.}
@@ -139,8 +150,8 @@ models.}. This is especially useful in a multi-stage transformation
 (\sect{semtrafo}) where additional data may have to be specified for the result
 of the first phase to control the execution of the next phase. Since that
 intermediate model is generated, it is not possible to add these additional
-specifications to the intermediate model. Externalizing it into an annotation
-model solves that problem.
+specifications to the intermediate model directly. Externalizing it into an
+annotation model solves that problem.
 
 \genex{For example, if you create a relational data model from an object
 oriented data model, you might automatically derive database table names from
@@ -149,14 +160,14 @@ names, use an annotation model that specifies an alternate name. The downstream
 processor knows that the name in the annotation model overrides the name in the
 original model\sidenote[][-4\baselineskip]{This is a typical example of where
 the easiest thing in a projectional editor would be to just place a field for
-holding an overriding table name under program element that represents thetable. Users can edit that table name in a special view.}.}
+holding an overriding table name under program element that represents thetable. Users can edit that table name in a special projection.}.}
 
 
 
 
 \subsection{Viewpoint Consistency} 
 \updateSlides{}
-If viewpoints are used, constraints have to be written to check concistency of
+If viewpoints are used, constraints have to be defined to check consistency of
 the viewpoints. A dependent viewpoint fragment contains program elements that
 reference program elements in another fragment. It is straight forward to check
 that the target elements of these actually exist, since the reference will break
@@ -175,110 +186,37 @@ check if a referencing program element exists somewhere. If the tool supports
 it, this problem can be solved by automatically maintained reverse
 indices\footnote{This data should also be exploited by the IDE. UI actions
 should be available to navigate from the referenced element (the \ic{Entity})
-to the referencing elements (the \ic{PersistenceMapping}). This is more than 
+to the referencing elements (the \ic{EntityPersistenceMapping}). This is more than 
 generic Find Usages, since it specifically searches for certain kinds of
-usages (the \ic{PersistenceMapping}) in this example. Further tool support may
-include creation of such referencing elements based on a policy that
+usages (the \ic{EntityPersistenceMapping} in this example). Further tool support
+may include creation of such referencing elements based on a policy that
 determines into which fragment the created element should go}.
 
 The second problem is more fundamental: it is not clear what constitutes
 \emph{the whole world}. The fragment with the persistence mapping for a given
 \ic{Entity} may reside on a different machine or be under the control of a
-different user. It may not be acccessible to the constraint checker when the
+different user. It may not be accessible to the constraint checker when the
 user edits the business data fragment. To solve this problem, it is necessary to
-define explictly what \emph{the world} is, using some kind of configuration. For
-example, a C compiler's include path or Java's classpath are ways of defining
-the scope within which the overall system description must be consistent. This
+define explicitly what \emph{the world} is, using some kind of configuration.
+For example, a C compiler's include path or Java's classpath are ways of defining
+the scope within which the overall system description must be complete. This
 does not necessarily have to be done by each developer who, for example, works
 on the business data. But at the point when the final system is generated or
 built, such a "world definition" is essential. \marginnote{In some cases the
 rules for establishing consistency between viewpoints can be described formally,
-and hence the synchronzation could be automated. MPS has a nice way of
+and hence the synchronization could be automated. MPS has a nice way of
 automatically executing a quick fix for a constraint violation. If the
 constraint detects an inconsistency between viewpoints, the quick fix can
 automatically correct the problem. This solves the \emph{whole world} problem
-neatly, since every dependend fragment is "corrected" as soon as it is opened in
+neatly, since every dependent fragment is "corrected" as soon as it is opened in
 the editor.}
 
 
 \embc{Components implement interfaces. Each component provides an implementation
-for each method define in each of the interfaces it implements. If a new method
+for each method defined in each of the interfaces it implements. If a new method
 is added to an interface, all components that implement that particular
 interface must get a new, empty method implementation. This is an example of
 model synchronization.}
-
-
-\subsection{Viewpoints for Progressive Refinement} 
-\label{progref}
-
-There is an additional use case for viewpoint models not related to the concerns
-of a domain, but to progressive refinement. Consider the development of complex
-systems, which typically proceeds in phases: it starts with requirements,
-proceeds to high-level component design and specification of non-functional
-properties, and finishes with the implementation of the components. In each of
-these phases, models can be used to represent the system with abstractions that
-are appropriate for the phase. An appropriate DSL is needed to represent the
-models in each phase (\fig{progressiveRefinement}). The references between model
-elements are called traces\cite{JirapanthongZ05}. Since the same conceptual
-elements may be represented on different refinement levels (e.g. component
-design and component implementation), synchronization between the viewpoint
-models is often required (enabled via techniques described in\cite{DiskinXC10,
-Stevens10}).
-
-
-\begin{figure}[t]
-\begin{center}
-  \includegraphics[scale=0.6]{figures-design/progressiveRefinement.png}
-  \caption{Progressive refinement: the boxes represent models
-  expressed with corresponding languages. The dotted arrows express
-  dependencies, whereas the solid arrows represent references between model
-  elements.}
-  \label{progressiveRefinement}
-\end{center}
-\end{figure}
-
-
-
-\subsection{Views on Programs} 
-
-In projectional editors it is also possible to store the data for all viewpoints
-in the same model tree, while showing different "views" onto the model to
-materialize the various viewpoints. The particular benefit of this approach is
-that additional concern-specific views can be defined later, after programs have
-been created.\marginnote{ MPS also provides so-called annotations, where
-additional model data can be "attached" to any model element, and shown
-optionally.} It also avoids the need for defining sophisticated ways of
-referencing program elements from other viewpoints.
-
-\pension{Pension plans can be shown in a graphical notation highlighting the
-dependency structure (\fig{dependencies}). The dependencies can still be edited
-in this view, but the actual content of the pension plans is not shown.}
- 
-\begin{figure}[h]
-  \rule{1\textwidth}{0.7pt}
-  \vspace{-0.5cm}
-  \includegraphics[scale=1]{figures-design/pension/dependencies.png}
-  \caption[][0.3cm]{Graphical notation for dependencies among rules in a
-  pension plan.}
-  \label{dependencies}
-  \rule{1\textwidth}{0.7pt} 
-\end{figure}
-
-\embc{Annotations are used for storing requirements traces and documentation
-information in the models (\fig{traces}). The program can be shown and edited
-with and without requirements traces and documentation text.}
-  
-\begin{figure}[h]
-  \rule{1\textwidth}{0.7pt}
-  \vspace{-0.5cm}
-  \includegraphics[width=12cm]{figures-design/embc/traces.png}
-  \caption[][0.3cm]{The green annotations are traces into a requirements
-  database. The program can be edited with and without these annotations. The
-  annotations language has no dependency on the languages it annotates.}
-  \label{traces}
-  \rule{1\textwidth}{0.7pt}
-\end{figure}
-
 
 
 \subsection{Cross-Cutting Concerns}
@@ -306,8 +244,8 @@ cross-cutting in the domain can be handled completely by the execution engine.
 For example the collection of performance data, billing information
 or audit logs typically does not have to be described in the DSL at all. Since
 every program in the domain has to address this concern in the same way, the
-implementation can be handled by the exection engine by inserting the respective
-code at the relevant locations (in case of a generator). 
+implementation can be handled by the execution engine by inserting the
+respective code at the relevant locations (in case of a generator). 
 
 \comparch{The component architecture DSL supports the collection of performance
 data. Using mock objects, we started running load tests early on. For a load
@@ -319,8 +257,8 @@ necessary code automatically.}
 that crosscut in the resulting executable system, but can be modularized on DSL
 level. A good example is permissions. Specifying users, roles and permissions to
 access certain resources in the system can be modularized into a concern,
-typically even into a separate viewpoint. It is then the job of the execution
-engine to consider the specified permissions in all relevant places in the
+and it is typically described in a separate viewpoint. It is then the job
+of the execution engine to consider the specified permissions in all relevant places in the
 resulting system.
 
 \exwebdsl{WebDSL has a means to specify access control for web pages. The
@@ -333,8 +271,9 @@ in the previous class. In this case we have to deal with cross-cutting concerns
 in the same way as we do it today in programming languages: we either have to
 manually insert the code in \emph{all} the relevant places in the DSL program,
 or we have to resort to aspect weaving on DSL
-level\sidenote[][-5\baselineskip]{Building an typically relatively limited
-aspect weaver on DSLs level is not a big problem, since we already have access to the AST, and transforming it in a way where we
+level\sidenote[][-5\baselineskip]{Building a (typically relatively limited)
+aspect weaver on DSLs level is not a big problem, since we already have access 
+to the AST, and transforming it in a way where we
 inject additional code based on a DSL-specific pointcut specification is
 relatively straight forward.}.
 
@@ -342,7 +281,7 @@ relatively straight forward.}.
 ports into existing components. It was used, among other things, to modularize
 the monitoring concern: if monitoring was enabled, this aspect component would
 add the \ic{mon} port to all other components, enabling the
-\ic{MonitoringConsole} to connect to the other components and query monitoring
+\ic{Monitoring- Console} to connect to the other components and query monitoring
 data (see the code below).}
 
 \begin{code}
@@ -358,3 +297,80 @@ namespace monitoring feature monitoring {
 }
 \end{code}
 
+
+
+\subsection{Views on Programs} 
+
+In projectional editors it is also possible to store the data for all viewpoints
+in the same model tree, while using different projections to show different
+views onto the model to materialize the various viewpoints. The particular 
+benefit of this approach is
+that additional concern-specific views can be defined later, after programs have
+been created.\marginnote{ MPS also provides so-called annotations, where
+additional model data can be "attached" to any model element, and shown
+optionally.} It also avoids the need for defining sophisticated ways of
+referencing program elements from other viewpoints.
+
+\pension{Pension plans can be shown in a graphical notation highlighting the
+dependency structure (\fig{dependencies}). The dependencies can still be edited
+in this view, but the actual content of the pension plans is not shown.}
+ 
+\begin{figure}[h]
+  \rule{1\textwidth}{0.7pt}
+  \vspace{-0.5cm}
+  \includegraphics[scale=1]{figures-design/pension/dependencies.png}
+  \caption[][0.3cm]{Graphical notation for dependencies among rules in a
+  pension plan.}
+  \label{dependencies}
+  \rule{1\textwidth}{0.7pt} 
+\end{figure}
+
+\embc{Annotations are used for storing requirements traces and documentation
+information in the models (\fig{traces}). The program can be shown and edited
+with and without requirements traces and documentation text.}
+  
+\begin{figure}[h]
+  \rule{1\textwidth}{0.7pt}
+  \vspace{-0.5cm}
+  \includegraphics[width=10cm]{figures-design/embc/traces.png}
+  \caption[][0.3cm]{The green annotations are traces into a requirements
+  database. The program can be edited with and without these annotations. The
+  annotations language has no dependency on the languages it annotates.}
+  \label{traces}
+  \rule{1\textwidth}{0.7pt}
+\end{figure}
+
+
+
+
+
+
+
+\subsection{Viewpoints for Progressive Refinement} 
+\label{progref}
+
+There is an additional use case for viewpoint models not related to the concerns
+of a domain, but to progressive refinement. Consider the development of complex
+systems, which typically proceeds in phases: it starts with requirements,
+proceeds to high-level component design and specification of non-functional
+properties, and finishes with the implementation of the components. In each of
+these phases, models can be used to represent the system with abstractions that
+are appropriate for the phase. An appropriate DSL is needed to represent the
+models in each phase (\fig{progressiveRefinement}). The references between model
+elements are called traces\cite{JirapanthongZ05}. Since the same conceptual
+elements may be represented on different refinement levels (e.g. component
+design and component implementation), synchronization between the viewpoint
+models is often required (enabled via techniques described in\cite{DiskinXC10,
+Stevens10}).
+
+
+\begin{figure}[h]
+\begin{center}
+  \includegraphics[scale=0.6]{figures-design/progressiveRefinement.png}
+  \caption{Progressive refinement: the boxes represent models
+  expressed with corresponding languages. The dotted arrows express
+  dependencies, whereas the solid arrows represent references between model
+  elements.}
+  \label{progressiveRefinement}
+\end{center}
+\end{figure}
