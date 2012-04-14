@@ -30,14 +30,7 @@ problem, and projectional editors avoid it by definition. However, several
 widely used language workbenches have problems in this respect. For more
 details, see  \todo{ref}.
 
-\begin{marginfigure}[30mm]
-  \includegraphics[width=5cm]{figures-design/embc/statemachinmodules.png}
-  \caption{The core language (above the dotted line) defines an interface
-  \lcr{IModuleContent}. Anything that should be hosted inside a \lcr{Module}
-  has to implement this interface, typically from another language.
-  \lcr{StateMachines} are an example.} 
-  \label{statemachinmodules}
-\end{marginfigure}
+
 \embc{State machines are hosted in regular C programs. This works because the C
 language's \lcr{Module} construct contains a collection of
 \lcr{IModuleContents}, and the \lcr{StateMachine} concept implements the
@@ -48,7 +41,14 @@ language were embeddable in any host language in addition to C, this dependency
 on \lcr{ModuleContent} (from the C base language) would not be allowed. An
 adapter language would have to be created which adapts a \lcr{StateMachine} to
 \lcr{IModuleContent}.}
-
+\begin{marginfigure}[-20mm]
+  \includegraphics[width=5cm]{figures-design/embc/statemachinmodules.png}
+  \caption{The core language (above the dotted line) defines an interface
+  \lcr{IModuleContent}. Anything that should be hosted inside a \lcr{Module}
+  has to implement this interface, typically from another language.
+  \lcr{StateMachines} are an example.} 
+  \label{statemachinmodules}
+\end{marginfigure}
 
 
 \parhead{Type Systems} For Referencing, the type system rules and constraints

@@ -75,15 +75,14 @@ in different usage scenarios, so separate fragments are useful.}
 
 If viewpoints are used, the concern-specific DSLs, and consequently the
 viewpoint models, should have well-defined dependencies; cycles should be
-avoided. \marginnote[-2\baselineskip]{The IDE should provide navigational
-support: If an element in viewpoint B points to an element in viewpoint A then 
-it should be possible to
-follow this reference ("Ctrl-Click"). It should also be possible to query the
-dependencies in the opposite direction ("find the persistence mapping for this
-entity" or "find all UI forms that access this entity").} If dependencies
-between viewpoint fragments are kept cycle-free, the independent fragments may
-be sufficient for certain transformations; this can be a driver for using
-viewpoints in the first place.
+avoided\marginnote[-6\baselineskip]{The IDE should provide navigational
+support: If an element in viewpoint B points to an element in viewpoint A then
+it should be possible to follow this reference ("Ctrl-Click"). It should also be
+possible to query the dependencies in the opposite direction ("find the
+persistence mapping for this entity" or "find all UI forms that access this
+entity").}. If dependencies between viewpoint fragments are kept cycle-free, the
+independent fragments may be sufficient for certain transformations; this can be
+a driver for using viewpoints in the first place.
 
 The dependent viewpoint fragment (and the language to express it) have to
 provide a way of pointing to the referenced element. In practice, this usually
@@ -184,8 +183,8 @@ problems:
 The first problem may be performance. The "whole world" has to be searched to
 check if a referencing program element exists somewhere. If the tool supports
 it, this problem can be solved by automatically maintained reverse
-indices\footnote{This data should also be exploited by the IDE. UI actions
-should be available to navigate from the referenced element (the \ic{Entity})
+indices\sidenote[][-10mm]{This data should also be exploited by the IDE. UI
+actions should be available to navigate from the referenced element (the \ic{Entity})
 to the referencing elements (the \ic{EntityPersistenceMapping}). This is more than 
 generic Find Usages, since it specifically searches for certain kinds of
 usages (the \ic{EntityPersistenceMapping} in this example). Further tool support
@@ -306,8 +305,8 @@ in the same model tree, while using different projections to show different
 views onto the model to materialize the various viewpoints. The particular 
 benefit of this approach is
 that additional concern-specific views can be defined later, after programs have
-been created.\marginnote{ MPS also provides so-called annotations, where
-additional model data can be "attached" to any model element, and shown
+been created.\marginnote[-2\baselineskip]{ MPS also provides so-called
+annotations, where additional model data can be "attached" to any model element, and shown
 optionally.} It also avoids the need for defining sophisticated ways of
 referencing program elements from other viewpoints.
 
