@@ -1,5 +1,11 @@
 \section{Xtext Example}
 
+\vspace{3mm}
+\noindent This section of the book has been written together with Christian
+Dietrich. Reach him via \verb#christian.dietrich@itemis.de#.
+\vspace{3mm}
+
+
 In this section we look at an example similar to the one for MPS discussed in
 the previous section. We start out with a DSL for entities.  Here is an example
 program:
@@ -448,8 +454,6 @@ other hand, one can automatically use any valid Java type here. We use an
 to use the full Xbase programming language inside the body of the
 \ic{Operation}. To make the \ic{parameters} visible, we use the
 \ic{FullJvmFormalParameter} rule.
-\todo{CD: How would the scoping rule mentioned above look like?}
-
 Above I wrote that Xbase is tightly integrated with the JVM and Java. The use of 
 \ic{FullJvmFormalParameter} and \ic{JvmTypeReference} is a sign of this.
 However, the next piece of code makes this even clearer. The
@@ -735,8 +739,14 @@ public class DomainModelTypeProvider extends XbaseTypeProvider {
 }
 \end{code}
 
-\todo{CD: Don't we have to specify the typing rules for the === operator
-as well? How would we do that?}
+We don't have to specify typing rules for the \ic{===} operator. Since we have
+mapped it to the \ic{operator\_identity} operation, the type system uses the
+types specified in this operation: the type of \ic{===} is
+\ic{boolean}, and there are no restrictions on the two arguments; they are typed
+as \ic{java.lang.Object}. If customizations were required these could be done by
+overriding the \ic{\_expectedType} operation in \ic{XbaseTypeProvider}. 
+
+
 
 Finally we have to extend the Xbase compiler so it can handle date literals:
 
@@ -749,58 +759,22 @@ public class DomainModelCompiler extends XbaseCompiler {
               expr.getDay() + "\")"); 
     }
 
-    protected void _toJavaStatement(XDateLiteral expr, IAppendable b, 
-                 boolean isReferenced) { 
-         generateComment(expr, b, isReferenced);
-    }
 }
 \end{code}
 
-\todo{CD: What is this generateComment stuff about?}
-
-
-\todo{CD: Don't we have to specify the generator for the === operator?}
-
+scopethe \ic{operator\_identity} operation, we have expressed all the semantics:
+the Xbase generator will generate a call to that operation in the generated Java
+code.
 
 \subsection{Embedding}
 
+Embedding is not supported by Xtext. The reason is that, as we can see from the
+\todo{ref}, the adapter language would have to inherit from \emph{two} base
+languages. However, Xtext supports extending one base grammar.
 
-
-
-% \subsection{Referencing}
-% 
-% GuiDSL -> Entity DSL
-% 
-% ResourceServiceProvider: Referenzieren von "nicht Xtext, aber EMF" Artekfakten
-% 
-% 
-% \subsection{Extension}
-%  
-% die Entity DSL von Xbase erben lassen und die Expressions einbauen
-% dabei: einführen von JVMElement in Eneitty DSL damit bspw. ENtity Attribute 
-% aus Expressns referenzierbar sind (Expressions bspw. beo derived entity
-% attributes)
-% 
-% Sagen dass alles so funkt wie in Java - so lange man sich da dran hält ist alles
-% gut, wenn man aus dieser box raus will wirds schnell anstrengend
-% 
-% 
-% \subsection{Reuse}
-% 
-% Persoistence DSL die "abstrakt" auf Datenstrukturen referenziert,
-% die ADapter, Untersrprache fügt die konkreten Referenzen etc. hinzu auf unsere
-% Entity Sprache.
-% 
-% \subsection{Embedding}
-% 
-% Geht net, weil man nicht von 2 Spachen erben kann.
-% Copy & paste als alternative
-% 
-% Aber, klar: syntaktisches einbetten geht durch vererbung, aber nicht unter
-% beibehaltung der Unabhängigkeit der Sprachen --- damit structly speaking kein
-% Embedding, sondern Extension "mit Embedding FLavor"
-% Extension etwender
-% - "einbetten" von expressions der oberspache in "meine" untersprache
-% - Neue "top level" DInge hinzufügen
-% 
-% Als Beispiel warum: Unab. SQL und Java einbetten
+We have shown above how to embed Xbase expressions into a custom DSL. However,as
+we have discussed, this is an example of extension with embedding flavor: we
+create \emph{a new} DSL into which we embed the existing Xbase expressions. So
+we only have to extend from \emph{one} base language --- Xbase. An example of
+embedding would be to take an existing, independent SQL language and embed it
+into the Entity DSL created above. This is not possible.
