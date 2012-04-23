@@ -1,13 +1,18 @@
 \subsection{Language Extension}  
 \label{lext}
 
+
+
+
+\todo{discuss the flavours!}
+
 Language extension \fig{langExtension} enables \emph{heterogeneous} fragments
 with \emph{dependent} languages. A language $l_2$ extending $l_1$ adds
 additional language concepts to those of $l_1$. We call $l_2$ the
-\emph{extending} language, and $l_1$ the \emph{base} language. To allow the new
-concepts to be used in the context provided by $l_1$, some of them extend
-concepts in $l_1$. So, while $l_1$ remains independent, $l_2$ becomes dependent
-on $l_1$ since
+\emph{extending} language (or language extension), and $l_1$ the \emph{base}
+language. To allow the new concepts to be used in the context provided by $l_1$,
+some of them extend concepts in $l_1$. So, while $l_1$ remains independent,
+$l_2$ becomes dependent on $l_1$ since
 \begin{align}
 \exists i \in \mathit{Inh(l_2)} \mid \mathit{i.sub} = l_2\; \wedge \; 
 	\mathit{i.super} = l_1
@@ -15,10 +20,10 @@ on $l_1$ since
 Consequently, a fragment $f$ contains language concepts from both $l_1$ and
 $l_2$:
 \begin{align}
-\forall e \in E_f \mid (\mathit{lo(e)} = l_1 \vee \mathit{lo(e)} = l_2)
+\forall e \in E_f \mid \mathit{lo(e)} = l_1 \vee \mathit{lo(e)} = l_2
 \end{align}  
 In other words, $C_f \subset (C_{l_1} \cup C_{l_2})$, so $f$ is
-\emph{heterogeneous}. For heterogeneous fragments (3) does not
+\emph{heterogeneous}. For heterogeneous fragments (1.3) does not
 hold anymore, since
 \begin{align}  
 \forall c \in \mathit{Cdn_f} \mid\; &\mathit{lo(co(c.parent))} = 
@@ -37,12 +42,15 @@ it is a form of language referencing. The fragments remain homogeneous.}
   \includegraphics[width=9cm]{figures-design/langExtension.png} 
   \caption{Extension: $l_2$ extends $l_1$. It provides additional
   concepts $B3$ and $B4$. $B3$ extends $A3$, so it can be used as a child of
-  $A2$, plugging $l_2$ into the context provided by $l_1$. Consequently,
-  $l_2$ depends on $l_2$.}
+  $A2$, just like $A3$. This plugs $l_2$ into the context provided by $l_1$.
+  Consequently, $l_2$ depends on $l_2$.}
   \label{langExtension}  
 \end{center} 
 \end{figure} 
 
+
+\marginnote[3mm]{Language extension is especially interesting if
+$D_0$ languages are extended, making a DSL an extension of a general purpose language.}
 Language extension fits well with the hierarchical domains introduced in
 \sect{domhier}: a language $L_B$ for a domain $D$ may extend a language $L_A$
 for $D_{-1}$. $L_B$ contains concepts specific to $D$, making analysis and
@@ -55,20 +63,14 @@ idioms (see \sect{semantics}) \emph{inline}. This process, also known as
 $L_{D+1}$) into a homogeneous fragment expressed only with $L_D$.
 
 
-Language extension is also a very useful way to address the problem that DSLs
-often start simple, but then become more complicated over time, because new
-corners or intricacies in the domain are discovered as users gain more
-experience in the domain. The extensions can be factored into a separate
-language module that extends the core DSL. The use of these extensions can then
-initially be restricted to a few users in order to find out if they really
-needed. Different experiments can even be performed at the same time, with
-different groups of users using different extensions. Even later, "advanced"
-language feature are restrictable to a small group of "advanced" users who
-handle the hard cases. 
-
-
-\marginnote{Language extension is especially interesting if $D_0$ languages are
-extended, making a DSL an extension of a general purpose language.}
+Extension is especially useful for bottom-up domains. The common patterns and
+idioms identified for a domain can be reified directly into linguistic
+abstractions, and used directly in the language from which they have been
+embedded. Incomplete languages are not a problem, since users can easily fall
+back to $D_{-1}$ to implement the rest. Since DSL users see the $D_{-1}$ code
+all the time anyway, they will be comfortable falling back to $D_{-1}$ in
+exceptional cases. This makes extensions suitable only for DSLs used by
+developers. Domain expert DSLs are typically not implemented as extensions.
 
 \embc{As an example consider embedded programming. The C programming language is
 typically used as the GPL for $D_0$ in this case. Extensions for embedded
@@ -76,7 +78,46 @@ programming include state machines, tasks or data types with physical units.
 Language extensions for the subdomain of real-time systems may include ways of
 specifying deterministic scheduling and worst-case execution time. For the
 avionics subdomain support for remote communication using some of the bus
-systems used in avionics could be added. \todo{cite Models Paper}}
+systems used in avionics could be added.}
+
+Extension comes in two flavors. One really feels like extension, and the other
+one feels more like embedding. 
+
+\begin{description}
+
+  \item[Extension-Flavor] In the first case we provide (a little, local)
+  additional syntax to an otherwise unchanged language. For example, C may be
+  extended with new data types and literals for complex numbers as in
+  \ic{complex c = (3+2i);}. The programs still essentially look like C
+  programs (or few) particular places, something is different.
+
+  \item[Embedding Flavor] The other case is where we create a completely new
+  language, but reuse some of the syntax provided by the base language. For
+  example, we could create a state machine language that reuses C's expression
+  and types in guard conditions. This use case \emph{feels} like embedding 
+  (we embed syntax from the base language in our new language), but in the 
+  classification according to syntactic integration and dependencies,
+  it is still extension. Embedding would prevent dependencies between the state
+  machine language and C\marginnote[-4\baselineskip]{The embedding flavour
+  \emph{is} often suitable for use with DSLs that are used by non-programmers, since the
+  "embedded" subset of the language is often small and simple to understand.
+  Once again, expression languages are the prime example for this.}.
+
+\end{description}
+
+
+\noindent Language extension is also a very useful way to address the problem
+that DSLs often start simple, but then become more complicated over time,
+because new corners or intricacies in the domain are discovered as users gain
+more experience in the domain. These corner cases and intricacies can be
+factored into a separate language module that extends the core DSL. The use of
+these extensions can then initially be restricted to a few users in order to
+find out if they are really needed. Different experiments can even be performed
+at the same time, with different groups of users using different extensions. Even
+once these extensions have proven useful, "advanced" language feature are
+restrictable this way to a small group of "advanced" users who handle the hard
+cases by using the extension.
+
 
 Incremental extension can help avoid the feared customization cliff. The
 customization cliff is a term introduced by Steve
@@ -96,36 +137,36 @@ implementations for different $D_{-1}$ languages, this is not easily possible
 for DSLs that are extensions of a $D_{-1}$ language. Also, interaction with the
 $D_{-1}$ language may make meaningful semantic analysis of complete programs
 (using $L_D$ and $L_{D-1}$ concepts) hard. This problem can be limited if
-isolated $L_D$ sections are used, in which interaction with $L_{D-1}$ concepts
-is limited and well-defined.
-
-Extension is especially useful for bottom-up domains. The common patterns and
-idioms identified for a domain can be reified directly into linguistic
-abstractions, and used directly in the language from which they have been
-embedded. Incomplete languages are not a problem, since users can easily fall
-back to $D_{-1}$ to implement the rest. Since DSL users see the $D_{-1}$ code
-all the time anyway, they will be comfortable falling back to $D_{-1}$ in
-exceptional cases. This makes extensions suitable only for DSLs used by
-developers. Domain expert DSLs are typically not implemented as extensions.
+isolated $L_D$ sections are used in which interaction with $L_{D-1}$ concepts
+is limited and well-defined. These isolated sections remain analyzable.
 
 
 
 
+
+
+\marginnote{Restriction is often useful for the embedding-flavor of extension.
+For example, when embedding C expressions into the state machine language, we
+may want to restrict users from using the pointer-related expressions.}
 \parhead{Restriction} Sometimes language extension is also used to
 \emph{restrict} the set of language constructs available in the subdomain. For
 example, the real-time extensions for C may restrict the use of dynamic memory
 allocation, the extension for safety-critical systems may prevent the use of
-void pointers and certain casts. Although the extending language is in some sense
-smaller than the extended one, we still consider this a case of language
+\ic{void} pointers and certain casts. Although the extending language is in some
+sense smaller than the extended one, we still consider this a case of language
 extension, for two reasons. First, the restrictions are often implemented by
 \emph{adding additional} constraints that report errors if the restricted
-language constructs are used. Second, a marker concept may be added to the
-base language. The restriction rules are then enforced for children of these
-marker concepts (e.g. in a module marked as "safe", one cannot use void pointers
-and the prohibited casts).
+language constructs are used. Second, a marker concept may be added to the base
+language. The restriction rules are then enforced for children of these marker
+concepts (e.g. in a module marked as "safe", one cannot use void pointers and
+the prohibited casts).
 
-\embc{Modules can be marked as \emph{MISRA-compliant}, which prevents the use
-of those C constructs that are not allowed in MISRA \todo{cite}. Prohibited
-concepts are reported as errors directly in the program.}
+\embc{Modules can be marked as \emph{MISRA-compliant}, which prevents the use of
+those C constructs that are not allowed in
+MISRA-C\footnote{http://bit.ly/HpW4xV}. Prohibited concepts are reported as
+errors directly in the program.}
+
+
+
 
 

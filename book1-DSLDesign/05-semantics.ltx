@@ -42,7 +42,7 @@ are used to this end and we describe their implementation in Part III of the
 book. Here is a short overview.
 
 
-\parhead{Constraints} are simply boolean expressions that
+\parhead{Constraints} are simply Boolean expressions that
 check some property of a model. For example, one might verify that the names
 of a set of attributes of some entity are unique. For a model to be statically
 correct, all constraints have to evaluate to \ic{true}. Constraint checking should
@@ -212,18 +212,18 @@ deployed on such a target device. So, as the user changes the target device in
 the build configuration, additional constraints are checked that report floating
 point types as errors if the target has no FPU).}
 
-
-\todo{HERE}
-
+ 
 \subsection{Establishing the Correctness of the Execution Engine}
 
-Above we have defined the meaning of the program $p$ at $D_n$ as the equivalent
-observable behavior of a program $q$ at $D_{n-1}$. This essentially defines the
-transformation or interpreter to be correct. However, this is useless in
-practice. As the language developer, we have a certain behavior in mind, and we
-want to make sure that the executing DSL program exhibits this behavior. 
+Earlier we have defined the meaning of the program $p$ at $D_n$ as the
+equivalent observable behavior of a program $q$ at $D_{n-1}$. This essentially
+\emph{defines} the transformation or interpreter to be correct. However, this is
+useless in practice. As the language developer, we have a certain behavior in
+mind, and we want to make sure that the executing DSL program exhibits this
+behavior. We have to make sure that the execution engine executes the DSL
+program accordingly.
 
-\begin{marginfigure}
+\begin{marginfigure}[-20mm]
 \begin{center}
   \includegraphics[width=4.5cm]{figures-design/gpltesting.png}
   \caption{Test code tests the application code based on a single understanding
@@ -244,8 +244,8 @@ which test the code we wrote before (\fig{gpltesting}).
   \label{dsltesting}  
 \end{center}
 \end{marginfigure}
-In DSL testing, we write the DSL, the DSL program and the execution engine based
-on our understanding of the requirements towards the system. We can still write
+In DSL testing, we write the DSL, the DSL program and the execution engine
+based on our understanding of the requirements towards the system. We can still write
 unit tests (in the GPL) based on this understanding to check for the correctness
 of the executing DSL program (\fig{dsltesting}). 
 
@@ -256,7 +256,13 @@ achieved by writing many DSL programs and many tests --- enough to make sure
 that every branch of the transformation is covered at least once\footnote{For
 the Xpand code generator there has once been a coverage analysis tool. It
 could be used to make sure that for a given test suite, all branches of the
-transformation template had been executed at least once.}.
+transformation template had been executed at least once.}. As always in testing,
+we encounter the coverage problem: we have to write enough example programs and
+tests to cover all aspects of the language and the execution engine. In
+particular, we have to \emph{first think of the corner cases} to write tests for
+them\footnote{The coverage problem can be solved in some cases by automatic
+test case generation and formal verification. We discuss this later in this
+chapter.}.
 
 
 A variant of this approach is to express the test cases
@@ -276,28 +282,29 @@ write the test once and then execute it on all execution engines.
 \end{center}
 \end{figure}
 
-Note that the GPL program may have \emph{additional} behaviors not presribed by
-the DSL. These can often be exploited maliciously and are known as safety or
-security problems. These will not be found by testing the GPL code based on the
-requirements, but only by "trying to exploit" the program (known as penetration
-testing).
+Note that the GPL program may have \emph{additional, unintended} behaviors not
+prescribed by the DSL. These can often be exploited maliciously and are known as
+safety or security problems. These will not be found by testing the GPL code
+based on the requirements, but only by "trying to exploit" the program (known as
+penetration testing).
 
 We will elaborate more on ensuring the correctness of the execution semantics in
-this chapter, as well as in the Part III chapter on DSL testing\todo{ref}.
+this chapter, as well as in the Part III chapter on DSL testing\todo{ref},
+where we discuss the implementation aspects of DSL and IDE testing.
 
 
 \subsection{Transformation} 
 \label{semtrafo}
 
 Transformations define the execution semantics of a DSL by mapping it to another
-language. In the context of the domain hierarchy, a transformation for $L_D$ recreates
+language. In the vast majority of cases a transformation for $L_D$ recreates
 those patterns and idioms in $L_{D-1}$ for which it provides linguistic
 abstraction. The result may be transformed further, until a level is reached for
-which a language with an execution infrastructure exists --- often $D_0$.
-Generating GPL code from a DSL ("code generation") is thus a special case where
-$L_{D_0}$ code is generated.
+which a language with an execution infrastructure exists --- often $D_0$. Code
+generation, the case where we generate GPL code from a DSL is thus a special
+case where $L_{D_0}$ code is generated.
 
-\begin{marginfigure}
+\begin{marginfigure}[-40mm]
   \includegraphics[width=6cm]{figures-design/embc/lego.png}
   \caption{The robot control DSL is embedded in C program modules
   and provides linguistic abstractions for controlling a small lego car. It can
@@ -307,7 +314,7 @@ $L_{D_0}$ code is generated.
 
 
 \embc{The semantics of state machines are defined by their mapping back to C
-switch-case statements. This is repeated for higher D languages.
+\ic{switch} statements. This is repeated for higher $D$ languages.
 The semantics of the robot control DSL (\fig{lego}) is defined by its
 mapping to state machines and tasks (\fig{robotcontrol}). To explain the
 semantics to the users, prose documentation is available as well.}
@@ -323,7 +330,7 @@ semantics to the users, prose documentation is available as well.}
 
 \comparch{The component architecture DSL only described interfaces, components
 and systems. This is all structure-only. Many constraints about structural
-integrity are provided, and a mapping to a distribution middleware is
+integrity are enforced, and a mapping to a distribution middleware is
 implemented. The formal definition of the semantics are implied by the mapping
 to the executable code.}
 
@@ -338,21 +345,22 @@ target platform (generated XML files) or provide input for verification tools
 semantics of all generated representations is actually the same. We discuss this
 problem in \sect{synctrans}.
 
-\begin{marginfigure}
-  \includegraphics[width=5cm]{figures-design/onTheSide.png}
-  \caption{From the C state machine extensions, we generate low-level C code
-  (for execution) as well an input file for the NuSMV model checker (for
-  verification).}
+\begin{marginfigure}[2mm]
+  \includegraphics[width=5cm]{figures-design/onTheSide.png} \caption{From the C
+  state machine extensions, we generate low-level C code (for execution) as well
+  an input file for the NuSMV model checker (for verification).}
   \label{onTheSide}  
 \end{marginfigure}
 
 
-\embc{The state machines can be transformed to a representation in
-NuSMV\todo{cite}, which is a model checker that can be used to establish
-properties of state machines by exhaustive search. Examples properties include
-freedom from deadlocks, assuring liveness and specific safety properties such as
-"it will never happen that the out events \emph{pedestrian light green} and
+\embc{The state machines can be transformed to a representation in NuSMV, which
+is a model checker that can be used to establish properties of state machines by
+exhaustive search. Examples properties include freedom from deadlocks, assuring
+liveness and specific safety properties such as "it will never happen that the
+out events \emph{pedestrian light green} and
 \emph{car light green} are set at the same time".}
+
+
 
 
 \parhead{Multi-staged Transformation} There are several reasons why the gap
@@ -360,23 +368,27 @@ between a language at $D$ and its target platform may not be bridged by a single
 transformation. Instead, the overall transformation becomes a chain of
 subsequent transformations, an approach also known as cascading.
 
-In cases where the semantic gap between the DSL and the target language is
-large\footnote{One could measure this semantic gap between two languages: how
-many constructs do two languages share, how many "synonyms" exist, how many
-constructs are the same but have different meanings? In practice, the size of
-the gap is an intuition of the transformation designer.}, modularization makes
-sense because it makes each of them easier to understand, test and maintain.
+Multi-staged transformation is a form of modularization, and so the reason for
+doing it the same reason we always use for modularization: breaking down a big
+problem into a set of smaller problems that can be independently solved. In the
+case of transformations, this "big problem" is a big semantic gap between the
+DSL and the target language.\sidenote[][-5\baselineskip]{One could measure this
+semantic gap between two languages: how many constructs do two languages share, how many
+"synonyms" exist, how many constructs are the same but have different meanings?
+In practice, the size of the gap is an intuition of the transformation
+designer.}. Modularization breaks down this big semantic gap into several
+smaller ones, making each of them easier to understand, test andmaintain\footnote{... if the tools support multi-staged transformationwell. This is not true for all DSL tools.}.
 
 
-Another reason for multi-stage transformations is that each of the stages can
-potentially be reused (\fig{trafomodularization}). Reusing lower $D$ languages
+Another reason for multi-stage transformations is the potential for reuse of 
+each of the stages (\fig{trafomodularization}). Reusing lower $D$ languages
 and their subsequent transformations also implies reuse of potentially
 non-trivial analyses or optimizations that can be done at that particular
-abstraction level\marginnote[-1\baselineskip]{This is on of the reasons why we
+abstraction level\marginnote[-2\baselineskip]{This is on of the reasons why we
 usually generate GPL source code from DSLs, and not machine code or byte code:
 we want to reuse existing transformations and optimizations provided by the GPL
-compiler.}. GPL compilers, they can be retargetted relatively easily by
-exchanging the backends (machine code generation phases) or the frontend
+compiler.}. Consider GPL compilers as an example. They can be retargetted
+relatively easily by exchanging the backends (machine code generation phases) or the frontend
 (programming language parsers and analyzers). For example, GCC can generate code
 for many different processor architectures (exchangeable backends), and it can
 generate backend code for several programming languages, among them C, C++ and
@@ -385,46 +397,53 @@ models can be executed differently by exchanging the lower $D$ intermediate
 languages and transformations. Or the same lower $D$ languages and
 transformations can be used for different higher $D$ languages, by mapping these
 different languages to the same intermediate language.
-\begin{marginfigure} 
+\begin{marginfigure}[-20mm] 
   \includegraphics[width=5cm]{figures-design/trafomodularization.png}
   \caption{\emph{Left:} Backend-Reuse. Different languages ($L_3/L_2$ and $L_5$)
   are transformed to the same intermediate language $L_3$, reusing its backend
   generator to $L_0$. \emph{Right:} Frontend reuse. $L_3$ is mapped to $L_2$,
-  which has to sets of backend generators, reusing the $L_3$ to $L_2$
+  which has wto sets of backend generators, reusing the $L_3$ to $L_2$
   transformation.}
   \label{trafomodularization}  
 \end{marginfigure}
 
-\embc{The embedded C language (and some of its higher D extensions) have
+\embc{The embedded C language (and some of its higher $D$ extensions) have
 various translation options, for several different target platforms (Win32 and
 Osek), an example of backend reuse. All of them are C code, but we generate
 different idioms in the code and different make files.}
 
   
-Multi-stage transformation can also be a natural consequence of incremental
-language extension along the domain hierarchy. In this case we add additional
-higher level languages on top of lower level languages. When transforming the
-higher level languages, it is natural and obvious to transform them onto the
-next lower level, and not onto a language at $D_0$.
+Multi-stage transformation can also be a natural consequence of incremental
+language extension along the domain hierarchy, where we repeatedly build
+additional higher level languages on top of lower level languages. When
+transforming the higher level languages, it is natural and obvious to transform
+them onto the next lower level, and not onto a language at $D_0$.
 
 \embc{The extensions to C are all transformed back to C idioms during
 transformation. Higher-level DSLs, for example, a simple DSL for robot control,
 are reduced to C plus some extensions such as state machines and tasks
-(\fig{multistage_mbeddr}).}
+(\fig{multistage_mbeddr}), reusing the transformations for those abstractions
+back to C.}
 
 \begin{figure} 
 \begin{center}
   \includegraphics[width=8cm]{figures-design/multistage_mbeddr.png}
-  \caption{Multi-Stage transformation in mbeddr.}
+  \caption{Multi-Stage transformation in mbeddr. MPS supports multi-stage
+  transformations really well, so managing the interplay of the set of
+  transformations is feasible.}
   \label{multistage_mbeddr}  
 \end{center}
 \end{figure}
 
 
-A special case of a multi-staged transformation is as a preprocessor to a code
+A special case of a multi-staged transformation is a preprocessor to a code
 generator. Here, a transformation reduces the set of used language
 concepts in a fragment to a minimal core, and only the minimal core is supported
-in the code generator. 
+in the code generator. Note how, in this case, the source and target languages
+of the transformation are the same. However, the target model only uses a
+\emph{subset} of the concepts defined by the source/target language. A
+preprocessor simplifies portability of the actual code generator: it becomes
+simpler, since only the subset of the language has to be mapped to code.  
 
 
 \embc{Consider the case of a state machine where you want to be able to add an
@@ -433,8 +452,8 @@ new STOP state. Instead of handling this case in the code generator a model
 transformation script preprocesses the state machine model and adds all the new
 transitions and the new emergency stop state (\fig{states2}). Once done, the
 existing generator is run unchanged. You have effectively modularized the emergency stop concern into a
-separate transformation.}
-\begin{marginfigure}
+preprocessor transformation.}
+\begin{marginfigure}[-80mm]
   \includegraphics[width=3.5cm]{figures-design/embc/states2.png}
   \caption{A transformation adds an emergency stop feature to a state machine.
   A new state is added ($S_{es}$), and a transition from each other state to
@@ -442,6 +461,7 @@ separate transformation.}
   \emph{emergency stop} event (not shown).} 
   \label{states2}  
 \end{marginfigure}
+
 
 \comparch{The DSL describes hierarchical component architectures (where
 components are assembled from interconnected instances of other components).
@@ -453,32 +473,36 @@ model.}
 
 
 Multi-Stage transformations can be challenging. It becomes harder to understand
-what is finally going on. Debugging the overall transformation can become hard,
-and good tool support is needed\sidenote{MPS addresses this
-problem by (optionally) keeping all intermediate models around for debugging.
-The language developer can select a program element in any of the intermediate
+what is going on in total. Debugging the overall transformation can become hard,
+and good tool support is needed\sidenote{MPS addresses this problem by
+(optionally) keeping all intermediate models around for debugging purposes. The
+language developer can select a program element in any of the intermediate
 models and have MPS show a trace where the element was transformed from, and
 where it was transformed to. MPS also shows the transformation code involved in
-each step.}. 
+each step. }
 
 
-\parhead{Efficiency and Optimization} As mentioned, transforming from $D$ to
-$D_{-1}$ allows the use of sophisticated optimizations, potentially resulting in
-very efficient code. Because the DSL uses domain-specific abstractions and hence
-includes a lot of domain semantics, optimizations can take advantage of this and
-produce very efficient $D_{-1}$ code. However, building such optimizations can
-be very expensive. It is especially hard to build \emph{global} optimizations
-that require knowledge about the structure or semantics of large or diverse
-parts of the overall program. Also, an optimization will always rely on some set
-of rules that determine when and how to optimize. There will always be corner
-cases where an experienced developer will produce more efficient $D_{-1}$ code.
-However, this requires a competent developer and, usually, a lot of effort
-\emph{in each case}. A tool will typically address the 90\% case well: it will
-produce reasonably efficient code in the vast majority of cases with very little
-effort (once the optimizations have been defined). In most cases, this is good
-enough --- in the remaining corner cases, $D_{-1}$ has to be written
+
+
+\parhead{Efficiency and Optimization} Transforming from $D$ to $D_{-1}$ allows
+using sophisticated optimizations, potentially resulting in very efficient code.
+DSL uses domain-specific abstractions and hence includes a lot of domain
+semantics, so optimizations can take advantage of this and produce very
+efficient $D_{-1}$ code. However, building such optimizations can be very
+expensive. It is especially hard to build \emph{global} optimizations that
+require knowledge about the structure or semantics of large or diverse parts of
+the overall program. Also, an optimization will always rely on some set of rules
+that determine when and how to optimize. There will always be corner cases where
+an experienced developer will be able to write more efficient $D_{-1}$ code
+manually. However, this requires a competent developer and, usually, a lot of
+effort \emph{for each specific program}. A tool (i.e. the transformation in this
+case) will typically address the 90\% case well: it will produce reasonably
+efficient code in the vast majority of cases with very little effort (once the
+optimizations have been defined). In most cases, this is good enough --- in the
+remaining corner cases, $D_{-1}$ has to be written
 manually\sidenote[][-2\baselineskip]{This argument pro tools is used in GPLs for
-garbage collection and optimizing compilers for higher level programming languages.}.
+garbage collection and optimizing compilers for higher level programming
+languages.}.
 
 
 
@@ -488,32 +512,32 @@ least during development and test of the generator you may have to read,
 understand and debug the generated code. For incomplete DSLs\sidenote{We cover
 completeness in section \todo{}}, i.e. those where parts of the resulting
 program have to be written manually in $L_{D-1}$, readability and good structure
-is even more important, because the manually written code has to integrate with
-the generated parts of the $L_{D-1}$ program. Hence, generated code should use
+is even more important, because the manually written code has to be integrated
+with the generated parts of the $L_{D-1}$ program. Hence, generated code should use
 meaningful abstractions, should be designed well, use good names for
 identifiers, be documented well, and be indented correctly. In short, generated
 code should generally adhere to the same standards as manually written code.
 This also helps to diffuse some of the skepticism against code generation that
-is still widespread in some organizations.\marginnote{Note that in complete
-languages (where 100\% of the $L_{D-1}$ code is generated), the generated code
+is still widespread in some organizations.\marginnote[-3\baselineskip]{Note that
+in complete languages (where 100\% of the $L_{D-1}$ code is generated), the generated code
 is never seen by a DSL user. But even in this case, concerns for code quality
 apply and the code has to be understood and tested during DSL and generator
-development.}
-However, there are several exceptions to this rule:
+development.} However, there are several exceptions to this rule:
 
 \begin{itemize}
 
   \item Sometimes generating really well structured code makes the generator
   \emph{much} more complicated. You then have to decide whether you want to live
   with some less nicely structured generated code, or whether you want to
-  increase generator complexity --- after all, the generator also needs to be
-  maintained! A good example is \emph{import} statements in Java. It can be a
-  lot of work to find out exactly which imports are needed in a generated class.
-  In this case it may be better to keep the generator simple and use fully qualified
-  class names throughout the code, and/or to import a few too many
+  increase generator complexity --- a valid trade-off, since the
+  generator also needs to be maintained! A good example is \emph{import}
+  statements when generating Java code. It can be a lot of work to find out
+  exactly which imports are needed in a generated class.
+  In this case it may be better to keep the generator simple and use fully 
+  qualified class names throughout the code, and/or to import a few too many
   classes\sidenote{Xtend provides special support for this problem based on an
   \ic{ImportManager}. It makes generating the correct imports relatively
-  simple}.
+  simple.}.
   
   \item Using a generator opens up additional options you wouldn't consider when
   writing code manually (and which are hence considered ugly). An example is
@@ -523,13 +547,13 @@ However, there are several exceptions to this rule:
   would use the generic \ic{List} class. In the context of generated code you
   might want to consider generating a specific collection class for each entity,
   with an API typed to the respective Java Bean. This makes live much more
-  convenient for those people who write Java code that uses the generated Beans.
+  convenient for those people who write Java code that \emph{uses} the generated Beans.
 
-  \item The third exception to the rule is if the code has to be highly optimized for
-reasons of performance and code size. While you can still indent your code well
-and use meaningful names, the \emph{structure} of the code may be convoluted.
-Note, however, that the code would look the same way if it were written by hand
-in that case.
+  \item The third exception to the rule is if the code has to be highly
+  optimized for reasons of performance and code size. While you can still indent 
+  your code well and use meaningful names, the \emph{structure} of the code may 
+  be convoluted. Note, however, that the code would look the same way if it 
+  were written by hand in that case.
 
 \embc{The components extension to C supports components with provided and
 required ports. A required port declares which interface it is expected to be
@@ -538,16 +562,20 @@ implementing the interface differently. Upon translation of the component
 extension, regular C functions are generated. An outgoing call on a required
 port has to be routed to the function that has been generated to implement the
 called interface operation in the target component. Since each component can be
-instantiated multiple times, and each instance can have their required ports
-connected to different component instances (implementing the same
-interface) qthere is no way for the generated code to know the particular
-function that has to be called for an outgoing call on a required
-port. An indirection through function pointers in used. Consequently, functions
-implementing operations in components take an additional \lcr{struct} as an
-argument which provides those function pointers for each operation of each
-required port. A call on a required port thus is a relatively ugly affair based
-on function pointers. However, to achieve the desired goal, no different,
-cleaner code approach is possible in C.} 
+instantiated multiple times, and each instance can have its required ports
+connected to \emph{different} component instances (implementing the same
+interface) there is no way for the generated code to know the particular
+function that has to be called for an outgoing call on a required port for a
+given instance. An indirection through function pointers in used instead.
+Consequently, functions implementing operations in components take an additional
+\lcr{struct} as an argument which provides those function pointers for each
+operation of each required port. A call on a required port thus is a relatively
+ugly affair based on function pointers. However, to achieve the desired goal, no
+different, cleaner code approach is possible in C. It is optionally possible to
+\emph{restrict} a required port to a particular component
+(\fig{restrictedport}). In this case, the target function is known statically
+and no function pointer-based indirection is required. The resulting code is
+cleaner and more efficient. Programmers trade flexibility for performance.}
 
 \end{itemize}
 
@@ -563,37 +591,36 @@ cleaner code approach is possible in C.}
   \rule{1\textwidth}{0.7pt}    
 \end{figure}
 
-\parhead{Platform} Code generators can become complex. The complexity can
-be reduced by splitting the overall transformation into several steps ---
-see above. Another approach is to work with a manually implemented, rich domain
+
+\parhead{Platform} Code generators can become complex. The complexity can be
+reduced by splitting the overall transformation into several steps --- see
+above. Another approach is to work with a manually implemented, rich domain
 specific platform. It typically consists of middleware, frameworks, drivers,
 libraries and utilities that are taken advantage of by the generated code.
-\begin{marginfigure}
-  \includegraphics[width=4cm]{figures-design/platform.png}
-  \caption{Typical layering structure of an application created
-  using DSLs.}
+\begin{marginfigure}[-40mm]
+  \includegraphics[width=4cm]{figures-design/platform.png} \caption{Typical
+  layering structure of an application created using DSLs.}
   \label{platform}  
 \end{marginfigure}
-Where the generated code and the platform meet depends on the complexity of the
-generator, requirements regarding code size and performance, the expressiveness
-of the target language and the potential availability of libraries and
-frameworks that can be used for the task.
+Where the generated code and the platform "meet" depends on the complexity of
+the generator, requirements regarding code size and performance, the
+expressiveness of the target language and the potential availability of
+libraries and frameworks that can be used for the task. In the extreme case, the
+generator just generates code to populate/configure the frameworks (which might
+already exist, or which you have to grow together with the generator) or
+provides statically typed facades around otherwise dynamic data structures.
+Don't go too far towards this end, however: in cases where you need to consider
+resource or timing constraints, or when the target platform is predetermined and
+perhaps limited, code generation is the better approach: trying to make the
+platform too generic or flexible will increase \emph{its} complexity.
 
-In the extreme case, the generator just generates code to populate/configure the
-frameworks (which might already exist, or which you have to grow together with
-the generator) or provides statically typed facades around otherwise dynamic
-data structures. Don't go too far towards this end, however: in cases where you
-need to consider resource or timing constraints, or when the target platform is
-predetermined and perhaps limited, code generation does open up a new set of
-options and it is often a very good approach.
-
-\begin{marginfigure}[1cm]
+\begin{marginfigure}[-30mm]
   \includegraphics[width=5cm]{figures-design/cave.png}
   \caption{Stalagmites and stalactites in limestone caves as a
-  metaphor for a generator and a platform. The stalagmite represents the
-  platform: it grows from up the lower abstraction levels. Stalagtites represent
-  the execution engine, which grows down from the high abstraction level
-  represented by the DSL.}
+  metaphor for a generator and a platform: the stalagmite represents the
+  platform, it grows from up the lower abstraction levels. Stalagtites
+  represent the transformations, which grow down from the high abstraction
+  level represented by the DSL.}
   \label{cave} 
 \end{marginfigure}
 
@@ -601,19 +628,16 @@ options and it is often a very good approach.
 \embc{For most aspects, we use only a very shallow platform. This is mostly for
 performance reasons and for the fact that the subset of C that is often used
 for embedded systems does not provide good means of abstraction. For example,
-state machines are translated to switch/case statements. If we would generate
-Java code in an enteprise system, we may populate a state machine framework
+state machines are translated to \ic{switch} statements. If we were to generate
+Java code in an enterprise system, we may populate a state machine framework
 instead. In contrast, when we translate the component definitions to the
 AUTOSAR target environment, a relatively powerful platform is used --- namely
 the AUTOSAR APIs, conventions and generators.}
 
+
 \subsection{Interpretation} 
 
-For interpretation, the domain hierarchy could be exploited as well: the
-interpreter for $L_D$ could be implemented in $L_{D-1}$. However, in practice we
-see interpreters written in $L_{D_0}$. They may be extensible, so new
-interpreter code can be added in case specialized languages define new language
-concepts. 
+
 
 An interpreter is basically a program that acts on the DSL program it receives
 as an input. How it does that depends on the particular paradigm used (see
@@ -636,6 +660,12 @@ functional, so the debugger "expands" the calculation tree, and users can
 inspect all intermediate results.}
 
 
+For interpretation, the domain hierarchy could be exploited as well: the
+interpreter for $L_D$ could be implemented in $L_{D-1}$. However, in practice we
+see interpreters written in $L_{D_0}$. They may be extensible, so new
+interpreter code can be added in case specialized languages define new language
+concepts. 
+
 
 \subsection{Transformation vs. Interpretation} 
 
@@ -648,30 +678,33 @@ of criteria to help with this decision.
 	be inspected to check whether it resembles code that had previously been written
 	manually in the DSL's domain. Writing the transformation rules can be guided by
 	the established patterns and idioms in $L_{D-1}$. Interpreters are meta
-	programs and as such harder to relate to existing code
-	patterns\sidenote[][-5\baselineskip]{This is especially relevant during the
-	development of the execution engine. DSL users may not want to see the code (the same is true for debugging)}.
+	programs and as such harder to relate to existing code patterns.
+	
 	\item[Debugging] Debugging generated code is straight forward if the code
 	is well structured (which is up to the transformation) and an execution
-	paradigm is used for which a decent debugging appraoch exists (not the case
+	paradigm is used for which a decent debugging approach exists (not the case
 	for many declarative approaches). Debugging interpreters is harder, because,
 	they are meta programs. For example, setting breakpoints in the DSL program
 	requires the use of conditional breakpoints in the interpreter, which are 
-	typically cumbersome to use\sidenote[][-7\baselineskip]{Once again, this is
+	typically cumbersome to use\sidenote[][-7\baselineskip]{This is
 	especially useful during the development of the execution engine. Once a the DSL and the engine
 	are finished, users should be able to debug DSL programs on the level of the
 	DSL. However, since building DSL debuggers is not directly supported by most
 	language workbenches, this is a lot of work --- and users are required to debug
 	on $L_{D-1}$.}
+	
 	\item[Performance and Optimization] The code generator can perform
 	optimizations that result in small and tight generated code. The compiler for
 	the generated code may come with its own optimizations which are used
 	automatically if source code is generated and subsequently
 	compiled, simplifying the code generator\sidenote{For example, it is not
-	necessary to optimize away calls to empty functions or if statements that 
-	always evaluate to \lcr{true}}. Generally, performance is better in 
-	generated environments, since interpreters always imply an additional layer of
-	indirection.
+	necessary to optimize away calls to empty functions,\ic{if} statements that 
+	always evaluate to \lcr{true}, or arithmetic expressions
+	containing only constants.}.
+	Generally, performance is better in generated environments, since 
+	interpreters always imply an additional layer of indirection during the
+	execution of the program.
+	
 	\item[Platform Conformance] Generated code can be tailored to any target
 	platform. The code can look exactly as manually written code would look, no
 	support libraries are required. This is important for systems where the source code
@@ -679,33 +712,68 @@ of criteria to help with this decision.
 	and/or certification. Also if artifacts need to be supplied to the
 	platform that are not directly executable (descriptors, meta data), code generation is
 	more suitable.
+	
 	\item[Modularization] When incrementally building DSLs on top of existing
 	languages, it is natural to use transformations to $L_{D-1}$. \sidenote{While it is
 	theoretically possible to also extend interpreters incrementally along a
 	hierarchy of languages, I have not seen this in practice. Interpreters are
 	typically written in a GPL.}
+	
 	\item[Turnaround Time] Turnaround time for interpretation is better than
 	for generation: no generation, compilation and packaging step is required.
 	Especially for target languages with slow compilers, large amounts of generated
 	code can be a problem.
+	
 	\item[Runtime Change] In interpreted environments, the DSL program can be
-	changed as the target system runs; the editor can be integrated into the
-	executing system\sidenote{The term data-driven system is often used in this
+	changed as the target system runs; the DSL editor can even be integrated into
+	the target system\sidenote{The term data-driven system is often used in this
 	case.}.
 \end{description}
+
+
+\cooling{There were two reasons for implementing the interpreter for the
+cooling programs. The first was that initially we didn't have a code generator
+because the target architecture was not yet defined. To be able to execute
+cooling programs, we needed an interpreter and simulator. Second, the
+turn-around time for the domain experts as the experimented with the DSL
+programs is much reduced compared to generating, compiling and running C code.
+The (interpreted) simulator also allowed the domain experts to run the programs
+at a speed they could follow. This proved an important means of understanding
+and debugging the asynchronous reactive cooling programs.}
+
+\embc{This DSL exploits incremental extension to the C programming language
+(inductive DSL definition). In this case it is natural to use transformation to
+$L_{D-1}$ as a means of defining the semantics of extensions. Also, since the
+target domain is embedded software, performance, code size and reuse of the
+optimizations provided by the C compiler is essential. Interpretation was never
+an option.}
+
+\comparch{The driving factor for using generation over interpretation was
+platform conformance. The reason for the DSL is to automate the generation of
+target platform artifacts and thereby make working with the platform more
+efficient.}
+
+\pension{Turnaround time was important for the pension contract specification.
+Also, the domain experts, as the created the pension plans, did not have access
+to the final execution platform. An in-IDE interpreter was clearly the best
+choice.}
+
+\exwebdsl{Platform conformance was key here. Web applications have to use the
+established web standards, and the necessary artifacts have to be generated. An
+interpreted approach would not work in this scenario.}
+
 
 Combinations between the two approaches are also possible. For example,
 transformation can create an intermediate representation which is then
 interpreted. Or an interpreter can generate code on the fly as a means of
-optimization. While this approach is common in GPL VMs such as the JVM, we have
-not seen this approach used for DSLs. 
-
+optimization. While this approach is common in GPLs (e.g. the JVM), we
+have not seen this approach used for DSLs. 
 
 \subsection{Sufficiency}
 
 A program fragment is \emph{sufficient for transformation T} if the fragment
-itself contains all the data for the transformation to be executed. While
-dependent fragments are by definition not sufficient without the transitive
+itself contains all the data necessary to executed for the transformation.
+While dependent fragments are by definition not sufficient without the transitive
 closure of fragments they depend on, an independent fragment may be sufficient
 for one transformation, and insufficient for another.
 
@@ -713,25 +781,31 @@ for one transformation, and insufficient for another.
 generates an HTML doc that describes the hardware. It is insufficient regarding
 the C code generator, since the behavior fragment is required as well.}
 
+Sufficiency is important when large systems are concerned. An sufficient
+fragment can be used for code generation without checking out and/or loading
+other fragments. This supports modular, incremental transformations of only the
+changed fragments, and hence, potentially significant improvements in
+performance and scalability.
+
 
 \subsection{Synchronizing Multiple Mappings} 
 \label{synctrans}
 
-The approach suggested so far works well if we have only one mapping of a DSL
-for execution. The semantics implied by the mapping to $L_{D-1}$ can be
-\emph{defined} to be correct. However, as soon as we transform the program to
-several different targets using several different transformations,
-we have to ensure that the semantics of all resulting programs are
-identical\footnote{At least to the extent we care --- we may not care if one of
-the resulting programs is faster or more scalable. In fact, these differences
-may be the very reason for having several mappings)}. In practice, this case
-often occurs if an interpreter is used in the IDE for "experimenting" with the
-models, and a code generator creates efficient code for execution in the target
-environment. To synchronize the semantics in this case we recommend providing a
-set of test cases that are executed all executable representations expecting
-them to succeed in all. If the coverage of these test cases is high enough to
-cover all of the observable behavior, then it can be assumed with reasonable 
-certainty that the semantics are indeed the same.
+Ensuring the semantics of the execution engine becomes more challenging if we
+transform the program to \emph{several different} targets using several
+different transformations. We have to ensure that the semantics of all resulting
+programs are identical\footnote{At least to the extent we care --- we may not
+care if one of the resulting programs is faster or more scalable. In fact, these
+differences may be the very reason for having several mappings)}. In practice,
+this case often occurs if an interpreter is used in the IDE for "experimenting"
+with the models, and a code generator creates efficient code for execution in
+the target environment. To synchronize the semantics in this case we recommend
+providing a set of test cases that are expressed on DSL level, and that are
+executed in all executable representations, expecting them to succeed in all. If
+the coverage of these test cases is high enough to cover all of the observable
+behavior, then it can be assumed with reasonable certainty that the semantics
+are indeed the same\footnote{Strictly speaking they are just bug-compatible,
+i.e. they may all make the same mistakes.}.
 
 \pension{The unit tests in the pension plans DSL are executed by an interpreter
 in the IDE. However, as Java code is generated from the pension plan
@@ -744,6 +818,8 @@ code generator creates the executable version of the cooling algorithm that
 actually runs on the microcontroller in the refrigerator. A suite of test cases
 is used to ensure the same semantics.}
 
+
+
 \subsection{Choosing between Several Mappings} 
 \label{severalmapp}
 
@@ -753,48 +829,54 @@ non-functional requirements (optimizations, target platform, tracing or
 logging). There are several ways how one alternative may be selected.
 
 \begin{itemize}
+
   \item In analogy to compiler switches, the decision can be controlled by
   additional external data. Simple parameters passed to the transformation are
   the simplest case. A more elaborate approach is to have an additional model,
-  called an annotation model, which contains data used by the transformation to 
-  decide how to translate the core program. The transformation uses the 
-  $L_D$ program and the annotation model as its input. There can
-  be several different annotation models for the same core model to guide the
-  way the transformation is performed. An annotation model is a separate
+  called an annotation model, which contains data used by the transformation to
+  decide how to translate the core program. The transformation uses the $L_D$
+  program and the annotation model as its input. There can be several different
+  annotation models for the same core model that define several different
+  transformations, to be used alternatively. An annotation model is a separate
   viewpoint (\sect{sec:viewpoints}) an can hence be provided by a different
   stakeholder than the one who maintains the core $L_D$ program.
-  \item Alternatively, $L_D$ can be extended to contain additional data 
+
+  \item Alternatively, $L_D$ can be extended to directly contain additional data 
   to guide the decision. Since the data controlling the transformation is
-  embedded in with the core progeam, this is only useful if the DSL user can
+  embedded in the core program, this is only useful if the DSL user can
   actually decide which alternative to choose, and if only one alternative 
-  should be chosen for each program.
+  should be chosen for each program. Annotation models provide more flexibility.
+
   \item Heuristics, based on patterns, idioms and statistics extracted from the 
   $L_D$ program, can be used to determine the applicable
-  transformation. Codifying these rules and heuristics can be hard though.
+  transformation as well. Codifying these rules and heuristics can be hard
+  though, so this approach is rarely used.
 \end{itemize}
 
 \noindent As we have suggested above in the case of multiple transformations of
 the \emph{same} $L_D$ program, here too extensive testing must be used to make
 sure that all translations exhibit the same semantics (except for the
-non-functional characteristics that are expected to be different, since they
-are the reason for the different transformations in the first place).
+non-functional characteristics that may be expected to be different, since they
+often are the reason for the different transformations in the first place).
 
 
-\subsection{Reduced Expressiveness} 
+\subsection{Reduced Expressiveness and Verification} 
 
 It may be beneficial to limit the expressiveness of a language. Limited
 expressiveness often results in more sophisticated analyzability. For example,
 while state machines are not very expressive (compared to fully fledged C),
 sophisticated formal verification algorithms are available (e.g. model checking
-using SPIN or NuSMV\todo{cite}). The same is true for first-order logic, where
-satisfiability (SAT) solvers\cite{Mitchell05} can be used to check programs for
-consistency. If these kinds of analysis are useful for the model purpose, then
-limiting the expressiveness to the respective formalism may be a good idea, even
-if it makes expressing certain programs in $D$ more cumbersome\footnote{A simple
-example is to use integers with ranges \ic{int[0..10] x;} instead of general
-integers. This makes programs harder to write (ranges must be specified every
-time) but easier to analyze.}. Possibly a DSL should be partitioned into several
-sub-DSLs, where some of them are verifiable and some are not.
+using SPIN\sidenote[][-2\baselineskip]{http://spinroot.com} or
+NuSMV\sidenote[][-1\baselineskip]{http://nusmv.fbk.eu/}). The same is true for first-order logic,
+where satisfiability (SAT) solvers\cite{Mitchell05} can be used to check
+programs for consistency. If these kinds of analyses are useful for the model
+purpose, then limiting the expressiveness to the respective formalism may be a
+good idea, even if it makes expressing certain programs in $D$ more
+cumbersome\footnote{A simple example is to use integers with ranges
+\ic{int[0..10] x;} instead of general integers. This makes programs harder to
+write (ranges must be specified every time) but easier to analyze.}. Possibly a
+DSL should be partitioned into several sub-DSLs, where some of them are
+verifiable and some are not.
 
 \embc{This is the approach used here: model checking is provided for the state
 machines. No model checking is available for general purpose C, so behavior
@@ -808,35 +890,6 @@ runnables). The key here is that the state machine is completely self-contained
 regarding verification: adapting the state machine to its surrounding C program
 is a separate concern and irrelevant to the model checker.}
 
-
-\subsection{Documentation} 
-
-Formally, defining semantics happens by mapping the DSL concepts to $D_{-1}$
-concepts for which the semantics is known. For DSLs used by developers, and for
-domains that are defined bottom-up, this works well. For application domain
-DSLs, and for domains defined top-down, this approach is not necessarily good
-enough, since the $D_{-1}$ concepts has no inherent meaning to the users and/or
-the domain. An additional way of defining the meaning of the DSL is required.
-Useful approaches include prose documentation as well as test cases or
-simulators. This way, domain users can "play" with the DSL and write down their
-expectations formally in test cases.
-
-\cooling{This DSL has a separate viewpoint for defining test cases where
-domain experts can codify their expectations regarding the behavior of cooling
-programs. An interpreter is available to simulate the programs, observe their
-progress and stimulate them to see how they react.}
-
-\pension{This DSL supports an Excel-like tabular notation for expressing test
-cases for pension calculation rules (\fig{testcases}). The calculations are
-functional, and the calculation tree can be extended as a way of debugging the rules.}
-
-\begin{figure}[h] 
-  \includegraphics[width=11cm]{figures-design/pension/testcases.png}
-  \caption{Test cases in the pension language allow users to specify test data
-  for each input value of a rule. The rules are then evaluated by an
-  interpreter, providing immediate feedback about incorrect rules.}
-  \label{testcases}  
-\end{figure}
 
 However, the language may have to be reduced to the point where domain experts
 are not able to use the language because the connection to the domain is too
@@ -854,4 +907,44 @@ and the DSL, this can be very hard.
 
 \todo{talk about mapping DSLs down to state machines and reinterpreting the
 result in the context of the DSL. Should be a result from the LWES project.}
+
+
+
+\subsection{Documentation} 
+
+Formally, defining semantics happens by mapping the DSL concepts to $D_{-1}$
+concepts for which the semantics is known. For DSLs used by developers, and for
+domains that are defined inductively (bottom-up), this works well. For
+application domain DSLs, and for domains defined deductively (top-down), this
+approach is not necessarily good enough, since the $D_{-1}$ concepts has no
+inherent meaning to the users and/or the domain. An additional way of defining
+the meaning of the DSL is required. Useful approaches include prose
+documentation\sidenote[][-2\baselineskip]{We suggest to always write such
+documentation in tutorial style, or as FAQs. Hardly anyone reads "reference documentation":
+while it may be complete and correct, it is boring to read and does not guide
+users through using the DSL.} as well as test cases or simulators.
+This way, domain users can "play" with the DSL and write down their expectations
+formally in test cases.
+
+\embc{The extensible C language comes with a 100 page PDF that shows how to use
+the MPS-based IDE, illustrates the changes to regular C, provides examples for
+all C extensions and also discusses how to use the integrated analysis
+tools.}
+
+\cooling{This DSL has a separate viewpoint for defining test cases where
+domain experts can codify their expectations regarding the behavior of cooling
+programs. An interpreter is available to simulate the programs, observe their
+progress and stimulate them to see how they react.}
+
+\pension{This DSL supports an Excel-like tabular notation for expressing test
+cases for pension calculation rules (\fig{testcases}). The calculations are
+functional, and the calculation tree can be extended as a way of debugging the rules.}
+
+\begin{figure}[h] 
+  \includegraphics[width=11cm]{figures-design/pension/testcases.png}
+  \caption{Test cases in the pension language allow users to specify test data
+  for each input value of a rule. The rules are then evaluated by an
+  interpreter, providing immediate feedback about incorrect rules.}
+  \label{testcases}  
+\end{figure}
 

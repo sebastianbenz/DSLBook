@@ -1,16 +1,18 @@
 \FloatBarrier
 \clearpage
 
+
 \chapter{Process Issues} 
+\label{process}
 
 \chapterabstract{Software development with DSLs requires a compatible
 development process. A lot of what's required is similar to what's required for
-any other reusable artifact such as a framework. A workable process must be
-established between those who build the reusable artifact and those who use it.
-Requirements have to flow in one direction, and a finished, stable, tested and
-document tool in the other. Also, using DSLs is a bit of a change for all
-involved, especially the domain experts. In this chapter we provide some
-guidelines.}
+working with any other reusable artifact such as a framework: a workable process
+must be established between those who build the reusable artifact and those who
+use it. Requirements have to flow in one direction, and a finished, stable,
+tested and document product has to be delived in the other direction. Also,
+using DSLs is a bit of a change for all involved, especially the domain experts.
+In this chapter we provide some guidelines regarding the process.}
 
 
 \section{DSL Development}
@@ -20,18 +22,18 @@ guidelines.}
 
 How do you find out what your DSL should express? What are the relevant
 abstractions and notations? This is a non-trivial issue, in fact, it is one of
-the key issues in using DSLs. It requires a lot of domain expertise, thought and
-iteration. The core problem is that you're trying to not just understand one
-problem, but rather a \emph{class} of problems. Understanding and defining the
-extent and nature of this class of problems can be a lot of work. There are
-several typical ways of how to get started.
+the key issues in developing DSLs. It requires a lot of domain expertise,
+thought and iteration. The core problem is that you're trying to not just
+understand one problem, but rather a \emph{class} of problems. Understanding and
+defining the extent and nature of this class of problems can be a lot of work.
+There are several typical ways of how to get started.
 
 If you're building a technical DSL, the source for a language is often an
 existing framework, library, architecture or architectural pattern (inductive
 approach). The knowledge often already exists, and building the DSL is mainly
 about factoring the knowledge into a language: defining a notation, putting it
-into a formal language, and building generators to generate parts of the
-(potentially complex) implementation code. In the process, you often also want
+into a formal language, and building generators to generate (parts of) the
+implementation code. In the process, you often also want
 to put in place reasonable defaults for some of the framework features, thereby
 increasing the level of abstraction and making framework use easier.
 \embc{This was the approach taken by the extensible C case study. There is a
@@ -39,8 +41,8 @@ lot of experience in embedded software development, and some of the most
 pressing challenges are the same throughout the industry. When the DSL was 
 built, we talked to expert embedded software developers to find out what these
 central challenges were. We also used an inductive approach and looked at
-exising C code to indentify idioms and patterns. We then defined extensions
-to C that contained linguistic abstractions for the most important ones.}
+existing C code to indentify idioms and patterns. We then defined extensions
+to C that provided linguistic abstractions for the most important ones.}
 
 
 In case of business domain DSLs, you can often mine the existing (tacit)
@@ -49,22 +51,24 @@ science or logistics, domain experts are absolutely capable of precisely
 expressing domain knowledge. They do it all the time, often using Excel or Word.
 Similar to domain knowledge, other domain artifacts can also be exploited: for
 example, hardware structures or device features are good candidates for
-abstractions in the respective domains. So are existing user interfaces. They
-face users directly, and so are likely to contains core domain abstractions.
+abstractions in the respective domains. So are existing user interfaces: they
+face users directly, and so are likely to contain core domain abstractions.
 Other sources are standards for an industry, or training material. Some domains
 even have an agreed upon ontology containing concepts relevant to that domain,
 and recognized as such by a community of stakeholders. DSLs can be (partly)
-derived from and such domain ontologies.
+derived from such domain ontologies.
 
-\pension{The company for which the pension DSL was built had a lot of
-experience with pension plans. This experience was mostly in the heads of
-(soon to be retiring) senior domain experts. They also already had the core of
-the DSL: a "rules language". The people who defined the pension plans would
-write rules into Word documents to formally describe the pension plan behavior.
-This was not terribly productive because of the missing tool support, but it
-meant that the core of the DSL was there. We still had to run a long series of
-workshops to figure out necessary changes to the language, clean up loose ends
-and discuss modularization and reuse in pension plans.}
+
+
+\pension{The company for which the pension DSL was built had a lot of experience
+with pension plans. This experience was mostly in the heads of (soon to be
+retiring) senior domain experts. They also already had the core of the DSL: a
+"rules language". The people who defined the pension plans would write rules
+into Word documents to "formally" describe the pension plan behavior. This was
+not terribly productive because of the missing tool support, but it meant that
+the core of the DSL was known. We still had to run a long series of workshops to
+figure out necessary changes to the language, clean up loose ends and discuss
+modularization and reuse in pension plans.}
 
 
 
@@ -74,12 +78,12 @@ formalize things, viewpoints, partitioning and the like (note that those things
 can be pretty non-trivial, too!).
 
 \marginnote{One of my most successful approaches in this case is to build
-strawmen: trying to understand something, factor it into some kind of regular
+straw men: trying to understand something, factor it into some kind of regular
 structure, and then re-explain that structure back to the stakeholders.}
 However, in the remaining third case, however, we are not so lucky. If no domain
 knowledge is easily available, we have to do an actual domain analysis, digging
 our way through requirements, stakeholder "war stories" and existing
-applications. People may be knowledgable, but they might be unable to
+applications. People may be knowledgeable, but they might be unable to
 conceptualize their domain in a structured and way --- it is then the job of the
 language designer to provide the structure and consistency that is necessary for
 defining a language. Co-evolving language and concepts (see below) is a
@@ -99,26 +103,32 @@ as the domain experts --- software architects and developers.
 
 
 
+\todo{here}
+
+
 
 
 \subsection{Iterative Development}
 
-Some people use DSLs as an excuse to do waterfall again. They spend months and
-months developing languages, tools, and frameworks. Needless to say, this is not
-a very successful approach. You need to iterate when developing the
-language. 
+Some people use DSLs as an excuse to reintroduce waterfall processes. They spend
+months and months developing languages, tools, and frameworks. Needless to say,
+this is not a very successful approach. You need to iterate when developing the
+language.
 
 Start by developing some deep understanding of a small part of the domain for
 which you build the DSL. Then build a little bit of language, build a little bit
 of generator and develop a small example model to verify what you just did.
 Ideally, implement all aspects of the language and processor for each new domain
-requirement before focusing on new requirements.
+requirement before focusing on new requirements\footnote{IDE polishing is
+probably something you want to postpone a little bit, and not do it as part of
+every iteration}.
 
 
 Especially newbies to DSLs tend to get languages and meta models wrong because
-they are not used to think meta. You can avoid this pitfall by immediately
+they are not used to "think meta". You can avoid this pitfall by immediately
 trying out your new language feature by building an example model and developing
-a compatible generator.
+a compatible generator to verify that you can actually generate the relevant
+artifacts.
 
 
 \cooling{In order to solidify our choices regarding language abstractions, we
@@ -127,13 +137,9 @@ found the need for more and more language abstractions. We noticed early that we
 needed a way to test the example programs, so we implemented the interpreter and
 simulator relatively early. In each iteration, we extended the language as well
 as the interpreter, so the domain experts could experiment with the language
-even though we did not have a code generator yet.}
+even though we did not have a C code generator yet.}
 
-\begin{marginfigure}
-  \includegraphics[width=5cm]{figures-design/languageWaves.png}
-  \caption{Iterating towards a stable language over time}
-  \label{languageWaves} 
-\end{marginfigure}
+
 It is important that the language approaches some kind of stable state over time
 (\fig{languageWaves}). As you iterate, you will encounter the following
 situation: domain experts express requirements that may sound inconsistent. You
@@ -142,9 +148,16 @@ in size and complexity. After a number of these exceptions and corner cases,
 ideally the language designer will spot the systematic nature behind these and
 refactor the language to reflect this deeper understanding of the domain.
 Language size and complexity is reduced. Over time, the amplitude of these
-changes in language size and complexity (error bars in \fig{languageWaves})
+changes in language size and complexity (the error bars in \fig{languageWaves})
 should become smaller, and the language size and complexity should approach a
 stable level (\emph{ss} in \fig{languageWaves}).
+\begin{marginfigure}[-43mm]
+  \includegraphics[width=5cm]{figures-design/languageWaves.png}
+  \caption{Iterating towards a stable language over time. It is a sign of
+  trouble if the language complexity does not approach some kind of stable
+  state over time.}
+  \label{languageWaves} 
+\end{marginfigure}
 
 \comparch{A nice example of spotting a systematic nature behind a set of
 special cases was the introduction of data replication as a core abstraction in
@@ -158,20 +171,19 @@ abstractions: data replication.}
 
 \subsection{Co-evolve concepts and language}
 
-In cases where you do a real domain analysis, i.e. when you have to find out
-which concepts the language shall contain, make sure you evolve the language in
-real time as you discuss the concepts.
+In cases where you perform a real domain analysis, i.e. when you have to find
+out which concepts the language should contain, make sure you evolve the
+language in real time as you discuss the concepts.
 
-Defining a language requires formalization. It requires becoming very clear
-and unambiguous about the concepts that go into the language. In
-fact, building the language, because of the need for formalization, helps you 
-become clear about
-the concepts in the first place. Language construction acts as a catalyst for
-understanding the domain! I recommend actually building a language in real time
-as you analyze your domain.
+Defining a language requires formalization. It requires becoming very clear and
+unambiguous about the concepts that go into the language. In fact, building the
+language, because of the need for formalization, helps you become clear about
+the domain abstractions in the first place. Language construction acts as a
+catalyst for understanding the domain! I recommend actually building a language
+in real time as you analyze your domain.
 
 \cooling{This is what we did in the cooling language. Everybody learned a lot
-about the possible structure of refrigerators and the limited in feature
+about the possible structure of refrigerators and the limited feature
 combinations (based on limitations imparted by how some of the hardware
 devices work). }
 
@@ -183,7 +195,8 @@ minimal to avoid overhead.
 regarding grammar evolution, and, to a lesser extent, scopes, validation and
 type systems. We typically evolved the grammar in real-time, during the
 language design workshops, together with the domain experts. We then spent a
-day offline finishing scopes, constraints, the type system and the interpreter.}
+day offline finishing scopes, constraints, the type system as well as the
+interpreter.}
 
 
 
@@ -198,48 +211,47 @@ efficiently implement, configure and operate that technology. They can spend a
 lot of time testing, digging and tuning. Once they found out what works best,
 they can put their knowledge into platforms and execution engines, efficiently
 spreading the knowledge across the team. For the latter task, they will
-collaborate with generator experts and language designer --- our second example
+collaborate with generator experts and language designers --- our second example
 role.
 
 \comparch{In building the language, an OSGi expert was involved in building thegeneration templates.}
-
 The language designer works with domain experts to define abstractions,
 notations and constraints to accurately capture domain knowledge. The language
 designer also works with the architect and the platform experts in defining code
 generators or interpreters. For the role of the language designer, be aware that
 there needs to be some kind of predisposition in the people who do it: not
 everybody is good at "thinking meta", some people are more skewed towards
-concrete work. Make sure you use "meta people" to do the "meta work".\todo{How
-can we find these?}
+concrete work. Make sure you use "meta people" to do the "meta work". And of
+course, the language designer must able be fluent with the DSL tool used in the
+project.
 
 There's also a flip side here: you have to make sure you actually do have people
 on your team who are good at language design, know about the domain and
-understand target platforms. Otherwise the MD* approach will not deliver on its
-promises.
+understand target platforms. Otherwise the benefits promised by using DSLs may
+not materialize.
 
 
 
 \subsection{Domain Users vs. Domain Experts}
 
 When building business DSLs, people from the domain can play two different
-roles. They can participate in the domain analysis and the definition of the DSL
-itself. On the other hand, they can use the DSL to express specific domain
-knowledge.
+roles. They can either participate in the domain analysis and the definition of
+the DSL itself, or they can use the DSL to create domain-specific models or
+programs.
 
 It is useful to distinguish these two roles explicitly. The first role (language
-definition) must be filled by a domain expert. These are people who have
-typically been working in the domain for a long time, maybe in different roles,
-who have a deep understanding of the relevant concepts and they are able to
-express them precisely, and maybe formally.
+definition) must be filled by a domain \emph{expert}. These are people who have
+typically been working in the domain for a long time, often in different roles,
+and who have a deep understanding of the relevant concepts, which they are able
+to express precisely, and maybe even formally. The second group of people are
+the domain \emph{users}. They are of course familiar with the domain, but they
+are typically not as experienced as the domain experts
 
-The second group of people are the domain users. They are of course familiar
-with the domain, but they are typically not as experienced as the domain experts
-
-This distinction is relevant because you typically work with the domain experts 
-when defining the language, but you want the domain users to actually work with
-the language. If the experts are too far ahead of the users, the users might not
-be able to "follow" along, and you will not be able to roll out the language to
-the actual target audience.
+This distinction is relevant because you want to work with the domain
+\emph{experts} when defining the language, but you want to build a language that
+is suitable to be used by the domain \emph{users}. If the experts are too far
+ahead of the users, the users might not be able to "follow", and you will
+not be able to roll out the language to the actual target audience.
 
 Hence, make sure that when defining the language, you actually cross-check with
 real domain users whether they are able to work with the language.
@@ -257,21 +269,22 @@ evolution of the DSL beyond just acting as guinea pigs.}
 
 The language, constraints, interpreters and generators are usually developed by
 one (smaller) group of people and used by another (larger) group of people. To
-make this work, consider the metaware a product developed by one group for use
-by another. Make sure there's a well defined release schedule, development
-happens in short increments, requirements and issues are reported and tracked,
-errors are fixed reasonably quickly, there is ample documentation and there's
-support staff available to help with problems and the unavoidable learning
-curve. These things are critical for acceptance.
-A specific best practice is to exchange people: from time to time, make
-application developers part of the generator team to appreciate the challenges
-of "meta", and make meta people participate in actual application development to
-make sure they understand if and how their metaware suits the people who do the
-real application development.
+make this work, consider the "language stuff" a product developed by one group
+for use by another. Make sure there's a well defined release schedule,
+development happens in short, predefined increments, requirements and issues are
+reported and tracked, errors are fixed reasonably quickly, there is ample
+documentation and there's support staff available to help with problems and the
+unavoidable learning curve. These things are critical for acceptance!
 
-\embc{One of our initial proof-of-concept projects didn't really work out. So
-in order to try out our first C extensions and come up with a showcase for an
-upcoming exhibition, the language developers "had" to build the
+A specific best practice is to exchange people: from time to time, make
+application developers part of the language team to appreciate the challenges of
+"meta", and make people from the language development team participate in actual
+application development to make sure they understand if and how their work
+products suit the people who do the actual application development.
+
+\embc{One of our initial proof-of-concept projects didn't really work out very
+well. So in order to try out our first C extensions and come up with a showcase
+for an upcoming exhibition, the language developers "had" to build the
 proof-of-concept themselves. As it turned out, this was really helpful. We
 didn't just find a big number of bugs, we also experienced first-hand some of
 the usability challenges of the system at the time. It was easy for us to fix,
@@ -281,20 +294,18 @@ because it was us who experienced the problems in the first place.}
 
 \subsection{Documentation is still necessary}
 
-Building DSLs and model processors is not enough to make the approach
-successful. You have to communicate to the users how the DSL and the processors
-work. Specifically, here's what you have to document: the language structure and
-syntax, how to use the editors and the generators, how and where to write manual
-code and how to integrate it as well as platform/framework decisions (if
-applicable).
+Building the DSLs and execution engines is not enough to make the approach
+successful. You have to communicate to the users how to use these things in
+real-world contexts. Specifically, here's what you have to document: the
+language structure and syntax, how to use the editors and the generators, how
+and where to write manual code and how to integrate it into generated code, as
+well as platform/framework decisions (if applicable).
 
 Please keep in mind that there are other media than paper. Screencasts, videos
-that show flipchart discussions, or even a regular podcast that talks about how
-the tools change are good choices, too.
-
-Also keep in mind that hardly anybody reads reference documentation. If
-you want to be successful, make sure the majority of your documentation is
-example-driven or task-based.
+that show flip chart discussions, or even a regular podcast that talks about how
+the tools change are good choices, too. Also keep in mind that hardly anybody
+reads reference documentation. If you want to be successful, make sure the
+majority of your documentation are example-driven or task-based tutorials.
 
 \comparch{The documentation for the component architecture DSL contains a set
 of example applications. Each of them guides a new user through building an
@@ -313,17 +324,17 @@ manually written code into the generated base classes.}
 A DSL limits the user's freedom in some respect: they can only express things
 that are within the limits of DSLs. Specifically, low-level implementation
 decisions are not under a DSL user's control because they are handled by the
-model generator or interpreter.
+execution engine.
 
 However, even with the nicest DSL, users can still make mistakes, the DSL users
 can still misuse the DSL (the more expressive the DSL, the bigger this risk).
-So, as as part of your development process, make sure you do regular model
+So, as as part of your development process, make sure you perform regular model
 reviews. This is critical especially to the adoption phase when people are still
 learning the language and the overall approach.
 
 Reviews are easier on DSL level than on code level. Since DSL programs are more
-concise than their equivalent specification in GPL code, reviews become more
-efficient.
+concise and support better separation of concerns than their equivalent
+specification in GPL code, reviews become more efficient.
 
 If you notice recurring mistakes, things that people do in a "wrong" way
 regularly, you can either add a constraint check that detects the problem
@@ -335,18 +346,19 @@ needs to be adapted.
 
 \subsection{Compatible Organization}
 
-Done right, MD* requires a lot of cross-project work. In many settings the same
-metaware will be used in several projects or contexts. While this is of course a
- big plus, it also requires, that the organization is able to organize, staff,
-schedule and pay for cross-cutting work. A strictly project-focused organization
-has a very hard time finding resources for these kinds of activities. MD* is
-very hard to do effectively in such environments.
+Done right, using DSLs requires a lot of cross-project work. In many settings
+the same language (module) will be used in several projects or contexts. While
+this is of course a big plus, it also requires that the organization is able to
+organize, staff, schedule and pay for cross-cutting work. A strictly
+project-focused organization has a very hard time finding resources for these
+kinds of activities. DSLs, beyond the small ad-hoc utility DSL, are very hard
+to adopt in such environments.
 
-Make sure that the organizational structure, and the way project cost is
-handled, is compatible with cross-cutting activities. A particular project will
-not invest into assets that are reusable in other projects if the cost for
+In particular, make sure that the organizational structure, and the way project
+cost is handled, is compatible with cross-cutting activities. Any given project 
+will not invest into assets that are reusable in other projects if the cost for
 developing this asset is billed only to the particular project. Assets that are
-useful for several projects (or the company as a whole) must also billed by
+useful for several projects (or the company as a whole) must also paid for by
 those several projects (or the company in general). 
 
 
@@ -357,7 +369,7 @@ those several projects (or the company in general).
 \subsection{Domain Users Programming?}
 
 Technical DSLs are intended for use by programmers. Application domain DSLs are
-targetted towards domain users, non-programmers who are knowledgabe in the
+targeted towards domain users, non-programmers who are knowledgabe in the
 domain covered by the DSL. Can they actually work with DSLs? 
 
 In many domains, usually those that have a scientific or mathematical touch,
@@ -378,10 +390,129 @@ expressed with the DSL.} Putting knowledge into formal models helps you point
 out decisions that need to be made, or language extensions that might be
 necessary.
 
-If you're not able to teach a business domain DSL to the domain users, it might
+If you are not able to teach a business domain DSL to the domain users, it might
 not necessarily be the domain users' fault. Maybe your language isn't really
 suitable to the domain. If you encounter this problem, take it as a warning sign
-and take a close look at your language.
+and consider changing the language.
 
     
+\subsection{DSL Evolution}
+
+A DSL that is successfully used will have to evolved. Just as for any other
+software artifact, requirements evolve over time and the software has to reflect
+these changes. In the context of DSLs, the changes can be driven by several
+different concerns:
+
+\begin{description}
+
+  \item[Target Platform Changes] The target platform may change because of the
+  availability of new technologies that provide better performance, scalability
+  or usability. Ideally, no changes to either the language or the models are
+  necessary: a new execution engine for the changed target platform can be
+  created. In practice it is now always so clean: the DSL may make assumptions
+  about the target platform that are no longer true for the changed or new
+  platform. These may have to be removed from the languages and existing models.
+  Also, the new platform may support different execution options, and the
+  existing models do not contain enough information to make the decision which
+  option to take. In this case, additional annotation models may become
+  necessary\footnote{Despite the caveats discussed in this paragraph, the
+  target platform change is typically relatively simple to handle.}.
+
+  \item[Domain Changes] As the domain evolves, it is likely that the language
+  has to evolve as well\footnote{If you use a lot of in-language abstraction or
+  a standard library, you may be lucky and the changes can be realized without
+  changes to the language.}. The problem then is: what do you do with existing
+  models? You have two fundamental changes: keep the old language around and
+  don't change the models or evolve the existing models to work with the new
+  language. The former is often not really practical, especially in the face of
+  several such changes. 
+  
+  The degree to which evolving existing models is painful depends a lot on the
+  nature of the change\footnote{... as well as the DSL tool. Different tools
+  support model evolution in different ways.}. The most pragmatic approach keeps
+  the new version of the language backward compatible, so that existing models
+  can still be edited and processed. Under this premise, adding new language
+  concepts is never a problem. However, you must never just delete existing
+  concepts or change them in an incompatible way. Instead, these old concepts
+  should be marked as \emph{deprecated}, and the editor will show an
+  corresponding warning in the IDE. The IDE may also provide a quick fix to
+  change the old, deprecated concept to a new (version of the) concept, if such
+  a mapping is straight forward. Otherwise the migration must be done manually.
+  If you have access to \emph{all} models, you may also run a batch
+  transformation during a quiet period to migrate them all at once. Notice that,
+  although deprecation has a bad rep from programming languages where deprecated
+  concepts are never removed, this is not necessarily comparable to DSLs: if,
+  after a while, people still use the deprecated concepts, you can have the IDE
+  send an email to the language developers who can then work with the "offending
+  user" to migrate the programs.
+  
+  Note that for the above approach to work, you have to have a structure process
+  for versioning the languages and tools, otherwise you will end up in version
+  chaos quickly. 
+
+  \item[DSL Tool Changes] The third change is driven by evolution of the DSL
+  tool. Of course, the language definition (and potentially, the existing
+  models) may have to evolve if the DSL tool changes in an incompatible way
+  (which, one could argue, it shouldn't!). This is similar to every other tool,
+  library of framework you may use. People seem particularly afraid of the
+  situation where they have to switch to a completely new DSL tool because the
+  current one is no longer supported, or a new one is just better. Of course it
+  is very likely that you'll have to completely redo the language definitions:
+  there is no portability in terms of language definitions among DSL tools (not
+  even among those that reside on Eclipse). However, if you had designed your
+  languages well you will likely be able to \emph{automatically transform existing
+  models} into the new tool's data structures\sidenote[][-1\baselineskip]{It is
+  easy to see that over time the real value is in the \emph{models}, and not so much in the
+  language definitions and IDEs. Rebuilding those is hence not such a big
+  deal, especially if we consider that a new, better tool likely requires less
+  effort to build the languages.}. 
+  
+  One central pillar of using DSLs is the high degree to which they support
+  separation of concerns and expressing domain knowledge at a level of
+  abstraction that makes the domain semantics obvious, avoiding complex reverse
+  engineering problems. Consequently you can generate all kinds of artifacts
+  from the models. This characteristic also means that it is relatively straight
+  forward to write a generator that creates a representation of the model in a
+  new tool's data structures\sidenote[][-2\baselineskip]{For example, we have
+  built a generic MPS to EMF exporter. It works for meta models as well as for the models.}.
+  
+\end{description}
+
+
+\subsection{Avoiding Uncontrolled Growth and Fragmentation}
+
+If you use DSLs successfully, there may be the danger of uncontrolled growth and
+diversification in languages with the obvious problems for maintenance, training
+and interoperability\footnote{While this may become a problem, this may also
+become a problem with libraries or frameworks ... the solution is also the same,
+as we will see.}. To avoid this, there is an organizational technical approach.
+
+The organizational approach requires putting in place governance structures for
+language development. Maybe developers have to coordinate with a central entity
+before they are "allowed" to define a new language. Or an open-source like model
+is used, where languages are developed in public and the most successful ones
+will strive and attract contributions. Maybe you want to limit language
+development to some central "language team"\footnote{Please don't overdo this!
+Don't make it a bureaucratic nightmare to develop a language!}. Larger
+organizations in which uncontrolled language growth and fragmentation might
+become a problem are likely to already have established processes for
+coordinating reusable or cross-cutting work. You should just plug into these
+processes.
+
+
+The technical approach (which should be used in together with the organizational
+one) exploits language modularization, extension and composition. If (parts of)
+languages can be reused, the drive to develop something completely new (that
+does more or less the same as somebody else's language) is reduced. Of course
+this requires that language reuse actually works with your tool of choice. It
+also requires that the potentially reusable languages are robust, stable and
+documented --- otherwise nobody will use them. In an large organization I would
+assume that a few language will be strategic: aligned with the needs of the
+whole organization, well-designed, well tested and documented, implemented by a
+central group, used by many developers and reusable by design\footnote{The
+development of these languages should be governed by the organizational approach
+discussed above}. In addition, small teams my decide to develop their own,
+smaller languages or extensions, reusing the strategic ones. Their focus is much
+more local, and the development requires much less coordination. 
+
 
