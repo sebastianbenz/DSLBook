@@ -924,23 +924,28 @@ node.event.cEnumLiteralName();
 
 \section{Spoofax Example}
 
-In Spoofax, model-to-model transformations and code generation are both specified by rewrite rules.
-This allows for the seamless integration of model-to-model transformation steps into the code generation process; the clear distinction between model-to-model transformation and code generation vanishs.
+In Spoofax, model-to-model transformations and code generation are both
+specified by rewrite rules. This allows for the seamless integration of
+model-to-model transformation steps into the code generation process; the clear
+distinction between model-to-model transformation and code generation vanishes.
 
 \parhead{Code Generation by String Interpolation} %
-%
-Pure code generation from abstract syntax trees to text can be realised by rewriting to strings.
-The following simple rules rewrite types to their corresponding representation in Java:
+
+Pure code generation from abstract syntax trees to text can be realised by
+rewriting to strings. The following simple rules rewrite types to their
+corresponding representation in Java:
 
 \begin{code}
   to-java: IntType()    -> "int"
   to-java: BoolType()   -> "boolean"
   to-java: StringType() -> "String"
   to-java: EntType(t)   -> t
-\end{code}
+\end{code}
+\MV{'t' is not a string. What is going on there?}
 
-Typically, more complex rules are recursive and use string interpolation to compose strings.
-For example, the following two rewrite rules generate Java code for entities and their properties:
+Typically, more complex rules are recursive and use string interpolation to
+compose strings. For example, the following two rewrite rules generate Java code
+for entities and their properties:
 
 \begin{code}
   to-java:
@@ -983,7 +988,7 @@ Instead of variables, we can also use directly the results from other rewrite ru
        }
      ]
 \end{code}
- 
+
 Indentation is important both for the readability of rewrite rules and of the generated code.
 String interpolation removes the indentation leading up to the \ic{\$[\ldots]} brackets, 
 but preserves any other indentation in the generated output. 
@@ -1025,9 +1030,13 @@ class Item {
 }
 \end{code}
 
+\MV{Of course users will notice the underscore instead of the camelcase for the
+method names. Do you want to say something about that?}
+
 \parhead{Editor Integration}%
-%
-To integrate the code generation into our editor, we first have to define the following rewrite rule:
+
+To integrate the code generation into our editor, we first have to define the
+following rewrite rule:
 
 \begin{code}
   generate-java:
@@ -1209,8 +1218,8 @@ All boxes except the first will be indented accordingly.
 
 \parhead{Concrete Object Syntax} %
 %
-Both approaches to code generation have distinctive benefits.
-While template-based generation with string interpolation allows for concrete syntax in code generation rules,
+Both template-based and term-based approaches to code generation have
+distinctive benefits. While template-based generation with string interpolation allows for concrete syntax in code generation rules,
 abstract syntax tree generation guarantees syntactical correctness of the generated code and enables transformation chains.
 To combine the benefits of both approaches, Spoofax can parse user-defined concrete syntax quotations at compile-time, checking their syntax and replacing them with equivalent abstract syntax fragments.
 For example, a Java return statement can be expressed as \ic{|[ return |[x]|; ]|}, rather than the abstract syntax form \ic{Return(VarRef(x))}. 
@@ -1262,6 +1271,9 @@ exports context-free syntax
 Finally, we need to create a \ic{<filename>.meta} file for every transformation file \ic{<filename>.str} with concrete syntax fragments.
 In this file, we tell Spoofax to use our customized Stratego syntax definition:
 
+\MV{Do I have to create these quotations and antiquotations manually, or
+could this be automated in the future?}
+
 \begin{code}
 Meta([ Syntax("Stratego-Mobl-Java") ])
 \end{code}
@@ -1286,6 +1298,10 @@ to-java:
 
 Since Spoofax replaces concrete syntax fragments with equivalent abstract syntax fragments, indentation in the fragments is lost.
 But the generated code will still be indented by the pretty-printer.
+
+\MV{Do we get IDE support (code completion, etc.) for the embedded concrete
+syntax?}
+
 
 \section{Old Stuff?}
 
