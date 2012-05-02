@@ -350,6 +350,64 @@ only wanted to highlight parts of it (e.g. the \ic{state} keyword), we'd have
 to do some further analysis on the \ic{ICompositeNode} to find out the actual
 concrete syntax node for the keyword.
 
+\parhead{An example with Spoofax}%
+%
+In Spoofax, syntax coloring can be specified declaritively on the lexical and on the syntactic level.
+Both specifications need to be part of the editor specification, preferably in \ic{<LanguageName>-Colorer.esv}.
+For the lexical level, Spoofax predefines the token classes \ic{keyword}, \ic{identifier}, \ic{string}, \ic{number}, \ic{var}, \ic{operator}, and \ic{layout}.
+For each of these, we can specify a color (either by name or by RGB values) and optionally a font style (\ic{bold}, \ic{italic}, or both).
+Spoofax generates the following default specification:
+
+\begin{code}
+module MoblLang-Colorer.generated
+
+colorer Default, token-based highlighting
+                                  
+  keyword    : 127 0 85 bold      
+  identifier : default            
+  string     : blue               
+  number     : darkgreen          
+  var        : 255 0 100 italic   
+  operator   : 0 0 128            
+  layout     : 63 127 95 italic   
+
+colorer System colors
+                            
+  darkgreen = 0 128 0       
+  green     = 0 255 0       
+  darkblue  = 0 0 128       
+  blue      = 0 0 255       
+  ...
+  default   = _             
+\end{code}
+
+The generated specification can be customized on the lexical level, but also extended on the syntactic level.
+These extensions are based on syntactic sorts and constructor names.
+For example, the following specification will color the \ic{int} type in declarations with a dark green:
+
+\begin{code}
+module DSLbook-Colorer
+
+imports DSLbook-Colorer.generated
+
+colorer
+                        
+  Type.IntType: darkgreen          
+\end{code}
+
+Here, \ic{Type} is a sort from the syntax definition, while \ic{IntType} is the constructor for the integer type.
+There are other rules for \ic{Type} in the Mobl grammar, for example for the string type.
+When we want other types also to be colored with a dark green, we can either add more rules to the colorer specification, 
+or replace the current definition with \ic{Type.\_}.
+Here, \ic{\_} acts as a wildcard and all types will be colored with a dark green, independent of their constructor. 
+Similarly, we can use a wildcard for sorts.
+For example, \ic{\_.IntType} will include all nodes with a constructor \ic{IntType}, independent of their syntactic sort.
+
+In the current example, predefined types like \ic{int} and entity types are all colored in a dark green, but only the predefined types will appear in a bold face.
+This is because Spoofax combines specified colors and fonts.
+The rule on the syntactic level specifies only a color, but no font.
+Since the predefined types are keywords, they will get the font from the keyword specification, which is bold.
+In contrast, entity types are identifiers, which will get the default font from the identifier specification.
 
 \section{Go-to-Definition and Find References}
 
@@ -459,6 +517,40 @@ result} are only available in the finder specification language. Finally,
 \ic{getCategory} returns a string that is use to structure the result.
 \fig{finder-result} shows an example result.
 
+\parhead{Customizing the Target with Spoofax}%
+%
+Spoofax provides a default hyperlinking mechanism from references to declarations.
+Alternative hyperlinking functionality can be implemented in rewrite rules.
+The names of these rules need to be specified in the editor specification, preferably in \ic{<LanguageName>-References.esv}.
+For example, the following specification tells Spoofax to use a custom rewrite rule to hyperlink \ic{this} expressions to the surrounding class:
+
+\begin{code}
+references
+                
+  reference Exp.This : resolve-this
+\end{code}
+
+On the left-hand side of the colon, the \ic{reference} rule specifies a syntactic sort and a constructor, for which the hyperlinking should be customized.
+Like in colorer specifications, we can use \ic{\_} as a wildcard for syntactic sorts and constructors.
+On the right-hand side of the colon, the rule names a rewrite rule which implements the hyperlinking:
+
+\begin{code}
+resolve-this:
+    (link, position, ast, path, project-path) -> target
+    where
+      Entity(t) := <type-of> link ;
+      target    := <index-lookup> t
+\end{code} 
+
+This rule determines the type of a \emph{this} expression and links it to the declaration of this type.
+Like all rewrite rules implementing hyperlinking functionality, it needs to follow a common interface.
+On the left-hand side, it matches a tuple consisting of 
+the \ic{link}, 
+the \ic{position} of this node in the abstract syntax tree, 
+the tree itself (\ic{ast}),
+the \ic{path} of the current file,
+and the path of the current Eclipse project (\ic{project-path}).
+On the right-hand side, it provides the target of the hyperlink.
 
 \section{Pretty Printing}
 
@@ -470,6 +562,10 @@ properly.
 
 \parhead{Pretty Printing in MPS} is a non-issue. The editor always pretty prints
 as part of the projection. 
+
+\parhead{Pretty Printing in Spoofax}%
+%
+\GW{Bring the pretty-printing section from the code generation chapter here??}
 
 \parhead{Pretty Printing in Xtext} In Xtext, the whitespace in the grammar is
 irrelevant. In other words, MPS cannot infer the "correct" use of whitespace
@@ -841,6 +937,59 @@ support. The implementation effort is reduced to essentially the algorithmic
 complexity of the refactoring itself. Depending on the refactoring, this can be
 non-trivial.
 
+\parhead{Renaming in Spoofax}%
+%
+Like code generators, refactorings need to be specified in the editor specification (preferably in \ic{<LanguageName>-Builders.esv}) and implemented with rewrite rules.
+For example, the following specification specifies a refactoring for renaming entities:
+
+\begin{code}
+refactorings
+
+  refactoring Decl.Entity : "Rename Entity" = rename-entity (cursor)
+    shortcut : "org.eclipse.jdt.ui.edit.text.java.rename.element"
+    input
+      identifier : "new name" = ""
+\end{code}
+
+The specification starts with a syntactic sort and a constructor, on which the refactoring should be available,
+followed by a label for the refactoring in the context-menu, the implementing rewrite rule, and two options.
+These options are the same as for code generators.
+In the example, Spoofax should use the current \ic{cursor} position to determine the node on which the refactoring should be applied.
+The specification further defines a \ic{shortcut} for the refactoring, which should be the same keybinding as the one used in the JDT for renaming.
+Finally, it defines an interactive \ic{input} dialog, with a label \ic{"new name"} and an empty default input.
+The refactoring itself is implemented in a rewrite rule:
+
+\begin{code}
+rename-entity:
+    (newname, Entity(name, elems), position, ast, path, project-path) -> ([(ast, new-ast)], [], [], [])
+    with
+      new-ast  := <topdown(try(rename-entity-local(|name, newname)))> ast
+      
+  rename-entity-local(|old-name, new-name):
+    Entity(old-name, y) -> Entity(new-name, y)
+
+  rename-entity-local(|old-name, new-name):
+    EntType(old-name) -> EntType(new-name)
+\end{code}
+
+Like we have seen already for other editor services, rewrite rules for refactorings have to follow a certain interface.
+On the left-hand side, the example rule matches a tuple consisting of
+the input from the refactoring dialog (\ic{newname}),
+the node on which the refactoring is applied,
+its \ic{position} in the abstract syntax tree,
+the tree itself (\ic{ast}),
+and the pathes of the current file and the project.
+On the right-hand side, it yields a tuple consisting of 
+a list of changes in the abstract syntax tree
+and lists of fatal errors, normal errors, and warnings.
+
+For simplicity, the example rule changes the whole abstract syntax tree into a new one and does not provide any errors or warnings.
+Thereby, the new abstract syntax tree is retrieved by traversing the old on in a \ic{topdown} fashion, \ic{try}ing to apply rewrite rules \ic{rename-entity-local}.
+These rules take the old and new entity name as parameters.
+The first rule rewrites entity declarations, while the second one rewrites types which refer to an entity.
+
+\GW{add error checks?}
+
 \section{Labels and Icons}
 
 Labels and icons for language concepts are used in several places, among them
@@ -973,6 +1122,29 @@ Xtext provides alphabetical sorting for outlines by default. There is also
 support for styling the outline (i.e. using styled labels as opposed to simple
 text) as well as for filtering the tree.
 
+\parhead{The Outline in Spoofax}%
+%
+With Spoofax, outlines can be specified declaratively in the editor specification, preferably in \ic{<LanguageName>-Outliner.esv}.
+Abstract syntax tree nodes, which should appear in the outline, are selected based on their syntactic sort and constructor names.
+For example, the following outline specification will include all entity declarations:
+
+\begin{code}
+module MoblLang-Outliner
+
+imports MoblLang-Outliner.generated
+
+outliner Entity Outliner
+
+  Decl.Entity
+\end{code}
+
+Like in the specification of other editor services, we can use \ic{\_} as a wildcard for sorts and constructors.
+For example, \ic{Decl.\_} will include imports and entities in the outline.
+Similarly, \ic{\_.Property} will include all nodes with a constructor \ic{Property}, independent of their syntactic sort.
+
+Spoofax analyses the syntax definition and tries to come up with a reasonable default outline specification,
+which is imported into \ic{<LanguageName>-Outliner.esv}.
+We can then either extend the generated specification with our own rules, or discard it by removing the import statement.
 
 \parhead{The Outline in MPS} MPS does not have a cutomizable outline view. It
 shows the AST of the complete program as part of the project explorer, but the
@@ -1020,6 +1192,28 @@ public class CLFoldingRegionProvider extends DefaultFoldingRegionProvider {
     }
 }
 \end{code}
+
+\parhead{Folding in Spoofax}%
+%
+Spoofax allows to specify folding declaratively in the editor specification, preferably in \ic{<LanguageName>-Folding.esv}.
+Very similar to the specification of outlines, folding is specified in terms of syntactic sort and constructor names:
+
+\begin{code}
+module Mobl-Folding
+
+folding Entity folding
+
+  Module._
+  Decl.Entity
+  _.Function
+\end{code}
+
+Like for outlines, Spoofax analyses the syntax definition and tries to come up with a reasonable default specification,
+which is imported into \ic{<LanguageName>-Folding.esv}.
+We can then either extend the generated specification with our own rules, 
+disable particular specifications by adding a \ic{(disabled)} annotation, 
+or discard it completely by removing the import statement.
+A \ic{(folded)} annotation tells Spoofax to fold a node by default in an opening editor, which is typically seen for import sections.
 
 \parhead{Folding in MPS} In MPS, folding can be activated for any vertical
 collection. For example, in a state machine, each state contains a vertical list
@@ -1116,6 +1310,25 @@ hover may show the documentation of the target element, or, when hovering over a
 reference, some information about the referenced element. While Xtext does not
 support tooltips directly, the tooltip framework provided by JFace can be used.
 
+Spoofax supports tooltips directly.
+Tooltips are provided by rewrite rules, which need to be defined as hovers in the editor specification, preferable in \ic{<LanguageName-References.esv>}:
+
+\begin{code}
+hover _: editor-hover 
+\end{code}    
+
+This line tells Spoofax to use a rewrite rule \ic{editor-hover} to retrieve tooltips for all kinds of abstract syntax tree nodes.
+When we want to define different rewrite rules for particular constructors, we need to provide a \ic{hover} specification for each constructor, replacing \ic{\_} by \ic{\_.<Constructor>}.
+ 
+The specified rewrite rules have to follow the typical editor interface on their left-hand side and need to yield strings on their right-hand sides.
+The strings are then used as tooltips.
+For example, the following rewrite rule will provide type information for any typable node:
+
+\begin{code}
+editor-hover:
+    (target, position, ast, path, project-path) -> <type-of; pp-MoblLang-string> target
+\end{code}    
+
 MPS does not support tooltips at this time, however, there is an acceptable
 workaround: the additional information for a program element can be shown in the
 inspector. For example, if users click on a reference to a requirement in
@@ -1145,7 +1358,7 @@ details about the referenced element.
   \label{inspectedCellLayout} 
 \end{center}
 \end{figure}
-
+  
 
 \parhead{Visualizations} To provide an overview over the structure of the
 programs, graphical representations are useful. In Xtext, Jan Koehnlein's
