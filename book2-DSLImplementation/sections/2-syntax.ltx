@@ -610,32 +610,31 @@ with any notation, including textual.
   \label{projectional}
 \end{marginfigure} 
 
-
-In projectional editors, every program element is stored as a node with a unique
+This explicit instantiation of AST objects happens by picking the respective
+concept from the code completion menu using a character sequence defined by
+the respective concept. If at any given program location two concepts can be
+instantiated using \emph{the same character sequence}, then the projection editor prompts the user to
+decide\footnote{As discussed above, this is the situation where many
+grammar-based systems run into problems from ambiguity.}. Once a concept is
+instantiated, it is stored as a node with a unique
 ID (UID) in the AST. References between program elements are based on actual
-pointers (references to UIDs). The AST is actually an ASG, an abstract syntax
+pointers (references to UIDs), and the projected syntax that represents the
+reference can be arbitrary. The AST is actually an ASG, an abstract syntax
 graph, from the start because cross-references are first-class rather than being
 resolved after parsing. The program is stored using a generic tree
 persistence mechanism, often XML.
 
-The projectional approach can deal with arbitrary syntactic forms. Since no
+
+The projectional approach can deal with arbitrary syntactic forms including
+traditional text, symbols (as in mathematics), tables or graphics. Since no
 grammar is used, grammar classes are not relevant here. In principle,
 projectional editing is simpler than parsing, since there is no need to
 "extract" the program structure from a flat textual source. However, as we will
 see below, the challenge in projectional editing lies making the editing
-experience convenient.
+experience convenient\footnote{In particular, editing notations that look like
+text should be editable with the editing gestures known from text editors.}.
 
 \section{Comparing Parsing and Projection}
-
-\MV{The following paragraph needs to be ripped apart and the respective points
-need to be moved into the respective subsubsections} There's a lot to say in
-favor of free text editing. The linear, two-dimensional structure of text
-(especially when using mono-spaced fonts) is well-known and easily understood,
-while text editing operations are more-or-less universal. It's very convenient
-to have a CS that also serves as the persistence format: it makes the language
-essentially tool-independent and allows fairly easy integrations with other
-text-based tools like versioning systems, issue trackers, documentation systems,
-or email clients.
 
 
 \subsection{Editing Experience}
@@ -646,15 +645,15 @@ definition, find references, error annotations, refactoring and the like. Xtext
 and Spoofax provide such IDE support. However, you can always go back to any
 text editor to edit the programs.
 
-In projectional editing, this is different. since a normal text editor is
+In projectional editing, this is different since a normal text editor is
 obviously not sufficient as you would be editing some textual representation of
 the AST. A specialized editor has to be supplied. Like in free text editing, it
 has to provide the IDE support features mentioned above. MPS provides those.
-Howevre, there is another challenge: for textual-looking notations, it is
-important that the editor tries and makes the editing experience as text-like as possible, i.e. the keyboard
-actions we have gotten used to from free-text editing should work as far as
-possible. MPS does a decent job here, using, among others, the following
-strategies:
+However, there is another challenge: for textual-looking notations, it is
+important that the editor tries and makes the editing experience as text-like as
+possible, i.e. the keyboard actions we have gotten used to from free-text
+editing should work as far as possible. MPS does a decent job here, using, among
+others, the following strategies:
 
 \begin{itemize}
 
@@ -663,46 +662,56 @@ strategies:
   select the language concept (based on its name) and instantiate it. This is
   inconvenient. In MPS, languages can instead define aliases for language
   concepts, allowing users to "just type" the alias, after which the concept
-  is immediately instantiated.
+  is immediately instantiated\footnote{By making the alias the same as the
+  leading keyword (e.g. \ic{if} for an \ic{IfStatement}), users can "just
+  type" the code.}.
 
   \item So-called side transforms make sure that expressions can be entered
   conveniently. Consider a local variable declaration \ic{int a = 2;}. If this
-  should be changed to \ic{int a = 2+3;} the 2 in the init expression needs
-  to be replaced by an instance of the binary + operator, with the 2 in the left
-  slot and the 3 in the right. Instead of removing the 2 and inserting a +,
-  users can simply type + on the right side of the 2; the system performs the
-  tree refactoring that moves the + to the root of the subtree, puts the 2 in
-  the left slot, and then puts the cursor into the right slot, to accept the
-  second argument. This means that expressions (or anything else) can be entered
-  linearly, as expected.
+  should be changed to \ic{int a = 2+3;} the \ic{2} in the init expression needs
+  to be replaced by an instance of the binary \ic{+} operator, with the \ic{2}
+  in the left slot and the \ic{3} in the right. Instead of removing the \ic{2}
+  and manually inserting a \ic{+}, users can simply type \ic{+} on the right
+  side of the \ic{2}; the system performs the tree refactoring that moves the
+  \ic{+} to the root of the subtree, puts the \ic{2} in the left slot, and then
+  puts the cursor into the right slot, to accept the second argument. This means
+  that expressions (or anything else) can be entered linearly, as expected. For
+  this to work, operator precedence has to be specified, and the tree has to be
+  constructed taking these precedences into account. Precedence is typically
+  specified by a number associated with each operator, and whenever using a side
+  transformation to build an expression, the tree is automatically reshuffled to
+  make sure that those operators with a higher precedence number are further
+  down in the tree.
   
   \item Delete actions are used to similar effect when elements are deleted.
-  Deleting the 3 in \ic{2+3} first keeps the plus, with an empty right slot.
-  Deleting the + then removes the + and puts the 2 at the root of the subtree.
+  Deleting the \ic{3} in \ic{2+3} first keeps the plus, with an empty right slot.
+  Deleting the \ic{+} then removes the \ic{+} and puts the \ic{2} at the root of the subtree.
 
   \item Wrappers support instantiation of concepts that are actually children of
-  the concepts allowed in a given location. Consider again a local variable
-  declaration \ic{int a;}. The concept represented could be
-  LocalVariableDeclaration, a subtype of Statement, to make it legal in method
-  bodies (for example). However, users simply want to start typing \ic{int},
-  i.e.\ selecting the content of the type field of the LocalVariableDeclaration.
-  A wrapper can be used to support entering types where
-  LocalVariableDeclarations are expected. Once a type is selected, the wrapper
-  implementation creates a LocalVariableDeclaration and puts the type into its
-  type field, and moves the cursor into the name slot.
+  the concepts allowed at a given location. Consider again a local variable
+  declaration \ic{int a;}. The respective concept could be
+  \ic{LocalVariableDeclaration}, a subconcept of \ic{Statement}, to make it
+  legal in method bodies (for example). However, users simply want to start
+  typing \ic{int}, i.e.\ selecting the content of the \ic{type} field of the
+  \ic{LocalVariableDeclaration}. A wrapper can be used to support entering
+  \ic{Type}s where \ic{LocalVariableDeclaration}s are expected. Once a \ic{Type}
+  is selected, the wrapper implementation creates a
+  \ic{LocalVariableDeclaration}, puts the \ic{Type} into its \ic{type} field,
+  and moves the cursor into the \ic{name} slot.
 
   \item Smart references achieve a similar effect for references (as opposed to
-  children). Consider pressing Ctrl-Space after the + in \ic{2+3}. Assume
-  further, that a couple of local variables are in scope and that these can be
-  used instead of the 3. These should be available in the code completion menu.
-  However, technically, a VariableReference has to be instantiated, whose
-  variable slot then is made to point to any of the variables in scope. This is
-  tedious. Smart references trigger special editor behavior: if in a given
-  context a VariableReference is allowed, the editor \emph{first} evaluates its
-  scope to find the possible targets and then puts them into the code completion
-  menu. If a user selects one, then the VariableReference is created, and the
-  selected element is put into its variable slot. This makes the reference
-  object effectively invisible in the editor.
+  children). Consider pressing \ic{Ctrl-Space} after the \ic{+} in \ic{2+3}.
+  Assume further, that a couple of local variables are in scope and that these
+  can be used instead of the \ic{3}. These should be available in the code
+  completion menu. However, technically, a \ic{VariableReference} has to be
+  instantiated, whose \ic{variable} slot then is made to point to any of the
+  variables in scope. This is tedious. Smart references trigger special editor
+  behavior: if in a given context a \ic{VariableReference} is allowed, the
+  editor \emph{first} evaluates its scope to find the possible targets and then
+  puts those targets into the code completion menu. If a user selects one,
+  \emph{then} the \ic{VariableReference} is created, and the selected element is
+  put into its \ic{variable} slot. This makes the reference object effectively
+  invisible in the editor.
 
   \item Smart delimiters are used to simplify inputting list-like data that is
   separated with a specific separator symbol, such as parameter lists. Once a
@@ -714,33 +723,32 @@ strategies:
 Notice that, except for having to get used to the somewhat different way of
 editing programs, all other problems can be remedied with good tool support.
 Traditionally, this tool support has not always existed or been sufficient, and
-projectional editors have gotten a bit of a bad rep because of that. In case of
-MPS this tool support is available, and hence, MPS provides a productive and
-pleasant working environment.
+projectional editors have gotten a bit of a bad reputation because of that. In
+case of MPS this tool support is available, and hence, MPS provides a productive
+and pleasant working environment.
 
 
 \subsection{Language Modularity}
 
-As we have seen in \todo{}, language modularization and composition is an
-important building block in working with DSLs. Parser-based and projectional
-editors come with different trade-offs in this respect. Notice that is this
-section we only consider syntax issues --- semantics has been covered in
-\todo{the respective section in DSL design}.
+As we have seen in \todo{ref to the respective design chapter}, language
+modularization and composition is an important building block in working with
+DSLs. Parser-based and projectional editors come with different trade-offs in
+this respect. Notice that is this section we only consider syntax issues ---
+semantics has been covered in \todo{the respective section in DSL design}.
 
 In parser-based systems it depends on the grammar class supported by the tool
-whether composition can be supported well. The problem is that combining two or
-more independently developed grammars into one may become ambiguous, for
-example, because the same character sequence is defined as two different tokens.
-The resulting grammar cannot be parsed and has to be disambiguated manually,
-typically by invasively changing the resulting grammar. This of course breaks
-modularity and hence is not an option. Parsers that support the full set of
-context-free grammars, such as ANTLR, and hence Xtext, have this problem.
-Parsers that support the full class of context-free grammars, such as the GLR
-parser used as part of Spoofax, do not have this problem. While a grammar may
-become ambiguous in the sense that a program may be parseable in more than one
-way, this can be resolved by declaratively specifying which alternative should
-be used. This specification can be made \emph{without} invasively changing the
-resulting grammar, retaining modularity. 
+whether composition can be supported well. As we have said above, the problem is
+that the result of combining two or more independently developed grammars into
+one may become ambiguous, for example, because the same character sequence is defined as two
+different tokens. The resulting grammar cannot be parsed and has to be
+disambiguated manually, typically by invasively changing the composite grammar.
+This of course breaks modularity and hence is not an option. Parsers that
+do not support the full set of context-free grammars, such as ANTLR, and hence
+Xtext, have this problem. Parsers that do support the full set of context-free
+grammars, such as the GLR parser used as part of Spoofax, do not have this problem. While
+a grammar may become ambiguous in the sense that a program may be parseable in
+more than one way, this can be resolved by declaratively specifying which
+alternative should be used. This specification can be made externally, \emph{without} invasively changing the resulting grammar, retaining modularity.
 
 In projectional editors, language modularity and composition is not a problem at
 all. There is no grammar, no parsing, no grammar classes, and hence no problem
@@ -749,7 +757,7 @@ syntactically valid. If a composed language would be ambiguous, the user has to
 make a disambiguating decision as the program is entered. For example, in MPS,
 if in a given location two language concepts are available under the same alias,
 just typing the alias won't bind, and the user has to manually decide by picking
-one alternative from the code completion menu. 
+one alternative from the code completion menu.
 
 
 \subsection{Notational Freedom}
@@ -759,25 +767,32 @@ Traditionally, the character symbols were taken from the ASCII character set,
 resulting in textual programs being made up from "plain text". With the advent
 of unicode, a much wider variety of characters is available while still sticking
 to the linear sequence of character symbols approach. For example, the Fortress
-programming language makes use of this: greek letters and a wide variety of
-different bracket styles can be used in the programs. However, character layout
-is always ignored. For example it is not possible to use parsers to handle
-tabular notations, fraction bars or even graphics. 
+programming
+language\footnote{http://en.wikipedia.org/wiki/Fortress\_(programming\_language)}
+makes use of this: greek letters and a wide variety of different bracket styles
+can be used in the programs. However, character layout is always ignored. For
+example it is not possible to use parsers to handle tabular notations, fraction
+bars or even graphics\footnote{There have been experimental parsers for
+two-dimensional structures such as tables and even for graphical shapes, but
+these have never made it beyond the experimental stage.}.
 
-
+\begin{marginfigure}
+  \includegraphics[width=7cm]{figures/1/dectabincomp.png}
+  \caption{A table embedded in an otherwise textual program}
+  \label{dectabincomp}
+\end{marginfigure} 
 In projectional editing, this limitation does not exist. A projectional editor
 never has to extract the AST from the concrete syntax; editing gestures directly
 influence the AST, and the concrete syntax is rendered from the AST. This
 mechanism is basically like a graphical editor. Notations other than text can be
 used. For example, MPS supports tables as well as simple diagrams. Since these
-non-textual notations are handled the same way as the textual ones (possibly
+non-textual notations are handled the same way as the textual ones (possibly 
 with other input gestures), they can be mixed easily: tables can be embedded
-into textual source, and textual languages can be used within table cells.
-Textual notations can also be used inside boxes or as connection labels in
+into textual source, and textual languages can be used within table cells (see
+\fig{dectabincomp}). Textual notations can also be used inside boxes or as connection labels in
 diagrams. 
  
-\subsection{Language Evolution}
-
+\subsection{Language Evolution}
 If the language changes, existing instance models temporarily become
 outdated in the sense that they had been developed for the old version of the
 language. If the new language is not backward compatible, these existing models
@@ -788,32 +803,33 @@ program node points to the language concept it is an instance of, the tools have
 to take special care that such "incompatible" models can still be opened and the
 migrated, manually or by a script, to the new version of the language. MPS
 supports this feature, and it is even possible to distribute migration scripts
-with (updated) languages to run the migration automatically.
+with (updated) languages to run the migration automatically\footnote{It is also
+possible to define quick fixes that run \emph{automatically}; so whenever a
+concept that is marked as \ic{deprecated}, this quick fix can trigger an
+automatic migration to a new concpet.}.
 
 Free text editing does not have this problem. A model, essentially a sequence of
 characters, can \emph{always} be opened in the editor. The program may not be
 parseable, but users can always update the program manually, or with global
-search and replace, or regular expressions.
-
-\todo{do we talk about evolution somewhere?} 
+search and replace using regular expressions.
 
 \subsection{Infrastructure Integration}
 
-Today's software development infrastructure is typically text oriented. Many
-tools used for diffing and merging, or tools like grep and regular expressions
+Today's software development infrastructure is typically text-oriented. Many
+tools used for diff and merge, or tools like \ic{grep} and regular expressions
 are geared towards textual storage. This means that DSLs that use free text
 editing integrate nicely with these tools. 
 
-In projectional IDEs, sSpecial support needs to be provided for infrastructure
+In projectional IDEs, special support needs to be provided for infrastructure
 integration. Since the CS is not pure text, a generic persistence format is
 used, typically based on XML. While XML is technically text as well, it is not
-practicable to perform diff, merge and the like on the level of the XML. 
+practical to perform diff, merge and the like on the level of the XML. 
 Therefore, special tools need to be provided for diff and merge. MPS provides
-integration with the usual VCS systems and handles diff and merge in the tool,
-using the concrete, projected syntax. Note that since every program element has
-a UUID, \emph{move} can be distinguished from \emph{delete} and \emph{create},
-providing more useable semantics for diff and merge. \fig{fig:mps-diff.png}
-shows an example of an MPS diff.
+integration with the usual version control systems and handles diff and merge in
+the IDE, using the concrete, projected syntax. Note that since every program
+element has a unique ID, \emph{move} can be distinguished from
+\emph{delete/create}, providing richer semantics for diff and merge.
+\fig{fig:mps-diff.png} shows an example of an MPS diff.
 
 \begin{figure}[ht] 
 \begin{center}
