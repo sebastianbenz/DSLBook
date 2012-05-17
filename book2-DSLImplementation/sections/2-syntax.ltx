@@ -11,10 +11,11 @@ introduction}. We refer to other forms where appropriate.
 The \emph{abstract syntax} (short: AS) of a language is a data structure that
 holds the information represented by the concrete syntax, but without any of the
 syntactic details. Keywords and symbols, layout (e.g., whitespace), and comments
-are typically not included. Note that syntactic information which doesn't end up
-in the AS is often preserved in some "hidden" form so the CS can be
+are typically not included in the AS. Note that the syntactic information that
+doesn't end up in the AS is often preserved in some "hidden" form so the CS can be
 reconstructed from the combination of the AS and this hidden information ---
-this bidirectionality simplifies creating IDE features quite a bit.
+this bidirectionality simplifies creating IDE features such as quick fixes or
+formatters a lot.
 
 In most cases, the abstract syntax is a tree data structure. Instances that
 represent actual programs (i.e., sentences in the language) are hence often
@@ -22,14 +23,13 @@ called an abstract syntax tree or AST. Some formalisms also support
 cross-references across the tree, in which case the data structure becomes a
 graph (with a primary containment hierarchy). It is still usually called an AST.
 
-While the CS is the "UI" of the language to the user, the AS acts as the API to
-access programs by processing tools: it is used by developers of validators,
+While the CS is the interface of the language to the user, the AS acts as the
+API to access programs by processing tools: it is used by developers of validators,
 transformations and code generators. The concrete syntax is not relevant in
 these cases.
 
-To illustrate the dichotomy between concrete and abstract syntax, consider the
-following example program:
-
+To illustrate the relationship between the concrete and abstract syntax,
+consider the following example program:
 
 \begin{code}
 var x: int;
@@ -38,9 +38,11 @@ calc y: int = 1 + 2 * sqrt(x)
  
 This program has a hierarchical structure: definitions of \ic{x} and
 \ic{y} at the top, inside \ic{y} there's a nested expression. This
-structure is reflected in the corresponding abstract syntax. A possible AST is
-illustrated in \fig{astexample}. The boxes represent program elements, and the
-names in the boxes represent language concepts that make up the abstract syntax.
+structure is reflected in the corresponding abstract syntax tree. A possible AST
+is illustrated in \fig{astexample}\footnote{We say \emph{possible} because
+there are typically several ways of structuring the abstract syntax.}. The boxes
+represent program elements, and the names in the boxes represent language 
+concepts that make up the abstract syntax.
 
 \begin{figure}[ht]
 \begin{center}
@@ -52,39 +54,46 @@ names in the boxes represent language concepts that make up the abstract syntax.
 \end{center}
 \end{figure}
 
-There are two ways of defining the relationship between the CS and the AS.
+\noindent There are two ways of defining the relationship between the CS and the
+AS as part of language development:  
 \begin{description}
-  \item[AS first] An existing AS is annotated with the concrete syntax.
-  Mapping rules determine how the concrete syntax maps to existing abstract 
-  syntax structures.
+  \item[AS first] We first define the AS. This is then annotated with
+  concrete syntax definitions. Mapping rules determine how the concrete syntax maps to 
+  abstract syntax structures\footnote{This is often done if the AS structure already
+  exists, has to conform to externally imposed constraints or is developed by
+  another party than the language developer.}.
   \item[CS first] From a concrete syntax definition, an abstract syntax is
-  derived, either automatically and/or using hints in the concrete
-  syntax specification.
+  derived, either automatically or using hints in the concrete
+  syntax specification\footnote{This is more convenient, but the resulting AS
+  may not be as clean as if it were defined manually; it may contain
+  idiosyncracies that result from the derivation from the CS.}.
 \end{description}
 
-Once the language is defined, there are again two ways how the abstract syntax
-and the concrete syntax can relate as the language is used to create programs:
+\noindent Once the language is defined, there are again two ways how the
+abstract syntax and the concrete syntax can relate as the language is used to
+create programs\footnote{We will discuss these two approaches in more detail in
+the next subsection.}:
 \begin{description}
-  \item[Parsing] In parser-based systems, the abstract syntax tree is derived
-  from the concrete syntax of a program; a parser instantiates and populates the
+  \item[Parsing] In parser-based systems, the abstract syntax tree is
+  constructed from the concrete syntax of a program; a parser instantiates and populates the
   AS, based on the information in the program text. In this case, the
   (formal) definition of the CS is usually called a \emph{grammar}.
   \item[Projection] In projectional systems, the abstract syntax tree is built
   directly by editor actions, and the concrete syntax is rendered from the AST
   via projection rules.
-\end{description}
+\end{description}
 
-\fig{astandcst} shows the typical combinations of these two dimensions. In
-practice, parser-based systems typically derive the AS from the CS - i.e., CS
-first. In projectional systems, the CS is usually annotated onto the AS data
-structures - i.e., AS first. In the next sections we look more closely at
-parsing and projection.
+\fig{astandcst} shows the typical combinations of these two dimensions.
+In practice, parser-based systems typically derive the AS from the CS --- i.e.,
+CS first. In projectional systems, the CS is usually annotated onto the AS data
+structures - i.e., AS first. 
 
 \begin{figure}[ht]
 \begin{center}
   \includegraphics[scale=0.6]{figures/1/astandcst.png}
   \caption[]{Dimensions of defining the concrete and abstract syntax
-  of a language.}
+  of a language. Xtext is mentioned twice because it supports CS first and AS
+  first, although CS first is the default.}
   \label{astandcst} 
 \end{center}
 \end{figure}
@@ -93,19 +102,21 @@ parsing and projection.
 \section{Fundamentals of Free Text Editing and Parsing} 
 
 Most general-purpose programming environments rely on free text editing, where
-programmers edit programs at the character level to form (key)words and phrases.
+programmers edit programs at the text/character level to form (key)words and
+phrases.
 
 A \emph{parser} is used to check the program text (concrete syntax) for
-syntactic correctness, and create the AST by populating the AS from information
-extracted from the textual source.  Most modern IDEs perform this task in
-real-time as the user edits the program. The AST is always kept in sync with the
-program text. Many IDE features --- such as content assist, validation,
-navigation, refactoring support, etc. --- are based on the real-time AST.
+syntactic correctness, and create the AST by populating the AS data structures
+from information extracted from the textual source. Most modern IDEs perform this task in
+real-time as the user edits the program and the AST is always kept in sync with
+the program text. Many IDE features --- such as content assist, validation,
+navigation or refactoring support --- are based on the always up-to-date AST.
 
 \begin{marginfigure}
-  \includegraphics[width=5cm]{figures/1/parserbased.png}
+  \includegraphics[width=3.5cm]{figures/1/parserbased.png}
   \caption{In parser-based systems, the user only interacts with the concrete
-  syntax, and the AST is constructed from the information in the text.}
+  syntax, and the AST is constructed from the information in the text via a
+  parser.}
   \label{parserbased}
 \end{marginfigure} 
 
@@ -118,11 +129,11 @@ generation.
 
 Many different approaches to parser implementation exist. Each may restrict
 the syntactic freedom of a DSL, or constrain the way in which a particular
-syntax must be specified. It is important to be aware of this as not all
-languages can be comfortably, or even at all implemented by every parser
-implementation approach. You may have heard terms like context free,
-ambiguity, look-ahead, LL, (LA)LR, PEG. These all pertain to a certain class
-of parser implementation approaches. We'll provide more details on the various
+syntax must be specified. It is important to be aware of these restrictions
+since not all languages can be comfortably, or even at all implemented by
+every parser implementation approach. You may have heard terms like context free,
+ambiguity, look-ahead, LL, (LA)LR or PEG. These all pertain to a certain class
+of parser implementation approaches. We provide more details on the various
 grammar and parser classes further on in this section.
 
 \subsection{Parser Generation Technology}
@@ -137,37 +148,43 @@ error recovery (the ability to continue parsing after a syntax error has been
 found).
 
 In contrast, language workbenches, and increasingly also traditional compilers,
-\emph{generate} a parser from a grammar, a DSL for formally defining textual
-concrete syntax. These generated parsers may not provide the same performance or
-error recovery as a hand-tailored parser constructed by an expert, but they
-provide bounded performance guarantees that make them (usually) more than fast
-enough for modern machines. However, the most important argument to use parser
-generation is that the effort required is \textbf{much} lower than writing a
-custom parser from scratch. The grammar definition is also much more readable,
-maintainable and adaptable than the actual parser implementation (either
-custom-written or generated).
-
-\MV{Do we want to say something regarding our dislike of actions (procedural
-code) embedded in grammars? We'd like to separate these concerns\ldots}
+\emph{generate} a parser from a grammar. A grammar is a syntax specification
+written in a DSL for formally defining textual concrete syntax. These generated
+parsers may not provide the same performance or error recovery as a
+hand-tailored parser constructed by an expert, but they provide bounded
+performance guarantees that make them (usually) more than fast enough for modern
+machines. However, the most important argument to use parser generation is that
+the effort for building a parser is \textbf{much} lower than manually writing a
+custom parser. The grammar definition is also much more readable and
+maintainable than the actual parser implementation (either custom-written or
+generated).
 
 \parhead{Parsing versus scanning} Because of the complexity inherent in parsing,
 parser implementations tend to split the parsing process into a number of
-phases. In the majority of cases, the text input is first separated into a
-sequence of \emph{tokens} (i.e., keywords, identifiers, literals, comments,
-whitespace, etc.) by a \emph{scanner} (sometimes also called lexer). The
-\emph{parser} then constructs the actual AST from the token sequence. This
-simplifies the implementation compared to directly parsing at the character
-level. A scanner is usually implemented using direct recognition of keywords and
-a set of regular expressions to recognize all other valid input as tokens.
+phases. In the majority of cases the text input is first separated into a
+sequence of \emph{tokens} (i.e., keywords, identifiers, literals, comments, or
+whitespace) by a \emph{scanner} (sometimes also called lexer). The \emph{parser}
+then constructs the actual AST from the token sequence\footnote{Note that many
+parser generators allow you to add arbitrary code (called actions) to the
+grammar, for example to check constraints or interpret the program. We strongly
+recommend not to do this: instead, a parser should \emph{only} check for
+syntactic correctness and build the AST. All other processing should be built
+on top of the AST. This separation between AST construction and AST processing
+results in much more maintainable language implementations.}. This simplifies the
+implementation compared to directly parsing at the character level. A scanner is
+usually implemented using direct recognition of keywords and a set of regular
+expressions to recognize all other valid input as tokens.
 
 Both the scanner and parser can be generated from grammars (see below). A
-well-known example of a scanner (lexer) generation tool is \ic{lex}. Modern
-parsing frameworks, such as ANTLR, do their own scanner generation.
+well-known example of a scanner (lexer) generation tool is
+\ic{lex}\footnote{http://dinosaur.compilertools.net/}. Modern parsing 
+frameworks, such as ANTLR\footnote{http://www.antlr.org/} do their own scanner
+generation.
 
 Note that the word "parser" now has more than one meaning: it can either refer
-to the combination of the scanner and the parser or to the post-scanner parser.
-Usually the former meaning is intended (both in this book as well as outside)
-unless scanning and parsing are discussed specifically.
+to the combination of the scanner and the parser or to the post-scanner parser
+only. Usually the former meaning is intended (both in this book as well as
+in general) unless scanning and parsing are discussed specifically.
 
 A separate scanning phase has direct consequences for the overall parser
 implementation, because the scanner typically isn't aware of the context of any
@@ -181,7 +198,7 @@ as identifiers.
 A context-unaware scanner can also introduce problems when languages
 are extended or composed. In the case of Java, this was seen with the
 \ic{assert} and \ic{enum} keywords that were introduced in
-Java 1.4 and Java 5. Any programs that used identifiers with those
+Java 1.4 and Java 5, respectively. Any programs that used identifiers with those
 names (such as unit testing APIs) were no longer valid. For composed
 languages, similar problems arise as constituent languages have
 different sets of keywords and can define incompatible
@@ -191,74 +208,52 @@ The term "scannerless parsing" refers to the absence of a separate
 scanner and in this case we don't have the problems of context-unaware
 scanning illustrated above, because the parser operates at a character
 level and statefully processes lexicals and keywords. Spoofax (or
-rather: the underlying parser technology) uses scannerless
+rather: the underlying parser technology SDF) uses scannerless
 parsing.
 
-\MV{[symbol tables] should be discussed in the scoping and linking section?}
-
-% \parhead{Symbol tables}
-
-% Older compiler technology books tend to talk quite a bit about symbol tables,
-% i.e.\ a table which stores identifiers encountered in the input, their location
-% of definition and a link to the object (e.g., entity, variable, field, function,
-% etc.) associated with that identifier. The symbol table is used later on in the
-% parsing process to augment the AST to a graph (ASG) by looking up identifiers in
-% the symbol table and creating links to the referred object.
-% 
-% This method often (but not necessarily) implies a strict ordering in the input
-% text: objects have to be declared first before they can be used - e.g., the
-% Pascal programming language is remeniscent of this with its forward
-% declarations.
-% 
-% Nowadays, symbol tables are hardly used (explicitly) anymore. For example, Xtext
-% uses a mechanism called scoping in combination with an Index infrastructure to
-% achieve the same goal, but even comfortably across the boundaries of single
-% files. Therefore, this will be the last spot we will mention symbol tables.
 
 \parhead{Grammars} Grammars are the formal definition for concrete textual
-syntax. They consist of so-called production rules which define how valid input
-("sentences") looks like. They can also be used to "produce" valid input, hence
-their name. Grammars form the basis for syntax definitions in text-based
-workbenches such as Spoofax and Xtext. In these systems, the production rules
-are enriched with information beyond the pure grammatical structure of the
-language, such as the semantical relation between references and declarations.
+syntax. They consist of so-called production rules which define how valid
+textual input ("sentences") looks like\footnote{They can also be used to
+"produce" valid input by executing them "the other way round", hence the name.}.
+Grammars form the basis for syntax definitions in text-based workbenches such as
+Spoofax and Xtext\footnote{In these systems, the production rules are
+enriched with information beyond the pure grammatical structure of the language, such as the
+semantical relation between references and declarations.}.
 
-Fundamentally, grammar production rules can be expressed in
-Backus-Naur Form (BNF)\footnote{}, written as \(S\) \ic{::=} \(P_1\) \ic{...} \(P_n\)
-This grammar defines a symbol $S$ by a series of pattern expressions $P_1$
-\ic{...} $P_n$. Each pattern expression can refer to another symbol or can
-be a literal such as a keyword or a punctuation symbol. If there are
-multiple possible patterns for a symbol, these can be written as
-separate productions, or the patterns can
-be separated by the '$|$' operator to indicate a choice. An
-extension of BNF, called Extended BNF (EBNF), adds a number of convenience
-operators such as '?' for  an optional pattern, '*' to indicate zero
-or more occurrences, and '+' to indicate one or more occurrences.
+Fundamentally, grammar production rules can be expressed in Backus-Naur Form
+(BNF)\footnote{http://en.wikipedia.org/wiki/Backus-Naur\_Form}, written as \(S\)
+\ic{::=} \(P_1\) \ic{...} \(P_n\). This grammar defines a symbol $S$ by a series
+of pattern expressions $P_1$ \ic{...} $P_n$. Each pattern expression can refer
+to another symbol or can be a literal such as a keyword or a punctuation symbol.
+If there are multiple possible patterns for a symbol, these can be written as
+separate productions (for the same symbol), or the patterns can be separated by
+the \ic{|} operator to indicate a choice. An extension of BNF, called Extended
+BNF (EBNF)\footnote{http://en.wikipedia.org/wiki/Extended\_Backus-Naur\_Form},
+adds a number of convenience operators such as \ic{?} for  an optional pattern,
+\ic{*} to indicate zero or more occurrences, and \ic{+} to indicate one or more
+occurrences of a pattern expression.
 
-As an example, \fig{Fig:exp-grammar-simple} shows an example of a grammar for
+As an example, the following code is an example of a grammar for
 a simple arithmetic expression language using BNF notation. Basic expressions
 are built up of \ic{NUM} number literals and the \ic{+} and \ic{*} 
 operators.
 
-
-Note how expression nesting is described using recursion in this grammar:
-the \ic{Exp} rule calls itself, so sentences like \ic{2 + 3 * 4} are allowed.
-This poses two practical challenges for parser generation systems: first, the
-precedence and associativity of the operators is not described (explicitly) by
-this grammar. Second, not all parser generators provide full support for
-recursion. We elaborate on these issues in the remainder of the section and in
-the Spoofax and Xtext examples.
-
-\begin{figure}[t]
 \begin{code}
 Exp ::= NUM
       | Exp "+" Exp
       | Exp "*" Exp
 \end{code}
-\caption{A grammar for a simple expression language. The \ic{NUM} symbol
-refers to number literals.}
-\label{Fig:exp-grammar-simple}
-\end{figure}
+
+ 
+Note how expression nesting is described using recursion in this grammar:
+the \ic{Exp} rule calls itself, so sentences like \ic{2 + 3 * 4} are possible.
+This poses two practical challenges for parser generation systems: first, the
+precedence and associativity of the operators is not described by
+this grammar. Second, not all parser generators provide full support for
+recursion. We elaborate on these issues in the remainder of the section and in
+the Spoofax and Xtext examples.
+
 
 
 
@@ -271,17 +266,15 @@ suitable for natural language processing but at the same time, making parsing
 itself a lot harder since the parser has to be aware of a lot more than just the
 syntax.
 
-Parser generation was first applied in command-line tools such as \ic{yacc}
-in the early seventies. As a consequence of relatively slow computers, much
-attention was paid to the efficiency of the generated parsers. Various
-algorithms were designed that could parse text in a bounded amount of time and
-memory. However, these time and space guarantees could only be provided for
-certain subclasses of the context-free grammars, described by acronyms such as
-LL(1), LL($k$), LR(1), and so on, as illustrated in \fig{Fig:grammar-classes}. A
+Parser generation was first applied in command-line tools such as \ic{yacc} in
+the early seventies\footnote{http://dinosaur.compilertools.net}. As a
+consequence of relatively slow computers, much attention was paid to the
+efficiency of the generated parsers. Various algorithms were designed that could
+parse text in a bounded amount of time and memory. However, these time and space
+guarantees could only be provided for certain subclasses of the context-free
+grammars, described by acronyms such as LL(1), LL($k$), LR(1), and so on. A
 particular parser tool supports a specific class of grammars --- e.g., ANTLR
-supports LL($k$) and LL(*).
-
-In the classification of \fig{Fig:grammar-classes}, the first L stands for
+supports LL($k$) and LL(*). In this naming scheme, the first L stands for
 left-to-right scanning, and the second L in LL and the R in LR stand for
 leftmost and rightmost derivation. The constant $k$ in LL($k$) and LR($k$)
 indicates the maximum number (of tokens or characters) the parser will look
@@ -291,16 +284,9 @@ effectively compute the optimal value for $k$ automatically. A special case is
 LL(*), where $k$ is unbounded and the parser can look ahead arbitrarily many
 tokens to make decisions.
 
-\todo{Venn diagram of grammar classes: LL, LR, ...}
-\begin{figure}[t]
-\begin{center}
-\end{center}
-\caption{Classes of grammars.}
-\label{Fig:grammar-classes}
-\end{figure}
 
 Supporting only a subclass of all possible context-free grammars poses
-restrictions on the languages that are supported b a parser generator. For some
+restrictions on the languages that are supported by a parser generator. For some
 languages, it is not possible to write a grammar in a certain subclass, making
 that particular language unparseable with a tool that only supports that
 particular class of grammars. For other languages, a natural context-free
@@ -308,51 +294,45 @@ grammar exists, but it must be written in a different, often awkward way to
 conform to the subclass. This will be illustrated in the Xtext example, which
 uses ANTLR as the underlying LL($k$) parser technology.
 
+
 Parser generators can detect if a grammar conforms to a certain subclass,
 reporting conflicts that relate to the implementation of the algorithm:
 \emph{shift/reduce} or \emph{reduce/reduce} conflicts for LR parsers, and
 \emph{first/first} or \emph{first/follow} conflicts and direct or indirect
-\emph{left recursion} for LL parsers. DSL developers can then attempt
-to manually refactor the grammar to address those errors.
-
-As an example, consider a grammar for property or field access, expressions of
-the form \verb$customer.name$ or \verb$"Tim".length$:%
-%
-\footnote{Note that we use ID to indicate identifier patterns and
-  STRING to indicate string literal patterns in these examples.}
-
-\begin{figure}[t]
+\emph{left recursion} for LL parsers. DSL developers can then attempt to
+manually refactor the grammar to address those errors\footnote{Understanding
+these errors and then refactoring the grammar to address them can be non-trivial
+since it requires an understanding of the particular grammar class and the
+parsing algorithm.}. As an example, consider a grammar for property or field
+access, expressions of the form \ic{customer.name} or
+\ic{"Tim".length}\footnote{Note that we use ID to indicate identifier patterns
+and STRING to indicate string literal patterns in these examples.}:
 \begin{code} 
 Exp ::= ID 
       | Exp "." ID 
       | STRING
 \end{code}
-\caption{A grammar for property access expressions of
-the form \ic{customer.name} or \ic{"Tim".length}.}
-\label{Fig:field-access-grammar}
-\end{figure}
 
 This grammar uses left-recursion: the left-most symbol of one of the definitions
-of \verb$Exp$ is a call to \verb$Exp$, i.e.\ it is recursive. Left-recursion is
+of \ic{Exp} is a call to \ic{Exp}, i.e.\ it is recursive. Left-recursion is
 not supported by LL parsers such as ANTLR. 
 
-The grammar can be \emph{left-factored} by changing it to a form where all left
-recursion is eliminated. The essence of left-factoring is that the grammar is
-rewritten in such a way that all production rules which are recursive consume at
-least one token or character before going into the recursion. Left-factoring
-introduces additional rules that act as intermediaries and often makes
-repetition explicit using the \ic{+} and \ic{*} operators. The example
-grammar uses recursion for repetition, which can be made explicit as follows:
-
+The left-recursion can be removed by \emph{left-factoring} the grammar, i.e. by
+changing it to a form where all left recursion is eliminated. The essence of
+left-factoring is that the grammar is rewritten in such a way that all recursive
+production rules consume at least one token or character before going into the
+recursion. Left-factoring introduces additional rules that act as intermediaries
+and often makes repetition explicit using the \ic{+} and \ic{*} operators. The
+example grammar uses recursion for repetition, which can be made explicit as
+follows:
 \begin{code}
 Exp ::= ID
       | (Exp ".")+ ID
       | STRING
 \end{code}
 
-\noindent
 The resulting grammar is still left-recursive, but we can introduce an
-intermediate rule to eliminate the recursive call to \verb$Exp$:
+intermediate rule to eliminate the recursive call to \ic{Exp}:
 
 \begin{code}
 Exp ::= ID
@@ -363,20 +343,11 @@ FieldPart ::= ID
             | STRING
 \end{code}
 
-\noindent Unfortunately, this resulting grammar still has overlapping rules (a
-first/first conflict) as the \verb$ID$ symbol matches more than one rule. This
+Unfortunately, this resulting grammar still has overlapping rules (a
+first/first conflict) as the \ic{ID} symbol matches more than one rule. This
 conflict can be eliminated by removing the \ic{Exp ::= ID} rule and making
-the \ic{+} "one or more" repetition into a \ic{*} "zero or more"
+the \ic{+} (one or more) repetition into a \ic{*} (zero or more)
 repetition:
-
-%\begin{alltt}
-%Exp ::= ID
-%      | (FieldPart ".")* ID
-%      | STRING
-%
-%FieldPart ::= ID
-%            | STRING
-%\end{alltt}
 
 \begin{code}
 Exp       ::= (FieldPart ".")* ID
@@ -386,14 +357,15 @@ FieldPart ::= ID
             | STRING
 \end{code}
 
-\noindent
-This last grammar now describes the same language as the one from
-\fig{Fig:field-access-grammar}, but conforms to the LL(1) grammar class.
-
-In the general case, not all context-free grammars can be mapped
-to one of the restricted classes. Valid, unambiguous grammars exist that cannot
-be factored to any of the restricted grammar classes. In practice, this means
-that some languages cannot be parsed with LL or LR parsers.
+This last grammar now describes the same language as the original field access
+grammar shown above, but conforms to the LL(1) grammar
+class\footnote{Unfortunately, it is also much more verbose. Refactoring "clean"
+context free grammars to make them conform to a particular grammar class usually
+makes the grammars larger and/or uglier.}. In the general case, not all
+context-free grammars can be mapped to one of the restricted classes. Valid,
+unambiguous grammars exist that cannot be factored to any of the restricted
+grammar classes. In practice, this means that some languages cannot be parsed
+with LL or LR parsers.
 
 \parhead{General parsers} Research into parsing algorithms has produced parser
 generators specific to various grammar classes, but there has also been research
@@ -404,22 +376,31 @@ try a different production. Unfortunately, this approach risks exponential
 execution times or non-termination and usually exhibits poor performance.
 
 There are also general parsing algorithms that can \emph{efficiently} parse the
-full class. In particular, generalized LR (GLR) and Earley parsers can parse
-unambiguous grammars in linear time and gracefully cope with ambiguities with a
-cubic or $O(n^3)$ time in the worst case. Spoofax is an example of a language
-workbench that uses GLR parsing.
+full class. In particular, generalized LR (GLR)
+parsers\footnote{http://en.wikipedia.org/wiki/GLR\_parser} and Earley
+parsers\footnote{http://en.wikipedia.org/wiki/Earley\_parser} can parse
+unambiguous grammars in linear time and gracefully cope with ambiguities with 
+cubic ($O(n^3)$) time in the worst case. Spoofax is an example of a language
+workbench that uses GLR parsing.
 
 
 \parhead{Ambiguity} Grammars can be \emph{ambiguous} meaning that at least one
 valid sentence in the language can be constructed in more than one
-(non-equivalent) way from the production rules, corresponding to multiple
+(non-equivalent) way from the production rules\footnote{This also means that
+this sentence can be parsed in more than one way.}, corresponding to multiple
 possible ASTs. This obviously is a problem for parser implementation as some
-decision has to be made on which AST is preferred.
+decision has to be made on which AST is preferred. Consider again the expression
+language introduced above.
 
-For example, the expression language grammar given in
-\fig{Fig:exp-grammar-simple} is ambiguous. For a string \ic{1*2+3} there
-are two possible trees (corresponding to different operator precedences). The
-grammar does not describe which interpretation should be preferred.
+\begin{code}
+Exp ::= NUM
+      | Exp "+" Exp
+      | Exp "*" Exp
+\end{code}
+ 
+It is ambiguous, since for a string \ic{1*2+3} there are two possible trees
+(corresponding to different operator precedences). 
+
 
 \begin{Tree}
 \node {Exp}
@@ -449,23 +430,24 @@ grammar does not describe which interpretation should be preferred.
             child { node {3}}}};
 \end{Tree}
 
+The grammar does not describe which interpretation should be preferred.
 Parser generators for restricted grammar classes and generalized parsers handle
 ambiguity differently. We discuss both approaches.
 
 \parhead{Ambiguity with grammar classes} LL and LR parsers are deterministic
 parsers: they can only return one possible tree for a given input. This means
-they can't handle any grammar that has ambiguities, including the grammar in
-\fig{Fig:exp-grammar-simple}. Determining whether a grammar is ambiguous is a
-classical, undecidable problem. However, it is possible to detect violations of
-the LL or LR grammar class restrictions, in the form of conflicts. These
-conflicts do not always indicate ambiguities (as seen with the field access
-grammar of \fig{Fig:field-access-grammar}), but by resolving all conflicts (if
-possible) an unambiguous grammar can be formed.
+they can't handle any grammar that has ambiguities, including our simple
+expression grammar. Determining whether a grammar is ambiguous is a classic
+undecidable problem. However, it is possible to detect violations of the LL or
+LR grammar class restrictions, in the form of conflicts. These conflicts do not
+always indicate ambiguities (as seen with the field access grammar discussed
+above), but by resolving all conflicts (if possible) an unambiguous grammar can
+be formed.
 
 Resolving grammar conflicts in the presence of associativity, precedence, and
 other risks of ambiguity requires carefully layering the grammar in such a way
 that it encodes the desired properties. To encode left-associativity and a lower
-priority for the addition operator we can rewrite the grammar as follows:
+priority for the \ic{+} operator we can rewrite the grammar as follows:
 
 \begin{code}
 Expr ::= Expr "+" Mult
@@ -474,12 +456,14 @@ Mult ::= Mult "*" NUM
        | NUM
 \end{code}
 
-\noindent The resulting grammar is a valid LR grammar. Note how it puts the
-addition operator in the highest layer to give it the lowest priority, and how
-it uses left-recursion to encode left-associativity of the operators. The
-grammar can be left-factored to a corresponding LL grammar as follows. We will
-see more extensive examples of this approach in the section on Xtext
-(\Section{Sec:xtext-syntax}).
+The resulting grammar is a valid LR grammar. Note how it puts the \ic{+}
+operator in the highest layer to give it the lowest priority\footnote{A \ic{+}
+will end up further up in the expression tree than a \ic{*}; this means that the
+\ic{*} has higher precedence, since any interpreter or generator will encounter
+the \ic{*} first.}, and how it uses left-recursion to encode left-associativity
+of the operators. The grammar can be left-factored to a corresponding LL grammar
+as follows. We will see more extensive examples of this approach in the section
+on Xtext (\Section{Sec:xtext-syntax}).
 
 \begin{code}
 Expr ::= Mult ("+" Mult)*
@@ -488,17 +472,16 @@ Mult ::= NUM ("*" NUM)*
 
 
 \parhead{Ambiguity with generalized parsers} General parsers accept grammars
-regardless of recursion or ambiguity. That is, the grammar of
-\Figure{Fig:exp-grammar-simple} is readily accepted as a valid grammar. In case
-of an ambiguity, the generated parser simply returns all possible abstract
-syntax trees, e.g.\ a left-associative tree and a right-associative tree for the
-expression \ic{1*2+3}. The different trees can be manually inspected to
-determine what ambiguities exist in the grammar, or the desired tree can be
-programmatically selected.
+regardless of recursion or ambiguity. That is, the expression grammar is readily
+accepted as a valid grammar. In case of an ambiguity, the generated parser
+simply returns \emph{all possible abstract syntax trees}, e.g.\ a left-associative tree
+and a right-associative tree for the expression \ic{1*2+3}. The different trees
+can be manually inspected to determine what ambiguities exist in the grammar, or
+the desired tree can be programmatically selected.
 
-Language developers can use \emph{disambiguation filters} to indicate which
-interpretation should be preferred. For example, left-associativity can be
-indicated on a per-production basis:
+A way of programmatically selecting one alternative is \emph{disambiguation
+filters}. For example, left-associativity can be indicated on a per-production
+basis:
 
 \begin{code}
 Exp ::= NUM
@@ -506,8 +489,8 @@ Exp ::= NUM
       | Exp "*" Exp {left}
 \end{code}
 
-\noindent indicating that both operators are left-associative (using the
-\verb${left}$ annotation as seen in Spoofax). Operator precedence can be
+This indicates that both operators are left-associative (using the
+\ic{\{left\}} annotation from Spoofax). Operator precedence can be
 indicated with relative priorities or with precedence annotations:
 
 \begin{code}
@@ -516,51 +499,39 @@ Exp ::= Exp "*" Exp {left}
 Exp ::= Exp "+" Exp {left}
 \end{code}
 
-\noindent indicating that the multiplication operator binds stronger than the
-addition operator. This kind of declarative disambiguation is commonly found in
+The \ic{>} indicates that the \ic{*} operator binds stronger than the
+\ic{+} operator. This kind of declarative disambiguation is commonly found in
 GLR parsers, but typically not available in parsers that support only more
-limited grammar classes.
+limited grammar classes\footnote{As even these simple examples show, this style
+of specifying grammars leads to simpler, more readable grammars. It also makes
+language specification much simpler, since developers don't have to understand
+the errors mentioned above}.
 
 
 
-\parhead{Compositionality of Grammars} Grammars evolve as languages change and
-new features are added. These features can be added by adding single, new
+\parhead{Grammar Evolution and Composition} Grammars evolve as languages change
+and new features are added. These features can be added by adding single, new
 productions, or by composing the grammar with an existing grammar. Composition
 of grammars is an efficient way of reusing grammars and quickly constructing or
-extending new grammars. \MV{I think evolultion of grammars is different from
-composition: in the evolution, we change an existing one, invasively. In
-composition, we want to composed independetly developed ones, ideally without
-change. The above paragraph makes it all sound "one problem".} \LK{true, they're
-not really the same. however, they are both affected by these challenges. for
-composition, the problem is a just bit worse since you don't want to invasively
-change the input grammars.} \LK{do you think evolution should be removed here,
-though? particularly the "resistance to change" property of LL grammars really
-affects grammar evolution} \MV{I suggest you make it two sections. One is on
-evolution (where you talk about the "resistance to change", and the other one is
-about composotionality (where you talk about independent, no-invasive
-modification of grammars. You can still refer to the same fundamental issues in
-both sections, but I think it is two different sections.))}
-
-As a basic example of a grammar composition, consider an the following
-grammar for arithmetic expressions:
-
+extending new grammars\footnote{We discuss this extensively in
+\sect{modularization}}. As a basic example of grammar composition, consider once
+again our simple grammar for arithmetic expressions:
 \begin{code}
 Expr ::= NUM
        | Expr "*" Expr
        | Expr "+" Expr
 \end{code}
 
-Once more operators are added and the proper associativities and precedences
-are specified, such a grammar forms an excellent unit for reuse. Now suppose 
-we want to add this grammar to a second grammar, where we have a field access 
-expression:%
-\footnote{%
-Here we consider the case where two grammars use
-a symbol with the identical name "Expr."
-Some grammar definition formalisms support mechanisms such as 
-grammar mixins and renaming operators to work with grammar modules
-where the symbol names do not match.
-}
+Once more operators are added and the proper associativities and precedences are
+specified, such a grammar forms an excellent unit for reuse\footnote{For
+examople, expressions can be used as guard conditions in state machines, for
+pre- and postconditions in interface definitions or to specify derived
+attributes in a data definition language.}. As an example, suppose we want to
+compose this grammar with the grammar for field access expressions\footnote{
+Here we consider the case where two grammars use a symbol with the identical
+name \ic{Expr}. Some grammar definition formalisms support mechanisms such as
+grammar mixins and renaming operators to work with grammar modules where the
+symbol names do not match.}:
 
 \begin{code}
 Expr ::= ID
@@ -568,36 +539,39 @@ Expr ::= ID
        | Expr "." ID
 \end{code}
 
-In the ideal case, composing two such grammars should be trivial.
-However, reality is often less than ideal.
-There are a number of challenges that arise in practice,
-related to ambiguity and to grammar class restrictions.
+In the ideal case, composing two such grammars should be trivial --- just copy
+them into the same file. However, reality is often less than ideal. There are a
+number of challenges that arise in practice, related to ambiguity and to grammar
+class restrictions.
 
-\LK{I refactored this a bit, but still not quite happy with it}
-%
-Composing arbitrary grammars 
-risks introducing ambiguities that did not exist in either of
-the two constituent grammars. In the case of the arithmetic
-expressions and field access grammars, care must specifically be
-taken to indicate the precedence order of all operators.
-With a general parser, new priority rules can be added without changing
-imported two grammars. When an LL or LR parser is used,
-it is often necessary to change one or both of the composed grammars
-to eliminate any conflicts.
 
-\MV{The following paragraph seems to not really "connect" to the previous one.}
-We have shown how grammars can be massaged with techniques such as left-factoring in order to
+\begin{itemize}
+\item Composing arbitrary grammars risks introducing ambiguities that did not exist in
+either of the two constituent grammars. In the case of the arithmetic
+expressions and field access grammars, care must specifically be taken to
+indicate the precedence order of all operators with respect to all others. With
+a general parser, new priority rules can be added without changing imported two
+grammars. When an LL or LR parser is used, it is often necessary to change one
+or both of the composed grammars to eliminate any conflicts. This is because ina general parser, the precedences are \emph{declarative} (additional preferencespecification can simply be added at the end), whereas in LL or LR parsers theprecedence information is encoded in the grammar structure (and invasivechanges to this structure may be required).\item We have shown how grammars can be massaged with techniques such as left-factoring in order to
 conform to a certain grammar class. Likewise, any precedence order or
 associativity can be encoded by massaging the grammar to take a certain form.
 Unfortunately, all this massaging makes grammars very resistant to change and
-composition. After two grammars are composed together, it is often the case that
-their composition is no longer LL or LR, and needs another manual factorization
-step to be usable.
+composition: after two grammars are composed together, the result is often
+no longer LL or LR, and another manual factorization
+step is required.
 
-Another challenge is in composing scanners. When two grammars that depend on a
+\item Another challenge is in composing scanners. When two grammars that depend on a
 different lexical syntax are composed together, conflicts can arise. For
 example, consider what happens when we compose the grammar of Java with the
-grammar of SQL, as illustrated in \fig{Fig:javasql}. The SQL grammar reserves
+grammar of SQL:
+
+\begin{code}
+for (Customer c : SELECT customer FROM accounts WHERE balance < 0) {
+  ...
+}
+\end{code}
+
+The SQL grammar reserves
 keywords such as \ic{SELECT}, even though they are not reserved in Java. Such a
 language change could break compatibility with existing Java programs which
 happen to use a variable named \ic{SELECT}. This problem can only
@@ -605,17 +579,8 @@ be avoided by a scannerless parser, which considers the lexical syntax in
 the context it appears instead during a separate scanning stage, where no
 context is considered.
 
-\begin{figure}[t]
-\begin{center}
-\begin{code}
-for (Customer c : SELECT customer FROM accounts WHERE balance < 0) {
-  ...
-}
-\end{code}
-  \caption[]{A composition of Java and SQL.}
-  \label{Fig:javasql} 
-\end{center}
-\end{figure}
+\end{itemize}
+
 
 
 
@@ -626,13 +591,6 @@ that represent programs. A parser then checks the program for syntactic
 correctness and constructs an abstract syntax tree from the character sequence.
 The AST contains all the semantic information expressed by the program.
 
-\begin{marginfigure}
-  \includegraphics[width=5cm]{figures/1/projectional.png}
-  \caption{In projectional systems, the user sees the concrete syntax, but all
-  editing gestures directly influence the AST. The AST is \emph{not} extracted
-  from the concrete syntax, which means the CS does not have to be parseable.}
-  \label{projectional}
-\end{marginfigure} 
 In projectional editors, the process happens the other way round: as a user
 edits the program, the AST is modified directly. A projection engine then
 creates some representation of the AST with which the user interacts, and which
@@ -644,31 +602,39 @@ the palette to the canvas. A projection engine renders the diagram, in this case
 drawing a rectangle for the class. This approach can be generalized to work
 with any notation, including textual.
 
-In projectional editors, every program element is stored as a node with a unique
+\begin{marginfigure}[-20mm]
+  \includegraphics[width=3.5cm]{figures/1/projectional.png}
+  \caption{In projectional systems, the user sees the concrete syntax, but all
+  editing gestures directly influence the AST. The AST is \emph{not} extracted
+  from the concrete syntax, which means the CS does not have to be parseable.}
+  \label{projectional}
+\end{marginfigure} 
+
+This explicit instantiation of AST objects happens by picking the respective
+concept from the code completion menu using a character sequence defined by
+the respective concept. If at any given program location two concepts can be
+instantiated using \emph{the same character sequence}, then the projection editor prompts the user to
+decide\footnote{As discussed above, this is the situation where many
+grammar-based systems run into problems from ambiguity.}. Once a concept is
+instantiated, it is stored as a node with a unique
 ID (UID) in the AST. References between program elements are based on actual
-pointers (references to UIDs). The AST is actually an ASG, an abstract syntax
+pointers (references to UIDs), and the projected syntax that represents the
+reference can be arbitrary. The AST is actually an ASG, an abstract syntax
 graph, from the start because cross-references are first-class rather than being
 resolved after parsing. The program is stored using a generic tree
 persistence mechanism, often XML.
 
-The projectional approach can deal with arbitrary syntactic forms. Since no
+
+The projectional approach can deal with arbitrary syntactic forms including
+traditional text, symbols (as in mathematics), tables or graphics. Since no
 grammar is used, grammar classes are not relevant here. In principle,
 projectional editing is simpler than parsing, since there is no need to
 "extract" the program structure from a flat textual source. However, as we will
 see below, the challenge in projectional editing lies making the editing
-experience convenient.
+experience convenient\footnote{In particular, editing notations that look like
+text should be editable with the editing gestures known from text editors.}.
 
 \section{Comparing Parsing and Projection}
-
-\MV{The following paragraph needs to be ripped apart and the respective points
-need to be moved into the respective subsubsections} There's a lot to say in
-favor of free text editing. The linear, two-dimensional structure of text
-(especially when using mono-spaced fonts) is well-known and easily understood,
-while text editing operations are more-or-less universal. It's very convenient
-to have a CS that also serves as the persistence format: it makes the language
-essentially tool-independent and allows fairly easy integrations with other
-text-based tools like versioning systems, issue trackers, documentation systems,
-or email clients.
 
 
 \subsection{Editing Experience}
@@ -679,15 +645,15 @@ definition, find references, error annotations, refactoring and the like. Xtext
 and Spoofax provide such IDE support. However, you can always go back to any
 text editor to edit the programs.
 
-In projectional editing, this is different. since a normal text editor is
+In projectional editing, this is different since a normal text editor is
 obviously not sufficient as you would be editing some textual representation of
 the AST. A specialized editor has to be supplied. Like in free text editing, it
 has to provide the IDE support features mentioned above. MPS provides those.
-Howevre, there is another challenge: for textual-looking notations, it is
-important that the editor tries and makes the editing experience as text-like as possible, i.e. the keyboard
-actions we have gotten used to from free-text editing should work as far as
-possible. MPS does a decent job here, using, among others, the following
-strategies:
+However, there is another challenge: for textual-looking notations, it is
+important that the editor tries and makes the editing experience as text-like as
+possible, i.e. the keyboard actions we have gotten used to from free-text
+editing should work as far as possible. MPS does a decent job here, using, among
+others, the following strategies:
 
 \begin{itemize}
 
@@ -696,46 +662,56 @@ strategies:
   select the language concept (based on its name) and instantiate it. This is
   inconvenient. In MPS, languages can instead define aliases for language
   concepts, allowing users to "just type" the alias, after which the concept
-  is immediately instantiated.
+  is immediately instantiated\footnote{By making the alias the same as the
+  leading keyword (e.g. \ic{if} for an \ic{IfStatement}), users can "just
+  type" the code.}.
 
   \item So-called side transforms make sure that expressions can be entered
   conveniently. Consider a local variable declaration \ic{int a = 2;}. If this
-  should be changed to \ic{int a = 2+3;} the 2 in the init expression needs
-  to be replaced by an instance of the binary + operator, with the 2 in the left
-  slot and the 3 in the right. Instead of removing the 2 and inserting a +,
-  users can simply type + on the right side of the 2; the system performs the
-  tree refactoring that moves the + to the root of the subtree, puts the 2 in
-  the left slot, and then puts the cursor into the right slot, to accept the
-  second argument. This means that expressions (or anything else) can be entered
-  linearly, as expected.
+  should be changed to \ic{int a = 2+3;} the \ic{2} in the init expression needs
+  to be replaced by an instance of the binary \ic{+} operator, with the \ic{2}
+  in the left slot and the \ic{3} in the right. Instead of removing the \ic{2}
+  and manually inserting a \ic{+}, users can simply type \ic{+} on the right
+  side of the \ic{2}; the system performs the tree refactoring that moves the
+  \ic{+} to the root of the subtree, puts the \ic{2} in the left slot, and then
+  puts the cursor into the right slot, to accept the second argument. This means
+  that expressions (or anything else) can be entered linearly, as expected. For
+  this to work, operator precedence has to be specified, and the tree has to be
+  constructed taking these precedences into account. Precedence is typically
+  specified by a number associated with each operator, and whenever using a side
+  transformation to build an expression, the tree is automatically reshuffled to
+  make sure that those operators with a higher precedence number are further
+  down in the tree.
   
   \item Delete actions are used to similar effect when elements are deleted.
-  Deleting the 3 in \ic{2+3} first keeps the plus, with an empty right slot.
-  Deleting the + then removes the + and puts the 2 at the root of the subtree.
+  Deleting the \ic{3} in \ic{2+3} first keeps the plus, with an empty right slot.
+  Deleting the \ic{+} then removes the \ic{+} and puts the \ic{2} at the root of the subtree.
 
   \item Wrappers support instantiation of concepts that are actually children of
-  the concepts allowed in a given location. Consider again a local variable
-  declaration \ic{int a;}. The concept represented could be
-  LocalVariableDeclaration, a subtype of Statement, to make it legal in method
-  bodies (for example). However, users simply want to start typing \ic{int},
-  i.e.\ selecting the content of the type field of the LocalVariableDeclaration.
-  A wrapper can be used to support entering types where
-  LocalVariableDeclarations are expected. Once a type is selected, the wrapper
-  implementation creates a LocalVariableDeclaration and puts the type into its
-  type field, and moves the cursor into the name slot.
+  the concepts allowed at a given location. Consider again a local variable
+  declaration \ic{int a;}. The respective concept could be
+  \ic{LocalVariableDeclaration}, a subconcept of \ic{Statement}, to make it
+  legal in method bodies (for example). However, users simply want to start
+  typing \ic{int}, i.e.\ selecting the content of the \ic{type} field of the
+  \ic{LocalVariableDeclaration}. A wrapper can be used to support entering
+  \ic{Type}s where \ic{LocalVariableDeclaration}s are expected. Once a \ic{Type}
+  is selected, the wrapper implementation creates a
+  \ic{LocalVariableDeclaration}, puts the \ic{Type} into its \ic{type} field,
+  and moves the cursor into the \ic{name} slot.
 
   \item Smart references achieve a similar effect for references (as opposed to
-  children). Consider pressing Ctrl-Space after the + in \ic{2+3}. Assume
-  further, that a couple of local variables are in scope and that these can be
-  used instead of the 3. These should be available in the code completion menu.
-  However, technically, a VariableReference has to be instantiated, whose
-  variable slot then is made to point to any of the variables in scope. This is
-  tedious. Smart references trigger special editor behavior: if in a given
-  context a VariableReference is allowed, the editor \emph{first} evaluates its
-  scope to find the possible targets and then puts them into the code completion
-  menu. If a user selects one, then the VariableReference is created, and the
-  selected element is put into its variable slot. This makes the reference
-  object effectively invisible in the editor.
+  children). Consider pressing \ic{Ctrl-Space} after the \ic{+} in \ic{2+3}.
+  Assume further, that a couple of local variables are in scope and that these
+  can be used instead of the \ic{3}. These should be available in the code
+  completion menu. However, technically, a \ic{VariableReference} has to be
+  instantiated, whose \ic{variable} slot then is made to point to any of the
+  variables in scope. This is tedious. Smart references trigger special editor
+  behavior: if in a given context a \ic{VariableReference} is allowed, the
+  editor \emph{first} evaluates its scope to find the possible targets and then
+  puts those targets into the code completion menu. If a user selects one,
+  \emph{then} the \ic{VariableReference} is created, and the selected element is
+  put into its \ic{variable} slot. This makes the reference object effectively
+  invisible in the editor.
 
   \item Smart delimiters are used to simplify inputting list-like data that is
   separated with a specific separator symbol, such as parameter lists. Once a
@@ -747,33 +723,32 @@ strategies:
 Notice that, except for having to get used to the somewhat different way of
 editing programs, all other problems can be remedied with good tool support.
 Traditionally, this tool support has not always existed or been sufficient, and
-projectional editors have gotten a bit of a bad rep because of that. In case of
-MPS this tool support is available, and hence, MPS provides a productive and
-pleasant working environment.
+projectional editors have gotten a bit of a bad reputation because of that. In
+case of MPS this tool support is available, and hence, MPS provides a productive
+and pleasant working environment.
 
 
 \subsection{Language Modularity}
 
-As we have seen in \todo{}, language modularization and composition is an
-important building block in working with DSLs. Parser-based and projectional
-editors come with different trade-offs in this respect. Notice that is this
-section we only consider syntax issues --- semantics has been covered in
-\todo{the respective section in DSL design}.
+As we have seen in \todo{ref to the respective design chapter}, language
+modularization and composition is an important building block in working with
+DSLs. Parser-based and projectional editors come with different trade-offs in
+this respect. Notice that is this section we only consider syntax issues ---
+semantics has been covered in \todo{the respective section in DSL design}.
 
 In parser-based systems it depends on the grammar class supported by the tool
-whether composition can be supported well. The problem is that combining two or
-more independently developed grammars into one may become ambiguous, for
-example, because the same character sequence is defined as two different tokens.
-The resulting grammar cannot be parsed and has to be disambiguated manually,
-typically by invasively changing the resulting grammar. This of course breaks
-modularity and hence is not an option. Parsers that support the full set of
-context-free grammars, such as ANTLR, and hence Xtext, have this problem.
-Parsers that support the full class of context-free grammars, such as the GLR
-parser used as part of Spoofax, do not have this problem. While a grammar may
-become ambiguous in the sense that a program may be parseable in more than one
-way, this can be resolved by declaratively specifying which alternative should
-be used. This specification can be made \emph{without} invasively changing the
-resulting grammar, retaining modularity. 
+whether composition can be supported well. As we have said above, the problem is
+that the result of combining two or more independently developed grammars into
+one may become ambiguous, for example, because the same character sequence is defined as two
+different tokens. The resulting grammar cannot be parsed and has to be
+disambiguated manually, typically by invasively changing the composite grammar.
+This of course breaks modularity and hence is not an option. Parsers that
+do not support the full set of context-free grammars, such as ANTLR, and hence
+Xtext, have this problem. Parsers that do support the full set of context-free
+grammars, such as the GLR parser used as part of Spoofax, do not have this problem. While
+a grammar may become ambiguous in the sense that a program may be parseable in
+more than one way, this can be resolved by declaratively specifying which
+alternative should be used. This specification can be made externally, \emph{without} invasively changing the resulting grammar, retaining modularity.
 
 In projectional editors, language modularity and composition is not a problem at
 all. There is no grammar, no parsing, no grammar classes, and hence no problem
@@ -782,7 +757,7 @@ syntactically valid. If a composed language would be ambiguous, the user has to
 make a disambiguating decision as the program is entered. For example, in MPS,
 if in a given location two language concepts are available under the same alias,
 just typing the alias won't bind, and the user has to manually decide by picking
-one alternative from the code completion menu. 
+one alternative from the code completion menu.
 
 
 \subsection{Notational Freedom}
@@ -792,25 +767,32 @@ Traditionally, the character symbols were taken from the ASCII character set,
 resulting in textual programs being made up from "plain text". With the advent
 of unicode, a much wider variety of characters is available while still sticking
 to the linear sequence of character symbols approach. For example, the Fortress
-programming language makes use of this: greek letters and a wide variety of
-different bracket styles can be used in the programs. However, character layout
-is always ignored. For example it is not possible to use parsers to handle
-tabular notations, fraction bars or even graphics. 
+programming
+language\footnote{http://en.wikipedia.org/wiki/Fortress\_(programming\_language)}
+makes use of this: greek letters and a wide variety of different bracket styles
+can be used in the programs. However, character layout is always ignored. For
+example it is not possible to use parsers to handle tabular notations, fraction
+bars or even graphics\footnote{There have been experimental parsers for
+two-dimensional structures such as tables and even for graphical shapes, but
+these have never made it beyond the experimental stage.}.
 
-
+\begin{marginfigure}
+  \includegraphics[width=7cm]{figures/1/dectabincomp.png}
+  \caption{A table embedded in an otherwise textual program}
+  \label{dectabincomp}
+\end{marginfigure} 
 In projectional editing, this limitation does not exist. A projectional editor
 never has to extract the AST from the concrete syntax; editing gestures directly
 influence the AST, and the concrete syntax is rendered from the AST. This
 mechanism is basically like a graphical editor. Notations other than text can be
 used. For example, MPS supports tables as well as simple diagrams. Since these
-non-textual notations are handled the same way as the textual ones (possibly
+non-textual notations are handled the same way as the textual ones (possibly 
 with other input gestures), they can be mixed easily: tables can be embedded
-into textual source, and textual languages can be used within table cells.
-Textual notations can also be used inside boxes or as connection labels in
+into textual source, and textual languages can be used within table cells (see
+\fig{dectabincomp}). Textual notations can also be used inside boxes or as connection labels in
 diagrams. 
  
-\subsection{Language Evolution}
-
+\subsection{Language Evolution}
 If the language changes, existing instance models temporarily become
 outdated in the sense that they had been developed for the old version of the
 language. If the new language is not backward compatible, these existing models
@@ -821,32 +803,33 @@ program node points to the language concept it is an instance of, the tools have
 to take special care that such "incompatible" models can still be opened and the
 migrated, manually or by a script, to the new version of the language. MPS
 supports this feature, and it is even possible to distribute migration scripts
-with (updated) languages to run the migration automatically.
+with (updated) languages to run the migration automatically\footnote{It is also
+possible to define quick fixes that run \emph{automatically}; so whenever a
+concept that is marked as \ic{deprecated}, this quick fix can trigger an
+automatic migration to a new concpet.}.
 
 Free text editing does not have this problem. A model, essentially a sequence of
 characters, can \emph{always} be opened in the editor. The program may not be
 parseable, but users can always update the program manually, or with global
-search and replace, or regular expressions.
-
-\todo{do we talk about evolution somewhere?} 
+search and replace using regular expressions.
 
 \subsection{Infrastructure Integration}
 
-Today's software development infrastructure is typically text oriented. Many
-tools used for diffing and merging, or tools like grep and regular expressions
+Today's software development infrastructure is typically text-oriented. Many
+tools used for diff and merge, or tools like \ic{grep} and regular expressions
 are geared towards textual storage. This means that DSLs that use free text
 editing integrate nicely with these tools. 
 
-In projectional IDEs, sSpecial support needs to be provided for infrastructure
+In projectional IDEs, special support needs to be provided for infrastructure
 integration. Since the CS is not pure text, a generic persistence format is
 used, typically based on XML. While XML is technically text as well, it is not
-practicable to perform diff, merge and the like on the level of the XML. 
+practical to perform diff, merge and the like on the level of the XML. 
 Therefore, special tools need to be provided for diff and merge. MPS provides
-integration with the usual VCS systems and handles diff and merge in the tool,
-using the concrete, projected syntax. Note that since every program element has
-a UUID, \emph{move} can be distinguished from \emph{delete} and \emph{create},
-providing more useable semantics for diff and merge. \fig{fig:mps-diff.png}
-shows an example of an MPS diff.
+integration with the usual version control systems and handles diff and merge in
+the IDE, using the concrete, projected syntax. Note that since every program
+element has a unique ID, \emph{move} can be distinguished from
+\emph{delete/create}, providing richer semantics for diff and merge.
+\fig{fig:mps-diff.png} shows an example of an MPS diff.
 
 \begin{figure}[ht] 
 \begin{center}
@@ -881,19 +864,30 @@ original language specification.
 
 \section{Characteristics of AST formalisms}
 
-Most AST formalisms, aka Meta Meta Models, are ways to represent trees or
-graphs. Usually, such an AST formalism is "meta circular" in the sense that it
-can describe itself.
+Most AST formalisms, aka meta meta models\footnote{\emph{Abstract syntax} and
+\emph{meta model} are typically considered synonyms, even though they have
+different histories (the former comes from the parser/grammar community whereas
+the latter comes from the modeling community). Consequently, the formalisms for
+defining ASTs are conceptually similar to meta meta models.}, are ways to
+represent trees or graphs. Usually, such an AST formalism is "meta circular" in
+the sense that it can describe itself.
+Note that this section is really just a very brief overview over the three AST
+formalisms relevant to Xtext, Spoofax and MPS. We will illustrate them in more
+detail in the respective tool example sections.
 
 \subsection{EMF Ecore}
 
-The Eclipse Modeling Framework (EMF) is at the core of all of Eclipse's modeling
-related activities. Its core component is the Ecore meta meta model, a version
-of the EMOF standard. The central concepts are: EClass, EAttribute, EReference
-and EObject, the latter providing an in-memory/run-time representation of EClass
-instances. EReferences can be containing or not -- each EObject can be contained
-by at most one EReference instance. \fig{fig:ecore-metamodel} shows a class
-diagram of Ecore.
+The Eclipse Modeling Framework\footnote{http://www.eclipse.org/modeling/emf/}
+(EMF) is at the core of all Eclipse Modeling tools. Its core component is the
+Ecore meta meta model, a version of the EMOF
+standard\footnote{http://en.wikipedia.org/wiki/Meta-Object\_Facility}. The
+central concepts are: \ic{EClass} (representing AS elements or language
+concepts), \ic{EAttribute} (representing primitive properties of \ic{EClass}es),
+\ic{EReference} (representing associations between \ic{EClass}es) and
+\ic{EObject} (representing instances of \ic{EClass}es, i.e. AST nodes.
+\ic{EReferences} can be containing or not -- each \ic{EObject} can be contained
+by at most one \ic{EReference} instance. \fig{fig:ecore-metamodel} shows a class
+diagram of Ecore.
 
 \begin{figure*}[ht]
 \begin{center}
@@ -903,12 +897,13 @@ diagram of Ecore.
 \end{center}
 \end{figure*}
 
-The Ecore file is at the heart. From that, all kinds of other aspects are
-derived, specifically, a generic tree editor, and a generated Java API for
-accessing the AST of models and programs. This also forms the basis for Xtext's
-processing.
+When working with EMF, the Ecore file plays a central role. From that, all kinds
+of other aspects are derived, specifically, a generic tree editor, and a generated Java API for
+accessing an AST. This also forms the basis for Xtext's model processing: The
+Ecore file is derived from the grammar, and the parser, when executed, builds an
+in-memory tree of \ic{EObject}s representing the AST of the parsed program.
 
-EMF has grown to be a fairly large ecology within the Eclipse community and
+EMF has grown to be a fairly large ecosystem within the Eclipse community and
 numerous projects use EMF as a basis for model manipulation and persistence,
 with Ecore for meta model definition.
 
@@ -917,16 +912,10 @@ with Ecore for meta model definition.
 
 Spoofax uses the ATerm format to represent abstract syntax. ATerm provides
 a generic tree structure representation format that can be serialized
-textually similar to XML or JSON. Each tree node is called an ATerm, or simply a "term".
-Terms consist of the following elements:
-
-\begin{itemize}
-\item Strings, e.g.\ \verb$"Mr. White"$
-\item Numbers, e.g.\ \verb$15$ 
-\item Lists, e.g.\ \verb$[1,2,3]$
-\item Constructor applications, e.g.\ \ic{Order(5, 15, "Mr. White")} for
-labelled tree nodes with a fixed number of children
-\end{itemize}
+textually similar to XML or JSON. Each tree node is called an ATerm, or simply a \emph{term}.
+Terms consist of the following elements: Strings (\ic{"Mr. White"}), Numbers
+(\ic{15}), Lists (\ic{[1,2,3]}) and constructor applications (\ic{Order(5, 15, 
+"Mr. White")} for labelled tree nodes with a fixed number of children.
 
 Compared to XML or JSON, perhaps the most significant distinction is that
 ATerms often rely on the order of subterms rather than on labels. For example,
@@ -945,41 +934,42 @@ a product may be modeled in JSON as follows:
 \noindent
 Note how this specification includes the actual data describing the particular product (the model), but also a
 description of each of the elements (the meta model). With XML, a product would be modeled in a similar
-fashion. An equivalent of the JSON above written as in ATerm format would be
-\ic{Order([ItemNumber(5), Quantity(15), Customer("Mr.\ White")])}.
-However, this representation contains a lot of redundant information that also exists
-in the grammar. Instead, such a product can be written as \ic{Order(5, 15, "Mr.\ White")}.
-This more concise notation tends to make it slightly
-more convenient to use in handwritten transformations. 
+fashion. An equivalent of the JSON above written in ATerm format would be the
+following:
+
+\begin{code}
+Order([ItemNumber(5), Quantity(15), Customer("Mr.\ White")])
+\end{code}
+
+However, this representation contains a lot of redundant information that also
+exists in the grammar. Instead, such a product can be written as \ic{Order(5,
+15, "Mr.\ White")}. This more concise notation tends to make it slightly more
+convenient to use in handwritten transformations.
 
 The textual notation of ATerms can be used for exchanging data between
 tools and as a notation for model transformations or code generation
-rules. In memory, ATerms can be stored in a tools-specific fashion
+rules. In memory, ATerms can be stored in a tool-specific way
 (i.e., simple Java objects in the case of Spoofax). The generic
 structure and serializability of ATerms also allows them to be
-converted to other data formats. For example, the aterm2xml/xml2aterm
+converted to other data formats. For example, the \ic{aterm2xml} and \ic{xml2aterm}
 tools can convert between ATerms and XML.
 
-\noindent
-In addition to the basic elements above, ATerms support annotations
-to add additional information to terms. These are similar 
-to attributes in XML. For example, it is possible to annotate
-a product number with its product name:
-
+In addition to the basic elements above, ATerms support annotations to add
+additional information to terms. These are similar to attributes in XML. For
+example, it is possible to annotate a product number with its product name:
 \begin{code}
 Order(5{ProductName("Apples")}, 15, "Mr. White")
 \end{code}
 
-\noindent
 Spoofax also uses annotations to add information about references to other
 parts of a model to an abstract syntax tree. While ATerms only form trees,
 the annotations are used to represent the graph-like references.
 
 \subsection{MPS' Structure Definition}
 
-Every program element in MPS is a node. A node has a structure definition and
+Every program element in MPS is a \emph{node}. A node has a structure definition and
 projection rules for rendering. This is also true for language definitions.
-Nodes are instances of Concepts, which conceptually corresponds to EMF's \ic{EClass}. Like
+Nodes are instances of \emph{concepts}, which conceptually corresponds to EMF's \ic{EClass}. Like
 \ic{EClass}es, concepts are meta circular, i.e.\ there is a concept that defines the
 properties of concepts:
 
@@ -1012,21 +1002,27 @@ concept ConceptDeclaration extends AbstractConceptDeclaration
 
  
 A concept may extend a single other concept and implement any number of
-interfaces. It can declare references and child collections. It may also have a
-number of primitive-type properties as well as a couple of "static" features. 
-In addition, concepts can have behavior methods.
+interfaces\footnote{Note that interfaces can provide implementations for the
+methods they specify --- they are hence more like Scala traits.}. It can declare
+references and child collections. It may also have a number of primitive-type
+properties as well as a couple of "static" features. In addition, concepts can
+have behavior methods.
                  
+        
+While the MPS structure definition is proprietary to MPS and does not implement
+any accepted industry stanard, it is conceptually very close to
+Ecore\footnote{This is illustrated by the fact the exporters and importers to
+and from Ecore have been written.}.
                  
                                                                             
 \section{Xtext Example}
-\label{Sec:xtext-syntax}
+\label{Sec:xtext-syntax}
 
-\todo{We assume an introduction of the case studies somewhere before this point}
-
-Cooling programs represent the behavioral aspect of the refrigerator language.
-Here is a trivial program that can be used to illustrate some of the
-features of the language. The program is basically a state machine.
-
+Cooling programs\footnote{This and the other examples refer back to the case
+studies introduced at the beginning of the book in section \todo{}} represent
+the behavioral aspect of the refrigerator language. Here is a trivial program
+that can be used to illustrate some of the features of the language. The program
+is basically a state machine.
 \begin{code} 
 cooling program HelloWorld uses stdlib {
      
