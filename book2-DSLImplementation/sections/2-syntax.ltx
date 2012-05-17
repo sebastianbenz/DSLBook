@@ -864,19 +864,30 @@ original language specification.
 
 \section{Characteristics of AST formalisms}
 
-Most AST formalisms, aka Meta Meta Models, are ways to represent trees or
-graphs. Usually, such an AST formalism is "meta circular" in the sense that it
-can describe itself.
+Most AST formalisms, aka meta meta models\footnote{\emph{Abstract syntax} and
+\emph{meta model} are typically considered synonyms, even though they have
+different histories (the former comes from the parser/grammar community whereas
+the latter comes from the modeling community). Consequently, the formalisms for
+defining ASTs are conceptually similar to meta meta models.}, are ways to
+represent trees or graphs. Usually, such an AST formalism is "meta circular" in
+the sense that it can describe itself.
+Note that this section is really just a very brief overview over the three AST
+formalisms relevant to Xtext, Spoofax and MPS. We will illustrate them in more
+detail in the respective tool example sections.
 
 \subsection{EMF Ecore}
 
-The Eclipse Modeling Framework (EMF) is at the core of all of Eclipse's modeling
-related activities. Its core component is the Ecore meta meta model, a version
-of the EMOF standard. The central concepts are: EClass, EAttribute, EReference
-and EObject, the latter providing an in-memory/run-time representation of EClass
-instances. EReferences can be containing or not -- each EObject can be contained
-by at most one EReference instance. \fig{fig:ecore-metamodel} shows a class
-diagram of Ecore.
+The Eclipse Modeling Framework\footnote{http://www.eclipse.org/modeling/emf/}
+(EMF) is at the core of all Eclipse Modeling tools. Its core component is the
+Ecore meta meta model, a version of the EMOF
+standard\footnote{http://en.wikipedia.org/wiki/Meta-Object\_Facility}. The
+central concepts are: \ic{EClass} (representing AS elements or language
+concepts), \ic{EAttribute} (representing primitive properties of \ic{EClass}es),
+\ic{EReference} (representing associations between \ic{EClass}es) and
+\ic{EObject} (representing instances of \ic{EClass}es, i.e. AST nodes.
+\ic{EReferences} can be containing or not -- each \ic{EObject} can be contained
+by at most one \ic{EReference} instance. \fig{fig:ecore-metamodel} shows a class
+diagram of Ecore.
 
 \begin{figure*}[ht]
 \begin{center}
@@ -886,12 +897,13 @@ diagram of Ecore.
 \end{center}
 \end{figure*}
 
-The Ecore file is at the heart. From that, all kinds of other aspects are
-derived, specifically, a generic tree editor, and a generated Java API for
-accessing the AST of models and programs. This also forms the basis for Xtext's
-processing.
+When working with EMF, the Ecore file plays a central role. From that, all kinds
+of other aspects are derived, specifically, a generic tree editor, and a generated Java API for
+accessing an AST. This also forms the basis for Xtext's model processing: The
+Ecore file is derived from the grammar, and the parser, when executed, builds an
+in-memory tree of \ic{EObject}s representing the AST of the parsed program.
 
-EMF has grown to be a fairly large ecology within the Eclipse community and
+EMF has grown to be a fairly large ecosystem within the Eclipse community and
 numerous projects use EMF as a basis for model manipulation and persistence,
 with Ecore for meta model definition.
 
@@ -900,16 +912,10 @@ with Ecore for meta model definition.
 
 Spoofax uses the ATerm format to represent abstract syntax. ATerm provides
 a generic tree structure representation format that can be serialized
-textually similar to XML or JSON. Each tree node is called an ATerm, or simply a "term".
-Terms consist of the following elements:
-
-\begin{itemize}
-\item Strings, e.g.\ \verb$"Mr. White"$
-\item Numbers, e.g.\ \verb$15$ 
-\item Lists, e.g.\ \verb$[1,2,3]$
-\item Constructor applications, e.g.\ \ic{Order(5, 15, "Mr. White")} for
-labelled tree nodes with a fixed number of children
-\end{itemize}
+textually similar to XML or JSON. Each tree node is called an ATerm, or simply a \emph{term}.
+Terms consist of the following elements: Strings (\ic{"Mr. White"}), Numbers
+(\ic{15}), Lists (\ic{[1,2,3]}) and constructor applications (\ic{Order(5, 15, 
+"Mr. White")} for labelled tree nodes with a fixed number of children.
 
 Compared to XML or JSON, perhaps the most significant distinction is that
 ATerms often rely on the order of subterms rather than on labels. For example,
@@ -928,41 +934,42 @@ a product may be modeled in JSON as follows:
 \noindent
 Note how this specification includes the actual data describing the particular product (the model), but also a
 description of each of the elements (the meta model). With XML, a product would be modeled in a similar
-fashion. An equivalent of the JSON above written as in ATerm format would be
-\ic{Order([ItemNumber(5), Quantity(15), Customer("Mr.\ White")])}.
-However, this representation contains a lot of redundant information that also exists
-in the grammar. Instead, such a product can be written as \ic{Order(5, 15, "Mr.\ White")}.
-This more concise notation tends to make it slightly
-more convenient to use in handwritten transformations. 
+fashion. An equivalent of the JSON above written in ATerm format would be the
+following:
+
+\begin{code}
+Order([ItemNumber(5), Quantity(15), Customer("Mr.\ White")])
+\end{code}
+
+However, this representation contains a lot of redundant information that also
+exists in the grammar. Instead, such a product can be written as \ic{Order(5,
+15, "Mr.\ White")}. This more concise notation tends to make it slightly more
+convenient to use in handwritten transformations.
 
 The textual notation of ATerms can be used for exchanging data between
 tools and as a notation for model transformations or code generation
-rules. In memory, ATerms can be stored in a tools-specific fashion
+rules. In memory, ATerms can be stored in a tool-specific way
 (i.e., simple Java objects in the case of Spoofax). The generic
 structure and serializability of ATerms also allows them to be
-converted to other data formats. For example, the aterm2xml/xml2aterm
+converted to other data formats. For example, the \ic{aterm2xml} and \ic{xml2aterm}
 tools can convert between ATerms and XML.
 
-\noindent
-In addition to the basic elements above, ATerms support annotations
-to add additional information to terms. These are similar 
-to attributes in XML. For example, it is possible to annotate
-a product number with its product name:
-
+In addition to the basic elements above, ATerms support annotations to add
+additional information to terms. These are similar to attributes in XML. For
+example, it is possible to annotate a product number with its product name:
 \begin{code}
 Order(5{ProductName("Apples")}, 15, "Mr. White")
 \end{code}
 
-\noindent
 Spoofax also uses annotations to add information about references to other
 parts of a model to an abstract syntax tree. While ATerms only form trees,
 the annotations are used to represent the graph-like references.
 
 \subsection{MPS' Structure Definition}
 
-Every program element in MPS is a node. A node has a structure definition and
+Every program element in MPS is a \emph{node}. A node has a structure definition and
 projection rules for rendering. This is also true for language definitions.
-Nodes are instances of Concepts, which conceptually corresponds to EMF's \ic{EClass}. Like
+Nodes are instances of \emph{concepts}, which conceptually corresponds to EMF's \ic{EClass}. Like
 \ic{EClass}es, concepts are meta circular, i.e.\ there is a concept that defines the
 properties of concepts:
 
@@ -995,21 +1002,27 @@ concept ConceptDeclaration extends AbstractConceptDeclaration
 
  
 A concept may extend a single other concept and implement any number of
-interfaces. It can declare references and child collections. It may also have a
-number of primitive-type properties as well as a couple of "static" features. 
-In addition, concepts can have behavior methods.
+interfaces\footnote{Note that interfaces can provide implementations for the
+methods they specify --- they are hence more like Scala traits.}. It can declare
+references and child collections. It may also have a number of primitive-type
+properties as well as a couple of "static" features. In addition, concepts can
+have behavior methods.
                  
+        
+While the MPS structure definition is proprietary to MPS and does not implement
+any accepted industry stanard, it is conceptually very close to
+Ecore\footnote{This is illustrated by the fact the exporters and importers to
+and from Ecore have been written.}.
                  
                                                                             
 \section{Xtext Example}
-\label{Sec:xtext-syntax}
+\label{Sec:xtext-syntax}
 
-\todo{We assume an introduction of the case studies somewhere before this point}
-
-Cooling programs represent the behavioral aspect of the refrigerator language.
-Here is a trivial program that can be used to illustrate some of the
-features of the language. The program is basically a state machine.
-
+Cooling programs\footnote{This and the other examples refer back to the case
+studies introduced at the beginning of the book in section \todo{}} represent
+the behavioral aspect of the refrigerator language. Here is a trivial program
+that can be used to illustrate some of the features of the language. The program
+is basically a state machine.
 \begin{code} 
 cooling program HelloWorld uses stdlib {
      
