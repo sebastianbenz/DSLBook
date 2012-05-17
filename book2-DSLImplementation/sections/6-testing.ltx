@@ -35,6 +35,8 @@ describe in detail how this works.}
 Testing the syntax is simple. Developers simply try to write all relevant
 programs and see if they can be expressed with the language. 
 
+\parhead{An Example with Xtext}%
+%
 The following piece of code is the fundamental code that needs to be written in
 Xtext to test a DSL program using the Xtext testing
 utilities\footnote{http://code.google.com/a/eclipselabs.org/p/xtext-utils/wiki/Unit\_Testing}. 
@@ -90,12 +92,65 @@ No linking or constraints checks are performed. This is why we can "call"
 \ic{anOperation} on the \ic{fach1} object, although \ic{anOperation} is not
 defined as a callable operation anywhere.
 
+\parhead{An Example with Spoofax}%
+%
+Spoofax supports writing tests for language definitions with a testing language.
+Consider the following test suite:
 
+\begin{code}
+module example
+language MoblEntities
 
-\section{Constaints Testing}
+test empty module [[module foo]] parse succeeds
+test missing layout (module name) [[modulefoo]] parse fails
+\end{code}
+
+The first two lines specify the name of the test suite and the language under test. 
+The remaining lines specify a positive and  a negative test cases concerning the language's syntax. 
+Each test case consists of a name, a code fragment in double square brackets, and a condition which determines what kind of test should be performed (\ic{parsing}) and what the expected outcome is (\ic{succeeds} or\ic{fails}). 
+
+We can also specify the expected abstract syntax:
+
+\begin{code}
+test empty module (AST) [[module foo]] parse to Module("foo", [])
+\end{code}
+
+Instead of specifying a complete abstract syntax tree, we can only specify the interesting parts in a pattern.
+For example, if we are only interested in the empty definition list of an empty module, we can use \ic{\_} as a wildcard for the module name:
+
+\begin{code}
+test empty module (AST) [[module foo]] parse to Module(_, [])
+\end{code}
+
+Abstract syntax patterns are particular useful for testing operator precedence and associativity:
+
+\begin{code}
+test multiply and add [[1 + 2 * 3]] parse to Add(_, Mul(_, _))
+test add and multiply [[1 * 2 + 3]] parse to Add(Mul(_, _), _)
+test add and add [[1 + 2 + 3]] parse to Add(Add(_, _), _)
+\end{code}
+
+Alternatively, we can specify an equivalent context-syntax fragment instead of an abstract syntax pattern:
+
+\begin{code}
+test multiply and add [[1 + 2 * 3]] parse to [[1 + (2 * 3)]]
+test add and multiply [[1 * 2 + 3]] parse to [[(1 * 2) + 3]]
+test add and add [[1 + 2 + 3]] parse to [[(1 + 2) + 3]]
+\end{code}
+
+A test suite can be run from the \emph{Transform} menu. 
+This will open the \emph{Spoofax Test Runner View} which provides information about failing and succeeding test cases in a test suite. 
+Additionally, we can also get instant feedback while editing a test suite.
+
+\section{Constraints Testing}
 
 Especially for languages with complex constraints, such as those implied by type
-systems, testing of constraints is essential. A special API is necessary to be
+systems, testing of constraints is essential.
+
+
+\parhead{An Example with Xtext}%
+%
+A special API is necessary to be
 able to verify that a program which makes a particular constraint fail actually
 annotates the corresponding error message to the respective program element.
 This way, tests can then be written which assert that a given program has a
@@ -155,7 +210,8 @@ junit.framework.AssertionFailedError: <no id> failed
   ...
 \end{code}
 
-
+\parhead{An Example with MPS}%
+%
 A similar facility is available for MPS, it is called a \ic{NodesTestCase}
 (\fig{mps-testexample}). It supports special annotations to express assertions
 on types and errors, directly in the program. For example, the third line of the
@@ -189,6 +245,87 @@ must have errors. But using the facilities shown above, which check for the
 presence of error annotations, scopes can be tested. Some frameworks may provide
 direct access to the scoping API to test scopes more directly.
 
+\parhead{An Example with Spoofax}%
+%
+In Spoofax' testing language, we can write test cases which specify the number of errors and warnings in a code fragment:
+
+\begin{code}
+test duplicate entities [[
+  module foo
+  
+  entity X {}
+  entity X {}
+]] 1 error
+
+test lower case entity name [[
+  module foo
+  
+  entity x {}
+]] 1 warning
+\end{code}
+
+Additionally, we can specify parts of the error or warning messages:
+
+\begin{code}
+test duplicate entities [[
+  module foo
+  
+  entity X {}
+  entity X {}
+]] 1 error /duplicate/
+
+test lower case entity name [[
+  module foo
+  
+  entity x {}
+]] 1 warning /upper case/
+\end{code}
+
+Like in Xtext and MPS, we can test scopes by means of correct and incorrect references.
+Alternatively, we can specify source and target of a link in a test case:
+
+\begin{code}
+test property reference [[
+  module foo
+  
+  entity X {
+  	[[p]]: int
+  	function f(q: int) {
+  	  r: int = 0;
+      return [[p]];
+  	}
+  }
+
+]] resolve #2 to #1
+
+test parameter reference [[
+  module foo
+  
+  entity X {
+  	p: int
+  	function f([[p]]: int) {
+      r: int = 0;
+      return [[p]];
+  	}
+  }
+
+]] resolve #2 to #1
+
+test variable reference [[
+  module foo
+  
+  entity X {
+  	p: int
+  	function f(q: int) {
+      [[p]]: int = 0;
+      return [[p]];
+  	}
+  }
+
+]] resolve #2 to #1
+\end{code}
+
+These cases use double square brackets to select parts of the program and specify the expected reference resolving in terms of these selections.
 
 \section{Semantics Testing}
 
@@ -871,6 +1008,32 @@ actual UI, I typically don't do any automated tests at all, for three reasons.
 editor to try things out, we implicitly test the UI, and (3), language
 workbenches are frameworks where, if you get the functionality right (via unit
 tests), they provide generic UIs that can be expected to work.
+
+\parhead{Testing Interpreters and Generators with Spoofax}%
+%
+Spoofax' testing language also allows to test transformations.
+We can rely on this, to test interpreters, assuming that the interpreter is implemented as a transformation from programs to program results. 
+For example, the following tests address a transformation \ic{calculate} which interpretes expressions:
+
+\begin{code}
+test evaluate addition [[1+2]] run calculate to Int("3")
+test evaluate multiplication [[3*4]] run calculate to Int("12")
+test complex evaluation 1 [[1+2*(3+4)]] run calculate to Int("15")
+\end{code}
+
+To test generators, we can rely on Spoofax' testing support for builders.
+Since we are not interested in testing in terms of the generated code, but in the bevaviour of the generated code, we need a builder which generates code, runs the generated code, and finally yields the result of this run.
+For example, the following tests address a builder \ic{generate-and-run} which generates code from expressions, runs this code, and returns the result of the run as a string:
+
+\begin{code}
+test generate addition [[1+2]] build generate-and-run to "3"
+test generate multiplication [[3*4]] run generate-and-run to "12"
+test generate evaluation 1 [[1+2*(3+4)]] run generate-and-run to "15"
+\end{code}
+
+These tests address a builder \ic{generate-and-run} which 
+These te
+
 
 
 \section{Testing for language appropriateness}
