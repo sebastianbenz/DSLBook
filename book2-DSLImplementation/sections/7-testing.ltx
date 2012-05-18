@@ -107,7 +107,9 @@ test missing layout (module name) [[modulefoo]] parse fails
 
 The first two lines specify the name of the test suite and the language under test. 
 The remaining lines specify a positive and  a negative test cases concerning the language's syntax. 
-Each test case consists of a name, a code fragment in double square brackets, and a condition which determines what kind of test should be performed (\ic{parsing}) and what the expected outcome is (\ic{succeeds} or\ic{fails}). 
+Each test case consists of a name, the to-be-tested code fragment in double
+square brackets, and a specification that determines what kind of test should
+be performed (\ic{parsing}) and what the expected outcome is (\ic{succeeds} or\ic{fails}).
 
 We can also specify the expected abstract syntax:
 
@@ -141,6 +143,8 @@ test add and add [[1 + 2 + 3]] parse to [[(1 + 2) + 3]]
 A test suite can be run from the \emph{Transform} menu. 
 This will open the \emph{Spoofax Test Runner View} which provides information about failing and succeeding test cases in a test suite. 
 Additionally, we can also get instant feedback while editing a test suite.
+
+\MV{Can you also run such tests from the command line (nighly build?)}
 
 \section{Constraints Testing}
 
@@ -616,6 +620,38 @@ In case the \ic{persistenceMock} saw behavior different from the one specified
 above, the \ic{validate mock} statement will fail --- and with it, the whole
 test.
 
+
+\parhead{Testing Interpreters and Generators with Spoofax}%
+%
+Spoofax' testing language also allows to test transformations.
+We can rely on this, to test interpreters, assuming that the interpreter is implemented as a transformation from programs to program results. 
+For example, the following tests address a transformation \ic{calculate} which interpretes expressions:
+
+\begin{code}
+test evaluate addition [[1+2]] run calculate to Int("3")
+test evaluate multiplication [[3*4]] run calculate to Int("12")
+test complex evaluation 1 [[1+2*(3+4)]] run calculate to Int("15")
+\end{code}
+
+To test generators, we can rely on Spoofax' testing support for builders.
+Since we are not interested in testing in terms of the generated code, but in the bevaviour of 
+the generated code, we need a builder which generates code, runs the generated code, and finally 
+yields the result of this run.
+
+For example, the following tests address a builder \ic{generate-and-run} which generates code 
+from expressions, runs this code, and returns the result of the run as a string:
+
+\begin{code}
+test generate addition [[1+2]] build generate-and-run to "3"
+test generate multiplication [[3*4]] run generate-and-run to "12"
+test generate evaluation 1 [[1+2*(3+4)]] run generate-and-run to "15"
+\end{code}
+
+\MV{Something missing here?}
+These tests address a builder \ic{generate-and-run} which 
+These te
+
+
 \parhead{Structural Testing} What we suggested in the previous subsection tests
 the execution semantics of programs written in DSLs, and, if we have enough of
 these tests, it tests the correctness of the transformation, generator or
@@ -979,6 +1015,8 @@ behavior expressed in the model. There are three ways to address this:
 \end{center} 
 \end{figure}
 
+
+
 \section{Testing Editor Services}
 
 Testing IDE services such as code completion (beyond scopes), quick fixes,
@@ -1009,30 +1047,7 @@ editor to try things out, we implicitly test the UI, and (3), language
 workbenches are frameworks where, if you get the functionality right (via unit
 tests), they provide generic UIs that can be expected to work.
 
-\parhead{Testing Interpreters and Generators with Spoofax}%
-%
-Spoofax' testing language also allows to test transformations.
-We can rely on this, to test interpreters, assuming that the interpreter is implemented as a transformation from programs to program results. 
-For example, the following tests address a transformation \ic{calculate} which interpretes expressions:
 
-\begin{code}
-test evaluate addition [[1+2]] run calculate to Int("3")
-test evaluate multiplication [[3*4]] run calculate to Int("12")
-test complex evaluation 1 [[1+2*(3+4)]] run calculate to Int("15")
-\end{code}
-
-To test generators, we can rely on Spoofax' testing support for builders.
-Since we are not interested in testing in terms of the generated code, but in the bevaviour of the generated code, we need a builder which generates code, runs the generated code, and finally yields the result of this run.
-For example, the following tests address a builder \ic{generate-and-run} which generates code from expressions, runs this code, and returns the result of the run as a string:
-
-\begin{code}
-test generate addition [[1+2]] build generate-and-run to "3"
-test generate multiplication [[3*4]] run generate-and-run to "12"
-test generate evaluation 1 [[1+2*(3+4)]] run generate-and-run to "15"
-\end{code}
-
-These tests address a builder \ic{generate-and-run} which 
-These te
 
 
 
