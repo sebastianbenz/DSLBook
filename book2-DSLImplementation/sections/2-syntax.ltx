@@ -1480,36 +1480,32 @@ syntax can be customized in the SDF grammar. It provides default definitions for
 common lexical syntax elements such as strings, integers, floats, whitespace and
 comments. But when needed, custom syntax can be specified.
 
-Most lexical syntax is specified using character classes such as \ic{[0-9]}. 
-Each character class is enclosed in square brackets, and can consist
-of ranges of characters (\ic{c$_1$-c$_2$}), letters and digits
-(e.g.,\ \ic{x} or \ic{4}), non-alphabetic literal characters (e.g.,\ \ic{$\backslash$\_}),
-and escapes (e.g.\ \ic{$\backslash{}$n}). A complement
-of a character class can be obtained using the {\raise.17ex\hbox{$\scriptstyle\sim$}} operator, e.g.\ 
-{\raise.17ex\hbox{$\scriptstyle\sim$}}\ic{[A-Za-z]} matches all non-alphabetic characters.
+Most lexical syntax is specified using character classes such as \ic{[0-9]}.
+Each character class is enclosed in square brackets, and can consist of ranges
+of characters (\ic{c$_1$-c$_2$}), letters and digits (e.g.,\ \ic{x} or \ic{4}),
+non-alphabetic literal characters (e.g.,\ \ic{\_}), and escapes (e.g.\
+\ic{$\backslash{}$n}). A complement of a character class can be obtained using
+the {\raise.17ex\hbox{$\scriptstyle\sim$}} operator, e.g.\
+{\raise.17ex\hbox{$\scriptstyle\sim$}}\ic{[A-Za-z]} matches all non-alphabetic
+characters. For whitespace and comments a special terminal \ic{LAYOUT} can be
+used.
 
-For whitespace and
-comments a special terminal \ic{LAYOUT} can be used.
-%
-%In the grammar shown above, \ic{LAYOUT} is defined as a character class
-%of that includes spaces, tabs, and new lines. 
-%
-SDF implicitly inserts
-\ic{LAYOUT} in between all symbols in context-free productions. This behavior is
-the key distinguishing feature between context-free and lexical productions:
-lexical symbols such as identifiers and integer literals cannot be interleaved
-with layout. The second distinguishing feature is that lexical syntax
-productions usually do not have a constructor label in the abstract syntax, as
-they form terminals in the abstract syntax trees.
+SDF implicitly inserts \ic{LAYOUT} in between all symbols in context-free
+productions. This behavior is the key distinguishing feature between
+context-free and lexical productions: lexical symbols such as identifiers and
+integer literals cannot be interleaved with layout. The second distinguishing
+feature is that lexical syntax productions usually do not have a constructor
+label in the abstract syntax, as they form terminals in the abstract syntax
+trees (i.e. they don't own any child nodes).
 
 \parhead{Abstract syntax} To produce abstract syntax trees, Spoofax uses the
 ATerm format, described in \Section{Sec:spoofax-aterm}. SDF combines the
 specification of concrete and abstract syntax, primarily through the
 specification of constructor labels. The way this works is most easily
 understood using an example. Spoofax allows users to view the abstract syntax of
-any input file using the ``Transform" button to apply a transformation. As an
-example, the following is an abridged abstract syntax term for the shopping
-module shown at the start of this section:
+any input file. As an example, the following is the textual representation of an
+abridged abstract syntax term for the shopping module shown at the beginning of
+this section:
 
 \begin{code}
 Module(
@@ -1526,17 +1522,8 @@ Module(
 \ic{Module}, \ic{Entity}, and \ic{Property}. The children of each node
 correspond to the symbols referenced in the production: the \ic{Module}
 production first referenced \ic{ID} symbol for the module name and then included
-a list of \ic{Decl} symbols.
-
-%SDF has a number of features
-%that help ensure the abstract syntax corresponds to the
-%natural structure of a program.
-%In particular, it allows left recursion in productions associativity,
-%and operator pre
-%SDF allows grammars to specify the associativity and precedence
-%of 
-
-In addition to constructor label, productions that specify parentheses can
+a list of \ic{Decl} symbols (lists are in square brackets).
+In addition to constructor labels, productions that specify parentheses can
 use the special \ic{bracket} annotation:  
 
 \begin{code}
@@ -1546,23 +1533,22 @@ use the special \ic{bracket} annotation:
 \noindent The \ic{bracket} annotation specifies that there should not be a
 separate tree node in the abstract syntax for the production. This means that an
 expression \ic{1 + (2)} would produce \ic{Plus("1","2")} in the abstract syntax,
-and not \ic{Plus("1",bracket("2"))}.
+and not \ic{Plus("1",Parens("2"))}.
 
 
 \parhead{Precedence and associativity} SDF provides special support for
-specifying the associativity and precedence order of operators or other
+specifying the associativity and precedence of operators or other
 syntactic constructs. As an example, let us consider the production of the
-\ic{Plus} operator:
-
+\ic{Plus} operator. So far, it has been defined as
 \begin{code}
 Exp "+" Exp -> Exp {"Plus"}
 \end{code}
 
-\noindent Based on this operator, a parser can be generated that can parse an
+Based on this operator, a parser can be generated that can parse an
 expression such as \ic{1 + 2} to a term \ic{Plus("1", "2")}. However, the
 production does not specify if an expression \ic{1 + 2 + 3} should be parsed to
 a term \ic{Plus("1", Plus("2", "3"))} or \ic{Plus(Plus("1", "2"), "3")}. If you
-try the grammar in Spoofax, it will show \emph{both} interpretations using a
+try the grammar in Spoofax, it will show \emph{both} interpretations using the
 special \ic{amb} constructor:
 
 \begin{code}
@@ -1572,13 +1558,14 @@ amb([
 )]
 \end{code}
 
-\noindent The \ic{amb} node indicates an \emph{ambiguity} and shows all
+The \ic{amb} node indicates an \emph{ambiguity} and shows all
 possible interpretations. Whenever an ambiguity is encountered in a file, it is
-marked with a warning in the editor. Ambiguities can be resolved by adding
-annotations to the grammar that describe the intended interpretation.
+marked with a warning in the editor. 
 
-For the \ic{Plus} operator, we can resolve the ambiguity by specifying that it
-is left-associative, using the \ic{left} annotation:
+Ambiguities can be resolved by adding annotations to the grammar that describe
+the intended interpretation. For the \ic{Plus} operator, we can resolve the
+ambiguity by specifying that it is left-associative, using the \ic{left}
+annotation:
 
 \begin{code}
 Exp "+" Exp -> Exp {"Plus", left}
@@ -1597,62 +1584,63 @@ context-free priorities
 
 \noindent This example specifies that the \ic{Mul} operator has a higher
 priority than the \ic{Plus} operator, resolving the ambiguity that arises for an
-expression such as \ic{1+2*3}.
+expression such as \ic{1+2*3}.
 
+ 
 \parhead{Reserved keywords and production preference} Parsers generated with SDF
 do not use a scanner, but include processing of lexical syntax in the parser.
 Since scanners operate without any context information, they will simply
 recognize any token that corresponds to a keyword in the grammar as a reserved
-keyword. In SDF, it is also possible to use keywords that are not reserved, or
-keywords that are only reserved in a certain context. As an example, the
-following is a legal entity in mobl:
+keyword, \emph{irrespective of its location in the program}. In SDF, it is also
+possible to use keywords that are not reserved, or keywords that are only
+reserved in a certain context. As an example, the following is a legal entity in
+mobl:
+
 \begin{code}
 entity entity {
 
 }
 \end{code}
 
-\noindent Since our grammar did not specify that \ic{entity} is a reserved word,
-it can be used as a normal \ic{ID} identifier.
-
-There are cases where it is useful to reserve keywords, for example to prevent
-ambiguities. Consider what would happen if we added a new production for a
-\ic{true} literal:
+Since our grammar did not specify that \ic{entity} is a reserved word, it can be
+used as a normal \ic{ID} identifier. However, there are cases where it is useful
+to reserve keywords, for example to prevent ambiguities. Consider what would
+happen if we added a new production for a \ic{true} literal:
 
 \begin{code}
 "true" -> Exp {"True"}
 \end{code}
-
-\noindent If we would now parse an expression \ic{true}, it would be ambiguous:
+ 
+If we would now parse an expression \ic{true}, it would be ambiguous:
 it matches the \ic{True} production above, but it also matches the \ic{Var}
-production, as \ic{true} is a legal variable identifier.
-
-Keywords can be reserved in SDF by using a production that rejects a certain
-interpretation:
+production, as \ic{true} is a legal variable identifier\footnote{So it is
+ambiguous because \emph{at the same location in a program} both interpretations
+are possible.}. Keywords can be reserved in SDF by using a production that
+rejects a certain interpretation:
 
 \begin{code}
 "true" -> ID {reject}
 \end{code}
 
-\noindent which says that true can never be interpreted as an identifier.
-Alternatively, we could say that we ``prefer'' the one interpretation over the
+This expresses that \ic{true} can never be interpreted as an identifier.
+Alternatively, we could say that we prefer the one interpretation over the
 other:
 
 \begin{code}
 "true" -> Exp {"True", prefer}
 \end{code}
 
-\noindent which says that this production is to be preferred if there are any
+This means that this production is to be preferred if there are any
 other interpretations. However, since these interpretations cannot always be
 foreseen as grammars are extended, it is considered good practice to use the
-more specific \ic{reject} approach instead.
+more specific \ic{reject} approach instead\footnote{This is the situationwhere a projectional editor like MPS is more flexible, since instead ofrunning into an ambiguity, it would prompt the user to decide whichinterpretation is correct as he types \ic{true}.}.
 
 \parhead{Longest match} Most scanners apply a \emph{longest match} policy for
 scanning tokens. This means that if it is possible to include the next character
 in the current token, the scanner will always do so. For most languages, this is
 the expected behavior, but in some cases longest match doesn't work. SDF instead
 allows the grammar to specify the intended behavior. In Spoofax, the default is
-specified in the "Common" syntax module using a \ic{lexical restrictions}
+specified in the \emph{Common} syntax module using a \ic{lexical restrictions}
 section:
 
 \begin{code}
@@ -1660,14 +1648,11 @@ lexical restrictions
   ID -/- [A-Za-z0-9]
 \end{code}
 
-This section "restricts" the grammar by specifying that
-any \ic{ID} cannot be directly followed by a character
-that matches \ic{[A-Za-z0-9]}. Effectively, it enforces a longest match policy for the
-\ic{ID} symbol. 
-
-SDF also allows the use of lexical restrictions for keywords. By default it does
-not enforce longest match, which means it allows the following definition of a
-mobl entity:
+This section restricts the grammar by specifying that any \ic{ID} cannot be
+directly followed by a character that matches \ic{[A-Za-z0-9]}. Effectively, it
+enforces a longest match policy for the \ic{ID} symbol. SDF also allows the use
+of lexical restrictions for keywords. By default it does not enforce longest
+match, which means it allows the following definition of a mobl entity:
 
 \begin{code}
 entityMoblEntity {}
@@ -1681,15 +1666,7 @@ longest match policy for the \ic{entity} keyword:
 lexical restrictions
   "entity" -/- [A-Za-z0-9]
 \end{code}
-
-To specify restrictions for multiple literals, they can be specified as a
-sequence:
-
-\begin{code}
-lexical restrictions
-  "entity" "module" -/- [A-Za-z0-9]
-\end{code}
-
+ 
 \parhead{Name bindings} So far we have discussed purely syntax specification in
 SDF. Spoofax also allows the specification of name binding annotations in SDF
 grammars, which specify semantic relations between productions. We discuss how
@@ -1698,10 +1675,11 @@ these relations are specified in \Chapter{Ch:scopes}.
  
 \section{MPS Example}
 
-We start by defining a simple language for state machines. Core concepts include
+We start by defining a simple language for state machines, roughly similar to
+the one used in the mbeddr extendible C. Core concepts include
 \ic{StateMachine}, \ic{State}, \ic{Transition} and \ic{Trigger}. The state
 machine can be embedded in C code as we will see later. The language supports
-the definition of state machines as shown in the following piece of code:
+the definition of state machines as shown in the following piece of code:
 
 \begin{code}
 module LineFollowerStatemachine { 
@@ -1734,25 +1712,25 @@ module LineFollowerStatemachine {
 definition of the AS. In MPS, AS elements are called concepts. The code below
 shows the definition of the concept \ic{Statemachine}. It contains a collection
 of \ic{State}s and a collection of \ic{InEvent}s. It also contains a reference
-to one of the states to mark it as the \ic{initial} state. The alias is defined as
-\ic{statemachine}, so typing this word inside C modules instantiates a state
-machine. State machines also implements a couple of interfaces;
+to one of the states to mark it as the \ic{initial} state. The \ic{alias} is
+defined as \ic{statemachine}, so typing this word inside C modules instantiates
+a state machine (it picks the \ic{Statemachine} concept from the code completion
+menu). State machines also implements a couple of interfaces;
 \ic{IIdentifierNamedElement} contributes a property \ic{name},
 \ic{IModuleContent} makes the state machine embeddable in C \ic{Module}s --- the
 module owns a collection of \ic{IModuleContents}, just like the state machine
-contains states and events.
+contains states and events.
 
 \begin{code}
 concept Statemachine extends BaseConcept                            
                      implements IModuleContent                      
                                 ILocalVarScopeProvider              
-                                                                    
   children:                                                         
-    State states 0..n specializes: <none>                             
-    InEvent inEvents 0..n specializes: <none>                         
+    State   states   0..n                             
+    InEvent inEvents 0..n                         
                                                                     
   references:                                                       
-    State initial 1 specializes: <none>                               
+    State   initial  1 specializes: <none>                               
                                                                     
   concept properties:                                               
     alias = statemachine                                              
@@ -1760,19 +1738,19 @@ concept Statemachine extends BaseConcept
 
 A \ic{State} contains two \ic{StatementLists} as \ic{entryActions} and
 \ic{exitActions}. \ic{StatementList} is a concept defined by the
-\ic{com.mbeddr.core.statements} language. To make that visible, our statemachine
+\ic{com.mbeddr.core.statements} language. To make that visible, our statemachine 
 language extends \ic{com.mbeddr.core.statements}. Finally, a \ic{State}
-contains a collection of \ic{Transition}s.
+contains a collection of \ic{Transition}s.
 
 \begin{code}
 concept Transition     
   children:                             
-    Trigger trigger 1 specializes: <none> 
-    Expression guard 1 specializes: <none>
-    StatementList actions 1 specializes: <none>
+    Trigger        trigger  1 
+    Expression     guard    1
+    StatementList  actions  1
                                         
   references:                           
-    State target 1 specializes: <none>    
+    State          target   1     
                                         
   concept properties:                   
     alias = on                    
@@ -1780,13 +1758,13 @@ concept Transition
 
 
 \ic{Transition}s contain a \ic{Trigger}, a guard condition, transition actions
-and the target state. The trigger is an abstract concept; various
-specializations are possible, the default implementation is the
+and a reference to the target state. The trigger is an abstract concept;
+various specializations are possible, the default implementation is the
 \ic{EventTrigger}, which references an \ic{Event}. The guard condition is an
 \ic{Expression}, a concept reused from \ic{com.mbeddr.core.expressions}. A type
 system rule will be defined later to constrain this expression to be Boolean.
 The target state is a reference, i.e. we point to an existing state instead of
-owning it. \ic{actions} is another \ic{StatementList} that contains arbitrary Cstatements used as the transition actions.
+owning it. \ic{actions} is another \ic{StatementList} that can contain arbitraryC statements used as the transition actions.
 
 \parhead{Editor Definition} Editors, i.e. the projection rules, are made of
 cells. When defining editors, various cell types are arranged so that the
@@ -1819,34 +1797,60 @@ surrounded by brackets, and an arrow (\ic{->}) in front of the target state. The
 editor for the actions \ic{StatementList} comes with its own set of curly
 braces. 
 
-\begin{figure}[ht]
+\begin{figure*}[ht]
 \vspace{-5mm}
-\begin{center}
-  \includegraphics[width=11cm]{figures/2/mps-transeditor.png}
-  \caption[]{The editor for transitions. Note how we embed the
+  \includegraphics[width=16cm]{figures/2/mps-transeditor.png}
+  \caption[][-30mm]{The editor for transitions. Note how we embed the
   guard condition expression simply by referring to the \ic{guard} child
   relationship. We "inherit" the syntax for expressions from the
   \ic{com.mbeddr.core.expressions} language.}
   \label{Fig:mps-transeditor}  
-\end{center}
 \vspace{-5mm}
-\end{figure}The \ic{\%targetState\% -> \{name\}} piece is interesting; it expresses that in
+\end{figure*}
+The \ic{\%targetState\% -> \{name\}} part is interesting; it expresses that in
 order to render the target state, the target's state's \ic{name} attribute
-should be shown. We could use any text string to refer to the target state; we
-could even use the symbol \ic{X} to render \emph{all} target state references.
-The refernence would still work, because the underlying data structure uses the
+should be shown. We could use any text string to refer to the target state\footnote{We could even use the symbol \ic{X} to render \emph{all} target state references.
+The reference would still work, because the underlying data structure uses the
 target's unique ID to establish the reference. It does not matter what we use to
-represent the target in the model\footnote{\ic{X} for all of them would of
-course be bad for human readability, but technically it would still work}.
+represent the target in the model. Using \ic{X} for all references would of
+course be bad for human readability, but technically it would work}.
+
+Note how we use \ic{on} both as the leading keyword for a transition and as the
+alias. This way, if a user types the \ic{on} alias to instantiate a transition,
+it feels as if she would just type the leading keyword of a transition (as in a
+regular text editor). 
+
+If a language extension defined a new concept \ic{SpecialKindOfTransition},
+they could use another alias to uniquely identify this concept in the code
+completion menu. When the user enters a transition, he has to decide which alias
+to use, depending on whether he wants to instantiate a \ic{Transition} or a
+\ic{SpecialKindOfTransition}. Alternatively, the \ic{SpecialKindOfTransition}
+could use \emph{the same alias} \ic{on}. In this case, if the user types
+\ic{on}, the code completion menu pops open and the user has to decide which of
+the two concepts to instantiate. As we have discussed above, this means that
+there is never an ambiguity that cannot be handled --- as long as the user is
+willing and able to make the decision which concept should be instantiated.
+
 
 \todo{Once tables work well in MPS: add a table projection to show off non
 textual notations}
 
-
-\parhead{Intentions} Projection editors imply that only  
-Intentions (aka quick fixes) are an essential part of MPS' editor philosophy.
-For example, in the previous section we mentioned that we use them to add entry
-actiom statements to a \ic{State}. Here is the intention code:
+\begin{marginfigure}
+  \includegraphics[width=3.5cm]{figures/2/intention.png}
+  \caption{The intentions menu for a local variable declaration. It can be
+  opened via \ic{Alt-Enter}. Note that, to select an action from the menu, you
+  can just start typing the action label, so this is very keyboard-friendly.}
+  \label{intention} 
+\end{marginfigure} 
+\parhead{Intentions} Intentions are MPS' term for what is otherwise known as a
+Quick Fix: a little menu can be popped up on a program element that contains a
+set of actions that typically change the underlying program (see
+\fig{intention}). In MPS the intentions menu is opened via \ic{Alt-Enter}. In MPS, intentions play an
+important role in the editor. Some changes to the program can \emph{only} be
+made via an intention\footnote{This is mostly because building a just-type-along
+solution would be a lot of work in a projectional editor.}. For example, in the
+previous section we mentioned that we use them to add entry actiom statements to
+a \ic{State}. Here is the intention code:
 
 \begin{code}
 intention addEntryActions for concept State {                                                                                             
@@ -1873,8 +1877,8 @@ example). It can then be invoked by pressing \keystroke{Alt-Enter} on any
 instance of this concept. Optionally it is possible to also make it available in
 child nodes. For example, if you are in the guard expression of an transition,
 an intention for \ic{State} with \ic{available in child nodes} set to \ic{true}
-will be available as well. The intention then specifies an expression used as
-the title in the menu and an applicability condition. In the example the
+will be available as well. The intention implementation also specifies an
+expression used as the title in the menu and an applicability condition. In the example the
 intention is only applicable if the corresponding state does not yet have any
 entry action. Finally, the \ic{execute} section contains procedural code that
 performs the respective change on the model. In this case we simply create a new
@@ -1888,10 +1892,10 @@ simply rerendered to update the representation of the program in the editor.
 
 
 
-\parhead{Expressions} Since we inherit the guard expression structure and
-syntax from the C core language, we don't have to define expressions ourselves.
-It is nonetheless interesting to look at their implementation in
-\ic{com.mbeddr.core.expressions}.
+\parhead{Expressions} Since we inherit the expression structure and
+syntax from the C core language, we don't have to define expressions ourselves
+so we can use them in guards. It is nonetheless interesting to look at their
+implementation in \ic{com.mbeddr.core.expressions}.
 
 Expressions are arranged into a hierarchy starting with the abstract concept
 \ic{Expression}. All other kinds of expressions extend \ic{Expression}, directly
@@ -1904,9 +1908,9 @@ editors are also trivial --- in case of the \ic{+} expression, they are a
 horizontal list of: editor for \ic{left} argument, the \ic{+} symbol, and the
 editor for the \ic{right} argument.
 
-As we have explained in the general discussion about projectional editing, MPS
-supports linear input of hierarchical expressions using so-called side
-transforms. The code below shows the right side transformation for
+As we have explained in the general discussion about projectional editing
+\todo{ref}, MPS supports linear input of hierarchical expressions using
+so-called side transforms. The code below shows the right side transformation for
 expressions that transforms an arbitrary expression into a \ic{PlusExpression}
 by putting the \ic{PlusExpression} "on top" of the current node. 
 
@@ -1942,7 +1946,8 @@ could look, depending on whether \ic{+} or \ic{*} binds more
 tightly\footnote{Note how this really is a consequence of the linear input
 method; you could build the tree by first typing the \ic{+} and then filling in
 the left and right arguments, in which case it would be clear that the \ic{*}
-is lower in the tree and hence binds tighter}. 
+is lower in the tree and hence binds tighter. However, this is tedious and
+hence not an option in practice.}.
 
 To deal with this problem, we proceed as follows: each subconcept of
 \ic{BinaryExpression} has a numerical value associated with it that expresses
@@ -1965,7 +1970,7 @@ do transform
 This helper function scans through an expression tree and checks for cases where
 a binary expression with a higher precedence is an ancestor of a binary
 expression with a lower precedence value. If it finds one, it simply rearranges
-the tree to resolve this problem. Since the problem can only arise as a
+the tree to resolve the problem. Since the problem can only arise as a
 consequence of the linear input method, it is sufficient to include this
 rearrangement in the side transformation shown above. 
 
@@ -1995,14 +2000,12 @@ Test cases are defined in a separate language \ic{com.mbeddr.core.unittest}. The
 language defines the \ic{TestCase} concept, as well as the \ic{assert}
 statement. \ic{AssertStatement} extends \ic{Statement}, so by default, an
 \ic{assert} can be used wherever a \ic{Statement} is expected, once the
-\ic{com.mbeddr.core.unittest} is used in a program. However, this is not what
-we want: \ic{assert} statements should be restricted to be used inside a
-\ic{UnitTest}\footnote{this is, among other reasons, because the transformation
-of the \ic{assert} statement to C expects code generated from the \ic{UnitTest} to
-surround it}.
-
-To support such a use case, MPS supports a set of constraints. Here is the
-implementation for \ic{AssertStatement}:
+\ic{com.mbeddr.core.unittest} is used in a program. However, this is not what we
+want: \ic{assert} statements should be restricted to be used inside a
+\ic{UnitTest}\footnote{This is, among other reasons, because the transformation
+of the \ic{assert} statement to C expects code generated from the \ic{UnitTest}
+to surround it}. To support such a use case, MPS supports a set of constraints.
+Here is the implementation for \ic{AssertStatement}:
 
 \begin{code}
 concepts constraints AssertStatement { 
