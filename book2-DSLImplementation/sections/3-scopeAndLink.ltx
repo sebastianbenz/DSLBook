@@ -971,38 +971,38 @@ concept, as shown above.
 Making references work in MPS requires several ingredients. First of all,
 developers define a reference as part of the language structure. Then, an editor
 is defined that determines how the referenced element is rendered at the
-referencing site. We have shown this in the previous section. To determine which
-instances of the referenced concept are allowed, a scoping function has to be
-implemented. It simply returns a list of all the elements that are considered
-valid targets for the reference, as well a an optional text string used
-to represent the respective element in the code completion menu.
+referencing site\footnote{We have shown this in the previous chapter.}. To
+determine which instances of the referenced concept are allowed, a scoping
+function has to be implemented. It simply returns a list of all the elements
+that are considered valid targets for the reference, as well a an optional text
+string used to represent the respective element in the code completion menu.
 
-As we have explained above, smart references are an important ingredient to make
-this work conveniently. They make sure that users can simply type the name (or
-whatever else is put into the code completion menu by the language developer) of
-the targeted element; once something is selected, the corresponding reference
-concept is instantiated, and the selected target is set.
+As we have explained above \todo{ref}, smart references are an important
+ingredient to make this work conveniently. They make sure that users can simply
+type the name (or whatever else is put into the code completion menu by the
+language developer) of the targeted element; once something is selected, the
+corresponding reference concept is instantiated, and the selected target is set.
 
 \parhead{Simple Scopes} As an example, we begin with the scope definition for
-the target reference of the Transition concept. To recap, it is defined as:
+the target reference of the \ic{Transition} concept. To recap, it is defined as:
 
 \begin{code}
 concept Transition      
   // ...                                        
   references:                           
-    State target 1 specializes: <none>    
+    State   target  1       
 \end{code}
 
 The scope itself is defined via the search scope constraint below. The system
-provides an anonymous function \ic{search scope} that gets a number of arguments
+provides an anonymous function \ic{search scope} that has a number of arguments
 that describe the context including the enclosing node and the referencing node.
 As the signature shows, the function has to return either an \ic{ISearchScope}
 or simply a sequence of nodes of type \ic{State}. The scope of the target state
-is simple the set of states of the state machine that (transitively) contains
+is simply the set of states of the state machine that (transitively) contains
 the transition. To implement this, the expression in the body of this function
 crawls up the containment hierarchy until it finds a \ic{Statemachine} and then
-returns its \ic{states}. The code used to express scopes can be arbitrarily 
-complex and is implemented in MPS' BaseLanguge.
+returns its \ic{states}\footnote{The code used to express scopes can be arbitrarily 
+complex and is implemented in MPS' BaseLanguge, an extended version of Java.}.
 \begin{code}
 link {target} 
   referent set handler:
@@ -1018,11 +1018,15 @@ link {target}
     <no presentation> 
 ;\end{code}
 
+Note that for a smart reference, where the refernece object is created only
+\emph{after} selecting the target, the \ic{referenceNode} argument is \ic{null}!
+This is why we write the scope using the \ic{enclosingNode} argument.
 
 In addition to the search scope, language developers can provide code that
 should be executed if a new reference target is set (\ic{referent set handler}),
 additional validation (\ic{validator}), as well as customized
 presentation in the code completion menu (\ic{presentation}).
+
 
 \parhead{Nested Scopes} In a more complex, block oriented language with
 nested scopes, a different implementation pattern is recommended:
@@ -1030,22 +1034,52 @@ nested scopes, a different implementation pattern is recommended:
 \begin{itemize}
   \item All program elements that contribute elements that can be referenced
   (such as blocks, functions or methods) implement an interface \ic{IScopeProvider}.
-  \item This interface provides a method \ic{getVisibleElements<concept C)} that
-  returns all elements that are available in that scope. 
+  \item This interface provides a method \ic{getVisibleElements(concept<> c)}
+  that returns all elements of type \ic{c} that are available in that scope. 
   \item The search scope function simply calls this method on the owning
   \ic{IScopeProvider}, passing in the concept whose instances it wants to see 
   (\ic{State} in the above example).
   \item The implementation of the method recursively calls the method on its
   owning \ic{IScopeProvider}, until there is none anymore. It also removes 
-  elements that are overshadowed from the result.
+  elements that are shadowed from the result.
 \end{itemize}
+This approach is used in the mbeddr C language, for example for local variables,
+because those are affected by shadowing from blocks. Here is the code for the
+\ic{variable} reference of the \ic{LocalVariableReference} concept:
+
+\begin{code}
+link {variable} 
+  search scope: 
+    (model, scope, referenceNode, linkTarget, enclosingNode, operationContext)->join(ISearchScope | sequence<node<LocalVariableDeclaration>>) {
+      // find the statement that contains this (future) local variable reference 
+      node<Statement> s = enclosingNode.ancestor<concept = Statement, +>; 
+      
+      // find the first containing ILocalVariableScopeProvider; this is
+      // typically next next higher statement that owns a StatementList, such
+      // as a ForStatement or an IfStatement
+      node<ILocalVarScopeProvider> scopeProvider = enclosingNode.ancestor<concept = ILocalVarScopeProvider, +>;
+      
+      // if we are not in a Statement or there is no ILocalVarScopeProvider,
+      // we return an empty list - no variables visible
+      if (s == null || scopeProvider == null) { return new nlist<LocalVariableDeclaration>; }
+      
+      // we now retrieve the position of the current Statement in the 
+      // context StatementList. This is important because we only want to 
+      // see those variables that are defined before the reference site 
+      int pos = s != scopeProvider ? s.index : LocalVarScope.NO_POSITION;
+      
+      // finally we create the scope and get the visible variables; 
+      scopeProvider.getLocalVarScope(s, pos).getVisibleLocalVars(); 
+    } 
+\end{code}
+
 
 \parhead{Polymorphic References} We have explained above how references work in
-principle: they are real pointers to the references element. In the section on
-Xtext (\todo{make sure we explain that first}) we have seen how from a given
+principle: they are real pointers to the referenced element, based on the
+target's unique ID. In the section on Xtext we have seen how from a given
 location only one kind of reference for any given syntactic form can be
 implemented. Consider the following example, where we refer to a global variable
-\ic{a} and an event parameter (\ic{timestamp}) from within expressions:
+\ic{a} and an event parameter (\ic{timestamp}) from within expressions:
 
 \begin{code}
 var int a;
@@ -1064,15 +1098,20 @@ statemachine linefollower {
 \end{code}
 
 Both references to local variables and to event parameters use the same
-syntactic form: simply a text string (the name of the respective target
-element). In Xtext, this has to be implemented with a single reference concept,
-typically called \ic{SymbolReference}, that can reference to any kind of
-\ic{Symbol}. \ic{LocalVariableDefintions} and \ic{EventParameters} would both
+syntactic form: simply a text string that represents the name of the respective
+target element. In Xtext, this has to be implemented with a single reference
+concept, typically called \ic{SymbolReference}, that can reference to any kind
+of \ic{Symbol}. \ic{LocalVariableDefintions} and \ic{EventParameters} would both
 extend \ic{Symbol}, and scopes would make sure both kinds are visible from
 within guard expressions. The problem with this approach is that the reference
 itself contains no type information about what it references, it is simply a
-\ic{SymbolReference}. Processing code has to inspect the type of the
-referenced symbol to find out what a particular \ic{SymbolReference} actuallymeans.
+\ic{SymbolReference}. Processing code has to inspect the type of the referenced
+symbol to find out what a particular \ic{SymbolReference} actually
+means\footnote{It can also be a problem regarding modularity, because every
+referencable concept must extend \ic{Symbol}. Referencable elements
+contributed by an independently developed language which we may want to embed
+into the C language will \emph{not} extend \ic{Symbol}, though! We discuss
+language modularization and composition in \todo{ref}.}.
 
 In projectional editors this is done differently. To solve the example above,
 one would create a \ic{LocalVariableReference} and an
@@ -1081,51 +1120,29 @@ references event parameters. Both have an editor that simply renders the name
 of the referenced element, and each of them has \ic{their own} scope definition! 
 So adding new kinds of references to existing expression languages can be done
 in a modular fashion, since the new reference expression comes with its own,
-independent scoping rule. 
+independent scoping rule. The following is the respective code for the
+\ic{EventArgRef} expression:
+
+\begin{code}
+concept EventArgRef extends Expression // this is the Expression concept from C
+
+...
+
+link {arg} 
+  search scope: 
+    (model, scope, referenceNode, linkTarget, enclosingNode, operationContext)
+                               ->join(ISearchScope | sequence<node<EventArg>>) { 
+      enclosingNode.ancestor<concept = Transition, +>.trigger.event.args; 
+    } 
+;
+\end{code} 
 
 Entering the reference happens by typing the name of the referenced element (cf.
 the concept of smart references introduced above). In the case where there's a
 \ic{LocalVariable} and a \ic{EventParameter} of the same name, the user has to
 make an explicit decision, at the time of entry (the name won't bind, and the
 code completion menu requires a choice). It is important to understand that,
-although the names are similar, the tool still knows which one refers to a \ic{LocalVariable} and which
-one refers to a \ic{EventParameter}: upon selection from the code completion
-menu, the correct reference objects are created.
-
-
-
-
-%-------- Older Notes
-%
-%In parsing:
-%  parser only produces tree
-%  graph always through naming, symbol table, etc.
-%  but may be built into grammar lang
-%  in both cases naming is important
-%  if grammar has real refs, then scoping is used 
-%    to define the set of target objects
-%  maybe the same obj has several names, dep on from where I refer to it
-%          name shadowing, scopes as a hierarchy
-%
-%  challenge: multiple refs to diff things via the same ref syntax
-%  seen in many languages, e.g. Java
-%
-%  example 1: an expression 'time.getSeconds()'; is time a local var or a field?
-%
-%  example 2: a name 'java.lang.System.out'; is 'out' a field? a class? a package name? an
-%  inner class? the capitalization gives us a hint but is only a
-%  convention. need semantic information
-%
-%  multiple refs to diff things problem in Xtext
-%
-% works in spoofax, but with the most straightforward approach
-% references have the same abstract syntax (e.g., Var(x), pointing to
-%  a variable or a field)
-%
-%In projection
-%  references are real refs, based on unique IDs
-%  still need scopes to define the set of valid targets   
-%
-%Compare proj and parser, where in parser the info in the reference has to be
-%enough to resolve the uniquely named target. In proj systems, what is shown is
-%irrelevant, since behind the scenes the ID is used.
+although the names are similar, the tool still knows whether a particular
+reference refers to a \ic{LocalVariable} or to an \ic{EventParameter}, because
+the reference is encoded using the ID of the target.
+
