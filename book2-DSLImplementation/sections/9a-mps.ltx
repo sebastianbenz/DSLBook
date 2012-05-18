@@ -22,7 +22,7 @@ uispec\_validation demonstrates \emph{extension} (of the uispec language) and
 
 \begin{figure}[htp]
 \begin{center}
-  \includegraphics[scale=0.4]{figures/C/1/languagestructure.png}
+  \includegraphics[scale=0.4]{figures/9/a/languagestructure.png}
   \caption[]{entities is the central language. uispec defines UI
   forms for the entities. uispec\_validation adds validation rules, and composes
   a reusable expressions language. relmapping provides a reusable database
@@ -69,7 +69,7 @@ represents a language concept.
 
 \begin{figure}[htp]
 \begin{center}
-  \includegraphics[width=11cm]{figures/C/1/entities.png}
+  \includegraphics[width=11cm]{figures/9/a/entities.png}
   \caption[]{The abstract syntax of the entities language. Entities
   have attributes, those have types and names. \ic{EntityType} extends 
   \ic{Type} and references \ic{Entity}. This "adapts" entities to types 
@@ -105,7 +105,7 @@ concept Entity extends BaseConcept implements INamedConcept
 
 \begin{figure}[h]
 \begin{center}
-  \includegraphics[scale=0.6]{figures/C/1/editordefinition.png}
+  \includegraphics[scale=0.6]{figures/9/a/editordefinition.png}
   \caption[]{The editor for \ic{Entity}. The outermost cell is a
   vertical list. In the first line, we use a horizontal list that contains
   the "keyword" \ic{entity}, the value of the name property and an opening
@@ -150,7 +150,7 @@ the mapping configuration for the entities language.
 
 \begin{figure}[htp]
 \begin{center}
-  \includegraphics[scale=0.55]{figures/C/1/entitiesmc.png}
+  \includegraphics[scale=0.55]{figures/9/a/entitiesmc.png}
   \caption[]{The mapping configuration for the entities language. The
   root mapping rule for Entity specifies that instances of \ic{Entity} should
   be transformed with the \ic{map\_Entity} template. The reduction rules use
@@ -185,7 +185,7 @@ in the inspector).
 
 \begin{figure}[htp]
 \begin{center}
-  \includegraphics[scale=0.55]{figures/C/1/entitytemplate.png}
+  \includegraphics[scale=0.55]{figures/9/a/entitytemplate.png}
   \caption[]{The template for creating a Java class from an entity.
   The running text explains the details.}
   \label{entitytemplate} 
@@ -218,7 +218,7 @@ form CompanyStructure
 
 \begin{figure}[htp]
 \begin{center}
-  \includegraphics[scale=0.5]{figures/C/1/uispec.png}
+  \includegraphics[scale=0.5]{figures/9/a/uispec.png}
   \caption[]{The abstract syntax of the uispec language. Dotted lines
   represent classes from another language (here: the entities language). A
   \ic{Form} contains \ic{EntityReference}s that connect to an entities model. A
@@ -347,7 +347,7 @@ okButton.addActionListener(new ActionListener() {
 
 \begin{figure*}[htp]
 \begin{center}
-  \includegraphics[width=13cm]{figures/C/1/expressionBlock.png}
+  \includegraphics[width=13cm]{figures/9/a/expressionBlock.png}
   \caption[]{Expression blocks (in blue) are basically anonymous
   inline methods. Upon transformation, a method is generated that contains the
   block content, and the expression block is replaced with a call to this
@@ -403,7 +403,7 @@ for the block expression (\fig{expressionBlockGenerator1}).
 
 \begin{figure*}[htp]
 \begin{center}
-  \includegraphics[scale=0.5]{figures/C/1/expressionBlockGenerator1.png}
+  \includegraphics[scale=0.5]{figures/9/a/expressionBlockGenerator1.png}
   \caption[]{We use a weaving rule to create an additional method for
   this. A weaving rule processes an input element (\ic{BlockExpression}) by creating
   another node in a different place. The context function defines this
@@ -424,7 +424,7 @@ method call that replaces the \ic{BlockExpression}
 
 \begin{figure*}[htp] 
 \begin{center}
-  \includegraphics[scale=0.5]{figures/C/1/expressionBlockGenerator2.png}
+  \includegraphics[scale=0.5]{figures/9/a/expressionBlockGenerator2.png}
   \caption[]{The generator creates a method from the block
   expression. It uses COPY\_SRC macros to replace the \ic{string} type with the
   computed return type of the block expression, inserts a computed name, adds a
@@ -446,7 +446,7 @@ location. It is a means to building extensible generators, as we will see later.
 
 \begin{figure}[htp]
 \begin{center}
-  \includegraphics[scale=0.5]{figures/C/1/expressionBlockGenerator3.png}
+  \includegraphics[scale=0.5]{figures/9/a/expressionBlockGenerator3.png}
   \caption[]{Here we generate the call to the previously generated
   method. We use the mapping label \ic{blockExprToMethod} to refer to the
   correct method (not shown; happens inside the ->\$ macro). We pass in the
@@ -492,7 +492,7 @@ in a different context, we extend this hook by context-specific code.
 
 \begin{figure}[htp]
 \begin{center}
-  \includegraphics[width=11cm]{figures/C/1/relmapping.png}
+  \includegraphics[width=11cm]{figures/9/a/relmapping.png}
   \caption[]{A \ic{Database} contains \ic{Tables} which contain
   \ic{Columns}. A column has a name and a type. A column also has a
   \ic{ColumnMapper}. This is an abstract concept that determines where the
@@ -664,7 +664,7 @@ attributes.
 
 \begin{figure}[htp]
 \begin{center}
-  \includegraphics[width=11cm]{figures/C/1/rbac.png}
+  \includegraphics[width=11cm]{figures/9/a/rbac.png}
   \caption[]{Language strucrure of the rbac language. An \ic{RBACSpec}
   contains \ic{Users}, \ic{Roles} and \ic{Permissions}. Users can be members 
   in several roles. A permission assigns a right to a \ic{Resource}.}
@@ -741,7 +741,7 @@ the placeholder in it was generated.
 
 \begin{figure}[htp] 
 \begin{center}
-  \includegraphics[scale=0.55]{figures/C/1/placeholder.png}
+  \includegraphics[scale=0.55]{figures/9/a/placeholder.png}
   \caption[]{This generator fragment creates a setter method for each
   attribute of an entity. The LOOP iterates over all attributes. The \$ macro
   computes the name of the method, and the COPY\_SRC macro on the argument type
@@ -764,7 +764,7 @@ achieve this.
 
 \begin{figure*}[htp] 
 \begin{center}
-  \includegraphics[scale=0.50]{figures/C/1/placeholderreduction.png}
+  \includegraphics[scale=0.50]{figures/9/a/placeholderreduction.png}
   \caption[]{This reduction rule replaces \ic{PlaceholderStatement}s
   with a permission check. Using the condition, we only match those
   placeholders whose identifier is \ic{pre-set} (notice how we have defined
@@ -802,7 +802,7 @@ form CompanyStructure
 
 \begin{figure}[htp]
 \begin{center}
-  \includegraphics[scale=0.50]{figures/C/1/uival.png}
+  \includegraphics[scale=0.50]{figures/9/a/uival.png}
   \caption[]{The uispec\_validation language defines a subtype of
   \ic{uispec.Field} that contains an \ic{Expression} from a reusable expression
   language. The language also defines a couple of additional expressions,
@@ -986,7 +986,7 @@ project de.voelter.mps.expressions.blgen and add reduction rules.
 
 \begin{figure}[htp]
 \begin{center}
-  \includegraphics[scale=0.50]{figures/C/1/expr2blgen.png}
+  \includegraphics[scale=0.50]{figures/9/a/expr2blgen.png}
   \caption[]{A number of reduction rules that map the reusable
   expression language to BaseLanguage (Java). Since the languages are very
   similar, the mapping is trivial. For example, a \ic{PlusExpression} is mapped
@@ -1007,7 +1007,7 @@ the rbac\_entities language.
 
 \begin{figure}[h]
 \begin{center}
-  \includegraphics[scale=0.50]{figures/C/1/reductionAttributeRef.png}
+  \includegraphics[scale=0.50]{figures/9/a/reductionAttributeRef.png}
   \caption[]{References to entity attributes are mapped to a call to
   their getter method. The tempalte fragment (inside the TF) uses two reference
   macros (->\$) to "rewire" the object reference to the Java bean instance, and
@@ -1100,7 +1100,7 @@ an intention ("quick fix" via Alt-Enter).
 
 \begin{figure}[htp]
 \begin{center}
-  \includegraphics[scale=0.55]{figures/C/1/annotationeditor.png}
+  \includegraphics[scale=0.55]{figures/9/a/annotationeditor.png}
   \caption[]{The editor for the \ic{AttrToColMapping} embeds the
   editor of the concept it is annotated to (using the \ic{attributed node}
   cell). It then projects the reference to the referenced column.}
@@ -1142,7 +1142,7 @@ switch.
 
 \begin{figure}[htp]
 \begin{center}
-  \includegraphics[scale=0.50]{figures/C/1/requirementstrace.png}
+  \includegraphics[scale=0.50]{figures/9/a/requirementstrace.png}
   \caption[]{Requirements traces can be annotated to any arbitrary
   program element. The annotation is targetted to \ic{BaseConcept}, which means
   there is no explicit dependency any specific language.}
@@ -1162,7 +1162,7 @@ found in \cite{Voelter2010} and \cite{VoelterVisser2011}.
 
 \begin{figure}[h]
 \begin{center}
-  \includegraphics[scale=0.50]{figures/C/1/featuredependencies.png}
+  \includegraphics[scale=0.50]{figures/9/a/featuredependencies.png}
   \caption[]{Feature dependency annotations are boolean expresssions
   over configuration switches that determine whether the annotated program
   element is part of a program variant. The transformation removes all those

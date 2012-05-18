@@ -120,7 +120,7 @@ section we will use Xtend for writing code generators and model transformations.
 
 \begin{figure}[ht]
 \begin{center}
-  \includegraphics[width=11cm]{figures/6/xtext-gen-1.png}
+  \includegraphics[width=11cm]{figures/5/xtext-gen-1.png}
   \caption[]{The top level structure of a generator written in Xtext is a class
   that implements the \ic{IGenerator} interface, which requires the
   \ic{doGenerate} method. Inside generator methods, template expressions
@@ -544,7 +544,7 @@ essentially structurally identical to the generated text.
  
 \begin{figure}[ht]
 \begin{center}
-  \includegraphics[width=8cm]{figures/6/mps-textgen.png}
+  \includegraphics[width=8cm]{figures/5/mps-textgen.png}
   \caption[]{Text generator for an \ic{if} statement. If first checks
   if the condition happens to be a \ic{true} literal, in which case the \ic{if}
   statement is optimized away and only the \ic{thenPart} is output. Otherwise
@@ -641,7 +641,7 @@ shown in \fig{mps-sm-gen-1} and \fig{mps-sm-gen-2}.
 
 \begin{figure}[h]
 \begin{center} 
-  \includegraphics[width=11cm]{figures/6/mps-sm-gen-1.png}
+  \includegraphics[width=11cm]{figures/5/mps-sm-gen-1.png}
   \caption[]{The MPS generator that inserts two\ic{enum} definitions
   and a \ic{struct} into the module which contains the \ic{StateMachine}.}
   \label{mps-sm-gen-1}  
@@ -661,7 +661,7 @@ it.
 
 \begin{figure}[ht]
 \begin{center}
-  \includegraphics[width=11cm]{figures/6/mps-gen-phases.png}
+  \includegraphics[width=11cm]{figures/5/mps-gen-phases.png}
   \caption[]{State machines are transformed (via a model-to-model
   transformation, if you will) into two \ic{enum}s, a \ic{struct} and a
   function. These are then transformed to text via the regular
@@ -691,7 +691,7 @@ will only show this part. For the literals of the events enum we use a similar e
 
 \begin{figure}[ht]
 \begin{center}
-  \includegraphics[width=10cm]{figures/6/mps-sm-inspector1.png}
+  \includegraphics[width=10cm]{figures/5/mps-sm-inspector1.png}
   \caption[]{The inspector is used to provide the implementation
   details for the macros used in the templates. This one belongs to a
   \ic{LOOP} macro, so we provide an expression that returns a
@@ -746,7 +746,7 @@ macro's expression.
 
 \begin{figure}[ht]
 \begin{center}
-  \includegraphics[width=11cm]{figures/6/mps-ref-macro.png}
+  \includegraphics[width=11cm]{figures/5/mps-ref-macro.png}
   \caption[]{A reference macro has to return either the target node,
   or the name of the target node. The name is then resolved using the scoping
   rules for the particular reference concept.}
@@ -763,7 +763,7 @@ language's scoping rules to find and link to the correct target element.
  
 \begin{figure}[h]
 \begin{center}
-  \includegraphics[width=11cm]{figures/6/mps-sm-gen-2.png}
+  \includegraphics[width=11cm]{figures/5/mps-sm-gen-2.png}
   \caption[]{The transformation template for generating the
   \ic{switch}-based implementation of a \ic{StateMachine}. See the text for
   details.}
@@ -835,7 +835,7 @@ argument, and then dereferences everything.
 
 \begin{figure}[h]
 \begin{center}
-  \includegraphics[width=11cm]{figures/6/mps-eventArgRef.png}
+  \includegraphics[width=11cm]{figures/5/mps-eventArgRef.png}
   \caption[]{The reduction rule for references to event arguments (to
   be used inside guard conditions of transitions). }
   \label{mps-eventArgRef} 
@@ -887,7 +887,7 @@ a version of the \ic{TriggerSMStatement} that does not include event arguments.
  
 \begin{figure}[h]
 \begin{center}
-  \includegraphics[width=11cm]{figures/6/mps-trigger.png}
+  \includegraphics[width=11cm]{figures/5/mps-trigger.png}
   \caption[]{The reduction rule for a \ic{trigger} statement. It is
   transformed to a call to the function that implements the behavior of the
   state machine that is referenced in the first argument of the \ic{trigger}
@@ -1891,7 +1891,7 @@ example.
 
 \begin{figure}[ht]
 \begin{center}
-  \includegraphics[width=14cm]{figures/6/mps-dispatch.png}
+  \includegraphics[width=14cm]{figures/5/mps-dispatch.png}
   \caption[][4cm]{An extension to MPS' BaseLanguage that makes writing
   interpreters simpler. The \ic{dispatch} statement has the neat feature that,
   on the right side of the \ic{->}, the \ic{\$} reference to the \ic{ex}
