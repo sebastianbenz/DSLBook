@@ -657,13 +657,15 @@ adjust-index-lookup(target |namespace, path, prefix):
 
 \section{Scoping in Xtext}
 
-Xtext uses Java code (in the future probably Xtend2 code) for implementing all
-aspects of languages except the grammar. Language developers implement various
-classes to build the language beyond the grammar. Xtext framework and custom
-language implementation classes are contributed to the runtime using Google
-Guice, a dependency injection framework. A lot of functionality is provided
-out-of-the-box with minimal configuration, but it's easy to swap out specific
-parts by binding another or a custom class through Guice.
+Xtext uses Java code for implementing all aspects of languages except the
+grammar\footnote{Most likely, some of these aspects will be implementable in
+Xtend2 in the future.}. Language developers implement various classes that
+implement Xtext-provided interfaces and then contribute those to Xtext using
+Google Guice, a dependency injection
+framework\footnote{http://code.google.com/p/google-guice/}. A lot of
+functionality is provided out-of-the-box with minimal configuration, but it's
+easy to swap out specific parts by binding another or a custom class through
+Guice.
 
 \subsection{Simple, Local Scopes}
 
@@ -677,20 +679,18 @@ method takes the \ic{EReference} (which identifies the reference for which the
 scope that needs to be calculated) as well as the current
 instance of the language concept whose reference should be scoped.
 
-
-\begin{code}
+\begin{code} 
 public interface IScopeProvider {
-	IScope getScope(EObject context, EReference reference);
+    IScope getScope(EObject context, EReference reference);
 }
 \end{code}
 
-
-To make scoping implementation easier, Xtext provides so-called declarative
+To make the scoping implementation easier, Xtext provides so-called declarative
 scope providers through the \ic{AbstractDeclarativeScopeProvider} base class:
-instead of having to inspect the \ic{EReference} and context objects manually to
-decide how to compute the scope, the language implementor can express this
-information via the name of the method (using a naming convention). Two
-different naming conventions are available:
+instead of having to inspect the \ic{reference} and \ic{context} object
+manually to decide how to compute the scope, the language implementor can
+express this information via the name of the method (using a naming convention).
+Two different naming conventions are available:
 
 
 \begin{code}
@@ -728,11 +728,20 @@ public IScope scope_State(ChangeStateStatement ctx, EReference ref) {
 The first alternative is specific for the \ic{targetState} reference of the
 \ic{ChangeStateStatement}. It is invoked by the declarative scope provider only
 for that reference. The second alternative is more generic. It is invoked
-whenever we are trying to reference a \ic{State} (or any sub type of \ic{State})
-from any reference of a \ic{ChangeStateStatement} and \emph{all its
+whenever we are trying to reference a \ic{State} (or any subconcept of
+\ic{State}) from any reference of a \ic{ChangeStateStatement} and \emph{all its
 descendants}. So we could write an even more general alternative, which scopes
-the visible States from anywhere in a \ic{CoolingProgram}, independent of the actual
-reference.
+the visible \ic{State}s from anywhere in a \ic{CoolingProgram}, independent of
+the actual reference\footnote{Depending on the structure of your language, Xtext
+may have a hard time finding out the current location, and hence, the reference
+that needs to be scoped. In this case, the tighter versions of the scoping
+method (\ic{scope\_ChangeStateStatement\_targetState} in the example) might not
+be called in all the places you expect it to be called. This can be remedied
+either by changing the syntax (often not possible or not desired), or by using
+the more general variants of the scoping function
+\ic{scope\_State(CoolingProgram ctx, ... )}. It is a good idea to always use the
+most general variants, unless you specifically want to scope one specific
+reference.}.
 
 \begin{code}
 public IScope scope_State(CoolingProgram ctx, EReference ref) {
@@ -743,9 +752,9 @@ public IScope scope_State(CoolingProgram ctx, EReference ref) {
 
 The implementation of the scopes is simple, and relatively similar in all three
 cases. We write Java code that crawls up the containment hierarchy until we
-arrive at a \ic{CoolingProgram} (in the last alternative, we already have the
-\ic{CoolingProgram}, so we don't need to move up the tree), and then construct
-an \ic{IScope} that contains the \ic{State}s defined in that
+arrive at a \ic{CoolingProgram} (in the last alternative, we already get the
+\ic{CoolingProgram} as an argument, so we don't need to move up the tree), and
+then construct an \ic{IScope} that contains the \ic{State}s defined in that
 \ic{CoolingProgram}. Here is a possible implementation:
 
 
@@ -760,10 +769,11 @@ public IScope scope_ChangeStateStatement_targetState
 The \ic{Scopes} class provides a couple of helper methods to create \ic{IScope}
 objects from collections of elements. The simple \ic{scopeFor} method we use
 will use the \ic{name} of the target element as the text by which it will be
-referenced. So if a state is called \ic{normalCooling}, then we'd have to write
-\ic{state normalCooling} in a \ic{ChangeStateStatement}. The text \ic{normalCooling}
-acts as the reference - pressing \keystroke{Ctrl-F3} on that program element
-will go to the referenced state.
+referenced\footnote{You can pass in code that creates other strings than then
+name from the target element.}. So if a state is called \ic{normalCooling}, then
+we'd have to write \ic{state normalCooling} in a \ic{ChangeStateStatement}. The
+text \ic{normalCooling} acts as the reference --- pressing \keystroke{Ctrl-F3}
+on that program element will go to the referenced state. 
 
 
 
@@ -801,26 +811,29 @@ global variables \ic{x} and \ic{g} are visible, although the global variable
 \ic{x}, \ic{g}, \ic{sum} and \ic{es}, but also the iterator variable \ic{e}. At
 \ic{3}, \ic{x} refers to the global since it is not shadowed by a parameter or
 local variable of the same name. In general, certain program elements introduce
-blocks (typically statement lists surrounded by curly braces). A block can
+blocks (often statement lists surrounded by curly braces). A block can
 declare new symbols. References from within these blocks can see the symbols
 defined in that block, as well as all ancestor blocks. Symbols in inner blocks
 typically hide symbols with the same name in outer blocks. The symbols in outer
-blocks are either not accessible, or a special name has to be used, for example,
-by prefixing them with some \ic{outer} keyword.
+blocks are either not accessible at all, or a special name has to be used, for
+example, by prefixing them with some \ic{outer} keyword (as in \ic{outer.x}).
 
-Xtext's scopes support this scenario. \ic{IScopes} can have outer scopes. If a
-symbol is not found in a scope, a scope delegates to its outer scope and tries
-to find the symbol there. Since inner scopes are searched first, this implements
-shadowing as expected.
+Xtext's scopes support this scenario. \ic{IScopes} can reference outer scopes.
+If a symbol is not found in any given scope, that scope delegates to its outer
+scope (if it has one) and asks it for a symbol of the respective name. Since
+inner scopes are searched first, this implements shadowing as expected.
 
 Also, scopes are not just collections of elements. Instead, they are maps
-between a string and an element. The string is used as the reference text. By
-default, the string is the same as the target element's \ic{name}. So if a
-variable is called \ic{x}, it can be referenced by the string \ic{x}. However,
-this reference string can be changed as a scope is defined. This can be used to
-make shadowed variables visible under a different name, such as \ic{outer.x} if
-it is referenced from location \ic{1}. The following is pseudo-code that implements
-this behavior:
+between a string and an element\footnote{In addition, the text shown in the code
+completion window can be different from the text that will be used as the
+reference once an element is selected. In fact, it can be a rich string that
+includes formatting, and it can contain an icon.}. The string is used as the
+reference text. By default, the string is the same as the target element's
+\ic{name}. So if a variable is called \ic{x}, it can be referenced by the string
+\ic{x}. However, this reference string can be changed as part of the scope
+definition. This can be used to make shadowed variables visible under a
+different name, such as \ic{outer.x} if it is referenced from location \ic{1}.
+The following is pseudo-code that implements this behavior:
 
 
 \begin{code}
@@ -852,43 +865,49 @@ public IScope scope_Symbol( StatementList ctx ) {
 
 There is one more aspect of scoping that needs to be discussed. Programs can be
 separated into several files and references can cross file boundaries. That is,
-an element in file \ic{A} can reference an element in file \ic{B}. In earlier versions of
-Xtext file \ic{A} had to explicity import file \ic{B} to make the elements in \ic{B}
-available as reference targets. This resulted in several problems. First, for internal
-reasons, scalability was limited. Second, as a consequence of the explicit file
-imports, if the referenced element was moved into another file, the import
-statements in all referencing files had to be updated.
+an element in file \ic{A} can reference an element in file \ic{B}. In earlier
+versions of Xtext file \ic{A} had to explicity import file \ic{B} to make the
+elements in \ic{B} available as reference targets. This resulted in several
+problems. First, for internal reasons, scalability was limited. Second, as a
+consequence of the explicit file imports, if the referenced element was moved
+into another file, the import statements in all referencing files had to be
+updated.
 
-Since Xtext 1.0 both of these problems are solved using the so-called index. The
-index is a data structure that stores
-(\ic{String},\ic{IEObjectDescription})-pairs. The first argument is the
-qualified name of the object and the second one, the \ic{IEObjectDescription},
-contains information about a model element, including a URI, a kind of global
-pointer that also includes the file in which the element is stored. All
-references are checked against this name in the index, not against the actual
-object. If the actual object has to be resolved, the URI stored in the index is
-used. Only then is the respective file loaded (this is what improved
-scalability; files are only loaded if a reference target is accessed, not to
-check a reference for validity). The index is updated whenever a file is saved,
-or a rebuild is performed. This way, if an element is moved to a different file
-while keeping its qualified name (based on the logical program structure)
-constant, the reference remains valid. Only the URI in the index is updated.
+Since Xtext 1.0 both of these problems are solved using the so-called
+index\footnote{This is similar to Spoofax'es index discussed above}. The index
+is a data structure that stores (\ic{String},\ic{IEObjectDescription})-pairs.
+The first argument is the qualified name of the object and the second one, the
+\ic{IEObjectDescription}, contains information about a model element, including
+a URI, a kind of global pointer that also includes the file in which the element
+is stored. All references are checked against this name in the index, not
+against the actual object. If the actual object has to be resolved, the URI
+stored in the index is used. Only then is the respective file
+loaded\footnote{This is what improved scalability; files are only loaded if a
+reference target is accessed, not to check a reference for validity}. The index
+is updated whenever a file is saved, or a rebuild is performed. This way, if an
+element is moved to a different file while keeping its qualified name
+(which is based on the logical program structure) constant, the reference
+remains valid. Only the URI in the index is updated.
 
 There are two ways to customize what gets stored in the index, and how. The
-\ic{IQualifiedNameProvider} returns a qualified name for each program element. If it
-returns \ic{null}, the element is not stored in the index, which means it is not
-referenceble. The other way is the \ic{IDefaultResourceDescriptionStrategy} which
-allows language developers to build their own \ic{IEObjectDescription} for program
-elements. This is important if custom user data has to be stored in the
-\ic{IEObjectDescription} for later use during scoping.
+\ic{IQualifiedNameProvider} returns a qualified name for each program element.
+If it returns \ic{null}, the element is not stored in the index, which means it
+is not referencable. The other way is the
+\ic{IDefaultResourceDescriptionStrategy} which allows language developers to
+build their own \ic{IEObjectDescription} for program elements. This is important
+if custom user data has to be stored in the \ic{IEObjectDescription} for later
+use during scoping.
 
 The \ic{IGlobalScopeProvider} is activated if a local scope returns \ic{null} or
-no applicable methods can be found in the declarative scope provider class (or if
-they return \ic{null}). The specific implementation is configured through a
-Guice binding. By default, the \ic{ImportNamespacesAwareGlobalScopeProvider} is
-configured, which provides the possibility to reference model elements outside
-of the current file either through their (fully) qualified name or through their
-unqualified name using an \ic{import} statement.  
+no applicable methods can be found in the declarative scope provider class (or
+if they return \ic{null}). By default, the
+\ic{ImportNamespacesAwareGlobalScopeProvider} is configured\footnote{The
+specific implementation is configured through a Guice binding.}, which provides
+the possibility to reference model elements outside of the current file either
+through their (fully) qualified name or through their unqualified name using an
+\ic{import} statement\footnote{That \ic{import} statement is different from
+the one mentioned earlier: it makes the contents of the respective namespace
+visible, it does not refer to the a particular file.}.
 
 
 
@@ -912,7 +931,8 @@ the model cumbersome, since the target of a \ic{SymbolRef} has to be taken into
 account when deciding how to treat (translate, validate) a symbol reference. A
 more natural design of the language would use different reference constructs for
 the different referencable elements. In this case, the reference itself is
-specific to the referenced meta class, making processing much easier.
+specific to the referenced element, making processing much easier\footnote{It
+would also make writing the scopes and extending the language simpler}:
 
 \begin{code} 
 AtomicLevel returns Expression:
@@ -932,15 +952,15 @@ a different syntax for each element:
 \begin{code} 
 AtomicLevel returns Expression:
     ...
-    ({VariableRef} "v:" var=[Variable]);
-    ({ParameterRef} "p:" param=[Parameter]);
-    ({HardwareBuildingBlockRef} "bb:" hbb=[HardwareBuildingBlock]);
+    ({VariableRef} var=[Variable]);
+    ({ParameterRef} "%" param=[Parameter]);
+    ({HardwareBuildingBlockRef} "#" hbb=[HardwareBuildingBlock]);
 \end{code}  
 
 While this approach will technically work, it would lead to an awkward syntax
 and is hence typically not used. The only remaining alternative is to make all
 referencable elements extend \ic{SymbolDeclaration} and use a single reference
-concept.
+concept, as shown above.
 
 
 
