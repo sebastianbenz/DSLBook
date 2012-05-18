@@ -1020,9 +1020,10 @@ and from Ecore have been written.}.
 
 Cooling programs\footnote{This and the other examples refer back to the case
 studies introduced at the beginning of the book in section \todo{}} represent
-the behavioral aspect of the refrigerator language. Here is a trivial program
-that can be used to illustrate some of the features of the language. The program
-is basically a state machine.
+the behavioral aspect of the refrigerator descriptions. Here is a trivial
+program that can be used to illustrate some of the features of the language. The
+program is basically a state machine.
+
 \begin{code} 
 cooling program HelloWorld uses stdlib {
      
@@ -1045,7 +1046,7 @@ starts up, the \ic{init} section is executed, setting \ic{v} to \ic{1}. The
 system then (automatically) transitions into the \ic{start} state. There it
 waits until it receives the \ic{e} event. It then transition to the state
 \ic{s}, where it uses an entry action to set \ic{v} back to \ic{0}. More complex
-programs include checks of changes of measurements
+programs include checks of changes of properties of hardware elements
 (\ic{aCompartment->currentTemp}) and commands to the hardware\ic{set aCompartment->isCooling = true}, as shown in the next snippet:
 
 \begin{code} 
@@ -1066,13 +1067,14 @@ state initialCooling:
 
 
 \parhead{Grammar basics} \marginnote[5mm]{It is also possible to first create
-the EMF meta model and then define a grammar for it. While this is a bit more work,
-it is also more flexible because not all possible Ecore meta models can be
-described implicitly by a grammar. For example, interfaces cannot be expressed
-from the grammar.} In Xtext, the syntax is specified using a grammar, a
-collection of productions that are typically called \emph{parser rules}. These rules specify the concrete syntax of a
-program element, as well as its mapping to the AS. Xtext generates an Ecore meta
-model to describe the AS. Here is the definition of the \ic{CoolingProgram} rule:
+the Ecore meta model and then define a grammar for it. While this is a bit more
+work, it is also more flexible because not all possible Ecore meta models can be
+described implicitly by a grammar. For example, Ecore interfaces cannot be
+expressed from the grammar.} In Xtext, the syntax is
+specified using a grammar, a collection of productions that are typically called \emph{parser rules}. These
+rules specify the concrete syntax of a program element, as well as its mapping
+to the AS. From the grammar, Xtext generates an Ecore meta model to describe the
+AS. Here is the definition of the \ic{CoolingProgram} rule:
 
 \begin{code} 
 CoolingProgram:
@@ -1091,12 +1093,12 @@ followed by an \ic{ID}. \ic{ID} is a \emph{terminal rule} that is defined in the
 parent grammar from which we inherit (not shown). \ic{ID} is defined as an
 unbounded sequence of lowercase and uppercase characters, digits, and the
 underscore, although it may not start with a digit. This terminal rule is
-defined as follows, again using a BNF-like syntax:
+defined as follows:
 \begin{code} 
 terminal ID: ('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'_'|'0'..'9')*;
 \end{code} 
 
-In pure grammar languages, one would write \ic{"cooling" "program" ID "\{"},
+In pure grammar languages, one would write \ic{"cooling" "program" ID "\{ ..."}, 
 specifying that after the two keywords we expect an \ic{ID}. However, Xtext
 grammars don't just express the concrete syntax --- they also determine the
 mapping to the AS. We have encountered two such mappings so far. The first one
@@ -1104,14 +1106,14 @@ is implicit (although it can be made explicit as well): the name of the rule
 will be the name of the generated meta class. So we will get a meta class
 \ic{CoolingProgram}. The second mapping we have encountered in \ic{name=ID}. It
 specifies that the meta class gets a property \ic{name} that holds the contents
-of the \ic{ID} in the program text. Since nothing else is specified in the ID
-terminal rule, the type of this property defaults to \ic{EString}, Ecore's
-implementation of a string data type.
+of the \ic{ID} from the parsed program text. Since nothing else is specified in
+the \ic{ID} terminal rule, the type of this property defaults to \ic{EString}, Ecore's
+version of a string data type.
 
 The rest of the definition of a cooling program is enclosed in curly braces. It
 contains three elements: first the program contains a collection of events and
-variables (the asterisk specifies unbounded multiplicity), an optional init
-block (optionality is specified by the question mark) and a list of states. Let
+variables (the \ic{*} specifies unbounded multiplicity), an optional init
+block (optionality is specified by the \ic{?}) and a list of states. Let
 us inspect each of these in more detail. 
 
 The expression \ic{(states+=State)*} specifies that there can be any number of
@@ -1119,20 +1121,19 @@ The expression \ic{(states+=State)*} specifies that there can be any number of
 property \ic{states}, it is of type \ic{State} (the meta class derived from the
 \ic{State} rule). Since we use the \ic{+=} operator, the \ic{states}
 property will be typed to be a \emph{list} of \ic{State}s. In case of the
-optional init block, the meta class will have an \ic{initBlock} property, typed
-as \ic{InitBlock} (whose parser rule we don't show and discuss here), with a
+optional \ic{init} block, the meta class will have an \ic{initBlock} property,
+typed as \ic{InitBlock} (whose parser rule we don't show here), with a
 multiplicity of 0..1. Events and variables are more interesting, since the
 vertical bar operator is used within the parentheses. The asterisk expresses
 that whatever is inside the parentheses can occur any number of times --- note
 that the use of a \ic{*} usually goes hand in hand with the use of a \ic{+=}.
-Inside the parentheses we expect either a \ic{CustomEvent} or a \ic{Variable}.
-Variables are assigned to the variables collection, events are assigned to the
-events collection. 
+Inside the parentheses we expect either a \ic{CustomEvent} \emph{or} a
+\ic{Variable}, which is expressed with the \ic{|}. Variables are assigned to the
+variables collection, events are assigned to the events collection.
 
 This notation means that we can mix events and variables in any order. The
 following alternative notation would first expect all events, and then all
-variables. Im the end, it depends on your end users which notation is more
-suitable.
+variables. 
 \begin{code} 
       (events+=CustomEvent)*
       (variables+=Variable)*
@@ -1172,7 +1173,7 @@ up into the abstract \ic{State} meta class so they can be accessed polymorphical
 \begin{figure}[ht]
 \begin{center}
   \includegraphics[scale=0.7]{figures/2/xtext-metamodel.png}
-  \caption[]{Part of the EMF meta model derived from the Xtext grammar
+  \caption[]{Part of the Ecore meta model derived from the Xtext grammar
   for the cooling program. Grammar rules become \ic{EClass}es, assignments in
   the grammar rules become \ic{EProperties} (i.e. attributes and references).}
   \label{Fig:xtext-metamodel}  
@@ -1180,12 +1181,12 @@ up into the abstract \ic{State} meta class so they can be accessed polymorphical
 \end{figure}
 
 
-\todo{Provide figure captions}
+
 
 \parhead{References} Let us now look at statements and expressions. \ic{State}s
-have entry and exit statements, procedural code that is executed when a state is
-entered and left, respectively. \ic{set v = 1} in the hello world program is an
-example. \ic{Statement} itself is of course abstract and has the various kinds
+have entry and exit actions, procedural statements that are executed when a
+state is entered and left, respectively. \ic{set v = 1} in the hello world program is an
+example. \ic{Statement} itself is \ic{abstract} and has the various kinds
 of statements as subtypes/alternatives:
 
 \begin{code} 
@@ -1201,36 +1202,36 @@ AssignmentStatement:
 \end{code}  
 
 The \ic{ChangeStateStatement} is used to transition into another state. It uses
-the keyword \ic{state} and then a reference to the actual target state. Notice
-how Xtext uses square brackets to express the fact that the \ic{targetState}
+the keyword \ic{state} followed by a reference to the actual target state.
+Notice how Xtext uses square brackets to express the fact that the \ic{targetState}
 property points to an \emph{existing} state as opposed to containing a new one
-(which would be written as \ic{targetState=State}), i.e. a non-containing
-cross-reference. 
+(which would be written as \ic{targetState=State}), i.e. the square brackets
+leads to non-containing cross-references. 
 
 This is another example of where the Xtext grammar language goes beyond
 classical grammar languages, where one would write \ic{"state"
 targetStateName=ID;}. Writing it this way only specifies that we expect an \ic{ID} 
 after the \ic{state} keyword. The fact that we call it \ic{targetStateName}
 communicates \emph{to the programmer} that we expect this text string to
-correspond to the name of a state --- it is the task of a later phase in model
-processing to \emph{resolve} the name to an actual state reference. Typically,
+correspond to the name of a state --- a later phase in model
+processing \emph{resolves} the name to an actual state reference. Typically,
 the code to resolve the reference has to be written manually, because there is
 no way for the tool to automatically derive from the grammar that this \ic{ID}
 is actually a reference to a \ic{State}. In Xtext, the \ic{targetState=[State]}
 notation makes this explicit, so the resolution of the reference can be
 automatic (taking into account manually written scopes, as discussed in the
 next chapter). This notation also has the advantage that the resulting meta
-class types the \ic{targetState} property to \ic{State}, which makes processing
-the models much easier.
+class types the \ic{targetState} property to \ic{State} (and not just to a
+string), which makes processing the models much easier.
 
 Note that the cross-reference definition only specifies the target type
 (\ic{State}) of the cross-reference, but not the concrete syntax of the
 reference itself. By default, the \ic{ID} terminal is used for the reference
 syntax, i.e. a simple (identifier-like) text string is expected. However, this
 can be overridden by specifying the concrete syntax terminal behind a vertical
-bar in the reference. Notice that in this case the vertical bar does not
+bar in the reference\footnote{Notice that in this case the vertical bar does not
 represent an \emph{alternative}, it is merely used as a \emph{separator} between
-the target type and the terminal used to represent the reference.
+the target type and the terminal used to represent the reference.}. 
 
 \begin{code} 
 ChangeStateStatement:
@@ -1240,18 +1241,17 @@ QID: ID ("." ID)*;
 \end{code}  
 
 The other remaining detail is scoping. During the linking phase, where the text
-of \ic{ID} (or \ic{QID}) is used to find the target object, several objects with the same
-name might exist, or some target elements are not visible based on visibility
-rules of the language. To control the possible reference targets, scoping
-functions are used. These will be explained in the next section.
+of \ic{ID} (or \ic{QID}) is used to find the target node, several objects with
+the same name might exist, or some target elements are not visible based on visibility
+rules of the language. To constrain the possible reference targets, scoping
+functions are used. These will be explained in the next chapter.
 
 
 \parhead{Expressions} The \ic{AssignmentStatement} shown above is one of the
-statements that uses expressions. This leads us to discussing the implementation
-of expressions in Xtext. Let us look at the definition of expressions as a
-whole. The following snippet is a subset of the actual definition of expressions
-(we have omitted some additional expressions that don't add anything to the
-description here).
+statements that uses expressions. The
+following snippet is a subset of the actual definition of expressions (we have
+omitted some additional expressions that don't add anything to the description
+here).
 
 \begin{code} 
 Expr:
@@ -1281,22 +1281,24 @@ AtomicLevel returns Expression:
     ({ParenExpr} "(" expr=Expr ")") |
     ({NumberLiteral} value=DECIMAL_NUMBER) |
     ({SymbolRef} symbol=[SymbolDeclaration|QID]);
-\end{code}  
+\end{code}   
 
-We first have to explain in more detail how the AST construction works in Xtext.
-Obviously, as the text is parsed, meta classes are instantiated and the AST is
-assembled. However, instantiation of the respective meta class happens
-only upon the first assignment to one of its properties. If no assignment
-is performed at all, no object is created. For example in grammar rule
-\ic{TrueLiteral: "true";} no instance of \ic{TrueLiteral} will ever be created,
-because there is nothing to assign. In this case, an action can be used to force
-instantiation: \ic{TrueLiteral: \{TrueLiteral\} "true";} Notice that the action
-can instantiate meta classes other than those that are derived from the rule
-name (we could write \ic{TrueLiteral: \{SomeOtherThing\} "true";}, although this
-would not make sense in this case). Unless otherwise specified, an assignment
-such as \ic{name=ID} is always interpreted as an assignment on the object that
-has been created most recently. The \ic{current} keyword can be used to access
-that object in case it \emph{itself} needs to be assigned to a property ofanother AST object.
+To understand the above definition, we first have to explain in more detail how
+AST construction works in Xtext. Obviously, as the text is parsed, meta classes
+are instantiated and the AST is assembled. However, instantiation of the
+respective meta class happens only upon the first assignment to one of its
+properties. If no assignment is performed at all, no object is created. For
+example in grammar rule \ic{TrueLiteral: "true";} no instance of
+\ic{TrueLiteral} will ever be created, because there is nothing to assign. In
+this case, an action can be used to force instantiation: \ic{TrueLiteral:
+\{TrueLiteral\} "true";}\footnote{Notice that the action can instantiate meta
+classes other than those that are derived from the rule name (we could write
+\ic{TrueLiteral: \{SomeOtherThing\} "true";}. While this would not make sense in
+this case, we'll use this feature later.}. Unless otherwise specified, an
+assignment such as \ic{name=ID} is always interpreted as an assignment on the
+object that has been created most recently. The \ic{current} keyword can be used
+to access that object in case it \emph{itself} needs to be assigned to a
+property of another AST object.
 
 Now we know enough about AST construction to understand how expressions are
 encoded and parsed. In the expression grammar above, for the rules with the
@@ -1314,7 +1316,7 @@ encode precedence. To understand this, let's consider how \ic{2 * 3} is parsed:
   \item The parser "dives down" until it finds something that matches the
   first symbol in the parsed text: the \ic{2}. This occurs on \ic{AtomicLevel}, as
   it matches the \ic{DECIMAL\_NUMBER} terminal. At this point it creates an 
-  instance of \ic{NumberLiteral} and assigns the actual number \ic{2} to
+  instance of \ic{NumberLiteral} and assigns the number \ic{2} to
   the \ic{value} property. It also sets the \ic{current} object to point to the
   just created \ic{NumberLiteral}.
   \item The \ic{AtomicLevel} rule ends, and the stack is unwound. We're back at
@@ -1352,37 +1354,23 @@ Notice how a rule at a given level only always delegates to rules at higher
 precedence levels. So higher precedence rules always end up further down in the
 tree. If we want to change this, we can use parentheses (see the \ic{ParenExpr}
 in the \ic{AtomicLevel}): inside those, we can again embed an \ic{Expr}, i.e.\ we
-jump back to the lowest precedence level.
-\todo{Explain why Xtext does it this way (left recursion, etc.) and refer back
-to general parsing discussion.}
-
+jump back to the lowest precedence level\footnote{This somewhat convolutedapproach to parsing expressions and encoding precedence is a consequence ofthe LL($k$) grammar class support by ANTLR, which underlies Xtext. We havediscussed this topic earlier \todo{ref}. Xtext also supports syntacticpredicates which are annotations in the grammar that tell the parser whichalternative to take in case of an ambiguity. We don't discuss this any furtherin the book.}.
 Note that once you understand the basic approach, it is easy to add new
 expressions with a precedence similar to another one (just add it as an
 alternative to the respective \ic{Level} rule) or to introduce a new precedence
 level (just interject a new \ic{Level} rule between two existing ones).
 
 
-\todo{Syntactic Predicates}
-
-
-
-\todo{Explain how to go from AS to CS}
-
-
-
-
-
-
 
 \section{Spoofax Example}
 
-% (we assume some introduction of the case studies
-%  before this point)
+Mobl's \footnote{Mobl is a DSL for defining applications for mobile devices. It
+is based on HTML 5 and is closely related to WebDSL, which has been introduced
+earlier\todo{ref}.} data modeling language provides entities, properties and
+functions. To illustrate the language, below are two data type definitions
+related to a shopping list app. It supports lists of items that can be
+favorited, checked, and so on, and are associated with some \ic{Store}.
 
-Mobl's data modeling language provides entities, properties and functions. To
-illustrate the language, below are two data type definitions related to a
-shopping list app. It supports lists of items that can be favorited, checked,
-and so on, and are associated with some \ic{Store}.
 \begin{code}
 module shopping
 
@@ -1396,55 +1384,45 @@ entity Item {
 }
 \end{code}
 
-In mobl, most files starts with a module header, which can be followed
-by a list of entity type definitions. 
-%Our example \emph{shopping}
-%module defines two entities for items on a shopping list and stores
-%for those items.  Entities are persistent data types that are stored
-%in a database and can be retrieved using mobl's querying API.
-In turn, each entity can have one or more property or function definitions
-(shown in the next example snippet).
+In mobl, most files starts with a module header, which can be followed by a list
+of entity type definitions. In turn, each entity can have one or more property
+or function definitions (shown in the next example snippet).
 
 
 \parhead{Grammar basics} In Spoofax, the syntax of languages is described using
-SDF. SDF is a modular and flexible syntax definition formalism, supported by the
-SGLR parser generator. It can generate efficient, Java-based scannerless and
-general parsers. An example of a production written in SDF is
-
+SDF\footnote{http://www.syntax-definition.org/}. SDF is a modular and flexible
+syntax definition formalism, supported by the SGLR parser generator. It can
+generate efficient, Java-based scannerless and general parsers. An example of a
+production written in SDF is
 
 \begin{code}
 "module" ID Entity* -> Start {"Module"}
 \end{code}
 
-\noindent where the pattern on the left-hand side of the arrow is matched by the
+The pattern on the left-hand side of the arrow is matched by the
 symbol \ic{Start} on the right-hand side. Note that SDF uses the exact opposite
 order for productions as the grammars we've discussed so far, switching the
 left-hand and right-hand side. After the right-hand side, SDF productions may
 specify annotations using curly brackets. Most productions specify a quoted
 \emph{constructor label} that is used for the abstract syntax. This particular
-production creates a tree node with the label "Module."
-\MV{We really should say (somewhere) that the children of the "Module" AST tree
-node will be the AST nodes created by the left hand side, in the order they
-appear in the grammar}
+production creates a tree node with the label \ic{Module}. The tree node willhave two children that represent the \ic{ID} and the list of \ic{Entities},respectively. In contrast to Xtext, these children are not named; instead,they are identified via the position in the child collection (the \ic{ID} isfist, the \ic{Entity} list is second).
 
 The left-hand side of an SDF production is the pattern it matches against.
 SDF supports symbols, literals, and character classes in this pattern.
-Symbols are references to other productions, such as \ic{ID}.
-Literals are quoted strings such as \ic{"module"} that must appear
-in the input.
-Character classes specify a range of characters expected in the input,
-e.g.\ \ic{[A-Za-z]} specifies that an alphabetic character is expected.
-We discuss character classes in more detail below.
+Symbols are references to other productions, such as \ic{ID}. Literals are
+quoted strings such as \ic{"module"} that must appear in the input literally.
+Character classes specify a range of characters expected in the input, e.g.\
+\ic{[A-Za-z]} specifies that an alphabetic character is expected. We discuss
+character classes in more detail below.
 
-The basic elements of SDF productions can be combined with
-operators. The \ic{A*} operator shown above specifies that zero or more
-occurrences of \ic{A} are expected. \ic{A+} specifies that
-one or more are expected. \ic{A?} specifies that
-zero or one are expected. \ic{\curlies{A B}*} specifies
-zero or more \ic{A} symbols, separated by \ic{B} symbols are expected.
-As an example, \ic{\curlies{ID ","}*} is a comma-separated list
-of identifiers. \ic{\curlies{A B}+} specifies one or more
-\ic{A} symbols separated by \ic{B} symbols.
+The basic elements of SDF productions can be combined using operators. The
+\ic{A*} operator shown above specifies that zero or more occurrences of \ic{A}
+are expected. \ic{A+} specifies that one or more are expected. \ic{A?} specifies
+that zero or one are expected. \ic{\curlies{A B}*} specifies zero or more \ic{A}
+symbols, separated by \ic{B} symbols are expected. As an example,
+\ic{\curlies{ID ","}*} is a comma-separated list of identifiers.
+\ic{\curlies{A B}+} specifies one or more \ic{A} symbols separated by \ic{B}
+symbols.
 
 \Figure{Fig:mobl-grammar-basic} shows an SDF grammar for a subset of mobl's
 entities and functions syntax. The productions in this grammar should have few
@@ -1471,7 +1449,7 @@ context-free syntax
   ID ":" ID                           -> EntityBodyDecl {"Property"}
 
   "function" ID "(" {Param ","}* ")" ":" ID "{" Statement* "}"
-                                      -> EntityBodyDecl {"Function"}
+                                            -> EntityBodyDecl {"Function"}
   ID ":" ID                           -> Param {"Param"}
   "var" ID "=" Expr ";"               -> Statement {"Declare"}
   "return" Exp ";"                    -> Statement {"Return"}
@@ -1495,6 +1473,7 @@ lexical syntax
   \label{Fig:mobl-grammar-basic} 
 \end{center}
 \end{figure}
+
 
 \parhead{Lexical syntax} As Spoofax uses a scannerless parser, all lexical
 syntax can be customized in the SDF grammar. It provides default definitions for
