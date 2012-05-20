@@ -960,7 +960,7 @@ refers to \ic{T} or subtypes of \ic{T}.
 \end{tabular}
 
 Pattern matching is used for binary operators in MPS and also for matching terms
-in Spoofax. \todo{@Guido true?}
+in Spoofax. 
 
 
 
@@ -1044,7 +1044,8 @@ a screenshot):
 
 \begin{itemize}
   \item the notation is much more concise compared to the API
-  \item code completion into the target language meta model is provided
+  \item referential integrity and code completion with the target language meta
+  model is provided
   \item if the typing rules are incomplete, a static error is shown in the
   editor, as opposed to getting runtime error during initialization of the 
   framework (see the warning in (\fig{fig:xtext-typesyseditor})
@@ -1071,9 +1072,10 @@ a screenshot):
 the cooling language is 200 lines of DSL code, and another 100 lines of Java
 code. We'll take a look at some representative examples.
 
-Primitive types usually use a copy of themselves as their type. It has to be a
-copy as opposed to the object itself, because the actual program element must
-not be pulled out of the EMF containment tree. This is specified as follows:
+Primitive types usually use a copy of themselves as their type\footnote{It has
+to be a copy as opposed to the object itself, because the actual program element
+must not be pulled out of the EMF containment tree.}. This is specified as
+follows:
 
 \begin{code}
 typeof BoolType -> clone
@@ -1082,8 +1084,18 @@ typeof DoubleType -> clone
 typeof StringType -> clone
 \end{code}
 
-For concepts that have a fixed type, but not a clone, the type can simply be
-specified:
+Alternatively, since all primitive types extend an abstract meta class
+\ic{PrimitiveType}, this could be shortened to the following, where the \ic{+}
+operator specifies that the rule applied for the specified concept and all its
+subconcepts:
+
+\begin{code}
+typeof PrimitiveType + -> clone
+\end{code}
+
+
+For concepts that have a fixed type that is different from the concept itself
+(or a clone), the type can simply be specified:
 
  
 \begin{code}
@@ -1096,32 +1108,27 @@ expressions. Since all expressions derive from the abstract \ic{Expr} concept, w
 declare that this class is abstract, and hence no typing rule is given. However,
 the editor reports a warning if there are concrete subclasses of an abstract
 class for which no type is specified either.
-
  
 \begin{code}
 typeof Expr -> abstract
 \end{code}
- 
 
 The notation provided by the DSL groups typing rules and type checks for a
 single concept. The following is the typing information for the \ic{Plus}
 concept. It declares the type of \ic{Plus} to be the common type of the
 \ic{left} and \ic{right} arguments ("the more general one") and then adds two
 constraints that check that the \ic{left} and \ic{right} argument are either
-\ic{string}s, \ic{int}s or \ic{double}s.
-
- 
+\ic{string}s, \ic{int}s or \ic{double}s. 
 \begin{code}
 typeof Plus -> common left right {
     ensureType left :<=: StringType, IntType, DoubleType
     ensureType right :<=: StringType, IntType, DoubleType
 } 
 \end{code}
- 
 
 The typing rules for \ic{Equals} are also interesting. It specifies that the
 resulting type is \ic{boolean} that the \ic{left} and \ic{right} arguments must
-be \ic{COMPARABLE}, and that the left and right arguments are compatible.
+be \ic{COMPARABLE}, and that the left and right arguments be compatible.
 \ic{COMPARABLE} is a so-called type characteristic: this can be considered as
 collection of types. In this case it is \ic{IntType}, \ic{DoubleType}, and
 \ic{BoolType}. The \ic{:<=>:} operator describes unordered compatibility: the
@@ -1143,32 +1150,38 @@ typeof Equals -> BoolType {
 There is also support for \emph{ordered} compatibility, as can be seen from the
 typing rule for \ic{AssignmentStatement} below. It has no type (it is a
 statement!), but the \ic{left} and \ic{right} argument must exhibit ordered
-compatibility: they either have to be the same types, or \ic{right} must be a subtype
-of \ic{left}, \emph{but not vice versa}.
-
+compatibility: they either have to be the same types, or \ic{right} must be a
+subtype of \ic{left}, \emph{but not vice versa}.
  
 \begin{code}
 typeof AssignmentStatement -> none {
-    ensureCompatibility left :<=: right
+    ensureCompatibility right :<=: left
 }
 \end{code}
  
-
+The framework uses the generation gap pattern, i.e. from the DSL-based type
+specification, a generator creates a class \ic{CLTypesystemGenerated} (for the
+cooling language) that contains all the code that can be derived from the type
+system specification. Additional specifications that cannot be expressed with
+the DSL (such as the typing rule for \ic{NumberLiteral} or type coercions) can
+be implemented in Java\footnote{. The type system DSL is \emph{incomplete}, since some
+aspects of type systems have to be coded in the "lower level". However, in this
+case this is appropriate since it keeps the type system DSL simple and, since
+the DSL users are programmers, it is not a problem for them to write a few lines
+of Java code.}.
 
 
 \section{MPS Example}
 
 MPS includes a DSL for type system rule definition. It is based on
-unification, and to some extent, pattern matching. 
+unification, and pattern matching for binary operators. 
 
-The type of a \ic{LocalVariableReference} is calculated with the following typing
-rule\footnote{Since only the expression within the \ic{do \curlies{ ... }} block has
-to be typed by the developer, we'll only show that expression in future
-examples.}. It establishes an equation between the type of the
+The type of a \ic{LocalVariableReference} is calculated with the following
+typing rule\footnote{Since only the expression within the \ic{do \curlies{...}}
+block has to be written by the developer, we'll only show that expression in
+the remaining examples.}. It establishes an equation between the type of the
 \ic{LocalVariableReference} itself and the variable it references. \ic{typeof}
-is a built-in operator returns the type for its argument.
-
- 
+is a built-in operator returns the type for its argument. 
  
 \begin{code}
 rule typeof_LocalVariableReference {                    
@@ -1182,26 +1195,22 @@ rule typeof_LocalVariableReference {
 \end{code}
  
 
-The rules for the boolean \ic{NotExpression} contains two equations. The first
-one makes sure that the negated expression is boolean. The second one types the
-\ic{NotExpression} itself to be boolean. Just as in Xtext, in MPS types are
-instances of language concepts. In MPS there are two different ways how language
-concepts can be instantiated. The first one (as shown in the first equation)
-uses the BaseLanguage \ic{new} expression. The second one uses a quotation,
-where "a piece of tree" can be inlined into program code. It uses the concrete
-syntax of the quoted construct --- here: a \ic{BooleanType} --- in the 
-quotation.
-
+The rules for the Boolean \ic{NotExpression} contains two equations. The first
+one makes sure that the negated expression is Boolean. The second one types the
+\ic{NotExpression} itself to be Boolean. Just as in Xtext, in MPS types are
+instances of language concepts.
  
 \begin{code}
 typeof(notExpr.expression) :==: new node<BooleanType>(); 
 typeof(notExpr) :==: <boolean>; 
 \end{code}
- 
-
-A more interesting example is the typing of structs. Consider the
-following piece of C code:
-
+ In MPS there are two different ways how language concepts can be instantiated. 
+The first one (as shown in the first equation above) uses the BaseLanguage
+\ic{new} expression. The second one uses a quotation, where "a piece of tree" can be 
+inlined into program code. It uses the concrete syntax of the quoted construct 
+--- here: a \ic{BooleanType} --- in the quotation.
+A more interesting example is the typing of \ic{struct}s. Consider the
+following C code:
  
 \begin{code}
 struct Person {
@@ -1217,20 +1226,19 @@ int addToAge( Person p, int delta ) {
 
 At least two program elements have to be typed: the parameter \ic{p} as well as
 the \ic{p.age} expression. The type of the \ic{FunctionParameter} concept is the
-type of its type: 
+type of its type. This is not specific to the fact that the parameter refers to
+a \ic{struct}. 
 
 \begin{code}
 typeof(parameter) :==: typeof(parameter.type);
 \end{code}
 
 
-This is not specific to the fact that the parameter refers to a \ic{struct}. The
-language concept that represents the \ic{Person} type in the parameter is a
-\ic{StructType}. A \ic{StructType} refers to the \ic{StructDeclaration} it
-represents a type of and extends \ic{Type}, which acts as the super type for all
-types in mbeddr C. So in essence, this means that the type of \ic{p} is an
-instance of \ic{StructType} that has a pointer to the \ic{StructDeclaration}
-\ic{Person}.
+The language concept that represents the \ic{Person} type in the parameter is a
+\ic{StructType}. A \ic{StructType} refers to the \ic{StructDeclaration} whose
+type it represents, and extends \ic{Type}, which acts as the super
+type for all types in mbeddr C\footnote{This is essentially a use of the
+Adapter pattern.}. 
 \begin{marginfigure}[-2cm]
   \includegraphics[width=5cm]{figures/4/structtype.png}
   \caption{Structure Diagram of the language concepts involved in typing
@@ -1239,14 +1247,15 @@ instance of \ic{StructType} that has a pointer to the \ic{StructDeclaration}
 \end{marginfigure} 
 
 \ic{p.age} is an instance of a \ic{StructAttributeReference}. It is defined as
-follows. It is an expression, owns another expression property (on the left of
-the dot) as well as a reference to a \ic{StructAttribute} (\ic{name} or \ic{age}
-in the example).\begin{marginfigure}[2cm]
-  \includegraphics[width=5cm]{figures/4/structattrref.png}
-  \caption{Structure Diagram of the language concepts involved in references to
+follows (see \fig{structattrref} as well as the code below). It is an
+\ic{Expression}, owns another expression property (on the left of the dot) as
+well as a reference to a \ic{StructAttribute} (\ic{name} or \ic{age} in the
+example). \begin{marginfigure}[2cm]
+  \includegraphics[width=5cm]{figures/4/structattrref.png} \caption{Structure
+  Diagram of the language concepts involved in references to
   \ic{struct} attributes.}
   \label{structattrref}
-\end{marginfigure} 
+\end{marginfigure} 
 
  
 \begin{code}
@@ -1260,13 +1269,11 @@ concept StructAttributeReference extends Expression
 \end{code}
  
                                                    
-The typing rule for the \ic{StructAttributeReference} looks as follows. The \ic{context},
-the expression on which we use the dot operator, has to be a \ic{GenericStructType},
-or a subtype thereof (i.e. a \ic{StructType} which points to an actual
+The typing rule for the \ic{StructAttributeReference} is shown in the code
+below. The \ic{context}, the expression on which we use the dot operator, has 
+to be a \ic{GenericStructType}, or a subtype thereof (i.e. a \ic{StructType} which points to an actual
 \ic{StructDeclaration}). Second, the type of the whole expression is the type of the
-reference \ic{attribute} (e.g. \ic{int} in case of \ic{p.age}). 
-
- 
+reference \ic{attribute} (e.g. \ic{int} in case of \ic{p.age}).  
 \begin{code}
 typeof(structAttrRef.context) :<=: new node<GenericStructType>(); 
 typeof(structAttrRef) :==: typeof(structAttrRef.attribute);
@@ -1284,9 +1291,9 @@ from the \ic{StructType}. The following scope definition illustrates this:
 link {attribute} 
   search scope: 
     (model, scope, referenceNode, linkTarget, enclosingNode)->join(ISearchScope | sequence<node< >>) { 
-      node<> varType = referenceNode.variable.type; 
-      if (varType.isInstanceOf(StructType)) { 
-        return (varType as StructType).struct.attributes;
+      node<> exprType = referenceNode.expression.type; 
+      if (exprType.isInstanceOf(StructType)) { 
+        return (exprType as StructType).struct.attributes;
       } else { 
         return null; 
       } 
@@ -1301,7 +1308,6 @@ with these new types. This is facilitated by MPS' use for pattern matching in
 the type system, specifically for binary operators such as \ic{+}, \ic{>} or
 \ic{==}. As an example consider the introduction of complex numbers into C. It
 should be possible to write code like this:
-
  
 \begin{code}
 complex c1 = (1, 2i);
@@ -1310,33 +1316,31 @@ complex c3 = c1 + c2; // results in (4, 7i)
 \end{code}
  
 
-The \ic{+} in \ic{c1 + c2} should be the \ic{+} defined by the original
-language. Alternatively, we could define a new \ic{+} for complex numbers. While
-this would work technically (remember there is no parser ambiguity problems), it
-would mean that users, when entering a \ic{+}, would have to decide between the
-original plus and the new plus for complex numbers. This would not be very
-convenient from a usability perspective. By reusing the original plus we avoid
-this problem.
-
-However, reusing the original \ic{+} requires that the typing rules defined for
-\ic{PlusExpression} in the original C language will now have to accept complex
-numbers; the original typing rules must be extended. To enable this, MPS
-supports so-called overloaded operations containers. The following container,
-taking from the mbeddr C core language, defines the type of \ic{+} and \ic{-} ifboth arguments are \ic{int} or \ic{double}.
+The \ic{+} in \ic{c1 + c2} should be the \ic{+} defined by the original C
+language\footnote{Alternatively, we could define a new \ic{+} for complex
+numbers. While this would work technically (remember there is no parser
+ambiguity problems), it would mean that users, when entering a \ic{+}, would
+have to decide between the original plus and the new plus for complex numbers.
+This would not be very convenient from a usability perspective. By reusing the
+original plus we avoid this problem.}. Reusing the original \ic{+} requires that
+the typing rules defined for \ic{PlusExpression} in the original C language will
+now have to accept complex numbers; the original typing rules must be extended.
+To enable this, MPS supports so-called overloaded operations containers. The
+following container, taking from the mbeddr C core language, defines the type of
+\ic{+} and \ic{-} if both arguments are \ic{int} or \ic{double}.
  
 \begin{code}
 overloaded operations rules binaryOperation                                                                          
                                                                                                                      
 operation concepts: PlusExpression | MinusExpression
-left operand type: <int> is exact: false use strong subtyping false                                                  
-right operand type: <int> is exact: false use strong subtyping false                                                 
+left operand type: <int>                                                   
+right operand type: <int>                                                  
 operation type: (operation, leftOperandType, rightOperandType)->node<> { 
   <int>; 
-}                                            
-
+}                                            
 operation concepts: PlusExpression | MinusExpression
-left operand type: <double> is exact: false use strong subtyping false                                                  
-right operand type: <double> is exact: false use strong subtyping false                                                 
+left operand type: <double>                                                   
+right operand type: <double>                                                  
 operation type: (operation, leftOperandType, rightOperandType)->node<> { 
   <double>; 
 }                                            
@@ -1353,23 +1357,16 @@ typing rules ties in with overloaded operation containers.
 \begin{code}
 rule typeof_BinaryExpression {                                                                                                                                                                                                                                                                                                                                           
   applicable for concept = BinaryExpression as be                                                                                                                                                                                                                                                                                                                        
-  overrides false                                                                                                                                                                                                                                                                                                                                                        
                                                                                                                                                                                                                                                                                                                                                                          
   do {                                                                                                                                                                                                                                                                                                                                                                   
-    when concrete (typeof(be.left) as left) { 
-        when concrete (typeof(be.right) as right) { 
-            node<> optype = operation type( be , left , right ); 
-            if (optype != null) { 
-                typeof(be) :==: optype; 
-            } else { 
-                error "operator " + be.concept.name + 
-                      " cannot be applied to " +
-                      left.concept.name + "/" 
-                      + right.concept.name -> be; 
-            } 
-        } 
-    }
-  }    
+    node<> optype = operation type( be , left , right ); 
+    if (optype != null) { 
+        typeof(be) :==: optype; 
+    } else { 
+        error "operator " + be.concept.name + " cannot be applied to " +
+              left.concept.name + "/" + right.concept.name -> be; 
+    } 
+  } 
 }                                                                                                                                                                                                                                                                                                                                                                    
 \end{code}
  
@@ -1379,45 +1376,35 @@ are \emph{additive}. Language extensions can simply contribute \emph{additional}
 containers. For the complex number example, this could look like the following:
 we declare that as soon as one of the arguments is of type complex, the
 resulting type will be complex as well.
-
  
 \begin{code}
 operation concepts: PlusExpression | MinusExpression                                     
-one operand type: <complex> is exact: false use strong subtyping false     
-is applicable:                                                         
-<no isApplicable>                                                      
-operation type:                                                        
-(operation, leftOperandType, rightOperandType)->node<> { 
+one operand type: <complex>      
+operation type: (operation, leftOperandType, rightOperandType)->node<> { 
   <complex>; 
 }                       
 \end{code}
- 
-
 
 The type system DSL in MPS covers a large fraction of the type system rules
-encountered in practice. BaseLanguage, which is an extension of Java, covers the
-whole Java type system this way. However, for exceptional cases, procedural
-BaseLanguage code can be used to implement type checks as well.
+encountered in practice. The type system for BaseLanguage, which is an extension
+of Java, is implemented this way. However, for exceptional cases, procedural
+BaseLanguage code can be used to implement typing rules as well.
 
 \section{Spoofax Example}
 
 Spoofax' rewrite rules support both the recursive approach and pattern matching
 in specifying type systems. In the remainder of this section, we will focus on
-the recursive approach.\MV{Why?}
+the recursive approach.\todo{@Guido Why?}
 
-\parhead{Typing Rules in Spoofax}
-%
-The basic idea is to instrument ordinary rewrite rules which rewrite language
-constructs to their types as typing rules. 
-For example, the following rule rewrites integer numbers to the integer type: 
-
+\parhead{Typing Rules in Spoofax} For typing rules in Spoofax, the basic idea is
+to use rewrite rules to rewrite language constructs to their types. For example,
+the following rule rewrites integer numbers to the integer type:
 \begin{code}
   type-of: Int(value) -> IntType()
 \end{code}
 
-This is an example for assigning a fixed type to a language element.
-Similarly, we can rewrite an addition expression to the integer type:
-
+This is an example for assigning a fixed type to a language element. Similarly,
+we can rewrite a \ic{+} expression to the integer type:
 \begin{code}
   type-of: Add(exp1, exp2) -> IntType()
 \end{code}
@@ -1447,25 +1434,18 @@ overloaded to support string concatenation, we can add the following typing rule
 \end{code}
 
 
-\parhead{Persistence of Typing Information}
-%
-As we discussed earlier, Spoofax stores information about definitions in an 
-in-memory data structure called the index. This typically includes information 
-about types. Consider the following typing rules, which rewrite property and 
-variable declarations to their declared types:
+\parhead{Persistence of Typing Information} As we discussed earlier, Spoofax
+stores information about definitions in an in-memory data structure called the
+index. This typically includes information about types. Consider the following
+typing rules, which rewrites property and variable declarations to their
+declared types:
 
 \begin{code}
   type-of: Property(name, type) -> type
-  
   type-of: VarDecl(name, type) -> type
-  
   type-of: VarDeclInit(name, type, init-exp) -> type
-  
   type-of: Param(name, type) -> type
 \end{code}
-
-\MV{This is actually a really nice and concise syntax. Rewriting rules are well
-suited to this!}
 
 Spoofax relies on these rules storing type information about property and
 variable declarations in the index. This is achieved by the following generic
@@ -1480,8 +1460,7 @@ rewrite rule:
 
 Spoofax tries to apply this rule for every definition. If the definition has a 
 type, it is stored in the index. If the definition has no type, nothing is 
-stored. \MV{How and where is this distinction made in the above rule?}
-%
+stored. \todo{@Guido How and where is this distinction made in the above rule?}
 The stored type information can then be used in the typing rules for variable 
 references and property accesses:
 
@@ -1493,10 +1472,10 @@ references and property accesses:
     PropAccess(exp, name) -> <index-lookup-type> name
 \end{code}
 
-Both rules rewrite references to the type of their definition sites. 
-First, the definition of a reference is looked-up in the index.
-Next, this definition is rewritten to its type. This uses the
-\ic{index-lookup-type} rule, which is another generic rewrite rule:
+Both rules rewrite references to the type of their definition sites. First, the
+definition of a reference is looked-up in the index. Next, this definition is
+rewritten to its type. This uses the \ic{index-lookup-type} rule, which is
+another generic rewrite rule:
 
 \begin{code}
   index-lookup-type:
@@ -1507,35 +1486,26 @@ Next, this definition is rewritten to its type. This uses the
 \end{code}
 
 
-\parhead{Additional Types}
-%
-In Spoofax, types are represented as terms. The constructors for these terms 
-are specified in the syntax definition as labels to productions \MV{Not sure I
-understand the last sentence}. Without the ability to define additional 
-constructors, type systems are restricted to types which users can explicitely 
-state in programs, for example in variable declarations. But many type systems 
-require additional types which do not originate from the syntax of the language.
-Typical examples are top and bottom types in type hierarchies.
-For example, Java's type system has a special type for \ic{null} values at the 
-bottom of its type hierarchy, which cannot be used as a type in Java programs.
-\MV{Maybe say that these types are special; for example, the null bottom type
-is considered a subtype of every other type.}
-
-Spoofax allows to define constructors for additional types in signatures:
-\MV{We now use a different example, not the null? That's an unexpected break in
-flow.}
+\parhead{Additional Types} In Spoofax, types are represented as terms. The
+constructors for these terms are specified in the syntax definition as labels to
+productions. Without the ability to define additional constructors, type systems
+are restricted to types which users can explicitly state in programs, for
+example in variable declarations. But many type systems require additional types
+which do not originate from the syntax of the language. Typical examples are top
+and bottom types in type hierarchies\footnote{A \emph{top} type is a supertype
+of every other type, a \emph{bottom} type is a subtype of every other type.}.
+For example, Java's type system has a special type for \ic{null} values at the
+bottom of its type hierarchy, which cannot be used as a type in Java programs.Spoofax allows to define constructors for additional types in signatures:
 
 \begin{code}
 signature constructors 
-
   FunType: List(Type) * Type -> FunType
 \end{code}
-\MV{what is the 'signature constructors' thing in the above code snippet?}
 
-This defines a binary constructor \ic{FunType} for function types.
-The first subterm of a function type is a list of parameter types
-(\ic{List(Type)}). The second subterm is the return type. We can employ the so 
-defined function type in the typing rules for function definitions and calls:
+This defines a binary constructor \ic{FunType} for function types. The first
+subterm of a function type is a list of parameter types (\ic{List(Type)}). The
+second subterm is the return type. We can employ the so defined function type in
+the typing rules for function definitions and calls:
 
 \begin{code}
   type-of:
@@ -1550,23 +1520,21 @@ defined function type in the typing rules for function definitions and calls:
 \end{code}
 
 
-\parhead{Type Constraints}
-%
-Like any other constraint, type constraints are specified in Spoofax by rewrite 
-rules which rewrite language constructs to errors, warnings, or notes.
-For example, we can define a constraint on additions:
+\parhead{Type Constraints} Like any other constraint, type constraints are
+specified in Spoofax by rewrite rules which rewrite language constructs to
+errors, warnings, or notes. For example, we can define a constraint on
+additions:
 
 \begin{code}
   constraint:
     exp -> Error(exp, $[Operator + cannot be applied to arguments [<pprint> type1], [<pprint> type2].])
-	where
+    where
       !exp  => Add(exp1, exp2) ;
       <not(type-of)> exp ;
       type1 := <type-of> exp1 ;
       type2 := <type-of> exp2 
-\end{code}
-\MV{Don't we have to use constraint-error in the above code?}
-
+\end{code}\ignore{$}
+\todo{@Guido Don't we have to use constraint-error in the above code?}
 
 Basically, an expression is non-well-typed or \emph{ill-typed}, if it cannot be 
 rewritten to a type. But reporting an error on all ill-typed expressions will 
@@ -1574,35 +1542,35 @@ make it hard to discover the root cause of the error, since every expression
 with an ill-typed subexpression is also ill-typed. That is why we also check 
 the subexpressions of the addition to be well-typed. The types of the 
 subexpressions are then used to construct a meaningful error message.
-%
-Similar to expressions, we can define type constraints on statements:
-
-\begin{code}
-  constraint:
-    Assign(lhs, rhs) -> Error(rhs, $[Type mismatch: Cannot convert from [<pprint> type1] to [<pprint> type2].])
-    where
-      type1 := <type-of> lhs ;
-      type2 := <type-of> rhs ;
-      <not(is-compatible-to)> (type1, type2)
-      
-  constraint:
-    VarDeclInit(var, type1, exp) -> (exp, $[Type mismatch: Cannot convert from [<pprint> type1] to [<pprint> type2].])
-    where
-      type2 := <type-of> exp;
-      <not(is-compatible-to)> (type1, type2)
-\end{code}
-\MV{Again: constraint-error?}
-
-In an assignment, the type of the expression on the right-hand side has to be 
-compatible with the type of the variable or property on the left-hand side.
-The same holds for the initializing expression in a variable declaration.
 
 
-\parhead{Type Compatibility}
-%
-Whether two types are compatible is again defined by rewrite rules in Spoofax.
-These rules rewrite a pair of types to the second element of the pair, if the 
-first one is compatible to it. In the simplest case, both types are the same:
+% Similar to expressions, we can define type constraints on statements:
+% 
+% \begin{code}
+%   constraint:
+%     Assign(lhs, rhs) -> Error(rhs, $[Type mismatch: Cannot convert from [<pprint> type1] to [<pprint> type2].])
+%     where
+%       type1 := <type-of> lhs ;
+%       type2 := <type-of> rhs ;
+%       <not(is-compatible-to)> (type1, type2)
+%       
+%   constraint:
+%     VarDeclInit(var, type1, exp) -> (exp, $[Type mismatch: Cannot convert from [<pprint> type1] to [<pprint> type2].])
+%     where
+%       type2 := <type-of> exp;
+%       <not(is-compatible-to)> (type1, type2)
+% \end{code}
+% \MV{Again: constraint-error?}
+% 
+% In an assignment, the type of the expression on the right-hand side has to be 
+% compatible with the type of the variable or property on the left-hand side.
+% The same holds for the initializing expression in a variable declaration.
+
+
+\parhead{Type Compatibility} Whether two types are compatible is again defined
+by rewrite rules. These rules rewrite a pair of types to the second element of
+the pair, if the first one is compatible to it. In the simplest case, both types
+are the same:
 
 \begin{code}
   is-compatible-to: (type, type) -> type
@@ -1677,76 +1645,41 @@ types of the formal parameters:
       !fun-type => FunType(para-type*, type) ;
       arg-type* := <map(type-of)> arg* ;
       <not(is-compatible-to)> (arg-type*, par-type*)
-\end{code}
+\end{code}\ignore{$}
 \MV{constraint-error?}
 
 
-\parhead{Degrees of Type Compability}
-%
-While typing rules should be named \ic{type-of} in order to work correctly 
-with the index, Spoofax imposes no restrictions on the names of compatibility 
-rules. This allows us to use different rule names to define different degrees of 
-type compability, as they occur in many type systems. In Java, for example, 
-\ic{"a" + 42} is a well-typed expression of type \ic{String}. The integer number 
-(primitive type \ic{int}) is autoboxed to an object (class type \ic{Integer}) 
-which is then implicitly converted into a string (class type \ic{String}) by 
-calling \ic{toString()} on it.
-%
-Notably, autoboxing and implicit conversion work without establishing a subtype 
-relationship between types. Though in assignments, only autoboxing but no 
-implicit conversion might take place. While \ic{Integer i = 42} is a valid 
-assignment, \ic{String s = 42} results in a type error.
-%
-In Spoofax, we can capture this with different compatibility rules:
-
-\begin{code}
-  boxed-type: IntType() -> ClassType("Integer")
-  
-  is-compatible: 
-    (type1, type2) -> type2
-    where
-      boxed := <boxed-type> type1 ;
-      <is-compatible> (boxed, type2)
-      
-  is-convertible: 
-    (ClassType(_), ClassType("String")) -> ClassType("String")
-  
-  is-convertible: 
-    (type1, type2) -> type2
-    where
-      boxed := <boxed-type> type1 ;
-      <is-convertible> (boxed, type2)
-\end{code}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-\section{Probably old stuff?}
-
-Explain why expressions are different than "normal" programs
-(precedence, etc.)
-
-Show how Xtext, MPS and SDF do it differently
-
-Explain why type systems are important in this context, although they
-are "just constraints". Use as basis:
-  TypesystemsForDSLs.pdf in the materials directory
-
-explicit types vs. full type inference vs. local type inference
-
-Recursion, Unification, Pattern Matching, Data Flow stuff (Scala, Eelco?)
-
-type conversions: assignment conversion, etc.
-
-attribute grammars
+% \parhead{Degrees of Type Compability}
+% While typing rules should be named \ic{type-of} in order to work correctly with
+% the index, Spoofax imposes no restrictions on the names of compatibility rules.
+% This allows us to use different rule names to define different degrees of type
+% compability, as they occur in many type systems. In Java, for example, \ic{"a" +
+% 42} is a well-typed expression of type \ic{String}. The integer number
+% (primitive type \ic{int}) is autoboxed to an object (class type \ic{Integer})
+% which is then implicitly converted into a string (class type \ic{String}) by
+% calling \ic{toString()} on it. Notably, autoboxing and implicit conversion work
+% without establishing a subtype relationship between types. Though in
+% assignments, only autoboxing but no implicit conversion might take place. While
+% \ic{Integer i = 42} is a valid assignment, \ic{String s = 42} results in a type
+% error. In Spoofax, we can capture this with different compatibility rules:
+% 
+% 
+% \begin{code}
+%   boxed-type: IntType() -> ClassType("Integer")
+%   
+%   is-compatible: 
+%     (type1, type2) -> type2
+%     where
+%       boxed := <boxed-type> type1 ;
+%       <is-compatible> (boxed, type2)
+%       
+%   is-convertible: 
+%     (ClassType(_), ClassType("String")) -> ClassType("String")
+%   
+%   is-convertible: 
+%     (type1, type2) -> type2
+%     where
+%       boxed := <boxed-type> type1 ;
+%       <is-convertible> (boxed, type2)
+% \end{code}
 
