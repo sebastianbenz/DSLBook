@@ -816,13 +816,13 @@ node<State> state = (node<State>) node.adapter.getUserObject("outer");
 state.transitions.where({~it => it.trigger.event == node; });
 \end{code}
 
-We then generate an \ic{if} statement that checks at runtime whether the
-guard condition for this transition is true. We copy in the guard condition
-using the \ic{COPY\_SRC} macro attached to the \ic{true} dummy node. The
+We then generate an \ic{if} statement that checks at runtime whether the guard
+condition for this transition is \ic{true}. We copy in the guard condition using
+the \ic{COPY\_SRC} macro attached to the \ic{true} dummy node. The
 \ic{COPY\_SRC} macro copies the original node, but it also applies additional
-reduction rules for this node (and all its descendants). For example, in a guard
-condition, you can refer to event arguments. The reference to \ic{size} in the
-\ic{step} transition is an example.
+reduction rules for this node (and all its descendants), if there are any. For
+example, in a guard condition, you can refer to event arguments. The reference
+to \ic{size} in the \ic{step} transition is an example.
 
 \begin{code}
 statemachine Counter { 
@@ -838,13 +838,13 @@ statemachine Counter {
 \end{code}
 
 Event arguments are mapped to the resulting C function via a \ic{void*} array. A
-reference to an event argument (\ic{EventArgRef}) hence has to be reduced to 
-accessing the n-th element in the array (where n is the index of the event
-argument in the list of arguments). \fig{mps-eventArgRef} shows the
-reduction rule. The reduction rule creates code that
-looks like this (for an \ic{int} event attribute): \ic{*((int*)arguments[0])}.
-It accesses the array, casts the element to a pointer to the type of the
-argument, and then dereferences everything.
+reference to an event argument (\ic{EventArgRef}) hence has to be reduced to
+accessing the \ic{n}-th element in the array (where \ic{n} is the index of the
+event argument in the list of arguments). \fig{mps-eventArgRef} shows the
+reduction rule. The reduction rule creates code that looks like this (for an
+\ic{int} event attribute): \ic{*((int*)arguments[0])}. It accesses the array,
+casts the element to a pointer to the type of the argument, and then
+dereferences everything.
 
 \begin{figure}[h]
 \begin{center}
@@ -856,7 +856,7 @@ argument, and then dereferences everything.
 \end{figure}
 
 Inside the \ic{if} statement, we have to generate the code that has to be
-executed if a transition executes. We first copy in all the exit actions of the
+executed if a transition fires. We first copy in all the exit actions of the
 current state. Once again, the \ic{int8\_t exitActions;} is just an arbitrary
 dummy statement that will be replaced by a the statements in the exit actions
 (\ic{COPY\_SRCL} replaces a node with a \emph{list} of nodes). The respective
@@ -874,14 +874,13 @@ expression is this:
 We then do the same for the transition actions of the current transition, set
 the \ic{instance->\_\_currentState} to the target state of the transition using
 a reference macro (\ic{node.targetState.cEnumLiteralName();}), and then we
-handle the entry actions of the target state. We then return, because at most
-one transition can fire as a consequence of calling the state machine execute
+handle the entry actions of the target state. Finally we return, because at
+most one transition can fire as a consequence of calling the state machine execute
 function.
 
 
 As the last example I want to show how the \ic{TriggerSMStatement} is
-translated. It is used as follows:
-
+translated. It "injects" an event into a state machine, and is used as follows:
 
 \begin{code}
 var Counter c1; 
@@ -898,34 +897,35 @@ a version of the \ic{TriggerSMStatement} that does not include event arguments.
 \fig{mps-trigger} shows the template. 
 
  
-\begin{figure}[h]
-\begin{center}
-  \includegraphics[width=11cm]{figures/5/mps-trigger.png}
-  \caption[]{The reduction rule for a \ic{trigger} statement. It is
+\begin{figure*}[h]
+  \includegraphics[width=13cm]{figures/5/mps-trigger.png}
+  \caption[][-55mm]{The reduction rule for a \ic{trigger} statement. It is
   transformed to a call to the function that implements the behavior of the
   state machine that is referenced in the first argument of the \ic{trigger}
   statement.}
   \label{mps-trigger} 
-\end{center} 
-\end{figure}
+\end{figure*}
 
 We use a dummy function \ic{someMethod} so we can embed a function call ---
 because we have to generate a function call to the execute function generated
 from the state machine. Only the function call is surrounded with the template
-fragment markers. The function we call \emph{in the template} is the
-\ic{smExecuteFunction} in the template. It has the same signature of the real,
-generated state machine execute function. We use a reference macro to retargetthe \ic{function} reference in the function call. It uses the followingexpression, which returns the name of the function generated for the state
-machine referenced in the \ic{statemachine} expression of the trigger statement.
-
+fragment markers (so only it will be generated). The function we call \emph{in
+the template} is the \ic{smExecuteFunction} in the template. It has the same
+signature of the real, generated state machine execute function. We use a
+reference macro to retarget the \ic{function} reference in the function call. It
+uses the following expression, which returns the name of the function generated
+for the state machine referenced in the \ic{statemachine} expression of the
+trigger statement:
 \begin{code}
 node.statemachine.type : StatemachineType.machine.cFunctionName();
 \end{code}
 
-Note how the first argument to the \ic{trigger} statement can be \emph{any}expression (local variable reference, global variable reference, a functioncall). However, we know (and enforce via the type system) that the expression'stype must be a \ic{StatemachineType}, which has a reference to the\ic{Statemachine} whose instance the expression represents. So we can cast,access the machine, and get the name of the execute function generated from thatstate machine. 
+Note how the first argument to the \ic{trigger} statement can be \emph{any}expression (local variable reference, global variable reference, a functioncall). However, we know (and enforce via the type system) that the expression'stype must be a \ic{StatemachineType}, which has a reference to the\ic{Statemachine} whose instance the expression represents. So we can cast,access the machine, and get the name of the execute function generated from thatstate machine\footnote{This is an example of where we use the type system in
+the code generator --- not just for checking a program for type correctness.}.
 
 The second argument of the \ic{trigger} statement is a reference to the event we
-want to trigger in the state machine. We can use another reference macro to find
-the enum literal generated for this event. The macro code is straight forward:
+want to trigger. We can use another reference macro to find
+the \ic{enum} literal generated for this event. The macro code is straight forward:
 
 \begin{code}
 node.event.cEnumLiteralName();
