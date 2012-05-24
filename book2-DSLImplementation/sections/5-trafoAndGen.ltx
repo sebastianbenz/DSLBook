@@ -546,20 +546,20 @@ end" of the transformation chain as a language like Java or C is generated to
 text so it can be passed to existing compilers. \fig{mps-textgen} shows the
 \ic{textgen} component for mbeddr C's \ic{IfStatement}. MPS' text generation
 language basically appends text to a buffer. We won't discuss this aspect of MPS
-any futher, since MPS textgen is basically a wrapper language around a
+any further, since MPS textgen is basically a wrapper language around a
 \ic{StringBuffer}. However, this is perfectly adequate for the task at hand,
 since it is only used in the last stage of generation where the AST is
-essentially structurally identical to the generated text.
+essentially structurally identical to the generated text\footnote{If you wantto generate text that is structurally different, then the textgen language isa bit of a pain to use; in this case, the MPS philosophy recommends you builda suitable intermediate language (such as for XML, or even for a particularschema).}.
  
 \begin{figure}[ht]
 \begin{center}
   \includegraphics[width=8cm]{figures/5/mps-textgen.png}
-  \caption[]{Text generator for an \ic{if} statement. If first checks
-  if the condition happens to be a \ic{true} literal, in which case the \ic{if}
+  \caption[]{The AST-to-text generator for an \ic{if} statement. If first
+  checks if the condition happens to be a \ic{true} literal, in which case the \ic{if}
   statement is optimized away and only the \ic{thenPart} is output. Otherwise
-  we generate an \ic{if} statement, the condition in parens, and then the
+  we generate an \ic{if} statement, the condition in parentheses, and then the
   \ic{thenPart}. We then iterate over all the \ic{elseIfs}; an \ic{elseIf} has
-  its own textgen, and we generate to that one. We finally output the code for
+  its own textgen, and we delegate to that one. We finally output the code for
   the \ic{else} part.}
   \label{mps-textgen} 
 \end{center} 
@@ -573,16 +573,16 @@ actual transformation. Mapping configurations define which template to run when
 and where. Templates are valid sentences of the target language. So-called
 macros are used to express dependencies on and queries over the input model. For
 example, when the guard condition (a C expression) should be generated into an
-\ic{if} statement in the target model, you first write an \ic{if} statement with a dummy
-condition into the template. The following would work: \ic{if (true) \{\}}. Then
-the nodes that should be replaced by the
-transformation with nodes from the input model are annotated with macros. In our
-example, this would look like this: \ic{if (COPY\_SRC[true])\{\}}. Inside the
-\ic{COPY\_SRC} macro you put an expression that describes which elements from 
-the input model should replace the dummy node \ic{true}: \ic{node.guard;}
-would use the guard condition of the input node (expected to be of type
-\ic{Transition} here). When the transformation is executed, the \ic{true} node
-will be replaced by what the macro expression returns --- in this case, theguard of the input transition.
+\ic{if} statement in the target model, you first write an \ic{if} statement with
+a dummy condition into the template. The following would work: \ic{if (true)
+\{\}}. Then the nodes that should be replaced by the transformation with nodes
+from the input model are annotated with macros. In our example, this would look
+like this: \ic{if (COPY\_SRC[true])\{\}}. Inside the \ic{COPY\_SRC} macro you
+put an expression that describes which elements from the input model should
+replace the dummy node \ic{true}: \ic{node.guard;} would use the guard condition
+of the input node (expected to be of type \ic{Transition} here). When the
+transformation is executed, the \ic{true} node will be replaced by what the
+macro expression returns --- in this case, the guard of the input transition. Wewill explain this process in detail below.
 
 
 \parhead{Translating the State Machine} State machines live inside modules. Just
@@ -594,28 +594,28 @@ same state machine \ic{Counter}.
 module Statemachine from cdesignpaper.statemachine imports nothing { 
    
   statemachine Counter { 
-  in events 
-    start() <no binding> 
-    step(int[0..10] size) <no binding> 
-  out events 
-    started() <no binding> 
-    resetted() <no binding> 
-    incremented(int[0..10] newVal) <no binding> 
-  local variables 
-    int[0..10] currentVal = 0 
-    int[0..10] LIMIT = 10 
-  states ( initial = start ) 
-    state start { 
-      on start [ ] -> countState { send started(); } 
-    } 
-    state countState { 
-      on step [currentVal + size > LIMIT] -> start { send resetted(); } 
-      on step [currentVal + size <= LIMIT] -> countState { 
-        currentVal = currentVal + size; 
-        send incremented(currentVal); 
+    in events 
+      start()  
+      step(int[0..10] size) 
+    out events 
+      started()  
+      resetted() 
+      incremented(int[0..10] newVal)  
+    local variables 
+      int[0..10] currentVal = 0 
+      int[0..10] LIMIT = 10 
+    states ( initial = start ) 
+      state start { 
+        on start [ ] -> countState { send started(); } 
       } 
-      on start [ ] -> start { send resetted(); } 
-    } 
+      state countState { 
+        on step [currentVal + size > LIMIT] -> start { send resetted(); } 
+        on step [currentVal + size <= LIMIT] -> countState { 
+          currentVal = currentVal + size; 
+          send incremented(currentVal); 
+        } 
+        on start [ ] -> start { send resetted(); } 
+      } 
   }
   
   var Counter c1; 
@@ -631,8 +631,8 @@ module Statemachine from cdesignpaper.statemachine imports nothing {
 State Machines are translated to the following lower level C entities:
 
 \begin{itemize}
-  \item an \ic{enum} for the states, with a literal for each state
-  \item an \ic{enum} for the events, with a literal for each event
+  \item an \ic{enum} for the states (a literal for each state)
+  \item an \ic{enum} for the events (a literal for each event)
   \item a \ic{struct} declaration that contains an attribute for the
   current state, as well as attributes for the local variables declared in the
   state machine
@@ -641,8 +641,8 @@ State Machines are translated to the following lower level C entities:
   named \ic{instance} typed with the \ic{struct} mentioned in the previous
   item, and one named \ic{event} that is typed to the event \ic{enum}
   mentioned above. The function checks whether the instance's current state can
-  handle the event passed in, evaluates the guard, and if a transition fires,
-  executes exit and entry actions and updates the current state.
+  handle the event passed in, evaluates the guard, and if the guard is
+  \ic{true}, executes exit and entry actions and updates the current state.
 \end{itemize} 
 
 This high level structure is clearly discernable from the two main templates
@@ -681,26 +681,27 @@ it.
 
 Let us look in more detail at the template in \fig{mps-sm-gen-1}. It reduce a
 \ic{Statemachine}, the input node, to two \ic{enum}s and a \ic{struct}. We use
-template fragments (marked with \ic{<TF TF>}) to highlight those parts of the
-template that should actually be used to replace the input node as the
+template fragments (marked with \ic{<TF ... TF>}) to highlight those parts of
+the template that should actually be used to replace the input node as the
 transformation executes. The surrounding \ic{ImplementationModule} (\ic{module
-dummy}) is only needed because \ic{enum}s and \ic{struct}s \emph{have} to live
-in \ic{ImplementationModule}s in a valid instance of the mbeddr C language.
-
+dummy}) is scaffolding: it is only needed because \ic{enum}s and \ic{struct}s
+\emph{must} live in \ic{ImplementationModule}s in a valid instance of the
+mbeddr C language.
 
 We have to create an \ic{enum} literal for each state and each event. To achieve
 this, we iterate over all states (and events, respectively). This is expressed
 with the \ic{LOOP} macros in the template (\fig{mps-sm-gen-1}). The expression
 that determines what we iterate over is entered in the Inspector;
-\fig{mps-sm-inspector1} shows the code for iterating over the states. 
-Note that the only really interesting part of \fig{mps-sm-inspector1} is the
-body of the anonymous function (\ic{node.states;}), which is why in the future we
-will only show this part. For the literals of the events enum we use a similar expression
-(\ic{node.events;}). 
+\fig{mps-sm-inspector1} shows the code for iterating over the
+states\sidenote[-10mm]{Note that the only really interesting part of
+\fig{mps-sm-inspector1} is the body of the anonymous function
+(\ic{node.states;}), which is why in the future we will only show this part.}.
+For the literals of the events \ic{enum} we use a similar expression
+(\ic{node.events;}).
 
 \begin{figure}[ht]
 \begin{center}
-  \includegraphics[width=10cm]{figures/5/mps-sm-inspector1.png}
+  \includegraphics[width=\columnwidth]{figures/5/mps-sm-inspector1.png}
   \caption[]{The inspector is used to provide the implementation
   details for the macros used in the templates. This one belongs to a
   \ic{LOOP} macro, so we provide an expression that returns a
@@ -716,22 +717,21 @@ the concept it is attached to for every iteration. In case of the two
 an \ic{EnumLiteral} for each event and state we iterate over. However, these
 various \ic{EnumLiteral}s all have to have different names. In fact, the name of
 each literal should be the name of the state/event for which it is created. We
-can use a property macro, denoted by the \ic{\$} sign, to achive this. A 
-property macro is used to replace
-values of properties. In this case we use it to replace the \ic{name} property of the
-generated \ic{EnumLiteral}. Here is the implementation expression of the
-property macro (also entered in the inspector):
-
+can use a property macro, denoted by the \ic{\$} sign, to acheive this. A
+property macro is used to replace values of properties\footnote{The node
+macros used above (\ic{COPY\_SRC}) replace whole nodes as opposed toprimitive \emph{properties} of nodes.}. In this case we use it to replace the\ic{name} property of the generated \ic{EnumLiteral}. Here is the implementation 
+expression of the property macro (also entered in the inspector):
 
 \begin{code}
 node.cEnumLiteralName();
 \end{code}
 
 
-\ic{cEnumLiteralName} is a behavior method. It is defined as part of the behavior
-aspect of the \ic{State} concept. It concatenates the \ic{name} of the parent
-\ic{Statemachine} with the string \ic{\_\_state\_} and the name of the current
-state.
+In the code above, \ic{cEnumLiteralName} is a behavior method. It is defined as
+part of the behavior aspect of the \ic{State} concept. It concatenates the
+\ic{name} of the parent \ic{Statemachine} with the string \ic{\_\_state\_} and
+the name of the current state. We use property macros in a similar way to define
+the names of the two generated \ic{enum}s themselves.
 
 \begin{code}
 concept behavior State {                      
@@ -743,37 +743,40 @@ concept behavior State {
 }                                             
 \end{code}
 
-We use property macros in a similar way to define the names of the two generated
-\ic{enum}s themselves. The first of the \ic{struct} attributes is also
-interesting. It is used to remember the current state. It has to be typed to the
-state \ic{enum} that is generated from this particular state machine. The type
-of the attribute is an \ic{EnumType}; \ic{EnumType}s extend \ic{Type} and
-reference the \ic{EnumDeclaration} whose type they represent. How can we
-establish the reference to the correct \ic{EnumDeclaration}? We use a reference
-macro (\ic{->\$}) to retarget the reference. \fig{mps-ref-macro} shows the
-macro's expression.
+The first of the \ic{struct} attributes is also interesting. It is used to
+store the current state. It has to be typed to the state \ic{enum} that is
+generated from this particular state machine. The type of the attribute is an
+\ic{EnumType}; \ic{EnumType}s extend \ic{Type} and reference the
+\ic{EnumDeclaration} whose type they represent. How can we establish the
+reference to the correct \ic{EnumDeclaration}? We use a reference macro
+(\ic{->\$}) to retarget the reference. \fig{mps-ref-macro} shows the macro's
+expression.
 
-\begin{figure}[ht]
-\begin{center}
-  \includegraphics[width=11cm]{figures/5/mps-ref-macro.png}
-  \caption[]{A reference macro has to return either the target node,
+\begin{figure*}[ht]
+  \includegraphics[width=17cm]{figures/5/mps-ref-macro.png}
+  \caption[][-10mm]{A reference macro has to return either the target node,
   or the name of the target node. The name is then resolved using the scoping
   rules for the particular reference concept.}
   \label{mps-ref-macro} 
-\end{center} 
-\end{figure}
+\end{figure*}
 
 Note how a reference macro expects either the target node (here: an
 \ic{EnumDeclaration}) as the return value, or a \ic{string}. That \ic{string}
 would be the name of the target element. Our implementation returns the name of
 the states \ic{enum} generated in the same template. MPS then uses the target
-language's scoping rules to find and link to the correct target element.
+language's scoping rules to find and link to the correct target
+element\footnote{So this is not simply a global name lookup! Since MPS knows the
+reference is an \ic{EnumLiteralRef} expression, the scope of the that concept is
+used. As long as the name is unique within the scope, this is completely
+deterministic. Alternatively, the actual node can be identified and returned
+from the reference macro using mapping labels. However, using names is much more
+convenient and works also for cross-model references, where mapping labelsdon't work.}.
 
  
 \begin{figure}[h]
 \begin{center}
   \includegraphics[width=11cm]{figures/5/mps-sm-gen-2.png}
-  \caption[]{The transformation template for generating the
+  \caption[][40mm]{The transformation template for generating the
   \ic{switch}-based implementation of a \ic{StateMachine}. See the text for
   details.}
   \label{mps-sm-gen-2} 
@@ -782,12 +785,13 @@ language's scoping rules to find and link to the correct target element.
 
 
 Let us now address the second main template, \fig{mps-sm-gen-2}, which generates
-the execute function. Looking at the template fragment markers (\ic{<TF  TF>})
-reveals that we only generate the \ic{switch} statement with this template,
-\emph{not} the function that contains it. The reason is that we need to be able
-to embed the state machine \ic{switch} into other function-like concepts as well
-(e.g. component operations), so we have separated the generation of the function
-from the generation of the actual state machine behavior. 
+the execute function. Looking at the template fragment markers (\ic{<TF ...
+TF>}) reveals that we only generate the \ic{switch} statement with this
+template, \emph{not} the function that contains it. The reason is that we need
+to be able to embed the state machine \ic{switch} into other function-like
+concepts as well (e.g. component operations), so we have separated the
+generation of the function from the generation of the actual state machine
+behavior.
 
 The \ic{switch} expression is interesting. It switches over the current state of
 the current state machine instance. That instance is represented by the
@@ -802,10 +806,10 @@ the attribute will also be called \ic{\_\_currentState}, we don't have to use a
 reference macro to retarget the two.
 
 Inside the \ic{switch} we then \ic{LOOP} over all the states of the state
-machine and generate a \ic{case}, using the state's corresponding enum literal.
-Inside the case, we embed another \ic{switch} that switches over the \ic{event}
-argument. Inside this inner \ic{switch} we iterate over all transitions that are
-triggered by the event we currently iterate over:
+machine and generate a \ic{case}, using the state's corresponding \ic{enum}
+literal. Inside the \ic{case}, we embed another \ic{switch} that switches over
+the \ic{event} argument. Inside this inner \ic{switch} we iterate over all
+transitions that are triggered by the event we currently iterate over:
 
 \begin{code}
 node<State> state = (node<State>) node.adapter.getUserObject("outer"); 
