@@ -940,13 +940,13 @@ node.event.cEnumLiteralName();
 In Spoofax, model-to-model transformations and code generation are both
 specified by rewrite rules\footnote{Rewrite rules have been introduced in
 \todo{ref}.}. This allows for the seamless integration of model-to-model
-transformation steps into the code generation process; the clear distinction between model-to-model transformation and code generation vanishes.
+transformation steps into the code generation process; the clear distinction 
+between model-to-model transformation and code generation vanishes.
 
-\parhead{Code Generation by String Interpolation} %
-
-Pure code generation from abstract syntax trees to text can be realised by
-rewriting to strings. The following simple rules rewrite types to their
-corresponding representation in Java:
+\parhead{Code Generation by String Interpolation} Pure code generation from
+abstract syntax trees to text can be realised by rewriting to strings. The
+following simple rules rewrite types to their corresponding representation in
+Java:
 
 \begin{code}
   to-java: IntType()    -> "int"
@@ -954,11 +954,13 @@ corresponding representation in Java:
   to-java: StringType() -> "String"
   to-java: EntType(t)   -> t
 \end{code}
-\MV{'t' is not a string. What is going on there?}
+\todo{@Guido 't' is not a string. What is going on there?}
 
-Typically, more complex rules are recursive and use string interpolation to
-compose strings. For example, the following two rewrite rules generate Java code
-for entities and their properties:
+Typically, more complex rules are recursive and use string
+interpolation\footnote{We used string interpolation already before to compose
+error messages \todo{ref}.} to construct strings from fixed and variable parts.
+For example, the following two rewrite rules generate Java code for entities and
+their properties:
 
 \begin{code}
   to-java:
@@ -986,12 +988,14 @@ to-java:
       t' := <to-java> t
 \end{code}
 
-We used string interpolation already before to compose error messages.
-It takes place inside \ic{\$[\ldots]} brackets and 
-allows to combine text with variables which are bound to strings.
-Variables can be inserted using brackets \ic{[\ldots]} without a dollar sign. 
-You can also use any other kind of bracket: \ic{\{\ldots\}}, \ic{<\ldots>}, and \ic{(\ldots)} are allowed.
-Instead of variables, we can also use directly the results from other rewrite rules that yield strings or lists of strings:
+
+String interpolation takes place inside \ic{\$[\ldots]} brackets and allows to
+combine fixed text with variables that are bound to strings. Variables can be
+inserted using brackets \ic{[\ldots]} without a dollar sign\footnote{You can
+also use any other kind of bracket: \ic{\{\ldots\}}, \ic{<\ldots>}, and
+\ic{(\ldots)} are allowed as well.}. Instead of variables, we can also use
+directly the results from other rewrite rules that yield strings or lists of
+strings:
 
 \begin{code}
   to-java:
@@ -1000,13 +1004,14 @@ Instead of variables, we can also use directly the results from other rewrite ru
            [<map(to-java)> ps]
        }
      ]
-\end{code}
+\end{code}\ignore{$}
 
-Indentation is important both for the readability of rewrite rules and of the generated code.
-String interpolation removes the indentation leading up to the \ic{\$[\ldots]} brackets, 
-but preserves any other indentation in the generated output. 
-This way, we can indent the generated code, but also our rewrite rules.
-Applying \ic{to-java} to the initial \ic{shopping} entity, will yield the following Java code:
+Indentation is important both for the readability of rewrite rules and of the
+generated code: the indentation leading up to the \ic{\$[\ldots]} brackets is
+removed, but any other indentation beyond the bracket level is preserved in the
+generated output. This way, we can indent the generated code, but also our
+rewrite rules. Applying \ic{to-java} to the initial \ic{shopping} entity, will
+yield the following Java code:
 
 \begin{code}
 class Item {
@@ -1043,13 +1048,11 @@ class Item {
 }
 \end{code}
 
-\MV{Of course users will notice the underscore instead of the camelcase for the
-method names. Do you want to say something about that?}
+\todo{@Guido Of course users will notice the underscore instead of the camelcase
+for the method names. Do you want to say something about that?}
 
-\parhead{Editor Integration}%
-
-To integrate the code generation into our editor, we first have to define the
-following rewrite rule:
+\parhead{Editor Integration} To integrate the code generation into our editor,
+we first have to define the following rewrite rule:
 
 \begin{code}
   generate-java:
@@ -1059,32 +1062,30 @@ following rewrite rule:
       result   := <to-java> selected
 \end{code}
 
-This rule follows Spoofax' convention for editor integration. 
-On the left-hand side, it matches the current selection in the editor, 
-its position in the abstract syntax tree,
-the abstract syntax tree itself,
-the path of the source file in the editor,
-and the path of the project this files belongs to.
-On the right-hand side, it results in 
-the name of the generated file and
-its content as a string.
-The file name is derived from the source file's path,
-while the file content is generated from the current selection.
-If the generation should consider the whole abstract syntax regardless of the selection,
-we can replace the last line by \ic{result := <to-java> ast}.
+This rule follows Spoofax' convention for editor integration\todo{@Guido what
+kind of convention is this?}. Generation happens on a per-file basis. On the
+left-hand side, the rule matches the current selection in the editor, its
+position in the abstract syntax tree, the abstract syntax tree itself, the path
+of the source file in the editor, and the path of the project this file belongs
+to. On the right-hand side, it results in the name of the generated file and its
+content as a string. The file name is derived from the source file's path, while
+the file content is generated from the current selection. If the generation
+should consider the whole abstract syntax regardless of the selection, we can
+replace the last line by \ic{result := <to-java> ast}.
 
-Once we have defined this rule, we can register it as a \ic{builder} in \ic{editor/Lang-Builders.esv}.
-Here, we add the following rule:
+Once we have defined this rule, we can register it as a \ic{builder} in
+\ic{editor/Lang-Builders.esv}. Here, we add the following rule:
 
 \begin{code}
 builder: "Generate Java code (for selection)" = generate-java (openeditor) (realtime)
 \end{code}
 
-This defines a label for our transformation, which is added to the editor's \emph{Transform} menu.
-Additional options can be used to customize the behaviour of the transformation:
-\ic{(openeditor)} tells Spoofax to open the generated file in an editor, while
-\ic{(realtime)} enforces an automatic re-generation after changes to the source in the editor.
-Further options are shown in \Figure{Fig:spoofax-builder-options}.
+This defines a label for our transformation, which is added to the editor's
+\emph{Transform} menu. Additional options can be used to customize the behaviour
+of the transformation: \ic{(openeditor)} tells Spoofax to open the generated
+file in an editor, while \ic{(realtime)} enforces an automatic re-generation
+after changes to the source in the editor. Further options are shown in
+\Figure{Fig:spoofax-builder-options}.
 
 \begin{figure}[t]
 \begin{tabular}{|l|l|}
@@ -1102,21 +1103,22 @@ Further options are shown in \Figure{Fig:spoofax-builder-options}.
 \label{Fig:spoofax-builder-options}
 \end{figure}
 
-\parhead{Code Generation by Model Transformation}%
-%
-Rewrite rules with string interpolation support a template-based approach to code generation.
-Thus, they share two typical problems of template languages.
+\parhead{Code Generation by Model Transformation} Rewrite rules with string
+interpolation support a template-based approach to code generation.
+Thus, they share two typical problems of template languages. First, they are not
+\emph{syntax safe}, that is, they do not guarantee the syntactical correctness
+of the generated code: we might accidently generate Java code which can not be
+parsed by a Java compiler. Such errors can only be detected by testing the code
+generator. Second, they inhibit subsequent transformation steps. For example, we
+might want to optimize the generated Java code, generate Java Bytecode from it,
+and finally optimize the generate Java Bytecode. At each step, we would first
+need to parse the generated code from the previous step before we can apply the
+actual transformation.
 
-First, they are not \emph{syntax safe}, that is, they do not guarantee the syntactical correctness of the generated code.
-For example, we might accidently generate Java code which can not be parsed by a Java compiler.
-Such errors can only be detected by testing the code generator.
-
-Second, they inhibit subsequent transformation steps.
-For example, we might want to optimize the generated Java code, generate Java Bytecode from it, and finally optimize the generate Java Bytecode. 
-At each step, we would first need to parse the generated code from the previous step before we can apply the actual transformation.
-
-Both problems can be avoided by generating abstract syntax trees instead of concrete syntax.
-This can be achieved by constructing terms on the left-hand side of rewrite rules:
+Both problems can be avoided by generating abstract syntax trees instead of
+concrete syntax, i.e. by using model-to-model transformations instead of code
+(text) generation. This can be achieved by constructing terms on the left-hand
+side of rewrite rules:
 
 \begin{code}
   to-java: IntType()    -> IntBaseType()
@@ -1138,14 +1140,18 @@ This can be achieved by constructing terms on the left-hand side of rewrite rule
       assign := Assign(FieldRef(This(), x), VarRef(x)) 
 \end{code}
 
-\parhead{Pretty-Printing}%
-%
-When we generate abstract syntax trees instead of concrete syntax, we can easily compose transformation steps into a transformation chain.
-But this chain will still result in abstract syntax trees.
-To turn them back into text, Spoofax generates a language-specific rewrite rule \ic{pp-<LanguageName>-string} in \ic{lib/editor-common.generated}. 
-This rewrites an abstract syntax tree into a string according to a pretty-printer definition.
-Spoofax generates a default pretty-printer definition in \ic{syntax/<LanguageName>.generated.pp} from the syntax definition of a language.
-For example, Spoofax generates the following pretty-printer definition from the Mobl syntax definition:
+\parhead{Pretty-Printing} When we generate abstract syntax trees instead of
+concrete syntax, we can easily compose transformation steps into a
+transformation chain by using the output of transformation $n$ as the input for
+transformation $n+1$. But this chain will still result in abstract syntax trees.
+To turn them back into text, it has to be pretty printed (or serialized).
+Spoofax generates a language-specific rewrite rule \ic{pp-<LanguageName>-string}
+in \ic{lib/editor-common.generated} which rewrites an abstract syntax tree into
+a string according to a pretty-printer definition. Spoofax generates a default
+pretty-printer definition in \ic{syntax/<LanguageName>.generated.pp} from the
+syntax definition of a language. For example, Spoofax generates the following
+pretty-printer definition from the Mobl syntax definition, expressed in the Box
+language: \todo{@Guido do we have a reference to the Box language?}
 
 \begin{code}
 [
@@ -1175,22 +1181,25 @@ For example, Spoofax generates the following pretty-printer definition from the 
 ]
 \end{code}
 
-Pretty-printers are defined in the Box language.
-In this language, rules consist of constructors on the left-hand side of a rule and a sequence of \emph{boxes} and numbers on the right-hand side.
-
-The basic box construct is a simple string.
-Furthermore, two kinds of box operators can be applied to sub-boxes:
-Layout operators specify the layout of sub-boxes in the surrounding box, and
-font operators specify which font should be used.
+In this language, rules consist of constructors (.i.e. AS elements or language
+concepts) on the left-hand side of a rule and a sequence of \emph{boxes} and
+numbers on the right-hand side. The basic box construct is a simple
+string\todo{@Guido doing what?}. Furthermore, two kinds of box operators can be
+applied to sub-boxes: Layout operators specify the layout of sub-boxes in the
+surrounding box, and font operators specify which font should be used.
 In the example, all strings are embedded in \ic{KW[\ldots]} boxes.
-\ic{KW} is a font operator, classifying the sub-boxes as keywords of the language.
-Since font operators are only meaningful when pretty-printing to HTML or \LaTeX, we do not dive into the details here.
+\ic{KW} is a font operator, classifying the sub-boxes as keywords of the
+language. Since font operators are only meaningful when pretty-printing to HTML
+or \LaTeX, we do not dive into the details here.
 
 Numbers on the right-hand side can be used to combine boxes from the subtrees.
-Here, a number $n$ refers to the boxes from the $n$-th subtree. 
-When the syntax definition contains nested constructs, additional rules are generated for pretty-printing the corresponding subtrees.
-On the left-hand side, these rules have \emph{selectors}, which consist of a constructor, a number selecting a particular subtree, and the type of the nesting.
-\Figure{Fig:spoofax-pp-nesting-types} shows all nesting constructs in syntax definitions and their corresponding types in pretty-printing rules.
+Here, a number $n$ refers to the boxes from the $n$-th subtree. When the syntax
+definition contains nested constructs, additional rules are generated for
+pretty-printing the corresponding subtrees. On the left-hand side, these rules
+have \emph{selectors}, which consist of a constructor, a number selecting a
+particular subtree, and the type of the nesting.
+\Figure{Fig:spoofax-pp-nesting-types} shows all nesting constructs in syntax
+definitions and their corresponding types in pretty-printing rules.
 
 \begin{figure}[t]
 \begin{tabular}{|l|l|}
@@ -1211,37 +1220,46 @@ sequences \ic{(S1 S2)} & \ic{seq} \\
 \label{Fig:spoofax-pp-nesting-types}
 \end{figure}
 
-Additionally, user-defined pretty-printing rules can be defined in \ic{syntax/<LanguageName>.pp}.
-Spoofax first applies the user-defined rules to turn an abstract syntax tree into a hybrid tree which is only partially pretty-printed.
-It then applies the default rules to pretty-print the remaining parts.
-For example, we could define our own pretty-printing rule for Mobl modules:
+Additionally, user-defined pretty-printing rules can be defined in
+\ic{syntax/<LanguageName>.pp}. Spoofax first applies the user-defined rules to
+turn an abstract syntax tree into a hybrid tree which is only partially
+pretty-printed. It then applies the default rules to pretty-print the remaining
+parts. For example, we could define our own pretty-printing rule for Mobl
+modules:
 
 \begin{code}
    Module                   -- V vs=1 is=4 [ H [KW["module"] _1] _2]
 \end{code}
 
-The \ic{H} box operator layouts sub-boxes horizontally. 
-The desired horizontal separation between the sub-boxes can be specified by the spacing option \ic{hs}.
+The \ic{H} box operator layouts sub-boxes horizontally. The desired horizontal
+separation between the sub-boxes can be specified by the spacing option \ic{hs}.
 Its default value is \ic{1}, that is, a single space is added between the boxes.
-Similarly, the \ic{V} box operator places sub-boxes vertically. 
-The desired vertical separation between the sub-boxes can be specified by the spacing option \ic{vs}.
-Its default value is \ic{0}, that is, no blank lines are added between the boxes.
-For indenting boxes in a vertical combination, the spacing option \ic{is} can be specified.
-All boxes except the first will be indented accordingly.
+Similarly, the \ic{V} box operator places sub-boxes vertically.
+The desired vertical separation between the sub-boxes can be specified by the
+spacing option \ic{vs}. Its default value is \ic{0}, that is, no blank lines are
+added between the boxes. For indenting boxes in a vertical combination, the
+spacing option \ic{is} can be specified. All boxes except the first will be
+indented accordingly.
 
-\parhead{Concrete Object Syntax} %
-%
-Both template-based and term-based approaches to code generation have
-distinctive benefits. While template-based generation with string interpolation allows for concrete syntax in code generation rules,
-abstract syntax tree generation guarantees syntactical correctness of the generated code and enables transformation chains.
-To combine the benefits of both approaches, Spoofax can parse user-defined concrete syntax quotations at compile-time, checking their syntax and replacing them with equivalent abstract syntax fragments.
-For example, a Java return statement can be expressed as \ic{|[ return |[x]|; ]|}, rather than the abstract syntax form \ic{Return(VarRef(x))}. 
+\parhead{Concrete Object Syntax} Both template-based and term-based approaches
+to code generation have distinctive benefits. While template-based generation
+with string interpolation allows for concrete syntax in code generation rules,
+abstract syntax tree generation guarantees syntactical correctness of the
+generated code and enables transformation chains. To combine the benefits of
+both approaches, Spoofax can parse user-defined concrete syntax quotations at
+compile-time, checking their syntax and replacing them with equivalent abstract
+syntax fragments. For example, a Java return statement can be expressed as
+\ic{|[ return |[x]|; ]|}, rather than the abstract syntax form
+\ic{Return(VarRef(x))}.
+\todo{@Guio can you briefly say what the various brackets and vertical bars
+are?}
 
-To enable this functionality, we have to customize Stratego, Spoofax' transformation language.
-This requires four steps.
-First, we need to combine Stratego's syntax definition with the syntax definitions of the source and target languages.
-Thereby, it is important to keep the sorts of the languages disjunct.
-This can be achieved by renaming sorts in an imported module, which we do in the following example for the \ic{Java} and the \ic{Stratego} module:
+To enable this functionality, we have to customize Stratego, Spoofax'
+transformation language. This requires four steps. First, we need to combine
+Stratego's syntax definition with the syntax definitions of the source and
+target languages. There it is important to keep the sorts of the languages
+disjunct. This can be achieved by renaming sorts in an imported module, which we
+do in the following example for the \ic{Java} and the \ic{Stratego} module:
 
 \begin{code}
 module Stratego-Mobl-Java
@@ -1252,9 +1270,10 @@ imports Stratego [ Id   => StrategoId
                    Term => StrategoTerm ]
 \end{code}
 
-Second, we need to define quotations, which will enclose concrete syntax fragments in rewrite rules.
-We add a production rule for every sort of concrete syntax fragments that we like to use in our rewrite rules:
-%Thereby, it is important that the sort of a fragment is unambigous. 
+Second, we need to define quotations, which will enclose concrete syntax
+fragments of the target language in Stratego rewrite rules. We add a production
+rule for every sort of concrete syntax fragments that we like to use in our
+rewrite rules:
 
 \begin{code}
 exports context-free syntax
@@ -1270,8 +1289,12 @@ exports context-free syntax
   "|[" JFeature* "]|" -> StrategoTerm {"ToTerm"}
 \end{code}
 
-Third, we need to define antiquotations, which will enclose Stratego code in concrete syntax fragments.
-Here, we add a production rule for every sort where we like to inject Stratego code into concrete syntax fragments:
+\todo{@Guido what exactly do we do we the above definitions? and what does
+StrategoTerm {"ToTerm"} mean?}
+
+Third, we need to define antiquotations, which will enclose Stratego code in
+target language concrete syntax fragments. Here, we add a production rule for
+every sort where we like to inject Stratego code into concrete syntax fragments:
 
 \begin{code}
 exports context-free syntax
@@ -1281,11 +1304,12 @@ exports context-free syntax
   "|[" StrategoTerm "]|" -> JFeature* {"FromTerm"}
 \end{code}
 
-Finally, we need to create a \ic{<filename>.meta} file for every transformation file \ic{<filename>.str} with concrete syntax fragments.
-In this file, we tell Spoofax to use our customized Stratego syntax definition:
+Finally, we need to create a \ic{<filename>.meta} file for every transformation
+file \ic{<filename>.str} with concrete syntax fragments. In this file, we tell
+Spoofax to use our customized Stratego syntax definition:
 
-\MV{Do I have to create these quotations and antiquotations manually, or
-could this be automated in the future?}
+\todo{@Guido Do I have to create these quotations and antiquotations manually,
+or could this be automated in the future?}
 
 \begin{code}
 Meta([ Syntax("Stratego-Mobl-Java") ])
@@ -1309,32 +1333,18 @@ to-java:
       t' := <to-java> t
 \end{code}
 
-Since Spoofax replaces concrete syntax fragments with equivalent abstract syntax fragments, indentation in the fragments is lost.
+Since Spoofax replaces concrete syntax fragments with equivalent abstract syntax
+fragments, indentation in the fragments is lost.
 But the generated code will still be indented by the pretty-printer.
 
-\MV{Do we get IDE support (code completion, etc.) for the embedded concrete
-syntax?}
+\todo{@Guido Do we get IDE support (code completion, etc.) for the embedded
+concrete syntax?}
+
+\todo{@Guido Do you want to briefly recap why we did this, what the benefits
+are?}
 
 
-\section{Old Stuff?}
 
-  special languages (target lang level + meta level)
-  what are good gen languages (some criteria)
-      integrating manually written code (generation gap)        
-      parts from My DSL Best Practices Paper
-  
-  modifying generated code: not
-  
-  generation gap pattern 
-  
-  extension of tatget lang to make it more easily generatable (expr blocks)
-
-  
-  when to use M2M (see best practices paper) 
-  what are good trafo languages
-  unidirectional, bidirectional (relational)
-  incremental vs. batch)
-  parts from My DSL Best Practices Paper
                       
 
 \chapter{Building Interpreters}  
