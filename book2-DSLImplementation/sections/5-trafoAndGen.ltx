@@ -1351,21 +1351,19 @@ are?}
  
 Interpreters are basically programs that read a model, traverse the AST and
 perform actions corresponding to the semantics of the language constructs whose
-instances appear in the AST. How interpreter implementation look depends a lot
-on the programming language used for implementing them. Also, the complexity of
-the interpreter directly reflects the complexity of the language it processes.
-For example, building an interpreter for a pure expression language with an
-object oriented or functional programming language is almost trivial. In
-contrast, the interpreter for languages that support parallelism can be much
-more challenging. 
-
-The following list explains some typical ingredients that go
-into building interpreters for functional and procedural languages. It assumes a
-programming language that can polymorphically invoke functions or methods. 
+instances appear in the AST. How an interpreter implementation looks depends a
+lot on the programming language used for implementing it. Also, the complexity
+of the interpreter directly reflects the complexity of the language it
+processes\footnote{For example, building an interpreter for a pure expression
+language with a functional programming language is almost trivial. In contrast,
+the interpreters for languages that support parallelism can be much more
+challenging.}. The following list explains some typical ingredients that go into
+building interpreters for functional and procedural languages. It assumes a
+programming language that can polymorphically invoke functions or methods.
 
 \parhead{Expressions} For program elements that can be evaluated to values,
 i.e., expressions, there is typically a function \ic{eval} that is defined for
-the various expression types in the language, i.e. it is polymorphically
+the various expression concepts in the language, i.e. it is polymorphically
 overridden for subconcepts of \ic{Expression}. Since nested expressions are
 almost always represented as nested trees in the AST, the \ic{eval} function
 calls itself with the program elements it owns, and then performs some semantic
@@ -1383,55 +1381,56 @@ classes, for example, because there may be several interpreters or because the
 interpreter is developed by other people than the AST.}.
 
   
-\parhead{Statements} Program elements that don't produce a value only make
-sense in programming languages that have side effects. In other words, execution
-of such a language concept produces some effect either on global data in the
+\parhead{Statements} Program elements that don't produce a value only make sense
+in programming languages that have side effects. In other words, execution of
+such a language concept produces some effect either on global data in the
 program (re-assignable variables, object state) or on the environment of the
 program (sending network data or rendering a UI). Such program elements are
 typically called \ic{Statements}. Statements are typically not recursively
 nested in a tree, but rather arranged in a list, called a \ic{StatementList}. To
 execute those, there is typically a function \ic{execute} that is overloaded for
-all of the different statement types. It is also overloaded for
+all of the different statement types\footnote{It is also overloaded for
 \ic{StatementList} which iterates over all statements and calls \ic{execute}
-for each one. Note that statements often contain expressions and more statement
-lists (as in \ic{if (a>3) \{ print a; a=0; \} else \{ a=1;\}}), so an
-implementation of execute may call \ic{eval} and perform some action based on
-the result (such as deciding whether to execute the then-part of the else-part
-of the \ic{if} statement). Executing the then-part and the else-part simply
-boils down to called \ic{execute} on the respective statement lists.
+for each one.}. Note that statements often contain expressions and more
+statement lists (as in \ic{if (a > 3) \{ print a; a=0; \} else \{ a=1;\}}), so
+an implementation of \ic{execute} may call \ic{eval} and perform some action
+based on the result (such as deciding whether to execute the \ic{then}-part of
+the \ic{else}-part of the \ic{if} statement). Executing the \ic{then}-part and
+the \ic{else}-part simply boils down to called \ic{execute} on the respective
+statement lists.
 
 \parhead{Environments} Languages that have can express assignment to variables
-require an environment during execution to remember the values for the variables
-at each point during program execution. Consider \ic{int a = 1; a = a + 1;}. In
-this example, the \ic{a} in \ic{a + 1} is a variable reference. When evaluating
-this reference, the system must "remember" that it had assigned \ic{1} to that
-variable in the previous statement. The interpreter must keep some kind of
-global hash table, the environment, to keep track of symbols and their values,
-so it can look them up when evaluating a reference to that symbol. Many (though
-not all) languages that support assignable variables allow reassignment to the
-same variable (as we do in \ic{a = a + 1;}). In this case, the environment must
-be updatable. Notice that in \ic{a = a + 1} both mentionings of are references
-to the same variable, and both are expressions (otherwise a couldn't be used as
-part of the plus operator, which expects expressions as arguments). However,
-only a can be assigned to: writing \ic{2 * a = a + 1;} would be invalid. The
-notion of an \ic{lvalue} is introduced to describe this. lvalues can be used "on
-the left side" of an assignment. Variable references are typically lvalues (if
-they don't point to a \ic{const} variable). Complex expressions usually are not,
-unless they evaluate to something that is in turn an lvalue (an example of this
-is would be \ic{*(someFunc(arg1, arg2)) = 12;}, in C, assuming that
-\ic{someFunc} returns a pointer to an integer).
+(or modify any other global state) require an environment during execution to
+remember the values for the variables at each point during program execution.
+Consider \ic{int a = 1; a = a + 1;}. In this example, the \ic{a} in \ic{a + 1}
+is a variable reference. When evaluating this reference, the system must
+"remember" that it had assigned \ic{1} to that variable in the previous
+statement. The interpreter must keep some kind of global hash table, known as
+the \emph{environment}, to keep track of symbols and their values, so it can
+look them up when evaluating a reference to that symbol. Many (though not all)
+languages that support assignable variables allow reassignment to the same
+variable (as we do in \ic{a = a + 1;}). In this case, the environment must be
+updatable. Notice that in \ic{a = a + 1} both mentions of \ic{a} are references
+to the same variable, and both \ic{a} and \ic{a+1} are expressions.
+However, only \ic{a} (and not \ic{a+1}) can be assigned to: writing \ic{a * 1 =
+10 * a;} would be invalid. The notion of an \ic{lvalue} is introduced to
+describe this. lvalues can be used "on the left side" of an assignment. Variable
+references are typically lvalues (if they don't point to a \ic{const} variable).
+Complex expressions usually are not, unless they evaluate to something that is
+in turn an lvalue (an example of this is would be \ic{*(someFunc(arg1, arg2)) =
+12;}, in C, assuming that \ic{someFunc} returns a pointer to an integer).
   
   
-\parhead{Call Stacks} The ability to call other entities (functions,
-procedures, methods) introduces further complexity, especially regarding
-parameter and return value passing. Assume a function \ic{int add(int a, int b)
-\{ return a + b; \}}. When this function is called via \ic{add(2, 3);} the
-actual arguments \ic{2} and \emph{3} have to be bound to the formal arguments
-\ic{a} and \ic{b}. An environment must be established for the execution of
-\ic{add} that keeps track of these associations. If functions can also access
-global state (i.e. symbols that are not explicitly passed in via arguments),
-then this environment must delegate to the global environment in case a
-referenced symbol cannot be found in the local environment. Supporting
+\parhead{Call Stacks} The ability to call other entities (functions, procedures,
+methods) introduces further complexity, especially regarding parameter and
+return value passing, and the values of local variables. Assume a function
+\ic{int add(int a, int b) \{ return a + b; \}}. When this function is called via
+\ic{add(2, 3);} the actual arguments \ic{2} and \ic{3} have to be bound to the
+formal arguments \ic{a} and \ic{b}. An environment must be established for the
+execution of \ic{add} that keeps track of these assignments. If functions can
+also access global state (i.e. symbols that are not explicitly passed in via
+arguments), then this environment must delegate to the global environment in
+case a referenced symbol cannot be found in the local environment. Supporting
 recursively callable entities (as in \ic{int fac(int i) \{ return i == 0 ? 1 :
 fac(i-1); \}}) requires that for each recursive call to \ic{fac} a new
 environment is created, with a binding for the formal variables. However, the
@@ -1448,15 +1447,20 @@ environment is popped.
 
 
  
-\subsection{Building an Interpreter with Xtext} 
+\section{Building an Interpreter with Xtext} 
+
+\marginnote[3mm]{The example discussed in this section is built using the Xtext
+interpreter framework that ships with the Xtext typesystem framework discussed earlier:
+http://code.google.com/a/eclipselabs.org/p/xtext-typesystem/} 
  
 This example describes an interpreter for the cooling language. It is used to
-allow DSL users to "play" with the programs. The interpreter can execute test
-cases (and report success or failure) as well as simulate the program
-interactively. Since no code generation and no real target hardware is involved,
-the turn-around time is much shorter and the required infrastructure is trivial
---- just the IDE. The execution engine, as the interpreter is called here, has
-to handle the following language aspects:
+allow DSL users to "play" with the cooling programs before or instead of
+generating C code. The interpreter can execute test cases (and report success or
+failure) as well as simulate the program interactively. Since no code generation
+and no real target hardware is involved, the turn-around time is much shorter
+and the required infrastructure is trivial --- just the IDE. The execution
+engine, as the interpreter is called here, has to handle the following language
+aspects:
 
 \begin{itemize}
 
@@ -1483,14 +1487,19 @@ engine inside out, by looking at the interpreter for expressions and statements
 first. As mentioned above, for interpreting expressions, there is typically an
 overloaded \ic{eval} operation, that contains the implementation of expression
 evaluation for each subtype of a generic \ic{Expression} concept. However, Java
-doesn't have polymorphically overloaded member methods. We compensate this by
-generating a dispatcher that calls a \emph{different} method for each subtype of
-\ic{Expression}\footnote{If we'd use Xtend to implement the interpreter, we
-could use the \ic{dispatch} multimethods instead.}. The generation of this
-dispatcher is integrated with Xtext via an Xtext workflow fragment, i.e. the
-dispatcher is generated during the overall Xtext code generation process. The
-fragment is configured with the abstract meta classes for expressions and
-statements. The following code shows the fragment configuration:
+doesn't have polymorphically overloaded member methods\footnote{Java only
+supports polymorphic dispatch on the \ic{this} pointer, but not on method
+arguments}. We compensate this by generating a dispatcher that calls a
+\emph{different} method for each subtype of \ic{Expression}\footnote{If the
+interpreter had been built with Xtend instead, we would not have had to generate
+the dispatcher for the \ic{StatementExecutor} or the \ic{ExpressionEvaluator}
+since Xtend provides polymorphic dispatch on method arguments. However, the
+fundamental logic and structure of the interpreter would have been similar.}.
+The generation of this dispatcher is integrated with Xtext via an Xtext workflow
+fragment, i.e. the dispatcher is generated during the overall Xtext code
+generation process. The fragment is configured with the abstract meta classes
+for expressions and statements. The following code shows the fragment
+configuration:
 
 \begin{code}
 fragment = de.itemis.interpreter.generator.InterpreterGenerator {
@@ -1521,10 +1530,8 @@ public abstract class AbstractCoolingLanguageExpressionEvaluator
 
     public Object eval( EObject expr, LogEntry parentLog ) 
                   throws InterpreterException {
-
         LogEntry localLog = parentLog.child(LogEntry.Kind.eval, expr, 
                  "evaluating "+expr.eClass().getName());
-        
         if ( expr instanceof Equals ) {
             return evalEquals( (Equals)expr, localLog );
         }
@@ -1541,10 +1548,12 @@ public abstract class AbstractCoolingLanguageExpressionEvaluator
               throws InterpreterException {
         throw new MethodNotImplementedException(expr, "method evalEquals not implemented");
     } 
+    
     protected Object evalUnequals( Unequals expr, LogEntry log ) 
               throws InterpreterException {
         throw new MethodNotImplementedException(expr, "method evalUnequals not implemented");
     } 
+    
     protected Object evalGreater( Greater expr, LogEntry log )
               throws InterpreterException {
         throw new MethodNotImplementedException(expr, "method evalGreater not implemented");
@@ -1554,16 +1563,14 @@ public abstract class AbstractCoolingLanguageExpressionEvaluator
 \end{code}
 
     
-A similar class is generated for the statements. Instead of \ic{eval}, the method is
-called \ic{execute} and it does not return a value. In every other respect the
-\ic{StatementExecutor} is similar to the \ic{ExpressionEvaluator}.
+A similar class is generated for the statements. Instead of \ic{eval}, the
+method is called \ic{execute} and it does not return a value. In every other
+respect the \ic{StatementExecutor} is similar to the \ic{ExpressionEvaluator}.
 
 Let us now take a look at some example method implementations. The following
 code shows the implementation of \ic{evalNumberLiteral} which evaluates number
 literals such as \ic{2} or \ic{2.3} or \ic{-10.2}. To recap, the following
 grammar is used for defining number literals:
-
-
 \begin{code}
 Atomic returns Expression:
     ...
@@ -1579,15 +1586,17 @@ mentioning that the "global data" held by the execution engine is stored and
 passed around using an instance of \ic{EngineExecutionContext}. For example, it
 contains the environment that keeps track of symbol values, and it also has
 access to the type system implementation class for the language. The
-\ic{ExecutionContext} is available through the \ic{eec()} method. With this in
-mind, the implementation of \ic{evalNumberLiteral} should be easily
+\ic{ExecutionContext} is available through the \ic{eec()} method in the
+\ic{StatementExecutor} and \ic{ExpressionEvaluator}. 
+
+With this in mind, the implementation of \ic{evalNumberLiteral} should be easily
 understandable. We first retrieve the actual value from the \ic{NumberLiteral}
 object, and we find out that type of the number literal using the \ic{typeof}
-function in the type system. The type system basically inspects, whether the
+function in the type system. The type system basically inspects whether the
 value contains a dot or not and returns either a \ic{DoubleType} or
 \ic{IntType}. Based on this distinction, \ic{evalNumberLiteral} returns either a
 Java \ic{Double} or \ic{Integer} as the value of the \ic{NumberLiteral}. In
-addition, it creates log entries that document these decisions.
+addition, it creates log entries that document these decisions.
 
 \begin{code}
     protected Object evalNumberLiteral(NumberLiteral expr, LogEntry log) {
@@ -1606,16 +1615,15 @@ addition, it creates log entries that document these decisions.
 
 
 The evaluator for \ic{NumberLiteral} was simple because number literals are
-leaves in the AST and have no other children, so no recursive invocations of
-\ic{eval} are required. This is different for the \ic{LogicalAnd}, which has two
-more children in the \ic{left} and \ic{right} properties. The following code
-shows the implementation of \ic{evalLogicalAnd}. The first two statements
-recursively call the evaluator, for the \ic{left} and \ic{right} properties,
-respectively. They use a utility method called \ic{evalCheckNullLog} which
-automatically creates a log entry for this recursive call and stops the
-interpreter if the value passed in is \ic{null} (which would mean the AST is somehow
-broken). Once we have evaluated the two children we can simply return a
-conjunction of the two.
+leaves in the AST and have no children, so no recursive invocations of \ic{eval}
+are required. This is different for the \ic{LogicalAnd}, which has two children
+in the \ic{left} and \ic{right} properties. The following code shows the
+implementation of \ic{evalLogicalAnd}. The first two statements recursively call
+the evaluator, for the \ic{left} and \ic{right} properties, respectively. They
+use a utility method called \ic{evalCheckNullLog} which automatically creates a
+log entry for this recursive call and stops the interpreter if the value passed
+in is \ic{null} (which would mean the AST is somehow broken). Once we have
+evaluated the two children we can simply return a conjunction of the two.
 
 \begin{code}
 protected Object evalLogicalAnd(LogicalAnd expr, LogEntry log) {
@@ -1631,9 +1639,7 @@ protected Object evalLogicalAnd(LogicalAnd expr, LogEntry log) {
 So far, we haven't used the environment, since we haven't worked with variables
 and their (changing) values. Let's now look and how variable assignment is
 handled. We first look at the \ic{AssignmentStatement},  which is implemented 
-in the \ic{StatementExecutor}, not in the \ic{ExpressionEvaluator}.
-
-
+in the \ic{StatementExecutor}:
 \begin{code}
 protected void executeAssignmentStatement(AssignmentStatement s, LogEntry log){
     Object l = s.getLeft();
@@ -1648,18 +1654,19 @@ protected void executeAssignmentStatement(AssignmentStatement s, LogEntry log){
 
 The first two lines get the \ic{left} argument as well as the value of the
 \ic{right} argument. Note how only the right value is evaluated: the left
-argument is a symbol reference (made sure through a constraint). We then
-retrieve the symbol referenced by the symbol reference and create a mapping from
-the symbol to the value in the environment, effectively "assigning" the value to
-the symbol during the execution of the interpreter.
+argument is a symbol reference (made sure through a constraint, since only
+\ic{SymbolRef}s are lvalues in this language). We then retrieve the symbol
+referenced by the symbol reference and create a mapping from the symbol to the
+value in the environment, effectively "assigning" the value to the symbol during
+the execution of the interpreter.
 
-The implementation of the \ic{ExpressionEvaluator} for a symbol reference (if it is
-used not as an lvalue) is shown in the following code. We use the same environment to
-look up the value for the symbol. We then check if the value is \ic{null} (i.e.
-nothing has been assigned to the symbol as yet). In this case we return the
-default value for the respective type and log a warning\footnote{This is
-specialized functionality in the cooling language; in most other languages, we
-would probably just return \ic{null}, since nothing seems to have been
+The implementation of the \ic{ExpressionEvaluator} for a symbol reference (if it
+is used not as an lvalue) is shown in the following code. We use the same
+environment to look up the value for the symbol. We then check if the value is
+\ic{null} (i.e. nothing has been assigned to the symbol as yet). In this case we
+return the default value for the respective type and log a warning\footnote{This
+is specialized functionality in the cooling language; in most other languages,
+we would probably just return \ic{null}, since nothing seems to have been
 assigned to the symbol yet}. Otherwise we return the value.
 
 
@@ -1703,7 +1710,10 @@ Atomic returns Expression:
 
 
 The following is the code for the evaluation function for the symbol reference.
-It must distinguish between references to variables and to functions. 
+It must distinguish between references to variables and to
+functions\footnote{This is once again a consequence of the fact that all
+references to any symbol are handled via the \ic{SymbolRef} class. We have
+discussed this in \todo{ref}.}.
 
 
 \begin{code}
@@ -1726,10 +1736,10 @@ protected Object evalSymbolRef(SymbolRef expr, LogEntry log) {
 
 The code for handling the \ic{FunctionDeclaration} uses a predefined utility
 method \ic{callAndReturnWithPositionalArgs}. It accepts as arguments the list of
-formals of the called function, the list of actuals passed in at the call site,
-the list of statements in the function body, a symbol that should be used for the return
-value in the environment as well as the obligatory log. The utility method is
-implemented as follows:
+formal arguments of the called function, the list of actual arguments
+(expressions) passed in at the call site, the list of statements in the function
+body, a symbol that should be used for the return value in the environment as
+well as the obligatory log. The utility method is implemented as follows:
 
 
 \begin{code}
@@ -1754,8 +1764,8 @@ protected Object callAndReturnWithPositionalArgs(String name,
 Remember from the above discussion about environments and function calls, that
 each invocation of a function has to get its own environment to handle the local
 variables for the particular invocation. We can see this in the first line of
-the implementation above: we first creates a new environment and push it on the
-call stack. Then the implementation iterates over the actual arguments,
+the implementation above: we first creates a new environment and push it onto
+the call stack. Then the implementation iterates over the actual arguments,
 evaluates each of them and "assigns" them to the formals by creating an
 association between the formal argument symbol and the actual argument value in
 the new environment. It then uses the \ic{StatementExecutor} to execute all the
@@ -1766,13 +1776,13 @@ the execution of the body has finished, we retrieve the return value from the
 environment. The \ic{return} statement in the function has put it there under a
 name we have prescribed, the \ic{returnSymbol}, so we know how to find it in the
 environment. Finally, we pop the environment, restoring the caller's state of
-the world and return the return value.
+the world and return the return value as the resulting value of the thefunction call expression.
 
 
-\parhead{States, Events and the Main program} Changing a state from within a
-cooling program is done by executing a \ic{ChangeStateStatement}, which simply
-references the state that should be entered. Here is the interpreter code in
-\ic{StatementExecutor}:
+\parhead{States, Events and the Main program} Changing a state (state as in
+state machine, not as in program state) from within a cooling program is done by
+executing a \ic{ChangeStateStatement}, which simply references the state that
+should be entered. Here is the interpreter code in \ic{StatementExecutor}:
 
 
 \begin{code}
@@ -1799,8 +1809,8 @@ of the new state. After this it throws an exception \ic{NewStateEntered} which
 stops the current execution step. The overall engine is step driven, i.e. an
 external "timer" triggers distinct execution steps of the engine. A state change
 always terminates the current step. The main method \ic{step()} triggered by the
-external timer can be considered the main program of the engine. It looks as
-follows:
+external timer can be considered the main program of the interpreter. It looks
+as follows:
 
 \begin{code}
 public int step(LogEntry logger) {
@@ -1826,10 +1836,11 @@ It first increments a counter that keeps track of how many steps haven been
 executed since the interpreter had been started up. It then executes the
 \ic{each time} statements of the current state. This is a statement list defined
 by a state that needs to be re-executed in each step while the system is in the
-respective state. It then executes asynchronous tasks. We'll explain this below.
-Next it checks if an event is in the event queue. If so, it removes the first event from the queue and executes it. After processing an
-event the step is always terminated. Lastly, if there was no event to be
-processed, we process signal handlers (the \ic{check} statements in thecooling programs).
+respective state. It then executes asynchronous tasks. We'll explain those
+below. Next it checks if an event is in the event queue. If so, it removes the
+first event from the queue and executes it. After processing an event the step
+is always terminated. Lastly, if there was no event to be processed, we process
+signal handlers (the \ic{check} statements in the cooling programs).
 
 Processing events simply checks if the current state declares and event handler
 that can deal with the currently processed event. If so, it executes the
@@ -1838,9 +1849,9 @@ statement list associated with this event handler.
 
 \begin{code}
 private void processEventFromQueue(CustomEvent event, LogEntry logger) {
-    for ( EventHandler deh: getCurrentState().getEvents()) {
-        if ( reactsOn( deh, event ) ) {
-            executor.execute(deh.getStatements(), logger);
+    for ( EventHandler eh: getCurrentState().getEventHandlers()) {
+        if ( reactsOn( eh, event ) ) {
+            executor.execute(eh.getStatements(), logger);
         }
     }
 }
@@ -1874,7 +1885,7 @@ protected void executePerformAsyncStatement(PerformAsyncStatement s,
 It registers the statement list associated with the \ic{PerformAsyncStatement} in the
 list of async elements in the execution context. The call to \ic{executeAsyncStuff}
 at the beginning of the \ic{step} method described above checks whether the time has
-come and executes those statements.
+come and executes those statements:
 
 
 \begin{code}
@@ -1893,11 +1904,9 @@ private void executeAsyncStuff(LogEntry logger) {
 \end{code}
 
 
-\todo{mention interpreter framework!}
-\todo{Say something about Xtend2}
 
 
-\subsection{An interpreter in MPS}
+\section{An interpreter in MPS}
 
 Building an interpreter in MPS is essentially similar to building an interpreter
 in Xtext and EMF. All concept would apply in the same way, instead of
@@ -1905,7 +1914,7 @@ in Xtext and EMF. All concept would apply in the same way, instead of
 MPS to deal with ASTs. However, since MPS' BaseLanguage is itself built with
 MPS, it can be extended. So instead of using a generator to generate the
 dispatcher that calls the \ic{eval} methods for the expression classes, suitable
-language extensions can be defined in the first place.
+modular language extensions can be defined in the first place.
  
 For example, BaseLanguage could be extended with support for polymorphic
 dispatch (similar to what Xtend2 does). An alternative solution involves a
@@ -1929,3 +1938,18 @@ referenced in the cases. If so, the code on the right side of the arrow is
 executed. Notice the special expression \ic{\$} used on the right side of the
 arrow. It refers to the argument \ic{ex}, but it is already downcast to the type
 on the left of the case's arrow. This way, annoying downcasts can be avoided.
+
+Note that this extension is modular in the sense that the definition of
+BaseLanguage was not changed. Instead, an additional language module was defined
+that \emph{extends} BaseLanguage. This module can be used as part of the program
+that contains the interpreter, making the \ic{dispatch} statement available
+there\footnote{We discuss language modularization and composition is
+\todo{ref}.}. Also, the \ic{\$} expression is restricted to only be usable on
+the right side of the \ic{->}. This way the overall base language namespace is kept
+clean.
+
+
+\todo{@Guido Do we want to say something about an Interpreter in Spoofax? If
+not, then we should probably say why not. I also seem to have read somewhere
+that an interpreter can be written by ``rewriting to the semantics'' or
+something. I guess that needs at least a little bit of explanation.}
