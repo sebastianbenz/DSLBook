@@ -1,36 +1,38 @@
 \chapter{IDE Services}
 
 In this chapter we illustrate typical services provided by the IDE that are
-\emph{not} automatically derived from the language definition itself. Additional
-configuration of programming is required. Note that we are not going to show
-every service with every example tool. So, if we don't show how X works in some
-tool, this does \emph{not} mean that you cannot do X with this particular tool.
+\emph{not} automatically derived from the language definition itself and
+additional configuration or programming is required. Note that we are not going
+to show every service with every example tool\footnote{. So, if we don't show
+how X works in some tool, this does \emph{not} mean that you cannot do X with
+this particular tool.}.
 
 
 \section{Code Completion}
 
 Code completion is perhaps the most essential service provided by an IDE. We
-already saw that code completion is automatically influenced by
+already saw that code completion is implicitly influenced by
 scopes\todo{ref}: if you press \keystroke{Ctrl-Space} at the location of a
 reference, the IDE will show you the valid targets of this reference (as
 defined in the scope) in the code completion menu. Selecting one establishes the
-reference by "pasting" the reference string into the program at the reference
-site. 
+reference. 
 
 \parhead{Customizing code completion for a reference} Consider the cooling DSL.
-Cooling programs can reference symbols. Symbols can be hardware building blocks, local
-variables or configuration parameters. It would be useful in the code completion
-menu to show what kind of symbol a particular symbol is (\fig{xtext-cc}).
+Cooling programs can reference symbols. Symbols can be hardware building blocks,
+local variables or configuration parameters. It would be useful in the code
+completion menu to show what kind of symbol a particular symbol is
+(\fig{xtext-cc}).
 
 \begin{marginfigure}
 \begin{center}
   \includegraphics[width=65mm]{figures/6/xtext-cc.png}
-  \caption[]{}
+  \caption[]{Code completion in the cooling language is customized to specify
+  what kind of symbol a particular reference target is.}
   \label{xtext-cc} 
 \end{center}
 \end{marginfigure}
 
-This effect can be achieved by overriding the content assist provider for the
+This can be achieved by overriding the content assist provider for the
 particular reference. To customize code completion, you have to implement a
 \ic{complete...} method in the \ic{ProposalProvider} for your language. The
 method name has to correspond to rule/property whose code completion menu you
@@ -123,9 +125,17 @@ reference. In the example of the function call, it projects the name of the
 called function (plus the actual arguments).
 
 
-\parhead{Code completion from simple properties} In Xtext, code completion can
-be provided for any property of a rule, not just for references. The mechanism
-to do that is the same as the one shown above.
+\parhead{Code completion for simple properties} In Xtext, code completion can be
+provided for any property of a rule, not just for references (i.e. also for
+children or for primitive properties such as strings or numbers). The mechanism
+to do that is the same as the one shown above. Instead of using the scope (only
+references have scopes) one could use a statically populated list of strings as
+the set of proposals, or one could query a database to get a list of candidate
+values\footnote{Note that if we use this approach to provide code completion for
+primitive properties this does not affect the constraint check (in contrast to
+references, where a scope affects the code completion menu and the constraint
+checks). Users can always type something that is \emph{not} in the code
+completion menu. A separate constraint check may have to be written.}.
 
 In MPS, the mechanism is different. Since this is a pure editor customization
 and has nothing to do with scopes, this behavior is customized in the editor
@@ -134,7 +144,7 @@ definition. Consider a \ic{LocalVariableDeclaration} as in \ic{int x =
 press \keystroke{Ctrl-Space} in the name field of the variable, we want to
 suggest one or more reasonable names for the variable. \fig{cellmenu} shows the
 necessary code.
-
+ 
 \begin{figure}[h]
 \begin{center}
   \includegraphics[width=10cm]{figures/6/cellmenu.png}
@@ -153,6 +163,8 @@ a set of menu entries. In the example in \fig{cellmenu}, we add a cell menu part
 of type \ic{property values}, in which we simply return a list of values (one,
 in the example; we use the local variable's type's name, prefixed by an \ic{a}).
 
+
+
 \parhead{Editor Templates} Templates are more complex syntactic structures that
 can be selected from the code completion menu. For example, the code completion
 menu may contain an \ic{if-then-else} entry, which, if you select it, gets
@@ -168,16 +180,17 @@ if ( expr ) {
 
 Xtext provides templates for this purpose. These can be defined either as part
 of the language, or by the user in the IDE. \fig{xtext-template} shows the
-if/then/else example as defined in the IDE.
+\ic{if-then-else} example as defined in the IDE.
 
 \begin{figure}[h]
 \begin{center}
-  \includegraphics[width=11cm]{figures/6/xtext-template.png}
+  \includegraphics[width=10.5cm]{figures/6/xtext-template.png}
   \caption[]{Template definitions contain a name (the text shown in the code
   completion menu), a description as well as the context and the pattern. The
-  context refers to a grammar rule. The template can be inserted in the editor
-  where that grammar rule would be valid as well. The pattern is the actual
-  text that will be inserted into the editor if the template is selected. It
+  context refers to a grammar rule. The template will show up in the code
+  completion menu at all locations where that grammar
+  rule would be valid as well. The pattern is the actual text that will be 
+  inserted into the editor if the template is selected. It
   can contain so-called variables. Once inserted, the user can use \ic{Tab} to
   step through the variables and replace them with text. In the example, we
   define the condition expression as a variable.}
@@ -188,10 +201,10 @@ if/then/else example as defined in the IDE.
 
 In MPS there are several ways to address this. One is simply an intention
 (explained in more detail in \todo{ref}). It will not be activated via
-\ic{Ctrl-Space}, but rather via \ic{Alt-Enter}. In every other respect it is 
-identical: the intention can insert arbitrary code into the program. To use the
-code completion menu, we use another cell menu. \fig{ifthenelsecellmenu} shows
-the code.
+\ic{Ctrl-Space}, but rather via \ic{Alt-Enter}. In every other respect it is
+identical: the intention can insert arbitrary code into the program.
+Alternatively we can use a cell menu (already mentioned above).
+\fig{ifthenelsecellmenu} shows the code for a cell menu.
 
 \begin{figure}[h]
 \begin{center}
@@ -200,9 +213,10 @@ the code.
   contribute \emph{two} menu parts. The first one inserts the default code
   completion contents for \ic{Statement}. The second one provides an
   if/then/else statement under the menu text \ic{if-then-else}. Notice how we
-  can use a quotation (concrete syntax expression) in the code. Because of
-  MPS's excellent support for language composition, the editor even provides
-  code completion etc. \emph{for the contents of the quotation}.}
+  can use a quotation (concrete syntax expression) in the cell menu code.
+  Because of MPS's support for language composition, the editor even 
+  provides code completion etc. \emph{for the contents of the quotation} in
+  the editor for the cell menu.}
   \label{ifthenelsecellmenu} 
 \end{center}
 \end{figure}
@@ -214,15 +228,15 @@ the code.
 
 There are two cases for syntax coloring: syntactic highlighting and semantic
 highlighting. Syntactic highlighting is used to color keywords, for example.
-These keywords are readily available the colorer from the grammar. No
-customization is necessary beyond configuring the actual color. Semantic
-coloring colors code fragments based on some query over the AST structure. For
-example, in a state machine, if a state is unreachable (no incoming
-transitions) the state may be colored in grey instead of black.
+These keywords are readily available from the grammar. No customization is
+necessary beyond configuring the actual color. Semantic coloring colors code
+fragments based on some query over the AST structure. For example, in a state
+machine, if a state is unreachable (no incoming transitions) the state may be
+colored in grey instead of black.
 
 \begin{figure}[h]
 \begin{center}
-  \includegraphics[width=10cm]{figures/6/globalvareditor.png}
+  \includegraphics[width=10.5cm]{figures/6/globalvareditor.png}
   \caption[]{Syntax coloring is achieved by simply associating one or more
   style properties with the elements at hand. In this case we assign a
   \ic{darkGreen} text foreground color as well as a \ic{bold} font style.}
@@ -245,19 +259,18 @@ properties for the editor cell\footnote{Groups of style definitions can also be
 modularized into style sheets and reused for several cells.}.
 
 Semantic highlighting works essentially the same way. Instead of using a
-constant (\ic{darkGreen}) for the color we can also embed a query expression.
-The code in \fig{stylequery} renders a the \ic{state} keyword of a
-\ic{State} in a \emph{Statemachine} grey if that particular state has no 
-incoming transitions.
+constant (\ic{darkGreen}) for the color we embed a query expression. The code in
+\fig{stylequery} renders a the \ic{state} keyword of a \ic{State} in a
+\emph{Statemachine} grey if that particular state has no incoming transitions.
 
-\begin{figure}[h]
+\begin{figure}[h] 
 \begin{center}
   \includegraphics[width=11cm]{figures/6/stylequery.png}
   \caption[]{A style query that renders the associated cell in grey if the
   \ic{state} (to which the cell belongs) has no incoming transitions. We first
   find out if the state has incoming transitions by finding the
   \ic{Statemachine} ancestor of the state, finding all the \ic{Transitions} in
-  the subtree under the \ic{Statemachine}, and then check if one exists whose
+  the subtree under the \ic{Statemachine}, and then checking if one exists whose
   \ic{targetState} is the current state (\ic{node}). We then use the result of
   this query to color the cell appropriately.}
   \label{stylequery} 
@@ -266,8 +279,8 @@ incoming transitions.
 
 
 \parhead{An example with Xtext} Xtext uses a two-phase approach. First, you have
-to define the styles you want to apply to parts of the text. This is done in a the highlighting configuration
-of the particular language:
+to define the styles you want to apply to parts of the text. This is done in a
+the highlighting configuration of the particular language:
 
 
 \begin{code}
@@ -305,13 +318,18 @@ application using the preferences dialog (\fig{coloringprefs}).
 \end{marginfigure}
 
 We now have to associate the style with program syntax. The semantic
-highlighting calculator for the target language is used to this end. It requires
-a method \ic{provideHighlightingFor} to be implemented. To highlight references
-to variables (not the variables themselves!) with the style defined above works
-the following way:
+highlighting calculator for the target language is used to this
+end\footnote{Even though it is called \emph{semantic} highlighting calculator,
+it is used for syntactic and semantic highlighting. It simply associates
+concrete syntax nodes with styles; it does not matter how it establishes the
+association (statically or based on the structure of the AST).}. It requires a
+method \ic{provideHighlightingFor} to be implemented. To highlight references to
+variables (not the variables themselves!) with the style defined above works the
+following way:
 
 \begin{code}
-public void provideHighlightingFor(XtextResource resource, IHighlightedPositionAcceptor acceptor) {
+public void provideHighlightingFor(XtextResource resource, 
+                                   IHighlightedPositionAcceptor acceptor) {
     EObject root = resource.getContents().get(0);
     TreeIterator<EObject> eAllContents = root.eAllContents();
     while (eAllContents.hasNext()) {
@@ -320,43 +338,48 @@ public void provideHighlightingFor(XtextResource resource, IHighlightedPositionA
             SymbolDeclaration sym = ((SymbolRef) o).getSymbol();
             if ( sym instanceof Variable ) {
                 ICompositeNode n = NodeModelUtils.findActualNodeFor(ref);
-                acceptor.addPosition(n.getOffset(), n.getLength(), CLHighlightingConfiguration.VAR);
+                acceptor.addPosition(n.getOffset(), 
+                                     n.getLength(), 
+                                     CLHighlightingConfiguration.VAR);
             }
         }
     }
 }
 \end{code}
 
-The method gets passed in an \ic{XtextResource}, which represents a model
-file. From it we get the root element and iterate over all its contents. If we
-find a \ic{SymbolRef}, we continue with coloring. Notice that in the cooling
-language we refernece \emph{any} symbol (variable, event, hardware element) with
-a \ic{SymbolRef}, so we now have to check whether we reference a \ic{Variable}
-or not\sidenote{This is the place where we could perform any other structural
-or semantic analysis (such as the check for no incoming transitions) as well.}.
-
+The method gets passed in an \ic{XtextResource}, which represents a model file.
+From it we get the root element and iterate over all its contents. If we find a
+\ic{SymbolRef}, we continue with coloring. Notice that in the cooling language
+we reference \emph{any} symbol (variable, event, hardware element) with a
+\ic{SymbolRef}, so we now have to check whether we reference a \ic{Variable} or
+not\sidenote{This is the place where we could perform any other structural or
+semantic analysis (such as the check for no incoming transitions) as well.}.
 If we have successfully identified a reference to a variable, we now have to
 move from the abstract syntax tree (on which we have worked all the time so far)
-to the concrete syntax tree. It is a complete representation of the parse
-result, including keywords, symbols and whitespace\sidenote{It is represented as an EMF
-model as well so we can access it with the usual means.}. We use a utility
-method to find the \ic{ICompositeNode} that represents the \ic{SymbolRef} in the
-concrete syntax tree. Finally we use the \ic{acceptor} to perform the actual
-highlighting using the position of the text string in the text. We pass in the
-\ic{VAR} style defined before. Notice how we color the \emph{complete}
-reference. Since it is only one text string anyway, this is just as well. If we
-had more structured concrete syntax (as in \ic{state someState \{\}}), and we
-only wanted to highlight parts of it (e.g. the \ic{state} keyword), we'd have
-to do some further analysis on the \ic{ICompositeNode} to find out the actual
-concrete syntax node for the keyword.
+to the concrete syntax tree, so we can identify particular tokens that shall be
+colored. The concrete syntax tree in Xtext is a complete representation of the
+parse result, including keywords, symbols and whitespace\sidenote{It is
+represented as an EMF model as well so we can access it with the usual means.}.
+We use a utility method to find the \ic{ICompositeNode} that represents the
+\ic{SymbolRef} in the concrete syntax tree. Finally we use the \ic{acceptor} to
+perform the actual highlighting using the position of the text string in the
+text. We pass in the \ic{VAR} style defined before. Notice how we color the
+\emph{complete} reference. Since it is only one text string anyway, this is just
+as well. If we had more structured concrete syntax (as in \ic{state someState
+\{\}}), and we only wanted to highlight parts of it (e.g. the \ic{state}
+keyword), we'd have to do some further analysis on the \ic{ICompositeNode} to
+find out the actual concrete syntax node for the keyword.
 
-\parhead{An example with Spoofax}%
-%
-In Spoofax, syntax coloring can be specified declaritively on the lexical and on the syntactic level.
-Both specifications need to be part of the editor specification, preferably in \ic{<LanguageName>-Colorer.esv}.
-For the lexical level, Spoofax predefines the token classes \ic{keyword}, \ic{identifier}, \ic{string}, \ic{number}, \ic{var}, \ic{operator}, and \ic{layout}.
-For each of these, we can specify a color (either by name or by RGB values) and optionally a font style (\ic{bold}, \ic{italic}, or both).
-Spoofax generates the following default specification:
+
+\parhead{An example with Spoofax} In Spoofax, syntax coloring can be specified
+declaritively on the lexical and on the syntactic level. Both specifications
+need to be part of the editor specification, preferably in
+\ic{<LanguageName>-Colorer.esv}.
+For the lexical level, Spoofax predefines the token classes \ic{keyword},
+\ic{identifier}, \ic{string}, \ic{number}, \ic{var}, \ic{operator}, and
+\ic{layout}. For each of these, we can specify a color (either by name or by RGB
+values) and optionally a font style (\ic{bold}, \ic{italic}, or both). Spoofax
+generates the following default specification:
 
 \begin{code}
 module MoblLang-Colorer.generated
@@ -381,9 +404,10 @@ colorer System colors
   default   = _             
 \end{code}
 
-The generated specification can be customized on the lexical level, but also extended on the syntactic level.
-These extensions are based on syntactic sorts and constructor names.
-For example, the following specification will color the \ic{int} type in declarations with a dark green:
+The generated specification can be customized on the lexical level, but also
+extended on the syntactic level. These extensions are based on syntactic sorts
+and constructor names. For example, the following specification will color the
+\ic{int} type in declarations with a dark green:
 
 \begin{code}
 module DSLbook-Colorer
@@ -395,19 +419,25 @@ colorer
   Type.IntType: darkgreen          
 \end{code}
 
-Here, \ic{Type} is a sort from the syntax definition, while \ic{IntType} is the constructor for the integer type.
-There are other rules for \ic{Type} in the Mobl grammar, for example for the string type.
-When we want other types also to be colored with a dark green, we can either add more rules to the colorer specification, 
-or replace the current definition with \ic{Type.\_}.
-Here, \ic{\_} acts as a wildcard and all types will be colored with a dark green, independent of their constructor. 
-Similarly, we can use a wildcard for sorts.
-For example, \ic{\_.IntType} will include all nodes with a constructor \ic{IntType}, independent of their syntactic sort.
+Here, \ic{Type} is a sort from the syntax definition, while \ic{IntType} is the
+constructor for the integer type. There are other rules for \ic{Type} in the
+Mobl grammar, for example for the string type. When we want other types also to
+be colored with a dark green, we can either add more rules to the colorer
+specification, or replace the current definition with \ic{Type.\_}, where
+\ic{\_} acts as a wildcard and all types will be colored with a dark green,
+independent of their constructor. Similarly, we can use a wildcard for sorts.
+For example, \ic{\_.IntType} will include all nodes with a constructor
+\ic{IntType}, independent of their syntactic sort.
 
-In the current example, predefined types like \ic{int} and entity types are all colored in a dark green, but only the predefined types will appear in a bold face.
-This is because Spoofax combines specified colors and fonts.
-The rule on the syntactic level specifies only a color, but no font.
-Since the predefined types are keywords, they will get the font from the keyword specification, which is bold.
-In contrast, entity types are identifiers, which will get the default font from the identifier specification.
+In the current example, predefined types like \ic{int} and entity types are all
+colored in a dark green, but only the predefined types will appear in a bold
+face. This is because Spoofax combines specified colors and fonts. The rule on
+the syntactic level specifies only a color, but no font. Since the predefined
+types are keywords, they will get the font from the keyword specification, which
+is bold. In contrast, entity types are identifiers, which will get the default
+font from the identifier specification.
+
+
 
 \section{Go-to-Definition and Find References}
 
@@ -420,8 +450,8 @@ change the default behavior.
 change the target of the go-to-definition functionality. Strictly speaking, we
 don't change go-to-definition at all. We just define a new hyperlinking
 functionality. Go-to-Definition is just the default hyperlinking
-behavior\sidenote{This gets its name from the fact that, if you mouse over an
-element while keeping the \keystroke{Ctrl} key depressed you see the
+behavior\sidenote{Hyperlinking gets its name from the fact that, as you mouse
+over an element while keeping the \keystroke{Ctrl} key depressed you see the
 respective element turn blue and underlined. You can the click on to it to
 follow the hyperlink}. As a consequence, 
 
@@ -429,15 +459,15 @@ follow the hyperlink}. As a consequence,
   \item you can define hyperlinking for elements that are \emph{not} references
   in terms of the grammar (a hyperlink can be provided for any program element)
   \item and you can have several hyperlinks for the same element. If you
-  \keystroke{Ctrl-Click}, a little menu opens up and you can select the target
-  you are interested in.
+  \keystroke{Ctrl-Hover} on it, a little menu opens up and you can select the
+  target you are interested in.
 \end{itemize}
 
 To add hyperlinks to a language concepts, Xtext provides the
 \ic{IHyperlinkHelper}. It can be implemented by language developers to customize
-hyperlinking behavior. It requires one method, \ic{createHyperlinksTo}, that has
-to be implemented. Typically, language developers will inerit from one of the
-existing base classes, such as the \ic{TypeAwareHyperlinkHelper}. A typical
+hyperlinking behavior. It requires one method, \ic{createHyperlinksTo} to be
+implemented. Typically, language developers will inerit from one of the existing
+base classes, such as the \ic{TypeAwareHyperlinkHelper}. A typical
 implementation looks as follows:
 
 \begin{code}
@@ -454,13 +484,13 @@ public void createHyperlinksTo(XtextResource from, Region region,
 
 
 \parhead{Customized Finders im MPS} In many cases, there are different kinds of
-references. For example, for an \ic{Interface} in the mbeddr components
-language, references to that interface can either be sub-interfaces or
-components. Components can either \emph{provide} a an interface (so other
-components can call the interface's operation) or it can \emph{require} an
-interface, in which case the component itself calls operations defined by the
-interface. When finding references, we may want to distinguish between these
-different cases.
+references to any given element. For example, for an \ic{Interface} in the
+mbeddr C components extension, references to that interface can either be
+sub-interfaces (\ic{ISomething extends IAnother}) or components, which can
+either \emph{provide} a an interface (so other components can call the
+interface's operation) or it can \emph{require} an interface, in which case the
+component itself calls operations defined by the interface. When finding
+references, we may want to distinguish between these different cases.
 
 \begin{marginfigure}[-5\baselineskip]
 \begin{center}
@@ -496,7 +526,7 @@ simple finder findProviders for concept Interface
   }  
 \end{code}
 
-\begin{marginfigure}[49mm]
+\begin{marginfigure}[29mm]
 \begin{center}
   \includegraphics[width=50mm]{figures/6/finder-result.png}
   \caption[]{The result dialog of running Find Usages with our customized
@@ -511,18 +541,19 @@ example). We then have to implement the \ic{find} method. Notice how in the
 first line of the implementation we delegate to an existing finder, \ic{Node
 Usages}, which finds \emph{all} references. We then simply check if the
 referencing element is a \ic{ProvidedPort}, and if so, we add the parent of the
-port, i.e. a \ic{Component}, to the result. Note how we make use of extensions
+port, i.e. a \ic{Component}, to the result\footnote{Note how we make use of extensions
 to the MPS BaseLanguage to concisely specify finders: \ic{execute} and \ic{add
-result} are only available in the finder specification language. Finally,
+result} are only available in the finder specification language.}. Finally,
 \ic{getCategory} returns a string that is use to structure the result.
 \fig{finder-result} shows an example result.
 
-\parhead{Customizing the Target with Spoofax}%
-%
-Spoofax provides a default hyperlinking mechanism from references to declarations.
-Alternative hyperlinking functionality can be implemented in rewrite rules.
-The names of these rules need to be specified in the editor specification, preferably in \ic{<LanguageName>-References.esv}.
-For example, the following specification tells Spoofax to use a custom rewrite rule to hyperlink \ic{this} expressions to the surrounding class:
+\parhead{Customizing the Target with Spoofax} Spoofax provides a default
+hyperlinking mechanism from references to declarations. Alternative hyperlinking
+functionality can be implemented in rewrite rules. The names of these rules need
+to be specified in the editor specification, preferably in
+\ic{<LanguageName>-References.esv}. For example, the following specification
+tells Spoofax to use a custom rewrite rule to hyperlink \ic{this} expressions to
+the surrounding class:
 
 \begin{code}
 references
@@ -530,9 +561,11 @@ references
   reference Exp.This : resolve-this
 \end{code}
 
-On the left-hand side of the colon, the \ic{reference} rule specifies a syntactic sort and a constructor, for which the hyperlinking should be customized.
-Like in colorer specifications, we can use \ic{\_} as a wildcard for syntactic sorts and constructors.
-On the right-hand side of the colon, the rule names a rewrite rule which implements the hyperlinking:
+On the left-hand side of the colon, the \ic{reference} rule specifies a
+syntactic sort and a constructor, for which the hyperlinking should be
+customized\footnote{As in colorer specifications, we can use \ic{\_} as a
+wildcard for syntactic sorts and constructors.}. On the right-hand side of the
+colon, the rule names a rewrite rule which implements the hyperlinking:
 
 \begin{code}
 resolve-this:
@@ -542,47 +575,60 @@ resolve-this:
       target    := <index-lookup> t
 \end{code} 
 
-This rule determines the type of a \emph{this} expression and links it to the declaration of this type.
-Like all rewrite rules implementing hyperlinking functionality, it needs to follow a common interface.
-On the left-hand side, it matches a tuple consisting of 
-the \ic{link}, 
-the \ic{position} of this node in the abstract syntax tree, 
-the tree itself (\ic{ast}),
-the \ic{path} of the current file,
-and the path of the current Eclipse project (\ic{project-path}).
-On the right-hand side, it provides the target of the hyperlink.
+This rule determines the type of a \emph{this} expression and links it to the
+declaration of this type. Like all rewrite rules implementing hyperlinking
+functionality, it needs to follow a Spoofax-defined signature: on the left-hand
+side, it matches a tuple consisting of the \ic{link}, the \ic{position} of this
+node in the abstract syntax tree, the tree itself (\ic{ast}), the \ic{path} of
+the current file, and the path of the current Eclipse project
+(\ic{project-path}). On the right-hand side, it provides the target of the
+hyperlink.
 
-\section{Pretty Printing}
 
-Pretty printing refers to the reverse activity from parsing. A parser transforms
+
+\section{Pretty Printing} Pretty printing refers to the reverse activity from
+parsing\footnote{It is also known as \emph{serialization}.}. A parser transforms
 a character sequence into an abstract syntax tree. A pretty printer (re-)creates
 the text string from the AST. As the term \emph{pretty} printing suggests, the
 resulting text should be \emph{pretty}, i.e. whitespace must be managed
-properly. 
+properly.
+
+So when and where is a formatter useful? There is the obvious use case: users
+somehow screw up formatting, and they want to press \keystroke{Ctrl-Shift-F} to
+clean it up. However, there is more essential reason. If the AST is modified by
+a transformation, the updated text has to be rendered correctly. An AST is
+modified, for example, as part of a quick fix (see next paragrap) or by a
+graphical editor that operates in parallel to a text editor on the same AST.
 
 \parhead{Pretty Printing in MPS} is a non-issue. The editor always pretty prints
-as part of the projection. 
+as part of the projection\footnote{On the flipside, MPS users do not have the
+option of changing the layout or formatting of a program, since the projection
+rules implement the one true way of formatting. Of course, this can be
+considered a plus or a minus, depending on the context.}.
 
 \parhead{Pretty Printing in Spoofax}%
 %
-\GW{Bring the pretty-printing section from the code generation chapter here??}
+\todo{@Guido Bring the pretty-printing section from the code generation chapter
+here?? MV: yes, I suggest we bring it here and refer to it from the generation
+chapter.}
 
-\parhead{Pretty Printing in Xtext} In Xtext, the whitespace in the grammar is
-irrelevant. In other words, MPS cannot infer the "correct" use of whitespace
+
+\parhead{Pretty Printing in Xtext} In Xtext, whitespace in the grammar is
+irrelevant. In other words, Xtext cannot infer the "correct" use of whitespace
 from the grammar. Consequently, the use of whitespace has to be specified
 explicitly. This is done in a language's \ic{Formatter}. Formatters use a Java
 API to specify whitespace policies for a grammar. Let us consider an example
 from the cooling language. Assume we enter the following code:
 
 \begin{code}
-    state Hallo   : entry { if true { } }
+    state Hello   : entry { if true { } }
 \end{code}
 
 If we run the formatter (e.g. by pressing \keystroke{Ctrl-Shift-F} in the IDE),
 we want it to format it to look like this:
 
 \begin{code}
-    state Hallo: 
+    state Hello: 
         entry { 
             if true { } 
         }
@@ -607,32 +653,24 @@ protected void configureFormatting(FormattingConfig c) {
 \end{code}
 
 In the first line we get the \ic{CoolingLanguageGrammarAccess} object, an API to
-refer to the grammar of the language itself. It is the basis for an
-internal Java DSL for expressing formatting rules. You'll understand its purpose
-in the next paragraph.
-
-Let us look at the first block of three lines. In the first line we express that
-there should be no space before the colon in the \ic{CustomState} rule. Line two
-states that we want to have indentation after the colon. And the third line
-specifies that the \ic{entry} keyword should be on a new line. 
-
-The next two blocks of two lines manage the indentation of the entry action
-code. In the first block we express a line wrap and incremented
-indentation after the opening curly brace. The second expresses a wrap before
-the closing curly brace as well as a decrement in the indentation
+refer to the grammar of the language itself. It is the basis for an internal
+Java DSL for expressing formatting rules. Let us look at the first block of
+three lines. In the first line we express that there should be no space before
+the colon in the \ic{CustomState} rule. Line two states that we want to have
+indentation after the colon. And the third line specifies that the \ic{entry}
+keyword should be on a new line. The next two blocks of two lines manage the
+indentation of the entry action code. In the first block we express a line wrap
+and incremented indentation after the opening curly brace. The second expresses
+a wrap before the closing curly brace as well as a decrement in the indentation
 level\sidenote[][-8\baselineskip]{As you can see, specifying the formatting for
-a complete grammar can become a lot of code! In my opinion, there are two approaches to
-improve this: one is reasonable defaults or global configurations. Curly
-braces, for example, are typically formatted the same way. Second, a mor
+a complete grammar can become a lot of code! In my opinion, there are two
+approaches to improve this: one is reasonable defaults or global configurations.
+Curly braces, for example, are typically formatted the same way. Second, a more
 efficient way of specifying the formatting should be provided. Annotations in
-the grammar, or a DSL for specifying the formatting should go a long way.}.
+the grammar, or a DSL for specifying the formatting (such as the Box language
+used by Spoofax) should go a long way.}.
 
-So when and where is a formatter useful? There is the obvious use case: users
-somehow screw up formatting, and they want to press \keystroke{Ctrl-Shift-F} to
-clean it up. However, there is more essential reason. If the AST is modified by
-a transformation, the updated text has to be rendered correctly. An AST is
-modified, for example, as part of a quick fix (see next paragrap) or by a
-graphical editor that operates in parallel to a text editor on the same AST.
+
 
 
 
@@ -648,10 +686,9 @@ have one or more "obvious" fixes. This is not true for all problems.}.
 \parhead{Quick fixes in Xtext} Xtext supports quick fixes for constraint
 violations. Quick fixes can either be implemented using the concrete syntax
 (i.e. via text replacement) or via the abtract syntax (i.e. via a model
-modification and subsequent serizalization). 
-
-As an example, consider the following constraint defined in the cooling
-language's \ic{CoolingLanguageJavaValidator}:
+modification and subsequent serizalization. As an example, consider the
+following constraint defined in the cooling language's
+\ic{CoolingLanguageJavaValidator}:
 
 \begin{code}
 public static final String VARIABLE_LOWER_CASE = "VARIABLE_LOWER_CASE"; 
@@ -667,12 +704,12 @@ public void checkVariable( Variable v ) {
 
 Based on our discussion of constraint checks (in \todo{ref}), this code should
 be fairly self-explaing. What is interesting is the third argument to the
-\ic{warning} method: we pas in a constant to uniquely identify the problem. The
-quick fix will be ties to this constant.
-
-The following code is the quick fix, implemented in the
-\ic{CoolingLanguageQuickfixProvider}. Notice how in the \ic{@Fix} annotation we
-refer to the same constant that was used in the constraint check.
+\ic{warning} method: we pass in a constant to uniquely identify the problem. The
+quick fix will be tied to this constant. The following code is the quick fix,
+implemented in the \ic{CoolingLanguageQuickfixProvider}\footnote{This code
+resides in the UI part of the language, since, in contrast to the constraint
+check, it is relevant only in the editor.}. Notice how in the \ic{@Fix}
+annotation we refer to the same constant that was used in the constraint check.
 
 \begin{code}
 @Fix(CoolingLanguageJavaValidator.VARIABLE_LOWER_CASE)
@@ -695,14 +732,13 @@ fixes the problem. In our example, we grab the document that contains the
 problem and use a text replacement API to replace the first letter of the
 offending variable with its lower case version. 
 
-Notice that we use a text replacement API --- for simple problems like this one,
-working on the concrete syntax is appropriate. More complex problems should be
-solved on the abstract syntax though\sidenote{Imagine a problem that requires
-changes to the model in several places. Often it is easy to navigate to these
-places via the abstract syntax (following references, climbing up the tree),
-while finding the respective locations on the concrete syntax would be
-cumbersome and brittle}. For these cases, one can use an instance of
-\ic{ISemanticModification} instead:
+Working on the concrete syntax level is ok for simple problems like this one.
+More complex problems should be solved on the abstract syntax
+though\sidenote{Imagine a problem that requires changes to the model in several
+places. Often it is easy to navigate to these places via the abstract syntax
+(following references, climbing up the tree), but finding the respective
+locations on the concrete syntax would be cumbersome and brittle}. For these
+cases, one can use an instance of \ic{ISemanticModification} instead:
 
 
 \begin{code}
@@ -733,11 +769,11 @@ consists of only upper case letter:
 
 \begin{code}
 checking rule check_INameAllUpperCase {                                                                          
-  applicable for concept = INameAllUpperCase as alluc                                                            
+  applicable for concept = INameAllUpperCase as a                                                            
                                                                                                                  
   do {                                                                                                           
-    if (!(alluc.name.equals(alluc.name.toUpperCase()))) { 
-      warning "name should be all upper case" -> alluc; 
+    if (!(a.name.equals(a.name.toUpperCase()))) { 
+      warning "name should be all upper case" -> a; 
     }
   }                                                                                                              
 }                                                                                                                
@@ -745,8 +781,11 @@ checking rule check_INameAllUpperCase {
 
 The quick fix below upper cases the name if necessary. The quick fix is
 associated with the constraint check by simply referencing the fix from the
-error message. Quick fixes are executed by selecting them from the intentions
-menu (\ic{Alt-Enter}).
+error message\footnote{Note that the separation between core language and UI
+concerns is not as clear in MPS as it is in Xtext. This is mainly due to the
+fact that the language and the workbench/editor are inseparable in the first
+place}. Quick fixes are executed by selecting them from the intentions menu
+(\ic{Alt-Enter}).
 
 \begin{code}
 quick fix fixAllUpperCase                                                                                                                                                                                                                                                                                                                                                                                           
@@ -763,46 +802,121 @@ execute(node)->void {
 
 
 \parhead{Model Synchronization via Quick Fixes} A particularly interesting
-feature of MPS' quick fixes is that they can be executed \emph{automatically}. This can
-be used for synchronizing different parts of a model: a constraint check detects
-an inconsistency in the model, and the automatically executed quick fix resolves
-the inconsistency.
+feature of MPS' quick fixes is that they can be executed \emph{automatically}.
+This can be used for synchronizing different parts of a model: a constraint
+check detects an inconsistency in the model, and the automatically executed
+quick fix resolves the inconsistency.
 
 Here is an example where this makes sense. Consider the interfaces and
 components extension to C. An interface declares a couple of operations, each
-with their own unique signature. A component that provides the interface has to
-provide implementations for each of the operations, and the implementations must
-have the same signature as the operation it implements. A constraint checks the
-consistency between interfaces and implementing components. An automatically
-executed quick fix adds missing operation implementations and synchronizes their
-signatures with the signatures of the operations in the interface.
+with their own unique signature. A component that \ic{provides} the interface
+has to provide implementations for each of the operations, and the
+implementations must have the same signature as the operation it implements. A
+constraint checks the consistency between interfaces and implementing
+components. An automatically executed quick fix adds missing (empty) operation
+implementations and synchronizes their signatures with the signatures of the
+operations in the interface.
 
+\parhead{Intentions} As discussed in \todo{ref}, MPS also has intentions. These
+are essentially quick fixes that are not associated with an error. Instead, they
+can be invoked on any instance of the concept for which the intention is
+declared.
 
 
 \section{Refactoring}
 
+Refactoring concerns changing the program structure without changing its
+behavior. It is typically used to ``clean up'' the program structure after it
+has gotten messy over time. While DSLs and their programs tend to be simpler
+than GPL programs, structured refactorings are still useful.
+
 \parhead{Renaming in Xtext} One of the most essential refactorings is renaming a
 program element. The reason why it is a refactoring (and not just typing a new
-name) is because all references to this element have to be adapted. In textual
+name) is because all references to this element have to be updated. In textual
 languages, such references are by name, and if the name of the target element
 changes, so has the text of the reference. Xtext comes with a rename refactoring
 that handles this. Every language supports a rename refactoring automatically.
 The only thing the user has to remember is to not just type a new name, but
 instead invoke the Rename refactoring, for example with via
 \keystroke{Ctrl-Alt-R}\marginnote[-5\baselineskip]{Note that in a projectional
-editor such as MPS renaming is not even a refactoring. A reference is established with the UUID of
-the target element. Renaming it does not lead to any structural change. And
-since the editor for the \emph{referencing} element defines how to render the
-reference, it will just display the updated name in case it changes.}.
+editor such as MPS renaming is not even a refactoring. A reference is
+established with the UUID of the target element. Renaming it does not lead to
+any structural change. And since the editor for the \emph{referencing} element
+defines how to render the reference, it will just display the updated name in
+case it changes.}.
+
+
+\parhead{Renaming in Spoofax} Like code generators, refactorings need to be
+specified in the editor specification (preferably in
+\ic{<LanguageName>-Builders.esv}) and implemented with rewrite rules.
+For example, the following specification specifies a refactoring for renaming
+entities:
+
+\begin{code}
+refactorings
+
+  refactoring Decl.Entity : "Rename Entity" = rename-entity (cursor)
+    shortcut : "org.eclipse.jdt.ui.edit.text.java.rename.element"
+    input
+      identifier : "new name" = ""
+\end{code}
+
+The specification starts with a syntactic sort and a constructor, on which the
+refactoring should be available, followed by a label for the refactoring in the
+context-menu, the implementing rewrite rule, and two options. These options are
+the same as for code generators.  In the example, Spoofax is instructed to use
+the current \ic{cursor} position to determine the node on which the refactoring
+should be applied. The specification further defines a \ic{shortcut} for the
+refactoring, which should be the same keybinding as the one used in the JDT for
+renaming. Finally, it defines an interactive \ic{input} dialog, with a label
+\ic{"new name"} and an empty default input. The refactoring itself is
+implemented in a rewrite rule:
+
+\begin{code}
+rename-entity:
+    (newname, Entity(name, elems), position, ast, path, project-path) -> ([(ast, new-ast)], [], [], [])
+    with
+      new-ast  := <topdown(try(rename-entity-local(|name, newname)))> ast
+      
+  rename-entity-local(|old-name, new-name):
+    Entity(old-name, y) -> Entity(new-name, y)
+
+  rename-entity-local(|old-name, new-name):
+    EntType(old-name) -> EntType(new-name)
+\end{code}
+
+As we have seen already for other editor services, rewrite rules for
+refactorings have to follow a certain interface (i.e. signature). On the
+left-hand side, the example rule matches a tuple consisting of the input from
+the refactoring dialog (\ic{newname}), the node on which the refactoring is
+applied, its \ic{position} in the abstract syntax tree, the tree itself
+(\ic{ast}), and the pathes of the current file and the project. On the
+right-hand side, it yields a tuple consisting of a list of changes in the
+abstract syntax tree and lists of fatal errors, normal errors, and warnings.
+
+For simplicity, the example rule changes the whole abstract syntax tree into a
+new one and does not provide any errors or warnings. Thereby, the new abstract
+syntax tree is retrieved by traversing the old on in a \ic{topdown} fashion,
+\ic{try}ing to apply rewrite rules \ic{rename-entity-local}. These rules take
+the old and new entity name as parameters. The first rule rewrites entity
+declarations, while the second one rewrites types which refer to an entity.
+
+\todo{@Guido what does the try do?}
+\todo{@Guido maybe you should say a word or two that the EntType is the
+reference to Entities, which is also changed here.}
+
+\todo{@Guido add error checks?}
+
+
 
 \parhead{Introduce Local Variable in MPS} A very typical refactoring for a
-procedural language such as C is to introduce a new, local variable. Consider
+procedural language such as C is to introduce a new local variable. Consider
 the following code:
 
 \begin{code}
 int8_t someFunction(int8_t v) { 
-  int8_t y = somethingElse(FACTOR * v); 
-  if ( FACTOR * v > 20 ) { 
+  int8_t y = somethingElse(v * FACTOR); 
+  if ( v * FACTOR > 20 ) { 
     return 1; 
   } else { 
     return 0; 
@@ -810,12 +924,12 @@ int8_t someFunction(int8_t v) {
 } 
 \end{code}
 
-As you can see, the first two lines contain the same expression (\ic{10*v})
-twice. A nicer version of this code could look like this:
+As you can see, the first two lines contain the same expression (\ic{v *
+FACTOR}) twice. A nicer version of this code could look like this:
 
 \begin{code}
 int8_t someFunction(int8_t v) { 
-  int8_t product = FACTOR * v;
+  int8_t product = v * FACTOR;
   int8_t y = somethingElse(product); 
   if ( product > 20 ) { 
     return 1; 
@@ -826,9 +940,9 @@ int8_t someFunction(int8_t v) {
 \end{code}
 
 The \emph{Introduce Local Variable} refactoring performs just this change. MPS
-provides a DSL for specifying refactorings. Using it, the implementation is ca. 
-20 lines of code. We'll go through it in steps. We start with the declaration of
-the refactoring itself.
+provides a DSL for specifying refactorings, based on which the implementation is
+ca. 20 lines of code. We'll go through it in steps. We start with the
+declaration of the refactoring itself.
 
 
 \begin{code}
@@ -841,15 +955,15 @@ target: node<Expression>
         }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
 \end{code}
                        
-The code above specifies the name of the refacroring
+The code above specifies the name of the refactoring
 (\ic{introduce-\\LocalVariable}), the label used in the refactoring menu, the
 keystroke to execute it directly (\ic{Ctrl-Alt-V}) as well as the target. The
-target defines the language concept on which the refactoring can be executed. In
-our case, we want to refactor \ic{Expression}s, but only if these expressions
-are used in a \ic{Statement} (we cannot refactor an expression if it is used,
-for example, as the init expression for a global constant). We find out about
-that by checking whether the \ic{Expression} has a \ic{Statement} among its
-ancestors in the tree. Next, we define a parameter for the refactoring:
+i.e. the language concept on which the refactoring can be executed. In our case,
+we want to refactor \ic{Expression}s, but only if these expressions are used in
+a \ic{Statement} (we cannot refactor an expression if it is used, for example,
+as the \ic{init} expression for a global constant). We find out about that by
+checking whether the \ic{Expression} has a \ic{Statement} among its ancestors in
+the tree. Next, we define a parameter for the refactoring:
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
 \begin{code}
 parameters:                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
@@ -864,14 +978,17 @@ init(refactoringContext)->boolean {
 The parameter represents the name of the newly introduced variable. In the
 refactoring's \ic{init} block we ask the user for this parameter. The \ic{ask
 for} epression returns \ic{false} if the user selects \ic{Cancel} in the dialog
-that prompts the user for the name. The refactoring stops in this case.
+that prompts the user for the name. The execution of the refactoring stops in
+this case.
 
 We are now ready to implement the refactoring algorithm itself in the
 \ic{refactor} block. We first declare two local variables that represent the
-expression on which we invoked the refactoring. We can get it from the \ic{refactoringContext}. We then grab the
-\ic{Statement} in which this expression lives. Finally, we get the \ic{index} of 
-the \ic{Statement}. \ic{.index} returns the index of an element in its owning
-collection.
+expression on which we invoked the refactoring. We can get it from the
+\ic{refactoringContext}\footnote{In case the refactoring was declared to
+\ic{allow multiple}, we can use \ic{refactoringContext.nodes} to access all of
+the selected nodes.}. We then grab the \ic{Statement} under which this
+expression is located. Finally, we get the \ic{index} of the \ic{Statement} 
+(\ic{.index} returns the index of an element in its owning collection).
            
 \begin{code}
 node<Expression> targetExpr = refactoringContext.node;
@@ -901,9 +1018,9 @@ foreach s in siblings {
      
 The next step is to actually introduce the new local variable. We simply create
 a new \ic{LocalVariableDeclaration} using the tree API. We set the \ic{name} to
-the one we've asked the user for (\ic{varName}), we set it's type to a copy of
+the one we've asked the user for (\ic{varName}), we set its type to a copy of
 the type calculated by the type system for the target expression, and we
-initialize the vatiable with a copy of the target expression itself. We then add
+initialize the variable with a copy of the target expression itself. We then add
 this new variable to the list of statements, just \ic{before} the on which
 contains our target expression. We use the very handy \ic{add prev-sibling}
 built-in function for that.
@@ -937,58 +1054,7 @@ support. The implementation effort is reduced to essentially the algorithmic
 complexity of the refactoring itself. Depending on the refactoring, this can be
 non-trivial.
 
-\parhead{Renaming in Spoofax}%
-%
-Like code generators, refactorings need to be specified in the editor specification (preferably in \ic{<LanguageName>-Builders.esv}) and implemented with rewrite rules.
-For example, the following specification specifies a refactoring for renaming entities:
 
-\begin{code}
-refactorings
-
-  refactoring Decl.Entity : "Rename Entity" = rename-entity (cursor)
-    shortcut : "org.eclipse.jdt.ui.edit.text.java.rename.element"
-    input
-      identifier : "new name" = ""
-\end{code}
-
-The specification starts with a syntactic sort and a constructor, on which the refactoring should be available,
-followed by a label for the refactoring in the context-menu, the implementing rewrite rule, and two options.
-These options are the same as for code generators.
-In the example, Spoofax should use the current \ic{cursor} position to determine the node on which the refactoring should be applied.
-The specification further defines a \ic{shortcut} for the refactoring, which should be the same keybinding as the one used in the JDT for renaming.
-Finally, it defines an interactive \ic{input} dialog, with a label \ic{"new name"} and an empty default input.
-The refactoring itself is implemented in a rewrite rule:
-
-\begin{code}
-rename-entity:
-    (newname, Entity(name, elems), position, ast, path, project-path) -> ([(ast, new-ast)], [], [], [])
-    with
-      new-ast  := <topdown(try(rename-entity-local(|name, newname)))> ast
-      
-  rename-entity-local(|old-name, new-name):
-    Entity(old-name, y) -> Entity(new-name, y)
-
-  rename-entity-local(|old-name, new-name):
-    EntType(old-name) -> EntType(new-name)
-\end{code}
-
-Like we have seen already for other editor services, rewrite rules for refactorings have to follow a certain interface.
-On the left-hand side, the example rule matches a tuple consisting of
-the input from the refactoring dialog (\ic{newname}),
-the node on which the refactoring is applied,
-its \ic{position} in the abstract syntax tree,
-the tree itself (\ic{ast}),
-and the pathes of the current file and the project.
-On the right-hand side, it yields a tuple consisting of 
-a list of changes in the abstract syntax tree
-and lists of fatal errors, normal errors, and warnings.
-
-For simplicity, the example rule changes the whole abstract syntax tree into a new one and does not provide any errors or warnings.
-Thereby, the new abstract syntax tree is retrieved by traversing the old on in a \ic{topdown} fashion, \ic{try}ing to apply rewrite rules \ic{rename-entity-local}.
-These rules take the old and new entity name as parameters.
-The first rule rewrites entity declarations, while the second one rewrites types which refer to an entity.
-
-\GW{add error checks?}
 
 \section{Labels and Icons}
 
