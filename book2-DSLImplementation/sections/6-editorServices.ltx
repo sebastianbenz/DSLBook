@@ -45,6 +45,7 @@ Atomic returns Expression:
     ({SymbolRef} symbol=[appliances::SymbolDeclaration|QID]);
 \end{code}
 
+\noindent 
 The method takes various arguments, the first one, \ic{model}, represents the
 program element for which the \ic{symbol} property should be completed. 
 
@@ -61,6 +62,7 @@ public class CoolingLanguageProposalProvider
 }
 \end{code}
 
+\noindent 
 Let us now look at the actual implementation of the method. In line three we get
 the scope for the particular reference so we can iterate over all the elements
 and change their appearance in the code completion menu. To be able to get the
@@ -79,6 +81,7 @@ for (IEObjectDescription od: candidates) {
 }
 \end{code}
 
+\noindent 
 Once we have the scope we can iterate over all its contents (i.e. the target
 elements). Note how the scope does not directly contain the target
 \ic{EObjects}, but rather \ic{IEObjectDescription}s. This is because the code
@@ -112,6 +115,7 @@ link {function}
   } 
 \end{code}
 
+\noindent 
 To customize the contents of the code completion menu, one simply has to provide
 the expression that calculates the text in the \ic{presentation} section of the
 scope provider. In this example we call a method that calculates a string that
@@ -157,6 +161,7 @@ necessary code.
 \end{center}
 \end{figure}
 
+\noindent 
 Every editor cell can have a cell menu (the menu you see when you press
 \ic{Ctrl-Space}). The cell menu consists of several parts. Each part contributes
 a set of menu entries. In the example in \fig{cellmenu}, we add a cell menu part
@@ -178,6 +183,7 @@ if ( expr ) {
 }
 \end{code}
 
+\noindent 
 Xtext provides templates for this purpose. These can be defined either as part
 of the language, or by the user in the IDE. \fig{xtext-template} shows the
 \ic{if-then-else} example as defined in the IDE.
@@ -199,6 +205,7 @@ of the language, or by the user in the IDE. \fig{xtext-template} shows the
 \end{figure}
 
 
+\noindent 
 In MPS there are several ways to address this. One is simply an intention
 (explained in more detail in \todo{ref}). It will not be activated via
 \ic{Ctrl-Space}, but rather via \ic{Alt-Enter}. In every other respect it is
@@ -303,6 +310,7 @@ public class CLHighlightingConfiguration extends DefaultHighlightingConfiguratio
 }
 \end{code}
 
+\noindent 
 The \ic{varTextStyle} method creates a \ic{TextStyle} object. The method
 \ic{configure} then registers this style with the framework using a unique
 identifier (the constant \ic{VAR}). The reason for registering it with the
@@ -347,6 +355,7 @@ public void provideHighlightingFor(XtextResource resource,
 }
 \end{code}
 
+\noindent 
 The method gets passed in an \ic{XtextResource}, which represents a model file.
 From it we get the root element and iterate over all its contents. If we find a
 \ic{SymbolRef}, we continue with coloring. Notice that in the cooling language
@@ -404,6 +413,7 @@ colorer System colors
   default   = _             
 \end{code}
 
+\noindent 
 The generated specification can be customized on the lexical level, but also
 extended on the syntactic level. These extensions are based on syntactic sorts
 and constructor names. For example, the following specification will color the
@@ -419,6 +429,7 @@ colorer
   Type.IntType: darkgreen          
 \end{code}
 
+\noindent 
 Here, \ic{Type} is a sort from the syntax definition, while \ic{IntType} is the
 constructor for the integer type. There are other rules for \ic{Type} in the
 Mobl grammar, for example for the string type. When we want other types also to
@@ -535,6 +546,7 @@ simple finder findProviders for concept Interface
   \label{finder-result} 
 \end{center}
 \end{marginfigure} 
+\noindent 
 We specify a name for the finder (\ic{findProviders}) as well as the type to
 which it applies (references to which it will find, \ic{Interface} in the
 example). We then have to implement the \ic{find} method. Notice how in the
@@ -561,6 +573,7 @@ references
   reference Exp.This : resolve-this
 \end{code}
 
+\noindent 
 On the left-hand side of the colon, the \ic{reference} rule specifies a
 syntactic sort and a constructor, for which the hyperlinking should be
 customized\footnote{As in colorer specifications, we can use \ic{\_} as a
@@ -575,6 +588,7 @@ resolve-this:
       target    := <index-lookup> t
 \end{code} 
 
+\noindent 
 This rule determines the type of a \emph{this} expression and links it to the
 declaration of this type. Like all rewrite rules implementing hyperlinking
 functionality, it needs to follow a Spoofax-defined signature: on the left-hand
@@ -624,6 +638,7 @@ from the cooling language. Assume we enter the following code:
     state Hello   : entry { if true { } }
 \end{code}
 
+\noindent 
 If we run the formatter (e.g. by pressing \keystroke{Ctrl-Shift-F} in the IDE),
 we want it to format it to look like this:
 
@@ -634,6 +649,7 @@ we want it to format it to look like this:
         }
 \end{code}
 
+\noindent 
 The following formatter code implements this. 
 
 \begin{code}
@@ -652,6 +668,7 @@ protected void configureFormatting(FormattingConfig c) {
 }
 \end{code}
 
+\noindent 
 In the first line we get the \ic{CoolingLanguageGrammarAccess} object, an API to
 refer to the grammar of the language itself. It is the basis for an internal
 Java DSL for expressing formatting rules. Let us look at the first block of
@@ -702,6 +719,7 @@ public void checkVariable( Variable v ) {
 }
 \end{code}
 
+\noindent 
 Based on our discussion of constraint checks (in \todo{ref}), this code should
 be fairly self-explaing. What is interesting is the third argument to the
 \ic{warning} method: we pass in a constant to uniquely identify the problem. The
@@ -724,6 +742,7 @@ public void capitalizeName(final Issue issue, IssueResolutionAcceptor acceptor) 
 }
 \end{code}
 
+\noindent 
 Quick fix methods accept the \ic{Issue} that caused the problem as well as an
 \ic{IssueResolutionAcceptor} that is used to register the fixes so they can be
 shown in the quick fix menu. The core of the fix is the anonymous instance of
@@ -753,6 +772,7 @@ cases, one can use an instance of \ic{ISemanticModification} instead:
     }
 \end{code}
 
+\noindent 
 A quick fix using an \ic{ISemanticModification} basically works the same way;
 however, inside the \ic{apply} method we now use the EMF Java API to fix the
 problem\sidenote{Notice that after the problem is solved, the changed AST is
@@ -779,6 +799,7 @@ checking rule check_INameAllUpperCase {
 }                                                                                                                
 \end{code}
 
+\noindent 
 The quick fix below upper cases the name if necessary. The quick fix is
 associated with the constraint check by simply referencing the fix from the
 error message\footnote{Note that the separation between core language and UI
@@ -861,6 +882,7 @@ refactorings
       identifier : "new name" = ""
 \end{code}
 
+\noindent 
 The specification starts with a syntactic sort and a constructor, on which the
 refactoring should be available, followed by a label for the refactoring in the
 context-menu, the implementing rewrite rule, and two options. These options are
@@ -885,6 +907,7 @@ rename-entity:
     EntType(old-name) -> EntType(new-name)
 \end{code}
 
+\noindent 
 As we have seen already for other editor services, rewrite rules for
 refactorings have to follow a certain interface (i.e. signature). On the
 left-hand side, the example rule matches a tuple consisting of the input from
@@ -924,6 +947,7 @@ int8_t someFunction(int8_t v) {
 } 
 \end{code}
 
+\noindent 
 As you can see, the first two lines contain the same expression (\ic{v *
 FACTOR}) twice. A nicer version of this code could look like this:
 
@@ -939,6 +963,7 @@ int8_t someFunction(int8_t v) {
 } 
 \end{code}
 
+\noindent 
 The \emph{Introduce Local Variable} refactoring performs just this change. MPS
 provides a DSL for specifying refactorings, based on which the implementation is
 ca. 20 lines of code. We'll go through it in steps. We start with the
@@ -955,6 +980,7 @@ target: node<Expression>
         }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
 \end{code}
                        
+\noindent 
 The code above specifies the name of the refactoring
 (\ic{introduce-\\LocalVariable}), the label used in the refactoring menu, the
 keystroke to execute it directly (\ic{Ctrl-Alt-V}) as well as the target. The
@@ -975,6 +1001,7 @@ init(refactoringContext)->boolean {
 }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
 \end{code}
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
+\noindent 
 The parameter represents the name of the newly introduced variable. In the
 refactoring's \ic{init} block we ask the user for this parameter. The \ic{ask
 for} epression returns \ic{false} if the user selects \ic{Cancel} in the dialog
@@ -996,6 +1023,7 @@ node<Statement> targetStmt = targetExpr.ancestor<concept = Statement>;
 int index = targetStmt.index;
 \end{code}
      
+\noindent 
 Next, we iterate over all \ic{siblings} of the statement in which the expression
 lives. As we do that, we look for all expressions that are structurally similar
 to the one we're executing the refactoring on (using
@@ -1016,6 +1044,7 @@ foreach s in siblings {
 } 
 \end{code}     
      
+\noindent 
 The next step is to actually introduce the new local variable. We simply create
 a new \ic{LocalVariableDeclaration} using the tree API. We set the \ic{name} to
 the one we've asked the user for (\ic{varName}), we set its type to a copy of
@@ -1033,6 +1062,7 @@ lvd.init = targetExpr.copy;
 targetStmt.add prev-sibling(lvd); 
 \end{code}     
 
+\noindent 
 There is one more step we have to do. We have to replace all the occurences of
 our target expression with a reference to the newly introduced local variable.
 We had collected the \ic{matchingExpressions} above, so we can now iterate over
@@ -1049,6 +1079,7 @@ foreach e in matchingExpressions {
 } 
 \end{code}     
 
+\noindent 
 All in all, building refactorings is straight forward with MPS' refactoring
 support. The implementation effort is reduced to essentially the algorithmic
 complexity of the refactoring itself. Depending on the refactoring, this can be
@@ -1087,6 +1118,7 @@ public class CoolingLanguageLabelProvider extends DefaultEObjectLabelProvider {
 }
 \end{code}
 
+\noindent 
 Notice how the label and the image are defined via methods, you can can change
 the text and the icon dynamically, based on some property of the model.
 
@@ -1142,6 +1174,7 @@ protected void _createChildren(DocumentRootNode parentNode, Model m) {
 }
 \end{code}
 
+\noindent 
 Inside the method, we first grab all the \ic{CoolingProgram}s from the root
 element \ic{Model} and create a node for them using the \ic{createNote} API,
 which takes the parent (in terms of the outline view) and the program element
@@ -1169,6 +1202,7 @@ protected void _createChildren(IOutlineNode parentNode, CoolingProgram p) {
 }
 \end{code}
 
+\noindent 
 We introduce intermediate nodes that do not represent a program element; they
 are used purely for structuring the tree. The \ic{TextOnlyOutlineNode} is a
 class we created; it simply extends the class \ic{AbstractOutlineNode} provided
@@ -1183,6 +1217,7 @@ public class TextOnlyOutlineNode extends AbstractOutlineNode {
 }
 \end{code}
 
+\noindent 
 Xtext provides alphabetical sorting for outlines by default. There is also
 support for styling the outline (i.e. using styled labels as opposed to simple
 text) as well as for filtering the tree.
@@ -1204,6 +1239,7 @@ outliner Entity Outliner
   Decl.Entity
 \end{code}
 
+\noindent 
 Like in the specification of other editor services, we can use \ic{\_} as a
 wildcard for sorts and constructors. For example, \ic{Decl.\_} will include
 imports and entities in the outline. Similarly, \ic{\_.Property} will include
@@ -1274,6 +1310,7 @@ folding Entity folding
   _.Function
 \end{code}
 
+\noindent 
 Like for outlines, Spoofax analyses the syntax definition and tries to come up
 with a reasonable default specification, which is imported into
 \ic{<LanguageName>-Folding.esv}. We can then either extend the generated
@@ -1314,6 +1351,7 @@ just showing three dots.
 \end{center}
 \end{figure}
 
+\noindent 
 As \fig{statefolding2} shows, we use a \ic{read only model access} cell, which
 allows us to return an arbitrary string. In the example, we essentially output
 the number of "hidden" transitions.
@@ -1386,6 +1424,7 @@ preferable in \ic{<LanguageName-References.esv>}:
 hover _: editor-hover 
 \end{code}    
 
+\noindent 
 This line tells Spoofax to use a rewrite rule \ic{editor-hover} to retrieve
 tooltips for all kinds of abstract syntax tree nodes. When we want to define
 different rewrite rules for particular constructors, we need to provide a
@@ -1476,6 +1515,7 @@ a Java-based renderer for GraphViz\footnote{http://bit.ly/2BqWbh} dot files.
 \end{center}
 \end{figure}
  
+\noindent 
 As part of the transformations, we map the model to model expressed in a graph
 description language. This model is then generated into a \ic{dot} file. The
 graph viewer scans the output directory for \ic{dot} files and shows them in the

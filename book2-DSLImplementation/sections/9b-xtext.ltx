@@ -26,6 +26,7 @@ module company {
 }
 \end{code}
 
+\noindent 
 The grammar is straight forward and should be clear if you have read the
 implementation part so far.
 
@@ -85,6 +86,7 @@ field Freelancer: checkbox             -> Employee.freelancer
 field Office: textfield(20)            -> Department.description
 \end{code}
 
+\noindent 
 Note that the references to entities and fields do not technically reference
 into an entity source file. Instead, these references refer to the EMF objects
 in the AST that has been parsed from the source file. So, a similar approach can
@@ -102,6 +104,7 @@ import "http://www.xtext.org/example/lmrc/entity/EntityDsl" as entity
 generate uispecDsl "http://www.xtext.org/example/lmrc/uispec/UispecDsl"
 \end{code}
 
+\noindent 
 Importing a meta model means that the respective \emph{meta classes} can now be
 used. Note that the meta model import does not make the \emph{grammar rules}
 visilble, so the meta classes can only be used in references and as base types
@@ -115,6 +118,7 @@ Field:
     "field" label=ID ":" widget=Widget "->" attribute=[entity::Attribute|FQN];
 \end{code}
 
+\noindent 
 To make this work, no change is required in the \ic{entities} language as long
 as the target elements are in the index. The index is used by Xtext to resolve
 references against elements that reside in a different model file. By default,
@@ -135,6 +139,7 @@ bean = StandaloneSetup {
 }
 \end{code}
 
+\noindent 
 We have to do one more customization to make the language work smoothly. The
 only \ic{Attribute}s that should be visible are those from the entities
 referenced in the current \ic{Form}'s \ic{uses} clauses, and they should be
@@ -158,6 +163,7 @@ public IScope scope_Field_attribute(Field context, EReference ref) {
 }
 \end{code}
 
+\noindent 
 This scoping function performs two tasks: first, it finds all the
 \ic{Attribute}s of all \ic{used} entities. We collect them into a list
 \ic{visibleAttributes}. The second part of the scoping function defines a
@@ -225,6 +231,7 @@ CharType: {CharType}"char";
 NumberType: {NumberType}"number";        
 \end{code}
 
+\noindent 
 The \ic{Column} rule has an optional \ic{mapper} property of type
 \ic{AbstractColumnMapper}. Since it is not possible to explicitly mark rules as
 generating abstract meta classes, we simply define the syntax to be "not
@@ -247,6 +254,7 @@ table People
   char isFreelancer  <- Employee.freelancer
 \end{code}
 
+\noindent 
 To make this possible, we create a new language \ic{db2entity} which \emph{extends} the
 \ic{db} language and \emph{references} the \ic{entities} language. This is
 reflected by the header of the \ic{db2entity} language (notice the \ic{with}
@@ -261,6 +269,7 @@ import "http://www.xtext.org/example/lmrc/entity/EntityDsl" as entity
 generate db2EntityDsl "http://www.xtext.org/example/lmrc/db2entity/Db2EntityDsl"
 \end{code}
 
+\noindent 
 We now have to overwrite the \ic{AbstractColumnMapper} rule defined in the
 \ic{db} language. 
 
@@ -269,6 +278,7 @@ AbstractColumnMapper returns db::AbstractColumnMapper:
     {EntityColumnMapper} "<-" entity=[entity::Attribute|FQN];
 \end{code}
 
+\noindent 
 We create a rule that has the same name as the rule in the super-grammar. So
 when the new grammar calls the \ic{AbstractColumnMapper} rule, our new
 definition is used. Inside, we define the new syntax we would like to use, and
@@ -416,6 +426,7 @@ module sample {
 }
 \end{code}
 
+\noindent 
 Here is the essential part of the grammar. Note how it extends the Xbase grammar
 (\ic{with} clause) and how it uses various elements from Xbase throughout the
 code (those whose names start with an \ic{X}).
@@ -445,6 +456,7 @@ Operation:
             body=XBlockExpression;
 \end{code}
 
+\noindent 
 Let's look at some of the details. First, the types (of the \ic{Attribute} and
 the \ic{Operation}) are not defined by our grammar, instead we use a
 \ic{JvmTypeReference}. This makes all Java types legal in this place. Limiting
@@ -475,6 +487,7 @@ class EntityWithExprDslJvmModelInferrer extends AbstractModelInferrer {
 }    
 \end{code}
 
+\noindent 
 This Xtend class implements a method \ic{infer} that creates the structurally
 equivalent Java code as an EMF tree and registers it with the \ic{acceptor}. The
 method is marked as \ic{dispatch}, so it can be polymorphically overwritten for
@@ -492,6 +505,7 @@ acceptor.accept(
 )
 \end{code}
 
+\noindent 
 At the top level, we map the \ic{Entity} to a \ic{Class}. \ic{toClass} is one of
 these builder methods defined in the \ic{JvmTypesBuilder}. The class we create
 should have the same name as the \ic{entity}; the name of the class is passed in
@@ -512,6 +526,7 @@ for ( attr : entity.attributes ) {
 }
 \end{code}
 
+\noindent 
 \ic{toField}, \ic{toGetter} and \ic{toSetter} are all builders contributed by
 the \ic{JvmTypesBuilder}. Let us better understand what they do. Here is the
 implementation of \ic{toSetter}. Note that the first argument supplied by the
@@ -534,6 +549,7 @@ public JvmOperation toSetter(EObject sourceElement, final String name, JvmTypeRe
 }
 \end{code}
 
+\noindent 
 The method first creates a \ic{JvmOperation} and sets the visibility and the
 name. It then creates a parameter that uses the type passed in as the third
 argument as its type. As you can see, all of this happens via model-to-model
@@ -563,6 +579,7 @@ for ( op : entity.operations ) {
 }
 \end{code}
 
+\noindent 
 This code should be easy to understand. We create a method for each operation
 using the respective builder method, pass in the name and type, create a
 parameter for each of the parameters of our source operation and then assign the
@@ -579,6 +596,7 @@ public void setBody(JvmExecutable logicalContainer, XExpression expr) {
 }
 \end{code}
 
+\noindent 
 The \ic{associateLogicalContainer} method is what makes the automatic support
 for scoping and typing happen:
 
@@ -628,6 +646,7 @@ XDateLiteral:
     'date' ':' year=INT '-' month=INT '-' day=INT;
 \end{code}
 
+\noindent 
 These new literals should be literals in terms of Xbase, so we have to make them
 subtypes of \ic{XLiteral}. Notice how we override the \ic{XLiteral} rule defined
 in Xbase. We have to repeat its original contents, there is no way to "add" to
@@ -644,6 +663,7 @@ XLiteral returns xbase::XExpression:
     XDateLiteral;
 \end{code}
 
+\noindent 
 We use the same approach to add an additional operator the identity operator
 represented with \ic{===}.
 
@@ -652,6 +672,7 @@ OpEquality:
     '==' | '!=' | '===';
 \end{code}
 
+\noindent 
 Xtend supports operator overloading by mapping operators to methods that can be
 overridden. The \ic{===} operator does not yes exist in Xtend, so we have to
 specify the name of the method that should be called for the operator. The
@@ -671,6 +692,7 @@ public class DomainModelOperatorMapping extends OperatorMapping {
 }
 \end{code}
 
+\noindent 
 We implement this method in a new class which we call
 \ic{ObjectExtensions2}\footnote{The existing class \ic{ObjectExtensions}
 contains the implementations for the existing equals and unequals operators,
@@ -683,6 +705,7 @@ public class ObjectExtensions2 {
 }
 \end{code}
 
+\noindent 
 We also want to override the existing \ic{+} operator for the new
 date literals. We don't have to specify the mapping to a method name,
 since the mapping for \ic{+} is already part of Xbase. However, we have to
@@ -696,6 +719,7 @@ public class DateExtensions {
 }
 \end{code}
 
+\noindent 
 To make Xtend aware of these new classes, we have to register them. In order to
 do so, we extend the \ic{ExtensionClassNameProvider}. It associates the classes
 that contain the operator implementation methods with the types for which these
@@ -714,6 +738,7 @@ public class DomainModelExtensionClassNameProvider extends ExtensionClassNamePro
 }
 \end{code} 
 
+\noindent 
 We now have to extend the type system: it has to be able to derive the types for 
 date literals. We create a type provide that extends the default
 \ic{XbaseTypeProvider}\footnote{Don't forget to register this class with
@@ -739,6 +764,7 @@ public class DomainModelTypeProvider extends XbaseTypeProvider {
 }
 \end{code}
 
+\noindent 
 We don't have to specify typing rules for the \ic{===} operator. Since we have
 mapped it to the \ic{operator\_identity} operation, the type system uses the
 types specified in this operation: the type of \ic{===} is
@@ -762,6 +788,7 @@ public class DomainModelCompiler extends XbaseCompiler {
 }
 \end{code}
 
+\noindent 
 scopethe \ic{operator\_identity} operation, we have expressed all the semantics:
 the Xbase generator will generate a call to that operation in the generated Java
 code.

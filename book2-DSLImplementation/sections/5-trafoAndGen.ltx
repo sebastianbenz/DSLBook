@@ -180,6 +180,7 @@ def compile(CoolingProgram program) {
 }
 \end{code}
 
+\noindent 
 The \ic{FOR} loop follows the \ic{modules} collection of the \ic{program},
 follows the \ic{module} reference of each one, and then selects all
 \ic{Appliance}s from the resulting collection. The nested loop then iterates
@@ -204,6 +205,7 @@ typedef enum states {
 };
 \end{code}
 
+\noindent 
 Here we embed a \ic{FOR} loop inside the \ic{enum} text. Note how we use the
 \ic{SEPARATOR} keyword to put a comma \emph{between} two subsequent states. In the
 \ic{FOR} loop we call \ic{concreteStates} on the cooling program. However, if
@@ -219,6 +221,7 @@ def concreteStates(CoolingProgram p) {
 }
 \end{code}
 
+\noindent 
 The following code is part of generating the code for a state transition. It
 first executes the exit actions of the current state, performs the state
 change (\ic{current\_state = new\_state;}) and then performs the entry actions
@@ -248,6 +251,7 @@ if (new_state != current_state) {
 }
 \end{code}
 
+\noindent 
 The code first uses an \ic{IF} statement to check whether the program has any
 states with exit actions (via an extension method call). Only if we have such
 states is the subsequent \ic{switch} statement generated. The \ic{switch}
@@ -297,6 +301,7 @@ class StatementExtensions {
 }
 \end{code}
     
+\noindent 
 The implementation of the overloaded methods simply returns the text string that
 represents the C implementation for the respective language construct. The two
 examples shown are simple because the language construct in the DSL closely
@@ -315,6 +320,7 @@ using the following statement:
 \end{code}
 
 
+\noindent 
 Expressions are handled in the same way as statements. The injected class
 \ic{ExpressionExtensions} defines a set of overloaded \ic{dispatch} methods for
 \ic{Expression} and all its subtypes.
@@ -349,6 +355,7 @@ def dispatch compileExpr (NumberLiteral nl){
 }
 \end{code}
 
+\noindent 
 Since expressions are trees, a \ic{compileExpr} method typically calls
 \ic{compileExpr} recursively on the children of the expression, if it has any.
 
@@ -387,6 +394,7 @@ def compile(CoolingProgram program) {
 }
 \end{code}
 
+\noindent 
 We have added a call to a function \ic{transform} at the beginning of the
 transformation process. This program creates a new \ic{CoolingProgram} from the
 original one, and the code generator then uses the \ic{transformedProgram} as
@@ -434,6 +442,7 @@ class Transformation {
 }
 \end{code}
 
+\noindent 
 Let us start with the two \ic{create} methods. These methods create new objects,
 as the \ic{create} prefix suggests\footnote{The \ic{factory} is the way to
 create model elements in EMF. It is generated as part of the EMF code
@@ -448,6 +457,7 @@ def emergencyState() {
 }
 \end{code}
 
+\noindent 
 What is different in \ic{create} methods is that they can be called several
 times, and they still only ever create one object (per combination of
 arguments). The result of the first invocation is cached, and all subsequent
@@ -482,6 +492,7 @@ on emergency_button_pressed {
 \end{code}
 
 
+\noindent 
 This code could be constructed by procedurally calling the respective
 factory methods:
 
@@ -495,6 +506,7 @@ eh.statements += css
 s.events += eh
 \end{code}
 
+\noindent 
 The notation used in the actual implementation is more concise and resembles the
 tree structure of the code much more closely. It uses the well-known
 \emph{builder} notation. Builders are implemented in Xtend with a clever combination of
@@ -566,6 +578,7 @@ essentially structurally identical to the generated text\footnote{If you wantto
 \end{figure}
 
 
+\noindent 
 DSLs and language extensions typically use model-to-model transformations to
 "generate" code expressed in a low level programming language. In general,
 writing transformation in MPS involves two ingredients. Templates define the
@@ -628,6 +641,7 @@ module Statemachine from cdesignpaper.statemachine imports nothing {
 \end{code}
 
 
+\noindent 
 State Machines are translated to the following lower level C entities:
 
 \begin{itemize}
@@ -658,6 +672,7 @@ shown in \fig{mps-sm-gen-1} and \fig{mps-sm-gen-2}.
 \end{figure}
 
 
+\noindent 
 The MPS transformation engine works in phases. Each phase transforms models
 expressed in some languages to other models expressed in the same or other
 languages. Model element for which no transformation rules are specified are
@@ -679,6 +694,7 @@ it.
 \end{center} 
 \end{figure}
 
+\noindent 
 Let us look in more detail at the template in \fig{mps-sm-gen-1}. It reduce a
 \ic{Statemachine}, the input node, to two \ic{enum}s and a \ic{struct}. We use
 template fragments (marked with \ic{<TF ... TF>}) to highlight those parts of
@@ -711,6 +727,7 @@ For the literals of the events \ic{enum} we use a similar expression
 \end{figure}
  
 
+\noindent 
 The \ic{LOOP} macro iterates over collections and then creates an instance of
 the concept it is attached to for every iteration. In case of the two
 \ic{enum}s, the \ic{LOOP} macro is attached to an \ic{EnumLiteral}, so we create
@@ -727,6 +744,7 @@ node.cEnumLiteralName();
 \end{code}
 
 
+\noindent 
 In the code above, \ic{cEnumLiteralName} is a behavior method. It is defined as
 part of the behavior aspect of the \ic{State} concept. It concatenates the
 \ic{name} of the parent \ic{Statemachine} with the string \ic{\_\_state\_} and
@@ -743,6 +761,7 @@ concept behavior State {
 }                                             
 \end{code}
 
+\noindent 
 The first of the \ic{struct} attributes is also interesting. It is used to
 store the current state. It has to be typed to the state \ic{enum} that is
 generated from this particular state machine. The type of the attribute is an
@@ -784,6 +803,7 @@ convenient and works also for cross-model references, where mapping labelsdon't
 \end{figure}
 
 
+\noindent 
 Let us now address the second main template, \fig{mps-sm-gen-2}, which generates
 the execute function. Looking at the template fragment markers (\ic{<TF ...
 TF>}) reveals that we only generate the \ic{switch} statement with this
@@ -816,6 +836,7 @@ node<State> state = (node<State>) node.adapter.getUserObject("outer");
 state.transitions.where({~it => it.trigger.event == node; });
 \end{code}
 
+\noindent 
 We then generate an \ic{if} statement that checks at runtime whether the guard
 condition for this transition is \ic{true}. We copy in the guard condition using
 the \ic{COPY\_SRC} macro attached to the \ic{true} dummy node. The
@@ -837,6 +858,7 @@ statemachine Counter {
 }
 \end{code}
 
+\noindent 
 Event arguments are mapped to the resulting C function via a \ic{void*} array. A
 reference to an event argument (\ic{EventArgRef}) hence has to be reduced to
 accessing the \ic{n}-th element in the array (where \ic{n} is the index of the
@@ -855,6 +877,7 @@ dereferences everything.
 \end{center} 
 \end{figure}
 
+\noindent 
 Inside the \ic{if} statement, we have to generate the code that has to be
 executed if a transition fires. We first copy in all the exit actions of the
 current state. Once again, the \ic{int8\_t exitActions;} is just an arbitrary
@@ -871,6 +894,7 @@ expression is this:
 }
 \end{code}
 
+\noindent 
 We then do the same for the transition actions of the current transition, set
 the \ic{instance->\_\_currentState} to the target state of the transition using
 a reference macro (\ic{node.targetState.cEnumLiteralName();}), and then we
@@ -891,6 +915,7 @@ void aFunction() {
 \end{code}
 
 
+\noindent 
 It has to be translated to a call to the generated state machine execute
 function that we have discussed at length above. For simplicity, we explain
 a version of the \ic{TriggerSMStatement} that does not include event arguments.
@@ -920,6 +945,7 @@ trigger statement:
 node.statemachine.type : StatemachineType.machine.cFunctionName();
 \end{code}
 
+\noindent 
 Note how the first argument to the \ic{trigger} statement can be \emph{any}expression (local variable reference, global variable reference, a functioncall). However, we know (and enforce via the type system) that the expression'stype must be a \ic{StatemachineType}, which has a reference to the\ic{Statemachine} whose instance the expression represents. So we can cast,access the machine, and get the name of the execute function generated from thatstate machine\footnote{This is an example of where we use the type system in
 the code generator --- not just for checking a program for type correctness.}.
 
@@ -956,6 +982,7 @@ Java:
 \end{code}
 \todo{@Guido 't' is not a string. What is going on there?}
 
+\noindent 
 Typically, more complex rules are recursive and use string
 interpolation\footnote{We used string interpolation already before to compose
 error messages \todo{ref}.} to construct strings from fixed and variable parts.
@@ -989,6 +1016,7 @@ to-java:
 \end{code}
 
 
+\noindent 
 String interpolation takes place inside \ic{\$[\ldots]} brackets and allows to
 combine fixed text with variables that are bound to strings. Variables can be
 inserted using brackets \ic{[\ldots]} without a dollar sign\footnote{You can
@@ -1006,6 +1034,7 @@ strings:
      ]
 \end{code}\ignore{$}
 
+\noindent 
 Indentation is important both for the readability of rewrite rules and of the
 generated code: the indentation leading up to the \ic{\$[\ldots]} brackets is
 removed, but any other indentation beyond the bracket level is preserved in the
@@ -1062,6 +1091,7 @@ we first have to define the following rewrite rule:
       result   := <to-java> selected
 \end{code}
 
+\noindent 
 This rule follows Spoofax' convention for editor integration\todo{@Guido what
 kind of convention is this?}. Generation happens on a per-file basis. On the
 left-hand side, the rule matches the current selection in the editor, its
@@ -1080,6 +1110,7 @@ Once we have defined this rule, we can register it as a \ic{builder} in
 builder: "Generate Java code (for selection)" = generate-java (openeditor) (realtime)
 \end{code}
 
+\noindent 
 This defines a label for our transformation, which is added to the editor's
 \emph{Transform} menu. Additional options can be used to customize the behaviour
 of the transformation: \ic{(openeditor)} tells Spoofax to open the generated
@@ -1181,6 +1212,7 @@ language: \todo{@Guido do we have a reference to the Box language?}
 ]
 \end{code}
 
+\noindent 
 In this language, rules consist of constructors (.i.e. AS elements or language
 concepts) on the left-hand side of a rule and a sequence of \emph{boxes} and
 numbers on the right-hand side. The basic box construct is a simple
@@ -1220,6 +1252,7 @@ sequences \ic{(S1 S2)} & \ic{seq} \\
 \label{Fig:spoofax-pp-nesting-types}
 \end{figure}
 
+\noindent 
 Additionally, user-defined pretty-printing rules can be defined in
 \ic{syntax/<LanguageName>.pp}. Spoofax first applies the user-defined rules to
 turn an abstract syntax tree into a hybrid tree which is only partially
@@ -1231,6 +1264,7 @@ modules:
    Module                   -- V vs=1 is=4 [ H [KW["module"] _1] _2]
 \end{code}
 
+\noindent 
 The \ic{H} box operator layouts sub-boxes horizontally. The desired horizontal
 separation between the sub-boxes can be specified by the spacing option \ic{hs}.
 Its default value is \ic{1}, that is, a single space is added between the boxes.
@@ -1270,6 +1304,7 @@ imports Stratego [ Id   => StrategoId
                    Term => StrategoTerm ]
 \end{code}
 
+\noindent 
 Second, we need to define quotations, which will enclose concrete syntax
 fragments of the target language in Stratego rewrite rules. We add a production
 rule for every sort of concrete syntax fragments that we like to use in our
@@ -1292,6 +1327,7 @@ exports context-free syntax
 \todo{@Guido what exactly do we do we the above definitions? and what does
 StrategoTerm {"ToTerm"} mean?}
 
+\noindent 
 Third, we need to define antiquotations, which will enclose Stratego code in
 target language concrete syntax fragments. Here, we add a production rule for
 every sort where we like to inject Stratego code into concrete syntax fragments:
@@ -1304,6 +1340,7 @@ exports context-free syntax
   "|[" StrategoTerm "]|" -> JFeature* {"FromTerm"}
 \end{code}
 
+\noindent 
 Finally, we need to create a \ic{<filename>.meta} file for every transformation
 file \ic{<filename>.str} with concrete syntax fragments. In this file, we tell
 Spoofax to use our customized Stratego syntax definition:
@@ -1315,6 +1352,7 @@ or could this be automated in the future?}
 Meta([ Syntax("Stratego-Mobl-Java") ])
 \end{code}
 
+\noindent 
 Now, we can use concrete syntax fragments in our rewrite rules:
 
 \begin{code}
@@ -1333,6 +1371,7 @@ to-java:
       t' := <to-java> t
 \end{code}
 
+\noindent 
 Since Spoofax replaces concrete syntax fragments with equivalent abstract syntax
 fragments, indentation in the fragments is lost.
 But the generated code will still be indented by the pretty-printer.
@@ -1509,6 +1548,7 @@ fragment = de.itemis.interpreter.generator.InterpreterGenerator {
 \end{code}
 
 
+\noindent 
 This fragment generates an abstract class that acts as the basis for the
 interpreter for the particular set of statements and expressions. As the
 following piece of code shows, the class contains an \ic{eval} method that uses
@@ -1563,6 +1603,7 @@ public abstract class AbstractCoolingLanguageExpressionEvaluator
 \end{code}
 
     
+\noindent 
 A similar class is generated for the statements. Instead of \ic{eval}, the
 method is called \ic{execute} and it does not return a value. In every other
 respect the \ic{StatementExecutor} is similar to the \ic{ExpressionEvaluator}.
@@ -1581,6 +1622,7 @@ terminal DECIMAL_NUMBER:
 \end{code}
 
 
+\noindent 
 Before we delve into the details of the interpreter code below, it is worth
 mentioning that the "global data" held by the execution engine is stored and
 passed around using an instance of \ic{EngineExecutionContext}. For example, it
@@ -1614,6 +1656,7 @@ addition, it creates log entries that document these decisions.
 \end{code}
 
 
+\noindent 
 The evaluator for \ic{NumberLiteral} was simple because number literals are
 leaves in the AST and have no children, so no recursive invocations of \ic{eval}
 are required. This is different for the \ic{LogicalAnd}, which has two children
@@ -1636,6 +1679,7 @@ protected Object evalLogicalAnd(LogicalAnd expr, LogEntry log) {
 \end{code}
 
 
+\noindent 
 So far, we haven't used the environment, since we haven't worked with variables
 and their (changing) values. Let's now look and how variable assignment is
 handled. We first look at the \ic{AssignmentStatement},  which is implemented 
@@ -1652,6 +1696,7 @@ protected void executeAssignmentStatement(AssignmentStatement s, LogEntry log){
 \end{code}
 
 
+\noindent 
 The first two lines get the \ic{left} argument as well as the value of the
 \ic{right} argument. Note how only the right value is evaluated: the left
 argument is a symbol reference (made sure through a constraint, since only
@@ -1688,6 +1733,7 @@ protected Object evalSymbolRef(SymbolRef expr, LogEntry log) {
 \end{code}
 
 
+\noindent 
 The cooling language does not support function calls, so we demonstrate function
 calls with a similar language that supports them. In that language, function
 calls are expressed as symbol references that have argument lists. Below is the
@@ -1709,6 +1755,7 @@ Atomic returns Expression:
 \end{code}
 
 
+\noindent 
 The following is the code for the evaluation function for the symbol reference.
 It must distinguish between references to variables and to
 functions\footnote{This is once again a consequence of the fact that all
@@ -1734,6 +1781,7 @@ protected Object evalSymbolRef(SymbolRef expr, LogEntry log) {
 \end{code}
 
 
+\noindent 
 The code for handling the \ic{FunctionDeclaration} uses a predefined utility
 method \ic{callAndReturnWithPositionalArgs}. It accepts as arguments the list of
 formal arguments of the called function, the list of actual arguments
@@ -1761,6 +1809,7 @@ protected Object callAndReturnWithPositionalArgs(String name,
 \end{code}
 
 
+\noindent 
 Remember from the above discussion about environments and function calls, that
 each invocation of a function has to get its own environment to handle the local
 variables for the particular invocation. We can see this in the first line of
@@ -1800,6 +1849,7 @@ public void enterState(State targetState, LogEntry logger )
 \end{code}
 
 
+\noindent 
 \ic{executeChangeStateStatement} calls back to an engine method that handles the
 state change (since this is a more global operation than executing statements,
 it is handled by the engine class itself). The method simply sets the current
@@ -1832,6 +1882,7 @@ public int step(LogEntry logger) {
 }
 \end{code}
 
+\noindent 
 It first increments a counter that keeps track of how many steps haven been
 executed since the interpreter had been started up. It then executes the
 \ic{each time} statements of the current state. This is a statement list defined
@@ -1858,6 +1909,7 @@ private void processEventFromQueue(CustomEvent event, LogEntry logger) {
 \end{code}
 
 
+\noindent 
 The DSL also supports executing code asynchronously, i.e. after a specified
 number of steps. The grammar looks as follows:
 
@@ -1869,6 +1921,7 @@ PerformAsyncStatement:
 \end{code}
 
 
+\noindent 
 The following method interprets the \ic{PerformAsyncStatement}s:
 
 
@@ -1882,6 +1935,7 @@ protected void executePerformAsyncStatement(PerformAsyncStatement s,
 \end{code}
 
 
+\noindent 
 It registers the statement list associated with the \ic{PerformAsyncStatement} in the
 list of async elements in the execution context. The call to \ic{executeAsyncStuff}
 at the beginning of the \ic{step} method described above checks whether the time has
@@ -1933,6 +1987,7 @@ example.
 \end{center}
 \end{figure}
 
+\noindent 
 The dispatch statement tests if the argument \ic{ex} is an instance of the type
 referenced in the cases. If so, the code on the right side of the arrow is
 executed. Notice the special expression \ic{\$} used on the right side of the

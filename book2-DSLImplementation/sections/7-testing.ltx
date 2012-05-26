@@ -1,17 +1,9 @@
 \chapter{Testing DSLs}
 
-DSL testing is a multi-faceted problem. The following aspects of a DSL need to
-be tested:
-
-\todo{Better argue, which kinds of tests are necessary: syntax, constraints/TS,
-semantics are in a natural order. Better check semantics than generated text.
-But this is an integration test. Maybe test intermediate results? That would be
-a structural test. Try to avoid it. Look at negative and positive testing in
-each of these cases. Maybe add additional lang constructs to "inspect" internal
-state. Allow this only in tests, not anywhere else (better than making
-everything public\ldots). Testing semantics works only if executable. And
-target env is required! Is some kind of integration test. Maybe simulate? Mock?
-the whole simualtion story goes here as well. And interpreter. BSH.}
+DSL testing is a multi-faceted problem. DSL testing needs to address all the
+aspects of the DSL implementation we have discussed so far. In particular, this
+includes the syntax, the constraints and type system as well as the execution
+semantics (i.e. transformations or interpreters). Here are some examples:
 
 \begin{itemize}
   \item can the syntax cover all required sentences? Is the concrete syntax
@@ -27,19 +19,21 @@ the whole simualtion story goes here as well. And interpreter. BSH.}
 
 \marginnote{An important ingredient to testing is that test execution can be
 automated via scripts so they can be run as part of automatic builds. All of the
-test strategies shown below can be executed from ant scripts. However, we don't
-describe in detail how this works.}
+test strategies shown below can be executed from \ic{ant} scripts. However, we
+don't describe in detail how this works for each of the tools.}
 
 \section{Syntax Testing}
 
-Testing the syntax is simple. Developers simply try to write all relevant
-programs and see if they can be expressed with the language. 
+Testing the syntax is simple in principle. Developers simply try to write all
+relevant programs and see if they can be expressed with the language. If not,
+the concrete syntax is incomplete. We may also want to try to write ``wrong''
+programs and check that the errors are detected, and that meaningful error
+messages are reported. 
 
-\parhead{An Example with Xtext}%
-%
-The following piece of code is the fundamental code that needs to be written in
-Xtext to test a DSL program using the Xtext testing
-utilities\footnote{http://code.google.com/a/eclipselabs.org/p/xtext-utils/wiki/Unit\_Testing}. 
+\parhead{An Example with Xtext} The following piece of code is the fundamental
+code that needs to be written in Xtext to test a DSL program using the Xtext
+testing
+utilities\footnote{http://code.google.com/a/eclipselabs.org/p/xtext-utils/wiki/Unit\_Testing}.
 It is a JUnit 4 test case with special support for the Xtext infrastructure.
 
 \begin{code}
@@ -56,14 +50,16 @@ public class InterpreterTests extends XtextTest {
 \end{code}
 
 
-The single test method loads the \ic{interpreter/engine0.cool} program, as
-well as two more files which contain elements referenced from
-\ic{engine0.cool}. The \ic{testFileNoSerializer} method loads the file, parses it,
-and checks constraints. If either parsing or constraint checking fails, the test
-fails. There is also a \ic{testFile} method which, after loading and parsing the
-file, reserializes the AST to the text file, writes it back, and loads it again,
-the comparing the two ASTs. This way, the (potentially adapted) formatter is
-tested.
+\noindent 
+The single test method loads the \ic{interpreter/engine0.cool} program, as well
+as two more files which contain elements referenced from \ic{engine0.cool}. The
+\ic{testFileNoSerializer} method loads the file, parses it, and checks
+constraints. If either parsing or constraint checking fails, the test fails.
+There is also a \ic{testFile} method which, after loading and parsing the file,
+reserializes the AST to the text file, writes it back, and loads it again, the
+comparing the two ASTs. This way, the (potentially adapted) formatter is
+tested\footnote{For testing the formatting, a text comparison is the only ways
+to go, even though we argue against text comparison in general.}.
 
 On a more fine grained level it is often useful to test partial sentences
 instead of complete sentences or programs. The following piece of Xtext example
@@ -71,31 +67,25 @@ code tests the \ic{CustomState} parser rule:
 
 
 \begin{code}
-    @Test 
-    public void testStateParserRule() throws Exception {
-        testParserRule("state s:", "CustomState" );
-        testParserRule("state s: entry { do fach1->anOperation }", "CustomState" );
-        testParserRule("state s: entry { do fach1->anOperation }", "State" );
-    }
+@Test 
+public void testStateParserRule() throws Exception {
+    testParserRule("state s:", "CustomState" );
+    testParserRule("state s: entry { do fach1->anOperation }", "CustomState" );
+    testParserRule("state s: entry { do fach1->anOperation }", "State" );
+}
 \end{code}
 
-\marginnote{Note that these unit tests do not at all depend on the Eclipse UI or
-the Xtext editor, so they can be run from the command line or any other way of
-running JUnit tests. They only need a couple of Xtext libraries to be on the
-classpath. Consequently, it is simple to integrate these tests with continuous
-regression test infrastructures or a build server.} The first line asserts that
-the string \ic{state s:} can be parsed with the \ic{CustomState} parser rule.
-The second line passes in a more complex state, one with a command in an entry
-action. Line three tries the same text with the \ic{State} rule, which itself
-calls the \ic{CustomState}. Notice that these tests really just test the parser.
-No linking or constraints checks are performed. This is why we can "call"
-\ic{anOperation} on the \ic{fach1} object, although \ic{anOperation} is not
-defined as a callable operation anywhere.
+\noindent 
+The first line asserts that the string \ic{state s:} can be parsed with the
+\ic{CustomState} parser rule. The second line passes in a more complex state,
+one with a command in an entry action. Line three tries the same text with the
+\ic{State} rule, which itself calls the \ic{CustomState}. Notice that these
+tests really just test the parser. No linking or constraints checks are
+performed. This is why we can "call" \ic{anOperation} on the \ic{fach1} object,
+although \ic{anOperation} is not defined as a callable operation anywhere.
 
-\parhead{An Example with Spoofax}%
-%
-Spoofax supports writing tests for language definitions with a testing language.
-Consider the following test suite:
+\parhead{An Example with Spoofax} Spoofax supports writing tests for language
+definitions using a testing language. Consider the following test suite:
 
 \begin{code}
 module example
@@ -105,26 +95,32 @@ test empty module [[module foo]] parse succeeds
 test missing layout (module name) [[modulefoo]] parse fails
 \end{code}
 
-The first two lines specify the name of the test suite and the language under test. 
-The remaining lines specify a positive and  a negative test cases concerning the language's syntax. 
-Each test case consists of a name, the to-be-tested code fragment in double
-square brackets, and a specification that determines what kind of test should
-be performed (\ic{parsing}) and what the expected outcome is (\ic{succeeds} or\ic{fails}).
-
-We can also specify the expected abstract syntax:
+\noindent 
+The first two lines specify the name of the test suite and the language under
+test. The remaining lines specify a positive and a negative test cases
+concerning the language's syntax. Each test case consists of a name, the
+to-be-tested code fragment in double square brackets, and a specification that
+determines what kind of test should be performed (\ic{parsing}) and what the
+expected outcome is (\ic{succeeds} or\ic{fails}). We can also specify the
+expected abstract syntax based on the ATerm textual notation:
 
 \begin{code}
 test empty module (AST) [[module foo]] parse to Module("foo", [])
 \end{code}
 
-Instead of specifying a complete abstract syntax tree, we can only specify the interesting parts in a pattern.
-For example, if we are only interested in the empty definition list of an empty module, we can use \ic{\_} as a wildcard for the module name:
+\noindent 
+Instead of specifying a complete abstract syntax tree, we can only specify the
+interesting parts in a pattern. For example, if we only want to verify that the
+definition list of an empty module is indeed empty, we can use \ic{\_} as a
+wildcard for the module name:
 
 \begin{code}
 test empty module (AST) [[module foo]] parse to Module(_, [])
 \end{code}
 
-Abstract syntax patterns are particular useful for testing operator precedence and associativity:
+\noindent 
+Abstract syntax patterns are particularly useful for testing operator precedence 
+and associativity:
 
 \begin{code}
 test multiply and add [[1 + 2 * 3]] parse to Add(_, Mul(_, _))
@@ -132,7 +128,9 @@ test add and multiply [[1 * 2 + 3]] parse to Add(Mul(_, _), _)
 test add and add [[1 + 2 + 3]] parse to Add(Add(_, _), _)
 \end{code}
 
-Alternatively, we can specify an equivalent context-syntax fragment instead of an abstract syntax pattern:
+\noindent 
+Alternatively, we can specify an equivalent context-syntax fragment instead of 
+an abstract syntax pattern:
 
 \begin{code}
 test multiply and add [[1 + 2 * 3]] parse to [[1 + (2 * 3)]]
@@ -140,54 +138,83 @@ test add and multiply [[1 * 2 + 3]] parse to [[(1 * 2) + 3]]
 test add and add [[1 + 2 + 3]] parse to [[(1 + 2) + 3]]
 \end{code}
 
-A test suite can be run from the \emph{Transform} menu. 
-This will open the \emph{Spoofax Test Runner View} which provides information about failing and succeeding test cases in a test suite. 
-Additionally, we can also get instant feedback while editing a test suite.
+\noindent 
+A test suite can be run from the \emph{Transform} menu.
+This will open the \emph{Spoofax Test Runner View} which provides information
+about failing and succeeding test cases in a test suite \todo{@Guido
+Screenshot?}. Additionally, we can also get instant feedback while editing a test suite.
 
-\MV{Can you also run such tests from the command line (nighly build?)}
+\todo{@Guido Can you also run such tests from the command line (nighly build?)}
+
+\parhead{Syntax Testing with MPS} Syntax testing in the strict sense is not
+useful or necessary with MPS, since it is not possible to ``write text that does
+not parse''. Invalid programs cannot even be entered. However, it is useful to
+write a set of programs which the language developer consideres relevant. While
+it is not possible to write syntactically invalid programs, the following
+scenario is possible (and useful to test): a user writes a program with the
+language in version 1. The language evolves to version 2, making that program
+invalid. In this case, the program contains unbound language concepts or
+``holes''. By running the model checker (interactively or via \ic{ant}), such
+problems can be detected. \fig{brokenSyntaxInMPS} shows an example.
+
+\begin{marginfigure}
+\begin{center}
+  \includegraphics[width=50mm]{figures/7/brokenSyntaxInMPS.png}
+  \caption[]{\textbf{Top:} an interface expressed in the mbeddr C components
+  extension. \textbf{Bottom:} The same interface after we have removed the
+  \ic{parameters} collection in an \ic{Operation}. The error reports that the
+  model contains child nodes in a child collection that does not exist.}
+  \label{brokenSyntaxInMPS} 
+\end{center}
+\end{marginfigure}
+
+
 
 \section{Constraints Testing}
 
 Especially for languages with complex constraints, such as those implied by type
-systems, testing of constraints is essential.
+systems, testing of constraints is essential. The goal of constraints testing is
+to ensure that the correct error messages are annotated to the correct program
+elements, if those program elements have a type error.
 
 
-\parhead{An Example with Xtext}%
-%
-A special API is necessary to be
-able to verify that a program which makes a particular constraint fail actually
-annotates the corresponding error message to the respective program element.
-This way, tests can then be written which assert that a given program has a
-specific set of error annotations. 
+\parhead{An Example with Xtext} A special API is necessary to be able to verify
+that a program which makes a particular constraint fail actually annotates the
+corresponding error message to the respective program element. This way, tests
+can then be written which assert that a given program has a specific set of
+error annotations.
 
 The unit testing utilities mentioned above also support testing constraints. The
-utilities come with an internal Java DSL that support checking for the presence
+utilities come with an internal Java DSL that supports checking for the presence
 of error annotations after parsing and constraint-checking a model file.
 
 \begin{code}
-    @Test 
-    public void testTypesOfParams() throws Exception {
-        testFileNoSerializer("typesystem/tst1.cool", "tests.appl", "stdparams.cool");
-        assertConstraints( issues.sizeIs(3) );                             // 1
-        assertConstraints( issues.forElement(Variable.class, "v1").        // 2  
-          theOneAndOnlyContains("incompatible type") );                    // 2
-        assertConstraints( issues.under(Variable.class, "w1").             // 3
-          errorsOnly().sizeIs(2).oneOfThemContains("incompatible type") ); // 3
-    }
+@Test 
+public void testTypesOfParams() throws Exception {
+    testFileNoSerializer("typesystem/tst1.cool", "tests.appl", "stdparams.cool");
+    assertConstraints( issues.sizeIs(3) );                             // 1
+    assertConstraints( issues.forElement(Variable.class, "v1").        // 2  
+      theOneAndOnlyContains("incompatible type") );                    // 2
+    assertConstraints( issues.under(Variable.class, "w1").             // 3
+      errorsOnly().sizeIs(2).oneOfThemContains("incompatible type") ); // 3
+}
 \end{code}
 
 
+\noindent 
 We first load the model file that constains constraint errors (in this case,
 type system errors). Then we assert the total number of errors in the file to be
-three (line 1). Next, in line 2, we check that the instance of \ic{Variable} named \ic{v1}
-has exactly one error annotation, and it has the text "incompatible type" in the
-error message. Finally, in line 3 we assert that there are exactly two errors
-anywhere under (i.e. in the subtree below) a \ic{Variable} named \ic{w1}, and one of these
-contains "incompatible type" in the error message. Using the fluent API style
+three (line 1). This makes sure that the file does not contain \emph{additional}
+errors beyond those asserted in the rest of the test case. Next, in line 2, we
+check that the instance of \ic{Variable} named \ic{v1} has exactly one error
+annotation, and it has the text \emph{incompatible type} in the error message.
+Finally, in line 3 we assert that there are exactly two errors anywhere under
+(i.e. in the subtree below) a \ic{Variable} named \ic{w1}, and one of these
+contains \emph{incompatible type} in the error message. Using the fluent API style
 shown by these examples, it is easy to express errors and their locations in the
 program. If a test fails, a meaningful error message is output that supports
 localizing (potential) problems in the test. The following is the error message
-if no error message is found that contains the substring "incompatible type":
+if no error message is found that contains the substring \emph{incompatible type}:
 
 
 \begin{code}
@@ -200,9 +227,10 @@ junit.framework.AssertionFailedError: <no id> failed
 \end{code}
 
 
-If the test fails earlier in the filter expression, more than one output is
-provided:
-
+\noindent 
+A test may also fail earlier in the chain of filter expressions if, for example,
+there is no \ic{Variable} named \ic{v1} in the program. More output is provided
+in this case: 
 
 \begin{code}
 junit.framework.AssertionFailedError: <no id> failed
@@ -214,84 +242,94 @@ junit.framework.AssertionFailedError: <no id> failed
   ...
 \end{code}
 
-\parhead{An Example with MPS}%
-%
-A similar facility is available for MPS, it is called a \ic{NodesTestCase}
-(\fig{mps-testexample}). It supports special annotations to express assertions
-on types and errors, directly in the program. For example, the third line of the
-nodes section reads \ic{var double d3 = d} without annotations. This is a valid
-variable declaration in mbeddr C. After this has been written down, annotations
-can be added. They are rendered in green. Line three asserts that the type of the
-variable \ic{d} is \ic{double}, i.e. it tests that variable references assume the type of
-the referenced variable. In line four we assign a \ic{double} to an \ic{int}, which is
-illegal according to the typing rules. The error is detected, hence the red
-squiggly. We use another annotation to assert the presence of the error.
+\noindent 
+Scopes can be tested in the same way: we can write example programs where
+references point to valid targets (i.e. those in scope) and invalid targets
+(i.e. not in scope). Valid references may not have errors, invalid references
+must have errors. 
 
-In addition to using these annotations to check models, developers can also
-write more detailed test cases. In the example I assert that the \ic{var} reference
-of the node referred to as \ic{dref} points to the node referred to as \ic{dnode}. Note
-how labels (green, underlined) are used to add names to program elements so they
-can be referred to from test expressions.
 
-\begin{figure}[ht]
+\parhead{An Example with MPS} MPS comes with the \ic{NodesTestCase}
+for testing constraints and type system rules (\fig{mps-testexample}). It
+supports special annotations to express assertions on types and errors, directly
+in the program. For example, the third line of the nodes section in
+\fig{mps-testexample} reads \ic{var double d3 = d} without annotations. This is
+a valid variable declaration in mbeddr C. After this has been written down,
+annotations can be added. They are rendered in green. Line three asserts that
+the type of the variable \ic{d} is \ic{double}, i.e. it tests that variable
+references assume the type of the referenced variable. In line four we assign a
+\ic{double} to an \ic{int}, which is illegal according to the typing rules. The
+error is detected, hence the red squiggly. We use another annotation to assert
+the presence of the error.
+
+\begin{figure}[h]
 \begin{center}
-  \includegraphics[scale=0.65]{figures/7/mps-test.jpg}
-  \caption[]{}
+  \includegraphics[scale=0.6]{figures/7/mps-test.jpg}
+  \caption[]{Using MPS \ic{NodesTestCase}, assertions about types and the
+  presence of errors can be directly annotated on programs written in any
+  language.}
   \label{mps-testexample} 
 \end{center}
 \end{figure}
 
 
-Scopes can be tested in the same way (Xtext and MPS): we can write example
-programs where references point to valid targets (i.e. those in scope) and invalid targets
-(i.e. not in scope). Valid references may not have errors, invalid referneces
-must have errors. But using the facilities shown above, which check for the
-presence of error annotations, scopes can be tested. Some frameworks may provide
-direct access to the scoping API to test scopes more directly.
+In addition to using these annotations to check models, developers can also
+write more detailed test cases about the structure or the types of programs. In
+the example we assert that the \ic{var} reference of the node referred to as
+\ic{dref} points to the node referred to as \ic{dnode}. Note how labels (green,
+underlined) are used to add names to program elements so they can be referred to
+from test expressions. This approach can be used to test scopes. If two
+variables with the same name are defined (e.g. because one of them is defined
+in an outer block, and we assume that the inner variable shadows the outer
+variable of the same name) we can use this mechanism to check that a reference
+actually points to the inner variable. \fig{testShadowingInMPS} shows an
+example.
 
-\parhead{An Example with Spoofax}%
-%
-In Spoofax' testing language, we can write test cases which specify the number of errors and warnings in a code fragment:
+\begin{marginfigure}[-20mm]
+\begin{center}
+  \includegraphics[width=50mm]{figures/7/testShadowingInMPS.png}
+  \caption[]{Labels and test methods can be used to check that scoping
+  works. In this example, we check shadowing of variables.}
+  \label{testShadowingInMPS} 
+\end{center}
+\end{marginfigure}
+
+
+\parhead{An Example with Spoofax} In Spoofax' testing language, we can write
+test cases which specify the number of errors and warnings in a code fragment:
 
 \begin{code}
 test duplicate entities [[
   module foo
-  
   entity X {}
   entity X {}
 ]] 1 error
 
 test lower case entity name [[
   module foo
-  
   entity x {}
 ]] 1 warning
 \end{code}
 
+\noindent 
 Additionally, we can specify parts of the error or warning messages:
 
 \begin{code}
 test duplicate entities [[
   module foo
-  
   entity X {}
   entity X {}
 ]] 1 error /duplicate/
-
-test lower case entity name [[
-  module foo
-  
-  entity x {}
-]] 1 warning /upper case/
 \end{code}
 
-Like in Xtext and MPS, we can test scopes by means of correct and incorrect references.
-Alternatively, we can specify source and target of a link in a test case:
+\noindent 
+Like in Xtext and MPS, we can test scopes by means of correct and incorrect
+references. Alternatively, we can specify source and target of a link in a test
+case:
 
 \begin{code}
 test property reference [[
   module foo
-  
   entity X {
   	[[p]]: int
   	function f(q: int) {
@@ -304,7 +342,6 @@ test property reference [[
 
 test parameter reference [[
   module foo
-  
   entity X {
   	p: int
   	function f([[p]]: int) {
@@ -317,7 +354,6 @@ test parameter reference [[
 
 test variable reference [[
   module foo
-  
   entity X {
   	p: int
   	function f(q: int) {
@@ -329,11 +365,14 @@ test variable reference [[
 ]] resolve #2 to #1
 \end{code}
 
-These cases use double square brackets to select parts of the program and specify the expected reference resolving in terms of these selections.
+\noindent These cases use double square brackets to select parts of the program
+and specify the expected reference resolving in terms of these selections.
+
+
 
 \section{Semantics Testing}
 
-Fundamentally, testing the execution semantics of a program involves the
+Fundamentally, testing the execution semantics of a program involves 
 writing constraints against the \emph{execution} of a program as it is executed.
 In the simplest case this can be done the following way:
 
@@ -341,21 +380,22 @@ In the simplest case this can be done the following way:
   \item write a DSL program, based on an understanding what this program is
   expected to do
   \item generate the program into its executable representation
-  \item \emph{manually} write unit tests that assert the generated program's
-  behavior based on the understanding of what the DSL program should do
+  \item \emph{manually} write unit tests (in the target language) that assert
+  the generated program's behavior based on the understanding of what the DSL program should do
 \end{itemize}
 
 Notice how we do \emph{not} test the structure or syntax of the generated
-artifact. Instead we test it's meaning, which is exactly what we want to test.
-An important variation of this appraoch is the following: instead of writing the
-unit tests manually in the target language, we can also write the tests in the
-DSL, assuming the DSL has syntax to express such tests\footnote{Many DSLs are
-explicitly extended to support this use case}. Writing the test cases on DSL
-level results in more concise and readable tests.\marginnote{Testing DSL
-programs by running tests expressed in the same language runs the risk of
-doubly-negating errors. If the generators for the tests and the core program in
-a compatible way, errors in either one may not be found. However, this problem
-can be alleviated by running a large enough number of tests.}
+artifact. Instead we test it's meaning, which is exactly what we \emph{want} to
+test. An important variation of this appraoch is the following: instead of
+writing the unit tests manually in the target language, we can also write the
+tests in the DSL, assuming the DSL has syntax to express such
+tests\footnote{Many DSLs are explicitly extended to support this use case}.
+Writing the test cases on DSL level results in more concise and readable
+tests.\marginnote{Testing DSL programs by running tests expressed in the same
+language runs the risk of doubly-negating errors. If the generators for the
+tests and the core program in a compatible way, errors in either one may not be
+found. However, this problem can be alleviated by running a large enough number
+of tests.}
 
 The same approach can be used to test execution semantics based on an
 interpreter, although it may be a little bit more difficult to manually write
@@ -379,8 +419,10 @@ can be ensured.
 
 \parhead{Testing an Interpreter with Xtext} The cooling language provides a way
 to express test cases for the cooling programs within the cooling language
-itself. These tests are executed with an interpreter inside the IDE, and they
-can also be executed on the level of the C program. Note that this approach
+itself\footnote{Strictly speaking, tests are a separate viewpoint to keep them
+out of the actual programs.}. These tests are executed with an interpreter
+inside the IDE, and they can also be executed on the level of the C program, by
+generating the program \emph{and} the test cases to C. Note that this approach
 cannot just be used for testing interpreters or generators, it can also be used
 to test whether a program written in the DSL works correclty. This is in fact
 why the interpreter and the test sub-language have been built in the first
@@ -420,18 +462,17 @@ test EngineTest0 for EngineProgram0 {
 \end{code}
 
 
-The test first asserts that, as soon as the program starts, it is in the
-\ic{start} state (line 1). We then assert that \ic{v} is \ic{2}. The only
+\noindent The test first asserts that, as soon as the program starts, it is in
+the \ic{start} state (line 1). We then assert that \ic{v} is \ic{2}. The only
 reasonable way how \ic{v} can become \ic{2} is that the code in the \ic{init}
 block as well as the code in the entry action of the \ic{start} start have been
-executed. Note that this arrangement even checks that the init block is executed
-before the entry action of the start state, since otherwise \ic{v} would be
-\ic{1}!. We then perform one step in the execution of the program (the language
-is stepped) in line 3. At this point nothing should happen, since no event was
-triggered. Then we trigger the event \ic{e1} (line 4) and perform another
-\ic{step} (line 5). After this step, the program must transition to the state
-\ic{s2}, whose entry action sets \ic{v} back to 0. We assert both of these
-(lines 6 and 7).
+executed. Note that this arrangement even checks that the \ic{init} block is
+executed before the entry action of the start state, since otherwise \ic{v}
+would be \ic{1}! We then perform one step in the execution of the program in
+line 3. At this point nothing should happen, since no event was triggered. Then
+we trigger the event \ic{e1} (line 4) and perform another \ic{step} (line 5).
+After this step, the program must transition to the state \ic{s2}, whose entry
+action sets \ic{v} back to 0. We assert both of these in lines 6 and 7.
 
 These tests can be run interactively from the IDE, in which case assertion
 failures are annotated as error marks on the program, or from within JUnit. 
@@ -451,14 +492,14 @@ public class InterpreterTests extends PKInterpreterTestCase {
 }
 \end{code}
 
-This is basically a JUnit test that inherits from a base class that helps with
-loading models and running the interpreter. We call the \ic{runAllTestsInFile}
-method, passing in the model's root element. \ic{runAllTestsInFile}
-is defined by the \ic{PKInterpreterTestCase} base class, which in turn inherits from
-\ic{XtextTest}, which we have seen before. The method iterates over all tests in the
-model and executes them by creating and running a \ic{TestExecutionEngine}. The
-\ic{TestExecutionEngine} is a wrapper around the interpreter for cooling
-programs that we have discussed before.
+\noindent This is basically a JUnit test that inherits from a base class that
+helps with loading models and running the interpreter. We call the
+\ic{runAllTestsInFile} method, passing in the model's root element.
+\ic{runAllTestsInFile} is defined by the \ic{PKInterpreterTestCase} base class,
+which in turn inherits from \ic{XtextTest}, which we have seen before. The
+method iterates over all tests in the model and executes them by creating and
+running a \ic{TestExecutionEngine}. The \ic{TestExecutionEngine} is a wrapper
+around the interpreter for cooling programs that we have discussed before.
 
 
 \begin{code}
@@ -474,6 +515,7 @@ protected void runAllTestsInFile(Model m) {
 }
 \end{code}
 
+\noindent 
 The cooling programs are generated to C for execution in the refrigerator. To
 make sure the generated C code has the same semantics as the interpreter, we
 simply generate C code from the test cases as well. This way, the same tests are
@@ -483,9 +525,12 @@ interpreter and the generator, we ensure that both behave the same way.
 
 \parhead{Testing a Generator with MPS} The following is a test case expressed
 using the testing extension to mbeddr C. It contributes \ic{test case}s to
-modules. \ic{testMultiply} is the actual test case. It calls the to-be-tested
-function \ic{times2} several times with different arguments and then uses an
-\ic{assert} to check for the expected value.
+modules\footnote{Instead of using a separate viewpoint for expressing test
+cases, these are inlined into the same program in this case. However, the
+\emph{language} for expressing test cases is a modular extension to C, to keep
+the core C clean.}. \ic{testMultiply} is the actual test case.
+It calls the to-be-tested function \ic{times2} several times with different
+arguments and then uses an \ic{assert} to check for the expected value.
 
 \begin{code}
 module UnitTestDemo { 
@@ -506,6 +551,7 @@ module UnitTestDemo {
 }
 \end{code}
 
+\noindent 
 Note that, while this unit testing extension can be used to test any C
 program, we use it a lot to test the generator. Consider the following example:
 
@@ -513,15 +559,15 @@ program, we use it a lot to test the generator. Consider the following example:
   assert(0) 4 * 3 + 2 == 14; 
 \end{code}
 
-The result of \ic{4 * 3 + 2} is only 14 if the correct operator precedences are
-observed (otherwise the result would be 20). One problem we had initially in MPS
-was to make sure that the expression tree that was created while manually
-entering expressions like \ic{4 * 3 + 2} is built correctly. If the tree were
-built in the wrong way, the generated code could end up as \ic{4 * (3 + 2)}
-leading to 20. So we've used tests like these to implicltly test quite intricate
-aspects of our language implementation\footnote{This is also the reason why
-the unit test extension was the first extension we've built for C. We needed
-it to test many other aspects of the language.}.
+\noindent The result of \ic{4 * 3 + 2} is only 14 if the correct operator
+precedences are observed (otherwise the result would be 20). One problem we had
+initially in mbeddr C was to make sure that the expression tree that was created
+while manually entering expressions like \ic{4 * 3 + 2} is built correctly. If
+the tree were built in the wrong way, the generated code could end up as \ic{4 *
+(3 + 2)} resulting in 20. So we've used tests like these to implicltly test
+quite intricate aspects of our language implementation\footnote{This is also the
+reason why the unit test extension was the first extension we've built for C. We
+needed it to test many other aspects of the language.}.
 
 We have built much more elaborate support for testing various other extensions.
 It is illustrative to take a look at two of them. The next piece of code shows a
@@ -541,6 +587,7 @@ exported test case test1 {
 }
 \end{code}
 
+\noindent 
 \ic{c1} is an instance of a state machine. After initializing it, we assert that
 it is in the \ic{initialState}. We then use a special \ic{test statemachine}
 statement, which consists of event/state pairs: after triggering the event (on
@@ -550,9 +597,9 @@ by using sequences of \ic{trigger} and \ic{assert} statements, but the syntax
 used here is much more concise. 
 
 The second example concerns mocking. A mock is a part of a program that can be
-used in place of the real one, to simulate some kind of environment of the
-system under test. We use this in the components extension. The following is a
-test case that checks if the \ic{client} uses the \ic{PersistenceProvider} interface
+used in place of the real one, to simulate some kind of environment of the unit
+under test. We use this with the components extension. The following is a test
+case that checks if the \ic{client} uses the \ic{PersistenceProvider} interface
 correctly. Let's start by taking a look at the interface:
 
 \begin{code}
@@ -563,14 +610,15 @@ interface PersistenceProvider {
 }
 \end{code}
 
-The interface is expected to be used in the following way: clients first have to
-call \ic{isReady}, and only if that method returns \ic{true} are they supposed
-to call \ic{store}, and then after any number of calls to \ic{store}, they have
-to call \ic{flush}\footnote{Our components language actually also supports
-protocol state machines which support the declarative specification of valid
-call sequences}. Let us assume now we want to check if a certain client
-component uses the interface correctly. Assuming it provides an operation
-\ic{run} that uses the persistence provider, we could write the following test:
+\noindent The interface is expected to be used in the following way: clients
+first have to call \ic{isReady}, and only if that method returns \ic{true} are
+they supposed to call \ic{store}, and then after any number of calls to
+\ic{store}, they have to call \ic{flush}. Let us assume now we want to check if
+a certain client component uses the interface correctly\footnote{Our components
+language actually also supports protocol state machines which support the
+declarative specification of valid call sequences}. Assuming it provides an
+operation \ic{run} that uses the persistence provider, we could write the
+following test:
 
 \begin{code}
 exported test case runTest { 
@@ -579,9 +627,10 @@ exported test case runTest {
 }
 \end{code}
 
+\noindent 
 To check if the client behaves correctly, we can use a mock. Our mock specifies
-the \emph{icoming} methods calls it expects to see. We have provided a mocking
-extension to components to support this. Here is the mock:
+the \emph{icoming} methods calls it expects to see during the test. We have
+provided a mocking extension to components to support this. Here is the mock:
 
 \begin{code}
 exported mock component PersistenceMock { 
@@ -600,13 +649,13 @@ exported mock component PersistenceMock {
 }
 \end{code}
 
-The mock provides the \ic{PersistenceProvider} interface, so any other component
-that wants to use this interface can use this component as the implementation.
-But instead of actually implementing the operations prescribed by
-\ic{PersistenceProvider}, we specify the sequence of invocations we're expect to
-see. We expect a total number of 4 invocations. The first one is expected to be
-to \ic{isReady}. We return false, expecting that the client tries again later.
-If it does, we return \ic{true} and expect the client to continue with
+\noindent The mock provides the \ic{PersistenceProvider} interface, so any other
+component that \ic{requires} this interface can use this component as the
+implementation. But instead of actually implementing the operations prescribed
+by \ic{PersistenceProvider}, we specify the sequence of invocations we expect
+to see. We expect a total number of 4 invocations. The first one is expected to
+be to \ic{isReady}. We return \ic{false}, expecting that the client tries again
+later. If it does, we return \ic{true} and expect the client to continue with
 persisting data. We can now validate the mock as part of the test case:
 
 \begin{code}
@@ -616,16 +665,20 @@ exported test case runTest {
 }
 \end{code}
 
+\noindent 
 In case the \ic{persistenceMock} saw behavior different from the one specified
 above, the \ic{validate mock} statement will fail --- and with it, the whole
 test.
 
 
-\parhead{Testing Interpreters and Generators with Spoofax}%
-%
-Spoofax' testing language also allows to test transformations.
-We can rely on this, to test interpreters, assuming that the interpreter is implemented as a transformation from programs to program results. 
-For example, the following tests address a transformation \ic{calculate} which interpretes expressions:
+\parhead{Testing Interpreters and Generators with Spoofax} Spoofax' testing
+language also supports testing transformations. We can rely on this, to test
+interpreters, assuming that the interpreter is implemented as a transformation
+from programs to program results. For example, the following tests address a
+transformation \ic{calculate} which interpretes expressions:
+
+\todo{@Guido how would one write such an interpreter that implements the
+semantics by transformation?}
 
 \begin{code}
 test evaluate addition [[1+2]] run calculate to Int("3")
@@ -633,13 +686,14 @@ test evaluate multiplication [[3*4]] run calculate to Int("12")
 test complex evaluation 1 [[1+2*(3+4)]] run calculate to Int("15")
 \end{code}
 
-To test generators, we can rely on Spoofax' testing support for builders.
-Since we are not interested in testing in terms of the generated code, but in the bevaviour of 
-the generated code, we need a builder which generates code, runs the generated code, and finally 
-yields the result of this run.
+\noindent To test generators, we can rely on Spoofax' testing support for
+builders. Since we are not interested in testing in terms of the generated code,
+but in the behaviour of the generated code, we need a builder which generates
+code, runs the generated code, and finally yields the result of this run.
 
-For example, the following tests address a builder \ic{generate-and-run} which generates code 
-from expressions, runs this code, and returns the result of the run as a string:
+For example, the following tests address a builder \ic{generate-and-run} which
+generates code from expressions, runs this code, and returns the result of the
+run as a string:
 
 \begin{code}
 test generate addition [[1+2]] build generate-and-run to "3"
@@ -648,6 +702,7 @@ test generate evaluation 1 [[1+2*(3+4)]] run generate-and-run to "15"
 \end{code}
 
 \MV{Something missing here?}
+\noindent 
 These tests address a builder \ic{generate-and-run} which 
 These te
 
@@ -655,8 +710,8 @@ These te
 \parhead{Structural Testing} What we suggested in the previous subsection tests
 the execution semantics of programs written in DSLs, and, if we have enough of
 these tests, it tests the correctness of the transformation, generator or
-interpreter. However, there is a significant drawback to this approach: it only
-works if the DSL actually specifies behavior! If the DSL only specifies
+interpreter. However, there is a significant limitation to this approach: it
+only works if the DSL actually specifies behavior! If the DSL only specifies
 structures and cannot be executed, the approach does not work\footnote{For
 testing execution semantics, this does not matter --- if you cannot execute
 something because it has no behavior, then there is no execution semantics to
@@ -677,21 +732,26 @@ expressions or OCL-like expressions to achieve this\ic{Remember that you should
 still automate this!}. 
 
 Note that you really should only use this if you cannot use semantics testing
-based on execution. Inspecting the generated C
-code for syntactic correctness, based on the input program, would be much more
-work. And if we evolve the generator to generate better (faster, smaller, more
-robust) code, tests based on the execution semantics will still work, while
-those that test the structure may fail because line numbers or variable names
-change.
+based on execution. Inspecting the generated C code for syntactic correctness,
+based on the input program, would be much more work. And if we evolve the
+generator to generate better (faster, smaller, more robust) code, tests based on
+the execution semantics will still work, while those that test the structure may
+fail because line numbers or variable names change.
 
 Structural testing can also be useful to unit test model-to-model
-transformations. Conside the example in \sect{m2mxtext}. There, inserted
-additional states and transitions into whatever input state machine our
-transformation processed. Testing this via execution invariably tests the
-model-to-model transformation as well as the generator (or interpreter). If we
-wanted to test the model-to-model transformation in isolation, we have to use
-structural testing. The following piece of code could be used to check that, for
-a specific input program, the transformation works correctly:
+transformations\footnote{If a program is transformed to an executable
+representation in several steps, then the approach discussed above tests
+\emph{all transformations in total}, so it is more like an integration test, and
+not a unit test. Depending on the complexity and the reuse potential of the the
+transformation steps, it may make sense to test them in isolation.}.
+Conside the example in \sect{m2mxtext}. There, we inserted additional states and
+transitions into whatever input state machine our transformation processed.
+Testing this via execution invariably tests the model-to-model transformation as
+well as the generator (or interpreter). If we wanted to test the model-to-model
+transformation in isolation, we have to use structural testing, because the
+result of that transformation itself is not yet executable. The following piece
+of code could be used to check that, for a specific input program, the
+transformation works correctly:
 
 \begin{code}
 // run transformation
@@ -707,37 +767,37 @@ states.findFirst(s|s.name.equals("noCooling")).eAllContents.
         exists(css|css.targetState == emergencyState)
 \end{code}
 
+\noindent 
 This program first runs the transformation, and then grabs all \ic{CustomState}s
 (those that are not start or stop states). We then assert that in those states
 there is exactly one with the name \ic{EMERGENCY\_STOP}, because we assume that
 the transformation has added this state. We then check that in the
 (one and only) \ic{noCooling} state there's at least one
 \ic{ChangeStateStatement} whose target state is the \ic{emergencyState} we had
-retrieved above.
-
-Notice that we don't write an algorithmic check that closely resembles the
+retrieved above\footnote{Notice that we don't write an algorithmic check that closely resembles the
 transformation itself. Rather, we test a specific model for the presence of
 specific structures. For example, we explicitly look for a state called
 \ic{noCooling} and check that this one has the correct
-\ic{ChangeStateStatement}.
+\ic{ChangeStateStatement}.}.
+
+
 
 
 \parhead{Formal Verification} Formal verification is an alternative to testing
-in some cases. The fundamental different between testing and verification is
+in some cases. The fundamental difference between testing and verification is
 this: in testing, each test case specifies \ic{one} particular execution
-scenario. To get reasonable or full coverage of the whole model or generator,
-you have to write and execute many tests. This can be a lot of work, and, more
-importantly, you may not think about certain (exceptional) scenarios, and hence
-you may not test then. Bug may go unnoticed.
+scenario. To get reasonable or full coverage of the whole model or
+transformation, you have to write and execute a lot of tests. This can be a lot
+of work, and, more importantly, you may not think about certain (exceptional)
+scenarios, and hence you may not test them. Bugs may go unnoticed.
 
-Verification checks \ic{the whole program} at once. Varios non-trivial
+Verification checks \ic{the whole program} at once. Various non-trivial
 algorithms are used to do that, and understanding these algorithms in detail is
 beyond the scope of this book. However, it is very useful to know these
 appraoches exist, especially since, over the last couple of years, they have
 become scalable enough to address real-world problems. 
 
-In this section we look at two examples cases --- the first will be the most
-detailed.
+In this section we look at two examples: model checking and SAT solving.
 
 \parhead{Model Checking State Machines} Model Checking is a verification
 technique for state machines. In this section we can only scratch the surface;
@@ -745,9 +805,9 @@ to learn more about model checking, we recommend \cite{BerardBidoitM2001}. Here
 is how it works in principle:
 
 \begin{itemize}
-  \item a piece of functionality is expressed as a state machine
+  \item some functionality is expressed as a state machine
   \item you then specify \emph{properties} of the state machine. Properties are
-  expressions that have to true about the state machine
+  expressions that have to \ic{true} about the state machine
   \item you run the model checker with the state machine and the properties as
   input
   \item the output of the model checker either confirms that your properties
@@ -756,10 +816,10 @@ is how it works in principle:
   try again}.
 \end{itemize}
 
-Conceptually, the model checker performs an exhaustive search as part of the
+Conceptually, the model checker performs an exhaustive search during the
 verification process. Obviously, the more complex your state machine is, the
 more possibilities the checker has to address, a problem known as state space
-explosion. With finite memory, this limits scalability. In actual fact the model
+explosion. With finite memory, this limits scalability. In reality the model
 checker does \emph{not} perform an exhaustive search; clever algorithms have
 been devised that are semantically equivalent to an exhaustive search, but don't
 actually perform one. This makes model checking scalable and fast enough for
@@ -767,43 +827,44 @@ real-world problems, although there is still a limit in terms of input model
 complexity.
 
 The interesting aspect of model checking is that the properties you specify are
-not just simple boolean expressions such as \emph{each state must have at least
+not just simple Boolean expressions such as \emph{each state must have at least
 one outgoing transition, unless it is a stop state}. Such a check can be
 performed statically, by "just looking" at the model. The properties model
 checkers are more elaborate and are often typically expressed in (various
 flavours of) temporal logic. Here are some examples, expressed in plain English:
 
 \begin{itemize}
-  \item \emph{It is always true that after we have been in state-X we will
-  eventually be reaching state-Y}. This is a so-called Fairness
-  property. It ensures that the state machine does not get stuck in some state forever.
-  For example, \ic{state-Y} may be the green light for pedestrians, and
-  \ic{state-X} could be the green light for cars.
-  \item \emph{Whereever we are in the state machine, it is always possible to get
-  into state-X}. This is a Liveliness property. Consider a machine where
+  \item \emph{It is always true that after we have been in state X we will
+  eventually be reaching state Y}. This is a so-called Fairness
+  property. It ensures that the state machine does not get stuck in some state 
+  forever. For example, \ic{state Y} may be the green light for pedestrians, and
+  \ic{state X} could be the green light for cars.
+  \item \emph{Wherever we are in the state machine, it is always possible to get
+  into state X}. This is a Liveliness property. Consider a machine where
   you always want to be able to turn it off.
-  \item \emph{It is not ever possible to get into state-X without having gone
-  through state-Y directly before}. This is a Safety property. Imagine a state
-  machine where entering \emph{state-X} turns the pedestrian lights gree and
-  entering \ic{state-X} turns the car lights red.
+  \item \emph{It is not ever possible to get into state X without having gone
+  through state Y directly before}. This is a Safety property. Imagine a state
+  machine where entering \emph{state X} turns the pedestrian lights gree and
+  entering \ic{state X} turns the car lights red.
 \end{itemize}
 
 The important property of these temporal logic specifications is that
 quantifiers such as \emph{always}, \emph{whenever} and \emph{there exists} are
-available. Using these one can specify \emph{global truths} about the \emph{execution}
-of a system. Three different flavours of languages exist to specify these
-properties: LTL, CTL and CTL+. The concrete syntax is beyond the scope of this
-book.
+available. Using these one can specify \emph{global truths} about the
+\emph{execution} of a system\footnote{Three different flavours of languages exist to
+specify these properties: LTL, CTL and CTL+. The concrete syntax is beyond the
+scope of this book.}. 
 
 Model checking does come with its challenges. The input language for specifying
 state machines as well as specifying the properties is not necessarily easy to
-work with. Interpreting the replies of the model checker can be a challenge. And
-for some of the tools, the usability is really bad --- the PROMELA/SPIN model
-checker comes to mind here!
+work with. Interpreting the results of the model checker can be a challenge. And
+for some of the tools, the usability is really bad\footnote{the SPIN/Promela model
+checker comes to mind here!}.
 
 To make model checking more user friendly the mbeddr C language provides a nice
 syntax for state machines and then generates the corresponding representation in
-the input language of the model checker (we use the NuSMV model checker here).
+the input language of the model checker (we use the
+NuSMV\footnote{http://nusmv.fbk.eu/} model checker). 
 The replies of the model checker are also reinterpreted in the context of the
 higher level state machine. Tool integration is provided as well: users can
 select the context menu on a state machine and invoke the model checker. The
@@ -811,12 +872,14 @@ model checker input is generated, the model checker is executed, and the replies
 are rendered in a nice table in MPS. Finally, we have abstracted the property
 specification language by providing support for the most important idioms; these
 can be specified relatively easily. Also, a number of properties are
-automatically checked for each state machine. Let us look at an example. The
-following code shows a state machine that represents a counter. We can send the
-\ic{step} event into the state machine, and as a consequence, it increments the
-\ic{currentVal} counter by the \ic{size} parameter passed with the event. If the
-\ic{currentVal} would become greater than \ic{LIMIT}, the counter wraps around.
-We can also use the \ic{start} event to reset the counter to \ic{0}.
+automatically checked for each state machine. 
+
+Let us look at an example. The following code shows a state machine that
+represents a counter. We can send the \ic{step} event into the state machine,
+and as a consequence, it increments the \ic{currentVal} counter by the \ic{size}
+parameter passed with the event. If the \ic{currentVal} would become greater
+than \ic{LIMIT}, the counter wraps around. We can also use the \ic{start} event
+to reset the counter to \ic{0}.
 
 \begin{code}
 verified statemachine Counter { 
@@ -838,9 +901,9 @@ verified statemachine Counter {
 }
 \end{code}
 
-Since this state machine is marked as \ic{verifiable}, can run the model checker
-from the context menu. \fig{verification1} shows the result of running the model
-checker.
+\noindent Since this state machine is marked as \ic{verifiable}, we can run the
+model checker from the context menu. \fig{verification1} shows the result of
+running the model checker.
 
 
 \begin{figure}[ht]
@@ -851,6 +914,7 @@ checker.
 \end{center} 
 \end{figure}
 
+\noindent 
 Here is a subset of the properties it has checked successfully (it performs
 these checks for all states/transitions by default):
 
@@ -861,6 +925,7 @@ State 'countState' has deterministic transitions             SUCCESS
 Transition 0 of state 'initialState' is not dead             SUCCESS	
 \end{code}
 
+\noindent 
 The first one reports that NuSMV has successfully proven that the
 \ic{initialState} can be reached somehow. The second one reports that the
 variable \ic{currentVal} stays within its bounds (notice how \ic{currentVal} is
@@ -876,7 +941,8 @@ on step [currentVal + size >= LIMIT] -> initialState {  }
 on step [currentVal + size <= LIMIT] -> countState { currentVal = currentVal + size; }
 \end{code}
 
-You perhaps don't even recognize the different --- which is exactly why you
+\noindent 
+You perhaps don't even recognize the difference --- which is exactly why you
 would want to use a model checker! We have changed the \ic{>} to a \ic{>=} in
 the first transition. Running the model checker again, we get, among others,
 
@@ -884,7 +950,8 @@ the first transition. Running the model checker again, we get, among others,
 State 'countState' contains nondeterministic transitions     FAIL    4
 \end{code}
 
-This reports that there is a case where the two transitions are
+\noindent 
+This means that there is a case where the two transitions are
 non-deterministic, i.e. both are possible based on the guard, and it not clear
 which one should be used. The \ic{4} at the end means that the execution trace
 to this problem contains four steps. Clicking on the failed property check
@@ -907,6 +974,7 @@ State initialState
   currentVal                   10
 \end{code}
 
+\noindent 
 This is one (of potentially many) execution traces of this state machine that
 leads to the non-determinism: \ic{currentVal} is 10, and because of the \ic{>=},
 both transitions could fire.
@@ -924,39 +992,41 @@ verification conditions
   always eventually reachable initialState
 \end{code}
 
-The first one allows to express that we want the model checker to prove that any
-boolean condition will never happen. In our example, we check that the \ic{LIMIT}
-really is a constant and is never (accidentally) changed. The second one
-specifies that wherever we are in the execution of the state machine, it is
-still possible (after any number of steps) to reach the \ic{initialState}. Both
-properties hold for the example state machine.
+\noindent The first one allows to express that we want the model checker to
+prove that any Boolean condition will never happen. In our example, we check
+that the \ic{LIMIT} really is a constant and is never (accidentally) changed.
+The second one specifies that wherever we are in the execution of the state
+machine, it is still possible (after an arbitrary number of steps) to reach the
+\ic{initialState}. Both properties hold for the example state machine.
 
 
 \parhead{SAT Solving} SAT solving, which is short for satisfiability solving,
-concerns the satisfiability of sets of boolean equations. Users specify a set of
-boolean equations and the solver tries to assign truth values to the free
+concerns the satisfiability of sets of Boolean equations. Users specify a set of
+Boolean equations and the solver tries to assign truth values to the free
 variables so as to satisfy all specified equations\footnote{There are also
-solvers that work with arithmetic expressions in addition to booleans.}. SAT
-solving is an NP-complete problem, so there is no analytic approach. However,
-exhaustive search (implemented, of course, in much more clever ways) is the way
-to address these problems.
+solvers that work with arithmetic expressions in addition to Booleans.}. SAT
+solving is an NP-complete problem, so there is no analytic approach: exhaustive
+search (implemented, of course, in much more clever ways) is the way to address
+these problems.
 
 For example, SAT solving can be used to address the following problem. In the
 mbeddr C language, we support decision tables. A decision table has a set of
-boolean conditions as row headers as well as a set of boolean conditions in the
+Boolean conditions as row headers as well as a set of Boolean conditions in the
 column headers, as well as arbitrary values in the content cells.
 \fig{dectabexample} shows an example. 
 
 \begin{figure}[ht]
 \begin{center}
   \includegraphics[width=11cm]{figures/7/dectabexample.png}
-  \caption[]{}
+  \caption[]{An example decision table in mbeddr C. SAT solving is used to
+  check it for consistency and completeness.}
   \label{dectabexample} 
 \end{center}
 \end{figure}
 
+\noindent 
 SAT solving can be used to check whether all cases are handled. It can detect if
-combinations of the relevant variables exit, for which no combination of row
+combinations of the relevant variables exist for which no combination of row
 header and column header expressions match; in this case, the decision table
 would not return any value. 
 
@@ -968,52 +1038,39 @@ table) we generate the input to the solver, run it, and then report the result
 in the context of the high-level language.
 
 
-\parhead{Model Checking and Transformations}
-
-A problem with model verification approaches is that they verify only the model.
-They can detect inconsistencies or property violations as a consequence of flaws
-in the program expressed with a DSL. However, even if we find no flaws in the
-model on DSL level, the generator may still introduce problems. In other words,
-the behavior of the generated code may be different from the (proven correct)
+\parhead{Model Checking and Transformations} A problem with model verification
+approaches in general is that they verify only the model. They can detect
+inconsistencies or property violations as a consequence of flaws in the program
+expressed with a DSL. However, even if we find no flaws in the model on DSL
+level, the \emph{generator} may still introduce problems. In other words, the
+behavior of the generated code may be different from the (proven correct)
 behavior expressed in the model. There are three ways to address this:
 
 \begin{itemize}
   \item You can test your generator manually using the strategies suggested in
-  this chapter. Once you truse the generator based one a sufficiently large set
+  this chapter. Once you trust the generator based one a sufficiently large set
   of tests, you then only have to verify the models --- since you know they will
   be translated correctly.
-  \item Some tools, for example the UPAAL model checker, can also generate test
-  cases. These are stimuli to the model, together with the expected reactions.
-  You can generate those into your target language and then run these in your
+  \item Some tools, for example the UPAAL model
+  checker\footnote{http://www.uppaal.com/}, can also generate test cases. These 
+  are stimuli to the model, together with the expected reactions.
+  You can generate those into your target language and then run them in your
   target language. This is essentially an automated version of the first
   approach.
   \item Finally, you can verify the generated code. For example, there are model
   checkers for C. You can then verify that the properties that hold on the DSL
   level also hold on the level of the generated code. This approach runs into
   scalability issues relatively quickly, since the state space of a C program is
-  much larger than the state space of a well-crafted state machine. Remember
+  much larger than the state space of a well-crafted state machine\footnote{Remember
   that we use formalisms such as state machines instead of low level code
-  specifically to allow more meaningful validation. However, you can use this
+  specifically to allow more meaningful validation.}. However, you can use this 
   approach to verify the generated code based on a sufficient set of relatively
   small test cases, making sure that these cover all aspects of the generator.
   Once you've built trust in the generator in this way, you can resort to
   verifying just the DSL models (which scales better).
 \end{itemize}
 
-\begin{figure}[h]
-\begin{center}
-  \includegraphics[width=10cm]{figures/7/editorTesting.png}
-  \caption[]{This test tests whether code completion works correctly. We start
-  with an "empty" variable declaration in the \ic{before} slot. It is marked
-  with \ic{cell}, an special annotation used in UI tests to mark the editor cell for that has the focus for
-  the subsequent scripted behavior. In the \ic{result} slot, we describe the
-  state of the editor \emph{after} the script code has been executed. The script
-  code then simulates typing the word \ic{myVariable}, pressing \ic{TAB},
-  pressing \ic{CTRL-SPACE}, typing \ic{boo} (as a prefix of \ic{boolean}) and
-  pressing \ic{ENTER}.}
-  \label{editorTesting} 
-\end{center} 
-\end{figure}
+
 
 
 
@@ -1040,22 +1097,35 @@ general. There are three ways of approaching this:
 
 In practice, I try to use the third alternative as far as possible: for
 non-trivial IDE functionality in quick fixes and refactorings, I isolate the
-behavior and write unit tests. For simple things I don't do any tests. For the
-actual UI, I typically don't do any automated tests at all, for three reasons.
-(1) it is simply too cumbersome and not worth the trouble, (2) as we use the
-editor to try things out, we implicitly test the UI, and (3), language
+behavior and write unit tests. For simple things I don't do any automated tests.
+For the actual UI, I typically don't do any automated tests at all, for three
+reasons. (1) it is simply too cumbersome and not worth the trouble, (2) as we
+use the editor to try things out, we implicitly test the UI, and (3), language
 workbenches are frameworks where, if you get the functionality right (via unit
 tests), they provide generic UIs that can be expected to work.
 
-
+\begin{figure}[h]
+\begin{center}
+  \includegraphics[width=10cm]{figures/7/editorTesting.png}
+  \caption[]{This test tests whether code completion works correctly. We start
+  with an "empty" variable declaration in the \ic{before} slot. It is marked
+  with \ic{cell}, an special annotation used in UI tests to mark the editor cell for that has the focus for
+  the subsequent scripted behavior. In the \ic{result} slot, we describe the
+  state of the editor \emph{after} the script code has been executed. The script
+  code then simulates typing the word \ic{myVariable}, pressing \ic{TAB},
+  pressing \ic{CTRL-SPACE}, typing \ic{boo} (as a prefix of \ic{boolean}) and
+  pressing \ic{ENTER}.}
+  \label{editorTesting} 
+\end{center} 
+\end{figure}
 
 
 
 \section{Testing for language appropriateness}
 
-A DSL is only useful if it can express what it is supposed to express. Expressed
-a bit more formally, one can say that the coverage of the DSL relative to the
-target domain should be 100\%. In practice, this questions is much more faceted,
+A DSL is only useful if it can express what it is supposed to express. A bit
+more formally, one can say that the coverage of the DSL relative to the target
+domain should be 100\%. In practice, this questions is much more faceted,
 though:
 
 \begin{itemize}

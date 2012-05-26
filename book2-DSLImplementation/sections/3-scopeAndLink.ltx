@@ -119,6 +119,7 @@ concept, and that is contributed to the namespace. As an example, wecan add thi
 "entity" Type@=ID "{" EntityBodyDecl* "}" -> Decl {"Entity"}
 \end{code}
 
+\noindent 
 The annotation indicates that every program element that corresponds to this
 production defines a name in the \ic{Type} namespace. It also indicates the name
 of the program element: the identifier \ic{ID} that follows after the
@@ -138,6 +139,7 @@ References to definitions are defined in a similar fashion, using the notation
 Property@=ID ":" Type@ID -> EntityBodyDecl {"Property"}
 \end{code}
 
+\noindent 
 The first annotation here says that the production defines something in the 
 \ic{Property} namespace, while the second says that the \ic{ID} after the 
 colon references something in the \ic{Type} namespace.
@@ -158,6 +160,7 @@ mobl entity, and so on. Block structures can be specified by adding
 "entity" Type@=ID "{" EntityBodyDecl* "}" -> Entity {"Entity", scope(Property)}
 \end{code}
 
+\noindent 
 Here, the \ic{scope} annotation indicates that every entity scopes the
 properties inside it. These scopes are used to qualify the names of every
 property inside an entity:
@@ -172,6 +175,7 @@ entity Product {
 }
 \end{code}
 
+\noindent 
 In this example, the two \ic{name} properties both live the \ic{Property}
 namespace, but we can still distinguish them: one can be reached as
 \ic{Customer.name}, the other as \ic{Product.name}. This means that if \ic{name}
@@ -213,6 +217,7 @@ context-free syntax
   INT                              -> Exp {"Int"}
 \end{code}
 
+\noindent 
 A special case in this grammar is the rule for \ic{"Var"}, which can refer to
 multiple namespaces (the underscore represents a wildcard). Consider the
 statement \ic{return x.y;}. In such a statement, \ic{x} can be a local variable
@@ -238,6 +243,7 @@ entity Store {
 }
 \end{code}
 
+\noindent 
 Following the annotated mobl grammar, there are two block constructs in this
 fragment: one at the module level and one at the entity level. We can assign
 names to these blocks (\ic{storage} and \ic{Store}) by using the namespace
@@ -256,6 +262,7 @@ memory space.}:
 \end{code}
 
 
+\noindent 
 In most cases, parts of a path are simple strings, such as \ic{"Store"}, but
 they can be complex terms if needed. An example is \emph{anonymous} blocks that
 do not have a name associated with them. Block statements in C-like languages 
@@ -266,6 +273,7 @@ We can add a block statement to our grammar by adding the following production:
 "{" Stm* "}" -> Stm {"Block", Scope(Var)}
 \end{code}
 
+\noindent 
 The block statement does not define a definition name, but can still become part
 of a URI. Instead of a name, that part will then have the form \ic{Anon(n)}
 where \ic{n} is a generated number that identifies the block. \ic{Anon(n)} is anexample of a complex term.
@@ -291,6 +299,7 @@ entity BankAccount {
 }
 \end{code}
 
+\noindent 
 The analyzed abstract syntax for this example is the following:
 
 \begin{code}
@@ -326,6 +335,7 @@ Module(
 ) 
 \end{code}
 
+\noindent 
 The annotations indicate the URIs of each definition and reference.
 They can be used to get an unrefined view of all URIs at a glance, but
 also have a role in transformations on abstract syntax, as we discuss later.
@@ -378,6 +388,7 @@ entity Store {
 }
 \end{code}
 
+\noindent 
 The \ic{address} property references something named \ic{Address}. According to
 the grammar, that something lives in the \ic{Type} namespace. Spoofax resolves
 this name by looking at the context: is there an \ic{Address} in
@@ -419,6 +430,7 @@ rule-name:
   term1 -> term2
 \end{code}
 
+\noindent 
 Term patterns have the same form as terms: any term is a legal term pattern.
 In addition to the basic constructors, string literals, integer literals, and so
 on, they also support variables (e.g., \ic{v} or \ic{name}) and wildcards
@@ -430,6 +442,7 @@ get-properties-types:
   Entity(name, properties) -> properties
 \end{code}
 
+\noindent 
 So, for an entity \ic{Entity("User", [Property("name", String)])}, it binds
 \ic{"User"} to the variable \ic{name}, and \ic{[Property("name", "String")]}
 to the variable \ic{properties}. It then returns \ic{properties}. While rewrite
@@ -443,6 +456,7 @@ get-properties:
   FieldAccess(expr, property) -> property
 \end{code} 
 
+\noindent 
 Rules can have complex patterns. For example, it is possible to write a rule
 that succeeds only for entities with \emph{only} a \ic{name}
 property\footnote{Note how this rule uses a wildcard since it doesn't care about
@@ -454,6 +468,7 @@ is-name-only-entity:
 \end{code}
 
 
+\noindent 
 Rewrite rules can be invoked using the syntax \ic{<rule-name> term}. For
 example, \ic{<get-properties> Entity("Unit", [])} would return an empty list of
 properties. The angle brackets make it easy to distinguish rule invocations
@@ -472,6 +487,7 @@ invoke-get-properties:
     result := <get-properties> Entity(name, properties)
 \end{code}
 
+\noindent 
 Rules can also have conditions. These can be specified using
 \ic{where}\footnote{If the pattern of a rule does not match, or if its
 conditions do not succeed, a rule is said to \emph{fail}.}. These clauses
@@ -487,6 +503,7 @@ has-properties:
     not(!properties => [])  
 \end{code}
 
+\noindent 
 This rule only succeeds for entities where the condition \ic{not(!properties =>
 [])} holds. That is, it succeeds as long as an entity does not have an empty
 list (indicated by \ic{[]}) of properties. Rewrite rules can have any number of
@@ -514,6 +531,7 @@ appear.
 
 
 
+\noindent 
 Like functions or methods in other languages, rewrite rules can have parameters.
 Stratego distinguishes between parameters that pass other rules and parameters
 that pass terms, using a vertical bar to separate them two separate lists. Rules
@@ -534,6 +552,7 @@ get-property-type:
   Property(_, type) -> type
 \end{code}
 
+\noindent 
 Rules like \ic{map} specify a \emph{traversal} on a certain term structure: they
 specify how a certain rule should be applied to a term and its subterms. Rules
 that specify traversals are also called \emph{strategies}\footnote{This is where
@@ -563,6 +582,7 @@ entity BankAccount {
 }
 \end{code}
 
+\noindent 
 Here, the function \ic{getNumber} references the local \ic{number} property.
 The production rule we previously specified for these kinds of references
 used an underscore to indicate that we would manually specify how to resolve
@@ -572,6 +592,7 @@ it\footnote{Because properties and variables can be referenced.}:
 _@ID -> Exp {"Var"}
 \end{code}
 
+\noindent 
 So, we need to specify a \ic{adjust-index-lookup} rule for the variables:
 
 \begin{code}
@@ -581,6 +602,7 @@ adjust-index-lookup(target |namespace, path, name):
     adjusted-uris := ...
 \end{code}
 
+\noindent 
 Each \ic{adjust-index-lookup} rule has this exact signature: it gets a
 \ic{target} rule argument, and term arguments with the \ic{namespace},
 \ic{path}, and \emph{name} of the reference to be resolved. On the left-hand
@@ -685,6 +707,7 @@ public interface IScopeProvider {
 }
 \end{code}
 
+\noindent 
 To make the scoping implementation easier, Xtext provides so-called declarative
 scope providers through the \ic{AbstractDeclarativeScopeProvider} base class:
 instead of having to inspect the \ic{reference} and \ic{context} object
@@ -703,6 +726,7 @@ public IScope scope_<X>(<Y> ctx, EReference ref);
 \end{code}
 
  
+\noindent 
 Let's assume we want to scope the \ic{targetState} reference of the
 \ic{ChangeStateStatement}. Its definition in the grammar looks as follows:
 
@@ -711,6 +735,7 @@ ChangeStateStatement:
     "state" targetState=[State];
 \end{code}
 
+\noindent 
 We can use the following two alternative methods:
 
 \begin{code}
@@ -725,6 +750,7 @@ public IScope scope_State(ChangeStateStatement ctx, EReference ref) {
 \end{code}
 
 
+\noindent 
 The first alternative is specific for the \ic{targetState} reference of the
 \ic{ChangeStateStatement}. It is invoked by the declarative scope provider only
 for that reference. The second alternative is more generic. It is invoked
@@ -750,6 +776,7 @@ public IScope scope_State(CoolingProgram ctx, EReference ref) {
 \end{code}
 
 
+\noindent 
 The implementation of the scopes is simple, and relatively similar in all three
 cases. We write Java code that crawls up the containment hierarchy until we
 arrive at a \ic{CoolingProgram} (in the last alternative, we already get the
@@ -766,6 +793,7 @@ public IScope scope_ChangeStateStatement_targetState
 }
 \end{code}
 
+\noindent 
 The \ic{Scopes} class provides a couple of helper methods to create \ic{IScope}
 objects from collections of elements. The simple \ic{scopeFor} method we use
 will use the \ic{name} of the target element as the text by which it will be
@@ -805,6 +833,7 @@ function addAll( int es ... ) {
 \end{code}
 
 
+\noindent 
 At \ic{1}, the local variable \ic{sum}, the arguments \ic{x} and \ic{y} and the
 global variables \ic{x} and \ic{g} are visible, although the global variable
 \ic{x} is shadowed by the argument of the same name. At \ic{2}, we can see
@@ -924,6 +953,7 @@ AtomicLevel returns Expression:
     ({SymbolRef} symbol=[SymbolDeclaration|QID]);
 \end{code}  
 
+\noindent 
 The problem with this situation is that the reference itself does not encode the
 kind of thing that is referenced. By looking at the reference alone we only know
 that we reference some kind of symbol. This makes writing code that processes
@@ -942,6 +972,7 @@ AtomicLevel returns Expression:
     ({HardwareBuildingBlockRef} hbb=[HardwareBuildingBlock]);
 \end{code}  
 
+\noindent 
 However, this is not possible with Xtext, since the parser cannot distinguish
 the three cases syntactically. In all three cases, the reference syntax itself
 is just an \ic{ID}. Only during the linking phase could the system check which
@@ -957,6 +988,7 @@ AtomicLevel returns Expression:
     ({HardwareBuildingBlockRef} "#" hbb=[HardwareBuildingBlock]);
 \end{code}  
 
+\noindent 
 While this approach will technically work, it would lead to an awkward syntax
 and is hence typically not used. The only remaining alternative is to make all
 referencable elements extend \ic{SymbolDeclaration} and use a single reference
@@ -993,6 +1025,7 @@ concept Transition
     State   target  1       
 \end{code}
 
+\noindent 
 The scope itself is defined via the search scope constraint below. The system
 provides an anonymous function \ic{search scope} that has a number of arguments
 that describe the context including the enclosing node and the referencing node.
@@ -1018,6 +1051,7 @@ link {target}
     <no presentation> 
 ;\end{code}
 
+\noindent 
 Note that for a smart reference, where the refernece object is created only
 \emph{after} selecting the target, the \ic{referenceNode} argument is \ic{null}!
 This is why we write the scope using the \ic{enclosingNode} argument.
@@ -1097,6 +1131,7 @@ statemachine linefollower {
 }                                                                                   
 \end{code}
 
+\noindent 
 Both references to local variables and to event parameters use the same
 syntactic form: simply a text string that represents the name of the respective
 target element. In Xtext, this has to be implemented with a single reference
@@ -1137,6 +1172,7 @@ link {arg}
 ;
 \end{code} 
 
+\noindent 
 Entering the reference happens by typing the name of the referenced element (cf.
 the concept of smart references introduced above). In the case where there's a
 \ic{LocalVariable} and a \ic{EventParameter} of the same name, the user has to

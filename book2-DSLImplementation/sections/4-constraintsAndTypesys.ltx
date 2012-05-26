@@ -57,6 +57,7 @@ message:
   be imported"
 \end{code}
 
+\noindent 
 Some kinds of constraints require specialized data structures to be built or
 maintained in sync with the program. Examples include dead code detection,
 missing returns in some branches of a method's body or read access to an
@@ -104,6 +105,7 @@ public void checkOrphanEndState( CustomState ctx ) {
 \end{code}
 
 
+\noindent 
 The method retrieves the cooling program that owns the \ic{ctx} state, then
 retrieves all of its descendants and iterates over them. If the descendant is a
 \ic{ChangeStateStatement}, and if the \ic{targetState} property of the
@@ -144,6 +146,7 @@ checking rule stateUnreachable {
 }                                                                                                                                                                                                               
 \end{code}
 
+\noindent 
 Currently there is no way to control when a constraint is run, it is decided
 based on some MPS-internal algorithm. However, pressing \keystroke{F5} in a
 program or explicitly running the model checker forces all constraints to be
@@ -189,6 +192,7 @@ data flow builder for LocalVariableDeclaration {
 }
 \end{code}
 
+\noindent 
 If the \lcr{LocalVariableDecaration} has an \ic{init} expression (it is
 optional!), then the DFB for the \ic{init} expression has to be executed. The
 \lcr{code for} statement calls the DFB for the node that is passed as its
@@ -220,6 +224,7 @@ data flow builder for AssigmentStatement {
 }
 \end{code}
 
+\noindent 
 For a \lcr{StatementList}, we simply mark the list as visited and then execute
 the DFBs for each statement in the list. We are now ready to inspect the data
 flow graph for a simple function. \fig{dfgexample} shows the function and the graph.
@@ -233,6 +238,7 @@ menu.}
 \label{dfgexample}  
 \end{figure}
 
+\noindent 
 Most interesting data flow analysis has to do with loops and branching. So
 specifying the correct DFBs for things like \lcr{if}, \lcr{switch} and \lcr{for}
 is important. As an example, we look at the DFB for the \lcr{IfStatement}. We
@@ -250,6 +256,7 @@ code for node.thenPart
 { jump after node } 
 \end{code}
 
+\noindent 
 The \lcr{ifjump} statement means that we may jump to the specified label (i.e.
 we then execute the \lcr{else if}s). If not (we just "run over" the
 \lcr{ifjmp}), then we execute the \lcr{thenPart}. If we execute the
@@ -281,7 +288,7 @@ if (node.elsePart != null) {
 }
 \end{code}
 
-
+\noindent 
 We can now inspect the DFB for the \lcr{ElseIfPart}. We first run the DFB for
 the condition. Then we may jump to after that \lcr{else if}, because the
 condition may be \ic{false} and we want to try the next \lcr{else if}, if there is
@@ -312,6 +319,7 @@ else { j = 2; } }}
 \end{marginfigure}
 
 
+\noindent 
 The DFB for a loop make s use of the fact that loops can be represented using
 conditional branching. Here is the DFB for the \lcr{for} loop:
 \begin{code}
@@ -324,6 +332,7 @@ code for node.incr
 jump after start
 \end{code}
 
+\noindent 
 We first execute the DFB for the \lcr{iterator} (which is a subconcept of
 \lcr{LocalVariableDeclaration}, so the DFB shown above works for it as well).
 Then we define a label \lcr{start} so we can jump to this place from further
@@ -371,6 +380,7 @@ public class DataflowUtil {
 } 
 \end{code}
 
+\noindent 
 The class constructs a \lcr{Program} object in the constructor. \lcr{Program}s
 are wrappers around the data flow graph and provide access to a set of
 predefined analyses on the graph. We will make use of one of them here in the
@@ -417,6 +427,7 @@ constraint-note:
     !x => "example"
 \end{code}
 
+\noindent 
 Note how the rule returns a tuple with the tree node where the marker should appear
 and a string message that should be shown. All constraint rules have this form.
 
@@ -458,6 +469,7 @@ not sure I understand them, there may be somethign wrong}
 Var("v"[Var(),"v","function","module"])
 \end{code}
 
+\noindent 
 Unresolved references are represented by terms such as the following. Notice the
 \ic{Unresolved} term:
 
@@ -465,6 +477,7 @@ Unresolved references are represented by terms such as the following. Notice the
 \ic{Var("u"[Unresolved(Var()),"u","function","module"])}.
 \end{code}
 
+\noindent 
 In most languages, references that cannot be statically resolved indicate an 
 error. The following constraint rule reports an error for these cases: 
 
@@ -476,6 +489,7 @@ error. The following constraint rule reports an error for these cases:
 \end{code}\ignore{$}
 
 
+\noindent 
 This rule matches any term \ic{x} in the abstract syntax, and reports an error
 if it has an \ic{Unresolved} annotation\footnote{For dynamic languages, or
 languages with optional types, the constraint could be removed or relaxed. In
@@ -505,6 +519,7 @@ key rules the index provides.
 \label{Fig:spoofax-index-api}
 \end{figure}
 
+\noindent 
 We can use the index API to detect duplicate definitions. In most languages,
 duplicate definitions are always disallowed. In the case of mobl, duplicate
 definitions are not allowed for functions or entities, but they are allowed for
@@ -554,6 +569,7 @@ is-ordered-namespace:
   Var() -> True()
 \end{code}
 
+\noindent 
 More sophisticated constraints and error messages can be specified using a type
 system, as we show in the next chapter.
 
@@ -605,6 +621,7 @@ calc y: int = 1 + 2 * sqrt(x)
 \end{center}
 \end{figure}
 
+\noindent 
 Using this example, we can illustrate in more detail what type systems have to
 do:
 
@@ -692,6 +709,7 @@ int factorial( int n ) {
 \end{code}
  
 
+\noindent 
 In the context of type systems, the recursive approach for calculating a type
 defines a polymorhphic function \ic{typeof}, which takes a program element and
 returns its type, while calling itself\footnote{or, most likely, one of the
@@ -705,6 +723,7 @@ LocalVarDecl:
 \end{code}
  
 
+\noindent 
 The following examples are structurally valid example sentences:
  
 \begin{code}
@@ -715,6 +734,7 @@ var i = 42          // 4
 \end{code}
  
 
+\noindent 
 Let's develop the pseudo-code for \ic{typeof} function the \ic{LocalVarDecl}. 
 A first attempt could look as follows:
 
@@ -729,6 +749,7 @@ typeof( DoubleType dt ) { return dt }
 \end{code}
  
 
+\noindent 
 Notice how the \ic{typeof} for \ic{LocalVarDecl} recursively calls \ic{typeof}
 for its \ic{type} property. Recursion ends with the \ic{typeof} functions for
 the types; they return themselves. This implementation successfully calculates
@@ -746,6 +767,7 @@ typeof( LocalVarDecl lvd ) {
 }
 \end{code}
 
+\noindent 
 Notice (in the grammar) that the specification of the variable type (in the
 \ic{type} property) is also optional. So we have create a somewhat more
 elaborate version of the function:
@@ -769,6 +791,7 @@ typeof( LocalVarDecl lvd ) {
 \end{code}
 
 
+\noindent 
 This code is quite verbose. Assuming that assertions are ignored if one of the
 called \ic{typeof} functions returns \ic{null} because the argument is not
 specified, we can simplify this to the following code. This is probably the
@@ -808,6 +831,7 @@ algebra. Here is an example:
 (3) x + y == 2 * x + 5
 \end{code}
 
+\noindent 
 \emph{Substitution} refers to assignment of values to \ic{x} and \ic{y}. A
 solution for this set of equations is \ic{x := 5, y := 10}. 
 
@@ -828,7 +852,8 @@ var i: int = 42     // 2
 var i: int = 33.33  // 3
 var i = 42          // 4
 \end{code}
- The following two type equations constitute the complete type system
+ \noindent 
+The following two type equations constitute the complete type system
 specification. The \ic{:==:} operator expresses type equation (left side must be
 the same type as right side), \ic{:<=:} refers to subtype-equation (left side
 must be same type or subtype of right side, the pointed side of \ic{<} points
@@ -840,6 +865,7 @@ typeof( LocalVarDecl.init ) :<=: typeof( LocalVarDecl.type)
 typeof( LocalVarDecl ) :==: typeof( LocalVarDecl.type ) 
 \end{code}
  
+\noindent 
 Let us look at the four examples cases. We use capital letters for free type
 variables. In the first case, the \ic{init} expression is not given, so the first
 equation is ignored. The second equation can be satisfied by assigning \ic{T}, the
@@ -853,6 +879,7 @@ typeof( int ) :<=: typeof( -null- ) // ignore
 typeof( T ) :==: typeof( int )      // T := int
 \end{code}
 
+\noindent 
 In the second case the \ic{type} and the \ic{init} expression are given, and
 both have types that can be calculated independent of the equations specified
 for the \ic{LocalVarDecl} (they are fixed). So the first equation has no free
@@ -866,6 +893,7 @@ typeof( int ) :<=: typeof( int )    // true
 typeof( T ) :==: typeof( int )      // T := int
 \end{code}
  
+\noindent 
 The third case is similar to the second case; but the first equation, in which
 all types are specified, is not \ic{true}, so a type error is raised.
  
@@ -876,6 +904,7 @@ typeof( T ) :==: typeof( int )      // T := int
 \end{code}
  
 
+\noindent 
 Case four is interesting because no variable type is explicitly specified; the
 idea is to use what's known as type inference to derive the type from the \ic{init}
 expression. In this case there are two free variables in the equations,
@@ -888,6 +917,7 @@ typeof( U ) :<=: typeof( int )  // U := int
 typeof( T ) :==: typeof( U )    // T := int
 \end{code}
 
+\noindent 
 To further illustrate how unification works, consider the following example
 where we try to provide typing rules for array types and array initializers.
  
@@ -897,6 +927,7 @@ var i: int[] = {1, 2, 3}
 var i = {1, 2, 3}
 \end{code}
  
+\noindent 
 Compared to the \ic{LocalVarDecl} example above, the additional complication in
 this case is that we need to make sure that \emph{all} the initialization
 expressions (inside the curly braces) have the same or compatible types. Here
@@ -911,6 +942,7 @@ typeof( LocalVarDecl ) :==: typeof( LocalVarDecl.type )
 \end{code}
  
 
+\noindent 
 We introduce an additional type variable \ic{T} and iterate over all the
 expression in the array initializer, establishing an equation between each of
 these elements and \ic{T}. This results in a set of equations that \emph{each}
@@ -999,6 +1031,7 @@ public void validateTypes( EObject m ) {
 \end{code}
  
 
+\noindent 
 As we have discussed above, most type systems are built from a limited set of
 typing strategies (assigning fixed types, deriving the type of an element from
 one of its properties, calculating the type as the common type of its two
@@ -1034,6 +1067,7 @@ public class CLTypesystem extends DefaultTypesystem {
 \end{code}
  
 
+\noindent 
 In addition to the API used in the code above, the Typesystem Framework also
 comes with a textual DSL to express typing rules. From the textual type system
 specification, a generator generates the implementation of the Java class that
@@ -1084,6 +1118,7 @@ typeof DoubleType -> clone
 typeof StringType -> clone
 \end{code}
 
+\noindent 
 Alternatively, since all primitive types extend an abstract meta class
 \ic{PrimitiveType}, this could be shortened to the following, where the \ic{+}
 operator specifies that the rule applied for the specified concept and all its
@@ -1094,6 +1129,7 @@ typeof PrimitiveType + -> clone
 \end{code}
 
 
+\noindent 
 For concepts that have a fixed type that is different from the concept itself
 (or a clone), the type can simply be specified:
 
@@ -1103,6 +1139,7 @@ typeof StringLiteral -> StringType
 \end{code}
  
 
+\noindent 
 Type systems are most important, and most interesting, in the context of
 expressions. Since all expressions derive from the abstract \ic{Expr} concept, we can
 declare that this class is abstract, and hence no typing rule is given. However,
@@ -1113,6 +1150,7 @@ class for which no type is specified either.
 typeof Expr -> abstract
 \end{code}
 
+\noindent 
 The notation provided by the DSL groups typing rules and type checks for a
 single concept. The following is the typing information for the \ic{Plus}
 concept. It declares the type of \ic{Plus} to be the common type of the
@@ -1126,6 +1164,7 @@ typeof Plus -> common left right {
 } 
 \end{code}
 
+\noindent 
 The typing rules for \ic{Equals} are also interesting. It specifies that the
 resulting type is \ic{boolean} that the \ic{left} and \ic{right} arguments must
 be \ic{COMPARABLE}, and that the left and right arguments be compatible.
@@ -1147,6 +1186,7 @@ typeof Equals -> BoolType {
 \end{code}
  
 
+\noindent 
 There is also support for \emph{ordered} compatibility, as can be seen from the
 typing rule for \ic{AssignmentStatement} below. It has no type (it is a
 statement!), but the \ic{left} and \ic{right} argument must exhibit ordered
@@ -1159,6 +1199,7 @@ typeof AssignmentStatement -> none {
 }
 \end{code}
  
+\noindent 
 The framework uses the generation gap pattern, i.e. from the DSL-based type
 specification, a generator creates a class \ic{CLTypesystemGenerated} (for the
 cooling language) that contains all the code that can be derived from the type
@@ -1195,6 +1236,7 @@ rule typeof_LocalVariableReference {
 \end{code}
  
 
+\noindent 
 The rules for the Boolean \ic{NotExpression} contains two equations. The first
 one makes sure that the negated expression is Boolean. The second one types the
 \ic{NotExpression} itself to be Boolean. Just as in Xtext, in MPS types are
@@ -1204,7 +1246,8 @@ instances of language concepts.
 typeof(notExpr.expression) :==: new node<BooleanType>(); 
 typeof(notExpr) :==: <boolean>; 
 \end{code}
- In MPS there are two different ways how language concepts can be instantiated. 
+ \noindent 
+In MPS there are two different ways how language concepts can be instantiated. 
 The first one (as shown in the first equation above) uses the BaseLanguage
 \ic{new} expression. The second one uses a quotation, where "a piece of tree" can be 
 inlined into program code. It uses the concrete syntax of the quoted construct 
@@ -1224,6 +1267,7 @@ int addToAge( Person p, int delta ) {
 \end{code}
  
 
+\noindent 
 At least two program elements have to be typed: the parameter \ic{p} as well as
 the \ic{p.age} expression. The type of the \ic{FunctionParameter} concept is the
 type of its type. This is not specific to the fact that the parameter refers to
@@ -1234,6 +1278,7 @@ typeof(parameter) :==: typeof(parameter.type);
 \end{code}
 
 
+\noindent 
 The language concept that represents the \ic{Person} type in the parameter is a
 \ic{StructType}. A \ic{StructType} refers to the \ic{StructDeclaration} whose
 type it represents, and extends \ic{Type}, which acts as the super
@@ -1269,6 +1314,7 @@ concept StructAttributeReference extends Expression
 \end{code}
  
                                                    
+\noindent 
 The typing rule for the \ic{StructAttributeReference} is shown in the code
 below. The \ic{context}, the expression on which we use the dot operator, has 
 to be a \ic{GenericStructType}, or a subtype thereof (i.e. a \ic{StructType} which points to an actual
@@ -1280,6 +1326,7 @@ typeof(structAttrRef) :==: typeof(structAttrRef.attribute);
 \end{code}
  
 
+\noindent 
 This example also illustrates the interplay between the type system and other
 aspects of language definition, specifically scopes. The referenced
 \ic{StructAttribute} (on the right side of the dot) may only reference a
@@ -1301,6 +1348,7 @@ link {attribute}
 \end{code}
  
 
+\noindent 
 As we will discuss in the chapter on language extension and composition, MPS
 supports incremental extension of existing languages. Extensions may also
 introduce new types, and, specifically, may allow existing operators to be used
@@ -1316,6 +1364,7 @@ complex c3 = c1 + c2; // results in (4, 7i)
 \end{code}
  
 
+\noindent 
 The \ic{+} in \ic{c1 + c2} should be the \ic{+} defined by the original C
 language\footnote{Alternatively, we could define a new \ic{+} for complex
 numbers. While this would work technically (remember there is no parser
@@ -1347,6 +1396,7 @@ operation type: (operation, leftOperandType, rightOperandType)->node<> {
 \end{code}
  
 
+\noindent 
 To integrate these definitions with the regular typing rules, the following
 typing rule must be written\footnote{Note that only one such rule must be
 written for all binary operations. Everything else will be handled with the
@@ -1371,6 +1421,7 @@ rule typeof_BinaryExpression {
 \end{code}
  
 
+\noindent 
 The important aspect of this approach is that overloaded operation containers
 are \emph{additive}. Language extensions can simply contribute \emph{additional}
 containers. For the complex number example, this could look like the following:
@@ -1385,6 +1436,7 @@ operation type: (operation, leftOperandType, rightOperandType)->node<> {
 }                       
 \end{code}
 
+\noindent 
 The type system DSL in MPS covers a large fraction of the type system rules
 encountered in practice. The type system for BaseLanguage, which is an extension
 of Java, is implemented this way. However, for exceptional cases, procedural
@@ -1403,12 +1455,14 @@ the following rule rewrites integer numbers to the integer type:
   type-of: Int(value) -> IntType()
 \end{code}
 
+\noindent 
 This is an example for assigning a fixed type to a language element. Similarly,
 we can rewrite a \ic{+} expression to the integer type:
 \begin{code}
   type-of: Add(exp1, exp2) -> IntType()
 \end{code}
 
+\noindent 
 However, it is good practice to assign types only to well-typed language 
 constructs. Thus, we should add type checks for the subexpressions:
 
@@ -1420,6 +1474,7 @@ constructs. Thus, we should add type checks for the subexpressions:
       <type-of> exp2 => IntType()
 \end{code}
 
+\noindent 
 Spoofax allows for multiple typing rules for the same language construct.
 This is particular useful for typing overloaded operators, since each case can 
 be handled by a separate typing rule. For example, when the operator \ic{+} is 
@@ -1447,6 +1502,7 @@ declared types:
   type-of: Param(name, type) -> type
 \end{code}
 
+\noindent 
 Spoofax relies on these rules storing type information about property and
 variable declarations in the index. This is achieved by the following generic
 rewrite rule:
@@ -1458,6 +1514,7 @@ rewrite rule:
       type := <type-of> def
 \end{code}
 
+\noindent 
 Spoofax tries to apply this rule for every definition. If the definition has a 
 type, it is stored in the index. If the definition has no type, nothing is 
 stored. \todo{@Guido How and where is this distinction made in the above rule?}
@@ -1472,6 +1529,7 @@ references and property accesses:
     PropAccess(exp, name) -> <index-lookup-type> name
 \end{code}
 
+\noindent 
 Both rules rewrite references to the type of their definition sites. First, the
 definition of a reference is looked-up in the index. Next, this definition is
 rewritten to its type. This uses the \ic{index-lookup-type} rule, which is
@@ -1502,6 +1560,7 @@ signature constructors
   FunType: List(Type) * Type -> FunType
 \end{code}
 
+\noindent 
 This defines a binary constructor \ic{FunType} for function types. The first
 subterm of a function type is a list of parameter types (\ic{List(Type)}). The
 second subterm is the return type. We can employ the so defined function type in
@@ -1536,6 +1595,7 @@ additions:
 \end{code}\ignore{$}
 \todo{@Guido Don't we have to use constraint-error in the above code?}
 
+\noindent 
 Basically, an expression is non-well-typed or \emph{ill-typed}, if it cannot be 
 rewritten to a type. But reporting an error on all ill-typed expressions will 
 make it hard to discover the root cause of the error, since every expression 
@@ -1576,6 +1636,7 @@ are the same:
   is-compatible-to: (type, type) -> type
 \end{code}    
 
+\noindent 
 A type might also be compatible to a type, to which its supertype is compatible:
 
 \begin{code}
@@ -1586,6 +1647,7 @@ A type might also be compatible to a type, to which its supertype is compatible:
       <is-compatible-to> (supertype, type)
 \end{code}    
 
+\noindent 
 For this case, the subtype relation is defined by a rewrite rule, which 
 rewrites a type to its supertype:
 
@@ -1593,6 +1655,7 @@ rewrites a type to its supertype:
   supertype: IntType() -> FloatType()
 \end{code}    
 
+\noindent 
 This approach only works for type systems where each type has at most one 
 supertype. When a type system allows for multiple supertypes, we have to use 
 lists of supertypes and need to adapt the rule for \ic{is-compatible-to} 
@@ -1608,6 +1671,7 @@ accordingly:
       <fetch-elem(is-compatible-to(|type))> supertype*
 \end{code}    
 
+\noindent 
 Here, \ic{fetch-elem} tries to find an element in a list of supertypes, 
 which is compatible to \ic{type}. It uses a variant of \ic{is-compatible-to} 
 in order to deal with a list of types. This variant does not rewrite a pair of 
@@ -1618,6 +1682,7 @@ rewrite rule. It can be defined in terms of the variant for pairs:
   is-compatible-to(|type2): type1 ->  <is-compatible-to> (type1, type2)
 \end{code}
 
+\noindent 
 The compability of types can easily be extended to compability of lists of types:
 
 \begin{code}
@@ -1627,6 +1692,7 @@ The compability of types can easily be extended to compability of lists of types
       type* := <zip(is-compatible-to)> (type1*, type2*)
 \end{code}    
 
+\noindent 
 A list \ic{type1*} of types is compatible to another list \ic{type2*} of types, 
 if each type in \ic{type1*} is compatible to the corresponding type in 
 \ic{type2*}. Thereby, \ic{zip} pairs up the types from both lists, rewrites 

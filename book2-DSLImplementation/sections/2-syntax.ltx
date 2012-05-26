@@ -36,7 +36,7 @@ var x: int;
 calc y: int = 1 + 2 * sqrt(x)
 \end{code}
  
-This program has a hierarchical structure: definitions of \ic{x} and
+\noindent This program has a hierarchical structure: definitions of \ic{x} and
 \ic{y} at the top, inside \ic{y} there's a nested expression. This
 structure is reflected in the corresponding abstract syntax tree. A possible AST
 is illustrated in \fig{astexample}\footnote{We say \emph{possible} because
@@ -246,10 +246,10 @@ Exp ::= NUM
 \end{code}
 
  
-Note how expression nesting is described using recursion in this grammar:
-the \ic{Exp} rule calls itself, so sentences like \ic{2 + 3 * 4} are possible.
-This poses two practical challenges for parser generation systems: first, the
-precedence and associativity of the operators is not described by
+\noindent Note how expression nesting is described using recursion in this
+grammar: the \ic{Exp} rule calls itself, so sentences like \ic{2 + 3 * 4} are
+possible. This poses two practical challenges for parser generation systems:
+first, the precedence and associativity of the operators is not described by
 this grammar. Second, not all parser generators provide full support for
 recursion. We elaborate on these issues in the remainder of the section and in
 the Spoofax and Xtext examples.
@@ -313,8 +313,9 @@ Exp ::= ID
       | STRING
 \end{code}
 
-This grammar uses left-recursion: the left-most symbol of one of the definitions
-of \ic{Exp} is a call to \ic{Exp}, i.e.\ it is recursive. Left-recursion is
+\noindent 
+This grammar uses left-recursion: the left-most symbol of one of the
+definitions of \ic{Exp} is a call to \ic{Exp}, i.e.\ it is recursive. Left-recursion is
 not supported by LL parsers such as ANTLR. 
 
 The left-recursion can be removed by \emph{left-factoring} the grammar, i.e. by
@@ -331,6 +332,7 @@ Exp ::= ID
       | STRING
 \end{code}
 
+\noindent 
 The resulting grammar is still left-recursive, but we can introduce an
 intermediate rule to eliminate the recursive call to \ic{Exp}:
 
@@ -343,6 +345,7 @@ FieldPart ::= ID
             | STRING
 \end{code}
 
+\noindent 
 Unfortunately, this resulting grammar still has overlapping rules (a
 first/first conflict) as the \ic{ID} symbol matches more than one rule. This
 conflict can be eliminated by removing the \ic{Exp ::= ID} rule and making
@@ -357,6 +360,7 @@ FieldPart ::= ID
             | STRING
 \end{code}
 
+\noindent 
 This last grammar now describes the same language as the original field access
 grammar shown above, but conforms to the LL(1) grammar
 class\footnote{Unfortunately, it is also much more verbose. Refactoring "clean"
@@ -398,6 +402,7 @@ Exp ::= NUM
       | Exp "*" Exp
 \end{code}
  
+\noindent 
 It is ambiguous, since for a string \ic{1*2+3} there are two possible trees
 (corresponding to different operator precedences). 
 
@@ -456,6 +461,7 @@ Mult ::= Mult "*" NUM
        | NUM
 \end{code}
 
+\noindent 
 The resulting grammar is a valid LR grammar. Note how it puts the \ic{+}
 operator in the highest layer to give it the lowest priority\footnote{A \ic{+}
 will end up further up in the expression tree than a \ic{*}; this means that the
@@ -489,6 +495,7 @@ Exp ::= NUM
       | Exp "*" Exp {left}
 \end{code}
 
+\noindent 
 This indicates that both operators are left-associative (using the
 \ic{\{left\}} annotation from Spoofax). Operator precedence can be
 indicated with relative priorities or with precedence annotations:
@@ -499,6 +506,7 @@ Exp ::= Exp "*" Exp {left}
 Exp ::= Exp "+" Exp {left}
 \end{code}
 
+\noindent 
 The \ic{>} indicates that the \ic{*} operator binds stronger than the
 \ic{+} operator. This kind of declarative disambiguation is commonly found in
 GLR parsers, but typically not available in parsers that support only more
@@ -522,6 +530,7 @@ Expr ::= NUM
        | Expr "+" Expr
 \end{code}
 
+\noindent 
 Once more operators are added and the proper associativities and precedences are
 specified, such a grammar forms an excellent unit for reuse\footnote{For
 examople, expressions can be used as guard conditions in state machines, for
@@ -539,6 +548,7 @@ Expr ::= ID
        | Expr "." ID
 \end{code}
 
+\noindent 
 In the ideal case, composing two such grammars should be trivial --- just copy
 them into the same file. However, reality is often less than ideal. There are a
 number of challenges that arise in practice, related to ambiguity and to grammar
@@ -571,13 +581,12 @@ for (Customer c : SELECT customer FROM accounts WHERE balance < 0) {
 }
 \end{code}
 
-The SQL grammar reserves
-keywords such as \ic{SELECT}, even though they are not reserved in Java. Such a
-language change could break compatibility with existing Java programs which
-happen to use a variable named \ic{SELECT}. This problem can only
-be avoided by a scannerless parser, which considers the lexical syntax in
-the context it appears instead during a separate scanning stage, where no
-context is considered.
+\noindent The SQL grammar reserves keywords such as \ic{SELECT}, even though
+they are not reserved in Java. Such a language change could break compatibility
+with existing Java programs which happen to use a variable named \ic{SELECT}.
+This problem can only be avoided by a scannerless parser, which considers the
+lexical syntax in the context it appears instead during a separate scanning
+stage, where no context is considered.
 
 \end{itemize}
 
@@ -941,6 +950,7 @@ following:
 Order([ItemNumber(5), Quantity(15), Customer("Mr.\ White")])
 \end{code}
 
+\noindent 
 However, this representation contains a lot of redundant information that also
 exists in the grammar. Instead, such a product can be written as \ic{Order(5,
 15, "Mr.\ White")}. This more concise notation tends to make it slightly more
@@ -961,6 +971,7 @@ example, it is possible to annotate a product number with its product name:
 Order(5{ProductName("Apples")}, 15, "Mr. White")
 \end{code}
 
+\noindent 
 Spoofax also uses annotations to add information about references to other
 parts of a model to an abstract syntax tree. While ATerms only form trees,
 the annotations are used to represent the graph-like references.
@@ -1001,6 +1012,7 @@ concept ConceptDeclaration extends AbstractConceptDeclaration
 \end{code}
 
  
+\noindent 
 A concept may extend a single other concept and implement any number of
 interfaces\footnote{Note that interfaces can provide implementations for the
 methods they specify --- they are hence more like Scala traits.}. It can declare
@@ -1041,6 +1053,7 @@ cooling program HelloWorld uses stdlib {
 } 
 \end{code}
 
+\noindent 
 The program declares a variable \ic{v} and an event \ic{e}. When the program
 starts up, the \ic{init} section is executed, setting \ic{v} to \ic{1}. The
 system then (automatically) transitions into the \ic{start} state. There it
@@ -1086,6 +1099,7 @@ CoolingProgram:
     "}";
 \end{code} 
 
+\noindent 
 Rules begin with the name (\ic{CoolingProgram}), a colon, and then the rule
 body. The body defines the syntactic structure of the language concept defined
 by the rule. In our case, we expect the keywords \ic{cooling} and \ic{program},
@@ -1098,6 +1112,7 @@ defined as follows:
 terminal ID: ('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'_'|'0'..'9')*;
 \end{code} 
 
+\noindent 
 In pure grammar languages, one would write \ic{"cooling" "program" ID "\{ ..."}, 
 specifying that after the two keywords we expect an \ic{ID}. However, Xtext
 grammars don't just express the concrete syntax --- they also determine the
@@ -1139,6 +1154,7 @@ variables.
       (variables+=Variable)*
 \end{code} 
 
+\noindent 
 The definition of \ic{State} is interesting, since \ic{State} is intended to be an
 abstract meta class with several subtypes.
 
@@ -1147,6 +1163,7 @@ State:
     BackgroundState | StartState | CustomState;
 \end{code} 
 
+\noindent 
 The vertical bar operator is used here to express syntactic alternatives. This
 is translated to inheritance in the meta model. The definition of
 \ic{CustomState} is shown in the following code snippet. It uses the set of
@@ -1165,6 +1182,7 @@ CustomState:
         (events+=EventHandler | signals+=SignalHandler)*;
 \end{code}  
 
+\noindent 
 \ic{StartState} and \ic{BackgroundState}, the other two subtypes of \ic{State},
 share some properties. Consequently, Xtext's AS derivation algorithm pulls them
 up into the abstract \ic{State} meta class so they can be accessed polymorphically.
@@ -1201,6 +1219,7 @@ AssignmentStatement:
     "set" left=Expr "=" right=Expr;
 \end{code}  
 
+\noindent 
 The \ic{ChangeStateStatement} is used to transition into another state. It uses
 the keyword \ic{state} followed by a reference to the actual target state.
 Notice how Xtext uses square brackets to express the fact that the \ic{targetState}
@@ -1240,6 +1259,7 @@ ChangeStateStatement:
 QID: ID ("." ID)*;
 \end{code}  
 
+\noindent 
 The other remaining detail is scoping. During the linking phase, where the text
 of \ic{ID} (or \ic{QID}) is used to find the target node, several objects with
 the same name might exist, or some target elements are not visible based on visibility
@@ -1283,6 +1303,7 @@ AtomicLevel returns Expression:
     ({SymbolRef} symbol=[SymbolDeclaration|QID]);
 \end{code}   
 
+\noindent 
 To understand the above definition, we first have to explain in more detail how
 AST construction works in Xtext. Obviously, as the text is parsed, meta classes
 are instantiated and the AST is assembled. However, instantiation of the
@@ -1384,6 +1405,7 @@ entity Item {
 }
 \end{code}
 
+\noindent 
 In mobl, most files starts with a module header, which can be followed by a list
 of entity type definitions. In turn, each entity can have one or more property
 or function definitions (shown in the next example snippet).
@@ -1399,6 +1421,7 @@ production written in SDF is
 "module" ID Entity* -> Start {"Module"}
 \end{code}
 
+\noindent 
 The pattern on the left-hand side of the arrow is matched by the
 symbol \ic{Start} on the right-hand side. Note that SDF uses the exact opposite
 order for productions as the grammars we've discussed so far, switching the
@@ -1518,7 +1541,8 @@ Module(
 ]) 
 \end{code}
 
-\noindent Note how this term uses the constructor labels of the syntax above:
+\noindent 
+Note how this term uses the constructor labels of the syntax above:
 \ic{Module}, \ic{Entity}, and \ic{Property}. The children of each node
 correspond to the symbols referenced in the production: the \ic{Module}
 production first referenced \ic{ID} symbol for the module name and then included
@@ -1530,10 +1554,11 @@ use the special \ic{bracket} annotation:
 "(" Exp ")" -> Exp {bracket}
 \end{code}
 
-\noindent The \ic{bracket} annotation specifies that there should not be a
+\noindent 
+The \ic{bracket} annotation specifies that there should not be a
 separate tree node in the abstract syntax for the production. This means that an
 expression \ic{1 + (2)} would produce \ic{Plus("1","2")} in the abstract syntax,
-and not \ic{Plus("1",Parens("2"))}.
+and not \ic{Plus("1",Parens("2"))}.
 
 
 \parhead{Precedence and associativity} SDF provides special support for
@@ -1544,6 +1569,7 @@ syntactic constructs. As an example, let us consider the production of the
 Exp "+" Exp -> Exp {"Plus"}
 \end{code}
 
+\noindent 
 Based on this operator, a parser can be generated that can parse an
 expression such as \ic{1 + 2} to a term \ic{Plus("1", "2")}. However, the
 production does not specify if an expression \ic{1 + 2 + 3} should be parsed to
@@ -1558,6 +1584,7 @@ amb([
 )]
 \end{code}
 
+\noindent 
 The \ic{amb} node indicates an \emph{ambiguity} and shows all
 possible interpretations. Whenever an ambiguity is encountered in a file, it is
 marked with a warning in the editor. 
@@ -1571,6 +1598,7 @@ annotation:
 Exp "+" Exp -> Exp {"Plus", left}
 \end{code}
 
+\noindent 
 In a similar fashion, SDF makes it possible to describe the precedence order of
 operators. For this, the productions can be placed in a \ic{context-free
 priorities} section:
@@ -1602,6 +1630,7 @@ entity entity {
 }
 \end{code}
 
+\noindent 
 Since our grammar did not specify that \ic{entity} is a reserved word, it can be
 used as a normal \ic{ID} identifier. However, there are cases where it is useful
 to reserve keywords, for example to prevent ambiguities. Consider what would
@@ -1611,6 +1640,7 @@ happen if we added a new production for a \ic{true} literal:
 "true" -> Exp {"True"}
 \end{code}
  
+\noindent 
 If we would now parse an expression \ic{true}, it would be ambiguous:
 it matches the \ic{True} production above, but it also matches the \ic{Var}
 production, as \ic{true} is a legal variable identifier\footnote{So it is
@@ -1622,6 +1652,7 @@ rejects a certain interpretation:
 "true" -> ID {reject}
 \end{code}
 
+\noindent 
 This expresses that \ic{true} can never be interpreted as an identifier.
 Alternatively, we could say that we prefer the one interpretation over the
 other:
@@ -1630,6 +1661,7 @@ other:
 "true" -> Exp {"True", prefer}
 \end{code}
 
+\noindent 
 This means that this production is to be preferred if there are any
 other interpretations. However, since these interpretations cannot always be
 foreseen as grammars are extended, it is considered good practice to use the
@@ -1648,6 +1680,7 @@ lexical restrictions
   ID -/- [A-Za-z0-9]
 \end{code}
 
+\noindent 
 This section restricts the grammar by specifying that any \ic{ID} cannot be
 directly followed by a character that matches \ic{[A-Za-z0-9]}. Effectively, it
 enforces a longest match policy for the \ic{ID} symbol. SDF also allows the use
@@ -1658,6 +1691,7 @@ match, which means it allows the following definition of a mobl entity:
 entityMoblEntity {}
 \end{code}
 
+\noindent 
 As there is no longest match, the parser can recognize the \ic{entity} keyword
 even if it is not followed by a space. To avoid this behavior, we can specify a
 longest match policy for the \ic{entity} keyword:
@@ -1736,6 +1770,7 @@ concept Statemachine extends BaseConcept
     alias = statemachine                                              
 \end{code}
 
+\noindent 
 A \ic{State} contains two \ic{StatementLists} as \ic{entryActions} and
 \ic{exitActions}. \ic{StatementList} is a concept defined by the
 \ic{com.mbeddr.core.statements} language. To make that visible, our statemachine 
@@ -1757,6 +1792,7 @@ concept Transition
 \end{code}
 
 
+\noindent 
 \ic{Transition}s contain a \ic{Trigger}, a guard condition, transition actions
 and a reference to the target state. The trigger is an abstract concept;
 various specializations are possible, the default implementation is the
@@ -1790,6 +1826,7 @@ new statement and hence make the respective list visible.
 \end{figure}
 
 
+\noindent 
 \fig{Fig:mps-transeditor} shows the definition of the editor for a
 \ic{Transition}. It arranges the keyword \ic{on}, the trigger, the guard
 condition, target state and the actions in a horizontal list of cells, the guard
@@ -1872,6 +1909,7 @@ intention addEntryActions for concept State {
 }
 \end{code}
 
+\noindent 
 An intention is defined for a specific language concept (\ic{State} in the
 example). It can then be invoked by pressing \keystroke{Alt-Enter} on any
 instance of this concept. Optionally it is possible to also make it available in
@@ -1935,6 +1973,7 @@ side transform actions makeArithmeticExpression
 \end{code}
 
 
+\noindent 
 Using the alias (i.e. the operator symbol) of the respective
 \ic{BinaryExpression} and the inheritance hierarchy, it is possible to factor
 all side transformations for all binary operations into one single action
@@ -1967,6 +2006,7 @@ do transform
   }
 \end{code}
 
+\noindent 
 This helper function scans through an expression tree and checks for cases where
 a binary expression with a higher precedence is an ancestor of a binary
 expression with a lower precedence value. If it finds one, it simply rearranges
@@ -1996,6 +2036,7 @@ module UnitTestDemo from cdesignpaper.unittest imports nothing {
 }
 \end{code} 
 
+\noindent 
 Test cases are defined in a separate language \ic{com.mbeddr.core.unittest}. The
 language defines the \ic{TestCase} concept, as well as the \ic{assert}
 statement. \ic{AssertStatement} extends \ic{Statement}, so by default, an
@@ -2016,6 +2057,7 @@ concepts constraints AssertStatement {
 }
 \end{code}
 
+\noindent 
 This constraint checks that a \ic{TestCase} is among the ancestors of a
 to-be-inserted \ic{AssertStatement}. The constraint is checked \emph{before} the
 new \ic{AssertStatement} is inserted and \emph{prevents} insertion if not under
