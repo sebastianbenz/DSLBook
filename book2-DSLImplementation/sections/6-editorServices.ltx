@@ -1107,19 +1107,19 @@ fixed and cannot be changed dynamically.
 \section{Outline}
 
 The outline provides an overview over the contents of some part of the overall
-model, typically a file. By default, it usually shows more or less the AST, up a
-certain level. For example, the implementations of functions or methods are
-typically not shown. The contents of the outline view must be definable; at the
-very least, we have to define where to stop the tree. Also, the tree structure
-may be completely different from the nesting structure of the AST: the elements
-may have to be grouped based on their concept (first show all variables, then
-all functions) or they may have to be sorted alphabetically.
+model, typically a file. By default, it usually shows more or less the AST, down
+to a specific level (the implementations of functions or methods are typically
+not shown). The contents of the outline view must be user-definable; at the very
+least, we have to define where to stop the tree. Also, the tree structure may be
+completely different from the nesting structure of the AST: the elements may
+have to be grouped based on their concept (first show all variables, then all
+functions) or they may have to be sorted alphabetically.
 
 \parhead{Customizing the structure in Xtext} Xtext provides an
 \ic{OutlineTree-\\Provider} for your language that can be used to customize the
 outline view structure (labels and icons are taken from the \ic{LabelProvider}
 discussed above). As an example, let us customize the outline view for cooling
-programs to look the one shown in \fig{outlineXtext}. 
+programs to look the one shown in \fig{outlineXtext}.
 \begin{marginfigure}[-14\baselineskip]
 \begin{center}
   \includegraphics[width=50mm]{figures/6/outlineXtext.png}
@@ -1145,9 +1145,9 @@ protected void _createChildren(DocumentRootNode parentNode, Model m) {
 Inside the method, we first grab all the \ic{CoolingProgram}s from the root
 element \ic{Model} and create a node for them using the \ic{createNote} API,
 which takes the parent (in terms of the outline view) and the program element
-for which should be represented by the new outline node. The text and icon for
-the outline node is taken from the label provider. We then do the same for
-tests.
+for which should be represented by the new outline node\footnote{The text and
+icon for the outline node is taken from the label provider discussed in the
+previous section.}. We then do the same for tests.
 
 Inside a program, we want to show variabes and states in separate sections, i.e.
 under separate intermediate nodes (see \fig{outlineXtext}). Here is how this
@@ -1162,18 +1162,17 @@ protected void _createChildren(IOutlineNode parentNode, CoolingProgram p) {
         createNode(vNode, v);
     }
     TextOnlyOutlineNode sNode = new TextOnlyOutlineNode(parentNode, 
-                                    imageHelper.getImage("state.png"),
-                                   "states"); 
+                           imageHelper.getImage("state.png"), "states"); 
     for (EObject s: p.getStates()) {
         createNode(sNode, s);
     }
 }
 \end{code}
 
-As you can see, we introduce intermediate nodes that do not represent a program
-element; they are used purely for structuring the tree. The
-\ic{TextOnlyOutlineNode} is a class we created; it simply extends the class
-\ic{AbstractOutlineNode} provided by Xtext.
+We introduce intermediate nodes that do not represent a program element; they
+are used purely for structuring the tree. The \ic{TextOnlyOutlineNode} is a
+class we created; it simply extends the class \ic{AbstractOutlineNode} provided
+by Xtext.
 
 \begin{code}
 public class TextOnlyOutlineNode extends AbstractOutlineNode {
@@ -1188,11 +1187,12 @@ Xtext provides alphabetical sorting for outlines by default. There is also
 support for styling the outline (i.e. using styled labels as opposed to simple
 text) as well as for filtering the tree.
 
-\parhead{The Outline in Spoofax}%
-%
-With Spoofax, outlines can be specified declaratively in the editor specification, preferably in \ic{<LanguageName>-Outliner.esv}.
-Abstract syntax tree nodes, which should appear in the outline, are selected based on their syntactic sort and constructor names.
-For example, the following outline specification will include all entity declarations:
+\parhead{The Outline in Spoofax} With Spoofax, outlines can be specified
+declaratively in the editor specification, preferably in
+\ic{<LanguageName>-Outliner.esv}. Abstract syntax tree nodes, which should
+appear in the outline, are selected based on their syntactic sort and
+constructor names. For example, the following outline specification will include
+all entity declarations:
 
 \begin{code}
 module MoblLang-Outliner
@@ -1204,13 +1204,16 @@ outliner Entity Outliner
   Decl.Entity
 \end{code}
 
-Like in the specification of other editor services, we can use \ic{\_} as a wildcard for sorts and constructors.
-For example, \ic{Decl.\_} will include imports and entities in the outline.
-Similarly, \ic{\_.Property} will include all nodes with a constructor \ic{Property}, independent of their syntactic sort.
+Like in the specification of other editor services, we can use \ic{\_} as a
+wildcard for sorts and constructors. For example, \ic{Decl.\_} will include
+imports and entities in the outline. Similarly, \ic{\_.Property} will include
+all nodes with a constructor \ic{Property}, independent of their syntactic sort.
 
-Spoofax analyses the syntax definition and tries to come up with a reasonable default outline specification,
-which is imported into \ic{<LanguageName>-Outliner.esv}.
-We can then either extend the generated specification with our own rules, or discard it by removing the import statement.
+Spoofax analyses the syntax definition and tries to come up with a reasonable
+default outline specification, which is imported into
+\ic{<LanguageName>-Outliner.esv}. We can then either extend the generated
+specification with our own rules, or discard it by removing the import
+statement.
 
 \parhead{The Outline in MPS} MPS does not have a cutomizable outline view. It
 shows the AST of the complete program as part of the project explorer, but the
@@ -1221,13 +1224,10 @@ shows how to implement your own outline view.}.
 
 
 
-\section{Code Folding}
-
-
-Code folding refers to the small minuses in the gutter of an editor that lets
-you collapse code regions (see \fig{folding}). The editor shows an ellipsis
-(\ic{\ldots}) for the folded parts of the code. Clicking on the \ic{+} or on
-the ellipsis shows the full code again.
+\section{Code Folding} Code folding refers to the small minuses in the gutter of
+an editor that let you collapse code regions (see \fig{folding}). The editor
+shows an ellipsis (\ic{\ldots}) for the folded parts of the code. Clicking on
+the \ic{+} or on the ellipsis restores the full code.
 \begin{marginfigure}[-4mm]
 \begin{center}
   \includegraphics[width=50mm]{figures/6/folding.png}
@@ -1259,10 +1259,10 @@ public class CLFoldingRegionProvider extends DefaultFoldingRegionProvider {
 }
 \end{code}
 
-\parhead{Folding in Spoofax}%
-%
-Spoofax allows to specify folding declaratively in the editor specification, preferably in \ic{<LanguageName>-Folding.esv}.
-Very similar to the specification of outlines, folding is specified in terms of syntactic sort and constructor names:
+\parhead{Folding in Spoofax} Spoofax allows to specify folding declaratively in
+the editor specification, preferably in \ic{<LanguageName>-Folding.esv}.
+Very similar to the specification of outlines, folding is specified in terms of
+syntactic sort and constructor names:
 
 \begin{code}
 module Mobl-Folding
@@ -1274,12 +1274,13 @@ folding Entity folding
   _.Function
 \end{code}
 
-Like for outlines, Spoofax analyses the syntax definition and tries to come up with a reasonable default specification,
-which is imported into \ic{<LanguageName>-Folding.esv}.
-We can then either extend the generated specification with our own rules, 
-disable particular specifications by adding a \ic{(disabled)} annotation, 
-or discard it completely by removing the import statement.
-A \ic{(folded)} annotation tells Spoofax to fold a node by default in an opening editor, which is typically seen for import sections.
+Like for outlines, Spoofax analyses the syntax definition and tries to come up
+with a reasonable default specification, which is imported into
+\ic{<LanguageName>-Folding.esv}. We can then either extend the generated
+specification with our own rules, disable particular specifications by adding a
+\ic{(disabled)} annotation, or discard it completely by removing the import
+statement. A \ic{(folded)} annotation tells Spoofax to fold a node by default in
+an opening editor, which is typically seen for import sections.
 
 \parhead{Folding in MPS} In MPS, folding can be activated for any vertical
 collection. For example, in a state machine, each state contains a vertical list
@@ -1300,8 +1301,10 @@ To enable folding for this collection, we simple set the \ic{uses folding}
 property for the collection to \ic{true}. It can also be set to \ic{query}, in
 which case code can be written that determines at runtime whether folding should
 be enabled or not. For example, folding could be enable if there are more than
-three transitions. Once we've set the property to \ic{true}, we have provide a
-cell that is rendered in case the user selects to fold the code. 
+three transitions in the state. Once we've set the property to \ic{true}, we
+have to provide a cell that is rendered in case the user selects to fold the
+code. This way the text shown as an ellipses can be customized beyond
+just showing three dots.
 
 \begin{figure}[h]
 \begin{center}
@@ -1328,8 +1331,9 @@ conditionally. \fig{requirementsCollapsed} shows an list/tree of requirements.
 
 After pressing \keystroke{Ctrl-Shift-D} on a requirement, the editor shows the
 requirements details (\fig{requirementsExpanded}). This effect of "expanding
-editors" is implemented by making the detail part optional. \fig{reqEditor}
-shows the editor definition.
+editors" is implemented by making the detail part optional in the sense that
+the projection rule only shows it conditionally.
+\fig{reqEditor} shows the editor definition.
 \begin{marginfigure} 
 \begin{center}
   \includegraphics[width=65mm]{figures/6/requirementsExpanded.png}
@@ -1364,43 +1368,48 @@ feature. MPS also annotates the editor with gutter annotations that highlight
 whether a part of the program has changed relative to the last checkout. 
 
 
-\section{Additional IDE Services}
+\section{Tooltips/Hover} 
 
-The IDE services discussed so far are the essentials that language workbenches
-should provide. However, there are of course many additional services an IDE may
-provide. We outline some of them in this section.
+A tooltip, or hover, is a small, typically yellow window that is shown if the
+user hovers the mouse over a program element. A hover may show the documentation
+of the target element, or, when hovering over a reference, some information
+about the referenced element. 
 
-\parhead{Tooltips/Hover} A tooltip, or hover, is a small, typically yellow
-window that is shown if the user hovers the mouse over a program element. A
-hover may show the documentation of the target element, or, when hovering over a
-reference, some information about the referenced element. While Xtext does not
-support tooltips directly, the tooltip framework provided by JFace can be used.
+\parhead{Xtext} While Xtext does not support tooltips directly, the tooltip
+framework provided by JFace can be used.
 
-Spoofax supports tooltips directly.
-Tooltips are provided by rewrite rules, which need to be defined as hovers in the editor specification, preferable in \ic{<LanguageName-References.esv>}:
+\parhead{Spoofax} Spoofax supports tooltips directly. Tooltips are provided by
+rewrite rules, which need to be defined as hovers in the editor specification,
+preferable in \ic{<LanguageName-References.esv>}:
 
 \begin{code}
 hover _: editor-hover 
 \end{code}    
 
-This line tells Spoofax to use a rewrite rule \ic{editor-hover} to retrieve tooltips for all kinds of abstract syntax tree nodes.
-When we want to define different rewrite rules for particular constructors, we need to provide a \ic{hover} specification for each constructor, replacing \ic{\_} by \ic{\_.<Constructor>}.
+This line tells Spoofax to use a rewrite rule \ic{editor-hover} to retrieve
+tooltips for all kinds of abstract syntax tree nodes. When we want to define
+different rewrite rules for particular constructors, we need to provide a
+\ic{hover} specification for each constructor, replacing \ic{\_} by
+\ic{\_.<Constructor>}.
  
-The specified rewrite rules have to follow the typical editor interface on their left-hand side and need to yield strings on their right-hand sides.
-The strings are then used as tooltips.
-For example, the following rewrite rule will provide type information for any typable node:
+The specified rewrite rules have to follow the typical editor interface on their
+left-hand side and need to yield strings on their right-hand sides.
+The strings are then used as tooltips. For example, the following rewrite rule
+will provide type information for any typable node:
 
 \begin{code}
 editor-hover:
     (target, position, ast, path, project-path) -> <type-of; pp-MoblLang-string> target
-\end{code}    
+\end{code}   
 
-MPS does not support tooltips at this time, however, there is an acceptable
-workaround: the additional information for a program element can be shown in the
-inspector. For example, if users click on a reference to a requirement in
-program code, the inspector shows information about the referenced requirement
-(see \fig{detailsInInspector}).
-\begin{marginfigure}[-30mm] 
+\todo{@Guido can I define mutliple independnet hovers?} 
+
+\parhead{MPS} MPS does not support tooltips at this time, however, there is an
+acceptable workaround: the additional information for a program element can be
+shown in the inspector. For example, if users click on a reference to a
+requirement in program code, the inspector shows information about the
+referenced requirement (see \fig{detailsInInspector}).
+\begin{marginfigure}[-30mm]
 \begin{center}
   \includegraphics[width=55mm]{figures/6/detailsInInspector.png}
   \caption[]{If a user selects a reference to a requirement in a requirements
@@ -1426,23 +1435,42 @@ details about the referenced element.
 \end{figure}
   
 
-\parhead{Visualizations} To provide an overview over the structure of the
-programs, graphical representations are useful. In Xtext, Jan Koehnlein's
-Generic Graph View\footnote{http://bit.ly/AluxnB} can be used to render digrams
-of Xtext models in real time --- the Generic Graph View is an interpreter, so
-changes in the model lead to updates in the graph immediately. The mapping from
-the model to the graph is expressed with an Xtext-based mapping DSL. In
-addition, a separate styling DSL supports the definition of shapes, colors and
-line styles. Double clicking a node in the graph opens the corresponding program
-element in the Xtext editor.
+\section{Visualizations} 
 
-In MPS we have integrated ZGRViewer\footnote{http://bit.ly/qvJJ2}, a Java-based
-renderer for GraphViz\footnote{http://bit.ly/2BqWbh} dot files. 
+To provide an overview over the structure of the programs, graphical
+representations are useful. Note that these are not necessarily a workaround for
+not having graphical editors. Visualizations can provide real added value.
+
+\parhead{Xtext} In Xtext, Jan Koehnlein's Generic Graph
+View\footnote{http://bit.ly/AluxnB} can be used to render digrams of Xtext
+models in real time --- the Generic Graph View is an interpreter, so changes in
+the model lead to updates in the graph immediately. 
+\begin{marginfigure}
+\begin{center}
+  \includegraphics[width=65mm]{figures/6/jansGraphView.png}
+  \caption[]{A model-to-graph mapping and a style definition expressed with the
+  Generic Graph Viewer DSLs by Jan Koehnlein.}
+  \vspace{10mm}
+  \label{jansGraphView} 
+\end{center}
+\end{marginfigure}
+ 
+The mapping from the model to the graph is expressed with an Xtext-based mapping
+DSL that extends Xbase, which means you can use Xbase expressions to traverse
+and query the model you want to visualize (in \fig{jansGraphView} an example
+would be the \ic{this.eSuperTypes()} expression). In addition, a separate
+styling DSL supports the definition of shapes, colors and line styles.
+Double clicking a node in the graph opens the corresponding program element in
+the Xtext editor.
+
+
+\parhead{MPS} In MPS we have integrated ZGRViewer\footnote{http://bit.ly/qvJJ2},
+a Java-based renderer for GraphViz\footnote{http://bit.ly/2BqWbh} dot files.
 
 \begin{figure}[h]
 \begin{center}
   \includegraphics[width=110mm]{figures/6/visualizationInMPS.png}
-  \caption[][4mm]{Clicking on a node in the graphview opens the respective
+  \caption[][54mm]{Clicking on a node in the graphview opens the respective
   program element in the MPS editor.}
   \label{visualizationInMPS} 
 \end{center}
