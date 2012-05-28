@@ -778,13 +778,9 @@ achieve this.
 
 \subsection{Language Embedding}
 
-\phead{Structure and Syntax} uispec\_validation extends uispec, it is a
-sublanguage of the validation language. It supports writing code such as the
-following in the UI form specifications. Writing the expressions is supported by
-embedding a reusable expressions language. \fig{uival} shows the structure. To
-be able to use the expressions, the user has to use a \ic{ValidatedField}
-instead of a \ic{Field}. \ic{ValidatedField} is also defined in
-uispec\_validation and is a subconcept of \ic{Field}.
+\phead{Structure and Syntax} \ic{uispec\_validation} extends \ic{uispec}, it is a
+sublanguage of the \ic{uispec} language. It supports writing code such as
+the following in the UI form specifications:
 
 
 \begin{code}
@@ -800,24 +796,32 @@ form CompanyStructure
   field Office: textfield(20) -> Department.description                                                                                                
 \end{code}
 
+\noindent Writing the expressions is supported by embedding an
+\ic{expressions} language. \fig{uival} shows the structure. To be able to use
+the expressions, the user has to use a \ic{ValidatedField} instead of a \ic{Field}.
+\ic{ValidatedField} is also defined in \ic{uispec\_validation} and is a
+subconcept of \ic{Field}.
+
 \begin{figure}[htp]
 \begin{center}
   \includegraphics[scale=0.50]{figures/9/a/uival.png}
   \caption[]{The uispec\_validation language defines a subtype of
-  \ic{uispec.Field} that contains an \ic{Expression} from a reusable expression
-  language. The language also defines a couple of additional expressions,
+  \ic{uispec.Field} that contains an \ic{Expression} from an embeddable
+  expression language. The language also defines a couple of additional expressions,
   specifically the \ic{AttributeRefExpr}, which can be used to refer to
   attributes of entities.}
   \label{uival}  
 \end{center}
 \end{figure}
 
-\noindent 
-To support the migration of existing models that use \ic{Field} instances, we
-provide an intention: the user can press Alt-Enter on a \ic{Field} and select
-"Make Validated Field". This transforms an existing \ic{Field} into a
-\ic{ValidatedField}, so that validation expressions can be entered. The core of
-the intention is the following script, which performs the actual transformation:
+\noindent To support the migration of existing models that use \ic{Field}
+instances, we provide an intention: the user can press \ic{Alt-Enter} on a
+\ic{Field} and select \ic{Make Validated Field}. This transforms an existing
+\ic{Field} into a \ic{ValidatedField}, so that validation expressions can be
+entered\footnote{Alternatively it could be arranged (with 5 lines of code) that
+users could simply type \ic{validate} on the right of a field definition to
+trigger the transformation code below.}. The core of the intention is the
+following script, which performs the actual transformation:
 
 \begin{code}
 execute(editorContext, node)->void { 
@@ -830,23 +834,26 @@ execute(editorContext, node)->void {
 \end{code}
 
 
-\noindent 
-The uispec\_validation language extends the uispec language. We also extend the
-existing, reusable expressions language, so we can use \ic{Expressions} in the
-definition of our language. \ic{ValidatedField} has a property \ic{expr} that
-contains the actual expression. As a consequence of polymorphism, we can use any
-existing subconcept of \ic{Expression} here. So without doing anything else, we
-could write \ic{20 + 40 > 10}, since integer literals and the plus operator
-are defined as part of the composed expressions language. However, to write
-anything useful, we have to be able to reference entity attributes from within
-expressions. To achieve this, we create the \ic{AttributeRefExpr} as shown in
-\fig{uival}. We also create \ic{LenghtOf} and \ic{IsSetExpression} as further
-examples of how to adapt an embedded language to its new context ---
-i.e. the uispec and entities languages.
+\noindent The \ic{uispec\_validation} language extends the \ic{uispec} language.
+We also extend the existing, embeddable \ic{expressions} language, so we can use
+\ic{Expressions} in the definition of our language. \ic{ValidatedField} has a
+property \ic{expr} that contains the validation expression. As a consequence of
+polymorphism, we can use any existing subconcept of \ic{Expression} in
+validations. So without doing anything else, we could write \ic{20 + 40 > 10},
+since integer literals and the \ic{+} and \ic{>} operators are defined as part
+of the composed \ic{expressions} language. However, to write anything useful, we have
+to be able to reference entity attributes from within expressions\footnote{We
+argued in the design part (\todo{ref}) that, in order to make an embedded
+language useful with its host language, it has to be extended: the following
+expressions are examples of this.}. To achieve this, we create the
+\ic{AttributeRefExpr} as shown in \fig{uival}. We also create \ic{LenghtOf} and
+\ic{IsSetExpression} as further examples of how to adapt an embedded language to
+its new context --- i.e. the \ic{uispec} and \ic{entities} languages.
 
 
-The \ic{AttributeRefExpr} may only reference those attributes of those
-entities that used in the form within which we define the validation expression.
+The \ic{AttributeRefExpr} references an \ic{Attribute} from the \ic{entities}
+language; however, it may only reference those attributes of those entities that
+are used in the form in which we define the validation expression.
 The following is the code for the search scope:
 
 \begin{code}
@@ -861,17 +868,16 @@ The following is the code for the search scope:
 }
 \end{code}
 
-\noindent 
-Notice that the actual syntactic embedding of the expressions in the
-uispec\_validation language is no problem at all as a consequence of how
-projectional editors work. We simply define \ic{Expression} to be a child of the
-\ic{ValidatedField}. 
+\noindent Notice that the actual syntactic embedding of the \ic{expressions}
+language in the \ic{uispec\_validation} language is no problem at all as a
+consequence of how projectional editors work. We simply define \ic{Expression} to be a child of the
+\ic{ValidatedField}.
 
 
 \phead{Type System} The general challenge here is that primitive types such as
-\ic{int} and \ic{string} are defined in the entities language and in the
-reusable expression language. Although they have the same names, they are not
-the same types. So the two sets of types must be mapped. Here are a couple of
+\ic{int} and \ic{string} are defined in the \ic{entities} language \emph{and} in the
+embeddable \ic{expressions} language. Although they have the same names, they
+are not the same types. So the two sets of types must be mapped. Here are a couple of
 examples. The type of the \ic{IsSetExpression} is by definition
 \ic{expressions.BooleanType}. The type of the \ic{LengthOf}, which takes an
 \ic{AttrRefExpression} as its argument, is \ic{expressions.IntType}.
@@ -881,23 +887,23 @@ following code:
 
 \begin{code}
   field Freelancer: checkbox -> Employee.freelancer 
-        validate if (isSet(Employee.worksAt)) Employee.freelancer == true else
-                    Employee.freelancer == false 
+        validate if (isSet(Employee.worksAt)) Employee.freelancer == false else
+                    Employee.freelancer == true 
 \end{code}
 
-\noindent 
-This code states that if the \ic{worksAt} attribute of an employee is set, then
-its \ic{freelancer} attribute must be \ic{true} else it must be \ic{false}. It
-uses the equals operator from the expressions language. However, that operator
-expects two \ic{expressions.BooleanType} arguments, but the type of the
+\noindent This code states that if the \ic{worksAt} attribute of an employee is
+set, then its \ic{freelancer} attribute must be \ic{false} else it must be
+\ic{true} (freelancers dont \ic{workAt} anything). It uses the \ic{==} operator
+from the \ic{expressions} language. However, that operator expects two
+\ic{expressions.BooleanType} arguments, but the type of the
 \ic{Employee.freelancer} is \ic{entities.BooleanType}. In effect, we have to
-override the typing rules for the expressions languages's equals operator. Here
-is how we do it, using \ic{Equals} as an example.
+override the typing rules for the expressions languages's \ic{==} operator. Here
+is how we do it:
 
-In the expressions language, we define so-called overloaded operation rules. We
-specify the resulting type for an \ic{EqualsExpression} depending on its argument types.
-Here is the code in the expressions language that defines the resulting type to
-be \ic{boolean} if the two arguments are \ic{Equallable}:
+In the \ic{expressions} language, we define so-called overloaded operation
+rules. We specify the resulting type for an \ic{EqualsExpression} depending on
+its argument types. Here is the code in the \ic{expressions} language that defines
+the resulting type to be \ic{boolean} if the two arguments are \ic{Equallable}:
 
 \begin{code}
 operation concepts: EqualsExpression                                                     
@@ -918,28 +924,22 @@ specification into a regular type inference rule.
 \begin{code}
 rule typeof_BinaryExpression {                                                                                                                                                                                                                                                                                                                                                                                                                                                   
   applicable for concept = BinaryExpression as binaryExpression                                                                                                                                                                                                                                                                                                                                                                                                                  
-  overrides false                                                                                                                                                                                                                                                                                                                                                                                                                                                                
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
   do {                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
-    when concrete (typeof(binaryExpression.left) as left) { 
-      when concrete (typeof(binaryExpression.right) as right) { 
-        node<> opType = operation type( binaryExpression , left , right ); 
-          if (opType != null) { 
-            typeof(binaryExpression) :==: opType; 
-          } else { 
-            error "operator " + binaryExpression.concept.name + 
-                  " cannot be applied to these operand types " + 
-                  left.concept.name + "/" + right.concept.name 
-               -> binaryExpression; } 
-          }  
-      } 
-    }  
+    node<> opType = operation type( binaryExpression , left , right ); 
+      if (opType != null) { 
+        typeof(binaryExpression) :==: opType; 
+      } else { 
+        error "operator " + binaryExpression.concept.name + 
+              " cannot be applied to these operand types " + 
+              left.concept.name + "/" + right.concept.name 
+           -> binaryExpression; } 
+      }  
   } 
 \end{code}
 
 \noindent 
 To override these typing rules to work with \ic{entities.BooleanType}, we simply
-provider another overloaded operation specification in the uispec\_validation
+provider another overloaded operation specification in the \ic{uispec\_validation}
 language:
 
 \begin{code}
@@ -953,63 +953,57 @@ operation type:
 
 
 \phead{Generator} The generator has to create BaseLanguage code, which is then
-subsequently transformed into Java Text. To deal with the transformation of the
+subsequently transformed into Java text. To deal with the transformation of the
 expressions language, we can do one of two things:
 
-% > - create own text gen (just like it's done for BaseLanguage
-% > constructions). This way of generating code looks more straight
-% > forward then "wrapping expressions into some kind of
-% > TextHolderStatement".
-% > - reduce expressions to a BaseLanguage constructions (the second
-% > choice proposed in paper).
-% >
-% > I think TextHolderStatement can be mentioned here as an option, but
-% > MPS textgen looks like a native way to produce textual output from the
-% > model.
-
-
 \begin{itemize}
-  \item Either we can use the expression's language existing to-text generator
-  and wrap the expressions in some kind of \ic{TextHolderStatement}. Remember
+  \item Either we can use the \ic{expressions} language existing to-text generator
+  and wrap the expressions in some kind of \ic{TextHolderStatement}\footnote{Remember
   that we cannot simply embed text in BaseLanguage, since that would not work
-  structurally. A wrapper is necessary.
+  structurally: no concept in BaseLanguage expects "text" as children. A wrapper
+  is necessary.}.
   \item Alternatively, we can write a (reusable) transformation from expressions
   code to BaseLanguage code; these rules would get used as part of the
-  transformation of uispec and uispec\_validation code to BaseLanguage.
+  transformation of \ic{uispec} and \ic{uispec\_validation} code to
+  BaseLanguage.
 \end{itemize}
 
-Since many DSLs will map code to BaseLangauge, it is worth the effort to
-write a reusable generator from uispec\_validation expressions to BaseLanguage
-expressions. We choose this second alternative. The generated Java code is
-multi-sourced, since it is generated by two independent code generators.
+Since many DSLs will likely transform code to BaseLangauge, it is worth the
+effort to write a reusable generator from \ic{expressions} to BaseLanguage. So
+we choose this second alternative. The generated Java code is multi-sourced,
+since it is generated by two independent code generators.
 
 
-Expression constructs from the reusable expr language and those of BaseLanguage
-are almost identical, so this generator is trivial. We create a new language
-project de.voelter.mps.expressions.blgen and add reduction rules.
-\fig{expr2blgen} shows some of these reduction rules.
+Expression constructs from the reusable \ic{expressions} language and those of
+BaseLanguage are almost identical, so this generator is trivial. We create a new language
+project \ic{de.voelter.mps.expressions.blgen} and add reduction
+rules\sidenote[][-20mm]{In MPS, all "meta stuff" is called a language. So even
+though \ic{de.voelter.mps.expressions.blgen} only contains a generator (from
+\ic{expressions} to BaseLanguage) it is still a \emph{language} in MPS
+terminology.}. \fig{expr2blgen} shows some of these reduction rules.
 
 
 \begin{figure}[htp]
 \begin{center}
   \includegraphics[scale=0.50]{figures/9/a/expr2blgen.png}
   \caption[]{A number of reduction rules that map the reusable
-  expression language to BaseLanguage (Java). Since the languages are very
+  \ic{expressions} language to BaseLanguage (Java). Since the languages are very
   similar, the mapping is trivial. For example, a \ic{PlusExpression} is mapped
-  to a + in Java, the left and right arguments are reduced recursively through
-  the COPY\_SRC macro.}
+  to a \ic{+} in Java, the \ic{left} and \ic{right} arguments are reduced recursively through
+  the \ic{COPY\_SRC} macro.}
   \label{expr2blgen}  
 \end{center}
 \end{figure}
 
-\noindent 
-In addition to these, we also need reduction rules for those new expressions
-that we have added specifically in the uispec\_validation language
-(\ic{AttrRefExpression, isSetExpression, LengthOf}). Those are defined in
-uispec\_validation. As an example, \fig{reductionAttributeRef} shows the rule
-for handling the \ic{AttrRefExpression}. The validation code itself is
-"injected" into the UI form via the same placeholder reduction as in the case of
-the rbac\_entities language.
+\noindent In addition to these, we also need reduction rules for those new
+expressions that we have added specifically in the \ic{uispec\_validation}
+language (\ic{AttrRefExpression, isSetExpression, LengthOf}). Those
+transformations are defined in \ic{uispec\_validation}, since this language is
+\emph{not} reusable --- it is specifically designed to integrate the \ic{uispec}
+and the \ic{expressions} languages. As an example, \fig{reductionAttributeRef}
+shows the rule for handling the \ic{AttrRefExpression}. The validation code
+itself is "injected" into the UI form via the same placeholder reduction as in
+the case of the \ic{rbac\_entities} language.
 
 
 \begin{figure}[h]
@@ -1027,14 +1021,14 @@ the rbac\_entities language.
 Language extension can also be used to prohibit the use of certain concepts of
 the base language in the sublanguage, at least in certain contexts. As a simple
 (but admittedly relatively useless) example, we restrict the use of certain
-operators provided by the reusable expression language insider validation rules
-in uispec\_validation. This can be achieved by implementing a 
+operators provided by the reusable expression language inside validation rules
+in \ic{uispec\_validation}. This can be achieved by implementing a 
 \ic{can be ancestor} constraint on \ic{ValidatedField}.
 
 \begin{code}
 can be ancestor:
   (operationContext, scope, node, childConcept)->boolean { 
-    return !(childConcept == concept/GreateEqualsExpression/ || 
+    return !(childConcept == concept/GreaterEqualsExpression/ || 
              childConcept == concept/LessEqualsExpression/); 
   }
 \end{code}
