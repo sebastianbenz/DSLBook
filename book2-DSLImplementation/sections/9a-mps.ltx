@@ -266,20 +266,20 @@ checking rule checkTypes {
 \end{code}
 
 
-\phead{Generation} The defining characteristic of language combination is that
-the two languages only reference each other, and the instance fragments are
-dependent, but homogeneous. No syntactic integration is necessary in this case.
-In this example, the generated code exhibits the same separation. From the form
-definition, we generate a Java class that uses Java Swing to build the form. It
-\emph{uses} the beans generated from the entities. The classes are instantiated,
-and the setters are called. The generators are separate but they are
-\emph{dependent}, they share information. Specifically, the forms generator
-knows about the names of the generated entity classes, as well as the names of
-the setters and getters. This is implemented by defining a couple of
-behavior methods on the \ic{Attribute} concept that are called from both
-generators (the colon represents the node cast operator and binds tightly; the
-code below casts the attribute's parent to \ic{Entity} and then accesses the
-\ic{name} property).
+\phead{Generation} The defining characteristic of language referencing is that
+the two languages only \emph{reference} each other, and the instance fragments
+are dependent, but \emph{homogeneous}. No syntactic integration is necessary in
+this case. In this example, the generated code exhibits the same separation.
+From the \ic{Form} definition, we generate a Java class that uses Java Swing to
+build the UI form. It \emph{uses} the beans generated from the entities: the
+classes are instantiated, and the setters are called. The generators are
+separate, but they are \emph{dependent} because they share information.
+Specifically, the \ic{uispec} generator knows about the names of the generated entity
+classes, as well as the names of the setters and getters. This dependency is
+implemented by defining a couple of behavior methods on the \ic{Attribute}
+concept that are called from both generators (the colon represents the node cast
+operator and binds tightly; the code below casts the attribute's parent to
+\ic{Entity} and then accesses the \ic{name} property):
 
 
 \begin{code}
@@ -288,19 +288,19 @@ concept behavior Attribute {
     this.parent : Entity.name + "." + this.name;                             
   }                                                                          
   public string setterName() {                                               
-    "set" + this.name.substring(0, 1).toUpperCase() + this.name.substring(1);
+    "set" + this.name.toFirstUpper();
   }                                                                          
   public string getterName() {                                               
-    "get" + this.name.substring(0, 1).toUpperCase() + this.name.substring(1);
+    "get" + this.name.toFirstUpper();
   }                                                                          
 }                                                                            
 \end{code}
 
 
 \noindent 
-The original entities fragment is still \emph{sufficient} for the transformation
-that generates the Java Bean. The form fragment is not sufficient for generating
-the UI, it needs the entity fragment. This is not surprising since
+The original \ic{entities} fragment is still \emph{sufficient} for the transformation
+that generates the Java Bean. The \ic{uispec} fragment is not sufficient for
+generating the UI, it needs the \ic{entities} fragment. This is not surprising since
 \emph{dependent} fragments can never be sufficient for a transformation, the
 transitive closure of all dependencies has to be made available.
 
@@ -308,57 +308,54 @@ transitive closure of all dependencies has to be made available.
 
 \subsection{Language Extension}
 
-We will revisit language extension later for more meaningful examples
-of extension. For now, we extend the MPS base language with expression blocks
-and placeholders. These concepts make writing generators \emph{that generate
-base language code} much simpler. \fig{expressionBlock} shows an Example. We use
-a screenshot instead of text because we use non-textual notations (the big
-brackets) and color. 
+We extend the MPS base language with block expressions and placeholders. These
+concepts make writing generators \emph{that generate base language code} much
+simpler. \fig{expressionBlock} shows an example. We use a screenshot instead of
+text because we use non-textual notations (the big brackets) and color.
 
+\begin{figure*}[htp]
+  \includegraphics[width=15cm]{figures/9/a/expressionBlock.png}
+  \caption[]{block expressions (in blue) are basically anonymous
+  inline methods. Upon transformation, a method is generated that contains the
+  block content, and the block expression is replaced with a call to this
+  method. Block expressions are used mostly when implementing generators; this
+  screenshot shows a generator that uses a block expressions.}
+  \label{expressionBlock} 
+\end{figure*}
 
-\phead{Structure and Syntax} An expression block is a block that can be used
-where an \ic{Expression} is expected \cite{BravenboerVVV05}. The block can
-contain any number of statements; \ic{yield} can be used to "return values" from
-within the block. So, in some sense, an expression block is an "inlined method",
-or a closure that is defined and called directly. The optional name property of
-an expression block is then used as the method name. The generator of the
-expression block transforms it into just this structure:
+\phead{Structure and Syntax} A block expression is a block that can be used
+where an \ic{Expression} is expected\cite{BravenboerVVV05}. The block can
+contain any number of statements; \ic{yield} can be used to "return" values from
+within the block\sidenote[][10mm]{So, in some sense, a block expression is an
+"inlined method", or a closure that is defined and called directly.}. An optional name property of
+a block expression is used as the name of the generated method. The generator
+of the block expression in \fig{expressionBlock} transforms it into this
+structure:
 
 
 \begin{code}
-okButton.addActionListener(new ActionListener() {
-  public void actionPerformed(ActionEvent p0) {
-    Employee aEmployee = new Employee();
-    aEmployee.setName(retrieve_name(aEmployee, widget0));
-  }
-  public String retrieve_name(Employee aEmployee, JComponent widget0) {
-    String newValue = ((JTextField) widget0).getText();
-    return newValue;
-  }
+// the argument to setName is what was the block expression,
+// it is replaced by a method call to the generated method
+aEmployee.setName(retrieve_name(aEmployee, widget0));
+  
+...
+ 
+public String retrieve_name(Employee aEmployee, JComponent widget0) {
+  String newValue = ((JTextField) widget0).getText();
+  return newValue;
 }
 \end{code}
 
-\begin{figure*}[htp]
-\begin{center}
-  \includegraphics[width=13cm]{figures/9/a/expressionBlock.png}
-  \caption[]{Expression blocks (in blue) are basically anonymous
-  inline methods. Upon transformation, a method is generated that contains the
-  block content, and the expression block is replaced with a call to this
-  method. Expression block are used mostly when implementing generators; this
-  screenshot shows a generator that uses an expression block.}
-  \label{expressionBlock} 
-\end{center}
-\end{figure*}
 
 
-\noindent 
-The \ic{jetbrains.mps.baselanguage.exprblocks} language extends MPS' BaseLanguage.
-The expression block is used in places where the base language
-expects an \ic{Expression}. This is why an \ic{BlockExpression} extends
-\ic{Expression}. Consequently, fragments that use the exprblocks language, can
-now use \ic{BlockExpression}s in addition to the concepts provided by the base
-language. The fragments become \emph{heterogeneous}, because languaegs are
-mixed.
+
+\noindent The \ic{jetbrains.mps.baselanguage.exprblocks} language extends MPS'
+BaseLanguage. To make a block expression valid where BaseLanguage expects an
+\ic{Expression}, \ic{BlockExpression} extends \ic{Expression}. Consequently,
+fragments that use the \ic{exprblocks} language, can now use
+\ic{BlockExpression}s in addition to the concepts provided by the BaseLanguage.
+The fragments become \emph{heterogeneous}, because languages are
+syntactically mixed.
 
 \begin{code}
 concept BlockExpression extends Expression implements INamedConcept
@@ -366,13 +363,14 @@ concept BlockExpression extends Expression implements INamedConcept
     StatementList body 1 specializes: <none>      
 \end{code}
           
+          
 \phead{Type System} The type of the \ic{yield} statement is the type of the
 expression that is yielded, specified by 
-\ic{typeof(yield) :==: typeof(yield.result);} (the type of /verb+yield 1;+
-would be \ic{int}). Since the \ic{BlockExpression} is used as an expression, it
+\ic{typeof(yield) :==: typeof(yield.result);} (the type of \ic{yield 1;}
+would be \ic{int}). Since the \ic{BlockExpression} is used as an \ic{Expression}, it
 has to have a type as well. Since it is not explicitly specified, the type of
 the \ic{BlockExpression} is the common super type of the types of all the
-yields. The following typing rule computes this type:
+\ic{yield}s. The following typing rule computes this type:
 
 \begin{code}
 var resultType ; 
@@ -384,87 +382,89 @@ typeof(blockExpr) :==: resultType;
 \end{code}
           
           
-\phead{Generator} The generator for \ic{BlockExpression}s reduces the new 
-concept to pure base
-language: it performs assimilation. It transforms a heterogeneous fragment
-(using BaseLanguage and exprblocks) to a homogeneous fragment (using only
-BaseLanguage). The first step is the creation of the additional method 
-for the block expression (\fig{expressionBlockGenerator1}).
+\phead{Generator} The generator for \ic{BlockExpression}s reduces the new
+concept to pure BaseLanguage: it performs assimilation. It transforms a
+\emph{heterogeneous} fragment (using BaseLanguage and \ic{exprblocks}) to a \emph{homogeneous}
+fragment (using only BaseLanguage). The first step is the creation of the
+additional method for the block expression (\fig{expressionBlockGenerator1}).
 
 
 
 
 
-\begin{figure*}[htp]
-\begin{center}
-  \includegraphics[scale=0.5]{figures/9/a/expressionBlockGenerator1.png}
+\begin{figure*}[h]
+  \includegraphics[scale=0.6]{figures/9/a/expressionBlockGenerator1.png}
   \caption[]{We use a weaving rule to create an additional method for
   this. A weaving rule processes an input element (\ic{BlockExpression}) by creating
   another node in a different place. The context function defines this
   other place. In this case, it simply gets the class in which we have defined
   the block expression.}
   \label{expressionBlockGenerator1} 
-\end{center}
 \end{figure*}
  
 
-The template shown in \fig{expressionBlockGenerator2} shows the creation of the
-method. It assigns a mapping label to the created method. The mapping label
+\noindent The template shown in \fig{expressionBlockGenerator2} shows the
+creation of the method. It assigns a mapping label to the created method. The mapping label
 creates a a mapping between the \ic{BlockExpression} and the created method. We
 will use this label to refer to this generated method when we generate the
 method call that replaces the \ic{BlockExpression}
-(\fig{expressionBlockGenerator3}).
+(shown in \fig{expressionBlockGenerator3}).
 
 
-\begin{figure*}[htp] 
-\begin{center}
+\begin{figure*}[htp]
   \includegraphics[scale=0.5]{figures/9/a/expressionBlockGenerator2.png}
-  \caption[]{The generator creates a method from the block
-  expression. It uses COPY\_SRC macros to replace the \ic{string} type with the
-  computed return type of the block expression, inserts a computed name, adds a
-  parameter for each referenced variable outside the block, and inserts all the
-  statements from the block expression into the body of the method. The
-  \ic{blockExprToMethod} mapping label is used later in the method call.}
+  \caption[]{The generator creates a method from the \ic{BlockExpression}. It
+  uses \ic{COPY\_SRC} macros to replace the \ic{string} type with the computed
+  return type of the block expression, inserts a computed name, adds a parameter
+  for each referenced variable outside the block, and inserts all the statements
+  from the block expression into the body of the method (using the
+  \ic{COPY\_SRCL} macro that iterates over all of the statements in the
+  \ic{ExpressionBlock}). The \ic{blockExprToMethod} mapping label is used later in the method call.}
   \label{expressionBlockGenerator2} 
-\end{center}
 \end{figure*}
 
 
 
-A second concept introduced by the \ic{exprblocks} language is the
-\ic{PlaceholderStatement}. It extends \ic{Statement} so it can be used
-insider method bodies. It is used to mark locations at which subsequent
-generators want to add additional code. These subsequent generators will use a
+\noindent A second concept introduced by the \ic{exprblocks} language is the
+\ic{Place- holderStatement}. It extends \ic{Statement} so it can be used
+inside method bodies. It is used to mark locations at which subsequent
+generators can add additional code. These subsequent generators will use a
 reduction rule to replace the placeholder with whatever they want to put at this
-location. It is a means to building extensible generators, as we will see later.
+location. It is a means to building extensible generator.
 
-\begin{figure}[htp]
+\begin{figure}[h]
 \begin{center}
-  \includegraphics[scale=0.5]{figures/9/a/expressionBlockGenerator3.png}
+  \includegraphics[scale=0.6]{figures/9/a/expressionBlockGenerator3.png}
   \caption[]{Here we generate the call to the previously generated
   method. We use the mapping label \ic{blockExprToMethod} to refer to the
   correct method (not shown; happens inside the ->\$ macro). We pass in the
-  environment variables as actual arguments.}
+  environment va riables as actual arguments.}
   \label{expressionBlockGenerator3} 
 \end{center}
 \end{figure}
+
+
+Both, \ic{BlockExpression} and \ic{PlaceholderStatement} will be used in
+subsequent examples of \lmrc.
+
 
 \subsection{Language Reuse with Separated Generated Code}
 
 Language reuse covers the case where a language that has been developed
 independent of the context in which it should be reused. The respective
-fragments remain homogeneous. In this paper, we cover two alternative cases: the
-first case addresses a persistence mapping language. The generated code is
-separate of the code generated from the entities language. The second case
-described a language for role-based access control. The generated code has to be
-"woven into" the entities code to check permissions when setters are called.
+fragments remain \emph{homogeneous}. In this chapter, we cover two alternative
+cases: the first case (in this subsection) addresses a persistence mapping
+language. The generated code is separate of the code generated from the entities
+language. The second case (discussed in the next subsection) described a
+language for role-based access control. The generated code has to be "woven
+into" the \ic{entities} code to check permissions when setters are called.
 
 
-\phead{Structure and Syntax} relmapping is a reusable language for mapping
-arbitrary data to relational tables. The relmapping language supports the
+\phead{Structure and Syntax} \ic{relmapping} is a reusable language for mapping
+arbitrary data to relational tables. The \ic{relmapping} language supports the
 definition of relational table structures, but leaves the actual mapping to the
 source data unspecified. As you adapt the language to a specific reuse context,
-you have to specify this mapping. The following code shows the reusable part. A
+you have to specify this mapping. The following code shows the reusable part: a
 database is defined that contains tables with columns. Columns have
 (database-specific) data types.
 
@@ -498,13 +498,17 @@ in a different context, we extend this hook by context-specific code.
 \end{figure}
 
  
-\noindent 
-The relmapping\_entities language extends relmapping and adapts it for reuse
-with the entities language. To this end, it provides a subconcept
-of \ic{ColumnMapper}, the \ic{AttributeColMapper}, which references an
-\ic{Attribute} from the entities language as a means of expressing the mapping from the
-attribute to the column. The column mapper is projected on the right of the
-field definition, resulting in the following (heterogeneous) code fragment:
+\noindent The \ic{relmapping\_entities} language extends \ic{relmapping} and
+adapts it for reuse with the \ic{entities} language. To this end, it provides a
+subconcept of \ic{ColumnMapper}, the \ic{AttributeColMapper}, which references
+an \ic{Attribute} from the \ic{entities} language as a means of expressing the
+mapping from the attribute to the column. The column mapper is projected on the
+right of the field definition, resulting in the following (heterogeneous) code
+fragment\footnote{This "mixed syntax" is pretty trivial since the
+\ic{AttributeColMapper} just references an attribute with a qualified name
+(\ic{Entity.attribute}). However, arbitrary additional syntax could be added,
+and we could use arbitrary concepts from the \ic{entities} language mixed into
+the \ic{relmapping} fragment.}:
 
 
 \begin{code}
@@ -522,11 +526,12 @@ Database CompanyDB
 
 \phead{Type System} The type of a column is the type of its \ic{type} property.
 In addition, the type of the column must also conform to the type of the column
-mapper, so the concrete subtype must provide a type mapping as well. This
-"typing hook" is implemented as an abstract behavior method \ic{typeMappedToDB}
-on the \ic{ColumnMapper}. It is acceptable from a dependency perspective to have
-this typing hook, since relmapping is designed to be extensible. The typing
-rules then look as follows:
+mapper, so the concrete \ic{ColumnMapper} subtype must provide a type mapping as
+well. This "typing hook" is implemented as an abstract behavior method
+\ic{typeMappedToDB} on the \ic{ColumnMapper}. It is acceptable from a dependency
+perspective to have this typing hook, since \ic{relmapping} is designed to be
+reusable. With this in mind, the typing rules of the \ic{relmapping}
+language look as follows:
 
 
 \begin{code}
@@ -536,8 +541,8 @@ typeof(columnMapper) :==: columnMapper.typeMappedToDB();
 \end{code}
 
 \noindent 
-The \ic{AttributeColMapping} concept from the relmapping\_entities implements
-this method by mapping ints to numbers, and everything else to chars.
+The \ic{AttributeColMapping} concept from the \ic{relmapping\_entities} implements
+this method by mapping \ic{int}s to \ic{number}s, and everything else to \ic{char}s.
 
 \begin{code}
 public node<> typeMappedToDB() 
@@ -550,17 +555,17 @@ public node<> typeMappedToDB()
 
 
 \phead{Generator} The generated code is also separated into a reusable part (a
-class generated by the generator of the relmapping language) and a
-context-specific subclass of that class, generated by the relmapping\_entities
+class generated by the generator of the \ic{relmapping} language) and a
+context-specific subclass of that class, generated by the \ic{relmapping\_entities}
 language. The generic base class contains code for creating the tables and for
 storing data in those tables. It contains abstract methods that are used to
 access the data to be stored in the columns. So the dependency structure of the
 generated fragments, as well as the depdendencies of the respective generators,
-resembles the dedpendency structure of the languages: the generated fragemnts
-are dependent, and the generators are dependent as well (they share the name
-(and implicitly the knowledge about the structure) of the class generated by the
-reusable relmapping generator). A relmapping fragment (without the concrete
-column mappers) is sufficient for generating the generic base class.
+resembles the dependency structure of the languages: the generated fragments
+are dependent, and the generators are dependent as well (they share the name,
+and implicitly, the knowledge about the structure of the class generated by the
+reusable relmapping generator). A \ic{relmapping} fragment (without the 
+concrete column mappers) is sufficient for generating the generic base class.
 
 
 \begin{code}
@@ -597,18 +602,10 @@ public abstract class CompanyDBBaseAdapter {
 }
 \end{code}
 
-\noindent 
-The subclass, generated by the generator in the relmapping\_entities language
-implements the methods defined by the generic superclass. The interface,
-represented by the \ic{applicationData} object, has to be kept generic  so any
-kind of user data can be passed in. Note how this class references the beans
-generated from the entities. So the generator for entities and the generator
-for relmapping\_entities are dependent, the information shared between the
-two generator is the names of the classes generated from the entities.
-The code generated from the relmapping language is designed to be extended by
-code generated from a sublanguage (the abstract getValue methods). This is
-acceptable, since the relmapping language itself is intended to be extended to
-adapt it to a new reuse context.
+\noindent The subclass, generated by the generator in the
+\ic{relmapping\_entities} language implements the abstract methods defined by
+the generic superclass. The interface, represented by the \ic{applicationData}
+object, has to be kept generic so any kind of user data can be passed in. 
 
 
 \begin{code}
@@ -628,12 +625,22 @@ public class CompanyDBAdapter extends CompanyDBBaseAdapter {
 }
 \end{code}
  
+ 
+Note how this class references the Beans generated from the \ic{entities}. So
+the generator for \ic{entities} and the generator for \ic{relmapping\_entities}
+are dependent, the information shared between the two generator is the names of
+the classes generated from the entities. The code generated from the
+\ic{relmapping} language is \emph{designed} to be extended by code generated
+from a sublanguage (the abstract \ic{getValue} methods). This is acceptable,
+since the \ic{relmapping} language itself is designed to be extended to adapt it
+to a new reuse context.
 
 
 \subsection{Language Reuse with Interwoven generated code}
 
-\phead{Structure and Syntax} rbac is a language for specifying role-based access
-control, to specify access permissions for the entities.
+\phead{Structure and Syntax} \ic{rbac} is a language for specifying role-based
+access control, to specify access permissions for the \ic{entities} language.
+Here is some example code:
 
 \begin{code}
 RBAC                           
@@ -653,9 +660,9 @@ permissions:
 \end{code}
 
 \noindent 
-The structure is shown in \fig{rbac}. Like relmapping, it provides a
+The structure is shown in \fig{rbac}. Like \ic{relmapping}, it provides a
 hook, in this case, \ic{Resource}, to adapt it to context languages. The
-sublanguge rbac\_entities provides two subconcepts of \ic{Resource}, namely
+sublanguage \ic{rbac\_entities} provides two subconcepts of \ic{Resource}, namely
 \ic{AttributeResource} to reference to an attribute, and \ic{EntityResource} to
 refer to an \ic{Entity}, to define permissions for entities and their
 attributes.
@@ -664,7 +671,7 @@ attributes.
 \begin{figure}[htp]
 \begin{center}
   \includegraphics[width=11cm]{figures/9/a/rbac.png}
-  \caption[]{Language strucrure of the rbac language. An \ic{RBACSpec}
+  \caption[]{Language structure of the \ic{rbac} language. An \ic{RBACSpec}
   contains \ic{Users}, \ic{Roles} and \ic{Permissions}. Users can be members 
   in several roles. A permission assigns a right to a \ic{Resource}.}
   \label{rbac}  
@@ -675,20 +682,20 @@ attributes.
 
 \phead{Type System} No type system rules apply here.
 
-\phead{Generator} What distinguishes this case from the relmapping case is that
-the code generated from the rbac\_entities language is \emph{not} separated from
-the code generated from the entities. Instead, inside the setters of the Java
-beans, a permission check is required. 
+\phead{Generator} What distinguishes this case from the \ic{relmapping} case is
+that the code generated from the \ic{rbac\_entities} language is \emph{not}
+separated from the code generated from \ic{entities}. Instead, inside the setters
+of the Java beans, a permission check is required.
 
 
 \begin{code}
-  public void setName(String newValue) {
-    // check permissions (from rbac_entities) 
-    if (new RbacSpecEntities().currentUserHasWritePermission("Employee.name")) {
-      throw new RuntimeException("no permission");
-    }
-    this.name = newValue;
+public void setName(String newValue) {
+  // check permissions (from rbac_entities) 
+  if (!new RbacSpecEntities().currentUserHasWritePermission("Employee.name")) { 
+    throw new RuntimeException("no permission");
   }
+  this.name = newValue;
+}
 \end{code}
 
 \noindent 
@@ -698,38 +705,32 @@ To implement this, several approaches are possible:
 
 
 \begin{itemize}
-  \item We could use AspectJ (\verb+http://www.eclipse.org/aspectj/+). This way,
-  we could generate separate Java artifacts (all single-sourced) and then use the aspect weaver to "mix" them.
-  However, we don't want to introduce AspectJ here, so we will not use this
-  approach. 
-  \item An interceptor (\verb+http://en.wikipedia.org/wiki/Interceptor_pattern+)
-  framework could be added to the generated Java Beans, with the generated
-  code contributing specific interceptors (effectively building a custom AOP solution). 
+  \item We could use AspectJ (\footnote{http://www.eclipse.org/aspectj/}). This
+  way, we could generate separate Java artifacts (all single-sourced) and then use the aspect weaver to "mix" them.
+  However, we don't want to introduce the complexity of yet another tool,
+  AspectJ, here, so we will not use this approach. 
+  \item An interceptor
+  (\footnote{http://en.wikipedia.org/wiki/Interceptor\_pattern}) framework could
+  be added to the generated Java Beans, with the generated code contributing specific interceptors (effectively building a custom AOP solution). 
   We will not use this approach either, since it would require the addition of a 
-  whole interceptor framework to the entities. This seems like overkill.
+  whole interceptor framework to the \ic{entities}. This seems like overkill.
   \item We could "inject" additional code generation templates to the existing
-  entities generator from the rbac\_entities generator. This would make the
+  \ic{entities} generator from the \ic{rbac\_entities} generator. This would make the
   generators \emph{woven} as opposed to just dependent. Assuming this would work
   in MPS, this would be the most elegant solution. But it does not.
-  \item We could define a hook in the generated Java beans code and then have
-  the rbac\_entities generator contribute code to this hook. This is the
+  \item We could define a hook in the generated Java Beans code and then have
+  the \ic{rbac\_entities} generator contribute code to this hook. This is the
   appraoch we will use. The generators remain dependent, they have to agree on
   the way the hook works.
 \end{itemize}
 
 
-
-
-
-
-
-
 Notice that only the AspectJ solution can work without any preplanning from the
-perspective of the entities language, because it avoids mixing the generated
+perspective of the \ic{entities} language, because it avoids mixing the generated
 code artifacts (it is handled "magically" by AspectJ). All other solutions
-require the original entities generator to "expect" certain extensions.
+require the original \ic{entities} generator to "expect" certain extensions.
 
-In our case, we have modified the original generator in the entities language to
+In our case, we have modified the original generator in the \ic{entities} language to
 contain a \ic{PlaceholderStatement} (\fig{placeholder}). In every setter, the
 placeholder acts as a hook at which subsequent generators can add statements.
 While we have to preplan \emph{that} we want to extend the generator in this
@@ -764,7 +765,6 @@ achieve this.
 
 
 \begin{figure*}[htp] 
-\begin{center}
   \includegraphics[scale=0.50]{figures/9/a/placeholderreduction.png}
   \caption[]{This reduction rule replaces \ic{PlaceholderStatement}s
   with a permission check. Using the condition, we only match those
@@ -773,7 +773,6 @@ achieve this.
   generated class that contains the actual permission check. A runtime
   exception is thrown if the check fails.}
   \label{placeholderreduction}  
-\end{center}
 \end{figure*}
 
 
