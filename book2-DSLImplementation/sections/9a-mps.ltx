@@ -744,22 +744,22 @@ the placeholder in it was generated.
 \begin{center}
   \includegraphics[scale=0.55]{figures/9/a/placeholder.png}
   \caption[]{This generator fragment creates a setter method for each
-  attribute of an entity. The LOOP iterates over all attributes. The \$ macro
-  computes the name of the method, and the COPY\_SRC macro on the argument type
-  computes the type. The placeholder is used later to insert the
-  permission check.}
+  attribute of an entity. The \ic{LOOP} iterates over all attributes. The \ic{\$} macro
+  computes the name of the method, and the \ic{COPY\_SRC} macro on the argument type
+  computes the type. The placeholder is used to mark the location at which the 
+  permission check will be inserted by a subsequent generator.}
   \label{placeholder}  
 \end{center}
 \end{figure}
 
 \noindent 
-The rbac\_entities generator contains a reduction rule for
+The \ic{rbac\_entities} generator contains a reduction rule for
 \ic{PlaceholderStatement}s. So when it encounters a placeholder (that has been
-put there by the entities generator) it removes it and inserts the code that
+put there by the \ic{entities} generator) it removes it and inserts the code that
 checks for the permission (\fig{placeholderreduction}). To make this work we
-have to make sure that this generator runs \emph{after} the entities generator
-(since the entities generator has to create the placeholder) and \emph{before}
-the BaseLanguage generator (which transforms BaseLanguage code into Java text
+have to make sure that this generator runs \emph{after} the \ic{entities} generator
+(since the \ic{entities} generator has to create the placeholder first) and
+\emph{before} the BaseLanguage generator (which transforms BaseLanguage code into Java text
 for compilation). We use generator priorities, i.e. a partial ordering, to
 achieve this.
 
