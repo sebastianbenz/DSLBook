@@ -1,7 +1,7 @@
 \section{MPS Example}
 
 
-With JetBrains MPS two of these challenges outlined above --- composability of
+With MPS two of these challenges outlined above --- composability of
 concrete syntax and modular IDEs --- are a completely solved problem. Modular
 type systems are reasonably well supported. Semantic interactions are hard to
 solve in general, but can be handled reasonably in many relevant cases, as we
@@ -11,40 +11,39 @@ After-the-fact reuse, without considering it during the design of the reusable
 language, is possible only in limited cases. However, this is true for reuse in
 software generally.
 
-At the center of this section is a simple entities language. We then build
-additional language to illustrate \lmrc. \fig{languagestructure} illustrates
-these additional languages. The uispec language illustrates \emph{referencing}
-with entities. relmapping is an example of \emph{reuse} with separated generated
-code. \emph{rbac} illustrates reuse with intermixed generated code.
-uispec\_validation demonstrates \emph{extension} (of the uispec language) and
-\emph{embedding} with regards to the expressions language.
+We describe \lmrc with MPS based on examples. At the center of this section is a
+simple \ic{entities} language. We then build additional language to illustrate
+\lmrc. \fig{languagestructure} illustrates these additional languages. The
+\ic{uispec} (user interface specification)  language illustrates
+\emph{referencing} with \ic{entities}. \ic{relmapping} (relational database
+mapping) is an example of \emph{reuse} with separated generated code. \ic{rbac}
+(role-based access control) illustrates reuse with intermixed generated code.
+\ic{uispec\_validation} demonstrates \emph{extension} (of the \ic{uispec} language)
+and \emph{embedding} with regards to the expressions language.
 
 
 \begin{figure}[htp]
 \begin{center}
-  \includegraphics[scale=0.4]{figures/9/a/languagestructure.png}
-  \caption[]{entities is the central language. uispec defines UI
-  forms for the entities. uispec\_validation adds validation rules, and composes
-  a reusable expressions language. relmapping provides a reusable database
-  mapping language, relmapping\_entities adapts it to the entities language.
-  rbac is a reusable language for specifying permissions; rbac\_entities adapts
-  this language to the entities language. }
+  \includegraphics[scale=0.5]{figures/9/a/languagestructure.png}
+  \caption[]{\ic{entities} is the central language. \ic{uispec} defines UI
+  forms for the entities. \ic{uispec\_validation} adds validation rules, and composes
+  a reusable expressions language. \ic{relmapping} provides a reusable database
+  mapping language, \ic{relmapping\_entities} adapts it to the entities language.
+  \ic{rbac} is a reusable language for specifying permissions; \ic{rbac\_entities} adapts
+  this language to the \ic{entities} language. }
   \label{languagestructure}  
 \end{center}
 \end{figure}
-
-\todo{The related tools here should maybe be mentioned somewhere in the book
-intro, where we also discuss why we selected the tools we selected for the book}
 
 \subsection{Implementing the Entities Language}
 \label{entitiesLanguage}
 
 At the center of the language extensions we will build later, we use a simple
-entities language. Here is an example model. \emph{Modules} are so-called root
-nodes. They live as top level elements in \emph{models}. Referring back to the
+\ic{entities} language. Below is an example model. \emph{Modules} are root
+nodes. They live as top level elements in models\footnote{Referring back to the
 terminology introduced in the DSL design section \todo{}, root nodes (and their
 descendants) are considered \emph{fragments}, while the models are partitions
-(actually, they are XML files).
+(actually, they are XML files).}. 
 
 \begin{code}
 module company {          
@@ -63,9 +62,8 @@ module company {
 \end{code}
 
 
-\phead{Structure and Syntax} \fig{entities}
-shows a UML diagram of the structure of the entities language. Each box
-represents a language concept.
+\phead{Structure and Syntax} \fig{entities} shows a UML diagram of the structure
+of the \ic{entities} language. Each box represents a language concept.
 
 \begin{figure}[htp]
 \begin{center}
@@ -73,9 +71,7 @@ represents a language concept.
   \caption[]{The abstract syntax of the entities language. Entities
   have attributes, those have types and names. \ic{EntityType} extends 
   \ic{Type} and references \ic{Entity}. This "adapts" entities to types 
-  (cf. the Adapter pattern). Concepts like \ic{EntityType} which have 
-  exactly one reference are called smart references and are treated specially
-  by the IDE in code completion. }
+  (cf. the Adapter pattern).}
   \label{entities} 
 \end{center}
 \end{figure}
@@ -83,24 +79,17 @@ represents a language concept.
 \noindent 
 The following code shows the definition of the \ic{Entity} concept\footnote{This
 is not the complete definition, concepts can have more characteristics. This is
-simplified to show the essentials.}. \ic{Entity} extends \ic{BaseConcept}, the
-root concept, similar to \ic{java.lang.Object} in Java. It implements the
-\ic{INamedConcept} interface to inherit a \ic{name} field. It declares a list of
-children of type \ic{Attribute} in the \ic{attributes} role. A concept may
-also have references to other concepts (as opposed to children).
+simplified to show the essentials.}. \ic{Entity} implements the
+\ic{INamedConcept} interface to inherit a \ic{name} property. It declares a list
+of children of type \ic{Attribute} in the \ic{attributes} collection. 
 \fig{editordefinition} shows the definition of the editor for \ic{Entity}.
 
 
 \begin{code}
 concept Entity extends BaseConcept implements INamedConcept        
-  is root:
-    true
-  properties:                                  
-    << ... >>                                    
+  can be root: true
   children:                                     
-    Attribute attributes 0..n specializes: <none>
-  references:                                  
-    << ... >>                                    
+    Attribute 	attributes 		0..n
 \end{code}                                               
 
 
@@ -109,7 +98,7 @@ concept Entity extends BaseConcept implements INamedConcept
   \includegraphics[scale=0.6]{figures/9/a/editordefinition.png}
   \caption[]{The editor for \ic{Entity}. The outermost cell is a
   vertical list. In the first line, we use a horizontal list that contains
-  the "keyword" \ic{entity}, the value of the name property and an opening
+  the "keyword" \ic{entity}, the value of the \ic{name} property and an opening
   curly brace. In the second line we use indentation and a vertical arrangements
   of the contents of the \ic{attributes} collection. Finally, the third line
   contains the closing curly.}
@@ -117,14 +106,12 @@ concept Entity extends BaseConcept implements INamedConcept
 \end{center}
 \end{figure}
 
-\phead{Type System} For the entities language, we specify two simple typing
+\phead{Type System} For the \ic{entities} language, we specify two simple typing
 rules. The first one specifies that the type of the primitives (\ic{int},
 \ic{string}) is a clone of themselves:
 
 \begin{code}
-rule typeof_Type {                     
-  applicable for concept = Type as type
-  overrides false                      
+rule typeof_Type applicable for concept = Type as type {
   do {                                 
     typeof(type) :==: type.copy;       
   }                                    
@@ -137,60 +124,61 @@ as a whole to be the type of the attribute's \ic{type} property, defined as
 \ic{typeof(attribute) :==: typeof(attribute.type);}.
 
 
-\phead{Generator} From entity models we generate Java Beans represented in MPS'
-\ic{BaseLanguage}. For the entities language, we need a \emph{root
+\phead{Generator} From \ic{entities} models we generate Java Beans expressed in
+MPS' \ic{BaseLanguage}. For the \ic{entities} language, we need a \emph{root
 mapping rule} and \emph{reduction rules}. Root mapping rules can be used to
-create new top level artifacts from existing top level artifacts (they map
-fragments to other fragments). In our case we generate a Java class from an
-\ic{Entity}. Reduction rules are in-place transformations. Whenever the engine
-encounters an instance of the specified source concept somewhere in a model
-tree, it removes that source node and replace it with the result of the
-associated template. In our case we have to reduce the various types (\ic{int},
-\ic{string}, etc.) to their Java counterparts. \fig{entitiesmc} shows a part of
-the mapping configuration for the entities language.
+create new top level artifacts from existing top level artifacts (they map a
+fragment to another fragment). In our case we generate a Java class from an
+\ic{Entity}. Reduction rules are in-place transformations. Whenever the
+transformation engine encounters an instance of the specified source concept
+somewhere in a program tree, it removes that source node and replace it with the
+result of the associated template. In our case we have to reduce the various
+types (\ic{int}, \ic{string}, etc.) to their Java counterparts. \fig{entitiesmc}
+shows a part of the mapping configuration for the \ic{entities} language.
 
 
 \begin{figure}[htp]
 \begin{center}
   \includegraphics[scale=0.55]{figures/9/a/entitiesmc.png}
-  \caption[]{The mapping configuration for the entities language. The
-  root mapping rule for Entity specifies that instances of \ic{Entity} should
+  \caption[]{The mapping configuration for the \ic{entities} language. The
+  root mapping rule for \ic{Entity} specifies that instances of \ic{Entity} should
   be transformed with the \ic{map\_Entity} template. The reduction rules use
   inline templates. For example, the \ic{IntType} is replaced with the Java
   \ic{int} and the \ic{EntityRefType} is reduced to a reference to the class
-  generated from the target entity. The arrow-dollar-symbol is a so-called
-  reference macro. It contains code (not shown) that "rewires" the reference to
-  \ic{Double} to a reference to the class generated from the target entity. }
+  generated from the target entity. The \ic{->\$} is a reference macro. It 
+  contains code (not shown) that "rewires" the reference to
+  \ic{Double} to a reference to the class generated from the referenced
+  \ic{Entity}.}
   \label{entitiesmc} 
 \end{center}
-\end{figure}
+\end{figure}
 
-\noindent 
-\fig{entitytemplate} shows
-the \ic{map\_Entity} template. It generates a Java class --- notice the
-complete structure of a Java class is present, because that is how BaseLanguage
-defines the editor for a Java class. We then generate a field for each entity
-\ic{Attribute}. To do this we first create a prototype field in the class
-(\ic{private int aField;}). Then we use macros to "transform" this
-prototype into an instance for each entity attribute. We first attach a \ic{LOOP} macro to
-the whole field. It contains an expression \ic{node.attributes;} where
-\ic{node} refers to the input \ic{Entity}. This code is entered in the Inspector
-window and is not shown in the screenshot. We then use a \ic{COPY\_SRC} macro to
-transform the type. \ic{COPY\_SRC} copies the input node (the inspector
-specifies the current attribute's type as the input here) and applies reduction
-rules. So instances of the types defines as part of the entities language are
-transformed into a Java type using the reduction rules defined in the mapping
-configuration. Finally we use a property macro (the dollar sign) to change the
-\ic{name} property of the field we generate from the dummy value \ic{aField} to
-the name of the attribute we currently transform (once again via an expression
-in the inspector).
+\noindent \fig{entitytemplate} shows the \ic{map\_Entity} template. It generates
+a Java class --- notice the complete structure of a Java class is present,
+because that is how BaseLanguage defines the editor for a Java class. We then
+generate a field for each entity \ic{Attribute}. To do this we first create a
+prototype field in the class (\ic{private int aField;}). Then we use macros to
+"transform" this prototype into an instance for each \ic{Entity} attribute. We
+first attach a \ic{LOOP} macro to the whole field. It contains an expression
+\ic{node.attributes;} where \ic{node} refers to the input
+\ic{Entity}\footnote{This code is entered in the Inspector window and is not
+shown in the screenshotq}. We then use a \ic{COPY\_SRC} macro to transform the
+type. \ic{COPY\_SRC} copies the input node (the inspector specifies the current
+attribute's type as the input here) and applies reduction rules. So instances of
+the types defined as part of the \ic{entities} language are transformed into a
+Java type using the reduction rules defined in the mapping configuration above.
+Finally we use a property macro (the \ic{\$} sign) to change the \ic{name}
+property of the field we generate from the dummy value \ic{aField} to the name
+of the attribute we currently transform (once again via an expression in the
+inspector).
 
 
 \begin{figure}[htp]
 \begin{center}
   \includegraphics[scale=0.55]{figures/9/a/entitytemplate.png}
-  \caption[]{The template for creating a Java class from an entity.
-  The running text explains the details.}
+  \caption[]{The template for creating a Java class from an \ic{Entity}.
+  The running text explains the details. The \ic{<<placeholder>>} is a special
+  concept used later.}
   \label{entitytemplate} 
 \end{center}
 \end{figure}
@@ -202,10 +190,10 @@ in the inspector).
 
 
 \phead{Structure and Syntax} We define a language \ic{uispec} for defining user
-interface forms based on the entities. \fig{uispec} shows the abstract syntax
+interface forms based on the \ic{entities}. \fig{uispec} shows the abstract syntax
 and below is an example model. Note how the form is another, separate fragment.
 It is a \emph{dependent} fragment, since it references elements from another
-fragment (expressed in the entities language). Both fragments are
+fragment (expressed in the \ic{entities} language). Both fragments are
 \emph{homogeneous} since they consist of sentences expressed in a single
 language.
 
@@ -222,10 +210,10 @@ form CompanyStructure
 \begin{figure}[htp]
 \begin{center}
   \includegraphics[scale=0.5]{figures/9/a/uispec.png}
-  \caption[]{The abstract syntax of the uispec language. Dotted lines
-  represent classes from another language (here: the entities language). A
-  \ic{Form} contains \ic{EntityReference}s that connect to an entities model. A
-  form also contains \ic{Field}s, each referring to an \ic{Attribute} from an
+  \caption[]{The abstract syntax of the \ic{uispec} language. Dotted lines
+  represent classes from another language (here: the \ic{entities} language). A
+  \ic{Form} contains \ic{EntityReference}s that connect to an \ic{entities} model. A
+  form also contains \ic{Field}s, each referencing an \ic{Attribute} from an
   \ic{Entity} and containing a \ic{Widget}.}
   \label{uispec} 
 \end{center}
@@ -235,11 +223,11 @@ form CompanyStructure
 The \ic{uispec} language extends\footnote{MPS uses the term "extension" whenever the
 definition of one language uses or referes to concepts defined in another
 language. This is not necessarily an example of language extension as defined in
-this paper.} the entities language. This means, that concepts from the entities
-language can be used in the definition of language concepts in the uispec
+this book.} the \ic{entities} language. This means, that concepts from the \ic{entities}
+language can be used in the definition of language concepts in the \ic{uispec}
 language. A \ic{Form} owns a number of \ic{EntityReferences}, which in turn
 reference the \ic{Entity} concept. Also, \ic{Field}s refer to the \ic{Attribute}
-that shall be edited via the field. Here is the definition of the \ic{Field}
+that shall be edited via the field. Below is the definition of the \ic{Field}
 concept. It owns a \ic{Widget} and refers to an \ic{Attribute}.
 
  
@@ -248,17 +236,17 @@ concept Field extends BaseConcept implements <none>
   properties:                                 
     label : string                              
   children:                                   
-    Widget widget 0..1 specializes: <none>      
+    Widget      widget      1      
   references:                                 
-    Attribute attribute 0..1 specializes: <none>
+    Attribute   attribute   1
 \end{code}                                                                                            
 
 
-\phead{Type System} There are limitations regarding which widget can be used
-with which attribute type. This typing rule is defined in the uispec language
-and references types from the entities language. The following is the code for
-the type check. We use a checking rule to illustrate how constraints can
-be written that do not use the inference engine introduced above.
+\phead{Type System} The language enforces  limitations regarding which widget
+can be used with which attribute type (a \ic{checkbox} widget requires a Boolean
+type, a \ic{ComboWidget} requires a \ic{string} type). The necessary typing rule
+is defined in the \ic{uispec} language and references types from the \ic{entities} language.
+The following is the code for the type check. 
 
 \begin{code}
 checking rule checkTypes {                                                                                                                                                                                                                                                                                                                        
