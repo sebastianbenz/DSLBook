@@ -870,8 +870,8 @@ The following is the code for the search scope:
 
 \noindent Notice that the actual syntactic embedding of the \ic{expressions}
 language in the \ic{uispec\_validation} language is no problem at all as a
-consequence of how projectional editors work. We simply define \ic{Expression} to be a child of the
-\ic{ValidatedField}.
+consequence of how projectional editors work. We simply define \ic{Expression}
+to be a child of the \ic{ValidatedField}.
 
 
 \phead{Type System} The general challenge here is that primitive types such as
@@ -1036,13 +1036,13 @@ can be ancestor:
 
 \subsection{Language Annotations}
 
-\phead{Structure and Syntax} Since in a projectional editor the visual
-representation of a program is not necessarily the complete information in the
-program, and since the program's persistence format is not the concrete
-syntax, it is possible to store additional data in a program, and show it
-optionally. The mechanism MPS uses for this is called annotations.
-Using this approach, we can store the mapping from entity attributes to database
-columns directly in the entity, resulting in the following code:
+Since in a projectional editor the visual representation of a program is not
+necessarily the complete information in the program, and since the program's
+persistence format is not the concrete syntax, it is possible to store
+additional data in a program, and show it optionally. The mechanism MPS uses for
+this is called annotations. Using this approach, we can store the mapping from
+entity attributes to database columns directly in the entity, resulting in the
+following code:
 
 
 \begin{code}
@@ -1061,24 +1061,25 @@ module company
   }                                            
 \end{code}
 
-\todo{update to new MPS annotations approach}
 
 \noindent 
-This is a heterogeneous fragment, consisting of code from the entities, as well
+This is a heterogeneous fragment, consisting of code from the \ic{entities}, as well
 as the annotations. From a concrete syntax perspective, the column mapping is
 "embedded" in the entity description. In the underlying persistent data
-structure, the information is also actually stored in the entity model. However,
-the definition of the entities language does not know that this additional
+structure, the information is also actually stored in the \ic{entities} model.
+However, the definition of the \ic{entities} language does not know that this additional
 information is stored and projected "inside" entities! No modification to the
-entities language is necessary whatsoever. Instead we define an additional
-language relmapping\_annotations which extends the entities language as well as
-the relmapping language. In this language we define a so-called annotation link:
+entities language is necessary whatsoever. 
 
+
+\phead{Structure and Syntax}  To do this, we define an additional language
+\ic{relmapping\_annotations} which extends the \ic{entities} language as well as the
+\ic{relmapping} language. In this language we define a so-called annotation link:
 
 \begin{code}
 annotation link declaration colMapping
     stereotype node                   
-    cardinality 1                     
+    cardinality 	1                     
     source Attribute                  
     target AttrToColMapping           
 \end{code}
@@ -1091,7 +1092,7 @@ simply another concept that has one reference that points to a \ic{Column}:
 \begin{code}
 concept AttrToColMapping extends BaseConcept implements <none>  
   references:                               
-    Column column 1 specializes: <none>       
+    Column    column     1       
 \end{code}                                            
 
 \noindent 
@@ -1100,7 +1101,7 @@ Structurally, an annotation is a child of the node it is annotated to. So the
 that contains the child is called \ic{@colMapping}. However, in the editor the
 relationship is reversed. The editor for \ic{AttrToColMapping} wraps the editor
 for \ic{Attribute}, as \fig{annotationeditor} shows. The annotation is added via
-an intention ("quick fix" via Alt-Enter).
+an intention (pressing \ic{Alt-Enter}).
 
 
 \begin{figure}[htp]
@@ -1114,22 +1115,14 @@ an intention ("quick fix" via Alt-Enter).
 \end{figure}
 
 
-\noindent 
-Note that it is also possible to define the annotation source to be
-\ic{BaseConcept}, which means the annotation can be attached to any node. The
-language that contains the annotation then has no dependency to any other
-language. This is useful for generic "metadata" such as documentation,
-requirements traces or presence conditions in product line engineering. We have
-described this in \cite{VoelterVisser2011} and \cite{Voelter2010}.
-
 \phead{Type System} The same typing rules are necessary as in the
-relmapping\_entities language described above. They reside in
-relmapping\_annotations.
+\ic{relmapping\_entities} language described above. They reside in
+\ic{relmapping\_annotations}.
 
 \phead{Generator} The generator is also broadly similar to the above example
-with relmapping\_entities. It takes the entities model as the input, and then
-uses the column mappings in the annotations to create the entity-to-database
-mapping code.
+with \ic{relmapping\_entities}. It takes the \ic{entities} model as the input,
+and then uses the column mappings in the annotations to generate the
+entity-to-database mapping code.
 
 \vspace{10pt}
 The annotations introduced above were typed to be specific to certain target
@@ -1138,7 +1131,7 @@ of annotations includes those that can be annotated to \emph{any} language
 concept (formally targetting \ic{BaseConcept}). In this case, there is no
 dependency between the language that contains the annotation and the language
 that is annotated. This is very useful for "meta data", as well as anything that
-can be processed generically. 
+can be processed generically.
 
 An example of the first case is traceability links (\fig{requirementstrace}).
 This annotation can be annotated to any language concept and adds pointers
@@ -1146,37 +1139,38 @@ This annotation can be annotated to any language concept and adds pointers
 the program can be shown with or without the annotations, controlled by a global
 switch.
 
-\begin{figure}[htp]
-\begin{center}
-  \includegraphics[scale=0.50]{figures/9/a/requirementstrace.png}
-  \caption[]{Requirements traces can be annotated to any arbitrary
-  program element. The annotation is targetted to \ic{BaseConcept}, which means
-  there is no explicit dependency any specific language.}
+\begin{figure*}[htp]
+  \includegraphics[scale=0.50]{figures/9/a/trace.png} \caption[]{\textbf{Left:}
+  Requirements traces (green) can be annotated to any arbitrary program element.
+  The annotation is targetted to \ic{BaseConcept}, which means there is no
+  explicit dependency any specific language. \textbf{Right:} Traces can then be
+  queried in the reverse direction to find which requirements are traced from
+  implementation code.}
   \label{requirementstrace} 
-\end{center}
-\end{figure}
+\end{figure*}
 
-\noindent 
-An example of the second case is product line variability annotations
-(\fig{featuredependencies}). Boolean expressions over configuration switches can
-be annotated to any model element. Such an annotation means that the respective
-element is only in the program variant, if the boolean expression is true for
-the given setting of configuration switches. The generic transformation simply
-removes all elements whose annotation evaluates to false. The expressions can
-also be evaluated as part of the projection, showing the code for a given
-variant. The code is of course still editable. Details on this approach can be
-found in \cite{Voelter2010} and \cite{VoelterVisser2011}.
+\noindent An example of the second case is product line variability annotations.
+Boolean expressions over configuration switches can be annotated to any model
+element (the colorful annotations in the left part of \fig{projection}). Such an
+annotation means that the respective element is only in the program variant, if
+the boolean expression is true for the given setting of configuration switches.
+The generic transformation simply removes all elements whose annotation
+evaluates to false. The expressions can also be evaluated as part of the
+projection, showing the code for a given variant (the right part of
+\fig{projection} shows an example variant). The code is of course still
+editable. Details on this approach can be found in \cite{Voelter2010} and
+\cite{VoelterVisser2011}.
 
-\begin{figure}[h]
-\begin{center}
-  \includegraphics[scale=0.50]{figures/9/a/featuredependencies.png}
-  \caption[]{Feature dependency annotations are boolean expresssions
-  over configuration switches that determine whether the annotated program
-  element is part of a program variant. The transformation removes all those
-  elements for which the annotation evaluates to false.}
+\begin{figure*}[h]
+  \includegraphics[width=180mm]{figures/9/a/projection.png}
+  \caption[][-50mm]{\textbf{Left:} Feature dependency annotations are boolean
+  expresssions over configuration switches that determine whether the annotated program
+  element is part of a program variant. The expressions can be annotated to
+  arbitrary program elements. \textbf{Right:} The transformation removes all those
+  elements for which the annotation evaluates to \ic{false}. This can also be
+  done in the editor to support variant-specific editing of programs.}
   \label{featuredependencies}  
-\end{center}
-\end{figure}
+\end{figure*}
 
 
 
