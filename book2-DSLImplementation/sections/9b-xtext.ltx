@@ -6,9 +6,9 @@ Dietrich. Reach him via \verb#christian.dietrich@itemis.de#.
 \vspace{3mm}
 
 
-In this section we look at an example similar to the one for MPS discussed in
-the previous section. We start out with a DSL for entities.  Here is an example
-program:
+In this section we look at an example roughly similar to the one for MPS
+discussed in the previous section. We start out with a DSL for entities.  Here
+is an example program:
 
 \begin{code}
 module company {
@@ -67,13 +67,12 @@ FQN: ID ("." ID)*;
 
 \subsection{Referencing}
 
-\parhead{Structure} Referencing describes the case where programs written in one
-DSL reference (by name) program elements written in another DSL, both programs
-reside in different fragments and no syntactic composition is required. The
-example we use is the UI specification language where a \ic{Form} defined in the
-UI model refers to \ic{Entities} from the language defined above, and
-\ic{Field}s in a form refers to entity \ic{Attribute}. Here is some example
-code:
+Referencing describes the case where programs written in one DSL reference (by
+name) program elements written in another DSL, both programs reside in different
+fragments and no syntactic composition is required. The example we use is the UI
+specification language where a \ic{Form} defined in the UI model refers to
+\ic{Entities} from the language defined above, and \ic{Field}s in a form refers
+to entity \ic{Attribute}. Here is some example code:
 
 \begin{code}
 form CompanyStructure
@@ -86,15 +85,16 @@ field Freelancer: checkbox             -> Employee.freelancer
 field Office: textfield(20)            -> Department.description
 \end{code}
 
-\noindent 
-Note that the references to entities and fields do not technically reference
-into an entity source file. Instead, these references refer to the EMF objects
-in the AST that has been parsed from the source file. So, a similar approach can
-be used to reference to other \ic{EObject}s. It does not matter whether these
-are created via Xtext or not. This is reflected by the fact that the grammar of
-the \ic{uispec} language does not refer to the \emph{grammar} of the \ic{entity}
-language, but to the derived meta model. Here is the header of the \ic{uispec}
-language:
+\parhead{Structure} Referencing concepts defined in another language works by
+importing the target meta model then defining references to concepts defined in
+this meta model\footnote{Note that the references to entities and fields do not
+technically reference into an entity source file. Instead, these references
+refer to the EMF objects in the AST that has been parsed from the source file.
+So, a similar approach can be used to reference to other \ic{EObject}s. It does
+not matter whether these are created via Xtext or not. This is reflected by the
+fact that the grammar of the \ic{uispec} language does not refer to the
+\emph{grammar} of the \ic{entity} language, but to the derived meta model.}.
+Here is the header of the \ic{uispec} language:
 
 \begin{code}
 grammar org.xtext.example.lmrc.uispec.UispecDsl with org.eclipse.xtext.common.Terminals
@@ -118,19 +118,17 @@ Field:
     "field" label=ID ":" widget=Widget "->" attribute=[entity::Attribute|FQN];
 \end{code}
 
-\noindent 
-To make this work, no change is required in the \ic{entities} language as long
-as the target elements are in the index. The index is used by Xtext to resolve
-references against elements that reside in a different model file. By default,
-all elements that have a \ic{name} attribute are in the index. \ic{Entity} and
-\ic{Attribute} have names, so this works automatically. To make the referencing
-work, the workflow generarting the \ic{uispec} language has to be changed as
-well. The \ic{genmodel} file for the meta model has to be registered in the
-\ic{StandaloneSetup}\sidenote{This is necessary so that the EMF code
-generator, when generating the meta classes for the \ic{uispec} language knows
-where the generated Java classes for the \ic{entities} languages reside. This
-is an EMF technicality and we won't discuss it in any more detail}.
-
+\noindent To make this work, no change is required in the \ic{entities}
+language\footnote{This is true as long as the referenced elements are in the
+index. The index is used by Xtext to resolve references against elements that
+reside in a different model file. By default, all elements that have a \ic{name}
+attribute are in the index. \ic{Entity} and \ic{Attribute} have names, so this
+works automatically.}. However, the workflow generating the \ic{uispec} language
+has to be changed. The \ic{genmodel} file for the meta model has to be
+registered in the \ic{StandaloneSetup}\sidenote{This is necessary so that the
+EMF code generator, when generating the meta classes for the \ic{uispec}
+language knows where the generated Java classes for the \ic{entities} languages
+reside. This is an EMF technicality and we won't discuss it in any more detail}.
 \begin{code}
 bean = StandaloneSetup {
     ...
@@ -163,27 +161,27 @@ public IScope scope_Field_attribute(Field context, EReference ref) {
 }
 \end{code}
 
-\noindent 
-This scoping function performs two tasks: first, it finds all the
+\noindent This scoping function performs two tasks: first, it finds all the
 \ic{Attribute}s of all \ic{used} entities. We collect them into a list
 \ic{visibleAttributes}. The second part of the scoping function defines a
 \ic{Function} object\sidenote{Note how we have to use the ugly function object
 notation, because Java does not provide support for closures or lambdas at this
-point!} that represents a function from \ic{Attribute} to \ic{QualifiedName}. In
-the implementation method \ic{apply} we create a qualified name made from two
-parts: the entity name and the attribute name (the dot between the two is
-default behavior for the \ic{QualifiedName} class). When we create the scope
-itself in the last line we pass in the list of attributes as well as the
-function object. Xtext's scoping framework uses the function object to determine
-the name by which each of the attributes is referencable from this particular
-context.
+point! I am looking forward to being able to do this with Xtend, which does
+support closures.} that represents a function from \ic{Attribute} to
+\ic{QualifiedName}. In the implementation method \ic{apply} we create a
+qualified name made from two parts: the entity name and the attribute name (the
+dot between the two is default behavior for the \ic{QualifiedName} class). When
+we create the scope itself in the last line we pass in the list of attributes as
+well as the function object. Xtext's scoping framework uses the function object
+to determine the name by which each of the attributes is referencable from this
+particular context.
 
 \parhead{Type System} As we have discussed in the design section \todo{ref},
 dealing with type systems in the referencing case is not particularly
 challenging, since the type system of the referencing language can be built with
 knowledge of the type system of the referenced language. 
 
-\parhead{Generators} The same statement is true for generators. Typically 
+\parhead{Generators} The same is true for generators. Typically 
 they just share knowledge about the naming of generated code elements.
 
 
@@ -195,13 +193,14 @@ the example above, the \ic{uispec} language uses \ic{Entity}
 and \ic{Attribute} from the \ic{entities} language. It directly imports the meta
 model, so it has a direct dependency.
 
-In case of reuse, such a direct dependency is not allowed. Our goal is to
-combine two \emph{independent} languages. To show this case, we again use the
-same example as in the MPS section. We first introduce a \ic{db} language. It is
-a trivial DSL for defining relational table structures. These can optionally be
-mapped to a data source, but the language makes no assumption about how this
-data source looks (and which language is used to define it). Consequently, the
-grammar has no dependency on another other one, and imports no other meta model:
+\parhead{Structure} In case of reuse, such a direct dependency is not allowed.
+Our goal is to combine two \emph{independent} languages. To show this case, we
+again use the same example as in the MPS section. We first introduce a \ic{db}
+language. It is a trivial DSL for defining relational table structures. These
+can optionally be mapped to a data source, but the language makes no assumption
+about how this data source looks (and which language is used to define it).
+Consequently, the grammar has no dependency on another other one, and imports no
+other meta model:
 
 \begin{code}
 grammar org.xtext.example.lmrc.db.DbDsl with org.eclipse.xtext.common.Terminals
@@ -231,14 +230,15 @@ CharType: {CharType}"char";
 NumberType: {NumberType}"number";        
 \end{code}
 
-\noindent 
-The \ic{Column} rule has an optional \ic{mapper} property of type
-\ic{AbstractColumnMapper}. Since it is not possible to explicitly mark rules as
-generating abstract meta classes, we simply define the syntax to be "not
-mapped". This language has been designed \emph{for} reuse, because it has this hook
+\noindent Just as in the MPS example, the \ic{Column} rule has an optional
+\ic{mapper} property of type \ic{AbstractColumnMapper}. Since it is not possible
+to explicitly mark rules as generating abstract meta classes, we simply define
+the syntax to be \ic{not mapped}\footnote{Since the \ic{mapper} property in
+\ic{Column} is optional, you don't ever have to type this.}. This language has
+been designed \emph{for} reuse, because it has this hook
 \ic{AbstractColumnMapper}, which can be customized later. But the language is
 still independent. In the next step, we want to be able to reference
-\ic{Attribute}s from the entities language:
+\ic{Attribute}s from the \ic{entities} language:
 
 \begin{code}
 database CompanyDB
@@ -256,9 +256,13 @@ table People
 
 \noindent 
 To make this possible, we create a new language \ic{db2entity} which \emph{extends} the
-\ic{db} language and \emph{references} the \ic{entities} language. This is
-reflected by the header of the \ic{db2entity} language (notice the \ic{with}
-clause):
+\ic{db} language and \emph{references} the \ic{entities}
+language\footnote{Notice that we only extend \ic{DbDsl}. The \ic{entities}
+meta model is just \emph{referenced}. This is because Xtext can only extend one base
+grammar. For this reason we cannot embed language concepts from
+the \ic{entities} language in a \ic{db2entity} program, we can only \emph{reference}
+them.}. This is reflected by the header of the \ic{db2entity} language (notice
+the \ic{with} clause):
 
 \begin{code}
 grammar org.xtext.example.lmrc.db2entity.Db2EntityDsl with org.xtext.example.lmrc.db.DbDsl
@@ -305,17 +309,17 @@ Root returns db::Root :
 \end{code}
 
 \parhead{Type System} The primary task of the type system in this example would
-be mapping the primitive types used in the entity language to those used in the
-database language to make sure we only map those fields to a particular column
+be mapping the primitive types used in the \ic{entities} language to those used in
+the \ic{db} language to make sure we only map those fields to a particular column
 that are type-compatible. Just as the column mapper itself, this code lives in
 the adapter language. It is essentially just a constraint that checks for type
 compatibility.
 
 \parhead{Generator} Let us assume there is a generator the generates Java Beans
-from the entities. Further, we assume that there is a generator that all the
-persistence management code from \ic{DbDSL} programs, except the part of the
-code that fetches the data from whatever the data source is --- essentially we
-leave the same "hole" as the we do with the \ic{AbstractColumnMapper} in the
+from the \ic{entities}. Further, we assume that there is a generator that
+generates all the persistence management code from \ic{DbDSL} programs, except
+the part of the code that fetches the data from whatever the data source is --- essentially we
+leave the same "hole" as we do with the \ic{AbstractColumnMapper} in the
 grammar. And just in the same way as we define the \ic{EntityColumnMapper} in
 the adapter language, we have to adapt the executing code. We can use two
 strategies.
@@ -324,22 +328,23 @@ The first one uses the composition techniques of the target language, i.e. Java.
 The generated code of the \ic{DbDsl} could for example generate an abstract
 class that has an abstract method \ic{getColumnData} for each of the table
 columns. The generator for the adapter language would generate a concrete
-subclass that implements these methods to grab the data from entities. This way
-the modularity (entities, database, adapter) is propagated into the generated
-artifacts as well. No \emph{generator} composition is required\sidenote{In a
-Java/Enterprise world this would most likely be the way we'd do it in reality.
-The next alternative is a bit constructed.}.
+subclass that implements these methods to grab the data from
+entities\footnote{This is how we did it in the MPS example.}. This way the
+modularity (\ic{entities}, \ic{db}, \ic{db2entity}) is propagated into the
+generated artifacts as well. No \emph{generator} composition is
+required\sidenote{In a Java/Enterprise world this would most likely be the way
+we'd do it in practice. The next alternative is a bit constructed.}.
 
 However, consider a situation where we'd have to generate inlined code, for
 reasons of efficiency e.g. in some kind of embedded system. In this case the
-\ic{DbDsl} generator would have to be built in an extensible way. Assuming
-we use Xtend for generation, this can be done easily by using dependency
+\ic{DbDsl} generator would have to be built in an extensible way. Assuming we
+use Xtend for generation, this can be done easily by using dependency
 injection\sidenote[][-1\baselineskip]{Sometimes people complain about the fact
-that Xtend is a general purpose language, and not some dedicated generation language. However,
-the fact that one can use abstract classes, abstract methods and dependency
-injection is a nice example of how and why a general purpose language (with
-some dedicated support for templating) is useful for building generators.}. Here
-is how you would do that:
+that Xtend is a general purpose language, and not some dedicated code generation
+language. However, the fact that one can use abstract classes, abstract methods
+and dependency injection is a nice example of how and why a general purpose
+language (with some dedicated support for templating) is useful for building
+generators.}. Here is how you would do that:
 
 \begin{itemize}
   \item In the generator that generates persistence code from a \ic{DbDsl}
@@ -372,7 +377,7 @@ class DbDslGenerator implements IGenerator {
   
   \item The generator for the adapter language would contain a subclass of this
   abstract class that implements the \ic{generateGetDataCodeFor} generator
-  method in a way suitable to the entities language.
+  method in a way suitable to the \ic{entities} language.
   \item The adapter language would also set up Google Guice dependency injection
   in a way to use this a singleton instance of this subclass when instances of
   the abstract class are expected.
