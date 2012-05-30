@@ -398,7 +398,7 @@ different:
   unchanged language. The \ic{db2entity} language shown above is an example of
   this. The \ic{db2entity} programs look essentially like programs written in
   the \ic{db} base language, but in one (or few) particular places, something is
-  different. In the example, the syntax for referencing attributes is such as
+  different. In the example, the syntax for referencing attributes is such a
   small scale change.
   \item The other case is where we create a completely new language, but reuse
   some of the syntax provided by the base language. This use case \emph{feels}
@@ -408,38 +408,35 @@ different:
   section we look at extension with an embedding flavor.
 \end{enumerate}
 
-To illustrate extension-with-embedding-flavor, we will show how to embed XBase
-expressions in a custom DSL. XBase is a reusable expression language that ships
-with Xtext. It provides primitive types, various unary and binary operators,
-functions and closures. As we will see it is very tightly integrated with
-Java\sidenote{This is a mixed blessing. As long as you stay in a JVM world (use
-Java types, generate Java code), it means that many things are very simple.
-However, as soon as you go outside of the JVM world, a lot of things become
-quite complex and it is questionable whether using Xbase makes sense in this
-case at all.}. As an example, we essentially create another entity language;
-thanks to Xbase, we will be able to write:
+To illustrate extension-with-embedding-flavor, we will show how to embed bBase
+expressions in a custom DSL. Xbase is a reusable expression language that ships
+with Xtext\footnote{It is also the functional core of Xtend.}. It provides
+primitive types, various unary and binary operators, functions and closures. As
+we will see it is very tightly integrated with Java\sidenote{This is a mixed
+blessing. As long as you stay in a JVM world (use Java types, generate Java
+code), it means that many things are very simple. However, as soon as you go
+outside of the JVM world, a lot of things become quite complex and it is
+questionable whether using Xbase makes sense in this case at all.}. As an
+example, we essentially create another entity language; thanks to Xbase, we will
+be able to write:
 
-\begin{code}
-module sample {
+\begin{code} module sample {
     entity Person {
-        lastname : String
-        firstname : String
-        String fullName(String from) {
+        lastname : String firstname : String String fullName(String from) {
             return "Hello " + firstname + " "  + lastname + " from " + from
         }
     }
-}
-\end{code}
+} \end{code}
 
-\noindent 
-Here is the essential part of the grammar. Note how it extends the Xbase grammar
-(\ic{with} clause) and how it uses various elements from Xbase throughout the
-code (those whose names start with an \ic{X}).
+\noindent Below is the essential part of the grammar. Note how it extends the
+Xbase grammar (the \ic{with} clause) and how it uses various elements from Xbase
+throughout the code (those whose names start with an \ic{X}).
 
-\begin{code}
-grammar org.xtext.example.lmrc.entityexpr.EntityWithExprDsl with org.eclipse.xtext.xbase.Xbase
+\begin{code} grammar org.xtext.example.lmrc.entityexpr.EntityWithExprDsl with
+org.eclipse.xtext.xbase.Xbase
 
-generate entityWithExprDsl "http://www.xtext.org/example/lmrc/entityexpr/EntityWithExprDsl"
+generate entityWithExprDsl
+"http://www.xtext.org/example/lmrc/entityexpr/EntityWithExprDsl"
 
 Module:
     "module" name=ID "{"
@@ -448,35 +445,33 @@ Module:
 
 Entity:
     "entity" name=ID "{"
-        attributes+=Attribute*
-        operations+=Operation*
+        attributes+=Attribute* operations+=Operation*
     "}";
 
 Attribute:
     name=ID ":" type=JvmTypeReference;
 
 Operation:
-    type=JvmTypeReference name=ID "("  (parameters+=FullJvmFormalParameter 
+    type=JvmTypeReference name=ID "("  (parameters+=FullJvmFormalParameter
         (',' parameters+=FullJvmFormalParameter)*)? ")"
             body=XBlockExpression;
 \end{code}
 
-\noindent 
-Let's look at some of the details. First, the types (of the \ic{Attribute} and
-the \ic{Operation}) are not defined by our grammar, instead we use a
-\ic{JvmTypeReference}. This makes all Java types legal in this place. Limiting
-this to the primitive types (or some subset) requires a scoping rule. On the
-other hand, one can automatically use any valid Java type here. We use an
-\ic{XBlockExpression} as the body of \ic{Operation}, which essentially allows us
-to use the full Xbase programming language inside the body of the
-\ic{Operation}. To make the \ic{parameters} visible, we use the
-\ic{FullJvmFormalParameter} rule.
-Above I wrote that Xbase is tightly integrated with the JVM and Java. The use of 
+\noindent Let's look at some of the details. First, the \ic{type} properties of
+the \ic{Attribute} and the \ic{Operation} are not defined by our grammar,
+instead we use a \ic{JvmTypeReference}. This makes all Java types legal in this
+place\footnote{Limiting this to the primitive types (or some other subset of the
+JVM types) requires a scoping rule.}. We use an \ic{XBlockExpression} as the
+body of \ic{Operation}, which essentially allows us to use the full Xbase
+language inside the body of the \ic{Operation}. To make the \ic{parameters}
+visible, we use the \ic{FullJvmFormalParameter} rule\footnote{Above we wrote
+that Xbase is tightly integrated with the JVM and Java. The use of
 \ic{FullJvmFormalParameter} and \ic{JvmTypeReference} is a sign of this.
-However, the next piece of code makes this even clearer. The
-\ic{JvmModelInferrer} maps the model to structurally equivalent Java code. By
-doing this, we get a number of benefits "for free", including scoping, typing
-and a code generator. Let us look at this crucial step in some detail.
+However, the next piece of code makes this even clearer.}. The
+\ic{JvmModelInferrer}, shown below, maps a model expressed with this language to
+a structurally equivalent Java "model". By doing this, we get a number of
+benefits "for free", including scoping, typing and a code generator. Let us look
+at this crucial step in some detail.
 
 \begin{code}
 class EntityWithExprDslJvmModelInferrer extends AbstractModelInferrer {
@@ -492,14 +487,13 @@ class EntityWithExprDslJvmModelInferrer extends AbstractModelInferrer {
 }    
 \end{code}
 
-\noindent 
-This Xtend class implements a method \ic{infer} that creates the structurally
-equivalent Java code as an EMF tree and registers it with the \ic{acceptor}. The
-method is marked as \ic{dispatch}, so it can be polymorphically overwritten for
-various types. We override it for the \ic{Entity} type. We also have the
-\ic{IQualifiedNameProvider} provider and \ic{JvmTypesBuilder} injected. The
-latter contains a builder API for creating all kinds JVM objects, such as
-fields, setters, classes or operations.
+\noindent This Xtend class extends \ic{AbstractModelInferrer} and implements its
+\ic{infer} method to create structurally equivalent Java code as an EMF tree and
+registers it with the \ic{acceptor}. The method is marked as \ic{dispatch}, so
+it can be polymorphically overwritten for various language concepts. We override
+it for the \ic{Entity} concept. We also have the \ic{IQualifiedNameProvider}
+and \ic{JvmTypesBuilder} injected. The latter provides a builder API for
+creating all kinds JVM objects, such as fields, setters, classes or operations.
 
 \begin{code}
 acceptor.accept(
@@ -510,18 +504,16 @@ acceptor.accept(
 )
 \end{code}
 
-\noindent 
-At the top level, we map the \ic{Entity} to a \ic{Class}. \ic{toClass} is one of
-these builder methods defined in the \ic{JvmTypesBuilder}. The class we create
-should have the same name as the \ic{entity}; the name of the class is passed in
-the constructor. The second argument, written conveniently behind the
-parentheses, is a closure. Inside the closure, there is a variable \ic{it} that
-refers to the target element (the class in this case). It is possible to omit
-the \ic{it}, so when we write \ic{documentation = ...} this actually means
+\noindent At the top level, we map the \ic{Entity} to a \ic{Class}. \ic{toClass}
+is one of the builder methods defined in the \ic{JvmTypesBuilder}. The class we
+create should have the same name as the \ic{entity}; the name of the class is
+passed into the constructor. The second argument, written conveniently behind
+the parentheses, is a closure. Inside the closure, there is a variable \ic{it}
+that refers to the target element (the class in this case). It is possible to
+omit the \ic{it}, so when we write \ic{documentation = ...} this actually means
 \ic{it.documentation = ...}. In other words, we set the documentation of the
 created class to be the documentation of the \ic{entity}. Next we create a
-field, a getter and a setter for each of the attributes of the
-\ic{Entity}.  
+field, a getter and a setter for each of the attributes of the \ic{Entity} andadd them to the \ic{Class}' \ic{members} collection:
 
 \begin{code}
 for ( attr : entity.attributes ) {
@@ -556,11 +548,11 @@ public JvmOperation toSetter(EObject sourceElement, final String name, JvmTypeRe
 
 \noindent 
 The method first creates a \ic{JvmOperation} and sets the visibility and the
-name. It then creates a parameter that uses the type passed in as the third
+name. It then creates a parameter that uses the \ic{typeRef} passed in as the third
 argument as its type. As you can see, all of this happens via model-to-model
 transformation. This is important, because these created objects are used
 implicitly in scoping and typing. The body, however, is created textually; it is
-not needed for type scoping or typing, it is used only in code generation. Since
+not needed for scoping or typing, it is used only in code generation. Since
 that is a to-text transformation anyway, it is good enough to represent the body
 of the setter as text already at this level. The last line is important: it
 associates the source element (the \ic{Attribute} in our case) with the created
@@ -590,7 +582,7 @@ using the respective builder method, pass in the name and type, create a
 parameter for each of the parameters of our source operation and then assign the
 body of the created method to be the body of the operation in our DSL program.
 The last step is particularly important. Notice that we don't clone the body, we
-assign the object directly. Looking into the \ic{setBody} method (the
+assign the object \emph{directly}. Looking into the \ic{setBody} method (the
 assignment is actually mapped to a setter in Xtend), we see the following:
 
 \begin{code}
@@ -618,8 +610,8 @@ works nicely as long as it maps to Java code in a simple way. In the above case
 of entities, the mapping is trivial and obvious. If the semantic gap becomes
 bigger, the \ic{JvmTypeInferrer} becomes more complicated. However, what is
 really nice is this: within the type inferrer, you can of course use Xtend's
-template syntax (discussed in \todo) to create implementation code. So it is
-easy to mix model transformation (for those parts of a mapping that is relevant
+template syntax (discussed in \todo{ref}) to create implementation code. So it
+is easy to mix model transformation (for those parts of a mapping that is relevant
 to scoping and type calculation) and then use traditional to-text transformation
 using Xtend's powerful template syntax for the detailed implementation aspects.
 
@@ -629,7 +621,7 @@ semantic mapping to Java. We map entities to Java classes and fields to members
 and getters/setters\sidenote{Notice how we did specify the implementation of the
 getters and setters, although this would not strictly be necessary for the scoping and
 typing support we get from the JVM mapping.}. So in fact, we do not have to do
-anything else to get a generator, we can reuse the existing XBase to Java code
+anything else to get a generator, we can reuse the existing Xbase-to-Java code
 generator. 
 
 In case we build a language that cannot easily be mapped to a JVM model we can
@@ -638,8 +630,8 @@ still reuse the XBase expression compiler by injecting the
 
 You can also change or extend the behavior of the default \ic{JvmModelGenerator}
 by overriding its \ic{\_internalDoGenerate(EObject, IFileSystemAccess)} method
-for your particular language concept. Notice that you also have to make sure via
-Guice that your subclass is used, and not the \ic{JvmModelGenerator}.
+for your particular language concept\footnote{Notice that you also have to make
+sure via Guice that your subclass is used, and not the \ic{JvmModelGenerator}.}.
 
 \parhead{Extending Xbase} In the above example we had embedded the (otherwise
 unchanged) Xbase language into a simple DSL. Let us now look at how to extend
@@ -668,9 +660,8 @@ XLiteral returns xbase::XExpression:
     XDateLiteral;
 \end{code}
 
-\noindent 
-We use the same approach to add an additional operator the identity operator
-represented with \ic{===}.
+\noindent We use the same approach to add an additional operator represented
+with \ic{===}:
 
 \begin{code}
 OpEquality:
@@ -679,10 +670,10 @@ OpEquality:
 
 \noindent 
 Xtend supports operator overloading by mapping operators to methods that can be
-overridden. The \ic{===} operator does not yes exist in Xtend, so we have to
-specify the name of the method that should be called for the operator. The
-second line of the \ic{initializeMapping} method maps the new operator to a
-method named \ic{operator\_identity}:
+overridden. The \ic{===} operator does not yet exist in Xtend, so we have to
+specify the name of the method that should be called if the operator shows up
+in a program. The second line of the \ic{initializeMapping}
+method maps the new operator to a method named \ic{operator\_identity}:
 
 \begin{code}
 public class DomainModelOperatorMapping extends OperatorMapping {
@@ -700,8 +691,10 @@ public class DomainModelOperatorMapping extends OperatorMapping {
 \noindent 
 We implement this method in a new class which we call
 \ic{ObjectExtensions2}\footnote{The existing class \ic{ObjectExtensions}
-contains the implementations for the existing equals and unequals operators,
-hence the name}:
+contains the implementations for the existing \ic{==} and \ic{!=} operators,
+hence the name}\footnote{Through the \ic{operator\_identity} operation, we have
+expressed all the semantics: the Xbase generator will generate a call to that 
+operation in the generated Java code.}:
 \begin{code}
 public class ObjectExtensions2 {
     public static boolean operator_identity(Object a, Object b) {
@@ -713,8 +706,8 @@ public class ObjectExtensions2 {
 \noindent 
 We also want to override the existing \ic{+} operator for the new
 date literals. We don't have to specify the mapping to a method name,
-since the mapping for \ic{+} is already part of Xbase. However, we have to
-provide an overloaded implementation of \ic{+} for dates:
+since the mapping for \ic{+} is already defined in Xbase. However, we have
+to provide an overloaded implementation of \ic{+} for dates:
 
 \begin{code}
 public class DateExtensions {
@@ -745,7 +738,7 @@ public class DomainModelExtensionClassNameProvider extends ExtensionClassNamePro
 
 \noindent 
 We now have to extend the type system: it has to be able to derive the types for 
-date literals. We create a type provide that extends the default
+date literals. We create a type provider that extends the default
 \ic{XbaseTypeProvider}\footnote{Don't forget to register this class with
 Guice, just like all the other DSL-specific subclasses of framework classes.}:
 
@@ -778,7 +771,6 @@ as \ic{java.lang.Object}. If customizations were required these could be done by
 overriding the \ic{\_expectedType} operation in \ic{XbaseTypeProvider}. 
 
 
-
 Finally we have to extend the Xbase compiler so it can handle date literals:
 
 \begin{code}
@@ -793,16 +785,12 @@ public class DomainModelCompiler extends XbaseCompiler {
 }
 \end{code}
 
-\noindent 
-scopethe \ic{operator\_identity} operation, we have expressed all the semantics:
-the Xbase generator will generate a call to that operation in the generated Java
-code.
 
 \subsection{Embedding}
 
 Embedding is not supported by Xtext. The reason is that, as we can see from the
 \todo{ref}, the adapter language would have to inherit from \emph{two} base
-languages. However, Xtext supports extending one base grammar.
+languages. However, Xtext only supports extending one base grammar.
 
 We have shown above how to embed Xbase expressions into a custom DSL. However,as
 we have discussed, this is an example of extension with embedding flavor: we
