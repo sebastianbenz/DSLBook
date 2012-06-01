@@ -1,0 +1,253 @@
+\section{Spoofax Example}
+
+In this section we look at an example roughly similar to the one for MPS and Xtext discussed in the previous sections. 
+We start with the Mobl's data modelling language, which we have already seen in previous chapters.
+
+In Spoofax, language definitions are typically modularized and organized in directories.
+For example, Mobl's syntax definition comes with a module for entities, which imports modules for statements and expressions. 
+These modules reside in the same directory:
+
+\begin{code}
+module MoblEntities
+
+imports
+  MoblStatements
+  MoblExpressions
+\end{code}
+
+Similarly, rewrite rules for program analysis, editor services, program transformation, and code generation are organized in modules, which are imported from Mobl's main module.
+Thereby, the various modules for program analysis, editor services, and program transformation are organized in subdirectories:
+
+\begin{code}
+module mobl
+
+imports
+  analysis/names
+  analysis/types
+  analysis/checks
+  editor/complete
+  editor/hover
+  editor/refactor
+  trans/desugar
+  trans/normalize
+  generate
+\end{code}
+
+\subsection{Referencing}
+
+We will illustrate references to elements written in another DSL with Mobl's screen definition language, where a \ic{Screen} defined in the UI model refers to
+\ic{Entities} from Mobl's entity language, and \ic{Field}s in a screen refer to entity \ic{Property}. 
+Here is some example code:
+\todo{add code}
+\begin{code}
+
+\end{code}
+
+\parhead{Structure}%
+When referencing elements of another language, both languages typically share a definition of identifiers.
+For example, the screen definition language imports the same lexical module as the data modelling language does via the expression module:
+
+\begin{code}
+module MoblEntities
+
+imports
+	\ldots
+	MoblExpressions
+\end{code}
+\begin{code}
+module MoblExpressions
+
+imports
+	lexical/Common
+\end{code}
+\begin{code}
+module MoblScreens
+
+imports
+	lexical/Common
+\end{code}
+
+\noindent 
+However, Spoofax also supports the use of different, typically overlapping identifier definitions\footnote{This requires scannerless parsing, since a scanner cannot handle overlapping lexical definitions.}.
+In this case, the referencing language needs to import the identifier definition of the referenced language.
+
+Independent of the used identifiers in both languages, the reference has to be resolved.
+Definition sites are already defined by the referenced language.
+The corresponding references need to be defined in the referencing language by using the namespaces from the referenced language:
+
+\todo{add code}
+\begin{code}
+
+\end{code}
+
+\parhead{Type System}%
+%
+Similar to the name resolution, the type system of the referencing language needs to be defined with the knowledge of the type system of the referenced language. 
+
+\parhead{Generators}%
+%
+The same holds for generators. 
+Typically, they just share knowledge about the naming and typing of generated code elements.
+
+
+\subsection{Reuse}
+
+As discussed in the previous sections, referencing concerns the case where the referencing language is built with the knowledge about the referenced language, so it can have direct dependencies. 
+In the example above, the screen definition language directly uses the namespaces and types from the entity language.
+
+\parhead{Structure}% 
+%
+In case of reuse, such a direct dependency is not allowed.
+Our goal is to combine two \emph{independent} languages. 
+To show this case, we again use the same example as in the MPS section. 
+We first introduce a trivial DSL for defining relational table structures. 
+These can optionally be mapped to a data source, but the language makes no assumption about how this data source looks (and which language is used to define it).
+Consequently, the grammar has no dependency on another other one, and imports only its own submodules:
+\todo{add code}
+\begin{code}
+module DBTables
+
+\end{code}
+
+\noindent 
+Again, the \ic{Column} rule has an optional \ic{ColumnMapper} which works as the hook for reuse.
+The reusable language provides only a rule for a missing column mapper.
+Rules for a concrete mapper are missing, but can be added later. 
+In the next step, we want to be able to reference properties from Mobl's data modelling language:
+\todo{add code}
+\begin{code}
+
+\end{code}
+
+\noindent 
+Therefor, we define an adapter module, which imports the reusable table module and the data modelling language:
+
+\todo{add rule for column mapper}
+\begin{code}
+module MoblDBAdapter
+
+imports
+  DBTables
+  MoblEntities
+  
+context-free syntax
+
+  ... -> ColumnMapper
+\end{code}
+
+\noindent 
+There is only rule in this module, which defines a concrete mapper.
+On the right-hand side, it uses the same sort as the rule in the table module.
+On the left-hand side, it refers to a property from the imported data modelling language. 
+
+\parhead{Type System}%
+% 
+The type system needs to connect types from the abstract but reusable language to types from the language which actually reuses it.
+In our example, the types of the database language needs to be connected to the primitive types used in Mobl.
+Constraints ensure we only map those fields to a particular column that are type-compatible. 
+This can be done in an adapter module again:
+
+\todo{add code and explain}
+\begin{code}
+module analysis/types/adapter
+
+imports
+  module analysis/types 
+  module reuse/dbtables/analysis/types 
+\end{code}
+
+\parhead{Generator}%
+%
+Similar to the Xtext example, we can use two strategies to reuse a generator for the database language.
+The first strategy relies on composition techniques of the target language.
+Like in the MPS example, the code generator of the database language generates an abstract Java class for fetching data while Mobl's original code generator generates Java classes from entities.
+We can then define an additional generator, which generates a concrete subclass which fetches data from entities.
+
+The second strategy we discussed in the Xtext example addressed the generation of inlined code, which requires an extendable generator of the reusable language.
+With rewrite rules, this can be easily achieved in Spoofax.
+The reusable generator calls a dedicated rule for generating the inlined code, but defines only a failing implementation of this rule:
+
+\todo{make example more concrete}
+\begin{code}
+module reuse/table/generate
+
+rules
+  db-to-java: ... -> ...
+  where
+    <generate-inlined-code> ...
+    
+  generate-inlined-code: _ -> <fail>
+\end{code}
+
+When the generator is reused in a concrete setting, an adapter needs to define a working implementation of this rule:
+
+\begin{code}
+module generate/java/adapter
+
+imports 
+  generate/java
+  reuse/table/generate
+  
+rules
+
+  generate-inlined-code: ... -> ...
+\end{code} 
+
+\subsection{Extension}
+
+\GW{not sure what a non-embedding example might look like, that is not similar to the reuse case}
+
+\subsection{Embedding}
+
+Embedding can be easily achieved in Spoofax.
+The procedure is very similar to reuse.
+We will use the embedding of a query language into Mobl as an example.
+
+\parhead{Structure}%
+%
+We need to define an embedding module which realises the syntactic embedding.
+This module imports the main modules of the host and guest language and defines additional syntax rules for embedding:
+
+\begin{code}
+module MoblQuery
+
+imports Mobl 
+imports HQL  [[Exp => HqlExp]]
+
+context-free syntax
+
+	HQLExp   -> Exp 	{"ToHql"}
+	"~" Exp  -> HqlExp  {"FromHql"}
+\end{code}
+
+Since the syntax definitions of host and guest language share a sort name, the import renames the sort of the guest language to a fresh sort.
+Without this renaming, HQL expressions and Mobl expressions would be merged to a single kind of expressions, which is not intended.
+To ensure a correct embedding, this has to be done for every shared sort name.
+
+The embedding module defines two syntax rules.
+The first rule embedds HQL expressions into Mobl expressions, while the second rule allows to use Mobl expressions as HQL expressions.
+Notably, the second rule uses a tilde to antiquote Mobl expressions in HQL expressions.
+In general, quoting embedded constructs and antiquoting back to host constructs is used for disambiguation.
+
+\parhead{Type System}%
+%
+The type system needs to connect the types from the host and guest languages.
+This can be achieved by adding typing rules for embedded and antiquoted constructs:
+
+\todo{add code}
+\begin{code}
+type-of: ToHql(e) -> ...
+type-of: FromHql(e) -> ...
+\end{code}
+
+\parhead{Generator}%
+%
+There are two strategies for code generation for embedded languages.
+When the guest language provides a suitable code generator, we can combine it with the code generator of the host language.
+First, we need rules which generate code for embedded constructs. 
+These rules have to extend the host generator by delegating to the guest generator.
+Next, we need rules which generate code for antiquoted constructs.
+These rules have to extend the guest generator by delegating to the host generator.
+
+Another strategy is to define a model-to-model transformation which desugars embedded constructs to constructs of the host language.
+This transformation is then applied first, before the host generator is applied to generate code.
