@@ -597,56 +597,75 @@ So, we need to specify a \ic{adjust-index-lookup} rule for the variables:
 
 \begin{code}
 adjust-index-lookup(target |namespace, path, name):
-  Var(<target>) -> adjusted-uris
-  with
+  Var(x) -> adjusted-uris
+  where
+    <target> x
+  with 
     adjusted-uris := ...
 \end{code}
 
 \noindent 
 Each \ic{adjust-index-lookup} rule has this exact signature: it gets a
 \ic{target} rule argument, and term arguments with the \ic{namespace},
-\ic{path}, and \emph{name} of the reference to be resolved. On the left-hand
-side, it specifies what construct it matches against:
+\ic{path}, and \emph{name} of the reference to be resolved. 
+On the left-hand side, it specifies what construct it matches against.
+In this case, we want to resolve a variable.
+Next, we need to specify which part of the node is the name we want to resolve.
+\footnote{There might be nodes with more than one name to resolve, for example in a qualified package name, each segment refers to a package.}
+In a variable reference \ic{Var(x)}, the \ic{x} is the name we want to resolve.
+We specify this explicitely as the first condition of the rule: \ic{where <target> x}.
+On the right-hand side, the rule returns a list of adjusted URIs.
+Spoofax will then use these URIs to further resolve the element.
 
-\todo{@Guido: Complete Example Explanation}
+A variable might refer either to a variable (namespace \ic{Var}) or a property (namespace \ic{Property}).
+Since we got the current \ic{path} of the variable as a parameter, we can construct two possible URIs, where the definition site can be found: \ic{Var://path} and \ic{Property://path}\footnote{Remember that URIs are represented as lists. We use the namespace as the head of the list and the path as the tail. The variable name is not part of these URIs.}:
 
 \begin{code}
 adjust-index-lookup(target |namespace, path, prefix):
-  Var(<target>) -> adjusted-uris
+  Var(x) -> adjusted-uris
+  where
+    <target> x
   with
-    adjusted-uris := [[Var() | path], [Property() | path]]
+    var-uri       := [Var() | path];
+    property-uri  := [Property() | path];  
+    adjusted-uris := [var-uri, property-uri]
 \end{code}
 
+Note, that the URIs do not contain the variable name \ic{x}.
+This is, because the URIs specify containers telling Spoofax where to look for the variable.
+We return both URIs in a list of adjusted URIs.
+The order in this list is important.
+Spoofax will first look only for variables, before it will look for properties.
+
+The example code we have seen so far is pretty verbose for explanation.
+A typical shorter way to adjust variable lookup, would look like this:
 
 \begin{code}
-  adjust-index-lookup(target | namespace, path, prefix):
-    element -> results
-\end{code}
+adjust-index-lookup(target |namespace, path, prefix):
+  Var(<target>) -> [[Var() | path], [Property() | path]]
+ \end{code}
 
+Here, the \ic{target} is marked in the left-hand side of the rule.
+On the right-hand side, we construct the list of adjusted URIs right away.
 
+\todo{@Markus: I finished the example explanation. I left out the import example, because this is a moving target and can be done already simpler. For now, I think the reviewers can see already what is going on here with adjust rules.}
 
-\begin{code}
-  adjust-index-lookup(target |namespace, path, prefix):
-    Var(<target>) -> [[Var() | path], [Property() | path]]
-\end{code}
-
-
-\begin{code}
-"import" Module@ID -> Decl {"import"}
-\end{code}
-
-\ic{Import("customers")}
-
-\begin{code}
-  adjust-index-lookup(target |namespace, path, prefix): 
-    Type(<target>) -> <concat> [primitives, [[Type() | path]], importPaths]
-    with
-      importPaths := <filter(import-to-path)> <index-get-all-in-file(|Import)> <index-get-current-file>;
-      primitives := <map(type-of; type-to-def)> <primitive-types>
-    
-  import-to-path:
-    Def([Import(), EntityImport(mod, ent)|_]) -> Def([Type(), ent, mod])
-\end{code}
+% \begin{code}
+% "import" Module@ID -> Decl {"Import"}
+% \end{code}
+% 
+% \ic{Import("customers")}
+% 
+% \begin{code}
+%   adjust-index-lookup(target |namespace, path, prefix): 
+%     Type(<target>) -> <concat> [primitives, [[Type() | path]], importPaths]
+%     with
+%       importPaths := <filter(import-to-path)> <index-get-all-in-file(|Import)> <index-get-current-file>;
+%       primitives := <map(type-of; type-to-def)> <primitive-types>
+%     
+%   import-to-path:
+%     Def([Import(), EntityImport(mod, ent)|_]) -> Def([Type(), ent, mod])
+% \end{code}
 
 
 

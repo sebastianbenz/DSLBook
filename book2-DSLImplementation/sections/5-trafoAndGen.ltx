@@ -975,14 +975,14 @@ following simple rules rewrite types to their corresponding representation in
 Java:
 
 \begin{code}
-  to-java: IntType()    -> "int"
-  to-java: BoolType()   -> "boolean"
-  to-java: StringType() -> "String"
-  to-java: EntType(t)   -> t
+  to-java: IntType()     -> "int"
+  to-java: BoolType()    -> "boolean"
+  to-java: StringType()  -> "String"
+  to-java: EntType(name) -> name
 \end{code}
-\todo{@Guido 't' is not a string. What is going on there?}
-
-\noindent 
+\todo{@Markus renamed it to 'name'. Clear now, that this is the entity name, which is a string?}
+\noindent
+For entity types, we use their name as the Java representation.
 Typically, more complex rules are recursive and use string
 interpolation\footnote{We used string interpolation already before to compose
 error messages \todo{ref}.} to construct strings from fixed and variable parts.
@@ -1077,8 +1077,21 @@ class Item {
 }
 \end{code}
 
-\todo{@Guido Of course users will notice the underscore instead of the camelcase
-for the method names. Do you want to say something about that?}
+\noindent
+When we prefer camelcase in method names, we need to slightly change our code generation rules, 
+replacing \ic{get_[x]} and \ic{set_[x]} by \ic{get[<to-upper-first>x]} and \ic{set[<to-upper-first>x]}.
+We also need to specify the following rewrite rule, which turns a string into a list of characters, upper-cases the first character, and turns the characters back into a string:
+
+\begin{code}
+to-upper-first: s -> s'
+  where
+    [first|chars] := <explode-string> s ;
+    upper         := <to-upper> first ;
+    s'            := <implode-string> [upper|chars]
+\end{code}
+
+\todo{@Markus Said something about that now: Of course users will notice the underscore instead of the camelcase
+for the method names.}
 
 \parhead{Editor Integration} To integrate the code generation into our editor,
 we first have to define the following rewrite rule:
@@ -1092,10 +1105,10 @@ we first have to define the following rewrite rule:
 \end{code}
 
 \noindent 
-This rule follows Spoofax' convention for editor integration\todo{@Guido what
-kind of convention is this?}. Generation happens on a per-file basis. On the
-left-hand side, the rule matches the current selection in the editor, its
-position in the abstract syntax tree, the abstract syntax tree itself, the path
+Generation happens on a per-file basis. 
+The rule follows Spoofax' convention for editor integration\todo{@Markus the convention is explained right ahead, explaining the typical match on the left-hand side}. 
+On the left-hand side, it matches the current \ic{selection} in the editor, its
+\ic{position} in the abstract syntax tree, the abstract syntax tree itself, the \ic{path}
 of the source file in the editor, and the path of the project this file belongs
 to. On the right-hand side, it results in the name of the generated file and its
 content as a string. The file name is derived from the source file's path, while
@@ -1171,109 +1184,15 @@ side of rewrite rules:
       assign := Assign(FieldRef(This(), x), VarRef(x)) 
 \end{code}
 
-\parhead{Pretty-Printing} When we generate abstract syntax trees instead of
-concrete syntax, we can easily compose transformation steps into a
-transformation chain by using the output of transformation $n$ as the input for
-transformation $n+1$. But this chain will still result in abstract syntax trees.
+\parhead{Concrete Object Syntax}%
+%
+When we generate abstract syntax trees instead of concrete syntax, we can easily compose transformation steps into a transformation chain by using the output of transformation $n$ as the input for transformation $n+1$. 
+But this chain will still result in abstract syntax trees.
 To turn them back into text, it has to be pretty printed (or serialized).
-Spoofax generates a language-specific rewrite rule \ic{pp-<LanguageName>-string}
-in \ic{lib/editor-common.generated} which rewrites an abstract syntax tree into
-a string according to a pretty-printer definition. Spoofax generates a default
-pretty-printer definition in \ic{syntax/<LanguageName>.generated.pp} from the
-syntax definition of a language. For example, Spoofax generates the following
-pretty-printer definition from the Mobl syntax definition, expressed in the Box
-language: \todo{@Guido do we have a reference to the Box language?}
-
-\begin{code}
-[
-   Module                   -- KW["module"] _1 _2,
-   Module.2:iter-star       -- _1,
-   Import                   -- KW["import"] _1,
-   Entity                   -- KW["entity"] _1 KW["{"] _2 KW["}"],
-   Entity.2:iter-star       -- _1,
-   Property                 -- _1 KW[":"] _2,
-   Function                 -- KW["function"] _1 KW["("] _2 KW[")"] KW[":"] _3 KW["{"] _4 KW["}"],
-   Function.2:iter-star-sep -- _1 KW[","],
-   Function.4:iter-star     -- _1,
-   Param                    -- _1 KW[":"] _2,
-   EntType                  -- _1,
-   IntType                  -- KW["int"],
-   BoolType                 -- KW["boolean"],
-   StringType               -- KW["string"],
-   Declare                  -- KW["var"] _1 KW["="] _2 KW[";"],
-   Assign                   -- _1 KW["="] _2 KW[";"],
-   Return                   -- KW["return"] _1 KW[";"],
-   Call                     -- _1 KW["."] _2 KW["("] _3 KW[")"],
-   PropAccess               -- _1 KW["."] _2,
-   Plus                     -- _1 KW["+"] _2,
-   Mul                      -- _1 KW["*"] _2,
-   Var                      -- _1,
-   Int                      -- _1
-]
-\end{code}
-
-\noindent 
-In this language, rules consist of constructors (.i.e. AS elements or language
-concepts) on the left-hand side of a rule and a sequence of \emph{boxes} and
-numbers on the right-hand side. The basic box construct is a simple
-string\todo{@Guido doing what?}. Furthermore, two kinds of box operators can be
-applied to sub-boxes: Layout operators specify the layout of sub-boxes in the
-surrounding box, and font operators specify which font should be used.
-In the example, all strings are embedded in \ic{KW[\ldots]} boxes.
-\ic{KW} is a font operator, classifying the sub-boxes as keywords of the
-language. Since font operators are only meaningful when pretty-printing to HTML
-or \LaTeX, we do not dive into the details here.
-
-Numbers on the right-hand side can be used to combine boxes from the subtrees.
-Here, a number $n$ refers to the boxes from the $n$-th subtree. When the syntax
-definition contains nested constructs, additional rules are generated for
-pretty-printing the corresponding subtrees. On the left-hand side, these rules
-have \emph{selectors}, which consist of a constructor, a number selecting a
-particular subtree, and the type of the nesting.
-\Figure{Fig:spoofax-pp-nesting-types} shows all nesting constructs in syntax
-definitions and their corresponding types in pretty-printing rules.
-
-\begin{figure}[t]
-\begin{tabular}{|l|l|}
-\hline
-\textbf{Construct} & \textbf{Selector Type} \\ 
-\hline
-optionals \ic{S?} & \ic{opt} \\
-non-empty lists \ic{S+} & \ic{iter} \\
-possibly empty lists \ic{S*} & \ic{iter-star} \\
-separated lists \ic{{S1 S2}+} & \ic{iter-sep} \\
-possibly empty separated lists \ic{{S1 S2}*} & \ic{iter-star-sep} \\
-alternatives \ic{S1 | S2} & \ic{alt} \\
-sequences \ic{(S1 S2)} & \ic{seq} \\
-\hline
-\end{tabular}                  
-  
-\caption{Selector types in pretty-printing rules for nested constructs in Spoofax.}
-\label{Fig:spoofax-pp-nesting-types}
-\end{figure}
-
-\noindent 
-Additionally, user-defined pretty-printing rules can be defined in
-\ic{syntax/<LanguageName>.pp}. Spoofax first applies the user-defined rules to
-turn an abstract syntax tree into a hybrid tree which is only partially
-pretty-printed. It then applies the default rules to pretty-print the remaining
-parts. For example, we could define our own pretty-printing rule for Mobl
-modules:
-
-\begin{code}
-   Module                   -- V vs=1 is=4 [ H [KW["module"] _1] _2]
-\end{code}
-
-\noindent 
-The \ic{H} box operator layouts sub-boxes horizontally. The desired horizontal
-separation between the sub-boxes can be specified by the spacing option \ic{hs}.
-Its default value is \ic{1}, that is, a single space is added between the boxes.
-Similarly, the \ic{V} box operator places sub-boxes vertically.
-The desired vertical separation between the sub-boxes can be specified by the
-spacing option \ic{vs}. Its default value is \ic{0}, that is, no blank lines are
-added between the boxes. For indenting boxes in a vertical combination, the
-spacing option \ic{is} can be specified. All boxes except the first will be
-indented accordingly.
+Spoofax generates a language-specific rewrite rule \ic{pp-<LanguageName>-string} in \ic{lib/editor-common.generated} which rewrites an abstract syntax tree into a string according to a pretty-printer definition. 
+Spoofax generates a default pretty-printer definition in \ic{syntax/<LanguageName>.generated.pp} from the
+syntax definition of a language.
+We will discuss these pretty-printer definitions and how they can be customized in the next chapter.
 
 \parhead{Concrete Object Syntax} Both template-based and term-based approaches
 to code generation have distinctive benefits. While template-based generation
@@ -1285,20 +1204,23 @@ compile-time, checking their syntax and replacing them with equivalent abstract
 syntax fragments. For example, a Java return statement can be expressed as
 \ic{|[ return |[x]|; ]|}, rather than the abstract syntax form
 \ic{Return(VarRef(x))}.
-\todo{@Guio can you briefly say what the various brackets and vertical bars
-are?}
+Here, \ic{|[...]|} surrounds Java syntax. 
+It quotes Java fragments inside Stratego code.
+Furthermore, \ic{|[x]|} refers to a Stratego variable \ic{x}, matching the expression in the return statement.
+In this case, \ic{|[...]|} is an antiquote, switching back to Stratego syntax in a Java fragment.
+\todo{@Markus explained quotes and antiquotes here}
 
 To enable this functionality, we have to customize Stratego, Spoofax'
 transformation language. This requires four steps. First, we need to combine
 Stratego's syntax definition with the syntax definitions of the source and
-target languages. There it is important to keep the sorts of the languages
+target languages. There, it is important to keep the sorts of the languages
 disjunct. This can be achieved by renaming sorts in an imported module, which we
 do in the following example for the \ic{Java} and the \ic{Stratego} module:
 
 \begin{code}
 module Stratego-Mobl-Java
 imports Mobl
-imports Java     [ ID => JavaId ]
+imports Java     [ ID   => JavaId ]
 imports Stratego [ Id   => StrategoId
                    Var  => StrategoVar
                    Term => StrategoTerm ]
@@ -1328,6 +1250,14 @@ exports context-free syntax
 StrategoTerm {"ToTerm"} mean?}
 
 \noindent 
+\ic{StrategoTerm} is the sort for terms in a Stratego program. 
+With these rules, we allow quoted Java fragments whereever an ordinary Stratego term is allowed.
+We further use \ic{ToTerm} as a constructor in the abstract syntax tree.
+This way, Stratego can recognise places where we use concrete object syntax inside Stratego code.
+It will then lift the subtrees at these places into Stratego code.
+For example, the abstract syntax of \ic{|[ return |[x]|; ]|} would be \ic{ToTerm(Return(...))}.
+Stratego lifts this to \ic{NoAnnoList(Op(\"Return\", [...]))}, which is the abstract syntax tree for the term \ic{Return(x)}.
+
 Third, we need to define antiquotations, which will enclose Stratego code in
 target language concrete syntax fragments. Here, we add a production rule for
 every sort where we like to inject Stratego code into concrete syntax fragments:
@@ -1335,18 +1265,18 @@ every sort where we like to inject Stratego code into concrete syntax fragments:
 \begin{code}
 exports context-free syntax
 
-  "|[" StrategoTerm "]|" -> ID        {"FromTerm"}
   "|[" StrategoTerm "]|" -> JavaId    {"FromTerm"}
-  "|[" StrategoTerm "]|" -> JFeature* {"FromTerm"}
 \end{code}
 
 \noindent 
+We use \ic{FromTerm} as a constructor in the abstract syntax tree.
+Like \ic{ToTerm}, Stratego uses this to recognise places where we switch between concrete object syntax and Stratego code.
+For example, the abstract syntax of \ic{|[ return |[x]|; ]|} would be \ic{ToTerm(Return(FromTerm(Var("x"))))}.
+Stratego lifts this to \ic{NoAnnoList(Op(\"Return\", [Var("x")]))}, which is the abstract syntax tree for the term \ic{Return(x)}.
+
 Finally, we need to create a \ic{<filename>.meta} file for every transformation
 file \ic{<filename>.str} with concrete syntax fragments. In this file, we tell
 Spoofax to use our customized Stratego syntax definition:
-
-\todo{@Guido Do I have to create these quotations and antiquotations manually,
-or could this be automated in the future?}
 
 \begin{code}
 Meta([ Syntax("Stratego-Mobl-Java") ])
@@ -1376,10 +1306,33 @@ Since Spoofax replaces concrete syntax fragments with equivalent abstract syntax
 fragments, indentation in the fragments is lost.
 But the generated code will still be indented by the pretty-printer.
 
-\todo{@Guido Do we get IDE support (code completion, etc.) for the embedded
-concrete syntax?}
+Using concrete object syntax in Stratego code combines the benefits of string interpolation and code generation by model transformation.
+With string interpolation, we can use the syntax of the target language in code generation rules, which makes it easy to write.
+Though, it is also easy to make syntactic errors, which are only detected when the generated code is compiled.
+With code generation by model transformation, we can check if the generated abstract syntax tree corresponds to the grammar of the target language.
+Actually, we can check each transformation rule and detect errors early.
+With concrete object syntax, we can now use the syntax of the target language in code generation. 
+This syntax is checked by the parser which is derived from the combined grammars of the target language and Stratego.
 
-\todo{@Guido Do you want to briefly recap why we did this, what the benefits
+This comes at the price of adding quotations and antiquotation rules manually.
+These rules might be generated from a declarative, more concise embedding definition in the future.
+However, we cannot expect full automation here, since choices for the syntactic sorts involved in the embedding and of quotation and antiquotation symbols require an understanding of Stratego, the target language, and the transformation we want to write.
+These choices have to be made carefully in order to avoid ambiguities.
+
+In general, there is room for more improvements of the embedding of the target language into Stratego.
+When the target language comes with a Spoofax editor, we want to get editor services like code completion, hover help, and content folding also in the embedded editor.
+Until now, only syntax highlighting is supported, using the Stratego coloring rules.
+Keywords of the target language will be highlighted like Stratego keywords and embedded code fragments will get a grey background color.
+
+\todo{@Markus handled these things: 
+
+Do I have to create these quotations and antiquotations manually,
+or could this be automated in the future?
+
+Do we get IDE support (code completion, etc.) for the embedded
+concrete syntax?
+
+Do you want to briefly recap why we did this, what the benefits
 are?}
 
 
@@ -2003,8 +1956,20 @@ there\footnote{We discuss language modularization and composition is
 the right side of the \ic{->}. This way the overall base language namespace is kept
 clean.
 
+\section{An Interpreter in Spoofax}
 
-\todo{@Guido Do we want to say something about an Interpreter in Spoofax? If
-not, then we should probably say why not. I also seem to have read somewhere
-that an interpreter can be written by ``rewriting to the semantics'' or
-something. I guess that needs at least a little bit of explanation.}
+State-based interpreters can be specified with rewrite rules in Spoofax, realising transitions between execution states.
+This requires:
+
+\begin{itemize}
+
+  \item A representation of states. 
+  The simplest way to represent states are terms, but we can also define a new DSL for representing the states in concrete syntax.
+
+  \item An initialisation transformation from a program in the DSL to the initial state of the interpreter.
+
+  \item A step transformation from an actual state of the interpreter to the next state of the interpreter.
+
+\end{itemize}
+
+\todo{@Markus I still need to add an example here.}
