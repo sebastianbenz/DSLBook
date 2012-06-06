@@ -628,7 +628,7 @@ a string according to a pretty-printer definition. Spoofax generates a default
 pretty-printer definition in \ic{syntax/<LanguageName>.generated.pp} from the
 syntax definition of a language. For example, Spoofax generates the following
 pretty-printer definition from the Mobl syntax definition, expressed in the Box
-language: \todo{@Markus reference for box language}
+language: 
 
 \begin{code}
  @PhdThesis{deJonge:2003:TROTBR,
@@ -1019,7 +1019,7 @@ rename-entity:
 
   rename-entity-local(|old-name, new-name):
     EntType(old-name) -> EntType(new-name)
-\end{code}
+\end{code}\ignore{$}
 
 \noindent 
 As we have seen already for other editor services, rewrite rules for
@@ -1034,24 +1034,17 @@ abstract syntax tree and lists of fatal errors, normal errors, and warnings.
 For simplicity, the example rule changes the whole abstract syntax tree into a
 new one and provides only duplicate definition errors. Thereby, the new abstract
 syntax tree is retrieved by traversing the old on in a \ic{topdown} fashion,
-\ic{try}ing to apply rewrite rules \ic{rename-entity-local}\footnote{\ic{try(s)} tries to apply a strategy \ic{s} to a term. Thereby, it never fails. If \ic{s} succeeds, it will return the result of \ic{s}. Otherwise, it will return the original term.}
-These rules take the old and new entity name as parameters.
-They take care that declarations and references to entities are renamed. 
-The first rule rewrites entity
-declarations, while the second one rewrites types of the form \ic{EntType(name)}, where \ic{name} refers to an entity.
+\ic{try}ing to apply rewrite rules \ic{rename-entity-local}\footnote{\ic{try(s)} 
+tries to apply a strategy \ic{s} to a term. Thereby, it never fails. If \ic{s}
+succeeds, it will return the result of \ic{s}. Otherwise, it will return the
+original term.} These rules take the old and new entity name as parameters. They
+take care that declarations and references to entities are renamed. The first
+rule rewrites entity declarations, while the second one rewrites types of the
+form \ic{EntType(name)}, where \ic{name} refers to an entity.
 
-An error is detected, if an entity with the new name already exists.
-Therefor, we match the annotated URI of the old name, change it to the new name, and look it up.
-If we find an entity, the renamed entity would clash with this one.
-
-\todo{@Markus handled this:
-
- what does the try do?
- 
- maybe you should say a word or two that the EntType is the
-reference to Entities, which is also changed here.
-
-add error checks?}
+An error is detected, if an entity with the new name already exists. Therefore,
+we match the annotated URI of the old name, change it to the new name, and look
+it up. If we find an entity, the renamed entity would clash with this one.
 
 
 
@@ -1563,9 +1556,6 @@ will provide type information for any typable node:
 editor-hover:
     (target, position, ast, path, project-path) -> <type-of; pp-MoblLang-string> target
 \end{code}   
-
-\todo{@Guido can I define mutliple independnet hovers?} 
-\todo{@Markus What do you mean by independent? Multiple hovers for the same node, or for different nodes, depending on the node?}
 
 \parhead{MPS} MPS does not support tooltips at this time, however, there is an
 acceptable workaround: the additional information for a program element can be
