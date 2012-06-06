@@ -1298,39 +1298,37 @@ to-java:
       t' := <to-java> t
 \end{code}
 
-\noindent 
-Since Spoofax replaces concrete syntax fragments with equivalent abstract syntax
-fragments, indentation in the fragments is lost.
-But the generated code will still be indented by the pretty-printer.
+\noindent Since Spoofax replaces concrete syntax fragments with equivalent
+abstract syntax fragments, indentation in the fragments is lost. But the
+generated code will still be indented by the pretty-printer.
 
-Using concrete object syntax in Stratego code combines the benefits of string interpolation and code generation by model transformation.
-With string interpolation, we can use the syntax of the target language in code generation rules, which makes it easy to write.
-Though, it is also easy to make syntactic errors, which are only detected when the generated code is compiled.
-With code generation by model transformation, we can check if the generated abstract syntax tree corresponds to the grammar of the target language.
-Actually, we can check each transformation rule and detect errors early.
-With concrete object syntax, we can now use the syntax of the target language in code generation. 
-This syntax is checked by the parser which is derived from the combined grammars of the target language and Stratego.
+Using concrete object syntax in Stratego code combines the benefits of string
+interpolation and code generation by model transformation. With string
+interpolation, we can use the syntax of the target language in code generation
+rules, which makes them easy to write. However, it is also easy to make
+syntactic errors, which are only detected when the generated code is compiled.
+With code generation by model transformation, we can check if the generated
+abstract syntax tree corresponds to the grammar of the target language. Actually
+we can check each transformation rule and detect errors early. With concrete
+object syntax, we can now use the syntax of the target language in code
+generation. This syntax is checked by the parser which is derived from the
+combined grammars of the target language and Stratego.
 
 This comes at the price of adding quotations and antiquotation rules manually.
-These rules might be generated from a declarative, more concise embedding definition in the future.
-However, we cannot expect full automation here, since choices for the syntactic sorts involved in the embedding and of quotation and antiquotation symbols require an understanding of Stratego, the target language, and the transformation we want to write.
-These choices have to be made carefully in order to avoid ambiguities.
+These rules might be generated from a declarative, more concise embedding
+definition in the future. However, we cannot expect full automation here, since
+choices for the syntactic sorts involved in the embedding and of quotation and
+antiquotation symbols require an understanding of Stratego, the target language,
+and the transformation we want to write. These choices have to be made carefully
+in order to avoid ambiguities.
 
-In general, there is room for more improvements of the embedding of the target language into Stratego.
-When the target language comes with a Spoofax editor, we want to get editor services like code completion, hover help, and content folding also in the embedded editor.
-Until now, only syntax highlighting is supported, using the Stratego coloring rules.
-Keywords of the target language will be highlighted like Stratego keywords and embedded code fragments will get a grey background color.
-
-\todo{@Markus handled these things: 
-
-Do I have to create these quotations and antiquotations manually,
-or could this be automated in the future?
-
-Do we get IDE support (code completion, etc.) for the embedded
-concrete syntax?
-
-Do you want to briefly recap why we did this, what the benefits
-are?}
+In general, there is room for more improvements of the embedding of the target
+language into Stratego. When the target language comes with a Spoofax editor, we
+want to get editor services like code completion, hover help, and content
+folding also in the embedded editor. Until now, only syntax highlighting is
+supported, using the Stratego coloring rules. Keywords of the target language
+will be highlighted like Stratego keywords and embedded code fragments will get
+a grey background color.
 
 
 
