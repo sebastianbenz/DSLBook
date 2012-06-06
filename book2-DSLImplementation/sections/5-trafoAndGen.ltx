@@ -1077,10 +1077,12 @@ class Item {
 }
 \end{code}
 
-\noindent
-When we prefer camelcase in method names, we need to slightly change our code generation rules, 
-replacing \ic{get_[x]} and \ic{set_[x]} by \ic{get[<to-upper-first>x]} and \ic{set[<to-upper-first>x]}.
-We also need to specify the following rewrite rule, which turns a string into a list of characters, upper-cases the first character, and turns the characters back into a string:
+\noindent When we prefer camelcase in method names, we need to slightly change
+our code generation rules, replacing \ic{get\_[x]} and \ic{set\_[x]} by
+\ic{get[<to-upper-first>x]} and \ic{set[<to-upper-first>x]}. We also need to
+specify the following rewrite rule, which turns a string into a list of
+characters, upper-cases the first character, and turns the characters back into
+a string:
 
 \begin{code}
 to-upper-first: s -> s'
