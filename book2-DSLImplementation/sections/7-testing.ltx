@@ -676,7 +676,7 @@ test.
 language also supports testing transformations. We can rely on this, to test
 interpreters, assuming that the interpreter is implemented as a transformation
 from programs to program results. For example, the following tests address a
-transformation \ic{calculate} which interpretes expressions:
+transformation \ic{eval-all} which interpretes expressions:
 
 \todo{@Markus will show this in chapter 5, ok? 
 
@@ -684,9 +684,9 @@ how would one write such an interpreter that implements the
 semantics by transformation?}
 
 \begin{code}
-test evaluate addition [[1+2]] run calculate to Int("3")
-test evaluate multiplication [[3*4]] run calculate to Int("12")
-test complex evaluation 1 [[1+2*(3+4)]] run calculate to Int("15")
+test evaluate addition [[1+2]] run eval-all to Int("3")
+test evaluate multiplication [[3*4]] run eval-all to Int("12")
+test complex evaluation [[1+2*(3+4)]] run eval-all to Int("15")
 \end{code}
 
 \noindent To test generators, we can rely on Spoofax' testing support for
@@ -703,12 +703,6 @@ test generate addition [[1+2]] build generate-and-run to "3"
 test generate multiplication [[3*4]] run generate-and-run to "12"
 test generate evaluation 1 [[1+2*(3+4)]] run generate-and-run to "15"
 \end{code}
-
-\MV{Something missing here?}
-\noindent 
-These tests address a builder \ic{generate-and-run} which 
-These te
-
 
 \parhead{Structural Testing} What we suggested in the previous subsection tests
 the execution semantics of programs written in DSLs, and, if we have enough of
