@@ -427,12 +427,11 @@ constraint-note:
     !name => "example"
 \end{code}
 
-\noindent 
-The condition checks if the module \ic{name} matches the string \ic{"example"}\footnote{Remember, \ic{!x => y} matches a term \ic{x} against a pattern \ic{y}.}
-On its right-hand side, the rule returns a tuple with the tree node where the marker should appear
-and a string message that should be shown. All constraint rules have this form.
-
-\todo{@Markus Reminds you now what the exclamation mark does}
+\noindent The condition checks if the module \ic{name} matches the string
+\ic{"example"}\footnote{Remember, \ic{!x => y} matches a term \ic{x} against a
+pattern \ic{y}.} On its right-hand side, the rule returns a tuple with the tree
+node where the marker should appear and a string message that should be shown.
+All constraint rules have this form.
 
 Most constraint rules use string interpolation for error messages. Interpolated
 strings have the form \ic{\$[...]} where variables can be escaped using
@@ -463,16 +462,14 @@ is using the URI annotations on the abstract syntax. These are placed on each
 reference and definition. For example, a valid reference to a mobl variable 
 \ic{v} is represented in abstract syntax with an annotated term such as
 
-\todo{@Guido can you please make sure the following two terms are correct? I am
-not sure I understand them, there may be somethign wrong}
-\todo{@Markus they were missing curlies, but otherwise they were correct}
 \begin{code}
 Var("v"{[Var(),"v","function","module"]})
 \end{code}
 
-Without an annotation, the term reads \ic{Var("v")}.
-The annotation is added directly to the name, surrounded with curly braces.
-The annotation itself is a URI \ic{Var://module/function/v}, represented as a list consisting of the namespace, the name, and the path in reverse order.
+Without an annotation, the term reads \ic{Var("v")}. The annotation is added
+directly to the name, surrounded with curly braces. The annotation itself is a
+URI \ic{Var://module/function/v}, represented as a list consisting of the
+namespace, the name, and the path in reverse order.
 
 \noindent 
 Unresolved references are represented by terms such as the following. Notice the
@@ -543,8 +540,6 @@ constraint-error:
 is-duplicates-allowed:
   Var() -> True()
 \end{code}\ignore{$}
-\todo{@Guido Where does the 'key' come from? }
-\todo{@Markus Simple magic :-) No, should be 'x', but used a better variable name anyway. }
 
 
 Again, this rule is created automatically in a new Spoofax project, but it
@@ -1448,9 +1443,9 @@ BaseLanguage code can be used to implement typing rules as well.
 \section{Spoofax Example}
 
 Spoofax' rewrite rules support both the recursive approach and pattern matching
-in specifying type systems. 
-However, in most projects the recursive approach will be found.
-Therefor, we will focus on it in the remainder of the section.\todo{@Markus pattern matching would be also possible, but a completely different style}
+in specifying type systems. However, in most projects the recursive approach
+will be found. Therefor, we will focus on it in the remainder of the
+section.
 
 \parhead{Typing Rules in Spoofax} For typing rules in Spoofax, the basic idea is
 to use rewrite rules to rewrite language constructs to their types. For example,
@@ -1518,13 +1513,11 @@ rewrite rule:
       type := <type-of> def
 \end{code}
 
-\noindent 
-Spoofax tries to apply this rule for every definition. If the definition has a 
-type, \ic{type-of} will succeed and the returned type is stored in the index. 
-If the definition has no type, \ic{type-of} will fail.
-By this, the whole rule will fail and nothing is stored. \todo{@Markus Is it now clear how and where is this distinction is made in the above rule?}
-The stored type information can then be used in the typing rules for variable 
-references and property accesses:
+\noindent Spoofax tries to apply this rule for every definition. If the
+definition has a type, \ic{type-of} will succeed and the returned type is stored
+in the index. If the definition has no type, \ic{type-of} will fail. By this,
+the whole rule will fail and nothing is stored. The stored type information can
+then be used in the typing rules for variable references and property accesses:
 
 \begin{code}
   type-of:
@@ -1598,7 +1591,6 @@ additions:
       type1 := <type-of> exp1 ;
       type2 := <type-of> exp2 
 \end{code}\ignore{$}
-\todo{@Markus I was accidently using my own, more sophisticated way for constraints here. Replaced it with the good old constraint-error}
 
 \noindent 
 Basically, an expression is non-well-typed or \emph{ill-typed}, if it cannot be 
@@ -1717,7 +1709,6 @@ types of the formal parameters:
       arg-type* := <map(type-of)> arg* ;
       <not(is-compatible-to)> (arg-type*, par-type*)
 \end{code}\ignore{$}
-\todo{@Markus constraint-error here again}
 
 % \parhead{Degrees of Type Compability}
 % While typing rules should be named \ic{type-of} in order to work correctly with

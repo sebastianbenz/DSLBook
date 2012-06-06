@@ -980,7 +980,6 @@ Java:
   to-java: StringType()  -> "String"
   to-java: EntType(name) -> name
 \end{code}
-\todo{@Markus renamed it to 'name'. Clear now, that this is the entity name, which is a string?}
 \noindent
 For entity types, we use their name as the Java representation.
 Typically, more complex rules are recursive and use string
@@ -1092,8 +1091,6 @@ to-upper-first: s -> s'
     s'            := <implode-string> [upper|chars]
 \end{code}
 
-\todo{@Markus Said something about that now: Of course users will notice the underscore instead of the camelcase
-for the method names.}
 
 \parhead{Editor Integration} To integrate the code generation into our editor,
 we first have to define the following rewrite rule:
@@ -1106,17 +1103,15 @@ we first have to define the following rewrite rule:
       result   := <to-java> selected
 \end{code}
 
-\noindent 
-Generation happens on a per-file basis. 
-The rule follows Spoofax' convention for editor integration\todo{@Markus the convention is explained right ahead, explaining the typical match on the left-hand side}. 
-On the left-hand side, it matches the current \ic{selection} in the editor, its
-\ic{position} in the abstract syntax tree, the abstract syntax tree itself, the \ic{path}
+\noindent Generation happens on a per-file basis. The rule follows Spoofax'
+convention for editor integration. On the left-hand side, it matches the current
+\ic{selection} in the editor, its \ic{position} in the abstract syntax tree, the abstract syntax tree itself, the \ic{path}
 of the source file in the editor, and the path of the project this file belongs
 to. On the right-hand side, it results in the name of the generated file and its
 content as a string. The file name is derived from the source file's path, while
 the file content is generated from the current selection. If the generation
 should consider the whole abstract syntax regardless of the selection, we can
-replace the last line by \ic{result := <to-java> ast}.
+replace the last line by \ic{result := <to-java> ast}.
 
 Once we have defined this rule, we can register it as a \ic{builder} in
 \ic{editor/Lang-Builders.esv}. Here, we add the following rule:
@@ -1205,12 +1200,12 @@ both approaches, Spoofax can parse user-defined concrete syntax quotations at
 compile-time, checking their syntax and replacing them with equivalent abstract
 syntax fragments. For example, a Java return statement can be expressed as
 \ic{|[ return |[x]|; ]|}, rather than the abstract syntax form
-\ic{Return(VarRef(x))}.
-Here, \ic{|[...]|} surrounds Java syntax. 
-It quotes Java fragments inside Stratego code.
-Furthermore, \ic{|[x]|} refers to a Stratego variable \ic{x}, matching the expression in the return statement.
-In this case, \ic{|[...]|} is an antiquote, switching back to Stratego syntax in a Java fragment.
-\todo{@Markus explained quotes and antiquotes here}
+\ic{Return(VarRef(x))}. Here, \ic{|[...]|} surrounds Java syntax. It quotes Java
+fragments inside Stratego code. Furthermore, \ic{|[x]|} refers to a Stratego
+variable \ic{x}, matching the expression in the return statement. In this case,
+\ic{|[...]|} is an antiquote, switching back to Stratego syntax in a Java
+fragment.
+
 
 To enable this functionality, we have to customize Stratego, Spoofax'
 transformation language. This requires four steps. First, we need to combine

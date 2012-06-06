@@ -138,14 +138,13 @@ test add and multiply [[1 * 2 + 3]] parse to [[(1 * 2) + 3]]
 test add and add [[1 + 2 + 3]] parse to [[(1 + 2) + 3]]
 \end{code}
 
-\noindent 
-A test suite can be run from the \emph{Transform} menu.
-This will open the \emph{Spoofax Test Runner View} which provides information
-about failing and succeeding test cases in a test suite \todo{@Guido
-Screenshot?}. Additionally, we can also get instant feedback while editing a test suite.
-Tests can also be evaluated outside the IDE, for example as part of a continuous integration setup.
+\noindent A test suite can be run from the \emph{Transform} menu. This will open
+the \emph{Spoofax Test Runner View} which provides information about failing and
+succeeding test cases in a test suite \todo{@Guido Screenshot?}. Additionally,
+we can also get instant feedback while editing a test suite. Tests can also be
+evaluated outside the IDE, for example as part of a continuous integration
+setup.
 
-\todo{@Markus Yes, we can also run such tests from the command line (nighly build?), but I don't know exactly how}
 
 \parhead{Syntax Testing with MPS} Syntax testing in the strict sense is not
 useful or necessary with MPS, since it is not possible to ``write text that does
@@ -678,10 +677,6 @@ interpreters, assuming that the interpreter is implemented as a transformation
 from programs to program results. For example, the following tests address a
 transformation \ic{calculate} which interpretes expressions:
 
-\todo{@Markus will show this in chapter 5, ok? 
-
-how would one write such an interpreter that implements the
-semantics by transformation?}
 
 \begin{code}
 test evaluate addition [[1+2]] run calculate to Int("3")
