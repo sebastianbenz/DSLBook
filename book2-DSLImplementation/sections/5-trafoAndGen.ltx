@@ -1958,13 +1958,193 @@ This requires:
 
 \begin{itemize}
 
-  \item A representation of states. 
+  \item A representation of \emph{states}. 
   The simplest way to represent states are terms, but we can also define a new DSL for representing the states in concrete syntax.
 
-  \item An initialisation transformation from a program in the DSL to the initial state of the interpreter.
+  \item An \emph{initialisation transformation} from a program in the DSL to the initial state of the interpreter.
 
-  \item A step transformation from an actual state of the interpreter to the next state of the interpreter.
+  \item A \emph{step transformation} from an actual state of the interpreter to the next state of the interpreter.
 
 \end{itemize}
 
-\todo{@Markus I still need to add an example here.}
+In the remainder of the section, we develop an interpreter for a subset of mobl.
+We start with a simple interpreter for expressions, which we then extend to handle statements.
+
+\subsection{An Interpreter for Expressions}
+
+When we want to evaluate simple arithmetric expressions without variables, the expression itself is the state of the interpreter.
+Thus, no extra term signatures are needed and the initilisation transformation is given by identity.
+For the step transformation, we can define rewrite rules for the different expression kinds:
+
+\begin{code}
+eval: Add(Int(x), Int(y)) -> Int(z) where z := <add> (x, y)
+eval: Mul(Int(x), Int(y)) -> Int(z) where z := <mul> (x, y)
+
+eval: Not(True())  -> False()
+eval: Not(False()) -> True()
+
+eval: And(True(), True())   -> True()
+eval: And(True(), False())  -> False()
+eval: And(False(), True())  -> False()
+eval: And(False(), False()) -> False()
+
+eval: LazyAnd(True(), True()) -> True()
+eval: LazyAnd(False(), _)     -> False()
+eval: LazyAnd(_, False(), _)  -> False()
+\end{code}
+
+\noindent
+We can orchestrate these rules in two different styles.
+For a small-step interpreter, we only apply one rule in each step:
+
+\begin{code}
+eval-one: exp -> <oncebu(eval)> exp
+\end{code}
+
+\noindent
+Here, \ic{oncebu} tries to apply \ic{eval} at one position in the tree, starting from the leaves. 
+The \ic{bu} in \ic{oncebu} stands for bottom-up. 
+We could also use \ic{oncetd}, traversing the tree topdown. 
+However, evaluations are likely to happen at the bottom of the tree, why \ic{oncebu} is the better choice.
+The result of \ic{eval-one} will be a slightly simpler expression, which might need further evaluation.
+
+In contrast, we can directly apply as many rules as possible, trying to evaluate the whole expression.
+This will give us a big-step interpreter:
+
+\begin{code}
+eval-all: exp -> <bottomup(try(eval))> exp
+\end{code}
+
+Here, \ic{bottomup} tries to apply \ic{eval} at every node, starting at the leaves.
+The result of eval-all will be the final result of the expression.
+
+\subsection{An Interpreter for Statements}
+
+When we want to evaluate statements, we need states which capture the value of variables and the list of statements which needs to be evaluated.
+We can define these states with a signature for terms:
+
+\begin{code}
+signature constructors
+
+     : ID * IntValue  -> VarValue
+     : ID * BoolValue -> VarValue
+
+State: List(VarValue) * List(Statement) -> State
+\end{code}
+
+\noindent
+The first two rules define binary tuples which combine a variable name (\ic{ID}) and a value (either \ic{IntValue} or \ic{BoolValue}).
+The last rule defines a binary constructor \ic{State} which combines a list of variable values with a list of statements.
+
+We first need to adapt the evaluation of expressions to handle variable references in expressions.
+
+\begin{code}
+eval(|varvals): exp -> <eval> exp
+
+eval(|varvals): VarRef(var) -> <lookup> (var, varvals)
+    
+eval-one(|s): exp -> <oncebu(eval(|s))> exp
+eval-all(|s): exp -> <bottomup(try(eval(|s)))> exp  
+\end{code}
+
+\noindent
+These rules take the actual list of variable values of the interpreter as a parameter.
+The first rule integrates the old evaluation rules, which do not need any state information.
+The second rule looks up the current value \ic{val} of the variable \ic{var} in the list of variable values.
+The last two rules define small-step and big-step interpreters of expressions, like we have seen before.
+
+We can now define evaluation rules for statements. 
+These rules rewrite the current state into a new state:
+
+\begin{code}
+eval: 
+  (varvals, [Init(type, var, exp)|stmts]) -> (varvals', stmts)
+  where
+    val      := <eval-all(|varvals)> exp;
+    varvals' := <update> ((var, val), varvals)
+    
+eval: 
+  (varvals, [Assign(VarRef(var), exp)|stmts]) -> (varvals', stmts)
+  where
+    val      := <eval-all(|varvals)> exp;
+    varvals' := <update> ((var, val), varvals)
+    
+eval:
+
+  (varval, [Block(stmts1)|stmts2]) -> (varvals, <conc> (stmts1, stmts2))
+\end{code}
+
+\noindent
+The first rule handles variable declarations.
+It evaluates the expression on the right-hand side to a value, updates the list of variable values and removes the statement from the list of statements.
+The second rule handling assignments is quite similar.
+The third rule handles block statements, by concatenating the statements from a block with the remaining statements.
+
+The following rule handles if statements:
+
+\begin{code}
+eval:
+  (varvals, [If(exp, then, else)|stmts]) -> (varvals, [stmt|stmts])
+  where
+    val := <eval-all(|varvals)> exp;
+    if !val => True() then
+      stmt := then
+    else 
+      !val => False();
+      stmt := else
+    end
+\end{code}
+
+\noindent
+First, it evaluates the condition.
+Dependent of the result, it chooses the next statement to evaluate.
+When the result is \ic{True()}, the statement from the then branch is chosen.
+Otherwise the result has to be \ic{False()} and the statement from the else branch is chosen.
+If the result is neither \ic{True()} nor \ic{False()}, the rule will fail.
+
+The last rule handles while loops:
+
+\begin{code}
+eval:
+  (varvals, [While(exp, body)|stmts]) -> (varvals, stmts')
+  where
+    val := <eval-all(|varvals)> exp;
+    if !val => True() then
+      stmts' := [body, While(exp, body)|stmts]
+    else 
+      !val => False();
+      stmts' := stmts
+    end
+\end{code}
+
+\noindent
+Again, the condition is evaluated first.
+If it evaluates to \ic{True()}, the list of statements is updated to the body of the loop, the while loop again, followed by the remaining statements.
+If it evaluates to \ic{False()}, only the remaining statements need to be evaluated.
+
+The \ic{eval} rules define already a small-step interpreter, going from one evaluation state to the next.
+We can define a big-step interpreter by adding a driver, which repeats the evaluation until it reaches a final state:
+
+\begin{code}
+eval-all: state -> <repeat(eval)> state
+\end{code}
+
+\subsection{More Advanced Interpreters}
+
+We can extend the interpreter to handle function calls and objects in a similar way we did for statements.
+First, we always have to think about the states of the extended interpreter.
+Functions will require a call stack, objects will require a heap.
+Next, we need to consider how the old rules can deal with the new states.
+Adjustments might be needed.
+For example, when we support objects, the heap needs to be passed to expressions.
+Expressions which create objects will change the heap, so we cannot only pass it, but have to propagate the changes back to the caller.
+
+\subsection{IDE Integration}
+
+We can integrate interpreters as builders into the IDE.
+For big-step interpreters, we can simply calculate the overall execution result and show it to the user.
+For small-step interpreters, we can use the initialisation transformation in the builder.
+This will create an initial state for the interpreter.
+When we define a concrete syntax for these states, they can be shown in an editor.
+The transition transformation can then be integrated as a refactoring on states, changing the current state to the next one.
+This way, the user can control the execution, undo steps, or even modify the current state.
