@@ -448,6 +448,37 @@ Both, \ic{BlockExpression} and \ic{PlaceholderStatement} will be used in
 subsequent examples of \lmrc.
 
 
+
+A particularly interesting feature of MPS is the ability to use several
+extensions of the same base language in a given program \emph{without defining a
+combining language}. For example, a user could decide to use the block
+expression language defined above together with the \ic{dispatch} extension
+discussed in \sect{mpsinterpreter}. This is a consequence of MPS' projectional
+nature\footnote{These same benefits are also exploited in case of embedding 
+multiple independent languages.}. Let us consider the potential cases for 
+ambiguity:
+
+\begin{description}
+  \item[Same Concpet Name:] The used languages may define concepts with the same
+  name as the host language. This will not lead to ambiguity because concepts
+  have a unqiue ID  as well. A program element will use this ID to refer to the
+  concept whose instance it represents.
+  \item[Same Concrete Syntax:] The projected representation of a concept is not
+  relevant to the functioning of the editor. The program would still be
+  unambiguous to MPS even if \emph{all elements had the same notation}. Of
+  course it would be confusing to the users.
+  \item[Same Alias:] If two concepts that are valid at the same location use the
+  same alias, then, as the user types the alias, it is not clear which of the
+  two concepts should be instantiated. This problem is solved by MPS opening the
+  code completion window and requiring the user to explicitly select which
+  alternative to choose. Once the user has made the decision, the unique ID is
+  used to create an unambiguous program tree. 
+\end{description}
+
+
+
+
+
 \subsection{Language Reuse with Separated Generated Code}
 
 Language reuse covers the case where a language that has been developed
@@ -1159,7 +1190,7 @@ evaluates to false. The expressions can also be evaluated as part of the
 projection, showing the code for a given variant (the right part of
 \fig{projection} shows an example variant). The code is of course still
 editable. Details on this approach can be found in \cite{Voelter2010} and
-\cite{VoelterVisser2011}.
+\cite{VoelterVisser2011}.
 
 \begin{figure*}[h]
   \includegraphics[width=180mm]{figures/9/a/projection.png}

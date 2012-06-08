@@ -46,18 +46,14 @@ screen definition language, where a \ic{Screen} defined in the UI model refers
 to \ic{Entities} from Mobl's entity language, and \ic{Field}s in a screen refer
 to entity \ic{Property}. Here is some example code:
 
-\begin{code}
-entity Task {
-  name        : String 
-  description : String 
-  done        : Bool
-  date        : DateTime
+\begin{code} entity Task {
+  name        : String description : String done        : Bool date        :
+  DateTime
 }
 \end{code}
-\noindent
-This fragment is written in Mobl's data definition language.
-It defines an entity \ic{Task} with some properties.
-We discussed the language in several examples throughout the book already.
+\noindent This fragment is written in Mobl's data definition language. It
+defines an entity \ic{Task} with some properties. We discussed the language in
+several examples throughout the book already.
 
 \begin{code}
 screen root() {
@@ -70,11 +66,11 @@ screen root() {
 }
 \end{code}
 
-\noindent
-This is a screen definition written in Mobl's screen definition language.
-It defines a root screen for a list of tasks, using the \ic{name} of a \ic{Task} as a label for list elements.
-There are two references to the data model:
-\ic{Task} refers to an entity, and \ic{name} refers to a property of that entity.
+\noindent This is a screen definition written in Mobl's screen definition
+language. It defines a root screen for a list of tasks, using the \ic{name} of a
+\ic{Task} as a label for \ic{list} elements. There are two references to the
+data model: \ic{Task} refers to an \ic{Entity}, and \ic{name} refers to a
+property of that \ic{Entity}.
 
 \parhead{Structure} When referencing elements of another language, both
 languages typically share a definition of identifiers. For example, the screen
@@ -107,7 +103,6 @@ overlapping identifier definitions\footnote{This requires scannerless parsing,
 since a scanner cannot handle overlapping lexical definitions.}. In this case,
 the referencing language needs to import the identifier definition of the
 referenced language.
-
 Independent of the used identifiers in both languages, the reference has to be
 resolved. Definition sites are already defined by the referenced language. The
 corresponding references need to be defined in the referencing language by using
@@ -118,16 +113,18 @@ the namespaces from the referenced language:
 Entity@ID "." "all" "(" ")"                   -> Collection {"Collection"}
 \end{code}
 
-\noindent
-This fragment from the syntax definition of the screen definition language specifies lists and items in these lists.
-The screen definition language defines its own namespace \ic{Item}.
-Items are declared in the list head, introducing a variable for the current item of a collection.
-For example, the screen definition we have seen earlier defines an item \ic{t}.
-When we describe the collection, we can refer to entities.
-The corresponding namespace \ic{Entity} is defined in the data modelling language.
-The screen definition language uses the same namespace, to resolve the references into the referred language.
+\noindent This fragment from the syntax definition of the screen definition
+language specifies lists and items in these lists. The screen definition
+language defines its own namespace \ic{Item}. Items are declared in the list
+head, introducing a variable for the current item of a collection. For example,
+the screen definition we have seen earlier defines an item \ic{t}. When we
+describe the collection, we can refer to entities. The corresponding namespace
+\ic{Entity} is defined in the data modelling language. The screen definition
+language uses the same namespace, to resolve the references into the referred
+language.
 
-Similarly, the screen definition language uses the namespace \ic{Property} from the data modelling language, to refer to properties of entities:
+Similarly, the screen definition language uses the namespace \ic{Property} from
+the data modelling language, to refer to properties of entities:
 
 \begin{code}
 "item" "{" ItemPart* "}"                -> Item     {"Item"}
@@ -146,12 +143,13 @@ constraint-error:
     not (!type => !StringType())
 \end{code}
 
-\noindent
-This constraint checks wether a label is of type string or not.
-Therefor, it needs to determine the type of the property used as a label.
+\noindent This constraint checks whether a label is of type string or not.
+Therefore, it needs to determine the type of the property used as a label.
 
 \parhead{Generators} The same holds for generators. Typically, they just share
 knowledge about the naming and typing of generated code elements.
+
+
 
 \subsection{Reuse}
 
@@ -183,8 +181,8 @@ module DBTables
 \noindent Again, the \ic{Column} rule has an optional \ic{ColumnMapper} which
 works as the hook for reuse. The reusable language provides only a rule for a
 missing column mapper. Rules for a concrete mapper are missing, but can be added
-later. In the next step, we want to be able to reference properties from Mobl's
-data modelling language:
+later in a sublanguage. In the next step, we want to be able to reference
+properties from Mobl's data modelling language:
 
 \begin{code}database TaskDB
 
@@ -194,9 +192,8 @@ table Tasks
   char description <- Task.description
 \end{code}
 
-\noindent 
-Therefore, we define an adapter module, which imports the reusable table module
-and the data modelling language:
+\noindent To do this, we define an adapter module, which imports the reusable
+table module and the data modelling language:
 
 \todo{add rule for column mapper}
 \begin{code}
@@ -213,8 +210,8 @@ context-free syntax
 
 \noindent There is only one rule in this module, which defines a concrete
 mapper. On the right-hand side, it uses the same sort as the rule in the table
-module. On the left-hand side, it refers to a property from the imported data
-modelling language.
+module (\ic{ColumnMapper}). On the left-hand side, it refers to a property from
+the imported data modelling language.
 
 \parhead{Type System} The type system needs to connect types from the abstract
 but reusable language to types from the language which actually reuses it. In
@@ -235,12 +232,13 @@ rules
   compatible-types: _ -> <fail>
 \end{code}
 
-\noindent
-This is the generic implementation of the database language.
-It assumes that a mapper has a type and checks if this type is compatible to the declared column type.
-It defines a default rule for type compatibility, which always fails.
+\noindent The code above is defined in the generic implementation of the
+database language. It assumes that a mapper has a type and checks if this type
+is compatible to the declared column type. It defines a default rule for type
+compatibility, which always fails.
 
-The connection to the type system of the entity language can now be made in an adapter module:
+The connection to the type system of the entity language can now be made in an
+adapter module:
 
 \begin{code} 
 module analysis/types/adapter
@@ -257,8 +255,10 @@ rules
   compatible-types: (DBNumberType(), IntType())  -> <id>
 \end{code}
 
-The first rule defines the type of a property mapper to be the type of the property.
-Then, two rules define type compatibility for Mobl's \ic{String} type with the \ic{char} type in the table language, and Mobl's \ic{int} type with the \ic{num} type.
+The first rule defines the type of a \ic{PropertyMapper} to be the type of the
+property. Then, two rules define type compatibility for Mobl's \ic{String} type
+with the \ic{char} type in the table language, and Mobl's \ic{int} type with the
+\ic{num} type.
 
 \parhead{Generator} Similar to the Xtext example, we can use two strategies to
 reuse a generator for the database language. The first strategy relies on
@@ -277,8 +277,8 @@ defines only a failing implementation of this rule:
 module reuse/table/generate
 
 rules
-  db-to-java: Column(t, n, mapper) -> [Field([PRIVATE], t', n), Method([PROTECTED], BoolType, n', params, stmts)]
-  where
+  db-to-java: Column(t, n, mapper) -> 
+       [Field([PRIVATE], t', n), Method([PROTECTED], BoolType, n', params, stmts)] where
     n'    := <to-fetch-method-name> n ;
     param := <to-fetch-method-parameters> mapper ;
     stmts := <to-fetch-statements(|n)> mapper
@@ -287,15 +287,15 @@ rules
   to-fetch-statements(|n)   : _ -> <fail>
 \end{code}
 
-\noindent
-This rule generates code for columns.
-It generates a private field and a protected method to fetch the content.
-This method needs a name, parameters, and an implementation.
-We assume that the method name is provided by the generic generator.
-For the other parts, the generic generator only provides failing placeholder rules.
-These have to be implemented in a concrete reuse setting:
+\noindent This rule generates code for columns. It generates a private field and
+a protected method to fetch the content. This method needs a name, parameters,
+and an implementation. We assume that the method name is provided by the generic
+generator. For the other parts, the generic generator only provides failing
+placeholder rules. These have to be implemented in a concrete reuse setting:
+
+
 \begin{code}
-module generate/java/adapter
+module generate/java/adapter
 
 imports 
   generate/java
@@ -309,44 +309,58 @@ rules
      type := <entity-to-java-type> entity
      
  to-fetch-statements(|field-name):
-   PropertyMapper(entity, property) -> [Assign(VarRef(field-name), MethodCall(VarRef("entity"), m, []), Return(True())]
+   PropertyMapper(entity, property) -> 
+         [Assign(VarRef(field-name), MethodCall(VarRef("entity"), m, []), Return(True())] 
    where
      m := <property-to-get-method-name> property
 \end{code} 
 
-\noindent
-This adapter code generates a single parameter for the fetch method.
-It is named \ic{entity} and its type is provided by a rule from the entity language generator.
-This rule maps entity names to Java types.
-For the implementation body, the second rule generates an assignment and a return statement.
-The assignment calls the getter method for the property.
-Again, the name of this getter method is provided by the entity language generator.
+\noindent This adapter code generates a single parameter for the fetch method.
+It is named \ic{entity} and its type is provided by a rule from the entity
+language generator. This rule maps entity names to Java types. For the
+implementation body, the second rule generates an assignment and a return
+statement. The assignment calls the getter method for the property. Again, the
+name of this getter method is provided by the entity language generator.
 
 \subsection{Extension}
 
-Because of Spoofax' module system and rule-based nature, language extension feels like ordinary language development.
-When we want to add a new feature for a language, we simply create new modules for syntax, type system, and code generation rules.
-These modules import the existing modules as needed.
-In the syntax definition, we can extend a syntactic sort with new definition rules.
-In the type system, we add additional \ic{type-of} rules for the new language constructs and define constraints for well-typedness.
-Finally, we add new rules to the generator, which can handle the new language constructs. 
+Because of Spoofax' module system and rule-based nature, language extension
+feels like ordinary language development. When we want to add a new feature for
+a language, we simply create new modules for syntax, type system, and code
+generation rules. These modules import the existing modules as needed. In the
+syntax definition, we can extend a syntactic sort with new definition rules. In
+the type system, we add additional \ic{type-of} rules for the new language
+constructs and define constraints for well-typedness. Finally, we add new rules
+to the generator, which can handle the new language constructs.
+Since in case of extension, the extending language has a dependency on, and is
+developed with knowledge of the base language, it can be designed in a way that
+will not lead to parsing ambiguities. 
+
+\todo{How about using several independent extensions of the same base language
+in a program? Do we have to define a "composite" language? Especially in case
+these extensions would lead to ambiguities?}
+
 
 \subsection{Embedding}
 
 Embedding can be easily achieved in Spoofax. The procedure is very similar to
-reuse. 
-We discussed embedding already in the chapter on code generation, where we embedded the target language into Stratego.
-We will use the embedding of the Mobl's expression language into Mobl's screen definition language as another example here.
-Instead of just referring to entities, we reuse the whole expression language now.
+reuse\footnote{We discussed embedding already in the chapter on code generation
+(\todo{ref}), where we embedded the target language into Stratego.}. We will
+use the embedding of the Mobl's expression language into Mobl's screen
+definition language as another example here. Instead of just referring to
+entities, we reuse the whole expression language now.
 
-\parhead{Structure} %
-%
-There are two styles for embedding.
-The first one requires an embedding module which imports the main modules of the host and guest
-language and defines additional syntax rules for embedding.
-We have seen this in the target language embedding.
-In the second style, the syntax definition of the host language directly employs syntactic sorts of the guest language.
-For the screen definition language, we want to reuse variable definitions and expressions in list heads, as well as expressions in labels:
+\parhead{Structure} There are two styles for embedding. The first one requires
+an embedding module which imports the main modules of the host and guest
+language and defines additional syntax rules for embedding (quotations and
+antiquotation). We have seen this in the target language embedding in templates
+(\todo{ref}). In the second style, the syntax definition of the host language
+directly employs syntactic sorts of the guest language. For the screen
+definition language, we want to reuse variable definitions and expressions in
+list heads, as well as expressions in labels:
+\todo{This is not really embedding, right? It is extension with an embeddign
+flavor, since MoblScreens now has a direct dependency to MoblExpressions.
+Right?}
 
 \begin{code}
 module MoblScreens
@@ -361,13 +375,14 @@ context-free syntax
 
 \parhead{Type System} The type system needs to connect the types from the host
 and guest languages. This can be achieved by adding typing rules for embedded
-and antiquoted constructs.
-In the embedding of expressions, we do not have antiquotes.
-However, we expect certain types for embedded expressions.
-For example, the expression in a list head needs to be a collection.
-The type from the variable definition needs to be compatible with the content of the collection.
-Finally, the expression for a label should provide a string.
-We can capture these requirements in constraints:
+and antiquoted constructs. In the embedding of expressions, we do not have
+antiquotes. However, we expect certain types for embedded expressions. For
+example, the expression in a list head needs to be a collection. The type from
+the variable definition needs to be compatible with the content of the
+collection. Finally, the expression for a label should provide a string. We can
+capture these requirements in constraints:
+
+
 \begin{code}
 constraint-error: 
   ScreenList(_, e, _) -> (e, "Needs to provide a collection.")
@@ -381,18 +396,20 @@ constraint-error:
     type  := <type-of> e ;
     type' := <collection-type> type ;
     <not(is-assignable)> (t, type')
-\end{code}
+\end{code}
+
 
 \parhead{Generator} There are two strategies for code generation for embedded
-languages. When the guest language provides a suitable code generator, we can
+languages. If the guest language provides a suitable code generator, we can
 combine it with the code generator of the host language. First, we need rules
 which generate code for embedded constructs. These rules have to extend the host
 generator by delegating to the guest generator. Next, we need rules which
 generate code for antiquoted constructs. These rules have to extend the guest
 generator by delegating to the host generator.
 
-The screen definition language needs to generate a method which returns the text of a label.
-Therefor, it relies on the code generator for expressions, to translate the expression into Java code:
+The screen definition language needs to generate a method which returns the text
+of a label. Therefore, it relies on the code generator for expressions, to
+translate the expression into Java code:
 
 \begin{code}
 generate-label-text-method: 
@@ -406,11 +423,11 @@ generate-label-text-method:
 Another strategy is to define a model-to-model transformation which desugars (or
 "assimilates") embedded constructs to constructs of the host language. This
 transformation is then applied first, before the host generator is applied to
-generate code.
-The embedding of a target language into Stratego is an example for this approach.
-The embedded target language will be represented by abstract syntax trees for code generation fragments.
-These trees need to be desugared into Stratego pattern matching constructs.
-For example, the embedded \ic|[return |[x]|; ]| will yield the following abstract syntax tree:
+generate code. The embedding of a target language into Stratego is an example
+for this approach. The embedded target language will be represented by abstract
+syntax trees for code generation fragments. These trees need to be desugared
+into Stratego pattern matching constructs. For example, the embedded \ic|[return
+|[x]|; ]| will yield the following abstract syntax tree:
 
 \begin{code}
 ToJava(
@@ -422,9 +439,9 @@ ToJava(
 ) 
 \end{code}
 
-\noindent
-In ordinary Stratego without an embedded target language, we would have written the pattern \ic{Return(x)} instead.
-The corresponding abstract syntax tree looks like this:
+\noindent In ordinary Stratego without an embedded target language, we would
+have written the pattern \ic{Return(x)} instead. The corresponding abstract
+syntax tree looks like this:
 \begin{code}
 NoAnnoList(
   App(
@@ -432,10 +449,10 @@ NoAnnoList(
     [Var("x")]
   )
 ) 
-\end{code}
+\end{code}
 
-\noindent
-The desugar transformation now needs to transform the first abstract syntax tree into the second one:
+\noindent The desugar transformation now needs to transform the first abstract
+syntax tree into the second one:
 
 \begin{code}
 desugar-all: x -> <bottomup(try(desugar-embedded))> x
@@ -454,10 +471,12 @@ ast-to-pattern:
       pattern := NoAnnoList(App(Op(c), ps))
 \end{code}
 
-The first rule drives the desugaring of the overall tree.
-It tries to apply \ic{desugar-embedded} in a bottomup traversal.
-The only rule for desugaring embedded target language code matches the embedded code and applies \ic{ast-to-pattern} to it.
-If this is applied to an antiquote, the contained subnode is already a regular Stratego pattern.
-Otherwise, the node has to be an abstract syntax tree of the target language.
-It is deconstructed into its constructor and subtrees, which are desugared into patterns as well.
-The resulting patterns and the constructor are then used to construct the overall pattern.
+The first rule drives the desugaring of the overall tree. It tries to apply
+\ic{desugar-embedded} in a bottom-up traversal. The only rule for desugaring
+embedded target language code matches the embedded code and applies
+\ic{ast-to-pattern} to it. If this is applied to an antiquote, the contained
+subnode is already a regular Stratego pattern. Otherwise, the node has to be an
+abstract syntax tree of the target language. It is deconstructed into its
+constructor and subtrees, which are desugared into patterns as well. The
+resulting patterns and the constructor are then used to construct the overall
+pattern.
