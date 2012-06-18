@@ -24,7 +24,7 @@ and \emph{embedding} with regards to the expressions language.
 
 \begin{figure}[htp]
 \begin{center}
-  \includegraphics[scale=0.5]{figures/9/a/languagestructure.png}
+  \includegraphics[width=110mm]{figures/9/a/languagestructure2.png}
   \caption[]{\ic{entities} is the central language. \ic{uispec} defines UI
   forms for the entities. \ic{uispec\_validation} adds validation rules, and composes
   a reusable expressions language. \ic{relmapping} provides a reusable database
@@ -67,7 +67,7 @@ of the \ic{entities} language. Each box represents a language concept.
 
 \begin{figure}[htp]
 \begin{center}
-  \includegraphics[width=11cm]{figures/9/a/entities.png}
+  \includegraphics[width=11cm]{figures/9/a/entities2.png}
   \caption[]{The abstract syntax of the entities language. Entities
   have attributes, those have types and names. \ic{EntityType} extends 
   \ic{Type} and references \ic{Entity}. This "adapts" entities to types 
@@ -209,7 +209,7 @@ form CompanyStructure
 
 \begin{figure}[htp]
 \begin{center}
-  \includegraphics[scale=0.5]{figures/9/a/uispec.png}
+  \includegraphics[width=110mm]{figures/9/a/uispec2.png}
   \caption[]{The abstract syntax of the \ic{uispec} language. Dotted lines
   represent classes from another language (here: the \ic{entities} language). A
   \ic{Form} contains \ic{EntityReference}s that connect to an \ic{entities} model. A
@@ -398,7 +398,7 @@ additional method for the block expression (\fig{expressionBlockGenerator1}).
   this. A weaving rule processes an input element (\ic{BlockExpression}) by creating
   another node in a different place. The context function defines this
   other place. In this case, it simply gets the class in which we have defined
-  the block expression.}
+  the block expression.} 
   \label{expressionBlockGenerator1} 
 \end{figure*}
  
@@ -518,7 +518,7 @@ in a different context, we extend this hook by context-specific code.
 
 \begin{figure}[htp]
 \begin{center}
-  \includegraphics[width=11cm]{figures/9/a/relmapping.png}
+  \includegraphics[width=11cm]{figures/9/a/relmapping2.png}
   \caption[]{A \ic{Database} contains \ic{Tables} which contain
   \ic{Columns}. A column has a name and a type. A column also has a
   \ic{ColumnMapper}. This is an abstract concept that determines where the
@@ -701,7 +701,7 @@ attributes.
 
 \begin{figure}[htp]
 \begin{center}
-  \includegraphics[width=11cm]{figures/9/a/rbac.png}
+  \includegraphics[width=9cm]{figures/9/a/rbac2.png}
   \caption[]{Language structure of the \ic{rbac} language. An \ic{RBACSpec}
   contains \ic{Users}, \ic{Roles} and \ic{Permissions}. Users can be members 
   in several roles. A permission assigns a right to a \ic{Resource}.}
@@ -795,7 +795,7 @@ for compilation). We use generator priorities, i.e. a partial ordering, to
 achieve this.
 
 
-\begin{figure*}[htp] 
+\begin{figure*} 
   \includegraphics[scale=0.50]{figures/9/a/placeholderreduction.png}
   \caption[]{This reduction rule replaces \ic{PlaceholderStatement}s
   with a permission check. Using the condition, we only match those
@@ -835,7 +835,7 @@ subconcept of \ic{Field}.
 
 \begin{figure}[htp]
 \begin{center}
-  \includegraphics[scale=0.50]{figures/9/a/uival.png}
+  \includegraphics[width=100mm]{figures/9/a/uival2.png}
   \caption[]{The uispec\_validation language defines a subtype of
   \ic{uispec.Field} that contains an \ic{Expression} from an embeddable
   expression language. The language also defines a couple of additional expressions,
@@ -1067,13 +1067,35 @@ can be ancestor:
 
 \subsection{Language Annotations}
 
-Since in a projectional editor the visual representation of a program is not
-necessarily the complete information in the program, and since the program's
-persistence format is not the concrete syntax, it is possible to store
-additional data in a program, and show it optionally. The mechanism MPS uses for
-this is called annotations. Using this approach, we can store the mapping from
-entity attributes to database columns directly in the entity, resulting in the
-following code:
+In a projectional editor, the CS of a program is projected from the AST. A
+projectional system always goes from AS to CS, never from CS to AS (as parsers
+do). This has the important consequence that the CS does not have to contain all
+the data necessary to build the AST (which in case of parsers, is necessary).
+This has two consequences:
+
+\begin{itemize}
+  \item A projection may be \emph{partial} in the sense that the AS contains
+  data that is not shown in the CS. The information may, for example, only be
+  changeable via intentions (discussed in \sect{Embedding}), or the projection
+  rule may project some parts of the program only in some cases, controlled by some kind
+  of configuration data.
+  \item It is also possible to project \emph{additional} CS that is
+  not part of the CS definition of the original language. Since the
+  CS is never used as the information source, such additional
+  syntax does not confuse the tool (in a parser-based tool the grammar would
+  have to be changed to take into account this additional syntax to not derail
+  the parser).
+\end{itemize}
+
+\noindent In this section we discuss the second alternative since it constitutes
+a form of language composition: the additional CS is composed with the original
+CS defined for the language. The mechanism MPS uses for this is called
+annotations. We have seen annotations when we discussed templates: an annotation
+is something that can be attached to arbitrary program elements and can be shown
+together with CS of the annotated element. In this section we use
+this approach to implement an alternative approach for the entity-to-database
+mapping. Using this approach, we can store the mapping from entity attributes to
+database columns directly in the \ic{Entity}, resulting in the following code:
 
 
 \begin{code}
@@ -1093,67 +1115,68 @@ module company
 \end{code}
 
 
-\noindent 
-This is a heterogeneous fragment, consisting of code from the \ic{entities}, as well
-as the annotations. From a concrete syntax perspective, the column mapping is
-"embedded" in the entity description. In the underlying persistent data
-structure, the information is also actually stored in the \ic{entities} model.
-However, the definition of the \ic{entities} language does not know that this additional
-information is stored and projected "inside" entities! No modification to the
-entities language is necessary whatsoever. 
+This is a heterogeneous fragment, consisting of code from \ic{entities}, as well
+as the annotations (e.g. \ic{-> People.id}). From a CS perspective, the column
+mapping is "embedded" in the \ic{Entity}. In the AST the mapping information is
+also actually stored in the \ic{entities} model. However, the definition of the
+\ic{entities} language does not know that this additional information is stored
+and projected "inside" entities. No modification to the \ic{entities} language
+is necessary.
 
-
-\phead{Structure and Syntax}  To do this, we define an additional language
-\ic{relmapping\_annotations} which extends the \ic{entities} language as well as the
-\ic{relmapping} language. In this language we define a so-called annotation link:
-
-\begin{code}
-annotation link declaration colMapping
-    stereotype node                   
-    cardinality 	1                     
-    source Attribute                  
-    target AttrToColMapping           
-\end{code}
-
-\noindent 
-This must be read as follows: we create an annotation for \ic{Attribute} which
-can point to one instance of \ic{AttrToColMapping}. \ic{AttrToColMapping} is
-simply another concept that has one reference that points to a \ic{Column}:
+\phead{Structure and Syntax} We define an additional language 
+\ic{relmapping\_annotations} which extends the \ic{entities}
+language as well as the \ic{relmapping} language. In this language we define the
+following concept:
 
 \begin{code}
-concept AttrToColMapping extends BaseConcept implements <none>  
+concept AttrToColMapping extends NodeAnnotation  
   references:                               
-    Column    column     1       
+    Column column 1       
+  properties: 
+    role = colMapping
+  concept links:
+    annotated = Attribute
 \end{code}                                            
 
-\noindent 
-Structurally, an annotation is a child of the node it is annotated to. So the
+\noindent \ic{AttrToColMapping} concept extends \ic{NodeAnnotation}, a concept
+predefined by MPS. Concepts that extend \ic{NodeAnnotation} have to provide a
+\ic{role} property and an \ic{annotated} concept link.
+Structurally, an annotation is a child of the node it annotates. So the
 \ic{Attribute} has a new child of type \ic{AttrToColMapping}, and the reference
-that contains the child is called \ic{@colMapping}. However, in the editor the
-relationship is reversed. The editor for \ic{AttrToColMapping} wraps the editor
-for \ic{Attribute}, as \fig{annotationeditor} shows. The annotation is added via
-an intention (pressing \ic{Alt-Enter}).
+that contains the child is called \ic{@colMapping} --- the value of the
+\ic{role} property. The \ic{annotated} concept link points to the concept
+\emph{to which this annotation can be added}. \ic{AttrToColMapping}s can be
+annotated to instances of \ic{Attribute}.
 
+While structurally the annotation is a child of the annotated node, in the
+CS the relationship is reversed: The editor for \ic{AttrToColMapping} wraps
+the editor for \ic{Attribute}, as \fig{annotationeditor} shows. Since the
+annotation is not part of the original language, it must be attached to nodes
+via an intention.
 
 \begin{figure}[htp]
 \begin{center}
+  \vspace{-2mm}
   \includegraphics[scale=0.55]{figures/9/a/annotationeditor.png}
-  \caption[]{The editor for the \ic{AttrToColMapping} embeds the
+  \caption[labelInTOC]{The editor for the \ic{AttrToColMapping} embeds the
   editor of the concept it is annotated to (using the \ic{attributed node}
-  cell). It then projects the reference to the referenced column.}
+  cell). It then projects the reference to the referenced column. This way the
+  editor of the annotation has control of if and how the editor annotated
+  element is projected.}
   \label{annotationeditor}  
+  \vspace{-4mm}
 \end{center}
 \end{figure}
 
-
 \phead{Type System} The same typing rules are necessary as in the
-\ic{relmapping\_entities} language described above. They reside in
-\ic{relmapping\_annotations}.
+\ic{relmapping\_ entities} language described previously. They reside in
+\ic{relmapping\_anno-} \\ \ic{tations}.
 
-\phead{Generator} The generator is also broadly similar to the above example
-with \ic{relmapping\_entities}. It takes the \ic{entities} model as the input,
-and then uses the column mappings in the annotations to generate the
-entity-to-database mapping code.
+\phead{Generator} The generator is also broadly similar to the previous example
+with \ic{relmapping\_entities}. It takes the \ic{entities} model as the input, and then
+uses the column mappings in the annotations to create the entity-to-database
+mapping code.
+
 
 \vspace{10pt}
 The annotations introduced above were typed to be specific to certain target
@@ -1171,7 +1194,8 @@ the program can be shown with or without the annotations, controlled by a global
 switch.
 
 \begin{figure*}[htp]
-  \includegraphics[scale=0.50]{figures/9/a/trace.png} \caption[]{\textbf{Left:}
+  \includegraphics[scale=0.50]{figures/9/a/trace.png} 
+  \caption[]{\textbf{Left:}
   Requirements traces (green) can be annotated to any arbitrary program element.
   The annotation is targetted to \ic{BaseConcept}, which means there is no
   explicit dependency any specific language. \textbf{Right:} Traces can then be
