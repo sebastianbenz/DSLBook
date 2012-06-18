@@ -1,0 +1,579 @@
+
+----------------------- REVIEW 1 ---------------------
+PAPER: 1
+TITLE: Dimensions of Domain-Specific Language Design
+AUTHORS: Markus Voelter and Eelco Visser
+
+OVERALL RATING: 1 (weak accept)
+REVIEWER'S CONFIDENCE: 3 (high)
+
+== Summary ==
+
+This paper presents a design framework for domain-specific languages.
+This framework relies on eight language-design dimensions:
+expressiveness, structure, syntax, semantics, separation of concerns,
+language modularity, completeness and domain coverage. To illustrate
+each of these dimensions, the authors use five existing DSLs that have
+been selected for their diversity and also because of the involvement
+of the authors in their design.
+
+== General Comments ==
+
+The background of the authors in the design of DSLs makes this survey
+very relevant. The concrete DSLs used in this paper illustrate a wide
+spectrum of design decisions : C extension for event-based
+programming, architectural description (in the family of
+Domain-Specific Design Languages), web application and end-user
+programming.
+
+MV: Interesting how he summarizes the examples....
+
+Even if the paper is of a good quality, I have the following concerns:
+- most of the design dimensions given by the authors are not really
+ specific to DSL but could have been illustrated with any programming
+ languages such as GPL (e.g., concrete syntax, structure, separation
+ of concerns). This makes a good part of this paper a bit too
+ predictable. Even if it is interesting to revisit these
+ considerations in the DSL setting, the explanations should be less
+ verbose.
+ 
+MV: this is maybe true for the paper, but not true for the book.... 
+ 
+- Lack of structure. Each of the dimensions are investigated
+ separately and it is really hard to deduce the whole picture from
+ the explanations. For example, it could have been interesting to
+ clearly identify dimensions that are agnostic to the domain
+ hierarchy (e.g., separation of concerns) and the ones that directly
+ rely on the domain hierarchy (e.g., domain coverage, completeness).
+ 
+MV: we should certainly do that. 
+ 
+ The readability of the paper could have also been improved by better
+ structuring the alternatives of each design dimensions and their
+ dependencies.
+ 
+MV: that's something you had pointed out before. I really am not 
+    sure how many strict dependencies there are... but we can try. 
+ 
+- Some of the figures and the "formal" definitions are a bit fuzzy
+ (e.g., Figure 7 or the definition of expressivity) and should be
+ immediately understandable with more concrete examples.
+ 
+- An interesting point of this paper is that the design of a DSL
+ should be done incrementally and tools should support such
+ incremental design. However, this idea is a bit disseminated. It
+ could have been better justified using several versions of the
+ same DSL.
+
+MV: This leads to the whole process discussion. Do we really 
+    want to cover that in this paper?
+
+In general, the authors can greatly improve the presentation of the
+paper by structuring the design dimensions (using the concept of
+domain hierarchy for example) and by giving more concrete examples
+when defining the concepts of the paper.
+
+MV: I am really not sure what he means by "More concrete examples".
+    Do they want to see more code examples in the example domains?
+
+== Minor Points ==
+- page 4: add a reference in Figure 4
+- page 7: the definition of "more expressive" is really strict. Could the
+ authors give a weaker version as suggested in the beginning of the
+ page 8?
+- page 8: in the "linguistic abstraction" paragraph, the example of
+ the for loop is arguable as in this case, it requires a decision
+ from the programmer that could be error-prone (in case the parallel
+ version is not equivalent to the sequential one)
+ 
+MV: it is always a decision of the programmer! The question is how
+    obviously and "understandably" he can communicate it to the computer. 
+ 
+- page 10: the notion of full coverage is quite trivial
+- page 11 : "a program, or a L_{D-1}" -> "a L{D-1} program, or a"
+- page 11 : the section 4 is not essential, in particular the
+ discussion about the transformation
+- page 11: what will be the interest of developing an interpreter
+ using L_{D-1} instead of any languages in DO?
+ 
+MV: yes, maybe we should say that interpreters are always writtn in D0 
+ 
+- page 12: the discussion about the multiple mappings is not crystal
+ clear. In particular, the ways how one alternative may be selected
+ should be illustrated.
+ 
+MV: probably true (I really wonder about the length of the paper.....!) 
+ 
+- page 12: what is the link between the execution semantics dimension
+ and the reduced expressiveness paragraph? These comments seem to be
+ applicable for any static analysis approach where a program is
+ abstracted for a particular analysis.
+
+MV: Maybe we can put the reduced expressiveness somewhere else? 
+    (although I think that link is clear) 
+ 
+- page 13 : "to proof the invariants" -> "to prove"
+- page 14: "define in each" -> "defined in each"
+- page 14: give concrete examples for the progressive refinement
+- page 15: for the architectural design language, can we consider that
+ it is incomplete even if the semantics do not capture the behavior
+ of the components?
+ 
+ MV: because!
+ 
+- page 16: "a namespaces" -> "a namespace"
+- page 19: "separate languages reference" -> "separate languages that reference"
+- page 19-20: Figure 14 "a specialization of *B4*", Figure 15 "and and"
+- page 20-21: the section on concrete syntax is commonplace and could be
+ less detailed
+
+MV: Maybe we remove it from the paper (and keep it in the book).
+
+----------------------- REVIEW 2 ---------------------
+PAPER: 1
+TITLE: Dimensions of Domain-Specific Language Design
+AUTHORS: Markus Voelter and Eelco Visser
+
+OVERALL RATING: -1 (weak reject)
+REVIEWER'S CONFIDENCE: 3 (high)
+
+===== Summary ==================================================
+
+This paper presents eight dimensions that aim to guide the construction of a
+domain-specific language. These dimensions rely on a preliminary definition of
+the "domain" to be targeted by a language and how it can be determined.  In particular, the
+authors formalize the idea of domain hierarchy, which serves as a basis to
+define some of the dimensions.
+
+===== Global evaluation ========================================
+
+The introduction is well written and gives a good motivation for defining
+design dimensions, while providing clear boundaries of the paper contributions.
+This scope of the paper is interesting because it proposes a contribution to
+the definition of design principles for DSLs driven by previous experience.
+However, the definitions of the dimensions are not always clear:
+for example, Expressivity include a paragraph on Cost of Implementation;
+
+MV: I agree that one may not be essential for the paper.
+
+Separation of Concerns is mixed with the Viewpoint models, which are
+defined as a way to support concerns, but also for progressive refinement.
+
+MV: I guess the prog refinement needs to go (or go somewhere else)
+
+Therefore, improving the internal structure of the sections describing
+these dimensions is necessary.
+
+Below, I detail the problems I encountered in
+the definition of the following dimensions : expressivity, domain coverage,
+semantics, separation of concerns, and modularity.
+
+# Expressivity -----------
+
+In Section 3, the authors formalize the definition of expressivity by comparing
+the size of programs (i.e., their conciseness) according to the language used
+to write them.  However, I am not sure that this definition is relevant if it
+does not depend on the domain hierarchy. Comparing the
+expressiveness of 2 DSLs targeting the same domain probably requires more
+criteria then the program sizes: for example, we first would have to show that
+the targeted domains are identical. So I would have talked sooner in this
+section about the couple "expressivity and domain hierarchy".  Moreover, as the
+authors said, expressivity can be hard to verify using this formula, since it
+has to be satisfied by all programs. Therefore, it is not sure that defining
+conciseness with regard to programs (instead of, for example, language
+constructs) is useful.
+
+MV: I think we had doubts about conciseness as the only language expressiveness
+metrics before.... Can we add more?
+
+MV: General idea for the paper: only discuss those aspects that relate
+to the domain hierarchy. Explain them in more detail, and kick out the
+rest (and keep it for the book).
+
+The authors should reference the article "On the expressive power of
+programming languages" in which the author also proposes a formal definition of
+expressivity, and addresses the question of conciseness.  (Moreover, there is a
+sentence in Section 3, that needs either to be developed, or a reference: "expressivity
+[...] can sometimes be verified formally".)
+
+MV: will have to check this out.
+
+-- Cost of implementation --
+
+I do not understand why the cost of DSL implementation is part of the
+expressivity dimension.
+
+MV: yeah... remove or explain.
+
+-- Domain Coverage --
+
+I think that there is a missing section title: the coverage dimension is in
+Section 3.
+
+MV: Oops?
+
+The C(L) formula seems redundant: what kind of complementary
+information does it bring compared to the above-mentioned definition of
+"full coverage"?
+
+MV: Will have to check.
+
+# Semantics and execution ---------------------
+
+In the Multiple Mapping paragraph, what is the difference between the
+second and the third item of the itemized list?
+
+MV: Second item keeps the "additional data" separate from the core model;
+    a viewpoint! Maybe mention this!
+
+The authors talk about expressiveness in Section 4. If it is identical to
+expressivity, then the same word should be used. In the case of verification
+issues, do the authors suppose that the domain should still be fully covered,
+despite a limited expressiveness? If yes, it should be made more explicit.
+
+MV: this whole thing needs to be revisited.
+
+# Separation of concerns ----------------------
+
+In Section 5, the authors present the separation of concerns by means of
+viewpoints. However, the purpose of this section is not clear: a paragraph
+(viewpoints for progressive refinement) clearly define viewpoints as a concept
+"not related to the concerns of a domain". This is not consistent with the
+purpose of this section.
+
+MV: True, if we relate it strictly to the concerns. I still think this 
+    aspects needs to go *somewhere* (at least in the book).
+
+# Language modularity ------------------------
+
+Since separation of concerns is a way to add modularity in the language,
+it would be relevant to merge parts of Section 7 ("Separation of Concerns")
+and Section 8.
+
+MV: I am not sure we should merge it. But we should be more clear about the 
+    relationships, or maybe move the first one (lang referencing) into the
+    viewpoints discussion. On the other hand: Lang Modularization can be a way
+    to sep concerns. There is something to the relationsihip...
+
+Besides, the word "composition" appears too late in Section 8:
+I see each "modularization" pattern defined in this
+section as a way to compose language definitions. If so, it should be
+introduced earlier. Moreover, I do not understand the sentence
+"language modularization, reuse and composition" : if reuse and composition
+are a way to modularize, there is a redundancy.
+
+MV: ok, details. We need to check those.
+
+
+===== Misc (Sentences, Typo) =======
+
+- D_{1-2} => D_{1.2}
+- Kolomogorov => Kolmogorov
+- piggypack => piggyback
+- expressable => expressible
+
+MV: fix those
+
+- In Section 3: the symbols used in this part are not uniform: the
+authors use D_l (where l is a language) for domains, and, in the definition of
+"fully coverage", the authors write "domain P_d".
+
+MV: Check
+
+- In Section 7:
+  a) the list of concepts enumerated in the header should be sorted by their order
+of apparition in the sequel. Superposition and Aspects is not in that list.
+
+MV: Check
+
+  b) if "reuse" is a special case of "reuse", then another name should be
+  chosen.
+  
+MV: CHeck  
+  
+- Some part of the paper are well described, such as Concrete Syntax, which covers
+the variety of possible notations and gives relevant arguments for their use.
+
+==== Conclusion
+I weak-reject this paper because the paper requires some reorganisation of
+its content: the frontiers between the dimensions need to be clearly stated.
+
+
+----------------------- REVIEW 3 ---------------------
+PAPER: 1
+TITLE: Dimensions of Domain-Specific Language Design
+AUTHORS: Markus Voelter and Eelco Visser
+
+OVERALL RATING: -2 (reject)
+REVIEWER'S CONFIDENCE: 1 (low)
+
+== Summary ==
+
+This paper surveys eight different design considerations for
+domain-specific languages (expressivity, coverage, semantics,
+separation of concerns, structure, modularity, and syntax). It uses
+three case studies to illustrate the tradeoffs in these areas.
+
+MV: ??? I think it's five, isn't it?
+
+== Analysis ==
+
+Unfortunately, for me, this paper did not really work as a technical
+paper. It describes some interesting facets of domain-specific
+language design, but does really provide a basis for applying
+engineering techniques to the design of such languages. In particular,
+I was not convinced that the eight dimensions "span the space within
+which DSLs are designed", nor did I think that the paper would prove
+to be a useful conceptual framework that future language designers
+will use to organize their thinking. To be somewhat blunt, it read
+more like a laundry list of features and concerns, loosely organized
+by theme. If the self-stated criteria listed above is the bar the authors
+would like the paper to be evaluated against, then it unfortunately
+falls short.
+
+MV: So do we need to come up with the complete design process??
+    Or do we lower the bar?
+
+Have the authors taken a real-world domain-specific language and
+checked that it fits in to their framework? 
+
+MV: Don't the case studies do that?
+
+That is, have you
+precisely identified a hierarchy of domains D (i.e., sets of concrete programs)
+and categorized it according to the notions presented in this paper in full
+detail? What I'm imagining would go beyond the informal observations of the
+form "programs in DSL X are orders of magnitude more concise than in
+language Y" found in the paper, but would actually calculate relative
+expressivity, the degree of coverage, completeness, etc. Just to be
+clear: I'm a fan of the formal approach to software engineering this work
+uses, I'm just not convinced that the details of the framework are exactly
+right. Having such a a demonstration would help dispel my disbelief.
+
+MV: This is the danger of formality, isn't it? We have put in "precise looking"
+    formulas, but then we didn't provide any precise data or numbers.
+
+
+* The definitions of "expressivity" given in the paper is
+bizarre. Taking an extreme case, a domain-specific language with a
+single empty program p is at least as expressive as every other
+language because in the intersection, the program p will always be the
+same size or smaller. 
+
+MV: This is obviously nonsense, because from that program on cannot 
+    generate the same semantics.
+    - do we have to make that clearer (the semantics thing)?
+    - do we need to balance the conciseness with the flexibility 
+      needed in the domain? If we define a DSL for a very small domain
+      D with only one program (expressed as "x") then that is very concise. 
+      But we'd need a new DSL for every one of these domains. Somewhere in
+      the middle is the truth. Can we capture that second aspect??
+      
+
+This notion of expressiveness is highly
+non-standard. Indeed, on p. 12, the authors mention reducing
+expressiveness, and here they mean the usual sense of the word--i.e.,
+restricting the language in some way to make analysis more
+tractable. Perhaps rename "expressivity" to "conciseness" (or
+something similar) to avoid confusion?
+
+MV: It is true that we have two notions, expressivity and expressiveness
+    We need to clean this up.
+
+
+* I also wondered whether real-world languages would typically be
+comparable in practice. It seems like for large enough languages
+there would usually be programs p1 and p2 where the optimal encoding
+of p1 is smaller in one language but the optimal encoding of p2 would
+be smaller in the other.
+
+MV: In the same domain??
+
+* The discussion in Sections 4, 7, and 8 does not specifically concern
+domain-specific languages! All of the issues discussed -- translation
+and compliation, namespaces and modules, separate compilation,
+specification vs. implementation, specialization, types, superposition,
+and concrete -- apply to general-purpose languages. Certainly these
+are important issues that must be dealt with, but the paper does not
+really describe what is new here.
+
+MV: What is new: relationship to domain hierarchy?
+    Does all of this need to go (but keep in the book!)
+
+
+* The discussion in Sections 3-4 assumes rich domain hierarchies but I
+wondered how deep such hierarchies are in practice. It seems like they
+would typically be quite small -- maybe only 2-3?  What is the maximum
+depth that the authors have encountered in a real world scenario?
+
+MV: 4
+
+== Minor Comments ==
+
+* The notation for domain hierarchies is confusing. Consider
+ explaining the dotted notation better? Also, on p. 6, should
+ "D_{1-2}" be "D_{1.2}"?
+ 
+ MV: ok
+
+* p. 18: Change "combination,reuse" to "combination, reuse".
+
+MV: Wow! a space is missing!! Catastrophe!
+
+
+
+----------------------- REVIEW 4 ---------------------
+PAPER: 1
+TITLE: Dimensions of Domain-Specific Language Design
+AUTHORS: Markus Voelter and Eelco Visser
+
+OVERALL RATING: 1 (weak accept)
+REVIEWER'S CONFIDENCE: 2 (medium)
+
+Summary:
+
+In this paper, the authors provide a detailed experience report 
+
+MV: Experience report?
+
+on identifying various aspects of the development of
+domain-specific languages. Taking five existing DSLs as 
+case studies, the authors describe a series of key aspects (or
+"dimensions") of the domain-specific language design, such as syntax, 
+modularization mechanism, semantics, expressivity, completeness etc.
+
+Associating "ideal" programs with languages they can be implemented on #
+and applicability domains these programs can fit into, the authors unify 
+the notion of languages and application domains in an informal
+way. Such as, a language L would be a "perfect fit" for a domain D iff 
+all programs relevant for D could be described in L and all programs in L
+"make sense" for D. The paper provides a conceptual framework to capture 
+all revealed aspects of DSL development uniformly: the hierarchy of domains, 
+whose branches correspond to progressively more specified domains.
+
+Each aspect of DSL development is captured by one particular section. 
+Each section in its turn describes a list of particular instances of 
+the corresponding aspect supported by examples from five taken case
+studies.
+
+Review:
+
+The paper is written in good English and fits perfectly into the subject area 
+of the DSL conference. The claimed contribution of the paper is twofold. First, 
+it presents a framework to reason about domains and languages uniformly.
+Second, it provides a detailed survey of identified aspects of DSL development.
+
+The platonic view on programs, languages and domains is quite elegant as a 
+meta-concept. It would be certainly a useful metaphor to explain the concept of DSLs. 
+However the paper provides no witness of its practical applicability or
+use to classify or characterize different DSLs. 
+
+MV: what do you think?
+
+Moreover, some other mentioned metaphors do not fit so well with the
+common sense. For instance, the authors mention inductive and deductive 
+understanding of the definition of a domain (pages 5-6), but do not provide 
+any intuition behind this analogy, which confuses the reader.
+
+MV: I don't know what he means here.	
+
+Another source of confusion is the lack of clear definitions of basic 
+concepts in the paper. For instance, in the introduction the authors mention 
+that the paper covers external and embedded DSLs, whereas internal DSLs are left
+unconsidered. This statement is already confusing since there is no uniform 
+understanding in the community of the orthogonality of embedded/standalone and 
+internal/external DSL classification. I believe, by "embedded" the authors
+mean DSLs that extend the syntax and semantics of some host language (like the 
+Embedded C example from the case studies), and by internal - those that can be 
+implemented as a library (for instance, parser combinators in Scala). I
+think, it would be a good idea to start the paper from a discussion on these 
+(not so)well-known definitions.
+
+MV: We could try to make it clearer and provide examples. The word "library" 
+    is useful here, I think we didn't use it. 
+
+In further sections the authors provide a lot of novel definitions with 
+respect to different "dimensions". I think, that paper would be stronger if 
+such definitions were always supported by particular quantitative results of 
+analyses of taken case studies. Otherwise, such concepts as abstract 
+"language expressiveness", "cost of implementation" (which is expressed through 
+the abstract "program size") or "domain coverage" seem to be a little bit
+unpractical.
+
+MV: I don't think we can provide actual quantitative analysis. But can we
+    explain why we think our stuff is useful nonetheless?
+
+It is not always evident, why some particular "dimension instances" arose in the 
+list. For example, the "Roundtrip transformation" in Section 6 is described in 
+detail, however no positive examples of its use is provided by the case studies.
+
+MV: Right. Should be much more concise (but more detailed in the book!)
+
+I'm not sure that the claim about completeness of the considered set of 
+"dimensions" is fair. For example, the security aspect and different 
+sand-boxing policies are left unconsidered. Meanwhile, badly designed DSLs
+provide a good opportunity for possible exploits.
+
+MV: Right. We should not claim these are the complete list.
+
+Because of multiple unrelated "dimensions" and their particular instances 
+involved, the paper is not easy to read sequentially. I believe, that the work 
+would benefit dramatically from collecting all "dimensions" with their instances
+and considered case studies into a summarizing table.
+
+MV: Good idea!
+
+This would simplify the reading and navigating in the paper as well as would 
+provide a bird's eye look at the state of the art. The result of the paper would be
+even stronger if some industrial frameworks, such as JetBrains MPS, would be included 
+into the survey and analysed with respect to the support of identified "dimensions". 
+
+MV: I don't think we want to do this here, do we? 
+
+Another summary table, with the pros and cons of different approaches picked in
+particular dimensions, is highly desirable. I think, these improvements would make 
+the paper a very useful reference for implementors of DSLs.
+
+MV: Pros and Cons is the forces stuff.... 
+
+As another good outcome of the work, I suppose, some interesting theoretical results 
+could be obtained from the closer look on particular identified aspects. For instance, 
+semantical interaction of DSLs from different domains in the hierarchy strongly reminds 
+the concept of the reflective tower.
+
+MV: Check...
+
+Errata:
+
+- abstract: eight design "dimensions" are mentioned (as well as eight sections 
+  at the end of Introduction). In fact "Coverage" is missing as a standalone section, 
+  it's mentioned within Section "Expressivity".
+  
+MV: I guess a heading has gone lost :-(  
+  
+- page 3, misprint: "...that integrates languages [with?] the different concerns...";
+- page 4, Figure 3. The presented language is identified as Extended C, whereas 
+later in the paper it is always referred as Embedded C;
+
+MV: oh! With Embedded C I mean "C for embedded development" Clarify.
+
+- page 5, Figure 5. The description of the pension calculating policy is in Dutch. 
+Since it is relevant for understanding the example, I think, it would be better to 
+provide the same text in English.
+
+MV: We can't change that, and it is not relevant for understanding I think.
+
+- page 8, "expressivity ... can sometimes be verified formally". I suggest to mention 
+some ideas on this verification;
+
+MV: Check
+
+- page 11, The definition of the semantics in terms of observable behaviour. 
+How the cases of non-terminating programs should be handled?
+
+MV: no idea.
+
+- page 15. "OB(G(p)) \subset OB(p)".  The inclusion \subset on observable behaviour 
+is undefined;
+
+MV: Check
