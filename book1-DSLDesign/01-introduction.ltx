@@ -98,7 +98,7 @@ We denote as $P_l$ the subset of $P$ that can be expressed in$l$\marginnote{Tur
 
 \pension{The pension plan language is very good at representing pension
 calculations, but cannot practically be used to express general purpose
-enterprise software}
+enterprise software. For example, user defined data structures and loops arenot supported.}
 
 \parhead{Domains} What are domains? We have seen one way of defining domains in
 the previous paragraph. When we said that a language $l$ covers a subset of $P$,
@@ -176,8 +176,12 @@ only be partially expressed in a language $l$ (Figure~\ref{fig:programs}).
 \parhead{Domain-Specific Languages} We can now understand the notion of a
 domain-specific language. A \emph{domain-specific language} $l_D$ for a domain
 $D$ is a language that is \emph{specialized} to encoding programs from $P_D$.
-That is, $l_D$ is more efficient in some respect in representing $P_D$ programs
-than other languages, and thus, is particularly well suited for $P_D$.
+That is, $l_D$ is more efficient in representing $P_D$ programs
+than other languages, and thus, is particularly well suited for
+$P_D$\footnote{There are several ways of measuring efficiency. The most obvios
+one is the amount of code a developer has to write to express a problem in the
+domain: the more concise, the more efficient. We will discuss this in more
+detail in \sect{expressivity}.}.
 It achieves this by using \emph{abstractions} suitable to the domain, and
 avoiding details that are irrelevant to programs in $D$ (typically because they
 are similar in all programs and can be added automatically by the execution
@@ -329,8 +333,8 @@ in \sect{process}).
 
 The discussion above was relatively theoretical, trying to capture somewhat
 precisely the inherently imprecise notion of domains. Let us now move into the
-field of language engineering. Here we can describe the relevant concepts much
-more clearly.
+field of language engineering. Here we can describe the relevant concepts in a
+much more practical way.
 
 \begin{marginfigure}[-85mm]
 \begin{center}
@@ -635,16 +639,17 @@ projected notation. Programs are stored as abstract syntax trees, usually as
 XML. As in parser-based systems, backend tools operate on the abstract syntax
 tree. 
 
-Projectional editing is well known from graphical editors, virtually all
-of them use this approach\sidenote[][-1\baselineskip]{You could argue that they
-are not \emph{purely} projectional because the user can move the shapes around
-and the position information has to be persistent. Nonetheless, graphical
-editors are fundamentally projectional.}. However, they can also be used for textual
-syntax\sidenote{While in the past projectional text editors
-have gotten a bad reputation, as of 2011, the tools have become good enough, and
-computers have become fast enough to make this approach feasible, productive and
-convenient to use.}, Example tools in this category include the Intentional
-Domain Workbench (\url{http://intentsoft.com}) and JetBrains MPS. 
+Projectional editing is well known from graphical editors, virtually all of them
+use this approach\sidenote[][-1\baselineskip]{You could argue that they are not
+\emph{purely} projectional because the user can move the shapes around and the
+position information has to be persistent. Nonetheless, graphical editors are
+fundamentally projectional.}. However, they can also be used for textual
+syntax\sidenote{While in the past projectional text editors have gotten a bad
+reputation mostly because of bad usability, as of 2011, the tools have become
+good enough, and computers have become fast enough to make this approach
+feasible, productive and convenient to use.}, Example tools in this category
+include the Intentional Domain Workbench (http://intentsoft.com) and
+JetBrains MPS.
 
 
 In this section, we do not discuss the relative advantages and drawbacks of

@@ -14,7 +14,7 @@ software engineering, because they can be tailor-made for a specific class of
 problems. However, because of the large degree of freedom in designing DSLs, and
 because they are supposed to cover the right domain, consistently, and at the
 right abstraction level, DSL design is also hard. In this chapter we present a
-framework for describing and characterizing external domain specific languages.
+framework for describing and characterizing domain specific languages.
 We identify seven design dimensions that span the space within which DSLs are
 designed: expressivity, coverage, semantics, separation of concerns,
 completeness, language modularization and syntax.
@@ -41,6 +41,7 @@ building a good DSL also requires experience and practice.}
 \FloatBarrier
 
 \section{Expressivity}
+\label{expressivity}
 
  
 \noindent One of the fundamental advantages of DSLs is increased expressivity
@@ -54,7 +55,7 @@ expressed using a DSL can be significantly more concise.
 
 
 \cooling{Cooling algorithms expressed with the cooling DSL are approximately
-five times shorter than the C version that that users would have to write
+five times shorter than the C version that users would have to write
 instead.}
 
 While it is always possible to produce short but incomprehensible programs,
@@ -266,7 +267,7 @@ provided port of an instance of a component that provides a port with a
 compatible interface. Required ports may be optional\sidenote[][1cm]{The
 terminology may be a bit confusing here: \emph{required} means that the
 component invokes operations on the port (as opposed to providing them for other
-to invoke). \emph{optional} refers to the fact that, for any given instance of
+to invoke). \emph{optional} refers to the fact that, for any given \emph{instance} of
 that component, the port may be connected or not.}, so for a given instance, an
 optional port may be connected or not. Invoking an operation on an unconnected
 required port would result in an error, so this has to be prevented. This can be

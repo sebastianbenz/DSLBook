@@ -222,9 +222,9 @@ model synchronization.}
 
 In the discussion so far we have considered concerns that can be modularized
 clearly. \fig{compositionalDomains} emphasizes this: the concern boxes are
-neatly arranged next to each other. However, there may also be concerns that are
-\emph{not} modularizable. These are typically called \emph{cross-cutting
-concerns}, see \fig{crosscutting}.
+neatly arranged next to each other. However, there may also be concerns that do
+\emph{not} fit into the chosen modularization approach. These are typically
+called \emph{cross-cutting concerns}, see \fig{crosscutting}.
 
 \begin{figure}[h]
 \begin{center}
@@ -281,7 +281,9 @@ ports into existing components. It was used, among other things, to modularize
 the monitoring concern: if monitoring was enabled, this aspect component would
 add the \ic{mon} port to all other components, enabling the
 \ic{Monitoring- Console} to connect to the other components and query monitoring
-data (see the code below).}
+data (see the code below\footnote{The \ic{*} specifies that this aspect applies to
+\emph{all} existing components. Other selectors could be used instead of the
+\ic{*} to select only a subset).}).}
 
 \begin{code}
 namespace monitoring feature monitoring {

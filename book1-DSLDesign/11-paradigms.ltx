@@ -345,7 +345,7 @@ for use by programmers, working with existing version control systems is not a
 problem.}
 
 \comparch{Components can specify a \lcr{new version of} reference to another
-component In this case, the new version may specify or additional
+component In this case, the new version may specify additional
 provided ports with the same interfaces or new versions of these interfaces. It
 may deprecate required ports. Effectively, this means that the new version of
 something must be replacement-compatible with the old version (the Liskov
@@ -534,7 +534,9 @@ to find an example solution that violates the Boolean equations.}
   conditions. The affected program elements are highlighted in a color that
   represents the condition. If the feature \ic{highRes} is selected, the code
   uses a \ic{double} instead of an \ic{int8\_t}. The log messages are only
-  included if the \ic{logging} feature is selected.}
+  included if the \ic{logging} feature is selected. Note that one cannot just
+  depend on single features (such as \ic{logging}) but also on arbitrary
+  expressions such as \ic{logging \&\& highRes}.}
   \label{presencecond}
   \rule{1\textwidth}{0.7pt}
 \end{figure} 
@@ -644,7 +646,7 @@ different execution modes:
   time one of the inputs changes, all dependent values are recalculated. The
   change triggers the recalculation, and the recalculation ripples through the
   dependency graph. This is the model used in spreadsheets.
-  \item The second one considers the the data values quantized, unique messages.
+  \item The second one considers the data values quantized, unique messages.
   Only if a message is available for all inputs, a new output message is
   calculated. The recalculation synchronizes on the availability of a message at
   each input, and upon recalculation, these messages are consumed. This approach

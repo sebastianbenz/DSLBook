@@ -163,16 +163,16 @@ when to use which approach. Here are some trade-offs. The
 specification/conformance approach requires a bit more code to be written, but
 results in more meaningful and specific error messages. The message can express
 that fact that one part of a program does not conform to a specification made by
-another part of the program. The derivation/consistency
-approach is less effort to write and can hence be seen to be more convenient,
-but it requires more effort in constraint checking, and error messages may be
-harder to understand because of the missing, explicit "hard fact" about the
-program.
+another part of the program\footnote{It also reduces the chance that users do
+something they do not intend by mistake. For example, a user might not
+\emph{want} to override a method from the base class, but it might happen
+just because the user uses the same name and parameters.}. The
+derivation/consistency approach is less effort to write and can hence be seen to be more convenient, but it requires more effort in constraint checking, and error messages may be harder to understand because of the missing, explicit "hard fact" about the program.
 
 
 The specification/conformance approach can also be used to "anchor" the
 constraint checker, because a fixed fact about the program is explicitly given
-instead of having it derived from a (possibly large) part of the the program.
+instead of having it derived from a (possibly large) part of the program.
 This decouples models and can increase scalability. Consider the following
 example. A program contains a function call, and the type checker needs to check
 the typing for this call. To do so, it has to determine the type of the called
@@ -239,8 +239,8 @@ which test the code we wrote before (\fig{gpltesting}).
 \begin{marginfigure}
 \begin{center}
   \includegraphics[width=4.5cm]{figures-design/dsltesting.png}
-  \caption{Test code tests the application code based on a single understanding
-  of the requirements towards the system.}
+  \caption{Using DSLs, a test written on $D-1$ tests the $D$ program \emph{as
+  well as the transformation} from $D$ to $D-1$.}
   \label{dsltesting}  
 \end{center}
 \end{marginfigure}
@@ -250,18 +250,18 @@ unit tests (in the GPL) based on this understanding to check for the correctness
 of the executing DSL program (\fig{dsltesting}). 
 
 Writing one DSL program and one unit test ensures that this one program executes
-correctly. Our goal here is, however, to ensure that the transformation
-is correct \emph{for all programs} we can write with the DSL. This can be
-achieved by writing many DSL programs and many tests --- enough to make sure
-that every branch of the transformation is covered at least once\footnote{For
-the Xpand code generator there has once been a coverage analysis tool. It
-could be used to make sure that for a given test suite, all branches of the
+correctly with regards to the test case. Our goal here is, however, to ensure
+that the transformation is correct \emph{for all programs} we can write with the
+DSL. This can be achieved by writing many DSL programs and many tests --- enough
+to make sure that every branch of the transformation is covered at least
+once\footnote{For the Xpand code generator there is a coverage analysis tool
+that can be used to make sure that for a given test suite, all branches of the
 transformation template had been executed at least once.}. As always in testing,
 we encounter the coverage problem: we have to write enough example programs and
 tests to cover all aspects of the language and the execution engine. In
 particular, we have to \emph{first think of the corner cases} to write tests for
-them\footnote{The coverage problem can be solved in some cases by automatic
-test case generation and formal verification. We discuss this later in this
+them\footnote{The coverage problem can be solved in some cases by automatic test
+case generation and formal verification. We discuss this later in this
 chapter.}.
 
 
@@ -510,8 +510,8 @@ languages.}.
 artifact, like object files in a C compiler. However, that's not quite true. At
 least during development and test of the generator you may have to read,
 understand and debug the generated code. For incomplete DSLs\sidenote{We cover
-completeness in section \todo{}}, i.e. those where parts of the resulting
-program have to be written manually in $L_{D-1}$, readability and good structure
+completeness in \sect{sect:completeness}.}, i.e. those where parts of the
+resulting program have to be written manually in $L_{D-1}$, readability and good structure
 is even more important, because the manually written code has to be integrated
 with the generated parts of the $L_{D-1}$ program. Hence, generated code should use
 meaningful abstractions, should be designed well, use good names for
