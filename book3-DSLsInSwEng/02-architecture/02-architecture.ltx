@@ -615,57 +615,25 @@ In summary, the generated code supports an efficient and technology independent
 implementation and hides much of the underlying technological complexity, making
 development more efficient and less error-prone.
 
-\paragraph{The Role of Patterns} Patterns are an important part of today's
-software engineering practice. They are a proven way of capturing working
-solutions to recurring problems, including their applicability, trade-offs and
-consequences. So how do patterns factor into the approach described above?
-
-Architecture Patterns and Pattern Languages describe blueprints for
-architectures that have been used successfully. They can serve as an inspiration
-for building you own system's architecture. Once you have decided on using a
-pattern (and have adapted it to your specific context) you can make concepts
-defined in the pattern first class citizens of your DSL. In other words,
-patterns influence the architecture, and hence the grammar of the DSL.
-
-Design Patterns, as their name implies, are more concrete, more
-implementation-specific than architectural patterns. It is unlikely that they
-will end up being central concepts in your architecture DSL. However, when
-generating code from the models, your code generator will typically generate
-code that resembles the solution structure of a number of patterns. Note,
-however, that the generator cannot decide on whether a pattern should be used:
-this is a tradeoff the (generator) developer has to make manually.
-
-When talking about DSLs, generation and patterns, it is important to mention
-that you cannot completely automate patterns: a pattern doesn't just consist of
-the solution's UML diagram nor is it a mere code template. Significant parts of
-a pattern explain which forces affect the pattern's solution, when a pattern can
-be applied and when it cannot, as well as the consequences of using the pattern.
-A pattern often also documents many variations of itself that may all have
-different advantages and disadvantages. A pattern that has been implemented in
-the context of a transformation does not account for these aspects - the
-developer of the transformations must take them into account, assess them and
-make decisions accordingly.
-
-\paragraph{What needs to be documented?}
-
-I advertise the above approach as a way to formally describe your system's
-conceptual and application architecture. So, this means it serves as some kind
-of documentation, right?
-
-Right, but it does not mean that you don't have to document anything else.
-Here's a bunch of things you still need to document:
+\paragraph{What needs to be documented?} I advertise the above approach as a way
+to formally describe a system's conceptual and application architecture. So,
+this means it serves as some kind of documentation, right? Right, but it does
+not mean that you don't have to document anything else. The following things
+still need to be documented:
 
 \begin{description}
-  \item[Rationales/Architectural Decisions] The DSLs describe what your
-architecture(s) look like, but it does not explain why. You still need to
-document the rationales for your architectural and technological decisions.
+
+  \item[Rationales/Architectural Decisions] The DSLs describe \emph{what} your
+architecture looks like, but it does not explain \emph{why}. You still need to
+document the rationales for architectural and technological decisions.
 Typically you should refer back to your (non-functional) requirements here. Note
-that the grammar is a really good baseline. Each of the constructs in your
-architecture DSL grammar is the result of a number of architectural decisions.
-So, if you explain for each grammar element why it is there (and why maybe
-certain other alternatives have not been chosen) you are well on your way to
+that the grammar is a really good baseline for such a documentation. Each of the
+constructs in your architecture DSL grammar is the result of architectural decisions.
+So, if you explain for each grammar element why it is there (and why 
+other alternatives have not been chosen) you are well on your way to
 document the important architectural decisions. A similar approach can be used
 for the application architecture, i.e.\ the instances of the DSL.
+
   \item[User Guides]  A language grammar can serve as a well-defined and formal
 way of capturing an architecture, but it is not a good teaching tool. So you
 need to create tutorials for your users (i.e., the application programmers) on
