@@ -625,16 +625,15 @@ still need to be documented:
 
   \item[Rationales/Architectural Decisions] The DSLs describe \emph{what} your
 architecture looks like, but it does not explain \emph{why}. You still need to
-document the rationales for architectural and technological decisions.
-Typically you should refer back to your (non-functional) requirements here. Note
-that the grammar is a really good baseline for such a documentation. Each of the
-constructs in your architecture DSL grammar is the result of architectural decisions.
-So, if you explain for each grammar element why it is there (and why 
-other alternatives have not been chosen) you are well on your way to
-document the important architectural decisions. A similar approach can be used
-for the application architecture, i.e.\ the instances of the DSL.
+document the rationales for architectural and technological decisions. Note that
+the grammar is a really good baseline for such a documentation. Each of the
+constructs in your architecture DSL grammar is the result of architectural
+decisions. So, if you explain for each grammar element why it is there (and why
+other alternatives have not been chosen) you are well on your way to documenting
+the important architectural decisions. A similar approach can be used for the
+application architecture, i.e. the programs written with the DSL.
 
-  \item[User Guides]  A language grammar can serve as a well-defined and formal
+  \item[User Guides] A language grammar can serve as a well-defined and formal
 way of capturing an architecture, but it is not a good teaching tool. So you
 need to create tutorials for your users (i.e., the application programmers) on
 how to use the architecture. This includes what and how to model (using your
@@ -643,26 +642,25 @@ fill in the implementation code into the generated skeletons).
 \end{description}
 
 There are more aspects of an architecture that might be worth documenting, but
-the above two are the most important.
+the above two are the most important ones.
 
 
-\section{Embedding Business Logic via DSLs}
+\subsection{Embedding Business Logic via DSLs}
 
 Architecture DSLs as introduced above focus on the description of software
 architecture. As the section on component implementation explains, we do not
 concern ourselves much with the question of how the components are implemented,
 i.e.\ how business logic is expressed.
 
-Of course this is essential for building the actual software system. As we
-outline above, one can either implement the application logic with manually
-written code, or one can use a DSL for that. This leads us to application domain
-DSLs, to which we have given a separate chapter.
-
-If application domain DSLs are used together with architecture DSLs, then the
-code generator for the application domain DSL has to act as the ``implementor''
-of the components (or whatever other architectural abstractions are defined in
-the architecture DSL), and the generated code must fit in. This is an example of
-DSL cascading, described here TODO.		% TODO
+Of course, business logic is essential for building the actual software system.
+As we outline above, one can either implement the application logic with
+manually written code, or one can use a DSL for that. If application domain DSLs
+are used together with architecture DSLs, then the code generator for the
+application domain DSL has to act as the "implementor" of the components (or
+whatever other architectural abstractions are defined in the architecture DSL).
+The code generated from the business logic DSL must fit into the code skeletons
+generated from the architecture DSL. The code composition techniques discussed
+for incomplete DSLs in \todo{ref} can be used here.
 
 
 \section{Component Models}
@@ -674,7 +672,7 @@ defined context dependencies to something that contains business logic and is
 run inside a container.
 
 Our understanding (notice we are not saying we have a real definition) is that a
-component is the smallest architecture building block. When defining a system's
+component is the smallest architectural building block. When defining a system's
 architecture, you don't look inside components. Components have to specify all
 their architecturally relevant properties declaratively (aka in meta data, or
 models). As a consequence, components become analyzable and composable by tools.
@@ -689,63 +687,81 @@ concrete notion of components has to be defined for each
 (system/platform/product line) architecture separately: this is exactly what we
 do with the language approach introduced above.
 
-From our experience in development projects, we find that we almost always start
-by modeling the component structure of the system to be built. To do that, we
-start by defining what a component actually is - that is, by defining a meta
-model for component-based development. Independent of the domain in which the
-development project resides, these meta models are quite similar across
-application domains - insurance, e-commerce, embedded, radio astronomy and so on
-- as opposed to technical domains such as persistence, transaction processing,
-security. We therefore show parts of these meta models here to give you a head
-start when defining your own component architecture.
+From our experience in software projects, we find that we almost always start by
+modeling the component structure of the system to be built. To do that, we start
+by defining what a component actually is --- that is, by defining a meta model
+for component-based development. Independent of the domain in which the
+development project exists, these meta models are quite similar across
+application domains. We therefore show parts of these meta models here to give
+you a head start when defining your own component architecture.
 
 
 \paragraph{Three Typical Viewpoints}
 
-It is useful to look at a component-based system from several viewpoints. Three
-viewpoints form the backbone of the description. These viewpoints should end up
-being separate models in their own separate DSL, so in the following text we use
-``model'' and ``interchangeably''.
-
-The \textbf{Type} viewpoint describes \emph{component types}, \emph{interfaces},
-and \emph{data structures}. A component provides a number of interfaces and
-references a number of required interfaces. An interface owns a number of
-operations, each with a return type, parameters, and exceptions. Figure
-\ref{viewpoints_type} shows this.
+It is useful to look at a component-based system from several viewpoints
+(\todo{ref}). Three viewpoints form the backbone of the description. The
+\emph{Type} viewpoint describes component types, interfaces, and data
+structures\footnote{Referring back to the terminology introduced in \todo{ref},
+this viewpoint is \emph{independent}. It is also \emph{sufficient} for
+generating all the code that is needed for developers to implement the
+application logic.}. A component provides a number of interfaces and references
+a number of required interfaces. An interface owns a number of operations, each
+with a return type, parameters, and exceptions. \fig{viewpoints_type} shows
+this.
 
 \begin{figure}[h]
 \begin{center}
   \includegraphics[scale=0.30]{figures/arch/viewpoints_type.png}
-  \caption[labelInTOC]{TODO}
+  \caption[labelInTOC]{The types viewpoint describes interfaces, data types and
+  components. These are referred to as types because they can be instantiated
+  (in the composition viewpoint) to make up the actual application.}
   \label{viewpoints_type}
 \end{center}
 \end{figure}
 
-To describe the data structures with which the components work (figure
-\ref{viewpoints_data}), we start out with the abstract type Type. We use
-primitive types as well as complex types. A complex type has a number of named
-and typed attributes. There are two kinds of complex types. Data transfer
-objects are simple (C-style) structs that are used to exchange data among
-components. Entities have a unique ID and can be made persistent (this is not
-visible from the meta model). Entities can reference each other and thus build
-more complex data graphs. Each reference has to specify whether it is navigable
-in only one or in both dimensions. A reference also specifies the cardinalities
-of the entities at the respective ends.
+To describe the data structures with which the components work
+(\fig{viewpoints_data}), we start out with the abstract concept \ic{Type}. We
+use primitive types as well as complex types. A \ic{ComplexType} has a number of
+named and typed attributes. There are two kinds of complex types. Data transfer
+objects are simple (C-style) \ic{struct}s that are used to exchange data among
+components. Entities have a unique ID and can be persisted (this is not visible
+from the meta model). Entities can reference each other and thus build more
+complex data graphs. Each reference specifies whether it is navigable in only
+one or in both directions. A reference also specifies the cardinalities of the
+entities at the respective ends, and whether the reference has containment
+semantics.
 
 \begin{figure}[h]
 \begin{center}
   \includegraphics[scale=0.30]{figures/arch/viewpoints_data.png}
-  \caption[labelInTOC]{TODO}
+  \caption[labelInTOC]{The structure of data types of course depends a lot on
+  the application. A good starting point for data definitions is the well-known
+  entity relationship model that is essentially represented by this meta model.}
   \label{viewpoints_data}
 \end{center}
 \end{figure}
 
-The \textbf{Composition} viewpoint, illustrated in figure \ref{viewpoints_comp},
-describes component instances and how they are connected. A configuration
-consists of a number of component instances, each referencing their type (from
-the Type viewpoint). An instance has a number of wires: a wire is an instance of
-a component interface requirement. Note the constraints defined in the meta
+The \emph{Composition} viewpoint, illustrated in \fig{viewpoints_comp},
+describes component instances and how they are connected. Using the \emph{Type}
+and \emph{Composition} viewpoints, we can define logical models of
+applications\footnote{The Composition viewpoint is \emph{dependent}, it depends
+on the \emph{Type} viewpoint. It is also sufficient for generating stub
+implementation of the system for unit testing and for doing dependency analyses
+and other checks for completeness and consistency.}. A \ic{Configuration}
+consists of a number of \ic{ComponentInstance}s, each referencing their type
+(from the \emph{Type} viewpoint). An instance has a number of wires (or
+connectors): a \ic{Wire} can be seen as an instance of a
+\ic{ComponentInterfaceRe- quirement}. Note the constraints defined in the meta
 model:
+
+
+\begin{itemize}
+  \item For each \ic{ComponentInterfaceRequirement} defined in the instance's type,
+  we need to supply a wire.
+  \item The type of the component instance at the target end of a wire needs to
+  provide the interface to which the wire's component interface requirement
+  points.
+\end{itemize}
 
 \begin{figure}[h]
 \begin{center}
@@ -755,22 +771,11 @@ model:
 \end{center}
 \end{figure}
 
-\begin{itemize}
-  \item For each component interface requirement defined in the instance's type,
-  we need to supply a wire.
-  \item The type of the component instance at the target end of a wire needs to
-  provide the interface to which the wire's component interface requirement
-  points.
-\end{itemize}
 
-Using the Type and Composition viewpoints, it is possible to define component
-types as well as their collaborations. Logical models of applications can be
-defined. From the Composition viewpoint, you can for example generate or
-configure a container that instantiates the component instances.
 
-The \textbf{System} viewpoint describes the system infrastructure onto which the
-logical system defined with the two previous viewpoints is deployed (figure
-\ref{viewpoints_system}).
+The \emph{System} viewpoint describes the system infrastructure onto which the
+logical system defined with the two previous viewpoints is deployed
+(\fig{viewpoints_system}).
 
 \begin{figure}[h]
 \begin{center}
