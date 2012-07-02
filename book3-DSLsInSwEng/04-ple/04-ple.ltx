@@ -1,13 +1,12 @@
 \chapter{DSLs and Product Lines}
 
 \chapterabstract{This chapter discusses the role of DSLs in Product Line
-Engineering (PLE). We first briefly introduce PLE and feature models and
-discuss how feature models can be connected to programs expressed in DSLs. We
-then explain the difference in expressivity between feature models and DSLs and
-argue why sometimes features models are not enough to express the variability
-in a product line, and how DSLs can help. The chapter concludes with a couple
-of examples as well as a conceptual mapping of the concepts relevant to PLE and
-DSLs.}
+Engineering (PLE). We first briefly introduce PLE and feature models and discuss
+how feature models can be connected to programs expressed in DSLs. We then
+explain the difference in expressivity between feature models and DSLs and argue
+why sometimes features models are not enough to express the variability in a
+product line, and how DSLs can help. The chapter concludes with a mapping of the
+concepts relevant to PLE and DSLs.}
 
 \section{Introduction}
 
@@ -234,7 +233,9 @@ configurable application. All kinds of other small, simple, or domain specific
 languages can be used as a form of parameterization. A macro language in an
 application is a form of parameterization. That type of parameter is "valid
 program written in language X"\footnote{There is an obvious connection to DSLs
---- a DSL can be used here.}.
+--- a DSL can be used here. This approach is useful when the primary product definition can be expressed
+with a feature model. The DSL-typed attributes can be used for those variation
+points for which selection is not expressive enough.}.
 
 
 \subsection{A real world example}
@@ -304,57 +305,108 @@ from the model.
 \end{figure}
 
 
-\vspace{-10mm}
+\subsection{Variations in the Transformation or Execution}
+
+When working with DSLs, the execution of models --- by transformation, code
+generation or interpretation --- is under the control of the domain
+engineer. The transformations or the interpreter can also be varied based on a
+feature model.
+
+\parhead{Negative Variability via Removal} The transformations or the
+interpreter can be annotated with presence conditions, the configuration
+happens before the transformations or the interpreter are executed.
+
+\parhead{Branching} The interpreter or the transformations can query over
+a feature configuration and then branch accordingly at runtime.
+
+\parhead{Positive Variability via Superimposition} Transformations or
+interpreters can be composed via superposition before execution. For
+transformations, this is especially feasible if they transformation language
+is declarative, which means that the order in which the transformations are
+specified is irrelevant. Interpreters are usually procedural, object-oriented or
+functional programs, so declarativeness is hard to achieve in those.
+
+\parhead{Positive Variability via Aspects} If the transformation language
+or the interpreter implementation language support aspect oriented
+programming, then this can be used to configure the execution environment. For
+example, the Xpand code generation engine (http://wiki.eclipse.org/Xpand)
+supports AOP for code generation templates.
+
+
+Examples for all of these are described by Voelter and
+Groher~\cite{VoelterGroher2007} based on the openArchitectureWare tool
+suite\footnote{openArchitectureWare has since been migrated to the Eclipse Xpand
+and Xtext projects}.
+
+Creating transformations with the help of other transformations or by any of the
+above variability mechanisms is also referred to as \emph{higher-order
+transformations} \cite{OldevikH07}. Note that if a bootstrapped environment is
+used, the transformations are themselves models created with a transformation
+DSL. This case then reduces to just variation over models, as described in the
+previous subsection.
+
+
+
+\subsection{Feature Models on Language Elements}
+
+The opposite approach is also possible. The primary product definition is done
+with DSLs. However, some language elements may have a feature model associated
+with them for detailed configuration. When the particular language concept is
+instantiated, a new ("empty") feature configuration is created, and can be
+configured by the application engineer.
+
 
 \section{From Feature Models to DSLs}
 \label{sec:featureModelsVsDSLs}
 
 A feature model is a compact representation of the features of the products in a
-product line, as well as the constraints imposed on configurations. Feature
-models are an efficient formalism for \emph{configuration}, i.e. for
-\emph{selecting} a valid combination of features from the feature model. The set
-of products that can be defined by feature selection is fixed and finite: each
-valid combination of selected features constitutes a product. This means that
-all valid products have to be "designed into" the feature model, encoded in the
-features and the constraints among them. Some typical examples of variation
-points that can be modeled with feature models are the following:
+product line, as well as the constraints imposed on combinations of these
+features in products. Feature models are an efficient formalism for
+\emph{configuration}, i.e. for \emph{selecting} a valid combination of features
+from the feature model. The set of products that can be defined by feature
+selection is fixed and finite: each valid combination of selected features
+constitutes a product. This means that all valid products have to be "designed
+into" the feature model, encoded in the features and the constraints among them.
+Some typical examples of things that can be modeled with feature models are the
+following:
 
 \begin{itemize}
   \item Does the communication system support encryption?
+  \vspace{-2mm}
   \item Should the in-car entertainment system support MP3s?
+  \vspace{-2mm}
   \item Should the system be optimized for performance or memory footprint?
+  \vspace{-2mm}
   \item Should messages be queued? What is the queue size?
 \end{itemize}
 
-Feature models provide an abstraction over the implementation of the product.
-Based on the feature configuration, mappings derive the necessary adaptations of
-the underlying implementation artifacts. Because of this abstraction, feature
-model-based configuration is simple to use --- product definition is basically a
-decision tree. This makes product configuration efficient, and potentially
-accessible for stakeholders other than software developers.
+Because of the "select from set of options"-metaphor, feature model-based
+configuration is simple to use --- product definition is basically a decision
+tree. This makes product configuration efficient, and potentially accessible for
+stakeholders other than software developers. Also, as described by Batory
+\cite{Batory05} and Czarnecki \cite{CzarneckiW07}, a one advantage of
+feature models is that a mapping to logic exists. Using SAT solvers, it is
+possible to check, for example, whether a feature model has valid configurations
+at all. The technique can also be used to automatically complete partial
+configurations.
 
 
+In the rest of this section we will discuss the limitations of feature models,
+in particular, that they are not suited for open-ended construction of product
+variants. Instead of giving up on models completely and using low-level
+programming, we should use DSLs instead. This avoids losing the differentiation
+between problem space and solution space. 
 
-As described by Batory \cite{Batory05} and Czarnecki \cite{CzarneckiW07}, a
-particular advantage of feature models is that a mapping to logic exists. Using
-SAT solvers, it is possible to check, for example, whether a feature model has
-valid configurations at all. The technique can also be used to automatically
-complete partial configurations. 
-
-
-In the rest of this section we will discuss the limitations of feature models.
-We argue that in cases in which feature models are unsuitable, we should not
-regress to low-level programming, but use DSLs instead, to avoid losing the
-differentiation between problem space and solution space.  As an example we use
-a product line of water fountains as found in recreational parks\footnote{This
-is an anonymized version of an actual project the authors have been working on.
-The real domain was different, but the example languages presented in this paper
-have been developed and used for that other domain.}. Fountains can have several
-basins, pumps and nozzles. Software is used to program the behavior of the pumps
-and valves to make the sprinkling waters aesthetically pleasing. The feature
-model in \fig{exfm} represents valid hardware combinations for a simple water
-fountain product line. The features correspond to the presence of a hardware
-component in a particular fountain installation.
+As an example we use a product line of water fountains as found in recreational
+parks\footnote{This is an anonymized version of an actual project the authors
+have been working on. The real domain was different, but the example languages
+presented in this paper have been developed and used for that other domain.}.
+Fountains can have several basins, pumps and nozzles. Software is used to
+program the behavior of the pumps and valves to make the sprinkling waters
+aesthetically pleasing. The feature model in \fig{exfm} represents valid
+hardware combinations for a simple water fountain product line. The features
+correspond to the presence of a hardware component in a particular fountain
+installation.
 
 
 \begin{figure}[htp]
@@ -377,10 +429,10 @@ predefined behaviors, but approximating all possible behaviors would lead to
 unwieldy feature models. Instead we could program the behavior in a general
 purpose language such as~C. However, this means that we lose the abstraction
 feature models provide, reducing efficiency and understandability, as well as
-the possibility for direct involvement of non-programmers. Domain-specific
-languages can serve as a middle ground between the controlled setting of 
-feature model-based configuration and the complete lack of restrictions of 
-general purpose programming languages. 
+the possibility for direct involvement of non-programmers. DSLs can serve as a
+middle ground between the controlled setting of feature model-based
+configuration and the complete lack of restrictions of general purpose
+programming languages.
  
 
 \subsection{Feature Models as Grammars}
@@ -481,7 +533,7 @@ greater than zero, then the \ic{rpm} should be set to zero.
  
 
 
-\begin{figure}[htp]  
+\begin{figure}[h]  
 \begin{center}
   \includegraphics[scale=0.6]{figures/ple/exfeaturemodel_extended_inst.png}
   \caption[labelInTOC]{Example configuration using a tree
@@ -496,11 +548,11 @@ greater than zero, then the \ic{rpm} should be set to zero.
 
 While the extended grammar formalism discussed above enables us to cover the
 full range of behavior variability, the use of trees to instantiate these
-grammars is not practical. Another interpretation of these grammars is as
-definition of a \emph{language} with a \emph{textual concrete syntax} --- the
-tree in \fig{exfm-extended-inst} looks like an abstract tree (AST). 
-To make the language readable we need to add concrete syntax
-definitions (keywords), as in the following extension of the fountain grammar:
+grammars is not practical. Another interpretation of these grammars is as the
+definition of a DSL --- the tree in \fig{exfm-extended-inst} looks like an
+abstract tree (AST). To make the language readable we need to add concrete
+syntax definitions (keywords), as in the following extension of the fountain
+grammar:
 
 
 
@@ -566,86 +618,7 @@ in an invoicing product line, specifying families of pension contracts,
 and defining communication protocols in embedded systems.
 
 
-
-
-
-\section{Combining DSLs and Feature Models}
-\label{sec:combining}
-
-In the previous sections we have explained the difference in expressive power
-between feature models and DSLs. We have also outlined the benefits and
-drawbacks of both approaches. In this section we categorize how both approaches
-can be combined.
-
-
-
-
-\subsection{Variations in the Transformation or Execution}
-
-When working with DSLs, the execution of models --- by transformation, code
-generation or interpretation --- is under the control of the domain
-engineer. The transformations or the interpreter can also be varied based on a
-feature model.
-
-\parhead{Negative Variability via Removal} The transformations or the
-interpreter can be annotated with presence conditions, the configuration
-happens before the transformations or the interpreter are executed.
-
-\parhead{Branching} The interpreter or the transformations can query over
-a feature configuration and then branch accordingly at runtime.
-
-\parhead{Positive Variability via Superimposition} Transformations or
-interpreters can be composed via superposition before execution. For
-transformations, this is especially feasible if they transformation language
-is declarative, which means that the order in which the transformations are
-specified is irrelevant. Interpreters are usually procedural, object-oriented or
-functional programs, so declarativeness is hard to achieve in those.
-
-\parhead{Positive Variability via Aspects} If the transformation language
-or the interpreter implementation language support aspect oriented
-programming, then this can be used to configure the execution environment. For
-example, the Xpand code generation engine (http://wiki.eclipse.org/Xpand)
-supports AOP for code generation templates.
-
-
-Examples for all of these are described by Voelter and
-Groher~\cite{VoelterGroher2007} based on the openArchitectureWare tool
-suite\footnote{openArchitectureWare has since been migrated to the Eclipse Xpand
-and Xtext projects}.
-
-Creating transformations with the help of other transformations or by any of the
-above variability mechanisms is also referred to as \emph{higher-order
-transformations} \cite{OldevikH07}. Note that if a bootstrapped environment is
-used, the transformations are themselves models created with a transformation
-DSL. This case then reduces to just variation over models, as described in the
-previous subsection.
-
-
-
-
-\subsection{DSLs as Attribute Types}
-\label{DSLsAsAttribute}
-
-Some feature modeling tools support feature attributes. Typically, the types
-of these attributes are primitive (integer, string, float). They could also 
-be typed with a DSL, the set of valid programs expressed in
-this DSL would be the range of values.
-
-This approach is useful when the primary product definition can be expressed
-with a feature model. The DSL-typed attributes can be used for those variation
-points for which selection is not expressive enough.
-
-
-\subsection{Feature Models on Language Elements}
-
-The opposite approach is also possible. The primary product definition is done
-with DSLs. However, some language elements may have a feature model associated
-with them for detailed configuration. When the particular language concept is
-instantiated, a new ("empty") feature configuration is created, and can be
-configured by the application engineer.
-
-
-\subsection{Merging of the two approaches}
+\subsection{Making Feature Models More Expressive}
 
 We have described the limitations of the feature modeling approach. The feature
 modeling community is working on alleviating some of these limitations.
@@ -712,184 +685,7 @@ programs from partial configurations (\sect{sec:future}).
 
 
 
-\section{Examples}
-\label{sec:examples}
 
-This section contains industry examples in which DSLs are used to implement
-product lines. Note that we cannot reveal the actual companies using the DSL,
-and in case of the fountains, which we had already introduced in 
-\sect{sec:featureModelsVsDSLs}, we even had to move the example into another
-domain. However the cases and the languages are real world examples.
-
-\subsection{Alarm System Menus}
-
-The company manufactures burglar alarm systems. These systems detect when
-buildings are compromised. They consist of sensors that detect the burglary, and
-actuators including sirens, lights, and alarm propagation facilities to the
-police. These systems also have configuration devices, used by the house owner
-to configure, among other things, when the system should be active, and
-which kinds of alarms should be raised under which conditions.
-
-The company sells many different alarm systems, sensors, and actuators. Based on
-the configuration of an individual system, the menus in the configuration device
-need to be adapted. Traditionally these menus have been described using Word
-documents, developers then implemented the menus in~C.
-
-
-A new approach uses a DSL that formally describes the menu structure. Code
-generation creates the C implementation. \fig{alarmmenus} shows some example
-code. The language is purely structural, no behavior is described explicitly. A
-templating mechanism is provided that supports multiple instantiations of the
-same template in several locations in the tree, configuring each instance with
-different values passed into the template instance. Menus can also inherit from
-other menus to avoid code duplication for related systems.
-
-
-
-
-\begin{figure}[htp]
-\begin{center}
-  \includegraphics[scale=0.4]{figures/ple/alarmmenus.png}
-  \caption[labelInTOC]{Example menu definition for the alarm systems. Menus
-  contain submenus and items. Templates can be defined, and template instances
-  can be embedded into a menu tree several times with different parameter
-  values.}
-  \label{alarmmenus}
-\end{center}
-\end{figure}
-
-
-
-While the DSL is relatively simple, it plays an important role nonetheless,
-because product management can directly describe the menus in a formal way,
-making the overall development process much simpler, faster, and less error
-prone.
-
-We have used a DSL instead of a feature model for the following reasons: menus
-require recursion in the underlying formalism to be able to define unlimited
-numbers of instances of submenus. The ability to define standalone submenus that
-can be included in other menus is an example of references. Finally, the various
-elements have many fine grained attributes. A textual notation works much better
-in these cases than trees.
-
-
-
-
-\subsection{Fountains}
-
-This is the example used in section \ref{sec:featureModelsVsDSLs}. Before using
-DSLs, fountain designers experimented with different arrangements of basins and
-pumps, writing down, in prose text, interesting configurations and behaviors.
-Developers wrote the corresponding controller code in C. The domain from which
-this example is derived is very complex, with ca. 700 different products!
-
-Several DSLs are used. The first one (\fig{bsh-appl}) is used to describe
-the logical structure of basins, pumps and valves. It uses a form of multiple
-inheritance similar to classes (here: appliances) and traits (here: features),
-quite similar to what Scala provides (http://scala-lang.org).
-
-\begin{figure}[htp]
-\begin{center}
-  \includegraphics[scale=0.4]{figures/ple/bsh-appl.png}
-  \caption[labelInTOC]{Fountains can be composed from features, who contribute hardware elements.
-  Parametrized features (those with brackets) can be included more than once,
-  binding the parameter differently each time.}
-  \label{bsh-appl}
-\end{center}
-\end{figure}
-
-A second language (\fig{bsh-cool}) is used to describe the behavior. The
-behavior model refers to a hardware structure. All the hardware elements have
-events, properties and commands defined, which can be accessed from the behavior
-model. A state based, reactive, asynchronous language is used to describe the
-behavior, driving the activation of the pumps and valves based on
-sensor input and timing events.
-
-
-\begin{figure}[htp]
-\begin{center}
-  \includegraphics[scale=0.4]{figures/ple/bsh-cool.png}
-  \caption[labelInTOC]{The fountain behavior is defined with a reactive,
-  asynchronous language. A pumping program is defined for a combination of
-  hardware features. The properties, events and commands of the hardware
-  elements defined by these features can be used in the programs.}
-  \label{bsh-cool}
-\end{center}
-\end{figure}
-
-In addition to generating C code, there is also an in-IDE interpreter that can
-run the pumping programs and execute tests. These tests are also described with
-a textual language. A simulation engine to "play" with the programs is
-available as well. This is an example where additional tools make the
-use of DSLs much more feasible for domain experts.
-
-The behavior language also overlays configuration over the pumping behavior,
-an example of negative variability of a model (\sect{sec:combining}).
-The behavior can be varied depending on whether certain optional hardware
-components are installed in the fountain, as shown in \fig{bsh-cool2}.
-
-
-We have used DSLs in this case because algorithmic behavior is described. The
-expressions used in the language cannot sensibly be represented with feature
-models. The hardware structure language has to be able to instantiate the same
-hardware component several times, another reason for using a DSL instead of a
-feature model. We use negative variability to overlay hardware structure
-dependencies over the behavior specifications.
-
-
-
-
-\begin{figure}[htp]
-\begin{center}
-  \includegraphics[scale=0.68]{figures/ple/bsh-cool2.png}
-  \caption[labelInTOC]{Within a pumping program, \ic{variant} statements can
-  be used to implement negative variability over optional hardware features.
-  The example shows code that is only executed if the \ic{WithAlarm} feature
-  is present.}
-  \label{bsh-cool2}
-\end{center} 
-\end{figure}
-
-
-\subsection{Architecture DSLs}
-
-Many product lines are built on a common software architecture, while the
-application functionality varies from product to product. Architecture DSLs
-\cite{Volter10, GokhaleBKBEDTPS08} can be used very effectively in these cases.
-An architecture DSL is a DSL, in which the abstractions of the language
-correspond to the architectural concepts of the execution platform. They are
-defined by architects, and used by developers as they develop applications. When
-developing products in challenging environments such as distributed real-time
-embedded systems, architecture DSLs can provide the benefit of simulation and
-automatic optimization as described by Balasubramanian and Schmidt in
-\cite{BalasubramanianS08}.
-
-One project in the transportation industry has used an architecture DSL overlaid
-with configuration-based variability. The architecture models directly refer to
-the features defined in the configuration model, a form of presence conditions.
-Tooling is based on Eclipse Xtext and pure::variants. \fig{archdslvar} shows a
-screenshot. The system also supported AOP: aspects are available to
-"contribute" additional properties to existing model elements. The article in
-\cite{Volter10} describes this example, and the general approach, in more
-detail. 
-
-
-
-\begin{figure}[htp]
-\begin{center}
-  \includegraphics[scale=0.32]{figures/ple/archdslvar2.png}
-  \caption[labelInTOC]{Tool support (Eclipse Xtext and pure::variants) for
-  referring to feature models from DSLs, implementing negative variability over
-  DSL code.}
-  \label{archdslvar}
-\end{center}
-\end{figure}  
-
-A DSL was used in this case because architecture definition makes heavy use of
-identities and references, attributes and recursion. For example, it must be
-possible to define any number of components, and these than have to be
-instantiated and connected. So even while no expressions are used, DSLs are
-still useful in this case.
 
 
 \section{Conceptual Mapping from PLE to DSLs}
