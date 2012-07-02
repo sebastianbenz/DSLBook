@@ -1,34 +1,174 @@
 \chapter{DSLs and Product Lines}
 
-\chapterabstract{This paper investigates the application of domain-specific
-languages in product line engineering (PLE). We start by analyzing the limits of
-expressivity of feature models. Feature models correspond to context-free
-grammars without recursion, which prevents the expression of multiple instances
-and references. We then show how domain-specific languages (DSLs) can serve as a
-middle ground between feature modeling and programming. They can be used in
-cases where feature models are too limited, while keeping the separation between
-problem space and solution space provided by feature models. We then categorize
-useful combinations between configuration with feature model and construction
-with DSLs and provide an integration of DSLs into the conceptual framework of
-PLE. Finally we show how use of a consistent, unified formalism for models,
-code, and configuration can yield important benefits for managing variability
-and traceability. We illustrate the concepts with several examples from
-industrial case studies.}
+\todo{}
+\chapterabstract{}
 
 \section{Introduction}
 
 The goal of product line engineering (PLE) is to efficiently manage a range of
 products by factoring out commonalities such that definitions of products can be
-reduced to a specification of their variable aspects. One way of achieving this
-is the expression of product configurations on a higher level of abstraction
-than the actual implementation. An automated mapping transforms the
-configuration to the implementation. Traditionally this higher level of
-abstraction is realized with feature models \cite{BeuchePS04} or similar
-configuration formalisms such as orthogonal variability models
-\cite{Roos-Frantz09} or decision models \cite{DhunganaRGLF07}. A feature model
-defines the set of valid configurations for a product in a product line by
-capturing all variations points (i.e. features), as well as the constraints
-between them.
+reduced to a specification of their variable aspects\footnote{PLE also involves
+a lot product management, process and organizational aspects. We do not cover
+them in this book}. One way of achieving this is the expression of product
+configurations on a higher level of abstraction than the actual
+implementation\footnote{This higher level of abstraction is often called the
+problem space, the lower level is often called the solution space or
+implementation space.}. An automated mapping transforms the configuration to the
+implementation.  
+
+
+\section{Feature Models}
+
+Traditionally this higher level of abstraction is realized with feature models.
+Feature models express configuration options and the constraints among them. A
+graphical notation, called feature diagrams, is often used to represent feature
+models (\fig{examplefm}). If a product line's variability were just expressed by
+a set of Boolean options, the configuration space would grow with $2^n$, with
+$n$ representing the number of options. With feature models, constraints are
+expressed regarding the combinations of features, limiting the set of valid
+configurations to a more manageable size. Constraints include:
+
+\begin{itemize}
+  \item \textbf{mandatory} (filled circles): mandatory features have to be in
+  each product. In \fig{examplefm}, each \ic{Stack} has to have the
+  feature \ic{ElementType}.
+  \item \textbf{optional} (empty circles): optional features may or may not
+  be in a product. \ic{Counter} and \ic{Optimization}
+  are examples of optional features.
+  \item \textbf{or} (filled arc): a product may include zero, one or
+  any number of the features in an \ic{or} group. In the example, a product
+  may include any number of features from \ic{ThreadSafety}, \ic{BoundsCheck}
+  and \ic{TypeCheck}.
+  \item \textbf{xor} (empty arc): a product must include exactly
+  one of the features grouped into a \ic{xor} group. The \ic{ElementType}
+  must either be \ic{int}, \ic{float}, or \ic{String}.
+\end{itemize}
+
+Additional, non-hierarchical constraints can be expressed as well. For
+example, a feature can declare \ic{conflicts with} and a \ic{requires also}
+constraints relative to arbitrary other features.
+
+
+\begin{figure}[h]
+\centering
+  \includegraphics[width=110mm]{figures/ple/examplefm.png}
+\caption{An example feature diagram for a product line of \ic{Stack} data
+structures. Filled circles represent mandatory features, empty circles
+represent optional features. Filled arcs represent n-of-m selection and empty
+arcs represent 1-of-m.}
+\label{examplefm}
+\end{figure}  
+
+A configuration represents a product in the product line. It comprises a set of
+feature selections from a feature model that comply to the constraints. For
+example, the configuration \ic{Optimization}, \ic{Memory Use}, \ic{Additional
+Features}, \ic{Type Check}, \ic{Element Type}, \ic{int}, \ic{Size},
+\ic{Dy- namic} would be a valid configuration. A configuration that includes
+\ic{Speed} and \ic{Memory Usage} would be invalid because it violates the
+\ic{xor} constraint between those two features expressed in the feature model.
+
+\section{Connecting Feature Models to Artifacts}
+
+By definition, feature models express product line variability at a level that
+is more abstract than the implementation. In many of systems, the implementation
+of variability is scattered over many implementation artifacts. However, in many
+cases several variation points need to be configured in a consistent, mutually
+dependend way for the resulting product to be valid.  If each has to be
+configured separately, the overall complexity grows quickly. By identifying
+logical variation points, and then tying the (potentially many) implementation
+variation points to these logical variation points, related implementation
+variations can be tied together and managed as one
+(\fig{externalDescriptionOfVariability}).
+
+\begin{figure}[h]
+\begin{center}
+  \includegraphics[width=60mm]{figures/ple/externalDescriptionOfVariability.png}
+  \caption{The Artifact Level represents realization artifacts such as models,
+code or documentation. The Logical Level is the external description of
+variation points and the conceptual constraints among them, typically feature
+model. VP's are variation points. One or more VPs in the implementation level
+are associated with variation points in the logical level (n:1, n:m).}
+\end{center}
+\label{externalDescriptionOfVariability}
+\end{figure}
+
+So, to automatically construct a product in the product line based on the
+configuration in the feature model, one typically uses the following approach :
+
+\begin{itemize}
+  \item The product line contains a set of reusable core assets that realize
+  some kind of behavior relevant to the product line
+  \item For each product, these core assets are selected, composed
+  and configured in some particular way, controlled by the configuration.
+\end{itemize}
+ 
+If DSLs are used, then the artifacts configured from the feature model are
+typically model elements. By using DSL models instead of low-level
+implementation code, the number of variation points in the artifacts will be
+reduced because you then use the DSL-to-code transformation to expand all the
+details. The trade-off is, of course, that you have to define this high-level
+domain specific language, including a way to define variants of programs written
+in that language. You also need to define the transformation down to the actual
+implementation artifacts (\fig{modelBasedImpl}).
+
+
+ 
+\begin{figure}[h]
+\begin{center}
+  \includegraphics[width=60mm]{figures/ple/modelBasedImpl.png}
+  \caption{A model describes domain abstractions in a formal and concise way.
+Transformations map that model to (typically more than one) implementation
+artifact. Variability is expressed with fewer VPs in the models compared to
+implementation artifacts.}
+\end{center}
+\label{modelBasedImpl}
+\end{figure}  
+
+
+
+
+
+Similar to configuration of source code, for example via the C preprocessor, the
+configuration of models can be done in several different ways. The actual
+implementation may be different depending on the DSL and language workbench:
+
+
+\begin{marginfigure}
+  \includegraphics[width=50mm]{figures/ple/strategy-Removal.png}
+  \caption{Removal represents negative varibility in that it takes optional
+  things (small squares) away from a comprehensive whole, based on the
+  configuration \ic{a,b,c}. The optional things are annotated with presence
+  conditions referring to the configuration features.}
+\label{strategy-Removal} 
+\end{marginfigure} 
+\parhead{Removal/Negative Variability} In this approach, the mapping from a
+feature model to implementaton artifacts remove parts of a comprehensive whole. This implies marking up the various
+optional parts of the comprehensive whole with conditions that determine when to
+remove the part. The biggest advantage of this approach is its apparent
+simplicity. However, the comprehensive whole has to contain the parts for all
+variants (maybe even parts for combinations of variants), making it potentially
+large and complex. Also, depending on the tool support, the comprehensive whole
+might not be a valid instance of the underlying language or formalism. For
+example, in an IDE, the respective artefact might show errors which makes this
+approach annoying at times.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 However, since feature models can only describe bounded configuration spaces,
@@ -410,53 +550,7 @@ model-based configuration was then used to create different products from these
 components.
 
 
-\subsection{Variation over models}
-\label{VarOverModels}
 
-Feature models can also be used to vary the model in a fine-grained way.
-Model execution then happens in two steps: first, the model is configured based
-on the feature configuration, and then the configured model is processed as
-before via transformation, generation or interpretation.
-
-
-Similar to configuration of source code, for example via the C preprocessor, the
-configuration of models can be done in several different ways. The actual
-implementation may be different depending on the DSL and language workbench:
-
-
-
-
-\begin{itemize}
-  \item \emph{Negative Variability via Removal} DSL program elements can be
-  annotated with \emph{presence conditions}, Boolean expressions over the
-  features of a feature model. When the DSL program is mapped to the solution
-  space, a model transformation removes all those elements whose presence
-  condition is false based on the current feature configuration. Czarnecki and
-  Antkiewicz show this approach applied to UML models \cite{CzarneckiA05},
-  including static checks that ensure that every valid feature configuration
-  leads to a structurally correct UML model.
-
-  \item \emph{Positive Variability via Superimposition} A set of prebuilt model
-  fragments is created. The feature configuration selects a subset of them.
-  The fragments are then merged using some DSL-specific or generic merge
-  operator, resulting in a superimposed model representing the variant. Apel et
-  al discuss the approach in general and demonstrate it for various UML
-  diagrams, among them class diagram, state diagrams and sequence diagrams.
-  \cite{AJTK:ICMT09}.
-
-  \item \emph{Positive Variability via Aspects} A core program is available,
-  together with a set of aspects. The aspects use pointcuts to define where and
-  how they affect the core program. Based on the feature configuration, a subset
-  of these aspects is selected and applied to the core program. The case study
-  in \cite{VolterG07} describes this approach applied to EMF models (Eclipse Modeling
-  Framework, http://eclipse.org/emf).
-\end{itemize}
-
-As \fig{mbi} shows, this approach reduces the numbers of variation points
-in the artifacts and automatically supports the consistent implementation of
-several, non-local adaptations. Since the models are transformed into
-lower-level artifacts automatically, they "expand" the variability to
-potentially many low-level variation points.
 
 
 \begin{figure}[htp]
