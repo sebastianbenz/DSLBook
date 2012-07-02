@@ -1,3 +1,4 @@
+
 \chapter{DSLs and Software Architecture}
 
 
@@ -695,8 +696,8 @@ development project exists, these meta models are quite similar across
 application domains. We therefore show parts of these meta models here to give
 you a head start when defining your own component architecture.
 
-
-\paragraph{Three Typical Viewpoints}
+\FloatBarrier 
+\subsection{Three Typical Viewpoints}
 
 It is useful to look at a component-based system from several viewpoints
 (\todo{ref}). Three viewpoints form the backbone of the description. The
@@ -709,7 +710,7 @@ a number of required interfaces. An interface owns a number of operations, each
 with a return type, parameters, and exceptions. \fig{viewpoints_type} shows
 this.
 
-\begin{figure}[h]
+\begin{figure}[h!]
 \begin{center}
   \includegraphics[scale=0.30]{figures/arch/viewpoints_type.png}
   \caption[labelInTOC]{The types viewpoint describes interfaces, data types and
@@ -718,6 +719,7 @@ this.
   \label{viewpoints_type}
 \end{center}
 \end{figure}
+
 
 To describe the data structures with which the components work
 (\fig{viewpoints_data}), we start out with the abstract concept \ic{Type}. We
@@ -731,7 +733,7 @@ one or in both directions. A reference also specifies the cardinalities of the
 entities at the respective ends, and whether the reference has containment
 semantics.
 
-\begin{figure}[h]
+\begin{figure}[h!]
 \begin{center}
   \includegraphics[scale=0.30]{figures/arch/viewpoints_data.png}
   \caption[labelInTOC]{The structure of data types of course depends a lot on
@@ -741,11 +743,14 @@ semantics.
 \end{center}
 \end{figure}
 
+\FloatBarrier
+
+
 The \emph{Composition} viewpoint, illustrated in \fig{viewpoints_comp},
 describes component instances and how they are connected. Using the \emph{Type}
 and \emph{Composition} viewpoints, we can define logical models of
-applications\footnote{The Composition viewpoint is \emph{dependent}, it depends
-on the \emph{Type} viewpoint. It is also sufficient for generating stub
+applications\sidenote[][-10mm]{The Composition viewpoint is \emph{dependent}, it
+depends on the \emph{Type} viewpoint. It is also sufficient for generating stub
 implementation of the system for unit testing and for doing dependency analyses
 and other checks for completeness and consistency.}. A \ic{Configuration}
 consists of a number of \ic{ComponentInstance}s, each referencing their type
@@ -763,10 +768,12 @@ model:
   points.
 \end{itemize}
 
-\begin{figure}[h]
+\begin{figure}[h!]
 \begin{center}
   \includegraphics[scale=0.30]{figures/arch/viewpoints_comp.png}
-  \caption[labelInTOC]{TODO}
+  \caption[labelInTOC]{The \emph{Composition} viewpoint describes the composition of a
+  logical system from the component types defined in the \emph{Types}
+  viewpoint.}
   \label{viewpoints_comp}
 \end{center}
 \end{figure}
@@ -775,58 +782,72 @@ model:
 
 The \emph{System} viewpoint describes the system infrastructure onto which the
 logical system defined with the two previous viewpoints is deployed
-(\fig{viewpoints_system}).
+(\fig{viewpoints_system}), as well as the mapping of the Composition viewpoint
+onto this execution infrastructure\sidenote[][-15mm]{In some cases it may make
+sense to separate the infrastructure definition from the mapping to the Composition
+viewpoint (for example, if the infrastructure is configured by some operations
+department).}.
 
-\begin{figure}[h]
+\begin{figure}
 \begin{center}
   \includegraphics[scale=0.30]{figures/arch/viewpoints_system.png}
-  \caption[labelInTOC]{TODO}
+  \caption[labelInTOC]{The \emph{System} viewpoint maps the logical system
+  defined in the \emph{Composition} viewpoint to a specific hardware and
+  systems software configuration.}
   \label{viewpoints_system}
 \end{center}
 \end{figure}
 
 A system consists of a number of nodes, each one hosting containers. A container
 hosts a number of component instances. Note that a container also defines its
-kind - this could be things like OSGi, JEE, Eclipse or Spring. Based on this
-information, you can generate the necessary ``glue'' code to run the components
-in that kind of container. The node information, together with the connections
-defined in the composition model, allows you to generate all kinds of things,
-from remote communication infrastructure code and configuration to build and
-packaging scripts.
+kind --- representing technologies like OSGi, JEE, Eclipse or Spring. Based on
+this data, together with the data in the Composition viewpoint, you can generate
+the necessary "glue" code to run the components in that kind of container,
+including container and remote communication configuration code as well as
+scripts to package and deploy the artifacts for each container.
 
-You may have observed that the dependencies among the viewpoints are
+\vspace{5mm}
+\noindent You may have observed that the dependencies among the viewpoints are
 well-structured. Since you want to be able to define several compositions using
 the same components and interfaces, and since you want to be able to run the
 same compositions on several infrastructures, dependencies are only legal in the
 directions shown in figure \ref{viewpoints_dependencies}.
 
-\begin{figure}[h]
+\begin{figure}[h!]
 \begin{center}
   \includegraphics[scale=0.30]{figures/arch/viewpoints_dependencies.png}
-  \caption[labelInTOC]{TODO}
+  \caption[labelInTOC]{Viewpoint dependencies are set up so that the same
+  components (\emph{Type} viewpoint) can be assembled into several logical
+  applications (\emph{Composition} viewpoint), and each of those can be mapped
+  to several execution infrastructures (\emph{System} viewpoint).}
   \label{viewpoints_dependencies}
 \end{center}
 \end{figure}
 
-\paragraph{Aspect Models}
+\subsection{Aspect Models}
 
 The three viewpoints described above are a good starting point for modeling and
-building component-based systems. However, in most cases these three models are
+building component-based systems. However, in many cases these three models are
 not enough. Additional aspects of the system have to be described using specific
-aspect models that are arranged around the three core viewpoint models. The
+aspect models that are arranged "around" the three core viewpoint models. The
 following aspects are typically handled in separate aspect models:
-%
+
 \begin{itemize}
   \item Persistence
-  \item Authorization and Authentication (important in enterprise systems)
+  \vspace{-2mm}
+  \item Authorization and Authentication (for enterprise systems)
+  \vspace{-2mm}
   \item Forms, layout, page flow (for Web applications)
+  \vspace{-2mm}
   \item Timing, scheduling and other quality of service aspects (especially in embedded systems)
+  \vspace{-2mm}
   \item Packaging and deployment
+  \vspace{-2mm}
   \item Diagnostics and monitoring
 \end{itemize}
 
-The idea of aspect models is that the information is not added to the three core
-viewpoints, but rather is described using a separate model with a suitable
+\noindent The idea of aspect models is that the information is not added to the
+three core viewpoints, but rather is described using a separate model with a suitable
 concrete syntax. Again, the meta model dependencies are important: the aspects
 may depend on the core viewpoint models and maybe even on one another, but the
 core viewpoints must not depend on any of the aspect models. Figure
@@ -836,103 +857,113 @@ meta model.
 \begin{figure}[h]
 \begin{center}
   \includegraphics[scale=0.30]{figures/arch/viewpoints_persistence.png}
-  \caption[labelInTOC]{TODO}
+  \caption[labelInTOC]{An example meta model for a persistence aspect. It maps
+  data defined in the \emph{Type} viewpoint to tables and columns.}
   \label{viewpoints_persistence}
 \end{center}
 \end{figure}
 
 
-\paragraph{Variations}
 
+\subsection{Variations}
+
+\FloatBarrier
 The meta models we describe above cannot be used in exactly this way in every
-project. Also, in many cases the notion of what constitutes a component needs to
-be extended. So there are many variations of these meta models. However, judging
-from practice, even these variations are limited. In this section we want to
-illustrate some of the variations we've come across.
+project. Also, in many cases the notion of what constitutes a \ic{Component} needs to
+be extended. So there are many variations of these meta models. In this section
+we discuss a few of them\footnote{Consider them as an inspiration for your own
+case. In the end, the actual system architecture drives these meta models.}.
 
-You might not need to use interfaces to declare \emph{all} of a component's
-behavior: Operations could be added directly to the components. As a
-consequence, of course, you cannot reuse the interface's ``contracts''
+\paragraph{No Interfaces} Operations could be added directly to the components.
+As a consequence, of course, you cannot reuse the interface's "contracts"
 separately, independently of the supplier or consumer components.
 
-Often you'll need different kinds of components, such as domain components, data
-access (DAO) components, process components, or business rules components.
-Depending on this component classification you can come up with valid dependency
-structures between components. You will typically also use different ways of
-implementing component functionality, depending on the component types.
+\paragraph{Component Kinds} Often you'll need different kinds of components,
+such as domain components, data access (DAO) components, process components, or
+business rules components. Depending on this component classification you can
+define the valid dependency structures between components. You will typically
+also use different ways of implementing component functionality, depending on
+the component kinds.
 
-Another way of managing dependencies is to mark each component with a layer tag,
-such as domain, service, GUI, or facade, and define constraints on how
-components in these layers may depend on each other.
+\paragraph{Layers} Another way of managing dependencies is to mark each
+component with a layer tag, such as domain, service, GUI, or facade, and define
+constraints on how components in these layers may depend on each other.
 
-Hierarchical components, as illustrated in figure \ref{hierarchical}, are a very
-powerful tool. Here a component is structured internally as a composition of
-other component instances. Ports define how components may be connected: a port
-has an optional protocol definition that allows for port compatibility checks
-that go beyond simple interface equality. While this approach is powerful, it is
-also non-trivial, since it blurs the formerly clear distinction between Type and
-Composition viewpoints.
+\paragraph{Hierarchical Components} Hierarchical components, as illustrated in
+figure \ref{hierarchical}, are a very powerful tool. Here a component is
+structured internally as a composition of other component instances. This way, a
+recursive and hierarchical decomposition of a system is supported. Ports define
+how components may be connected: a port has an optional protocol definition that
+allows for port compatibility checks that go beyond simple interface equality.
+While this approach is powerful, it is also non-trivial, since it blurs the
+formerly clear distinction between Type and Composition viewpoints.
 
 \begin{figure}[h]
 \begin{center}
-  \includegraphics[scale=0.30]{figures/arch/hierarchical.png}
-  \caption[labelInTOC]{TODO}
+  \includegraphics[scale=0.35]{figures/arch/hierarchical.png}
+  \caption[labelInTOC]{Hierarchical components support the recursive
+  hierarchical decomposition of systems. In particular, a
+  \ic{HierarchicalComponent} consists internally of connected instances of
+  other components.}
   \label{hierarchical}
 \end{center}
 \end{figure}
 
-A component might have a number of configuration parameters - comparable to
-command line arguments in console programs - that help configure the behavior of
-components. The parameters and their types are defined in the type model, and
-values for the parameters can be specified later, for example in the models for
-the Composition or the System viewpoints.
+\paragraph{Configuration Parameters} A component might have a number of
+configuration parameters --- comparable to command line arguments in console
+programs --- that help configure the behavior of components. The parameters and
+their types are defined in the type model, and values for the parameters can be
+specified later, for example in the models for the Composition or the System
+viewpoints.
 
-You might want to say something about whether the components are stateless or
-stateful, whether they are thread-safe or not, and what their lifecycle should
-look like (for example, whether they are passive or active, whether they want to
-be notified of lifecycle events such as activation, and so on).
+\paragraph{Component Characteristics} You might want to express whether a
+components is stateless or stateful, whether they are thread-safe or not, and
+what their lifecycle should look like (for example, whether they are passive or
+active, whether they want to be notified of lifecycle events such as activation,
+and so on).
 
-It is not always enough to use simple synchronous communication. Instead, one of
-the various asynchronous communication patterns, such as those described in
-[VKZ04], might be applicable. Because using these patterns affects the APIs of
-the components, the pattern to be used has to be marked up in the model for
-the Type viewpoint, as shown in Figure 7.13.
+\paragraph{Asynchronicity} It is not always enough to use simple synchronous
+communication. Instead, one of the various asynchronous communication paradigms,
+such as those described in \todo{ref my book}, might be applicable. Because
+using these paradigms affects the APIs of the components, the pattern to be used
+has to be marked up in the model for the \emph{Type} viewpoint, as shown in
+\fig{async}. It is not enough to define it in the Composition
+viewpoint\footnote{If your application uses messaging interfaces instead of
+the RPC-style interfaces discussed in this section, then an API can be
+designed that remains independent of the communication paradigm.}.
 
 \begin{figure}[h]
 \begin{center}
   \includegraphics[scale=0.30]{figures/arch/async.png}
-  \caption[labelInTOC]{TODO}
+  \caption[labelInTOC]{A \ic{ComponentInterface- Requirement} may describe which
+  communication paradigm should be applied.}
   \label{async}
 \end{center}
 \end{figure}
 
-In addition to the communication through interfaces, you might need
-(asynchronous) events using a static or dynamic publisher/subscriber
-infrastructure. It is often useful that the ``direction of flow'' of these
-events is the opposite of the dependencies discussed above.
+\paragraph{Events} In addition to the communication through interfaces, you
+might need (asynchronous) events using a static or dynamic publisher/subscriber
+infrastructure. The "direction of flow" of these events is the opposite of the
+dependencies discussed above.
 
-The (model for the) Composition viewpoint connects component instances
-statically. This is not always feasible. If dynamic wiring is necessary, the
-best way is to embed the information that determines which instance to connect
-to at runtime into the static wiring model. So, instead of specifying in the
-model that instance A must be wired to instance B, the model only specifies that
-A needs to connect to a component with the following properties: needs to
-provide a certain interface, and for example offer a certain reliability. At
-runtime, the wire is ``deferenced'' to a suitable instance using an instance
-repository. This approach is similar to CORBA's trader service.
+\paragraph{Dyanmic Connection} The Composition viewpoint connects component
+instances statically. This is not always feasible. If dynamic wiring is
+necessary, the best way is to embed the information that determines which
+instance to connect to at runtime into the static wiring model. So, instead of
+specifying in the model that instance \ic{A} must be wired to instance \ic{B},
+the model only specifies that \ic{A} needs to connect to a component with the
+following properties: it needs to provide a certain interface, and for example
+offer a certain reliability. At runtime, the wire is "deferenced" to a suitable
+instance using an instance repository.
 
-Finally, it is often necessary to provide additional means of structuring
-complex systems. The terms business component or sub system are often used. Such
-a higher-level structure consists of a number of components. Optionally,
-constraints define which kinds of components may be contained in a specific kind
-of higher-level structure. For example, you might want to define that a business
-component always consists of exactly one facade component and any number of
-domain components. The approach laid out above works for engineering a suitable
-DSL for the higher-level situation as well, as it's basically a matter of
-finding/identifying the ``right'' abstractions. You might have to come up with a
-way to parametrize the lower-level structure to a small extent and to reference
-such parametrized structures from the higher-level DSL to make this really
-useful.
+\paragraph{Structuring} Finally, it is often necessary to provide additional
+means of structuring complex systems. The terms \emph{business component} or
+\emph{subsystem} are often used. Such a higher-level structure consists of a set
+of components (and related artifacts such as interfaces and data types).
+Optionally, constraints define which kinds of components may be contained in a
+specific kind of higher-level structure. For example, you might want to define
+that a business component always consists of exactly one facade component and
+any number of domain components. 
 
 
 
