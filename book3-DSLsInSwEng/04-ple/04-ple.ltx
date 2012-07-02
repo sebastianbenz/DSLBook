@@ -1,7 +1,13 @@
 \chapter{DSLs and Product Lines}
 
-\todo{}
-\chapterabstract{}
+\chapterabstract{This chapter discusses the role of DSLs in Product Line
+Engineering (PLE). We first briefly introduce PLE and feature models and
+discuss how feature models can be connected to programs expressed in DSLs. We
+then explain the difference in expressivity between feature models and DSLs and
+argue why sometimes features models are not enough to express the variability
+in a product line, and how DSLs can help. The chapter concludes with a couple
+of examples as well as a conceptual mapping of the concepts relevant to PLE and
+DSLs.}
 
 \section{Introduction}
 
@@ -9,7 +15,7 @@ The goal of product line engineering (PLE) is to efficiently manage a range of
 products by factoring out commonalities such that definitions of products can be
 reduced to a specification of their variable aspects\footnote{PLE also involves
 a lot product management, process and organizational aspects. We do not cover
-them in this book}. One way of achieving this is the expression of product
+them in this book.}. One way of achieving this is the expression of product
 configurations on a higher level of abstraction than the actual
 implementation\footnote{This higher level of abstraction is often called the
 problem space, the lower level is often called the solution space or
@@ -19,33 +25,37 @@ implementation.
 
 \section{Feature Models}
 
-Traditionally this higher level of abstraction is realized with feature models.
-Feature models express configuration options and the constraints among them. A
-graphical notation, called feature diagrams, is often used to represent feature
-models (\fig{examplefm}). If a product line's variability were just expressed by
-a set of Boolean options, the configuration space would grow with $2^n$, with
-$n$ representing the number of options. With feature models, constraints are
-expressed regarding the combinations of features, limiting the set of valid
-configurations to a more manageable size. Constraints include:
+In PLE, this this higher level of abstraction is typically realized with feature
+models. Feature models express configuration options and the constraints among
+them. A graphical notation, called feature diagrams, is often used to represent
+feature models (\fig{examplefm} shows an example). If a product line's
+variability were just expressed by a set of Boolean options, the configuration
+space would grow with $2^n$, with $n$ representing the number of options. With
+feature models, constraints are expressed regarding the combinations of
+features, limiting the set of valid configurations to a more manageable size.
+Constraints include:
 
 \begin{itemize}
   \item \textbf{mandatory} (filled circles): mandatory features have to be in
-  each product. In \fig{examplefm}, each \ic{Stack} has to have the
-  feature \ic{ElementType}.
+  each product. For example, in \fig{examplefm}, each \ic{Stack} has to have
+  the feature \ic{ElementType}.
+  \vspace{-2mm}
   \item \textbf{optional} (empty circles): optional features may or may not
   be in a product. \ic{Counter} and \ic{Optimization}
   are examples of optional features.
+  \vspace{-2mm}
   \item \textbf{or} (filled arc): a product may include zero, one or
   any number of the features in an \ic{or} group. In the example, a product
   may include any number of features from \ic{ThreadSafety}, \ic{BoundsCheck}
   and \ic{TypeCheck}.
+  \vspace{-2mm}
   \item \textbf{xor} (empty arc): a product must include exactly
   one of the features grouped into a \ic{xor} group. The \ic{ElementType}
   must either be \ic{int}, \ic{float}, or \ic{String}.
 \end{itemize}
 
-Additional, non-hierarchical constraints can be expressed as well. For
-example, a feature can declare \ic{conflicts with} and a \ic{requires also}
+\noindent Additionally, non-hierarchical constraints can be expressed as well.
+For example, a feature can declare \ic{conflicts with} and a \ic{requires also}
 constraints relative to arbitrary other features.
 
 
@@ -59,57 +69,55 @@ arcs represent 1-of-m.}
 \label{examplefm}
 \end{figure}  
 
-A configuration represents a product in the product line. It comprises a set of
-feature selections from a feature model that comply to the constraints. For
-example, the configuration \ic{Optimization}, \ic{Memory Use}, \ic{Additional
-Features}, \ic{Type Check}, \ic{Element Type}, \ic{int}, \ic{Size},
-\ic{Dy- namic} would be a valid configuration. A configuration that includes
-\ic{Speed} and \ic{Memory Usage} would be invalid because it violates the
-\ic{xor} constraint between those two features expressed in the feature model.
+A \emph{configuration} represents a product in the product line. It comprises a
+set of feature selections from a feature model that comply with the constraints
+expressed in the feature model. For example, the configuration
+\ic{Optimization}, \ic{Memory Use}, \ic{Additional Features}, \ic{Type Check},
+\ic{Element Type}, \ic{int}, \ic{Size}, \ic{Dynamic} would be valid. A
+configuration that includes \ic{Speed} and \ic{Memory Usage} would be invalid
+because it violates the \ic{xor} constraint between those two features expressed
+in the feature model.
+
+Note that a feature model does not yet describe the \emph{implementation} of a
+product or the product line. The feature model has to be connected to
+implementation artifacts.
+
 
 \section{Connecting Feature Models to Artifacts}
 
 By definition, feature models express product line variability at a level that
-is more abstract than the implementation. In many of systems, the implementation
-of variability is scattered over many implementation artifacts. However, in many
-cases several variation points need to be configured in a consistent, mutually
-dependend way for the resulting product to be valid.  If each has to be
+is more abstract than the implementation. In many systems, the implementation of
+variability is scattered over (parts of) many implementation artifacts.
+However, to result in a correct system, several variation points (VP) may need
+to be configured in a consistent, mutually dependend way. If each VP has to be
 configured separately, the overall complexity grows quickly. By identifying
-logical variation points, and then tying the (potentially many) implementation
-variation points to these logical variation points, related implementation
-variations can be tied together and managed as one
-(\fig{externalDescriptionOfVariability}).
+logical variation points and factoring them into feature in a feature model, and
+then tying the (potentially many) implementation variation points to these
+logical variation points, related implementation variations can be tied together
+and managed as one (\fig{externalDescriptionOfVariability}).
 
 \begin{figure}[h]
 \begin{center}
   \includegraphics[width=60mm]{figures/ple/externalDescriptionOfVariability.png}
   \caption{The Artifact Level represents realization artifacts such as models,
 code or documentation. The Logical Level is the external description of
-variation points and the conceptual constraints among them, typically feature
-model. VP's are variation points. One or more VPs in the implementation level
+variation points and the conceptual constraints among them, typically a feature
+model. One or more VPs in the implementation level
 are associated with variation points in the logical level (n:1, n:m).}
 \end{center}
 \label{externalDescriptionOfVariability}
 \end{figure}
 
-So, to automatically construct a product in the product line based on the
-configuration in the feature model, one typically uses the following approach :
 
-\begin{itemize}
-  \item The product line contains a set of reusable core assets that realize
-  some kind of behavior relevant to the product line
-  \item For each product, these core assets are selected, composed
-  and configured in some particular way, controlled by the configuration.
-\end{itemize}
- 
 If DSLs are used, then the artifacts configured from the feature model are
-typically model elements. By using DSL models instead of low-level
-implementation code, the number of variation points in the artifacts will be
-reduced because you then use the DSL-to-code transformation to expand all the
-details. The trade-off is, of course, that you have to define this high-level
-domain specific language, including a way to define variants of programs written
-in that language. You also need to define the transformation down to the actual
-implementation artifacts (\fig{modelBasedImpl}).
+typically DSL programs, the variation points are program elements. By using DSL
+models instead of low-level implementation code, the number of variation points
+in the artifacts will be reduced because you then use the DSL-to-code
+transformation to expand all the details in a consistent way. The trade-off is
+that you have to define this high-level domain specific language,
+including a way to define variants of programs written in that language. You
+also need to define the transformation down to the actual implementation
+artifacts (\fig{modelBasedImpl}).
 
 
  
@@ -126,26 +134,26 @@ implementation artifacts.}
 
 
 
+The configuration of models (and other artifacts) can be done in several
+different ways: removal, injection and parametrization.
 
 
-Similar to configuration of source code, for example via the C preprocessor, the
-configuration of models can be done in several different ways. The actual
-implementation may be different depending on the DSL and language workbench:
-
-
-\begin{marginfigure}
+\begin{marginfigure}[-15mm]
   \includegraphics[width=50mm]{figures/ple/strategy-Removal.png}
   \caption{Removal represents negative varibility in that it takes optional
   things (small squares) away from a comprehensive whole, based on the
-  configuration \ic{a,b,c}. The optional things are annotated with presence
+  configuration \ic{a,b,c}. The optional parts are annotated with presence
   conditions referring to the configuration features.}
 \label{strategy-Removal} 
 \end{marginfigure} 
-\parhead{Removal/Negative Variability} In this approach, the mapping from a
-feature model to implementaton artifacts remove parts of a comprehensive whole
-(\fig{strategy-Removal}). This implies marking up the various optional parts of the comprehensive whole with conditions that determine when to
-remove the part. The biggest advantage of this approach is its apparent
-simplicity. However, the comprehensive whole has to contain the parts for all
+\parhead{Removal} (also known as Negative Variability) In this approach, the
+mapping from a feature model to implementaton artifacts remove parts of a 
+comprehensive whole
+(\fig{strategy-Removal}). This implies marking up the various optional parts of 
+the comprehensive whole with boolean expressions that determine when to
+remove the part. These expressions are called presence conditions. The biggest
+advantage of this approach is its apparent simplicity. However, the comprehensive 
+whole has to contain the parts for \emph{all}
 variants (maybe even parts for combinations of variants), making it potentially
 large and complex. Also, depending on the tool support, the comprehensive whole
 might not be a valid instance of the underlying language or formalism. For
@@ -153,93 +161,90 @@ example, in an IDE, the respective artefact might show errors which makes this
 approach annoying at times.
 
 \ic{ifdefs} in C and C++ are a well-known implementation of this strategy. A
-preprocessor removes all code regions, whose ifdef condition evaluates to false.
-When calling the compiler/preprocessor, you have to provide a number of symbols
-that are evaluated as part of the ifdef conditions. Conditional compilation can
-also be found in other languages. Preprocessors that treat the source code
+preprocessor removes all code regions, whose \ic{ifdef} condition evaluates to
+false. When calling the compiler/preprocessor, you have to provide a number of
+symbols that are evaluated as part of the conditions. Conditional compilation
+can also be found in other languages. Preprocessors that treat the source code
 simply as text are available for many languages and are part of many PLE tool
 suites. The AUTOSAR \todo{ref} standard, as well as other modeling formalisms,
-support the annotation of model elements with conditions that serve the same
-purpose. The model element (and potentially all its children) are removed from
-the model if the condition evaluates to false.
+support the annotation of model elements with presence conditions.
+The model element (and all its children) are removed from the model
+if the condition evaluates to false.
 
 
-\begin{marginfigure}
+\begin{marginfigure}[-46mm]
   \includegraphics[width=50mm]{figures/ple/strategy-Injection.png}
-  \caption{A base artifact made of various parts (the small rectangles) exists. 
-  There is also variant specific code (the strange shapes), connected to features
+  \caption{A minimal base artifact made of various parts (the small rectangles)
+  exists. There is also variant specific code (the strange shapes), connected to features
   external to the actual artifact and pointing to the parts of the artifact to
   which they can be attached. Implementing a variant means that the variant 
   specific code associated with the selected features are injected into the 
-  base artifact, to the parts they designated.}
-\label{strategy-Injection} 
+  base artifact, attached to the parts they designate.}
+\label{strategy-Injection}  
 \end{marginfigure} 
-\parhead{Injection/Positive Variability} In this approach, Inject additions into
-a minimal core (\fig{strategy-Injection}). The core does not know about the
-variability, the additions point to the place where they need to be added. The clear advantage of this
+\parhead{Injection} (also known as Positive Variability) In this approach,
+additions are defined relative to a minimal core (\fig{strategy-Injection}).
+The core does not know about the variability, the additions point to the place 
+where they need to be added. The clear advantage of this
 approach is that the core is typically small and contains only what is common
 for all products. The parts specific to a variant are kept external and added to
 the core only when necessary. To be able to do this, however, there must be a
 way to refer to the location in the minimal core at which to add a variable
 part. This either requires the markup of hotspots or hooks in the minimal core
-or some way of pointing into the core from an external source.
+or some way of pointing into the core from an external source. Also,
+interactions between the additions for various features may also be hard to
+manage.
 
-AOP is a way to implement this strategy. Pointcuts are a way of selecting from a
-set of join points in the base asset. A joint point is an addressable location
-in the core. Instead of explicitly defining hooks, all instances of a specific
-language construct are automatically addressable. Various preprocessors can be
-used in this way. However, they typically require the explicit markup of hooks
-in the minimal core. For models, injection is especially easy, since in most
-formalisms model elements are addressable by default. So it is possible to point
-to a model element, and add additional model elements to it, as long as the
-result is still a valid instance of the meta model. 
+AOP is a way of implementing this strategy. Pointcuts are a way of selecting
+from a set of join points in the base asset. A joint point is an addressable
+location in the core. Instead of explicitly defining hooks, all instances of a
+specific language construct are automatically addressable. Various preprocessors
+can also be used in this way. However, they typically require the explicit
+markup of hooks in the minimal core. For models, injection is especially simple
+since in most formalisms model elements are addressable by default. So it is
+possible to point to a model element, and add additional model elements to it,
+as long as the result is still a valid instance of the meta model.
 
  
 
 
-\begin{marginfigure}
-  \includegraphics[width=50mm]{figures/ple/strategy-Parameters.png}
-  \caption{An artifact defines a number of (typed) parameters.
+\begin{marginfigure}[45mm]
+  \includegraphics[width=50mm]{figures/ple/strategy-Parameters.png} \caption{An
+  artifact defines a number of (typed) parameters.
   A variant provides values for the parameters.}
 \label{strategy-Parameters} 
 \end{marginfigure} 
-\parhead{Parameterization} The artifact that shall be varied needs to define
-parameters. A variant is constructed by providing different values for those
-parameters (\fig{strategy-Parameters}). The parameters are usually typed to
-restrict the range of valid values. The artifact that shall be parameterized needs to explicitly define the
-parameters, as well as a way to specify values. Hence, the variability is
-limited to the locations where parameters are defined. The core has to query the
-values of those parameters explicitly and use them for whatever it does. The
-approach requires the core to be explicitly aware and define all parameters.
-In most cases, the values for the parameters are relatively simple, such as
-strings, integers, booleans or regular expressions. However, in principle, they
-can be arbitrarily complex.
+\parhead{Parameterization} The artifact that shall be varied has to define
+parameters. A variant is constructed by providing values for those parameters
+(\fig{strategy-Parameters}). The parameters are usually typed to restrict the
+range of valid values. In most cases, the values for the parameters are
+relatively simple, such as strings, integers, booleans or regular expressions.
+However, in principle, they can be arbitrarily complex. The artifact that shall
+be parameterized needs to explicitly define the parameters, as well as a way to
+specify values. The artifact has to query the values of those parameters
+explicitly and use them for whatever it does. The approach requires the core to
+be explicitly aware and define all parameters.
 
-A configuration file that is read out by the using application is a form of
+A configuration file that is read out by the an application is a form of
 parameterization. The names of the parameters are predefined by the application,
 and when defining a variant, a set of values is supplied. The strategy pattern
 is a form of parameterization, especially in combination with a factory. A
 variant is created by supplying an implementation of an interface defined by the
-configurable application. Once again, the application has to explicitly query
-the factory, and the type of the values is defined by the interface which its
-strategy classes implement. All kinds of other small, simple, or domain specific
-languages can be used as a form of parameterization. A scripting language in an
+configurable application. All kinds of other small, simple, or domain specific
+languages can be used as a form of parameterization. A macro language in an
 application is a form of parameterization. That type of parameter is "valid
-program written in language X". Also, systems where some kind of behavior can be
-configured using workflow languages, activity diagrams, state machines or
-business rules is a form of parameterization. In this case, too, the languages
-used to define the behavior are the type of the parameter.
+program written in language X"\footnote{There is an obvious connection to DSLs
+--- a DSL can be used here.}.
 
 
 \subsection{A real world example}
 
-In mbeddr we use a textual notation, since support for graphical syntax in MPS
-will become available only in 2013. \fig{fminmbeddr} shows the textual notation
-for feature models used in mbeddr. Note how the constraint affects all children. 
-We had to introduce the intermediate feature
-\ic{options} to separate mandatory features from optional features. Features
-can also have configuration attributes (of any type).
-\vspace{-1mm}
+In mbeddr we use a textual notation for feature models, since support for
+graphical syntax in MPS will become available only in 2013. \fig{fminmbeddr}
+shows this notation. Note how the constraint affects all children of a feature,
+so we had to introduce the intermediate feature \ic{options} to separate
+mandatory features from optional features. Features can also have configuration
+attributes (of any type).
 
 \begin{figure}[h]
 \centering
@@ -250,11 +255,10 @@ graphical notations (planned for 2013), we use a textual notation.}
 \end{figure}
 
 
-A configuration is a named set of selections from the
-features in a feature model. The selection has to be valid regarding the
-constraints defined in the feature model. \fig{twoconfigs} shows two examples.
-If an invalid configuration is created errors will be shown in the configuration
-model.
+A configuration is a named set of selections from the features in a feature
+model. The selection has to be valid regarding the constraints defined in the
+feature model. \fig{twoconfigs} shows two example configurations. If an invalid
+configuration is created, errors will be shown in the configuration model.
  
 
 \begin{figure}[h]
@@ -267,14 +271,15 @@ model.
 
 
 
-A presence condition is an annotation on a program
-element that specifies under which conditions the program element is part of a
-product via a Boolean expression over features. For example the two \ic{report}
-statements and the message list in the left program in \fig{projection} are only
-part of a product if the \ic{logging} feature is selected in the product
-configuration. The background color of an annotated node is computed from the
-expression: annotated nodes using the same expression have the same color (an
-idea borrowed from Christian Kaestner's CIDE \cite{Kastner07b}).
+Presence conditions can be attached to any program element\footnote{...
+expressed in any language, without this language having to know about it.
+Thanks to MPS' annotations (discussed in \todo{ref}).}.
+For example the two \ic{report} statements and the message list in the left program in
+\fig{projection} are only part of a product if the \ic{logging} feature is
+selected in the product configuration. The background color of an annotated node
+is computed from the expression: annotated nodes using the same expression have
+the same color (an idea borrowed from Christian Kaestner's CIDE
+\cite{Kastner07b}).
 
 Note that the fact that you can make arbitrarily detailed program elements
 depend on features is not meant to imply that no further structuring of the
@@ -289,14 +294,6 @@ as a specific product. \fig{projection} shows an example. During
 transformation, those parts of programs that are not in the product are removed
 from the model. 
 
-As a further example of analysis and verification, we use a SAT solver to ensure
-that a feature model is free from conflicts and that configurations are
-consistent with the respective feature models. For example, if a feature \ic{A}
-has a \ic{requires also} constraint to feature \ic{B}, and feature \ic{B}
-expresses a \ic{conflicts with} constraint regarding \ic{A}, then the feature
-model contains a conflict.
-
-
 \begin{figure}[h] 
 \begin{center} 
   \includegraphics[width=118mm]{figures/ple/projection.png}
@@ -307,36 +304,7 @@ model contains a conflict.
 \end{figure}
 
 
-
-
-
-
-
-
-However, since feature models can only describe bounded configuration spaces,
-their expressivity is limited. This limitation can be reduced to the fact that the
-feature modeling formalism corresponds to context-free grammars without
-recursion. By using full context-free grammars, the expressivity of feature
-modeling can be extended to domain-specific configuration languages with
-unbounded configuration spaces, without the need to regress to programming in a
-general-purpose programming language.
-
-
-In this paper, we investigate the application of domain-specific languages
-(DSLs) in product line engineering. We first analyze the difference in
-expressivity between feature models and DSLs, and discuss when to use which
-approach (\sect{sec:featureModelsVsDSLs}). For a given product line, the
-decision between feature models and DSLs often is not mutually exclusive. We
-categorize approaches for composing feature models and DSLs, for example, by
-using feature models to configure DSL programs (\sect{sec:combining}). If we
-express the complete product definition based on the linguistic integration of
-feature models and DSLs, we can reap a number of additional benefits such as
-uniform traceability (\sect{sec:benefits}). To illustrate the approach, we
-discuss three industrial case studies of DSLs used in product line engineering
-(\sect{sec:examples}). Finally, to put the approach into perspective, we present
-a mapping of DSLs and their tools to the core concepts and processes of PLE
-(\sect{sec:conceptualMapping}). 
-
+\vspace{-10mm}
 
 \section{From Feature Models to DSLs}
 \label{sec:featureModelsVsDSLs}
@@ -985,9 +953,9 @@ when DSLs are used.
 
 \subsection{Variation Points and Kinds of Variability}
 
-This represents the core of the paper and has been discussed extensively above:
-DSLs provide more expressivity than feature models, while not being completely
-unrestricted as programming languages.
+This represents the core of the chapter and has been discussed extensively
+above: DSLs provide more expressivity than feature models, while not being
+completely unrestricted as programming languages.
 
 
 \subsection{Domain Engineering and Application Engineering}
