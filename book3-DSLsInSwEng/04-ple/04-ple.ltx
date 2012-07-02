@@ -142,8 +142,8 @@ implementation may be different depending on the DSL and language workbench:
 \label{strategy-Removal} 
 \end{marginfigure} 
 \parhead{Removal/Negative Variability} In this approach, the mapping from a
-feature model to implementaton artifacts remove parts of a comprehensive whole. This implies marking up the various
-optional parts of the comprehensive whole with conditions that determine when to
+feature model to implementaton artifacts remove parts of a comprehensive whole
+(\fig{strategy-Removal}). This implies marking up the various optional parts of the comprehensive whole with conditions that determine when to
 remove the part. The biggest advantage of this approach is its apparent
 simplicity. However, the comprehensive whole has to contain the parts for all
 variants (maybe even parts for combinations of variants), making it potentially
@@ -152,17 +152,159 @@ might not be a valid instance of the underlying language or formalism. For
 example, in an IDE, the respective artefact might show errors which makes this
 approach annoying at times.
 
+\ic{ifdefs} in C and C++ are a well-known implementation of this strategy. A
+preprocessor removes all code regions, whose ifdef condition evaluates to false.
+When calling the compiler/preprocessor, you have to provide a number of symbols
+that are evaluated as part of the ifdef conditions. Conditional compilation can
+also be found in other languages. Preprocessors that treat the source code
+simply as text are available for many languages and are part of many PLE tool
+suites. The AUTOSAR \todo{ref} standard, as well as other modeling formalisms,
+support the annotation of model elements with conditions that serve the same
+purpose. The model element (and potentially all its children) are removed from
+the model if the condition evaluates to false.
+
+
+\begin{marginfigure}
+  \includegraphics[width=50mm]{figures/ple/strategy-Injection.png}
+  \caption{A base artifact made of various parts (the small rectangles) exists. 
+  There is also variant specific code (the strange shapes), connected to features
+  external to the actual artifact and pointing to the parts of the artifact to
+  which they can be attached. Implementing a variant means that the variant 
+  specific code associated with the selected features are injected into the 
+  base artifact, to the parts they designated.}
+\label{strategy-Injection} 
+\end{marginfigure} 
+\parhead{Injection/Positive Variability} In this approach, Inject additions into
+a minimal core (\fig{strategy-Injection}). The core does not know about the
+variability, the additions point to the place where they need to be added. The clear advantage of this
+approach is that the core is typically small and contains only what is common
+for all products. The parts specific to a variant are kept external and added to
+the core only when necessary. To be able to do this, however, there must be a
+way to refer to the location in the minimal core at which to add a variable
+part. This either requires the markup of hotspots or hooks in the minimal core
+or some way of pointing into the core from an external source.
+
+AOP is a way to implement this strategy. Pointcuts are a way of selecting from a
+set of join points in the base asset. A joint point is an addressable location
+in the core. Instead of explicitly defining hooks, all instances of a specific
+language construct are automatically addressable. Various preprocessors can be
+used in this way. However, they typically require the explicit markup of hooks
+in the minimal core. For models, injection is especially easy, since in most
+formalisms model elements are addressable by default. So it is possible to point
+to a model element, and add additional model elements to it, as long as the
+result is still a valid instance of the meta model. 
+
+ 
+
+
+\begin{marginfigure}
+  \includegraphics[width=50mm]{figures/ple/strategy-Parameters.png}
+  \caption{An artifact defines a number of (typed) parameters.
+  A variant provides values for the parameters.}
+\label{strategy-Parameters} 
+\end{marginfigure} 
+\parhead{Parameterization} The artifact that shall be varied needs to define
+parameters. A variant is constructed by providing different values for those
+parameters (\fig{strategy-Parameters}). The parameters are usually typed to
+restrict the range of valid values. The artifact that shall be parameterized needs to explicitly define the
+parameters, as well as a way to specify values. Hence, the variability is
+limited to the locations where parameters are defined. The core has to query the
+values of those parameters explicitly and use them for whatever it does. The
+approach requires the core to be explicitly aware and define all parameters.
+In most cases, the values for the parameters are relatively simple, such as
+strings, integers, booleans or regular expressions. However, in principle, they
+can be arbitrarily complex.
+
+A configuration file that is read out by the using application is a form of
+parameterization. The names of the parameters are predefined by the application,
+and when defining a variant, a set of values is supplied. The strategy pattern
+is a form of parameterization, especially in combination with a factory. A
+variant is created by supplying an implementation of an interface defined by the
+configurable application. Once again, the application has to explicitly query
+the factory, and the type of the values is defined by the interface which its
+strategy classes implement. All kinds of other small, simple, or domain specific
+languages can be used as a form of parameterization. A scripting language in an
+application is a form of parameterization. That type of parameter is "valid
+program written in language X". Also, systems where some kind of behavior can be
+configured using workflow languages, activity diagrams, state machines or
+business rules is a form of parameterization. In this case, too, the languages
+used to define the behavior are the type of the parameter.
+
+
+\subsection{A real world example}
+
+In mbeddr we use a textual notation, since support for graphical syntax in MPS
+will become available only in 2013. \fig{fminmbeddr} shows the textual notation
+for feature models used in mbeddr. Note how the constraint affects all children. 
+We had to introduce the intermediate feature
+\ic{options} to separate mandatory features from optional features. Features
+can also have configuration attributes (of any type).
+\vspace{-1mm}
+
+\begin{figure}[h]
+\centering
+  \includegraphics[width=70mm]{figures/ple/fminmbeddr.png}
+\caption{An example feature model in mbeddr. Until MPS will provide support for
+graphical notations (planned for 2013), we use a textual notation.}
+\label{fminmbeddr}
+\end{figure}
+
+
+A configuration is a named set of selections from the
+features in a feature model. The selection has to be valid regarding the
+constraints defined in the feature model. \fig{twoconfigs} shows two examples.
+If an invalid configuration is created errors will be shown in the configuration
+model.
+ 
+
+\begin{figure}[h]
+\begin{center} 
+  \includegraphics[width=110mm]{figures/ple/twoconfigs.png}
+\end{center}
+\caption{Two valid configurations of the feature model.}
+\label{twoconfigs}
+\end{figure}
 
 
 
+A presence condition is an annotation on a program
+element that specifies under which conditions the program element is part of a
+product via a Boolean expression over features. For example the two \ic{report}
+statements and the message list in the left program in \fig{projection} are only
+part of a product if the \ic{logging} feature is selected in the product
+configuration. The background color of an annotated node is computed from the
+expression: annotated nodes using the same expression have the same color (an
+idea borrowed from Christian Kaestner's CIDE \cite{Kastner07b}).
+
+Note that the fact that you can make arbitrarily detailed program elements
+depend on features is not meant to imply that no further structuring of the
+product line is necessary, and all variability should be expressed via
+fine-grained presence conditions. Instead, presence conditions should be used to
+configure more coarse grained entities such as the instantiation and wiring of
+components.
+
+It is possible to edit the program as a
+product line (with the annotations), undecorated (without annotations) as well
+as a specific product. \fig{projection} shows an example. During
+transformation, those parts of programs that are not in the product are removed
+from the model. 
+
+As a further example of analysis and verification, we use a SAT solver to ensure
+that a feature model is free from conflicts and that configurations are
+consistent with the respective feature models. For example, if a feature \ic{A}
+has a \ic{requires also} constraint to feature \ic{B}, and feature \ic{B}
+expresses a \ic{conflicts with} constraint regarding \ic{A}, then the feature
+model contains a conflict.
 
 
-
-
-
-
-
-
+\begin{figure}[h] 
+\begin{center} 
+  \includegraphics[width=118mm]{figures/ple/projection.png}
+\end{center} 
+\caption{\textbf{Left:} A C program with product line annotations.
+\textbf{Right:} The program rendered in in the \ic{Production} variant.}
+\label{projection} 
+\end{figure}
 
 
 
@@ -216,25 +358,6 @@ points that can be modeled with feature models are the following:
   \item Should messages be queued? What is the queue size?
 \end{itemize}
 
-
-
-
-In the simplest case, product lines can be implemented with programming
-languages only. For example, an object-oriented framework is implemented as part
-of domain engineering, and it is then customized specifically for each product
-by writing framework client code. The advantage of this code-only approach is
-that no special tools are needed and that there is a high degree of flexibility
-for the implementers. Any kind of variability can be expressed with programming
-languages, using techniques such as preprocessors, branching, polymorphism,
-generics or design patterns. However, using these techniques only, there is no
-distinction between the problem space and the solution space --- no higher level
-representation of the variability in a product line is provided, making it hard
-to keep track of, and manage the variability. This is especially problematic if
-the definition of a product requires consistent changes in several places in the
-implementation artifacts.
-
-
-
 Feature models provide an abstraction over the implementation of the product.
 Based on the feature configuration, mappings derive the necessary adaptations of
 the underlying implementation artifacts. Because of this abstraction, feature
@@ -248,11 +371,7 @@ As described by Batory \cite{Batory05} and Czarnecki \cite{CzarneckiW07}, a
 particular advantage of feature models is that a mapping to logic exists. Using
 SAT solvers, it is possible to check, for example, whether a feature model has
 valid configurations at all. The technique can also be used to automatically
-complete partial configurations. This has been shown to work for
-realistically-sized feature models \cite{MendoncaWC09}. Pure::variants
-(http://pure-systems.com) maps feature models to Prolog to achieve a similar
-goal, as does the GEMS-based tool described in \cite{WhiteBSTDC10}.
-
+complete partial configurations. 
 
 
 In the rest of this section we will discuss the limitations of feature models.
@@ -479,46 +598,6 @@ in an invoicing product line, specifying families of pension contracts,
 and defining communication protocols in embedded systems.
 
 
-In general, a \emph{domain-specific language} (DSL) is a software language
-specialized for a particular problem domain. DSLs can use graphical, textual or
-tabular concrete syntax, or any combination thereof. Like programming languages,
-DSLs can either be compiled --- typically through code generation to a
-programming language --- or interpreted by an interpreter running on the target
-environment.
-
- 
-
-
-A DSL's concrete and abstract syntax are tailored closely to the domain at hand.
-Using DSLs only requires knowledge about the problem domain, not about the 
-solution domain. This improves productivity, quality and maintainability.
-Productivity is improved because a higher level notation is provided, avoiding
-dealing with implementation details. Quality is improved because transformations
-or interpreters execute the programs consistently. Maintainability is improved
-because changes to the program can be done on the level of the DSL program, or
-by changing the generator or interpreter.
-
-
-A note on terminology: we use the terms \emph{DSL program}, \emph{DSL code} and
-\emph{model} interchangably. Strictly speaking, the DSL code is a textual
-representation of a model, but this distinction is not relevant in this paper.
-While we focus primarily on textual DSLs in this paper, the discussion is
-equally valid for DSLs using other notations, as long as the underlying
-expressivity is not reduced,  as for example in purely tabular notations.
-However, expression-like models can best be expressed using a textual notation.
-
-
-
-Supplying convenient editors and other tools along with the DSL increases the
-usability of the language significantly. The term \emph{language workbench} has
-been introduced by Martin Fowler in 2004~\cite{Fowler2004}, referring to tools
-that support the efficient definition, composition and use of DSLs. Open Source
-examples include Eclipse Xtext (http://eclipse.org/xtext), Spoofax
-(http://strategoxt.org/Spoofax) and JetBrains MPS
-(http://www.jetbrains.com/mps/).
-
-
-
 
 
 
@@ -531,37 +610,6 @@ drawbacks of both approaches. In this section we categorize how both approaches
 can be combined.
 
 
-\subsection{Implementing Components with DSLs}
-
-One way of using feature models is to use them to select between a number of
-prebuilt, reusable components that are used to customize a framework as part of
-product definition. Instead of implementing these components in a programming
-language, they can be implemented using DSLs. This is especially useful if the
-behavior in these components is highly domain-specific. At the time of product
-definition using the feature model, the domain expert does not have to know that
-the components have been developed using DSLs
-.
-
-
-
-For example, we have worked on a system in which a DSL was used to describe OSGi
-component structures, generating all the low level OSGi details. Feature
-model-based configuration was then used to create different products from these
-components.
-
-
-
-
-
-\begin{figure}[htp]
-\begin{center}
-  \includegraphics[scale=0.7]{figures/ple/mbi.png} 
-  \caption[labelInTOC]{Transformations "expand" variation points, thereby
-  reducing the number of variation points that have to be management
-  explicitly.}
-  \label{mbi}
-\end{center}
-\end{figure}
 
 
 \subsection{Variations in the Transformation or Execution}
@@ -570,28 +618,26 @@ When working with DSLs, the execution of models --- by transformation, code
 generation or interpretation --- is under the control of the domain
 engineer. The transformations or the interpreter can also be varied based on a
 feature model.
-\begin{itemize}
-  \item \emph{Negative Variability via Removal} The transformations or the
-  interpreter can be annotated with presence conditions, the configuration
-  happens before the transformations or the interpreter are executed.
 
-  \item \emph{Branching} The interpreter or the transformations can query over
-  a feature configuration and then branch accordingly at runtime.
+\parhead{Negative Variability via Removal} The transformations or the
+interpreter can be annotated with presence conditions, the configuration
+happens before the transformations or the interpreter are executed.
 
-  \item \emph{Positive Variability via Superimposition} Transformations or
-  interpreters can be composed via superposition before execution. For
-  transformations, this is especially feasible if they transformation language
-  is declarative, which means that the order in which the transformations are
-  specified is irrelevant. Interpreters are usually procedural, object-oriented or
-  functional programs, so declarativeness is hard to achieve in those.
+\parhead{Branching} The interpreter or the transformations can query over
+a feature configuration and then branch accordingly at runtime.
 
-  \item \emph{Positive Variability via Aspects} If the transformation language
-  or the interpreter implementation language support aspect oriented
-  programming, then this can be used to configure the execution environment. For
-  example, the Xpand code generation engine (http://wiki.eclipse.org/Xpand)
-  supports AOP for code generation templates.
-\end{itemize}
+\parhead{Positive Variability via Superimposition} Transformations or
+interpreters can be composed via superposition before execution. For
+transformations, this is especially feasible if they transformation language
+is declarative, which means that the order in which the transformations are
+specified is irrelevant. Interpreters are usually procedural, object-oriented or
+functional programs, so declarativeness is hard to achieve in those.
 
+\parhead{Positive Variability via Aspects} If the transformation language
+or the interpreter implementation language support aspect oriented
+programming, then this can be used to configure the execution environment. For
+example, the Xpand code generation engine (http://wiki.eclipse.org/Xpand)
+supports AOP for code generation templates.
 
 
 Examples for all of these are described by Voelter and
@@ -695,45 +741,6 @@ interesting backend for DSLs to support analysis, validation and automatic creat
 programs from partial configurations (\sect{sec:future}). 
 
 
-
-\section{Benefits of Tools}
-\label{sec:benefits}
-
-If all product line artifacts, i.e. program code, models, and transformations,
-are expressed using a single modeling infrastructure, then only a single
-approach is needed for varying any of them. In addition, the integration between
-different models representing different aspects of the overall product configuration becomes
-simpler. For example, the ability to refer to features in a feature model from
-an Xtext-based language is a generic, reusable module that can be integrated into
-arbitrary DSLs. Similar tooling is available for JetBrains MPS. Arbitrary
-program elements expressed with any language defined in MPS can be annotated
-with presence conditions (\fig{mpsvar}). Upon transformation, all those model
-elements whose presence condition is false at the time of generation are
-removed, so no lower level code is generated from them. It is also possible to
-configure the program for a specific variant while it is edited. 
-
-\begin{figure}[htp]
-\begin{center}
-  \includegraphics[scale=0.45]{figures/ple/mpsvar.png}
-  \caption[labelInTOC]{Presence conditions (Boolean expressions over features)
-  on program elements in the MPS tool. Presence conditions can be attached 
-  to any program node and control which nodes are transformed during code
-  generation.}
-  \label{mpsvar}
-\end{center} 
-\end{figure}
-
-A similar approach can be used for expressing traceability, another important
-cornerstone of PLE \cite{JirapanthongZ05}. Arbitrary model elements can be
-annotated with traceability links to a requirements database. For Eclipse, the
-VERDE project (http://www.itea-verde.org/) develops generic traceability tooling
-with which any EMF-based model can be related to other models or RIF-based
-requirements files. In MPS this is possible as well, using the same
-annotation-based approach that is used for presence conditions. MPS' capability
-to combine independently developed languages makes the composition 
-of an overall product configuration from program/model fragments 
-expressed in various languages almost trivial. Language composition in MPS and
-the annotation mechanism is explained in detail in \cite{VoelterSolomatov2010}.
 
 
 
@@ -1098,35 +1105,4 @@ whether they are part of the platform or the production tools:
 \end{itemize}
 
 
-
-\section{Future Work}
-\label{sec:future}
-
-Hybrid solutions such as Clafer and their relationships to DSLs require
-further investigation. One question is whether Clafer is suitable as a
-verification backend for DSLs: a DSL's abstract syntax, including possible
-selection-based parts, could be translated into Clafer, and then Clafer's
-integration with solvers could be used to verify and check DSL programs. This
-approach promises a simplification over directly integrating DSLs with solvers,
-because Clafer provides abstractions that are much closer to DSLs than raw
-logic. A second, related question is which kinds of languages are suitable for
-this kind of integration. A third question relating to Clafer is whether it 
-could be directly used as the abstract syntax formalism for DSLs. In this case, 
-Clafer models would be annotated with concrete syntax definitions to render 
-a textual DSL. 
-
-\section{Conclusion}
-
-In this paper we have positioned domain-specific languages into the context of
-PLE. Our practical experience shows that DSLs play an important role in PLE,
-filling the expressive gap between feature models and programming languages.
-DSLs can provide problem space-level, formalized descriptions of the core
-application logic, that is hard to capture with feature models. We show that
-DSLs fit well with the existing feature model-based PLE approaches and the
-overall PLE approach. Tool support for DSLs, and for the integration between
-DSLs and feature models this is coming along. Finally, it is worth pointing out
-that language workbenches are becoming more and more powerful and user friendly,
-making the development of DSLs and their tools much less effort than language
-construction has historically been. The language workbench competition webpage
-at http://www.languageworkbenches.net/ provides a good overview.
 
