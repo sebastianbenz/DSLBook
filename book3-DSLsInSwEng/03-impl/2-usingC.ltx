@@ -1,0 +1,365 @@
+
+
+
+ 
+
+ 
+
+
+
+ 
+\vspace{-2mm}
+\subsection{Extensions addressing the Challenges}
+\label{usingC}
+
+ 
+In this section we present example extensions that illustrate how we address the
+challenges discussed in \sect{challenges}. We show at least one example for each
+challenge\footnote{How such extensions are built will be discussed in the next
+section, \sect{design}.}. Our aim in this paper is to showcase the extensibility
+of the mbeddr system, and, by this, language engineering using language
+workbenches. We will not discuss in detail any particular extension. The table
+in \fig{tab:challenges_extensions_examples} shows an overview over the
+challenges, the examples in this section, and the ways of extension each example
+makes use of.
+
+\begin{figure}[h]
+\begin{center}
+    \begin{tabular}{ | l | l |}
+    \hline
+    \textbf{Challenge} \ & \textbf{Example Extensions} \  \\ \hline
+    \hline 
+    $C_1$          & State machines ($W_1$, $W_2$) \\
+    (Low-Overhead      & Components ($W_1$) \\ 
+    Abstraction)   & Decision Tables ($W_3$) \\ 
+    \hline 
+    $C_2$  & Cleaned up C ($W_7$) \\
+    (Safer C) & Safe Modules ($W_5$, $W_7$) \\ 
+    \hline    
+    $C_3$ 	    & Physical Units ($W_4$) \\ 
+    (Annotations) & \\ 
+    \hline 
+    $C_4$          & Unit Tests ($W_1$, $W_2$)  \\
+    (Static Checks,        & State Machines ($W_1$, $W_2$) \\ 
+    Verification)  & Safe Modules ($W_2$, $W_5$, $W_7$) \\ 
+    \hline 
+    $C_5$     & Requirements Traceability ($W_6$) \\
+    (Process Support)   & Product Line Variability ($W_6$) \\ 
+    \hline     
+    \end{tabular} 
+\end{center}
+
+\caption{Embedded software development challenges, example extensions in this
+section, and the ways of extending C each example makes use of.}   
+\label{tab:challenges_extensions_examples}    
+\end{figure}
+
+\parhead{A cleaned up C} (addresses $C_2$, uses $W_7$) To make C extensible,
+we first had to implement C in MPS. This entails the definition of the language
+structure, syntax and type system\footnote{A generator to C text is also
+required, so the code can be fed into an existing compiler. However, since this
+generator merely renders the tree as text, with no structural differences, this
+generator is trivial. We do not discuss it any further}. In the process we
+changed some aspects of C. Some of these changes are a first step in providing a
+safer C ($C_2$). Others changes were implemented because it is more convenient
+to the user or because it simplified the implementation of the language in MPS.
+Out of eight changes total, four are for reasons of improved robustness and 
+analyzability, two are for end user convenience and three are to simplify the 
+implementation in MPS. We discuss some of them below, and \fig{mbeddrCChanges}
+shows a summary.
+
+\begin{figure}[h]
+\begin{center}
+    \begin{tabular}{ | l | l |}
+    \hline
+    \textbf{Difference} \ & \textbf{Reason} \  \\ \hline
+    \hline
+
+    No Preprocessor 					& Robustness \\
+    \hline
+
+    Native Booleans (and a cast			& Robustness \\
+    operator for legacy interop)		& \\
+    \hline
+
+    \ic{enum}s are not \ic{int}s (special 	& Robustness \\
+    operators for \ic{next}/\ic{previous} 	& \\
+	\hline
+
+    C99 Integral Types Required 		& Robustness \\
+    \hline
+
+    Modules instead of Headers 			& End User Convenience  \\
+    \hline
+
+    \ic{hex<..>}, \ic{oct<..>}, \ic{bin<..>} & Simplified \\
+    instead of \ic{0x..} and \ic{0..} 	& Implementation \\
+    \hline
+
+    Type annotation on type   			& Simplified  \\
+    (\ic{int[] a} instead of \ic{int a[]}) & Implementation \\
+	\hline
+
+	Cleaned up syntax for function    	& End User Convenience, \\
+	types and function pointers			& Simplified  \\
+	                                    & Implementation \\
+	\hline
+
+    \end{tabular}
+\end{center}
+\caption{Changes in mbeddr C compared to regular C. Out of eight changes, four
+are for reasons of improved robustness and analyzability, two are for end user
+convenience and three are to simplify the implementation in MPS.}
+\label{mbeddrCChanges}
+
+\end{figure}
+
+
+\begin{marginfigure} 
+\includegraphics[width=50mm]{figures/impl/modules.png}  
+\caption{Modules are the top-level container in mbeddr C. They can import other
+modules, whose exported contents they can then use. Exported contents are put
+into the header files generated from modules.}
+\label{moduleexample}
+\end{marginfigure} 
+
+
+
+mbeddr C provides \emph{modules} (\fig{moduleexample}). A module contains the
+top level C constructs (such as \ic{struct}s, functions or global variables).
+These module contents can be \lcr{exported}. Modules can \emph{import} other modules,
+in which case they can access the exported contents of the imported modules.
+While header files are generated, we do not expose them to the user: modules
+provide a more convenient means of controlling modularizing programs and
+limiting which elements are visible globally.
+
+
+mbeddr C does not support the \emph{preprocessor}. Empirical studies such as
+\cite{2002_ernst_empirical_analysis_of_c_preprocessor_use} show that it is often
+used to emulate missing features of C in ad-hoc way, leading to problems
+regarding maintenance and analyzability. Instead, mbeddr C provides first class
+support for the most important use cases of the preprocessor. Examples include
+the modules mentioned above (replacing \ic{\#include}) as well as the support
+for variability discussed below (replacing \ic{\#ifdef}s). Instead of defining
+macros, users can create first-class language extensions including type checks
+and IDE support. Removing the preprocessor and providing specific support for
+its important use cases goes a long way in creating more maintainable and more
+analyzable programs. The same is true for introducing a separate
+\lcr{boolean} type and not interpreting integers as Booleans by default. An
+explicit cast operator is available.
+
+Type decorations, such as array brackets or the pointer asterisk must be
+specified on the type, not on the identifier (\ic{int[] a;} instead of \ic{int
+a[];}). This has been done for reasons of consistency and to simplify the
+implementation in MPS: it is the property of a type to be an array type or a
+pointer type, not the property of an identifier. Identifiers are just names.
+
+
+
+
+
+
+
+
+\parhead{Decision Tables} (addressing $C_1$, uses $W_3$) are a new kind of
+expression, i.e. they can be evaluated. An example is shown in \fig{dectab}. A
+decision table represents nested \lcr{if} statements. It is evaluated to the
+value of the first cell whose column and row headers are \lcr{true} (the
+evaluation order is left to right, top to bottom). A default value (\lcr{FAIL})
+is specified to handle the case where none of the column/row header combinations
+is \ic{true}. Since the compiler and IDE have to compute a type for expressions, the
+decision table specifies the type of its result values explicitly
+(\lcr{int8\_t}).
+
+
+\begin{marginfigure}[-70mm]
+\includegraphics[width=50mm]{figures/impl/dectabexample.png} \caption{A decision
+table evaluates to the value in the cell for which the row and column headers are
+\ic{true}, a default value otherwise (\ic{FAIL} in the example). By default, a
+decision table is translated to nested \ic{if}s in a separate function. The
+figure shows the translation for the common case where a decision table is used in a \ic{return}.
+This case is optimized to not use the indirection of an extra function.}
+\label{dectab}     
+\end{marginfigure}
+
+  
+\parhead{Unit Tests} (addresses $C_4$, uses $W_1$, $W_2$) are new top-level
+constructs (\fig{testcase}) introduced in a separate \emph{unittest}
+language that extends the C core. They are like \ic{void} functions without
+arguments. The \emph{unittest} language also introduces \lcr{assert} and
+\lcr{fail} statements, which can only be used inside test cases. Testing
+embedded software can be a challenge, and the \emph{unittest} extension is a
+first step at providing comprehensive support for testing. mbeddr also provides
+support for platform-independent logging as well as for specifying stubs and
+mocks. We do not discuss this in this paper.
+
+ 
+
+\begin{marginfigure}[10mm]  
+\includegraphics[width=50mm]{figures/impl/unittest.png}
+\caption{The \emph{unittest} language introduces test cases as well as
+\lcr{assert} and \lcr{fail} statements which can only be used inside of a test
+case. Test cases are transformed to functions, and the \ic{assert} statements
+become \ic{if} statements with a negated condition. The generated code also
+counts the number of failures so it can be reported to the user via a binary's
+exit value.}
+\label{testcase}
+\end{marginfigure} 
+
+
+
+
+\parhead{Components} (addresses $C_1$, uses $W_1$) are new top level constructs
+that support modularization, encapsulation and the separation between
+specification and implementation (\fig{components}). In contrast to modules, a
+component uses interfaces and ports to declare the contract it obeys. Interfaces
+define operation signatures and optional pre and post conditions (not shown in
+the example). Provided ports declare the interfaces offered by a component,
+required ports specify the interfaces a component expects to use. Different
+components can implement the same interface differently. Components
+can be instantiated (also in contrast to modules), and each instance's required
+ports have to be connected to compatible provided ports provided by other
+component instances. Polymorhphic invocations (different components "behind"
+the same interface) are supported.
+
+
+  
+  
+\begin{figure*}
+\includegraphics[width=150mm]{figures/impl/components.png}
+\caption{Two components providing the same interface. The arrow
+maps operations from provided ports to implementations.
+An indirection through function pointers enables different implementations
+for a single interface, enabling OO-like polymorphic invocations.}
+\label{components}  
+\end{figure*}  
+
+ 
+\parhead{State Machines} (addresses $C_1$, $C_4$, uses $W_1$, $W_2$) provide a
+new top level construct (the state machine itself) as well as a \ic{trigger}
+statement to send events into state machines (see \fig{statemachines}). State
+machines are transformed into a \ic{switch/case}-based implementation in the C
+program. Entry, exit and transition actions may only access variables defined
+locally in state machines and fire out events. Out events may optionally be
+mapped to functions in the surrounding C program, where arbitrary behaviour can
+be implemented. This way, state machines are semantically isolated from the rest
+of the code, enabling them to be model checked: if a state machine is marked
+as \ic{verifiable}, we also generate a representation of the state machine in
+the input language of the NuSMV model checker\footnote{http://nusmv.fbk.eu},
+including a set of property specifications that are verified by default.
+Examples include dead state detection, dead transition detection,
+non-determinism and variable bounds checks. In addition, users can specify
+additional high-level properties based on the well-established catalog 
+of temporal logic properties patterns in \cite{DwyerAC99}. We discuss the
+integration of formal verification into mbeddr in more detail in
+\cite{Formsera2012}.
+
+
+  
+\begin{figure*}[h]
+\includegraphics[width=160mm]{figures/impl/statemachine.png}
+\caption{A state machine is embedded in a C module as a top level construct. It
+declares \ic{in} and \ic{out} \ic{events} as well as local variables, states and transitions.
+Transitions react to \ic{in event}s, and \ic{out event}s can be fired in actions. Through
+bindings (e.g. \ic{tickHandler}), state machines interact with C code. State
+machines can be instantiated. They are transformed to \ic{enum}s for states and
+events, and a function that executed the state machine using \ic{switch}
+statements. The \ic{trigger} statement injects events into a state machine
+instance by calling the state machine function.}
+\label{statemachines}  
+\end{figure*} 
+
+
+ 
+
+
+\parhead{Physical Units} (addresses $C_3$, uses $W_4$) are new types that
+also specify a physical unit in addition to their actual data type (see
+\fig{unitsexample}). New literals are introduced to support specifying values for these types that include the physical unit. The typing rules for the
+existing operators (\ic{+}, \ic{*} or \ic{>}) are overridden to perform the
+correct type checks for types with units. The type system also performs unit
+computations to deal correctly with \ic{speed = length/time}, for example.
+
+
+\begin{figure}
+\begin{center}
+\includegraphics[scale=0.5]{figures/impl/units.png}
+\end{center}
+\caption[][30mm]{The \emph{units} extension ships with the SI base units. Users
+can define derived units (such as the \ic{mps} in the example) as well as
+convertible units that require a numeric conversion for
+mapping back to SI units. Type checks ensure that the values associated with
+unit literals use the correct unit and perform unit computations (as in speed
+equals length divided by time). Errors are reported if incompatible units are
+used together (e.g. if we were to add length and time). To support this feature,
+the typing rules for the existing operators (such as
+\ic{+} or \ic{/}) have to be overridden.} 
+\label{unitsexample}
+\end{figure}
+
+\parhead{Requirements Traces} (addresses $C_5$, uses $W_6$) are meta data
+annotations that link a program element to requirements, essentially elements in
+other models imported from requirements management tools (This has been
+discussed in more detail in \todo{ref}). Requirements traces can be attached to
+any program element without that element's definition having to be aware of this
+(see green highlights in \fig{screenshot} and in \fig{traces}).
+
+
+
+
+\parhead{Presence Conditions} (addresses $C_5$ and $W_6$)  A presence condition
+determines whether the program element to which it is attached is part of a
+product in the product line. A product is configured by specifying a set of
+configuration flags (expressed via feature models) and the presence condition
+specifies a Boolean expression over these configuration switches (see \todo{ref}
+for more details). Like requirements traces, presence conditions can be attached
+to any program element. For example, in \fig{screenshot}, the \ic{resetted} out
+event and the \ic{on start\ldots} transition in the second state have the
+\ic{resettable} presence condition, where \ic{resettable} is a reference to a
+configuration flag.  Upon transformation, program elements whose presence
+condition evaluates to \ic{false} for a particular product configuration are
+simply removed from the program (and hence will not end up in the generated
+binary). This program customization can also be performed by the editor,
+effectively supporting variant-specific editing.
+
+
+
+
+\parhead{Safe Modules} (addresses $C_2$, uses $W_5$, $W_7$) Safe modules help
+prevent writing risky code. For example, runtime range checking is performed for
+arithmetic expressions and assignments. To enable this, arithmetic expressions
+are replaced by function calls that perform range checking and report errors if
+an overflow is detected. As another example, safe modules also provide the
+\ic{safeheap} statement that automatically frees dynamic variables allocated
+inside its body (see \fig{safeheap}).
+
+
+
+\subsection{Addressing the Tool Integration Challenge}
+
+We have not highlighted tool integration as an explicit challenge, because it is
+a cross-cutting issue that affects all of the challenges above.
+Nonetheless, in a project intended to be used by practitioners, this needs to be
+addressed. We do that by providing an \emph{integrated environment} that
+provides state-of-the-art IDE support for C and all of its extensions.
+While we are still working on a debugger (see \sect{future}), all the other IDE
+support is available. This includes syntax highlighting, code completion, static
+error checking and annotation, quick fixes and refactorings. \fig{screenshot}
+shows a screenshot of the tool, as we edit a module with a decision table, a
+state machine, requirements traces and presence conditions.
+ 
+
+\begin{figure}[h]
+\begin{center} 
+  \includegraphics[width=110mm]{figures/impl/screenshot2b.png}
+\end{center} 
+\caption{A somewhat overloaded example program in the mbeddr IDE (an instance
+of MPS). The module contains an \ic{enum}, a decision table and a state machine.
+Requirements traces are attached to the table and the \ic{step} in event, and a
+presence condition is attached to an out event and a transitions}
+\label{screenshot}  
+\end{figure}   
+ 
+
+
+
