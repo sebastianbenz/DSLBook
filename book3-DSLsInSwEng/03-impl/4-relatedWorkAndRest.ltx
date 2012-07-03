@@ -1,0 +1,558 @@
+\section{Experiences}
+\label{validation}
+
+This paper is about the design and rationale of an extensible C
+language for embedded development, based on language engineering techniques.
+In \sect{expextension} we provide a brief overview over our experiences in
+implementing mbeddr, including the size of the project and the efforts spent.
+\sect{realworldValidation} discusses to what degree this approach
+leads to improvements in embedded software development.
+ 
+
+\begin{figure}[h] \small
+\begin{center}
+    \begin{tabular}{ | l | l | l |}
+    \hline
+    \textbf{Element} & \textbf{Count} & \textbf{LOC-Factor}  \\ 
+    \hline 
+    \hline     
+    Language Concepts 		& 260 	& 3 		\\
+    Property Declarations 	& 47 	& 1			\\
+    Link Declarations 		& 156 	& 1			\\
+    Editor Cells 			& 841 	& 0.25		\\
+	Reference Constraints 	& 21 	& 2			\\
+	Property Constraints 	& 26 	& 2			\\
+	Behavior Methods 		& 299 	& 1			\\
+	Type System Rules 		& 148 	& 1 		\\
+	Generation Rules 		& 57 	& 10		\\
+	Statements 				& 4919 	& 1.2		\\
+	Intentions 				& 47 	& 3			\\
+	Text Generators 		& 103 	& 2			\\   
+    \hline     
+    \textbf{Total LOC}         &   & \textbf{8,640}          \\   
+    \hline     
+    \end{tabular} 
+\end{center}
+\caption{We count various language definition elements and then use a factor to
+translate them into lines of code. The
+reasons why many factors are so low (e.g. reference constraints or behavior
+methods) is that the implementation of these elements is made up of statements,
+which are counted separately. In case of editor cells, typically several of 
+them are on the same line, hence the
+fraction. Finally, the MPS implementation language supports higher order
+functions, so some statements are rather long and stretch over more than one
+line: this explains the 1.2 in the factor for statements.}
+\label{coresize}    
+\end{figure}
+
+\subsection{Language Extension}
+\label{expextension}
+
+\label{sizeAndEffortOfImpl}
+\parhead{Size} Typically, lines of code are used to describe the size of a
+software system. In MPS, a "line" is not necessarily meaningful. Instead we
+count important elements of the implementation and then estimate a corresponding
+number of lines of code. \fig{coresize} shows the respective numbers for the
+core, i.e. C itself plus unit test support, decision tables and build/make
+integration (the table also shows how many LOC equivalent we assume for each
+language definition element, and the caption explains to some extent the
+rationale for these factors). According to our metric the C core is implemented
+with less than 10,000 lines of code.
+
+
+
+Let us look at an incremental extension of C. The components extension
+(interfaces, components, pre and post conditions, support for mock components in
+testing and a generator back to plain C) is ca. 3,000 LOC equivalent. The state
+machines extension is ca. 1,000. Considering the fact that these LOC equivalents
+represent the language definition (incl. type systems and generators) and the
+IDE (incl. code completion, syntax coloring, some quick fixes and refactorings),
+this clearly speaks to the efficiency of MPS for language development and
+extension.
+
+\parhead{Effort} In terms of effort, the core C implementation has been ca. 4
+person months divided between three people. This results in roughly 2,500 lines
+of code per person month. Extrapolated to a year, this would be 7,500 lines of
+code per developer. According to McConnell\footnote{http://www.codinghorror.com/
+blog/2006/07/diseconomies-of-scale-and-lines-of-code.html}, in a project up to
+10,000 LOC, a developer can typically do between 2,000 and 25,000 LOC. The fact
+that we are at the low end of this range can be explained by the fact that MPS
+provides very expressive languages for DSL development: you don't have to write
+a lot of code to express a lot about a DSL. Instead, MPS code is relatively
+dense and requires quite a bit of thought. Pair programming is very valuable in
+language development.
+
+Once a developer has mastered the learning curve, language extension can be
+very productive. The state machines and components extension have both been
+developed in about a month. The unit testing extension or the support for
+decision tables can be implemented in a few days. 
+
+
+\label{conflictsAndModularity}
+\parhead{Language Modularity, Reuse and Growth} Modularity and composition is
+central to mbeddr. 
+
+
+Building a language extension should not require changes to the base
+  languages. This requires that the extended languages are built with extension
+  in mind. Just like in object-oriented programming, where the only methods can
+  be overridden, only specific parts of a language definition can be extended or
+  overwritten. The implementation of the default extensions served as a
+  test case to confirm that the C core language is in fact extensible. We found
+  a few problems, especially in the type system and fixed them. None of these
+  fixes were "hacks" to enable a specific extension --- they were all genuine
+  mistakes in the design of the C core. Due to the broad spectrum covered by our
+  extensions, we are confident that the current core language provides a high
+  degree of extensibility.
+
+Independently developed extensions should not interact with
+  each other in unexpected ways. While MPS provides no automated way of
+  ensuring this, we have not seen such interactions so far.
+  The following steps can be taken to minimize the risk of unexpected interactions.
+  Generated names should be qualified to make sure that no symbol name clashes
+  occur in the generated C code. An extension should never consume "scarce resources": for example, it is a bad
+  idea for a new \ic{Statement} to require a particular return type of the
+  containing function, or change that return type during transformation. Two
+  such badly designed statements cannot be used together because they will likely 
+  require \emph{different} return types. Note that unintended
+  \emph{syntactic} integration problems between independently developed extensions
+  (known from traditional parser-based systems) can \emph{never} happen in MPS.
+  This was one of the reasons to use MPS for mbeddr.
+
+ Modularity should also support reuse in contexts not anticipated during
+  the design of a language module. Just as in the case of language extension
+  (discussed above), the to-be-reused languages have to be written in a suitable
+  way so that the right parts can be reused separately.
+  We have shown this with the state machines language. State machines can be
+  used as
+top level concepts in modules (binding out events to C functions) and also
+inside components (binding out events to component methods). Parts of the
+transformation of a state machine have to be different in these two cases, and
+these differences were successfully isolated to make them exchangeable. Also, we
+reuse the C expression language inside the guard conditions in a state machine's
+transitions. We use constraints to prevent the use of those C expression that
+are not allowed inside transitions (for example, references to global
+variables). Finally, we have successfully used physical units in components and
+interfaces.
+
+\vspace{2mm}
+\noindent Summing up, these facilities allow different user groups to develop
+independent extensions, growing the mbeddr stack even closer towards their
+particular domain. 
+
+\vspace{2mm}
+
+\label{whoShouldExtendIt}
+\parhead{Who can create Extensions?} mbeddr is built to be extended. The
+question is by whom. This question can be addressed in two ways: who is
+\emph{able} to extend it from a skills perspective, and who \emph{should} extend
+it?
+
+Let us address the \emph{skills} question first. We find that it takes about a
+month for a developer with solid object-oriented programming experience to
+become proficient with MPS and the structures of the mbeddr core
+languages. This may be reduced by better documentation, but a steep
+learning curve will remain. Also, \emph{designing} good languages, independent
+of their implementation, is a skill that requires practice and experience. So,
+from this perspective we assume that in any given organization there should be a
+select group of language developers who build the extensions for the end users.
+Notice that such an organizational structure is common today for frameworks and
+other reusable artifacts.
+
+There is also the question of who \emph{should} create extensions. One could
+argue that, as language development becomes simpler, an uncontrolled growth in
+languages could occur, ultimately resulting in chaos. This concern should be
+addressed with governance structures that guide the development of languages.
+The bigger the organization is, the more important such governance becomes. The
+modular nature of the mbeddr language extensions makes this problem much easier
+to tackle. In an large organization we assume that a few language extensions
+will be strategic: aligned with the needs of the whole organization,
+well-designed, well tested and documented, implemented by a central group, and
+used by many developers. In addition, small teams my decide to develop their
+own, smaller extensions. Their focus is much more local, and the development
+requires much less coordination. These could be developed by the smaller units
+themselves.
+
+\subsection{Improvements in Embedded Development}
+\label{realworldValidation}
+
+\parhead{Productivity and Quality} At this point we have not yet conducted
+large-scale industry projects with the mbeddr stack. We are currently in the
+process of setting up two real-world projects. However, two
+preliminary end-user experiments have been performed. The mbeddr development team itself has created
+a non-trivial case study based on the OSEK operating system and Lego Mindstorms.
+Second, a group of students from the University of Augsburg has developed a set
+of language extensions for controlling a quadcopter. Both cases resulted in much
+less code, a clearer implementation and fewer bugs compared to what we expected
+from traditional embedded software development. Both projects also developed
+extensions of the existing stack: the OSEK/Mindstorms project extended the build
+language to integrate with the NXT OSEK build system and the quadcopter project
+has developed languages for controlling and planning the routing for the
+quadcopter. 
+
+The fact that formal verification is directly integrated into
+mbeddr, and the fact the requirements traceability and product line variability
+are directly supported promises to improve the overall quality of systems
+built with mbeddr.
+
+\parhead{Size and Practicability} We have run scalability tests to ensure
+that the environment scales to at least the equivalent of 100.000 lines of C
+code. A significant share of embedded software is below this limit and can
+confidently be addressed with mbeddr. We do not have any data which indicates
+significant performance degradation for larger systems, and we believe that by
+structuring systems into separate partitions that are transformed, compiled
+and linked separately, larger systems are feasible as well. However, to be sure,
+this requires further scalability testing.
+
+
+
+\label{extensionsAreSuitable}
+\parhead{Suitability of the Currently Available Extensions} Based on years of
+experience in embedded software development and dozens of conversations with
+practitioners in the field we are confident that the extensions we chose provide
+useful benefits in real-world embedded software development projects. In
+particular, state machines, interfaces and components as well as traceability
+and product line support are relevant for almost every developer we talked to
+and available in several established modeling tools. 
+
+However, while we are confident that the default extensions are useful in
+practice, they mainly serve as a proof-of-concept for the idea of incremental,
+modular language extension, where end-user organizations build their own custom
+extensions that fit their domain. 
+
+
+\section{Related Work}
+\label{related}
+
+mbeddr touches several areas of research, so we we have structured the this
+section accordingly, one paragraph for each area: DSLs in embedded development,
+specific extensions of C, language and IDE extension and static analysis and
+formal verification.
+
+\parhead{DSLs in Embedded Development} In addition to the general-purpose
+embedded software modeling tools mentioned before (Simulink and ASCET), much
+more specific languages have been developed. Examples include Feldspar
+\cite{2010_axelsson_feldspar_dsl_for_dsp}, a DSL embedded in Haskell for digital
+signal processing; Hume \cite{2003_hammond_hume_dsl_for_rt_embedded_systems}, a
+DSL for real-time embedded systems as well as the approach described in
+\cite{2008_gokhale_model_driven_middleware}, which use DSLs for addressing
+quality of service concerns in middleware for distributed real-time systems. Our
+approach is different because our DSLs are directly integrated into C, whereas
+the examples mentioned in this paragraph are standalone DSLs that generate
+C code. As part of our future work we will investigate if and how some of these
+languages could benefit from a tighter integration with C based on mbeddr.
+
+
+
+\parhead{Specific Extensions of C} Extending C to adapt it to a particular
+problem domain is not new. For example, Palopoli et al.
+present an extension of C for real time applications~\cite{PalopoliAB99},
+Boussinot proposes an extension for reactive systems~\cite{Boussinot91} and Yosi
+Ben-Asher et al. present an extension for shared memory parallel
+systems~\cite{Ben-AsherFR96}. These are all \emph{specific} extensions of C,
+typically created by invasively changing the C grammar. These extensions do not
+include IDE support, and the approach does not provide a framework for modular,
+incremental extension.
+However, these are all good examples of extensions that could be implemented as
+language extensions in mbeddr, if the need arises. 
+
+
+In contrast to these specific extensions of C, the Xoc extensible C compiler
+described by Cox~\cite{CoxBCKK08} support arbitrary extensions. It uses a
+parser-based approach and uses source-to-source translation to transform modular
+C extensions into regular C code. In contrast to mbeddr, Cox' approach is
+limited by the fact that is uses a traditional parser based approach and that it
+does not address IDE extension.
+
+
+There are also safer dialects of C, basically restricted sub-languages. Examples
+include Cyclone~\cite{2002_trevor_cyclone_safe_dialect_of_c} and the Misra C
+standard~\cite{2004_misra_c}. We are actively working on implementing checks and
+restrictions to implement the Misra C standard as a language extension using
+restriction ($W_7$).
+
+
+
+
+\parhead{Language and IDE Extension} mbeddr itself is not a language engineering
+tool --- we rely on the MPS language workbench. Therefore the discussion of
+language engineering approaches and tools as part of related work will look at
+how these tools and approaches address language engineering, and how this
+differs from the MPS-based approach used in mbeddr.
+
+
+Language extension is not a new idea. The Lisp community has always considered
+language extension essential to using Lisp effectively. Guy
+Steele's OOPSLA 1998 keynote \emph{Growing a Language} (and a related journal article~\cite{Steele99}) is
+maybe the most well-known expression of the idea, and Thrift's extension of Lisp
+with constructs for logic programming~\cite{Thrift88} is a concrete example.
+Obviously, Lisp extension could not have been used as a basis for mbeddr, since
+it is based on C.
+
+
+The landmark work of Hudak~\cite{1998_hudak_modular_dsl_and_tools} introduces
+embedded DSLs as language extensions of Haskell. While Haskell provides advanced
+concepts that enable such extensions, the new DSLs are essentially just
+libraries built with the host language and are not first class language
+entities: they do not define their own syntax, compiler errors are expressed in
+terms of the host language, no custom semantic analyses are supported and no
+specific IDE-support is provided. Essentially all internal DSLs expressed with
+dynamic languages such as Ruby or Groovy, but also those embedded
+in static languages such as Scala suffer from these limitations. 
+
+Several works avoid these limitations by making language definition and
+extension first class. Early examples include the Synthesizer
+Generator~\cite{RepsT84} as well as the Meta Environment~\cite{Klint93}. Both
+generate editors and other IDE aspects from a language definition. The topic is
+still actively researched. For example, Bravenboer et al.
+\cite{2004_bravenboer_concrete_syntax_for_objects} and Dinkelacker
+\cite{2011_dinkelaker_incremental_concrete_syntax_for_embedded_languages} 
+provide custom concrete syntax, Bracha \cite{2004_bracha_pluggable_type_systems}
+provides pluggable type systems and Erweg et al.
+\cite{2011_erdweg_growing_a_language_environment} discuss modular IDE
+extensions. Eisenberg and Kiczales propose explicit
+programming~\cite{EisenbergK07} which supports semantic extension as well as
+editing extensions (concrete syntax) for a given base language. 
+
+Our approach is similar in that we provide extensions of syntax, type systems,
+semantics and IDE support for a base language. mbeddr is different in that it
+extends C, in that we use a projectional editor and in that we address IDE
+extension including advanced features such as type systems, refactorings and the
+debugger. The use of a projectional editor is especially significant, since this
+enables the use of non-textual notations and annotation of cross-cutting meta
+data.
+
+
+A particularly interesting comparison can be made with the Helvetia system by
+Renggli et al. \cite{2010_renggli_embedding_languages_without_breaking_tools}.
+It supports language embedding and extension of Smalltalk using
+\emph{homogeneous} extension, which means that the host language (Smalltalk) is
+also used for \emph{defining} the extensions (in contrast to some of the
+embedded DSLs discussed above, Helvetia can work with custom grammars for the
+DSLs). The authors argue that the approach is independent of the host language
+and could be used with other host languages as well. While this is true in
+principle, the implementation strategy heavily relies on some aspects of the
+Smalltalk system that are not present for other languages, and in particular,
+not in C. Also, since extensions are defined in the host language, the complete
+implementation would have to be redone if the approach were used with another
+language. This is particularly true for IDE support, where the Smalltalk IDE is
+extended using this IDE's APIs. mbeddr uses a \emph{heterogeneous} approach
+which does not have these limitations: MPS provides a language-agnostic
+framework for language and IDE extension that can be used with any language,
+once the language is implemented in MPS.
+  
+In the same paper, Renggli and his colleagues introduce three different flavors
+of language extension. A \emph{pidgin} creatively bends the existing syntax of
+the host language to to extend its semantics. A \emph{creole} introduces
+completely new syntax and custom transformations back to the host language. An
+\emph{argot} reinterprets the semantics of valid host language code. mbeddr does
+not use any pidgins, because C's syntax is not very flexible, and because we
+have the language workbench at our disposal, so it is easier to implement
+creoles. $W_1$ - $W_4$ are creoles. In contrast, $W_5$ is an argot. It provides
+different semantics for existing constructs. $W_6$ is yet different. New syntax
+is introduced, but it can be attached to any language concept. The semantics is
+only relevant to additional tools, not to the core C program --- no translation
+back to C takes place. $W_7$ \emph{removes} concepts in new contexts and hence
+also does not fit with the categorization.
+ 
+ 
+\label{cedalion} 
+Cedalion \cite{cedalion} is a host language for defining internal DSLs. It uses
+a projectional editor and semantics based on logic programming. Both Cedalion and
+language workbenches such as MPS aim at combining the best of both worlds from
+internal DSLs (combination and extension of languages, integration with a host
+language) and external DSLs (static validation, IDE support, flexible syntax).
+Cedalion starts out from internal DSLs and adds static validation and
+projectional editing, the latter avoiding ambiguities resulting from combined
+syntaxes. Language workbenches start from external DSLs and add modularization,
+and, as a consequence of implementing base languages with the same tool,
+optional tight integration with general purpose host languages. We could not
+have used Cedalion as the platform for mbeddr tough, since we implemented our
+own base language (C), and the logic-based semantics would not have been a good
+fit.
+
+Our work relates to macro systems such as Open Java~\cite{TatsuboriCIK99}in that
+mbeddr customizes the translation of language extensions.
+However, mbeddr uses non-local transformations as well; those are not easily
+expressible with macros. Also, traditionally, macros have not addressed IDE
+extension.
+
+Finally, open compilers such as Jastadd~\cite{EkmanH07} are related in that 
+they support language extension and custom transformation. However, while
+open compilers can typically be extended with independent modules, the input
+language often requires invasive adaptation. Also, open compilers do not address
+IDE extension. 
+
+\parhead{Static Analysis and Formal Verification} Static analysis of C programs
+is an active research area (as exemplified by \cite{KarthikJ05,Mine11,Puccetti10}), and several
+commercial tools are available, such as the Escher C
+Verifier\footnote{http://www.eschertech.com/products/ecv.php} or
+Klocwork\footnote{http://www.klocwork.com/}. We believe that we can simplify
+some of the analyses provided by these tools by providing extensions to
+C which embody relevant semantics directly, avoiding the need to reverse
+engineer the semantics for static analysis. For example, by expressing
+state-based behavior directly using state machines instead of a low level C
+implementation, the state space relevant to a model checker can be reduced
+significantly, making model checking less costly. 
+
+\label{framac}
+Another class of tools (such as Frama-C\footnote{http://frama-c.com/}) requires
+users to annotate C code with "semantic hints" to reduce the state space and
+enable meaningful verification. We plan to integrate Frama-C into mbeddr,
+expecting the following benefits: first, we will provide a language
+extension for the hints, so users don't have to use comments to specify them.
+IDE support will be provided. Second, we will provide C extensions on a higher
+level of abstraction with semantics that can be used to generate
+the verification hints. This way, users don't have to deal with the hints
+explicitly.
+
+
+
+
+\section{Discussion}
+\label{discussion}
+
+% \label{whyNowWhyUs}
+% \parhead{Why now, why us?} The companies for which the authors work have long
+% been involved in researching and implementing tools for embedded software
+% development: both companies work at the intersection between languages, tool
+% development and embedded software. Over the last years, textual DSLs have become
+% more prevalent, so a tighter integration between DSL code and C code looked
+% promising.   
+
+\label{WhyMPS?}
+\parhead{Why MPS?} A central pillar to our work is MPS. Our choice of MPS is due
+to its support for all aspects of language development (structure, syntax, type
+systems, IDE, transformations), its support for flexible syntax as a consequence
+of projectional editing and its support for advanced modularization and
+composition of languages. The ability to attach annotations to arbitrary program
+elements without a change to that element's definition is another strong
+advantage of MPS (we we use this for presence conditions and trace links, for
+example). No other freely available tool provides support for all those aspects,
+but some are supported by other tools. For example, Eclipse
+Xtext\footnote{http://eclipse.org/xtext} and its accompanying tool stack
+supports abstract and concrete syntax definition, IDE support and
+transformations, but it is weak regarding non-textual syntax and modularization
+and composition of languages. TU Delft's Spoofax\footnote{http://spoofax.org}
+concise type system definition. Intentional
+Software\footnote{http://intentsoft.com} supports extremely flexible
+syntax~\cite{SimonyiCC06} and language composition (it is a projectional editor)
+but is not easily available.
+
+Another important reason for our choice is the maturity and stability of MPS and
+the fact that it is backed by a major development tool vendor (JetBrains). 
+
+While the learning curve for MPS is significant (a developer who wants to become 
+proficient in MPS language development has to invest at least a month), we found
+that is scales extremely well for larger and more sophisticated
+languages. This is in sharp contrast to some of the other tools the authors
+worked with, where implementing simple languages is quick and easy, and larger
+and more sophisticated languages are disproportionately more complex to 
+build. This is illustrated by very reasonable effort necessary for implementing
+mbeddr (see \sect{expextension}).
+
+
+
+
+\parhead{Projectional Editing} Projectional editing is often considered a
+drawback because the editors feel somewhat different and the programs are not
+stored as text, but as a tree (XML). We already highlighted that MPS does a good
+job regarding the editor experience, and we feel that the advantages of
+projectional editors regarding syntactic freedom far outweigh the drawback of
+requiring some initial familiarization. Our experience so far with about ten
+users (pilot users from industry, students) shows that after a short guided
+introduction (ca. 30 minutes) and an initial accomodation period (ca. 1-2 days),
+users can work productively with the projectional editor. Regarding storage, the
+situation is not any worse than with current modeling tools that store models in
+a non-textual format, and MPS does provide good support for diff and merge using
+the projected syntax.
+
+\parhead{Other Base Languages} The technology described in this paper can be
+applied to other base languages. JetBrains, for example, is extending Java for
+building web applications. The advantage of using a heterogeneous approach (see
+the Helvetia discussion in Related Work) is that the tools built for language
+engineering are independent of the extended languages. No new frameworks or
+tools have to be developed or learned. Of course the to-be extended language has
+to be implemented in the tool stack first. We have discussed the effort for
+doing this in the case of C in \sect{validation}.
+
+\parhead{Other Application Domains} mbeddr's domain is embedded systems.
+However, the same approach can be used in other domains as well. As mentioned in
+the previous paragraph, JetBrains are developing Java extensions for web
+application development. These extensions include support for object-relational
+mapping, web page templating, and portability of application logic between the
+client and server by translating the same code into Java and Javascript. In
+internal communications with the authors, JetBrains have reported significant
+improvements in productivity and significantly reduced time (days and weeks
+instead of months) for getting new developers up to speed in web application
+development. JetBrains use this approach to develop the Youtrack bug tracking
+software, among others.
+
+
+  
+
+\vspace{-3mm}
+
+\section{Conclusion and Future Work}
+\label{future}
+\vspace{-1mm}
+
+In this paper we presented the mbeddr system, a large scale use of language
+engineering technologies in general and language workbenches in particular. 
+We show how domain-specific extensions of C language can be
+used to address important challenges in embedded software development. To
+illustrate these ways of extension we provide a set of concrete examples and
+their implementation in the mbeddr system. The feedback on mbeddr received from
+practitioners so far convinces us that language
+engineering approaches have great potential to dramatically improve the
+development of embedded software. The mbeddr project also serves as a strong
+validation of the power and maturity of projectional language workbenches, in
+particular, MPS. The effort for building the C language and IDE and especially
+the incremental effort of building extensions is significantly lower than we
+expected when we started the project.  
+
+To realize the full potential of the mbeddr approach, more research is required
+in the following two major directions:
+
+
+\parhead{Extension of the Approach} We are almost finised with a debugger that
+can be extended together with language extensions. While there is existing
+research (such as \cite{Lindeman-GPCE-2011,WuGRM05}), there are still open
+questions such as how to calculate custom watches and how to avoid generating
+debug-specific code into the resulting C. We will also work more on formal
+analyses, including mapping higher-level DSLs to state machines and
+reinterpreting the verification results in the context of the higher-level DSL,
+exploring the relationship between general program analysis and language extensions as well as
+using SAT solvers to verify the structural integrity of variant-aware programs.
+In addition, we will add support for graphical notations for state machines
+and data flow block diagrams once MPS' support for graphical editors becomes
+available in the MPS 3.0 version.
+
+%Another key research direction is to try to prevent (and analyze)
+%unexpected semantic inconsistencies due to the interactions between different
+%DSLs.
+
+
+\parhead{Real-World Feasibility} Since mbeddr is intended to be used for
+real-world software development, a major part of our future work is the
+validation of the approach in real-world embedded development projects.
+We are currently building a set of extensions specific to our application
+partner Sick AG who use mbeddr to build systems in the sensors domain.
+We are also setting up a project to develop a smart metering device. We will
+measure the increase in productivity and maintainability in order to provide
+solid data about the full potential of this approach. This line of future work
+will also include an automatic importer for functions, \ic{struct}s, constants,
+\ic{enum}s and \ic{typdef}s defined in existing header files to simplify working
+with legacy code. We are also considering an importer for C implementation code
+(as long as it does not contain preprocessor statements). This will not be fully
+automatic, since some of the changes to mbeddr C require user decisions.
+
+
+\vspace{4mm}
+\noindent \textbf{Acknowledgements}  We thank Marcel Matzat and Bernhard
+Merkle for their work on mbeddr. This
+work has been developed as part of the LWES project, supported by the
+German BMBF, FKZ 01/S11014.
+
+\vspace{-2mm}
+
