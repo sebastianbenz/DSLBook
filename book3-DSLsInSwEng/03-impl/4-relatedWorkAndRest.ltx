@@ -1,7 +1,7 @@
 \section{Experiences}
 \label{validation}
 
-This paper is about the design and rationale of an extensible C
+This chapter is about the design and rationale of an extensible C
 language for embedded development, based on language engineering techniques.
 In \sect{expextension} we provide a brief overview over our experiences in
 implementing mbeddr, including the size of the project and the efforts spent.
@@ -58,8 +58,6 @@ integration (the table also shows how many LOC equivalent we assume for each
 language definition element, and the caption explains to some extent the
 rationale for these factors). According to our metric the C core is implemented
 with less than 10,000 lines of code.
-
-
 
 Let us look at an incremental extension of C. The components extension
 (interfaces, components, pre and post conditions, support for mock components in
@@ -219,193 +217,6 @@ However, while we are confident that the default extensions are useful in
 practice, they mainly serve as a proof-of-concept for the idea of incremental,
 modular language extension, where end-user organizations build their own custom
 extensions that fit their domain. 
-
-
-\section{Related Work}
-\label{related}
-
-mbeddr touches several areas of research, so we we have structured the this
-section accordingly, one paragraph for each area: DSLs in embedded development,
-specific extensions of C, language and IDE extension and static analysis and
-formal verification.
-
-\parhead{DSLs in Embedded Development} In addition to the general-purpose
-embedded software modeling tools mentioned before (Simulink and ASCET), much
-more specific languages have been developed. Examples include Feldspar
-\cite{2010_axelsson_feldspar_dsl_for_dsp}, a DSL embedded in Haskell for digital
-signal processing; Hume \cite{2003_hammond_hume_dsl_for_rt_embedded_systems}, a
-DSL for real-time embedded systems as well as the approach described in
-\cite{2008_gokhale_model_driven_middleware}, which use DSLs for addressing
-quality of service concerns in middleware for distributed real-time systems. Our
-approach is different because our DSLs are directly integrated into C, whereas
-the examples mentioned in this paragraph are standalone DSLs that generate
-C code. As part of our future work we will investigate if and how some of these
-languages could benefit from a tighter integration with C based on mbeddr.
-
-
-
-\parhead{Specific Extensions of C} Extending C to adapt it to a particular
-problem domain is not new. For example, Palopoli et al.
-present an extension of C for real time applications~\cite{PalopoliAB99},
-Boussinot proposes an extension for reactive systems~\cite{Boussinot91} and Yosi
-Ben-Asher et al. present an extension for shared memory parallel
-systems~\cite{Ben-AsherFR96}. These are all \emph{specific} extensions of C,
-typically created by invasively changing the C grammar. These extensions do not
-include IDE support, and the approach does not provide a framework for modular,
-incremental extension.
-However, these are all good examples of extensions that could be implemented as
-language extensions in mbeddr, if the need arises. 
-
-
-In contrast to these specific extensions of C, the Xoc extensible C compiler
-described by Cox~\cite{CoxBCKK08} support arbitrary extensions. It uses a
-parser-based approach and uses source-to-source translation to transform modular
-C extensions into regular C code. In contrast to mbeddr, Cox' approach is
-limited by the fact that is uses a traditional parser based approach and that it
-does not address IDE extension.
-
-
-There are also safer dialects of C, basically restricted sub-languages. Examples
-include Cyclone~\cite{2002_trevor_cyclone_safe_dialect_of_c} and the Misra C
-standard~\cite{2004_misra_c}. We are actively working on implementing checks and
-restrictions to implement the Misra C standard as a language extension using
-restriction ($W_7$).
-
-
-
-
-\parhead{Language and IDE Extension} mbeddr itself is not a language engineering
-tool --- we rely on the MPS language workbench. Therefore the discussion of
-language engineering approaches and tools as part of related work will look at
-how these tools and approaches address language engineering, and how this
-differs from the MPS-based approach used in mbeddr.
-
-
-Language extension is not a new idea. The Lisp community has always considered
-language extension essential to using Lisp effectively. Guy
-Steele's OOPSLA 1998 keynote \emph{Growing a Language} (and a related journal article~\cite{Steele99}) is
-maybe the most well-known expression of the idea, and Thrift's extension of Lisp
-with constructs for logic programming~\cite{Thrift88} is a concrete example.
-Obviously, Lisp extension could not have been used as a basis for mbeddr, since
-it is based on C.
-
-
-The landmark work of Hudak~\cite{1998_hudak_modular_dsl_and_tools} introduces
-embedded DSLs as language extensions of Haskell. While Haskell provides advanced
-concepts that enable such extensions, the new DSLs are essentially just
-libraries built with the host language and are not first class language
-entities: they do not define their own syntax, compiler errors are expressed in
-terms of the host language, no custom semantic analyses are supported and no
-specific IDE-support is provided. Essentially all internal DSLs expressed with
-dynamic languages such as Ruby or Groovy, but also those embedded
-in static languages such as Scala suffer from these limitations. 
-
-Several works avoid these limitations by making language definition and
-extension first class. Early examples include the Synthesizer
-Generator~\cite{RepsT84} as well as the Meta Environment~\cite{Klint93}. Both
-generate editors and other IDE aspects from a language definition. The topic is
-still actively researched. For example, Bravenboer et al.
-\cite{2004_bravenboer_concrete_syntax_for_objects} and Dinkelacker
-\cite{2011_dinkelaker_incremental_concrete_syntax_for_embedded_languages} 
-provide custom concrete syntax, Bracha \cite{2004_bracha_pluggable_type_systems}
-provides pluggable type systems and Erweg et al.
-\cite{2011_erdweg_growing_a_language_environment} discuss modular IDE
-extensions. Eisenberg and Kiczales propose explicit
-programming~\cite{EisenbergK07} which supports semantic extension as well as
-editing extensions (concrete syntax) for a given base language. 
-
-Our approach is similar in that we provide extensions of syntax, type systems,
-semantics and IDE support for a base language. mbeddr is different in that it
-extends C, in that we use a projectional editor and in that we address IDE
-extension including advanced features such as type systems, refactorings and the
-debugger. The use of a projectional editor is especially significant, since this
-enables the use of non-textual notations and annotation of cross-cutting meta
-data.
-
-
-A particularly interesting comparison can be made with the Helvetia system by
-Renggli et al. \cite{2010_renggli_embedding_languages_without_breaking_tools}.
-It supports language embedding and extension of Smalltalk using
-\emph{homogeneous} extension, which means that the host language (Smalltalk) is
-also used for \emph{defining} the extensions (in contrast to some of the
-embedded DSLs discussed above, Helvetia can work with custom grammars for the
-DSLs). The authors argue that the approach is independent of the host language
-and could be used with other host languages as well. While this is true in
-principle, the implementation strategy heavily relies on some aspects of the
-Smalltalk system that are not present for other languages, and in particular,
-not in C. Also, since extensions are defined in the host language, the complete
-implementation would have to be redone if the approach were used with another
-language. This is particularly true for IDE support, where the Smalltalk IDE is
-extended using this IDE's APIs. mbeddr uses a \emph{heterogeneous} approach
-which does not have these limitations: MPS provides a language-agnostic
-framework for language and IDE extension that can be used with any language,
-once the language is implemented in MPS.
-  
-In the same paper, Renggli and his colleagues introduce three different flavors
-of language extension. A \emph{pidgin} creatively bends the existing syntax of
-the host language to to extend its semantics. A \emph{creole} introduces
-completely new syntax and custom transformations back to the host language. An
-\emph{argot} reinterprets the semantics of valid host language code. mbeddr does
-not use any pidgins, because C's syntax is not very flexible, and because we
-have the language workbench at our disposal, so it is easier to implement
-creoles. $W_1$ - $W_4$ are creoles. In contrast, $W_5$ is an argot. It provides
-different semantics for existing constructs. $W_6$ is yet different. New syntax
-is introduced, but it can be attached to any language concept. The semantics is
-only relevant to additional tools, not to the core C program --- no translation
-back to C takes place. $W_7$ \emph{removes} concepts in new contexts and hence
-also does not fit with the categorization.
- 
- 
-\label{cedalion} 
-Cedalion \cite{cedalion} is a host language for defining internal DSLs. It uses
-a projectional editor and semantics based on logic programming. Both Cedalion and
-language workbenches such as MPS aim at combining the best of both worlds from
-internal DSLs (combination and extension of languages, integration with a host
-language) and external DSLs (static validation, IDE support, flexible syntax).
-Cedalion starts out from internal DSLs and adds static validation and
-projectional editing, the latter avoiding ambiguities resulting from combined
-syntaxes. Language workbenches start from external DSLs and add modularization,
-and, as a consequence of implementing base languages with the same tool,
-optional tight integration with general purpose host languages. We could not
-have used Cedalion as the platform for mbeddr tough, since we implemented our
-own base language (C), and the logic-based semantics would not have been a good
-fit.
-
-Our work relates to macro systems such as Open Java~\cite{TatsuboriCIK99}in that
-mbeddr customizes the translation of language extensions.
-However, mbeddr uses non-local transformations as well; those are not easily
-expressible with macros. Also, traditionally, macros have not addressed IDE
-extension.
-
-Finally, open compilers such as Jastadd~\cite{EkmanH07} are related in that 
-they support language extension and custom transformation. However, while
-open compilers can typically be extended with independent modules, the input
-language often requires invasive adaptation. Also, open compilers do not address
-IDE extension. 
-
-\parhead{Static Analysis and Formal Verification} Static analysis of C programs
-is an active research area (as exemplified by \cite{KarthikJ05,Mine11,Puccetti10}), and several
-commercial tools are available, such as the Escher C
-Verifier\footnote{http://www.eschertech.com/products/ecv.php} or
-Klocwork\footnote{http://www.klocwork.com/}. We believe that we can simplify
-some of the analyses provided by these tools by providing extensions to
-C which embody relevant semantics directly, avoiding the need to reverse
-engineer the semantics for static analysis. For example, by expressing
-state-based behavior directly using state machines instead of a low level C
-implementation, the state space relevant to a model checker can be reduced
-significantly, making model checking less costly. 
-
-\label{framac}
-Another class of tools (such as Frama-C\footnote{http://frama-c.com/}) requires
-users to annotate C code with "semantic hints" to reduce the state space and
-enable meaningful verification. We plan to integrate Frama-C into mbeddr,
-expecting the following benefits: first, we will provide a language
-extension for the hints, so users don't have to use comments to specify them.
-IDE support will be provided. Second, we will provide C extensions on a higher
-level of abstraction with semantics that can be used to generate
-the verification hints. This way, users don't have to deal with the hints
-explicitly.
-
 
 
 
