@@ -223,14 +223,6 @@ extensions that fit their domain.
 \section{Discussion}
 \label{discussion}
 
-% \label{whyNowWhyUs}
-% \parhead{Why now, why us?} The companies for which the authors work have long
-% been involved in researching and implementing tools for embedded software
-% development: both companies work at the intersection between languages, tool
-% development and embedded software. Over the last years, textual DSLs have become
-% more prevalent, so a tighter integration between DSL code and C code looked
-% promising.   
-
 \label{WhyMPS?}
 \parhead{Why MPS?} A central pillar to our work is MPS. Our choice of MPS is due
 to its support for all aspects of language development (structure, syntax, type
@@ -301,63 +293,6 @@ software, among others.
 
 
   
-
-\vspace{-3mm}
-
-\section{Conclusion and Future Work}
-\label{future}
-\vspace{-1mm}
-
-In this paper we presented the mbeddr system, a large scale use of language
-engineering technologies in general and language workbenches in particular. 
-We show how domain-specific extensions of C language can be
-used to address important challenges in embedded software development. To
-illustrate these ways of extension we provide a set of concrete examples and
-their implementation in the mbeddr system. The feedback on mbeddr received from
-practitioners so far convinces us that language
-engineering approaches have great potential to dramatically improve the
-development of embedded software. The mbeddr project also serves as a strong
-validation of the power and maturity of projectional language workbenches, in
-particular, MPS. The effort for building the C language and IDE and especially
-the incremental effort of building extensions is significantly lower than we
-expected when we started the project.  
-
-To realize the full potential of the mbeddr approach, more research is required
-in the following two major directions:
-
-
-\parhead{Extension of the Approach} We are almost finised with a debugger that
-can be extended together with language extensions. While there is existing
-research (such as \cite{Lindeman-GPCE-2011,WuGRM05}), there are still open
-questions such as how to calculate custom watches and how to avoid generating
-debug-specific code into the resulting C. We will also work more on formal
-analyses, including mapping higher-level DSLs to state machines and
-reinterpreting the verification results in the context of the higher-level DSL,
-exploring the relationship between general program analysis and language extensions as well as
-using SAT solvers to verify the structural integrity of variant-aware programs.
-In addition, we will add support for graphical notations for state machines
-and data flow block diagrams once MPS' support for graphical editors becomes
-available in the MPS 3.0 version.
-
-%Another key research direction is to try to prevent (and analyze)
-%unexpected semantic inconsistencies due to the interactions between different
-%DSLs.
-
-
-\parhead{Real-World Feasibility} Since mbeddr is intended to be used for
-real-world software development, a major part of our future work is the
-validation of the approach in real-world embedded development projects.
-We are currently building a set of extensions specific to our application
-partner Sick AG who use mbeddr to build systems in the sensors domain.
-We are also setting up a project to develop a smart metering device. We will
-measure the increase in productivity and maintainability in order to provide
-solid data about the full potential of this approach. This line of future work
-will also include an automatic importer for functions, \ic{struct}s, constants,
-\ic{enum}s and \ic{typdef}s defined in existing header files to simplify working
-with legacy code. We are also considering an importer for C implementation code
-(as long as it does not contain preprocessor statements). This will not be fully
-automatic, since some of the changes to mbeddr C require user decisions.
-
 
 \vspace{4mm}
 \noindent \textbf{Acknowledgements}  We thank Marcel Matzat and Bernhard

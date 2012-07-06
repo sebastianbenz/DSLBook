@@ -621,61 +621,20 @@ ancestor} constraint in the state machine prevents instances of \ic{float} in
 the state machine if the \ic{verifiable} flag is set.
 
 
-\subsection{Revisiting Tool Extensions}
-\label{toolext}
+\subsection{Revisiting Tool Extension --- Refactoring}
+\label{toolext-refa}
 
-In this paper we emphasize the importance of extending the IDE along with the
+In this chapter we emphasize the importance of extending the IDE along with the
 languages. The way MPS works, a language extension automatically includes IDE
 extension regarding syntax highlighting and code completion. However, some
 IDE adaptations are automatically done as a consequence of a language
-definition. One such adaptation is refactorings. \fig{refa} shows the core of an
-\emph{Introduce Local Variable} refactoring. In addition to the core, a
-refactoring specified the concepts to which it is applicable, a label for the
-entry in the refactoring menu, and a set of parameters queried from the user.
-
-
-\begin{figure}[h]
-\begin{code}
-node<Expression> selectedExpr = refactoringContext.selectedNode;
-node<Statement> stmt = selectedExpr.ancestor<concept = Statement>;
-
-nlist<Expression> matches = new nlist<Expression>;
-foreach s in stmt.siblings.union(stmt) {
-  if (s.index >= stmt.index) {
-    foreach e in s.descendants<concept = Expression> {
-      if (MatchingUtil.matchNodes(selectedExpr, e)) {
-        matches.add(e);
-} } } }
-
-node<LocalVariableDecl> lvd = new node<LocalVariableDecl>();
-lvd.name = varNameAsSpecifiedByUserInADialog;
-lvd.type = selectedExpr.type.copy;
-lvd.init = selectedExpr.copy;
-stmt.add prev-sibling(lvd);
-
-foreach e in matches {
-  node<LocalVarRef> ref = new node<LocalVarRef>();
-  ref.var = lvd;
-  e.replace with(ref);
-}
-\end{code}
-\caption{The core of the \emph{introduce variable} refactoring is made of four
-steps. The first one creates variables for the selected expression and the
-statement in which it is embedded. The second step looks through the rest of
-the current statement list and finds all other uses of the same expression. In
-the third step we create a new local variable, set its name, set its type to
-the type of the original expression and then insert the new variable right
-before the current statement. In the fourth step we replace all the occurences
-of the original expression with a reference to the new variable.}
-\label{refa}
-\end{figure}
+definition. One such adaptation is refactorings. We have described the 
+implementation of an \emph{Introduce Loca Variable} refactoring in 
+\sect{impl-refa}. Another important aspect is debugging on the level of the 
+language extension. We have discussed this in \sect{debug-mps}.  
 
 
 
-
-
-\todo{Do we want to add the debugger here? At least reference the debugger in
-the debugger chapter.}
 
 
 
