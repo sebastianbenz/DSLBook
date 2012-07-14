@@ -92,8 +92,7 @@ way. For example, in \fig{mps-mps-debug} we debug the scope for a
 
 
 \begin{figure*}[h]
-\begin{center}
-  \includegraphics[width=18cm]{figures/8/mps-mps-debug.png}
+  \includegraphics[width=17cm]{figures/8/mps-mps-debug.png}
   \caption[]{The debugger that can debug MPS while it "executes" a language is
   aware of all the relevant extensions to BaseLanguage. For example, in this
   screenshot we debug a scope constraint. Notice how in the \ic{Variables} view
@@ -101,25 +100,132 @@ way. For example, in \fig{mps-mps-debug} we debug the scope for a
   level of the node, not in terms of its underlying Java data structure
   representation.}
   \label{mps-mps-debug} 
-\end{center} 
 \end{figure*}
 
 
+A related feature of MPS is the ability to analyze exception stack traces. MPS
+generates Java code from language definitions and then executes this Java code.
+If an exception occurs in language implementation code, this exception produces
+a Java stack trace. This stack trace can be pasted into a dialog in MPS. MPS
+then produces a version of the stack trace where the code locations in the stack
+trace (which are relative to the generated Java) have been translated to
+locations in the DSL definition (expressed in Base Language). The locations can
+be clicked directly, opening the MPS editor at the respective location.
+
+In the design chapter \todo{ref} we discussed how declarative languages may come
+with a debugger that fits the particular declarative paradigm used by a
+particular declarative language. MPS comes with two facilities. First, pressing
+\ic{Ctrl-Shift-T} on any program element will open a dialog that shows the type
+of the element. If the element has a type system error, that dialog also lets
+the user navigate to the rule that reported the error. The second facility is
+much more sophisticated. For any program node, MPS can show the so-called type
+system trace (\fig{mps-ts-trace} shows a simple example). Remember how the MPS
+type system is relies on a solver to solve the type system equations associated
+with program elements (specified by the language developer for the respective
+concepts). So each program has an associated set of type system equations.
+Those contain explicitly specified types as well as type variables. The solver
+tries to find type values for these variables such that all type system
+equations become true. The type system trace essentially visualizes the state of
+the solver including the values it assigns to type variables as well as which
+type system rules are applied to which program element.
+
+\begin{figure}[h]
+  \includegraphics[width=11cm]{figures/8/mps-ts-trace.png} 
+  \caption[][-20mm]{This
+  example shows the solver state for the \ic{Argument x}. It first applies the
+  rule \ic{typeof\_ITyped} (\ic{Argument} implements \ic{ITyped}) which
+  expresses that the type of the element (type variable
+  \ic{c} is the same as the element's \ic{type} property (type variable \ic{d}).
+  It then applies the \ic{typeof\_Type} rule to the argument's type itself. This
+  rule expresses that the type of a \ic{Type} is a clone of itself.
+  Consequently, the type variable \ic{d} can be set to \ic{int8\_t}. In
+  consequence this means that the type variable \ic{c} (which represents the
+  type of the \ic{Argument}) is also \ic{int8\_t}. Note that this is a trivial
+  example. Type system traces can become quite involved.}
+  \label{mps-ts-trace} 
+\end{figure}
+
+
+\subsection{Debugging Interpreters and Transformations}
+
+Debugging an interpreter is simple: since an interpreter is just a program
+written in some programming language that processes and acts on the DSL program,
+debugging the interpreter simply uses the debugger for the language in which the
+interpreter is written\footnote{This assumes that the interpreter is written in
+a programming language for which a debugger exists}. 
+
+Debugging transformations and generators is typically not quite as trivial, for
+two reasons. First, transformations and generators are typically written in DSLs
+optimized for this task. So a specialized debugger is required. Second, if
+multi-step transformations are used, the intermediate models may have to be
+accessible, and it should be possible to trace a particular element through the
+multi-step transformation.
+
+\parhead{Xtext} \todo{Debug an xtend generator and/or a JVMInferrer}
+
+\parhead{MPS} In MPS, working with several chained transformations is normal, so
+MPS provides support for debugging the transformation process. This support
+includes two ingredients. The first one is showing the mapping partitioning. For
+a given model, MPS computes the order in which transformations apply and reports
+it to the user. This is useful to understand which transformations are executed
+in which order\footnote{... and to debug transformation priorities!}. Let us
+investigate a simple example C program that contains a message definition and a
+\ic{report} statement. The \ic{report} statement is transformed to \ic{printf}
+statements.
+
+\begin{code}
+module Simple imports nothing { 
+   
+  message list messages { 
+    INFO aMessage() active: something happened 
+  } 
+   
+  exported int32_t main(int32_t argc, int8_t*[] argv) { 
+    report(0) messages.aMessage() on/if; 
+    return 0; 
+  } 
+}
+\end{code}
+
+Below is the mapping configuration for this program: 
+
+\begin{code}
+[ 1 ]
+com.mbeddr.core.modules.gen.generator.template.main.removeCommentedCode
+[ 2 ]
+com.mbeddr.core.util.generator.template.main.reportingPrintf
+[ 3 ]
+com.mbeddr.core.buildconfig.generator.template.main.desktop
+com.mbeddr.core.modules.gen.generator.template.main.main
+\end{code}
+
+This particular model is generated in three phases. The first one removes
+commented code to make sure it does not show up in the resulting C text file.
+The second phase runs the generator that transforms \ic{report} statements into
+\ic{printf}s. Finally, the \ic{desktop} generator generates a \ic{make} file
+from the build configuration, and the last step generates the C text from the C
+tree.
+
+By default, MPS runs all generators until everything is either discarded or
+transformed into text. While intermediate models exist, they are not shown to
+the user. For debugging purposes though, these intermediate, transient models
+can be kept around for inspection. Each of the phases is represented by one or
+more transient models. As an example, here is the program after the \ic{report}
+statement has been transformed:
+
+\begin{code}
+module Simple imports nothing { 
+
+  exported int32_t main(int32_t argc, int8_t*[] argv) { 
+    printf("$$ aMessage: something happened "); 
+    printf("@ Simple:main:0#240337946125104144 \n "); 
+    return 0;
+  } 
+} 
+\end{code}
 
 
 
-
-
-
-
-
-
-
-
-
-MPS Transformation Trace
-Analyze Stack Trace
-Type System Trace
 
 
 \subsection{Debugging DSL Programs}
