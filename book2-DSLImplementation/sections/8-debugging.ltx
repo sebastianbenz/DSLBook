@@ -79,9 +79,6 @@ relevant locations\footnote{It is easy to criticize Xtext for the fact that it
 does not use DSLs for defining DSLs. However, in the context of debugging this
 is good, because no special debuggers are necessary.}.
 
-\todo{make sure the borders of all the figures in this chapter are nice (on a
-windows machine!}
-
 \parhead{MPS} MPS comes with an equivalent facility in the sense that a second
 instance of MPS can be launched that runs "inside" the current one. This inner
 instance can be debugged from the outside one. This approach can be used for all
@@ -224,8 +221,19 @@ module Simple imports nothing {
 } 
 \end{code}
 
+MPS also supports tracing an element through the intermediate models.
+\fig{mps-tracer} shows an example. Users can select a program element in the
+source, target or an intermediate model and trace it to the respective other
+ends of the transformation.
 
-
+\begin{figure*}[h]
+  \includegraphics[width=18cm]{figures/8/mps-tracer.png}
+  \caption[]{The generation trace functionality in MPS allows users to trace
+  how a particular program element is transformed through a chain of
+  transformations. The generation tracer also shows the transformation rules
+  involved in the transformation.}
+  \label{mps-tracer} 
+\end{figure*}
 
 
 \subsection{Debugging DSL Programs}
