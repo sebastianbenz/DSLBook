@@ -1,14 +1,125 @@
-
-
-
 \chapter{Debugging DSLs}	
 
+\todo{Do we have a chapter abstract everywhere?}
 
-\subsection{Debugging the DSL Definition}
+Debugging is relevant in two ways in the context of DSLs and language
+workbenches. First, the DSL developer may want to debug the definition of a DSL,
+including constraints, scopes or transformations and interpreters. Second,
+programs written in the DSL may have to be debuggable by the end user. We
+address both aspects in this chapter.
 
-Xtext Java Debugging
+\section{Debugging the DSL Definition}
+
+\todo{Write something here}
+
+\subsection{Understanding and Debugging the Language Structure}
+
+In parser-based systems, the transformation from text to the AST performed by
+the parser\footnote{... and the lexer, if there is one ...} is itself a
+non-trivial process and has a potential for errors. Debugging the parsing
+process can be important.
+
+\parhead{Xtext} Xtext uses ANTLR\footnote{http://antlr.org} under the hood. In
+other words, from the Xtext grammar, an ANTLR grammar is generated which
+performs the actual parsing. So understanding and debugging the Xtext parsing
+process means understanding and debugging the ANTLR parsing process.
+
+There are two ways to do this. First, since ANTLR generates a Java-based parser,
+you can debug the execution of ANTLR (as part of Xtext) itself. Second, you
+can have Xtext generate a debug grammar, which contains no action code (so it
+does not populate the AST). However, it can be used to debug the parsing process
+with ANTLRWorks\footnote{http://www.antlr.org/works}. ANTLRWorks comes with an
+interactive debugger for ANTLR grammars.
+
+\parhead{MPS} In MPS there is no transformation from text to the AST since it is
+a projectional editor. However, there are still means to help better
+understand the structure of an existing program. For example, any program
+element can be inspected in the \emph{Explorer}. \fig{mps-explorer} shows the
+information for a trivial C function:
+
+\begin{code}
+int8_t add(int8_t x, int8_t y) { 
+  return x + y; 
+} 
+\end{code}
+
+
+\begin{figure}[h]
+\begin{center}
+  \includegraphics[width=8cm]{figures/8/mps-explorer.png}
+  \caption[]{The MPS explorer shows the structure of a program as a tree.
+  The explorer also shows the concept for each program element as well as the
+  type, if an element has one.}
+  \label{mps-explorer} 
+\end{center} 
+\end{figure}
+
+MPS provides similar support for understanding the projection rules. For any
+program node MPS can show the cell structure as a tree. The tree contains
+detailed information about the cell hierarchy, the program element associated
+with each cell as well as the properties of the cell (height, width, etc.).
+
+\todo{handle the noindent correctly all over the book}
+
+\subsection{Debugging Scopes, Constraints and Type Systems}
+
+Depending on the level of sophistication of a particular language, a lot of
+non-trivial behavior can be contained in the code that determines scopes, checks
+constraints or computes types. In fact, in many languages, these are the most
+sophisticated aspects of language definition. Consequently, there is a need
+for debugging those.
+
+\parhead{Xtext} In Xtext, all aspects of a language except the grammar and the
+abstract syntax are defined via Java programs using Xtext APIs. This includes
+scopes, constraints and type system rules\footnote{It also includes all IDE
+aspects.}. Consequently, all these aspects can be debugged by using a Java
+debugger. To do this, you can simply launch the Eclipse Application that
+contains the language and editor in debug mode and set breakpoints at the
+relevant locations\footnote{It is easy to criticize Xtext for the fact that it
+does not use DSLs for defining DSLs. However, in the context of debugging this
+is good, because no special debuggers are necessary.}.
+
+\todo{make sure the borders of all the figures in this chapter are nice (on a
+windows machine!}
+
+\parhead{MPS} MPS comes with an equivalent facility in the sense that a second
+instance of MPS can be launched that runs "inside" the current one. This inner
+instance can be debugged from the outside one. This approach can be used for all
+those aspects of MPS-defined languages that are defined in terms of the
+BaseLanguage, MPS' version of Java. For example, scopes can be debugged this
+way. For example, in \fig{mps-mps-debug} we debug the scope for a
+\ic{LocalVariableRef}.
+
+
+\begin{figure*}[h]
+\begin{center}
+  \includegraphics[width=18cm]{figures/8/mps-mps-debug.png}
+  \caption[]{The debugger that can debug MPS while it "executes" a language is
+  aware of all the relevant extensions to BaseLanguage. For example, in this
+  screenshot we debug a scope constraint. Notice how in the \ic{Variables} view
+  program nodes (such as the \ic{Statement s}) are shown on the abstraction
+  level of the node, not in terms of its underlying Java data structure
+  representation.}
+  \label{mps-mps-debug} 
+\end{center} 
+\end{figure*}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 MPS Transformation Trace
-MPS full debugging og anything DSL
+Analyze Stack Trace
+Type System Trace
 
 
 \subsection{Debugging DSL Programs}
@@ -20,7 +131,8 @@ Extensible Debuggers a la mbeddr \label{debug-mps}
 automatic debugging ˆ la Xtext/Xbase
 
 
-
+Debugger Integration
+The MPS debugger has been integrated into IntelliJ IDEA as well. When debugging your Java code you can set breakpoints directly inside the DSL code and so the IntelliJ IDEA debugger will be stopped at the appropriate place allowing you to explore the stack trace and the variables.
 
 
 

@@ -21,7 +21,7 @@ semantics (i.e. transformations or interpreters). Here are some examples:
 automated via scripts so they can be run as part of automatic builds. All of the
 test strategies shown below can be executed from \ic{ant} scripts. However, we
 don't describe in detail how this works for each of the tools.}
-
+ 
 \section{Syntax Testing}
 
 Testing the syntax is simple in principle. Developers simply try to write all
@@ -669,6 +669,43 @@ exported test case runTest {
 In case the \ic{persistenceMock} saw behavior different from the one specified
 above, the \ic{validate mock} statement will fail --- and with it, the whole
 test.
+
+One particular challenge with this approach to semantics testing is that, if an
+assertion fails, you get some kind of \ic{assertion XYZ failed at ABC} output
+from the running test case. To understand and fix the problem, you will have to
+navigate back to the \ic{assert} statement in the DSL program. If you have many
+failed assertions or just generally a lot of test program output, this can be
+tedious and error prone. For example, the following piece of code shows the
+output from executing a C-based test case on the command line:
+
+
+\begin{code}
+./TestHelperTest
+$$runningTest: running test () @TestHelperTest:test_testCase1:0#767515563077315487
+$$FAILED: ***FAILED*** (testID=0) @TestHelperTest:f:0#9125142491355884683
+$$FAILED: ***FAILED*** (testID=1) @TestHelperTest:f:1#9125142491355901742 
+\end{code}\ignore{$$}
+
+In mbeddr we have built a tool that simplifies finding the message source. You
+can paste arbitrary text that contains error messages into a text area (for
+example the example above) on the left in \fig{analyzeErrorOutput}.
+Pressing the \ic{Analyze} button will find the nodes that created a
+particular message\sidenote[][-10mm]{This process is based on the unique node
+ID; this is the long number that follows the \ic{\#} in the message text.}.
+You can then click on the node to select it in the editor 
+
+\todo{Check for empty captions and provide text}
+
+
+\begin{figure}[h]
+\begin{center}
+  \includegraphics[width=11cm]{figures/7/analyzeErrorOutput2.png}
+  \caption[][5mm]{The mbeddr error output analyzer parses test output and
+  supports navigating to the source of error messages in the MPS program.}
+  \label{analyzeErrorOutput} 
+\end{center} 
+\end{figure}
+
 
 
 \parhead{Testing Interpreters and Generators with Spoofax} Spoofax' testing
