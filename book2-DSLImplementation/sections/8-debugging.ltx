@@ -511,93 +511,354 @@ Essentially only three things have to be done:
 \end{itemize}
 
 
-\subsection{Automatic Debugging for Xbase Programs}
+\subsection{Automatic Debugging for Xbase-based DSLs}
+
+DSLs that use Xbase, the reusable expression language that ships with Xtext,
+get debugging mostly for free. This is because of the tight integration of Xbase
+with the JVM. While we describe this integration in more detail in \todo{}. Here
+is the essence. 
+
+A DSL that uses Xbase typically defines its own structural and high-level
+behavioral aspects but uses Xbase for the fine-grained, expression-level
+behavior. For example, in a state machine DSL, states, events and transitions
+would be concepts defined by the DSL, but the guard conditions and the action
+code would reuse Xbase expressions. When mapping this DSL to
+Java\footnote{Xbase-based DSLs \emph{must} be mapped to Java to benefit from
+Xbase in the way discussed in this section. If you generate code other than
+Java, Xbase cannot be used sensibly.}, the following approach is used. The
+structural and high-level behavioral aspects are mapped to Java, but \emph{not}
+by generating Java text, but by mapping the DSL AST to a Java AST. For the
+reused Xbase aspects (the finer-grained behavior) there already exists a to-Java
+generator (called the Xbase compiler) which we simply call from our generator.
+
+Essentially, we do not create a code generator, but a model-to-model
+transformation from the DSL AST to the Java AST. As part of the this
+transformation (performed by the so-called JVMModel inferrer), trace links
+between the DSL code and the created Java code are created. In other words, the
+relationship between the Java code and the DSL code is well known. This
+relationship is exploited in the debugging process. 
+
+Xbase-based DSLs use the Java debugger for debugging. In addition to showing the
+generated Java code, the debugger can also show the DSL code, based on the
+trace information collected by the JVMModel inferrer. In the same way, if a user
+sets a breakpoint in the DSL code, the trace information is used to determine
+where to set the breakpoint in the generated Java code. 
+
+
+\subsection{Debuggers for an Extensible Languages}
+
+This section describes, in some detail, the architecture of an extensible
+debugger for an extensible language. We illustrate the approach with an
+implementation based on mbeddr, an extensible version of C implemented with the
+MPS. We illustrate the debuggers for non-trivial extensions of C. We also
+discuss the extent to which the approach can be used with other extensible
+languages and language workbenches.
+
+
+\paragraph{Requirements on the Debugger}
+\label{challenges}
+
+Debuggers for imperative languages support at least the following features:
+\emph{Breakpoints} suspend execution on arbitrary statements; \emph{Single-Step
+Execution} steps over statements, and into and out of functions or other
+callables; \emph{Watches} show values of variables, arguments or other aspects
+of the program state. \emph{Stack Frames} visualize the call hierarchy of
+functions or other callables.
+
+When debugging a program that contains extensions, breakpoints, stepping,
+watches and call stacks \emph{at the extension-level} differ from their
+counterparts \emph{at the base-level}. The debugger has to perform the mapping
+from the base-level to the extension-level (\fig{levels}). We distinguish
+between the \emph{tree} representation of a program in MPS and the generated
+\emph{text} that is used by the C compiler and the debugger
+backend. A program in the tree representation can he separated into parts
+expressed in the \emph{base} language and parts expressed using
+extensions. We refer to the latter the \emph{extension}-level or
+\emph{DSL}-level (see \fig{levels}).
+
+\begin{figure}[h]
+  \centering  
+    \includegraphics[width=85mm]{figures/8/mbeddr/levels.png}
+    \caption{
+    An extension-aware debugger maps the debug
+    behavior from the base-level to the extension-level (an extension may also
+    be mapped onto other extensions; we ignore this aspect in this section).}
+  \label{levels} 
+\end{figure}
+
+\noindent An extensible \emph{tree}-level debugger for mbeddr  that
+supports debugging on the \emph{base}-level and \emph{extension}-level, 
+addresses the following requirements (the requirements are named R1 through
+R5 so we can refer back to them from the following sections):
+
+
+\vspace{1mm}\noindent \textbf{R1 Modularity:} Language extensions in mbeddr are
+modular, so debugger extensions must be modular as well. No changes to the base
+language must be necessary in order to enable debugging for a language
+extension.
+
+\vspace{1mm}\noindent \textbf{R2 Framework Genericity:} In addition, new
+language extensions must not require changes \emph{to the core debugger
+infrastructure} (not just the base language, as described in R1).
+  
+\vspace{1mm}\noindent \textbf{R3 Simple Debugger Definition:} Creating language
+extensions is an integral part of using mbeddr. Hence, the development of a
+debugger for an extension should be simple and not require too much knowledge
+about the inner workings of the framework, or even the C debugger backend.
+
+\vspace{1mm}\noindent \textbf{R4 Limited Overhead:} As a consequence of embedded
+software development, we have to limit the additional, debugger-specific code
+generated into the binary. This would increase the size of the binary,
+potentially making debugging on a small target device infeasible.
+  
+\vspace{1mm}\noindent \textbf{R5 Debugger Backend Independence:} Embedded
+software projects use different C debuggers depending on the target
+device. This prevents modifying the C debugger itself: changes would have to be
+re-implemented for every C debugger used.
+
+
+
+\paragraph{An example Extension} We start out by developing a simple extension
+to the mbeddr C language. The \ic{foreach} statement shown below is a simple
+example of language extension. \ic{foreach} can be used to conveniently iterate
+over C arrays. Users have to specify the array as well as its size, since in C
+an array cannot be queried for its size. Inside the \ic{foreach} body, \ic{it}
+acts as a reference to the current iteration's array element.
+
+\begin{code}
+int8_t s = 0;                                              
+int8_t[] a = {1, 2, 3};                  
+foreach (a sized 3) {    
+    s += it;    
+} 
+\end{code}
+
+The code generated from this piece of extended C looks as follows. The
+\ic{foreach} statement is expanded into a regular \ic{for} statement and an
+additional variable \ic{\_\_it}:
+
+\begin{code}
+int8_t s = 0;                                              
+int8_t[] a = {1, 2, 3};                  
+for (int __c = 0; __c < 3; __c++) {    
+    int8_t __it = a[__c];
+    s += __it;    
+} 
+\end{code}
+
+To make the \ic{foreach} extension modular, it lives in a separate language
+module named \ic{ForeachLanguage}. The new language extends C, since we will
+refer to concepts defined in C (see \fig{umldiag}).
+ 
+
+\begin{figure}[h]
+  \centering
+    \includegraphics[width=90mm]{figures/8/mbeddr/umldiag.png}
+    \caption{UML class diagram showing the structure of the
+    \ic{ForeachLanguage}. Concepts from the C base language are in white
+    boxes, new concepts are grey.} 
+  \label{umldiag}
+\end{figure}
+
+
+\paragraph{Developing the Language Extension}  In the new language, we define
+the \ic{ForeachStatement}. To make it usable wherever C expects \ic{Statement}s
+(i.e. in functions), \ic{ForeachStatement} extends C's \ic{Statement}.
+\ic{ForeachStatement}s have three children (see \fig{umldiag}): an
+\ic{Expression} that represents the array, an \ic{Expression} for the array
+length, and a \ic{StatementList} for the body.
+\ic{Expression} and \ic{State- mentList} are both defined in C.
+
+The editor that defines the concrete syntax (\fig{foreachEditorImage}) consists
+of a horizontal list of cells: the \ic{foreach} keyword, the opening
+parenthesis, the embedded editor of the
+\ic{array} child, the \ic{sized} keyword, the embedded editor of the \ic{len}
+expression, the closing parenthesis and the editor of the \ic{body}.
+
+\begin{figure}[h]
+\begin{center} 
+  \includegraphics[width=85mm]{figures/8/mbeddr/foreachEditor2.png}
+\end{center}
+\caption{The editor definition of the
+\ic{foreach} statement and its relationship to an example
+instance.}
+\label{foreachEditorImage}
+\end{figure}
+
+As shown in the code snippet below, the 
+\ic{array} must be of type \ic{ArrayType}, and the type of \ic{len} must be
+\ic{int64\_t} or any of its shorter subtypes.
+ 
+\begin{code}
+rule typeof_ForeachStatement for ForeachStatement as fes do {
+    typeof(fes.len) :<=: <int64_t>; if
+    (!(fes.array.type.isInstanceOf(ArrayType))) {
+      error "array required" -> fes.array; } }
+\end{code}
+ 
+
+The generator translates a \ic{ForeachStatement} to a regular \ic{for} statement
+that iterates over the elements with a counter variable \ic{\_\_c}
+(\fig{foreachGenerator}). Inside the \ic{for} body, we create a variable
+\ic{\_\_it} that refers to the array element at position \ic{\_\_c}. We then
+copy in the other statements from the body of the \ic{foreach}. Note that there
+is an existing generator for C that outputs C text which is subsequently
+compiled.
+ 
+\begin{figure}[h]
+\begin{center}  
+  \includegraphics[width=110mm]{figures/8/mbeddr/foreachGenerator.png}
+\end{center} 
+\vspace{-2mm}
+\caption{The \ic{foreach} generator template. A \ic{ForeachStatement} is replaced by what is framed \ic{<TF .. TF>}
+when the template is executed, the \ic{dummy} function around it just provides
+context. The \ic{COPY\_SRC} and
+\ic{COPY\_SRCL} macros contain expressions (not shown) that determine 
+with what the nodes in square brackets (e.g. \ic{10}, \ic{int8\_t x;}) are
+replaced during a transformation.}
+\label{foreachGenerator}
+\end{figure}
+
+
+The \ic{ItExpression} extends C's \ic{Expression} to make it usable where
+expressions are expected. The editor consists of a single cell with the keyword
+\ic{it}. A constraint enforces that the \ic{ItExpression} is only used inside
+the body of a \ic{foreach}:
+
+\begin{code}
+concepts constraints ItExpression { 
+  can be child 
+    (context, scope, parentNode, link, childConcept)->boolean { 
+      parentNode.ancestor<ForeachStatement, +>.isNotNull && 
+      parentNode.ancestor<StatementList, +>.isNotNull;   }   }
+\end{code}
+
+
+The type of \ic{it} must be the base type of the \ic{array} (e.g. \ic{int} in
+case of \ic{int{[]}}), as shown in the code below:
+
+\begin{code}
+node<Type> basetype = typeof(it.ancestor<ForeachStatement>.array) 
+                         as ArrayType.baseType; 
+typeof(it) :==: basetype.copy;
+\end{code}
+
+
+The \ic{foreach} generator already generated a local variable
+\ic{\_\_it} into the body of the \ic{for} loop. We can thus translate an
+\ic{ItExpression} into a \ic{LocalVariable- Reference} that refers to
+\ic{\_\_it}.
+
+\paragraph{Defining the Debugger}
+\label{exdebugger}
+The specification of the \ic{foreach} debugger extension resides completely in
+the \ic{ForeachLanguage} (R1). 
+ 
+
+To set a breakpoint on a concept, it must implement the
+\ic{IBreakpointSupport} marker interface. \ic{Statement} already implements this
+interface, so \ic{ForEachStatement} implicitly implements this interface as well.
+
+Stepping behavior is implemented via \ic{IStep- pable}.
+\ic{ForeachStatement} implements this interface indirectly via \ic{Statement},
+but we have to overwrite the methods that define the step over and step into
+behavior. Assume the debugger is suspended on a \ic{foreach} and the user
+invokes \emph{step over}. If the array is empty or we have finished iterating
+over it, a step over ends up on the statement that follows \emph{after the
+whole} \ic{foreach} statement. Otherwise we end up on the first line of the
+\ic{foreach} body (\ic{sum += it;}). This is the first line of the mbeddr
+program, \emph{not} the first line of the generated base program (which would be
+\ic{int8\_t \_\_it = arr[\_\_c];}).
+
+The debugger can not guess which alternative will occur since it would require
+to know the state of the program and to evaluate the expressions in the
+(generated) \ic{for}. Instead we set breakpoints \emph{on each of the possible
+next statements} and then resume execution until we hit one of them (an idea
+adapted from \cite{Wu06grammar}). The implementations of the \ic{ISteppable}
+methods specify strategies for setting breakpoints on these possible next
+statements. The \ic{contributeStepOverStrategies} method collects strategies for
+the \emph{step over} case:
+ 
+\begin{code}
+void contributeStepOverStrategies(list<IDebugStrategy> res) {
+   ancestor
+   statement list: this.body   }
+\end{code}
+
+The method is implemented using a domain-specific language for
+debugger specification, which is part of the mbeddr debugger framework (R3). It
+is an extension of MPS' \ic{BaseLanguage}, a Java-based language used for
+expressing behavior in MPS. The \ic{ancestor} statement delegates to the
+\ic{foreach}'s ancestor; this will lead to a breakpoint on the subsequent
+statement. The second line leads to a breakpoint on the first statement of the
+\ic{body} statement list.
+
+
+
+Since the \ic{array} and \ic{len} expressions can be arbitrarily complex and may
+contain invocations of callables (such as function calls), we have to specify
+the \emph{step into} behavior as well. This requires the debugger to inspect the
+expression trees in \ic{array} and \ic{len} and find any expression that can be
+stepped into. Such expressions implement \ic{IStepIntoable}. If
+so, the debugger has to step into each of those, in turn. Otherwise the debugger
+falls back to \emph{step over}. An additional method configures the expression
+trees which the debugger must inspect:
+
+\begin{code}
+void contributeStepIntoStrategies(list<IDebugStrategy> res) { 
+  subtree: this.array 
+  subtree: this.len     }
+\end{code}
+      
+
+By default, the Watch window contains all C
+symbols (global and local variables, arguments) as supplied by the
+native C debugger. In case of the \ic{foreach}, this means that \ic{it}
+is not available, but \ic{\_\_it} and \ic{\_\_c} are. This is exactly the wrong way:
+the watch window should show \ic{it}, but not \ic{\_\_it} and \ic{\_\_c}.
+
+To customize Watches, a concept has to implement \ic{IWatchProvider}. Here
+is the code for \ic{foreach}, also expressed in the debugger definition DSL:
+
+
+\begin{code}
+void contributeWatchables(list<UnmappedVariable> unmapped, 
+                                 list<IWatchable> mapped) { 
+  hide "__c" 
+  map "__it" to "it" 
+    type: this.array.type : ArrayType.baseType 
+    category: WatchableCategories.LOCAL_VARIABLES 
+    context: this    }
+\end{code}
+
+The first line hides \ic{\_\_c}. The rest \ic{map}s a base-level C
+variable to a Watchable. It finds a C variable named \ic{\_\_it} (inserted by
+the \ic{foreach} generator) and creates a watch variable named \ic{it}. At the same time, it
+hides the base-level variable \ic{\_\_it}. The type of \ic{it} is the base type
+of the array over which we iterate. We assign the \ic{it} Watchable to the local
+variables section and associate the \ic{foreach} node with it (double-clicking
+on the \ic{it} in the Watches will highlight the \ic{foreach} in the code).
+
+
+Stepping into the \ic{foreach} body does not affect the
+call stack, since the concept represents no callable (details see
+\sect{archspec}). So we do not have to implement any stack frame
+related functionality.
 
 
 
 
-\subsection{An Extensible Debugger for an Extensible C}
 
 
 
 
-
-
-- Then we hint at how to build a debugger for an Xtext DSL 
-and mention that with Xbase, it works automatically.
-
-- then in MPS we discuss mbeddr
-
-
-
-Debugger Integration
-The MPS debugger has been integrated into IntelliJ IDEA as well. When debugging your Java code you can set breakpoints directly inside the DSL code and so the IntelliJ IDEA debugger will be stopped at the appropriate place allowing you to explore the stack trace and the variables.
-
-
-
-
-Debugging, as the name suggests, is about removing bugs, or errors, from
-programs\sidenote{Errors lead to faults, a state of the running program that
-leads to a failure, i.e. an externally visible "misbehavior" of the program}.
-However, this understanding of the term debugging refers to its \emph{purpose}. From
-the perspective of building debuggers, it is more important to look at the
-\ic{mechanisms} debuggers use to this end.
-
-
-The program source is a descriptions of the behavior of a
-program. As programmers, we care about the correct behavior, and we have to
-write the correct source that leads this behavior. There are two important
-differences between the program source and the program behavior:
-
-\begin{itemize}
-
-  \item The program source is a \emph{static} description of the \emph{dynamic}
-  behavior of a program.
-
-  \item The program source describes the behavior of the program for \emph{all}
-  possible sets of input data, whereas, when a program executes, it always
-  executes for a \emph{specific} set of input values.
-
-\end{itemize}
-
-Debugging addresses this discrepancy by allowing programmers to \emph{inspect}
-and \emph{animate} the execution of a program for a specific set of input
-values. This helps programmers better make the connection between program source
-and program execution, and in this way, helps to find errors.
-
-The specific way in which this animation happens depends on the behavioral
-paradigm used in the programs: For imperative or object oriented programs, the
-well-known step-through metaphor is used. This is mainly because this paradigm
-is based on changing (global) state as the program executes, and the debugger
-lets users inspect this state and observe it change while stepping through
-instructions. 
-
-While this is the most well-known approach to debugging, this is not the only
-one. For example, purely functional expressions, which don't change any global
-state, can be debugged by showing the values associated with each
-sub-expression in a tree. Time-triggered dataflow programs can be debugged by
-executing one time step at a time, and showing the values on input and output
-pins for each block. 
 
 
 
 Xtext: http://www.rcp-vision.com/?p=4089&amp;lang=en
 
-challenge in ext debuggers: paradigms
 
 
-sys out println (als Programmbefehl oder im Interpreter/Generator) 
-log ˆ la BSH
-Extensible Debuggers a la mbeddr
-automatic debugging ˆ la Xtext/Xbase
-
-
-
-
-debugging the DSL definition (use the debugger of your favourite LWB)
-  
-debugging the models: only makes sense for models with behavior
-state machine debuggers exist
 not a lot of support for "getting a debugger for free" from the language definition
 problem: debugging on several levels (DSL, intermediate, implemetation), error traceability through the levels
 MPS as an example?
