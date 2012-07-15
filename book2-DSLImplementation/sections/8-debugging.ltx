@@ -236,13 +236,115 @@ ends of the transformation.
 \end{figure*}
 
 
-\subsection{Debugging DSL Programs}
+\section{Debugging DSL Programs}
+
+The way to build debuggers for DSLs of course depends on the DSL itself. For
+example, for DSLs that only describe structures, debugging does not make much
+sense in the first place. For DSLs that describe behavior, the debugging
+approach depends on the behavioral paradigm used in the DSL. We have discussed
+this in \todo{ref}. In this section we focus mostly on the imperative
+paradigm\footnote{An examples for the functional paradigm has been provided in
+\todo{ref}, and the type system tracer described above is an example of a
+debugger for a declarative language.}.
+
+Building a debugger poses two challenges. The first one is the debugger UI:
+creating all the buttons and views for controlling the debugger and for showing
+variables and treads. The second challenge concerns the control of and
+data exchange with the to-be-debugged program. The first challenge is relatively
+simple to solve, since many IDE frameworks (including Eclipse and MPS) already
+come with debugger frameworks. 
+
+The second challenge can be a bit more tricky. If the DSL is executed by an
+interpreter, the situation is simple: the interpreter can be run and controlled
+directly from the debugger. It is easy to implement single-stepping and variable
+watches, for example, since the interpreter can directly provide the respective
+interfaces\footnote{This is especially true if the interpreter is written in the
+same language as the IDE --- no language integration issues have to be addressed
+in this case.}. On the other hand, if the DSL program is transformed into code
+that is executed in some other environment outside of our control, it may even
+be impossible to build a debugger because there is no way to influence and
+inspect the running program. Alternatively, it may be necessary to build a
+variant of the code generator which generates a \emph{debug version} of the
+program which contains specialized code to interact with the debugger. For
+example, values of variables may be stored in a special data structure
+inspectable by the debugger, and at each program location where the program may
+have to stop (in single step mode or as a consequence of a breakpoint) code is
+inserted that explicitly suspends the execution of the program, for example by
+\ic{sleep}ing the current thread. However, such an approach is often limited and
+ugly --- in the end, an execution infrastructure must provide debug support to
+enable robust debugging.
 
 
-sys out println (als Programmbefehl oder im Interpreter/Generator) 
-log ˆ la BSH
-Extensible Debuggers a la mbeddr \label{debug-mps}
-automatic debugging ˆ la Xtext/Xbase
+
+\subsection{Print Statements --- a Poor Man's Debugger}
+
+As the above discussion suggests, building full-blown debuggers may be a lot of
+work. It is worth exploring whether a simpler approach is good enough. The
+simplest such approach is to extend the DSL with language concepts that simply
+print interesting aspects of the executing program to the console or a log file.
+For example, the values of variables may be output this way.
+
+The mbeddr \ic{report} statement is an example of this approach. A \ic{report}
+statement takes a message text plus a set of variables. It then outputs the
+message and the values of these variables. The target of the report statement
+can be changed. By default, it reports to the console. However, since certain
+target devices may not have any console, alternative transformations can be
+defined for report statements, that, for example, could output the data to an
+error memory or a serial line. A particularly interesting feature of \ic{report}
+statements is that the transformation that handles them knows where in the
+program the \ic{report} statement is located. It can add this information to the
+output\footnote{The go-to-error-location functionality discussed in
+\fig{analyzeErrorOutput} is based on this appraoch.}.
+
+An approach based on print \emph{statements} is sometimes clumsy because it
+requires factoring out the to-be-printed expression. And it only works for an
+imperative language in the first place. For languages that make use of
+sophisticated expressions, a different approach is recommended. Consider the
+following example:
+
+\begin{code}
+Collection[Type] argTypes = aClass.operations.arguments.type;
+\end{code}
+
+If you wanted to print the list of operations and arguments, you would have to
+change the program to something like this:
+
+\begin{code}
+print("operations: " + aClass.operations);
+print("arguments: " + aClass.operations.arguments);
+Collection[Type] argTypes = aClass.operations.arguments.type;
+\end{code}
+
+A much simpler alternative uses \emph{inlined} reporting expressions:
+
+
+\begin{code}
+Collection[Type] argTypes = aClass.operations.print("operations:")
+                            .arguments.print("arguments:").type;
+\end{code}
+ 
+To make this convenient to use, the \ic{print} function has to return the object
+it is called on (the one before the dot), and it must be typed accordingly if a
+language with static type checking is used\footnote{The original
+openArchitectureWare Xtend did it this way.}.
+
+
+\subsection{Automatic Program Tracing}
+
+
+
+
+
+
+Since building debuggers is non-trivial, we start by covering
+- the logging from BSH
+- and also mention a simulator
+
+- Then we hint at how to build a debugger for an Xtext DSL 
+and mention that with Xbase, it works automatically.
+
+- then in MPS we discuss mbeddr
+
 
 
 Debugger Integration
