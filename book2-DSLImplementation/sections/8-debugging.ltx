@@ -1,4 +1,4 @@
-\chapter{Debugging DSLs}	
+\chapter{Debugging DSLs}    
 
 \todo{Do we have a chapter abstract everywhere?}
 
@@ -158,7 +158,32 @@ multi-step transformations are used, the intermediate models may have to be
 accessible, and it should be possible to trace a particular element through the
 multi-step transformation.
 
-\parhead{Xtext} \todo{Debug an xtend generator and/or a JVMInferrer}
+\parhead{Xtext} As we have said before, Xtext can be used together with any
+EMF-compatible code generator or transformation engine. However, since Xtext
+ships with Xtend, we look at debugging Xtend transformations. Model-to-model
+transformations and code generators in Xtend look very similar: both use Xtend
+to navigate over and query the model, based on the AST. The difference is that,
+as a side effect, model-to-model transformations create new model elements and
+code generators create strings --- typically using the rich strings (aka
+template expressions). 
+ 
+Xtend supports debugging either on the level of the generated code, or on the
+Xtend source level. As \fig{templatesdebugging} shows, even the template
+expressions can be debugged. The Variables view shows the EMF representation
+(i.e. the implementation) of program elements. 
+ 
+\begin{figure*}[h]
+  \includegraphics[width=17cm]{figures/8/xtext-templatesdebugging.png} 
+  \caption[][-20mm]{}
+  \label{templatesdebugging} 
+\end{figure*}
+
+Xtend is a fundamentally an imperative/OO language, so the step-through metaphor
+for debuggers is appropriate. If Xtend is used for code generation or
+transformation, debugging a boils down to stepping through the code that builds
+the target model. I emphasize this because the next example uses a different
+appraoch.
+
 
 \parhead{MPS} In MPS, working with several chained transformations is normal, so
 MPS provides support for debugging the transformation process. This support
@@ -235,8 +260,28 @@ ends of the transformation.
   \label{mps-tracer} 
 \end{figure*}
 
+Note how this approach to debugging transformations is very different from the
+Xtend example above: instead of stepping through the transformation
+code\footnote{As part of the general Debug-MPS-in-MPS functionality, MPS
+transformations can also be debugged in a more imperative fashion. This is
+useful, for example, to debug more complex logic used inside transformation
+templates.}, MPS provides a \emph{static} representation of the transformation
+in terms of the intermediate models and the element traces through them.
+
 
 \section{Debugging DSL Programs}
+
+To find errors in DSL programs, we can either debug them on the level of the DSL
+program or in its $L_{D-1}$ representation (i.e. in the generated code or the
+interpreter). Debugging on $L_{D-1}$ is useful if you want to find problems in
+the execution engine, or, to some extent, if the language users are programmers
+and they have an intimate understanding of the $L_{D-1}$ representation of the
+program. However, for many DSLs it is necessary to debug on the level of the DSL
+program either because the users are not familiar with the $L_{D-1}$
+representation\footnote{This is true particularly for DSLs qtargeted at domain
+experts, }, or because the $L_{D-1}$ is so low-level and complex that is bears
+no obvious resemblance to the DSL program.
+
 
 The way to build debuggers for DSLs of course depends on the DSL itself. For
 example, for DSLs that only describe structures, debugging does not make much
@@ -331,14 +376,152 @@ openArchitectureWare Xtend did it this way.}.
 
 \subsection{Automatic Program Tracing}
 
+As languages and programs become more complex, an automated tracing of program
+execution may be useful. In this approach, all execution steps in a program are
+automatically traced and logged into a tree-like data structure. The
+refrigerator cooling language uses this approach. Here is an example program:
+
+\begin{code}
+cooling program HelloWorld {
+    var temp: int
+    start:
+        entry { state s1 }  
+    state s1: 
+        check temp < 10 { state s2 }
+    state s2: 
+}
+\end{code} 
+
+Upon startup, it enters the \ic{start} state and immediately transitions to
+state \ic{s1}. It remains in \ic{s1} until the variable \ic{temp} becomes less
+than 10. It then transitions to \ic{s2}. Below is a test for this program that
+verifies this behavior:
+
+\begin{code}
+test HelloWorldTest for HelloWorld {
+    prolog {
+        set temp = 30
+    }
+    step
+    assert-currentstate-is s1
+    step
+    mock: set temp = 5
+    step
+    assert-currentstate-is s2
+}
+\end{code}
+
+\fig{interpreterlog} shows the execution trace. It shows the execution of each
+statement and the evaluation of each expression. The log viewer is a table tree
+so the various execution steps can be selectively expanded and collapsed. To
+connect to the program, users can double-click on an entry to select the
+respective program element in the source node. By adding special comments to the
+source, the log can be structured further.
+
+\begin{figure}[h]
+  \includegraphics[width=11cm]{figures/8/interpreterlog.png}
+  \caption[]{The log viewer represents a program's execution as a tree. The
+  first column contains a timestamp and the tree nesting structure. The second
+  column contains the kind (severity) of the log message. A filter can be used
+  to show only messages above a certain severity. The third column shows the
+  language concept with which the trace step is associated (double-clicking on
+  a row selects this element in the editor). Finally, the last column contains
+  the information about the semantic action that was performed in the
+  respective step.}
+  \label{interpreterlog} 
+\end{figure}
+
+The execution engine for the programs is an interpreter, which makes it
+particularly simple to collect the trace data. All interpreter methods that
+execute statements or evaluate expressions take a \ic{LogEntry} object as an
+additional argument. The methods then add children to the current \ic{LogEntry}
+that describe whatever the method did, and then passes the child to any other
+interpreter methods it calls. As an example, here is the implementation of the
+\ic{AssignmentStatement}:
+
+\begin{code}
+protected void executeAssignmentStatement(AssignmentStatement s, LogEntry log) {
+    LogEntry c = log.child(Kind.info, context, "executing AssignmentStatement" ); 
+    Object l = s.getLeft();
+    Object r = eval(s.getRight(), c);
+    eec().environment.put(symbol, r);
+    c.child(Kind.debug, context, "setting " + symbol.getName() + " to " + r);
+}
+\end{code}
+
+If instead of an interpreter a code generator were used, the same approach could
+essentially be used. Instead of embedding the tracing code in the interpreter,
+the code generator would generate code that would build the respective trace
+data structure in the executing program. Upon termination, the data structure
+could be dumped to an XML file and subsequently loaded by the IDE for
+inspection.
+
+
+
+\subsection{Simulation as an Approximation for Debugging}
+
+The interpreter for the Cooling programs mentioned above is of course not the
+final execution engine --- C code is generated that is executed on the actual
+target refrigerator hardware. However, as we have discussed in the design part
+of the book (\todo{ref}), we can make sure the generated code and the
+interpreter are semantically identical by running a sufficient (large) number of
+tests. If we do this, we can use the interpreter to test the programs for
+logical errors. The interpreter can also be used interactively, in which case it
+acts as a simulator for the executing program. \fig{simulator} shows a
+screenshot of a running program. 
+
+If you look at \fig{simulator} closely, you will see that it shows all variables
+in the program, the events in the queue, running tasks as well as the values of
+properties of hardware elements and the current state. It also provides a button
+to single-step the program, to run it continuously, and until it hits a
+breakpoint. In other words, although the simulator does not use the
+familiar\footnote{... familiar to programmers, but not to the target audience!}
+UI of a debugger, it actually is a debugger\footnote{As we have said above,
+the fact that it runs in the interpreter instead of the generated code is not
+a problem if we ensure the two are semantically identical. Of course we cannot
+find bugs in the implementation (i.e. in the generator) this way. But to
+detect those, debugging on the level of the generated C code is more useful
+anyway.}!
+
+If you already have the interpreter\footnote{we discuss how to build on in
+\todo{}}, expanding it into a simulator/debugger is relatively simple.
+Essentially only three things have to be done:
+
+\begin{itemize}
+  \item First, the execution of the program must be controllable from the
+  outside. This involves setting breakpoints, single-stepping through the
+  program and stopping execution if a breakpoint is hit. In our example case, we
+  do not single-step through statements, but only through
+  steps\footnote{Remember that the language is time-triggered anyway, so
+  execution is basically a sequence of steps triggered by a timer. In the
+  simulator/debugger, the timer is replaced with the user pressing the
+  \ic{Next Step} button for single stepping.}. Breakpoints are essentially
+  Boolean flags associated with program elements: if the
+  execution processes a statement that has the \ic{breakpoint} flat set to
+  \ic{true}, execution stops.
+  \item Second, we have implemented an Observer infrastructure for all parts of
+  the program state that should be represented in the simulator UI. Whenever one
+  of them changes (as a side effect of executing a statement in the program), an
+  event is fired. The UI registers as an observer and updates the UI in
+  accordance with the event.
+  \item Third, values from the program state must be changeable from the
+  outside. As a value in the UI (such as the temperature of a cooling
+  compartment) is changed by the user, the value is updated in the state of the
+  interpreter as well. 
+\end{itemize}
+
+
+\subsection{Automatic Debugging for Xbase Programs}
+
+
+
+
+\subsection{An Extensible Debugger for an Extensible C}
 
 
 
 
 
-Since building debuggers is non-trivial, we start by covering
-- the logging from BSH
-- and also mention a simulator
 
 - Then we hint at how to build a debugger for an Xtext DSL 
 and mention that with Xbase, it works automatically.
