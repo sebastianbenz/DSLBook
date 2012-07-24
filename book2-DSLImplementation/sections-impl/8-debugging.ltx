@@ -1,14 +1,21 @@
-\chapter{Debugging DSLs}    
+\chapter{Debugging DSLs}
+\label{ch:debugging}    
 
-Debugging is relevant in two ways in the context of DSLs and language
+\chapterabstract{Debugging is relevant in two ways in the context of DSLs and language
 workbenches. First, the DSL developer may want to debug the definition of a DSL,
 including constraints, scopes or transformations and interpreters. Second,
 programs written in the DSL may have to be debuggable by the end user. We
-address both aspects in this chapter.
+address both aspects in this chapter, illustrated with examples from the usual
+tools: MPS, Spoofax and Xtext.}
+
 
 \section{Debugging the DSL Definition}
 
-\todo{Write something here}
+Debugging the definition of the DSL boils down to a language workbench providing
+a debugger for the languages used or language definition. In the section we look
+at understanding and debugging the structure and concrete syntax, the definition
+of scopes, constraints and type systems as well as debugging interpreters and
+transformations.
 
 \subsection{Understanding and Debugging the Language Structure}
 
@@ -544,17 +551,17 @@ where to set the breakpoint in the generated Java code.
 
 
 \subsection{Debuggers for an Extensible Languages}
+\label{mbeddrex}
 
-This section describes, in some detail, the architecture of an extensible
-debugger for an extensible language. We illustrate the approach with an
-implementation based on mbeddr, an extensible version of C implemented with the
-MPS. We illustrate the debuggers for non-trivial extensions of C. We also
-discuss the extent to which the approach can be used with other extensible
-languages and language workbenches.
+This section describes in some detail the architecture of an extensible debugger
+for an extensible language\footnote{Extensible languages have been defined and
+discussed in the design section \todo{ref}. We show in detail in \todo{ref} how
+this works with MPS}. We illustrate the approach with an implementation based on
+mbeddr, an extensible version of C implemented with the MPS. We also show the
+debuggers for non-trivial extensions of C.
 
 
 \paragraph{Requirements on the Debugger}
-\label{challenges}
 
 Debuggers for imperative languages support at least the following features:
 \emph{Breakpoints} suspend execution on arbitrary statements; \emph{Single-Step
@@ -563,8 +570,8 @@ callables; \emph{Watches} show values of variables, arguments or other aspects
 of the program state. \emph{Stack Frames} visualize the call hierarchy of
 functions or other callables.
 
-When debugging a program that contains extensions, breakpoints, stepping,
-watches and call stacks \emph{at the extension-level} differ from their
+When debugging a program that contains extensions, breakpoints,
+stepping, watches and call stacks \emph{at the extension-level} differ from their
 counterparts \emph{at the base-level}. The debugger has to perform the mapping
 from the base-level to the extension-level (\fig{levels}). We distinguish
 between the \emph{tree} representation of a program in MPS and the generated
@@ -586,42 +593,43 @@ extensions. We refer to the latter the \emph{extension}-level or
 
 \noindent An extensible \emph{tree}-level debugger for mbeddr  that
 supports debugging on the \emph{base}-level and \emph{extension}-level, 
-addresses the following requirements (the requirements are named R1 through
-R5 so we can refer back to them from the following sections):
+addresses the following requirements:
 
-
-\vspace{1mm}\noindent \textbf{R1 Modularity:} Language extensions in mbeddr are
+\begin{description}
+\item[Modularity] Language extensions in mbeddr are
 modular, so debugger extensions must be modular as well. No changes to the base
 language must be necessary in order to enable debugging for a language
 extension.
 
-\vspace{1mm}\noindent \textbf{R2 Framework Genericity:} In addition, new
+\item[Framework Genericity] In addition, new
 language extensions must not require changes \emph{to the core debugger
-infrastructure} (not just the base language, as described in R1).
+infrastructure} (not just the base language).
   
-\vspace{1mm}\noindent \textbf{R3 Simple Debugger Definition:} Creating language
+\item[Simple Debugger Definition] Creating language
 extensions is an integral part of using mbeddr. Hence, the development of a
 debugger for an extension should be simple and not require too much knowledge
 about the inner workings of the framework, or even the C debugger backend.
 
-\vspace{1mm}\noindent \textbf{R4 Limited Overhead:} As a consequence of embedded
+\item[Limited Overhead] As a consequence of embedded
 software development, we have to limit the additional, debugger-specific code
 generated into the binary. This would increase the size of the binary,
 potentially making debugging on a small target device infeasible.
   
-\vspace{1mm}\noindent \textbf{R5 Debugger Backend Independence:} Embedded
+\item[Debugger Backend Independence] Embedded
 software projects use different C debuggers depending on the target
 device. This prevents modifying the C debugger itself: changes would have to be
 re-implemented for every C debugger used.
+\end{description}
 
 
 
-\paragraph{An example Extension} We start out by developing a simple extension
-to the mbeddr C language. The \ic{foreach} statement shown below is a simple
-example of language extension. \ic{foreach} can be used to conveniently iterate
-over C arrays. Users have to specify the array as well as its size, since in C
-an array cannot be queried for its size. Inside the \ic{foreach} body, \ic{it}
-acts as a reference to the current iteration's array element.
+\phead{An example Extension} We start out by developing a simple extension to
+the mbeddr C language\footnote{We assume that you have read the basics about MPS
+language development in \todo{ref}.}. The \ic{foreach} statement can be used to
+conveniently iterate over C arrays. Users have to specify the array as well as
+its size, since in C an array cannot be queried for its size. Inside the
+\ic{foreach} body, \ic{it} acts as a reference to the current iteration's array
+element.
 
 \begin{code}
 int8_t s = 0;                                              
@@ -659,17 +667,17 @@ refer to concepts defined in C (see \fig{umldiag}).
 \end{marginfigure}
 
 
-\paragraph{Developing the Language Extension}  In the new language, we define
+\phead{Developing the Language Extension}  In the new language, we define
 the \ic{ForeachStatement}. To make it usable wherever C expects \ic{Statement}s
 (i.e. in functions), \ic{ForeachStatement} extends C's \ic{Statement}.
 \ic{ForeachStatement}s have three children (see \fig{umldiag}): an
 \ic{Expression} that represents the array, an \ic{Expression} for the array
 length, and a \ic{StatementList} for the body.
-\ic{Expression} and \ic{State- mentList} are both defined in C.
+\ic{Expression} and \ic{StatementList} are both defined in C.
 
-The editor that defines the concrete syntax (\fig{foreachEditorImage}) consists
-of a horizontal list of cells: the \ic{foreach} keyword, the opening
-parenthesis, the embedded editor of the
+The editor that defines the concrete syntax is shown
+in \fig{foreachEditorImage}. It consists of a horizontal list of cells: the
+\ic{foreach} keyword, the opening parenthesis, the embedded editor of the
 \ic{array} child, the \ic{sized} keyword, the embedded editor of the \ic{len}
 expression, the closing parenthesis and the editor of the \ic{body}.
 
@@ -691,7 +699,9 @@ As shown in the code snippet below, the
 rule typeof_ForeachStatement for ForeachStatement as fes do {
     typeof(fes.len) :<=: <int64_t>; if
     (!(fes.array.type.isInstanceOf(ArrayType))) {
-      error "array required" -> fes.array; } }
+      error "array required" -> fes.array; 
+    } 
+}
 \end{code}
  
 
@@ -728,7 +738,9 @@ concepts constraints ItExpression {
   can be child 
     (context, scope, parentNode, link, childConcept)->boolean { 
       parentNode.ancestor<ForeachStatement, +>.isNotNull && 
-      parentNode.ancestor<StatementList, +>.isNotNull;   }   }
+      parentNode.ancestor<StatementList, +>.isNotNull;   
+    }   
+}
 \end{code}
 
 
@@ -744,52 +756,52 @@ typeof(it) :==: basetype.copy;
 
 The \ic{foreach} generator already generated a local variable
 \ic{\_\_it} into the body of the \ic{for} loop. We can thus translate an
-\ic{ItExpression} into a \ic{LocalVariable- Reference} that refers to
+\ic{ItExpression} into a \ic{LocalVariableReference} that refers to
 \ic{\_\_it}.
 
-\paragraph{Defining the Debugger}
-\label{exdebugger}
 The specification of the \ic{foreach} debugger extension resides completely in
-the \ic{ForeachLanguage} (R1). 
- 
+the \ic{ForeachLanguage}; this keeps the debugger definition for the extension
+local to the extenstion language. 
 
-To set a breakpoint on a concept, it must implement the
-\ic{IBreakpointSupport} marker interface. \ic{Statement} already implements this
-interface, so \ic{ForEachStatement} implicitly implements this interface as well.
+To set a breakpoint on a concept, it must implement the \ic{IBreakpoint-
+Support} marker interface. \ic{Statement} already implements this interface, so
+\ic{ForEachStatement} implicitly implements this interface as well.
 
-Stepping behavior is implemented via \ic{IStep- pable}.
-\ic{ForeachStatement} implements this interface indirectly via \ic{Statement},
+Stepping behavior is implemented via \ic{ISteppable}.
+\ic{ForeachState- ment} implements this interface indirectly via \ic{Statement},
 but we have to overwrite the methods that define the step over and step into
 behavior. Assume the debugger is suspended on a \ic{foreach} and the user
 invokes \emph{step over}. If the array is empty or we have finished iterating
 over it, a step over ends up on the statement that follows \emph{after the
 whole} \ic{foreach} statement. Otherwise we end up on the first line of the
-\ic{foreach} body (\ic{sum += it;}). This is the first line of the mbeddr
+\ic{foreach} body (\ic{sum += it;})\footnote{This is the first line of the mbeddr
 program, \emph{not} the first line of the generated base program (which would be
-\ic{int8\_t \_\_it = arr[\_\_c];}).
+\ic{int8\_t \_\_it = arr[\_\_c];}).}.
 
-The debugger can not guess which alternative will occur since it would require
-to know the state of the program and to evaluate the expressions in the
-(generated) \ic{for}. Instead we set breakpoints \emph{on each of the possible
-next statements} and then resume execution until we hit one of them (an idea
-adapted from \cite{Wu06grammar}). The implementations of the \ic{ISteppable}
-methods specify strategies for setting breakpoints on these possible next
-statements. The \ic{contributeStepOverStrategies} method collects strategies for
-the \emph{step over} case:
+The debugger cannot guess which alternative will occur since it would require to
+know the state of the program and to evaluate the expressions in the (generated)
+\ic{for}. Instead we set breakpoints \emph{on each of the possible next
+statements} and then resume execution until we hit one of them. The
+implementations of the \ic{ISteppable} methods specify strategies for setting
+breakpoints on these possible next statements. The
+\ic{contributeStepOverStrategies} method collects strategies for the \emph{step
+over} case:
  
 \begin{code}
 void contributeStepOverStrategies(list<IDebugStrategy> res) {
    ancestor
-   statement list: this.body   }
+   statement list: this.body   
+}
 \end{code}
 
-The method is implemented using a domain-specific language for
-debugger specification, which is part of the mbeddr debugger framework (R3). It
-is an extension of MPS' \ic{BaseLanguage}, a Java-based language used for
-expressing behavior in MPS. The \ic{ancestor} statement delegates to the
-\ic{foreach}'s ancestor; this will lead to a breakpoint on the subsequent
-statement. The second line leads to a breakpoint on the first statement of the
-\ic{body} statement list.
+The method is implemented using a domain-specific language for debugger
+specification, which is part of the mbeddr debugger framework\footnote{This
+simplifies the implementation of debuggers significantly. It is another example
+of where using DSLs for defining DSLs is a good idea.}. It is an extension of
+MPS' \ic{BaseLanguage}, a Java-based language used for expressing behavior in
+MPS. The \ic{ancestor} statement delegates to the \ic{foreach}'s ancestor; this
+will lead to a breakpoint on the subsequent statement. The second line leads to
+a breakpoint on the first statement of the \ic{body} statement list.
 
 
 
@@ -805,19 +817,18 @@ trees which the debugger must inspect:
 \begin{code}
 void contributeStepIntoStrategies(list<IDebugStrategy> res) { 
   subtree: this.array 
-  subtree: this.len     }
+  subtree: this.len     
+}
 \end{code}
       
 
-By default, the Watch window contains all C
-symbols (global and local variables, arguments) as supplied by the
-native C debugger. In case of the \ic{foreach}, this means that \ic{it}
-is not available, but \ic{\_\_it} and \ic{\_\_c} are. This is exactly the wrong way:
-the watch window should show \ic{it}, but not \ic{\_\_it} and \ic{\_\_c}.
-
-To customize Watches, a concept has to implement \ic{IWatchProvider}. Here
-is the code for \ic{foreach}, also expressed in the debugger definition DSL:
-
+By default, the Watch window contains all C symbols (global and local variables,
+arguments) as supplied by the native C debugger. In case of the \ic{foreach},
+this means that \ic{it} is not available, but \ic{\_\_it} and \ic{\_\_c} are.
+This is exactly the wrong way: the watch window should show \ic{it}, but not
+\ic{\_\_it} and \ic{\_\_c}. To customize Watches, a concept has to implement
+\ic{IWatchProvider}. Here is the code for \ic{foreach}, also expressed in the
+debugger definition DSL:
 
 \begin{code}
 void contributeWatchables(list<UnmappedVariable> unmapped, 
@@ -829,18 +840,456 @@ void contributeWatchables(list<UnmappedVariable> unmapped,
     context: this    }
 \end{code}
 
-The first line hides \ic{\_\_c}. The rest \ic{map}s a base-level C
-variable to a Watchable. It finds a C variable named \ic{\_\_it} (inserted by
-the \ic{foreach} generator) and creates a watch variable named \ic{it}. At the same time, it
+The first line hides \ic{\_\_c}. The rest \ic{map}s a base-level C variable to a
+Watchable. It finds a C variable named \ic{\_\_it} (inserted by the \ic{foreach}
+generator) and creates a watch variable named \ic{it}. At the same time, it
 hides the base-level variable \ic{\_\_it}. The type of \ic{it} is the base type
 of the array over which we iterate. We assign the \ic{it} Watchable to the local
 variables section and associate the \ic{foreach} node with it (double-clicking
 on the \ic{it} in the Watches will highlight the \ic{foreach} in the code).
 
 
-Stepping into the \ic{foreach} body does not affect the
-call stack, since the concept represents no callable (details see
-\sect{archspec}). So we do not have to implement any stack frame
-related functionality.
+Stepping into the \ic{foreach} body does not affect the call stack, since the
+concept represents no callable (details see \sect{archspec}). So we do not have
+to implement any stack frame related functionality.
 
 
+\phead{Debugger Framework Architecture} The central idea of the debugger
+architecture is this: from the C code in MPS and its extensions (tree-level) we
+generate C text (text-level). This text is the basis for the debugging process
+by a native C debugger. We then use trace data to find out how the generated
+text maps back to the tree-level in MPS (R4).
+
+At the core of the execution architecture is the \ic{Mapper}. It is driven by
+the \ic{Debugger UI} (and through it, the user) and controls the C debugger via
+the \ic{Debug Wrapper}. It uses the \ic{Program Structure} and the \ic{Trace
+Data}. The \ic{Mapper} also uses a language's debug specification, discuss in
+the next subsection. \fig{components} shows the components and their interfaces.
+
+\begin{figure}[h]
+  \centering
+    \includegraphics[width=85mm]{figures/8/mbeddr/components.png} \caption{The
+    \ic{Mapper} is the central component of the debugger execution architecture.
+    It is used by the \ic{Debugger UI} and, in turn, uses the
+    \ic{Debug Wrapper}, the \ic{Program Structure} and the \ic{Trace Data}.}
+  \label{components}
+\end{figure}   
+
+The \ic{IDebugControl} interface is used by the \ic{Debugger UI} to
+control the \ic{Mapper}. For example, it provides a \ic{resume} operation.
+\ic{IBreakpoints} allows the UI to set breakpoints on program nodes.
+\ic{IWatches} lets the UI retrieve the data items for the Watch window. The
+\ic{Debug Wrapper} essentially provides the same interfaces, but on the level of
+C (prefixed with \ic{LL}, for "low level"). In addition, \ic{ILLDebugControl}
+lets the \ic{Mapper} find out about the program location of the \ic{C Debugger}
+when it is suspended at a breakpoint. \ic{IASTAccess} lets the \ic{Mapper}
+access program nodes. Finally, \ic{ITraceAccess} lets the
+\ic{Mapper} find out the program node (tree-level) that corresponds to a
+specific line in the generated C source text (text-level), and vice versa.
+
+To illustrate the interactions of these components, we describe a \emph{step
+over}. After the request has been handed over from the UI to the \ic{Mapper} via
+\ic{IDebugControl}, the \ic{Mapper} performs the following steps:
+ 
+\vspace{-1mm}
+\begin{itemize}
+  \item Ask the current node's concept for its \emph{step over} strategies;
+  these define all possible locations where the debugger could end up after 
+  the \emph{step over}.
+  \vspace{-2mm}
+  \item Query \ic{TraceData} for the corresponding lines in the generated C
+  text for those program locations.  
+  \vspace{-2mm}
+  \item Use the debugger's \ic{ILLBreakpoints} to set breakpoints
+  on those lines in the C text.
+  \vspace{-2mm}
+  \item Use \ic{ILLDebugControl} to resume program execution. It will 
+  stop at any of the just created breakpoints.
+  \vspace{-2mm}
+  \item Use \ic{ILLDebugControl} to get the C call stack.
+  \vspace{-2mm}
+  \item Query \ic{TraceData} to find out for each C stack frame the 
+  corresponding nodes in the tree-level program.
+  \vspace{-2mm}
+  \item Collect all relevant \ic{IStackFrameContributor}s (see next
+  section). The \ic{Mapper} uses them to construct the tree-level
+  call stack.
+  \vspace{-2mm}
+  \item Get the currently visible symbols and their values via
+  \ic{ILLWatch- ables}.
+  \vspace{-2mm}
+  \item Query the nodes for all \ic{WatchableProvider}s and use them 
+  to create a set of Watchables.
+\end{itemize}
+
+\noindent At this point, execution returns to the \ic{Debugger UI}, which then
+gets the current location and Watchables from the \ic{Mapper} to highlight
+the statement on which the debugger is suspended and populate the watch window.
+
+In our implementation, the \ic{Debugger UI}, \ic{Program Repository} and
+\ic{Trace Data} are provided by MPS. In particular, MPS builds a trace from the
+program nodes (tree-level) in MPS to the generated text-level source. The
+\ic{Debug Wrapper} is part of mbeddr and relies on the Eclipse CDT Debug Bridge
+(\footnote{www.eclipse.org/cdt/}), which provides a Java API to \ic{gdb}
+(\footnote{www.gnu.org/software/gdb/documentation/}) and other C debuggers.
+
+
+
+\phead{Debugger Specification} The debugger specification reside in the
+respective language module. As we have seen in the \ic{foreach} example, the
+specification relies on a set of interfaces, a number of predefined strategies
+as well as the debugger specification DSL. 
+
+The interface \ic{IBreakpointSupport} is used to mark language concepts on which
+breakpoints can be set. C's \ic{Statement} implements this interface. Since all
+statements inherit from \ic{Statement} we can set breakpoints on all statements
+by default.
+
+When the user sets a breakpoint on a program node, the mapper uses
+\ic{ITraceAccess} to find the corresponding line in the generated C text. A
+statement defined by an extension may be expanded to several base-level
+statements, so \ic{ITraceAccess} actually returns a range of lines, the
+breakpoint is set on the first one.
+
+Stack Frames represent the nesting of invoked callables at runtime\footnote{A
+\emph{callable} is a language concept that contains statements and can be called
+from multiple call sites.}. We create stack frames for a language concept if it
+has callable semantics. The only callables in C are functions, but in mbeddr,
+test cases, state machine transitions and component methods are callables as
+well. Callable semantics on extension-level does not necessarily imply a
+function call on the base-level. There are cases where an extension-level
+callable is \emph{not} mapped to a function and where a non-callable \emph{is}
+mapped to a function. Consequently, the C call stack may differ from the
+extension call stack shown to the user. Concepts with callable semantics on the
+extension-level or base-level implement \ic{IStackFrame- Contributor}. The
+interface provides operations that determine whether a stack frame has to be
+created in the debugger UI and what the name of this stack frame should be.
+
+Stepping behavior is configured via the following interfaces:
+\ic{IStack- FrameContributor}, \ic{ISteppable}, \ic{ISteppableContext} 
+\ic{IStepIntoable} and \ic{IDebugStrategy}. \fig{stepping} shows an overview.  
+
+\todo{make more vertical}
+\begin{marginfigure}
+  \centering
+    \includegraphics[width=60mm]{figures/8/mbeddr/stepping.png}
+    \caption{Structure of language concepts implementing the
+    stepping-related interfaces. The boxes represent language concepts
+    implementing the interfaces discussed in the text. Those concepts
+    define the containments, so this figure represents a typical
+    setup.}
+  \label{stepping} 
+\end{marginfigure}
+
+
+
+The methods defined by these interfaces return \emph{strategies} that determine
+where the debugger may have to stop next if the user selects a stepping
+operation (remember that the debugger framework sets breakpoints to implement
+stepping). New strategies can be added without changing the generic execution
+aspect of the framework.
+
+Stepping relies on \ic{ISteppable} contributing \emph{step over} and
+\emph{step into} strategies. Many \ic{ISteppable}s are embedded in an
+\ic{ISteppableContext} (e.g. \ic{Statement}s in \ic{StatementList}s).
+Strategies may delegate to the containing \ic{ISteppableContext} to determine
+where to stop next (the \ic{ancestor} strategy in the \ic{foreach} example).
+ 
+For \emph{step into} behavior, an \ic{ISteppable} specifies those subtrees in
+which instances of \ic{IStepIntoable} may be located (the \ic{array} and
+\ic{len} expressions in the \ic{foreach} case). The debugger searches these
+subtrees at debug-time and collects all instances of \ic{IStepIntoable}. An
+\ic{IStepIntoable} represents a callable invocation (\eg a \ic{FunctionCall}),
+and the returned strategies suspend the debugger within the callable.
+ 
+
+\emph{Step out} behavior is provided by implementors of
+\ic{IStackFrameCon- tributor} (mentioned earlier). Since a callable can be
+called from many program locations, the call site for a particular invocation cannot be
+determined by inspecting the program structure; a call stack is needed. We use
+the ordered list of \ic{IStackFrameContributor}s, from which the tree-level call
+stack is derived, to realize the \emph{step out} behavior.
+By "going back" (or ``out") in the stack, the call site for the current
+invocation is determined. For \emph{step out}, the debugger locates the
+enclosing \ic{IStackFrameContributor} and asks it for its \emph{step out}
+strategies.
+
+ 
+Strategies implement \ic{IDebugStrategy} and are responsible for setting
+breakpoints to implement a particular stepping behavior.
+Language extensions can either implement their own strategies or use predefined
+ones. Those include: setting a breakpoint on a particular node; searching for
+\ic{IStepIntoables} in expression subtrees (step into) or delegating to the
+outer stack frame (step out).
+
+
+
+For supporting \emph{Watches}, language concepts implement \ic{IWatchPro- vider}
+if they directly contribute one or more items into the Watch window. An
+\ic{IWatchProviderContext} contains zero or more watch providers. Typically
+these are concepts that own statement lists, such as \ic{Function}s or
+\ic{IfStatement}s. If the debugger is suspended on any particular statement, we
+can find all visible watches by iterating through all ancestor
+\ic{IWatchProviderContext}s and asking them for their \ic{IWatchProvider}s.
+\fig{watches} shows the typical structure of the concepts.
+
+\todo{more vertical}
+\begin{marginfigure}
+  \centering
+    \includegraphics[width=60mm]{figures/8/mbeddr/watches.png}
+    \caption{Typical structure of language concepts implementing the
+    Watches-related interfaces} 
+  \label{watches}  
+\end{marginfigure}
+
+\An \ic{IWatchProvider} implements the \ic{contributeWatch- ables}
+operation. It has access to the C variables available in the native C debugger.
+Based on those, it creates a set of Watchables. The method may hide a base-level
+C variable (because it is irrelevant to the extension-level), promote C
+variable to a Watchable or create additional Watchables based on the values of C
+variables. The representation of a Watchable often depends on the variable's
+type \emph{as expressed in the extension program}. This type may be different
+from the one in the C program. For example, we represent values of type
+\ic{Boolean} with \emph{true} and \emph{false}, even though they are represented
+as \ic{int}s in C. As the Watchable is created, we specify the type that should
+be used. Types that should be used in this way must implement
+\ic{IMappableType}. Its method \ic{mapVariable} is responsible for computing a
+type-appropriate representation of a value.
+
+
+
+\phead{More Examples} To illustrate our approach further, we have
+implemented the debugging behavior for mbeddr C and all default extensions. We
+discuss some interesting cases in this section.
+
+
+We encounter many cases where we cannot know statically which piece of code will
+be executed when \emph{stepping into} a callable. Consider polymorphic calls on
+interfaces.
+
+The mbeddr components extension provides interfaces with operations, as well as
+components that \ic{provide} and \ic{use} these interfaces. The component
+methods that implement interface operations are generated to base-level C
+functions. The same interface can be implemented by \emph{different} components,
+each implementation ending up in a \emph{different} C function. A client
+component only specifies the \emph{interface} it uses, not the component. Hence,
+we cannot know statically which C function will be called if an operation is
+invoked on the interface. However, we do know statically all components that
+implement the interface, so we know \emph{all possible C functions} that may be
+invoked. A strategy implemented specifically for this case sets
+breakpoints on the first line \emph{of all of these functions} to
+make sure we stop in the first line of any of them if the user \emph{steps into}
+a method invocation\footnote{We encounter a similar challenge in state machines: as an event is fired into
+a state machine, we do not know which transition will be triggered. 
+Consequently we set breakpoints in all transitions (translated to
+\ic{case} branches in a \ic{switch} statement) of the state machine.}. 
+
+
+
+
+In many cases a single statement on the extension-level is mapped to several
+statements or whole blocks on the base-level. \emph{Stepping over} the single
+extension-level statement must step over the whole block or list of statements
+in terms of C. An example is the \ic{assert} statement used in test cases. It is
+mapped to an \ic{if} statement. The debugger has to step over the complete
+\ic{if} statement, independent of whether the condition in the \ic{if} evaluates
+to \ic{true} or \ic{false}. Note that we get this behavior for free\footnote{Remember
+that we never actually step over statements, we always set breakpoints at those
+next possible code locations where the debugger may have to stop next.}:
+the \ic{assert} statement sets a breakpoint on the base-level counterpart of the
+\emph{next tree-level statement}. It is irrelevant how many lines of C text
+further down this is.
+
+
+An extension can provide language concepts with callable semantics that are not
+translated to a C function. In case a user \emph{steps into} one of those
+concepts, the debugger has to create a stack frame on the tree-level call stack,
+although there is no corresponding stack frame on the C call stack. An example
+is triggering a transition in the state machine extension\footnote{Triggering
+has callable semantics, as in "we are \emph{in} the transition".}, which should
+cause the debugger to create a tree-level stack frame even though a transition
+is mapped on an \ic{if} statement, not to a C function call. To achieve this,
+the \ic{Transition} implements \ic{IStackFrameContributor} and returns \ic{true}
+from \ic{isExtStackFrame}. Its \ic{getStackFrameName} is shown below: the
+tree-level stack frame has the name of the \ic{event} that triggered the
+transition and the name of the owning \ic{state}.
+
+\begin{code}
+public string getStackFrameName() {
+  this.ancestor<State>.name+" - "+this.trigger.event.name; }
+\end{code}
+
+
+The code snippet below shows a testing scenario with three stack frame
+contributors: a function \ic{main}, two test cases, and an
+\ic{executeTests} expression: 
+
+\begin{code}
+int32_t main() {
+  return executeTests testIntRandom, testRealRandom; 
+}
+
+test case testIntRandom { 
+  assert randomInt() != randomInt(); 
+}
+
+test case testRealRandom { 
+  assert randomReal() != randomReal(); 
+}
+\end{code}
+
+\noindent The \ic{main} function remains a function in generated C. The test case is
+mapped to a function as well, and it is possible to step into test cases. So
+these two have callable semantics \emph{and} are mapped to functions. 
+The \ic{executeTests} expression is \emph{also} mapped to a function (which
+invokes tests and sums up the number of failures) but it does \emph{not} have
+callable semantics: the generated function is invisible to the user.
+Since all of them are mapped to functions, they implement the
+\ic{IStackFrameContributor} interface. \ic{isExtStackFrame} returns
+\ic{true} for concepts with callable semantics (function and test case), but it
+returns \ic{false} for the \ic{ExecuteTestExpression}. \ic{getStackFrameName}
+for the function and the test case returns the name of the respective node
+(\ic{this.name}); it returns \ic{null} for the \ic{ExecuteTestExpression}. This
+way the debugger creates tree-level stack frames for called \ic{functions}
+and \ic{test cases} with their respective name. The following snippet shows the
+implementation for \ic{functions}:
+
+\begin{code}
+string getStackFrameName() { 
+  return this.name; 
+}
+
+boolean isExtStackFrame() { 
+  true; 
+}
+
+void contributeStepOutStrategies(list<IDebugStrategy> res) {
+  if (name.equals("main")) new ResumeWithoutBreakpoint();
+  else new StepToOuter(this); 
+}
+\end{code}
+
+\noindent For stepping out, we use the \ic{StepToOuter} strategy which
+suspends the execution within the outer stack frame contributor. In C, the
+\ic{main} function is called directly by the debugger, so there is no outer
+frame. We use \ic{ResumeWithoutBreakpoint} in this case.
+
+In contrast, the \ic{ExecuteTestExpression} (which is also generated into a
+function) uses a \ic{DelegateToOuter} to delegate the request to its outer stack
+frame contributor, i.e. a \ic{Function}. We must delegate the request, since an
+\ic{ExecuteTestExpression} has no callable semantics and does therefore not know
+where the execution should be suspended after a \ic{step out}. The following
+code shows the \ic{createBreakpoint} implementation of the custom strategy used
+in this case:
+
+\begin{code}
+void configure(IStrategyConfiguration strategyConfiguration) { 
+  this.dslStackMapping = conf.getDSLStackMapping(); 
+  this.strategyConfiguration = strategyConfiguration; 
+}
+
+void createBreakpoint() throws Exception {
+  list<IDebugStrategy> res = new arraylist<IDebugStrategy>();
+  node<IStackFrameContributor> outerContributor =
+            getOuterContributor(this, dslStackMapping);
+  outerContributor.contributeStepOutStrategies(res); 
+  foreach strategy in res {
+    strategy.configure(strategyConfiguration); 
+    strategy.createBreakpoint(); 
+  } 
+}
+\end{code}
+ 
+\noindent Going back to the example, consider the debugger is suspended in the
+\emph{testIntRandom} test case: the tree-level call stack contains
+\emph{testIntRandom} on top of \emph{main}. In contrast, the C call stack has
+another stack frame for the function generated from the
+\ic{ExecuteTestExpression} between the two tree-level stack frames. A \ic{step
+out} suspends the debugger in this function. However, the user expects to get
+back to \ic{main} so we have to show the call stack to just contain the \ic{main}
+function. The framework hides the stack frame for \ic{ExecuteTestExpression},
+since its \emph{isExtStackFrame} implementation returns \ic{false}. We can now
+perform a \ic{step into} which causes the debugger to suspend in
+\emph{testRealRandom} 
+
+
+Extensions may provide custom data types that are mapped to one or more data
+types or structures in the generated C. The debugger has to reconstruct the
+representation in terms of the extension from the base level data. For example,
+the state of a component is represented by a \ic{struct} that has a member for
+each of the component fields. Component operations are mapped to C functions. In
+addition to the formal arguments declared for the respective operation, the
+generated C function also takes this \ic{struct} as an argument.
+However, to support the polymorphic invocations discussed earlier, the type of
+this argument is \ic{void*}. Inside the operation, the \ic{void*} is cast down
+to allow access to the component-specific members. The debugger performs the
+same downcast to be able to show Watchables for all component fields.
+
+
+\phead{Discussion} To evaluate the suitability of our solution for our purposes,
+we revisit the requirements described earlier.
+
+\begin{description}
+\item[Modularity] Our solution requires no changes to the base language
+or its debugger implementation to specify the debugger for an extension.
+Also, independently developed extensions retain their independence if
+they contain debugger specifications\footnote{In particular, MPS' capability of
+incrementally including language extensions in a program \emph{without defining
+a composite language first} is preserved in the face of debugger specifications.}. 
+
+\item[Framework Genericity] The extension-dependent
+aspects of the debugger behavior are extensible. In particular, stepping
+behavior is factored into strategies, and new strategies can be implemented by a
+language extension. Also, the representation of Watch values can be customized
+by making the respective type implement \ic{IMappableType} in a suitable way.
+
+\item[Simple Debugger Definition] This challenge is solved by the
+debugger definition DSL. It supports the definition of stepping behavior and
+watches in a declarative way, without concerning the user with implementation
+details of the framework or the debugger backend.
+
+\item[Limited Overhead] Our solution generates no
+debugger specific code at all (except the debug symbols added by compiling the C
+code with debug options). Instead we rely on trace data to map the
+extension-level to base-level and ultimately to text. This is a trade-off:
+first, the language workbench must be able to provide trace information. Second,
+the generated C text cannot be modified by a text processor before it is
+compiled and debugged, since this would invalidate the trace data\footnote{The
+C preprocessor works, it is handled correctly by the compiler and debugger} .
+Our approach has another advantage: we do not have to change existing
+transformations to generate debugger-specific code. This keeps the
+transformations independent of the debugger.
+
+\item[Debugger Backend Independence] We use the Eclipse CDT Debug Bridge to wrap
+the particular C debugger, so we can use any compatible debugger without
+changing our infrastructure. Our approach requires no changes to the native C
+debugger itself, but since we use breakpoints for stepping, the debugger must be
+able to handle a reasonable number of breakpoints\footnote{Most C debuggers
+support this, so this is not a serious limitation.}. The debugger also has to
+provide an API for setting and deleting breakpoints, for querying the currently
+visible symbols and their values, as well as for querying the code location
+where the debugger suspended.
+\end{description}
+
+
+
+
+\subsection{What's Missing?}
+
+The support from language workbenches for building debuggers for the DSLs
+defined with the language workbench is not where it should be. Especially in the
+face of extensible languages or language composition, the construction of
+debuggers is still a lot of work. The example discussed in \sect{mbeddrex} is
+\emph{not} part of MPS in general, but instead a framework that has been built
+specifically for mbeddr --- although we believe that the architecture can be
+reused more generally.
+
+
+Also, ideally, programs should be debuggable at any abstraction level: if a
+multi-step transformation is used, then users should be able to debug the
+program at any intermediate step. Debug support for for Xbase-based DSLs is
+a good example for this; but it is only one translation step, and it is a
+solution that is specifically constructed for Xbase and Java, and not a generic
+framework.
+
+So there is a lot of room for innovation in this space.

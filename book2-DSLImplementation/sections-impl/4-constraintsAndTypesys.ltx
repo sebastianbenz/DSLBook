@@ -1,7 +1,14 @@
 \chapter{Constraints}
 \label{ch:constraints}
 
-Constraints are boolean conditions that have to evaluate to \ic{true} in order
+\chapterabstract{Constraints are Boolean expressions that must be true for
+every instance of a language. Together with type systems, which are discussed
+in the next chapter, they ensure the static semantics of a language. The
+chapter introduces the concept, some considerations regarding languages
+suitable for expressing constraints and provides examples with Xtext, MPS and
+Spoofax.}
+
+Constraints are Boolean conditions that have to evaluate to \ic{true} in order
 for the model to be correct ("does \ic{expr} hold?"). An error message is
 reported if the expression evaluates to \ic{false} ("\ic{expr} does not hold!").
 Constraints are typically associated a particular language concept ("for each
@@ -574,6 +581,13 @@ system, as we show in the next chapter.
 
 
 \chapter{Type Systems}
+
+\chapterabstract{Type systems can be considered a sophisticated version of
+constraints --- they also define the static semantics of a language. However,
+the calculation of types for a language is complex enough to warrant special
+support beyond what simple constraints provide. In this chapter we discuss what
+type systems have to be able to do, various strategies for computing types and
+we provide the usual examples with Xtext, MPS and Spoofax.}
 
 Type systems are basically sophisticated constraints that check typing rules in
 programs. Here is a definition from Wikipedia:
