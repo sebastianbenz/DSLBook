@@ -1118,12 +1118,10 @@ general. There are three ways of approaching this:
 
 \begin{itemize}
   \item The language workbench may provide specific APIs to hook into UI aspects
-  and script tests for those. For example, MPS supports the scripting of user
-  interactions in the editor, and hence check, if the editor behaves correctly
-  (see \fig{editorTesting}).
+  and script tests for those. 
   \item You can use generic UI testing tools to simulate typing and clicking in
   the editor, and checking the resulting behavior.
-  \item Finally, you can islolate the algorithmic aspects of the IDE behavior
+  \item Finally, you can isolate the algorithmic aspects of the IDE behavior
   (e.g. in refactorings or quick fixes) into separate modules (classes) and then
   unit test those with the techniques discussed in the rest of this chapter,
   independent of the actual UI.
@@ -1140,6 +1138,22 @@ use the editor to try things out, we implicitly test the UI, and (3), language
 workbenches are frameworks where, if you get the functionality right (via unit
 tests), they provide generic UIs that can be expected to work.
 
+\parhead{An Example with MPS} In a parser-based system, you can always type
+anything. So even if the IDE functionality (particularly regarding code
+completion) is broken, you can still \emph{type} the desired code. Also, the
+editing experience regarding typing code is always the same, fundamentally: you
+type linear sequences of characters. In a projectional editor, this is not the
+case: you can only enter things that are available in the code completion menu,
+and the editing experience itself relies on the editor
+implementation\footnote{For example, you can only \ic{1 + 2} linearly (e.g.
+first the \ic{1}, then the \ic{+}) if the respective right transformation for
+number literals is implemented.}. Hence it is important to be able to test
+editor behavior. 
+
+MPS supports this with a special DSL for editor testing (see
+\fig{editorTesting}). Note how MPS' language composition facilities allow
+embedding the subject DSL into the DSL for describing the editor test case.
+
 \begin{figure}[h]
 \begin{center}
   \includegraphics[width=10cm]{figures-impl/7/editorTesting.png}
@@ -1155,8 +1169,116 @@ tests), they provide generic UIs that can be expected to work.
 \end{center} 
 \end{figure}
 
+\parhead{An example with Xtext/Xpect} Xpect is a framework for integration
+testing of Xtext DSLs developed by Moritz
+Eysholdt\footnote{https://github.com/meysholdt/Xpect}. It can be used for
+testing various language aspects, among them, for example, code completion. It
+does so by embedding test expectations as comments inside the to-be-tested
+program. Here is an example based on a Hello World grammar (literally):
 
-\todo{Moritz' Xpect?}
+\begin{code}
+Model: 
+  greetings+=Greeting*;
+
+Greeting:
+  'Hello' name=ID '!';
+\end{code}
+
+The following piece of code shows an example program that includes Xpect
+statements that test whether code completion works as expected:
+
+\begin{code}
+// XPECT_TEST org.example.MyJUnitContentAssistTest END_TEST 
+
+// XPECT contentAssist at |Hel --> Hello
+Hello Peter!
+
+// XPECT contentAssist at |! --> !
+Hello Heiko!
+\end{code}
+
+Xpect processor processes all comments that start with \ic{XPECT}. In this case,
+we test the content assist (e.g. code completion) functionality. Let us look at
+the details:
+
+\begin{itemize}
+
+\item The \ic{contentAssist} refers to the kind of test to be executed (details
+on this below).
+
+\item \ic{at} is a keyword for improved readability and has no semantic impact.
+
+\item \ic{|Hel} and \ic{|!} instruct the test to search for occurrences of
+\ic{Hel} and \ic{!} somewhere in the code after the \ic{XPECT} statement. The
+pipe \ic{|} marks the assumed cursor position relative to \ic{Hel} and \ic{!} where
+the content assist should be triggered.
+
+\item The part after \ic{--->} marks the expectation of the test. In the first test,
+content assist is expected to suggest the keyword \ic{Hello} and in the second
+test the exclamation point is expected.
+\end{itemize}
+
+Xpect implements a custom JUnit runner which allows to execute Xpect tests as
+JUnit test, integration into IDEs such as Eclipse and CI environments is
+ensured. 
+
+Xpext is in fact a generic infrastructure for integration tests. As you can see
+from the example above, the test references a JUnit test class:
+\ic{org.example.MyJUnitContentAssistTest}. The term \ic{contentAssist} is
+actually the name of a test method inside that class. Everything from an Xpect
+comment after the \ic{XPECT} keyword is passed as parameters into the test
+method. The test method can do whatever it wants as long as it process a string
+as the output. This string is then compared with the expectation, the text
+behind the \ic{--->}. While \ic{contentAssist} is predefined in Xpect-provided
+unit test base classes, you can define your own methods. Since the actual
+testing is based on string comparison, the system is easily extensible. The
+following language aspects are testable with Xpect\footnote{The general idea
+behind Xpect is the separation of test data, test expectations and test setup
+from implementation details. The test data consists of DSL documents written in
+the language that you want to test. The test expectations are anything you might
+want the test to verify and which can be expressed as a string. The setup may
+declare other DSL documents that the test depends on including Eclipse project
+setups. Since all these details are hidden, the DSL \emph{user} can potentially
+understand or even write the test cases --- not just the DSL developer.}:
+
+\begin{itemize}
+  \item the AST created from a DSL document
+  \item messages and locations of error and warning markers
+  \item names returned by scopes
+  \item proposal items suggest by content assist features (as the
+  example above shows)
+  \item textual diffs that were created by applying refactorings or quick fixes.
+  \item textual output of a code generator (use with caution, since generated 
+        text may be too fragile)
+  \item results from interpreters or execution of generated code.
+\end{itemize}
+
+By embedding test expectations into the subject programs, Xpect implicitly
+solves the navigation problem\footnote{If you want to test language properties
+such as content assist or scoping, you’ll have to navigate/point/refer to  to a
+model element after you have created the test data. This leads to boilerplate
+code in Java-based tests.} by allowing you to use the \ic{|} to select offsets
+inside a DSL document. Xpect also makes it easy to locate the offending
+expectation if case a test fails: since all expectations are represented as
+strings, if a test fails, the Eclipse JUnit view provides a comparison dialog
+that shows all differences between actual test result and test expectation.
+Xpect also  makes it easy to specify even large test data scenarios, possibly
+consisting of multiple languages and multiple involved Eclipse projects.
+Finally, since Xpect code is embedded into the to-be-tested DSL code, you can
+use your DLS's Xtext editor to edit your test data. In plain JUnit tests you
+would have to embed snippets of your DSL documents into Java string literals ---
+which won't provide any tool support for your language at all\footnote{Notice,
+however, that when editing the to-be-tested program, there is no tool support
+for the Xpect syntax and the expectations. The reason is that Xtext does not
+support language embedding: there is no way to easily define a composed
+language from the subject DSL and Xpect. While this limitation is not a problem
+for Xpect itself (after all, its syntax is extremely simple), it may be a
+problem for expectations with a more complex syntactic structure. }.
+
+
+
+
+
 \todo{Xtext CompilationTestHelper http://www.rcp-vision.com/?p=4089&amp;lang=en}
 \todo{http://christiandietrich.wordpress.com/2012/05/08/unittesting-xtend-generators/}
 
