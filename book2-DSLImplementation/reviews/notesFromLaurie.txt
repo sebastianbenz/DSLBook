@@ -1,0 +1,89 @@
+THERE IS STUFF ON THE lauriePartII BRANCH!!!!!!!!!!!!!!
+
+
+Overall, I liked book 2. Perhaps the main thing I came away with was that the
+book is excellent at "here's how to do X", but mostly ignores "why you'd want
+to do X", or "how to choose between doing X and Y". I know that some of these
+issues are covered in book1, but it seems to that when things get concrete,
+there's still a large amount of interesting design decisions. As a reader,
+I'd liked some more of your opinions e.g. "this is a good way of doing X", or
+"but this is generally not a good way of doing X". As a concrete example,
+consider cold folding in Section 7. I'd loved to have known what you think a
+good level of granularity for folding is. Is presenting a little "-" for
+every multi-line construct a good idea (my guess is that it's too much
+clutter, but I'm less familiar with these things)? Section 8.4 is a great
+example of where you give the reader the benefit of your experience, and is
+much the better for it.
+
+The other thing I wondered about is the length: this is huge! It took me a
+loooooooong time to read through this (3-4 whole days, I would guess), and I
+wondered how many people might read things cover to cover. Most? Few?
+Depending on that answer, might it change how you structure the book? For
+example, the MPS sections are often very long, but without reading them, some
+of the Xtext and Spoofax material doesn't make sense.
+
+
+Major comments:
+
+ * There are some historical bits of information thrown in here and there
+   (e.g. "we used to do X but now we do Y"). They aren't super-frequent. I'm
+   not sure how useful they are at the moment. If they were put in regularly,
+   readers would understand the "story" better perhaps? As it is, they just
+   don't really make much sense. e.g. in section 8 "The original
+   openArchitectureWare Xtend did it this way" - without knowing why this
+   was changed, this doesn't really help the reader.
+
+ * Section 2 seemed like a lot of detail without enough of a high-level
+   picture. Why does the reader want to know so much level information about
+   Stratego or Spoofax, for example? It doesn't really seem to have much to
+   do with linking and scoping. [Obviously, I know the answer ;) but
+   someone new to the field might not.]
+
+ * Section 3 seems to be what is more commonly called (outside of the MDE
+   world) "well-formedness". The problem with "constraints" is that type
+   systems are just a very narrow form of constraint. In other words:
+     class Constraint ...
+     class Well_Formedness extends Constraint
+     class Type_System extends Constraint
+   The problem with calling section 3 "constraints" is that section 4
+   then starts with an incorrect statement:
+     Type systems can be considered a sophisticated version of
+     constraints
+   In fact, type systems are a very limited form of constraint. Type
+   systems can either be complete or sound. Since a non-sound type
+   system isn't very useful, they instead sacrifice completeness. In
+   other words, all useable type systems reject valid programs to be
+   "on the safe side". This sentence is also incorrect:
+     they also define the static semantics of a language
+   Assuming static types (what about dynamically typed languages?!),
+   they're part of the static semantics, but not all of it.
+
+ * Section 4, similarly to Section 2, lacks a bit of motivation to me. The
+   beginning part of the chapter doesn't quite explain things well enough to
+   readers who are unfamiliar with the area.
+
+ * Why isn't transformation to bytecode (and maybe even machine code)
+   considered in Section 5?
+
+   Similarly, one major problem with both code generation and model
+   transformations is that nearly all implementations lose debugging
+   information: run-time backtraces often make no sense at all. This
+   is sort of tackled in section 9, but maybe it should be mentioned
+   earlier too?
+
+
+
+Minor comments:
+
+  * I'm not sure I like a book quoting definitions so often from Wikipedia.
+    Surely it would be better to rewrite them and homogenise them in your own
+    style?
+
+  * "e.g." (and "i.e.") in LaTeX should be followed by a tilde "~" (not a
+    space).
+
+  * I'm not sure I'm keen on so many footnotes starting with "...".
+
+
+There're also various minor comments that I've pushed to git. If anything is
+unclear, don't hesitate to give me a shout!
