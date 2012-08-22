@@ -758,7 +758,7 @@ structural test. In principle, this is simple:
 \begin{itemize}
   \item You write an example model
   \item You generate it\footnote{I have never seen an interpreter to process
-  languages that only specify structures}
+  languages that only specify structures\laurie{not sure I understand this}}
   \item And then you inspect the resulting model or test for the expected
   structures
 \end{itemize}
@@ -820,14 +820,14 @@ specific structures. For example, we explicitly look for a state called
 
 
 \parhead{Formal Verification} Formal verification is an alternative to testing
-in some cases. The fundamental difference between testing and verification is
+in some cases \laurie{this is misleading. formal verification has inherent limitations (e.g.~the halting problem) that can only be solved by testing. formal verification is something that can be used in addition to testing and vice versa: neither replaces the other.}. The fundamental difference between testing and verification is
 this: in testing, each test case specifies \ic{one} particular execution
 scenario. To get reasonable or full coverage of the whole model or
 transformation, you have to write and execute a lot of tests. This can be a lot
 of work, and, more importantly, you may not think about certain (exceptional)
 scenarios, and hence you may not test them. Bugs may go unnoticed.
 
-Verification checks \ic{the whole program} at once. Various non-trivial
+Verification checks \ic{the whole program} at once \laurie{this happens so rarely that it's not worth thinking about. few whole programs have ever been verified. Most `verified' programs only have subsets verified. And, of course, verificatoin is only of certain properties. A `verified' program is only correct with respect to specific properties. In other words, `verified' does not mean `always works'.}. Various non-trivial
 algorithms are used to do that, and understanding these algorithms in detail is
 beyond the scope of this book. However, it is very useful to know these
 appraoches exist, especially since, over the last couple of years, they have
@@ -859,7 +859,7 @@ explosion. With finite memory, this limits scalability. In reality the model
 checker does \emph{not} perform an exhaustive search; clever algorithms have
 been devised that are semantically equivalent to an exhaustive search, but don't
 actually perform one. This makes model checking scalable and fast enough for
-real-world problems, although there is still a limit in terms of input model
+\laurie{`some'} real-world problems \laurie{in reality, only a subset of problems are model-checkable. State explosion is a massive, intractable, problem. The tricks do make some cases work, but many more simply don't work, requiring more RAM than there are atoms in the universe!}, although there is still a limit in terms of input model
 complexity.
 
 The interesting aspect of model checking is that the properties you specify are
@@ -1041,7 +1041,7 @@ concerns the satisfiability of sets of Boolean equations. Users specify a set of
 Boolean equations and the solver tries to assign truth values to the free
 variables so as to satisfy all specified equations\footnote{There are also
 solvers that work with arithmetic expressions in addition to Booleans.}. SAT
-solving is an NP-complete problem, so there is no analytic approach: exhaustive
+solving is an NP-complete problem \laurie{`in general'}, so there is no analytic approach: exhaustive
 search (implemented, of course, in much more clever ways) is the way to address
 these problems.
 

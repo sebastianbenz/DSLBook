@@ -17,14 +17,14 @@ introduction}. We refer to other forms where appropriate.
  
 The \emph{abstract syntax} (short: AS) of a language is a data structure that
 holds the information represented by the concrete syntax, but without any of the
-syntactic details. Keywords and symbols, layout (e.g., whitespace), and comments
+syntactic details \laurie{I don't like this definition very much---it'll confuse newcomers. Perhaps better phrased as ``AS holds the core information; CS holds that plus syntactic niceities'' or something along those lines?}. Keywords and symbols, layout (e.g., whitespace), and comments
 are typically not included in the AS. Note that the syntactic information that
 doesn't end up in the AS is often preserved in some "hidden" form so the CS can be
 reconstructed from the combination of the AS and this hidden information ---
 this bidirectionality simplifies creating IDE features such as quick fixes or
 formatters a lot.
 
-In most cases, the abstract syntax is a tree data structure. Instances that
+In most cases, the abstract syntax is a tree data structure. \laurie{I don't understand this sentence} Instances that
 represent actual programs (i.e., sentences in the language) are hence often
 called an abstract syntax tree or AST. Some formalisms also support
 cross-references across the tree, in which case the data structure becomes a
@@ -64,7 +64,7 @@ concepts that make up the abstract syntax.
 \noindent There are two ways of defining the relationship between the CS and the
 AS as part of language development:  
 \begin{description}
-  \item[AS first] We first define the AS. This is then annotated with
+  \item[AS first] We first define the AS. This is then annotated \laurie{what does `annotated' mean here? I don't get it} with
   concrete syntax definitions. Mapping rules determine how the concrete syntax maps to 
   abstract syntax structures\footnote{This is often done if the AS structure already
   exists, has to conform to externally imposed constraints or is developed by
@@ -82,7 +82,7 @@ create programs\footnote{We will discuss these two approaches in more detail in
 the next subsection.}:
 \begin{description}
   \item[Parsing] In parser-based systems, the abstract syntax tree is
-  constructed from the concrete syntax of a program; a parser instantiates and populates the
+  constructed from the concrete syntax of a program; a parser instantiates \laurie{not necessarily; sometimes a parse tree can be created, then separate manual code transforms that to an AST (that is how e.g.~Converge works)} and populates the
   AS, based on the information in the program text. In this case, the
   (formal) definition of the CS is usually called a \emph{grammar}.
   \item[Projection] In projectional systems, the abstract syntax tree is built
@@ -289,7 +289,7 @@ ahead to decide which production rule it can recognize. Typically, grammars for
 "real" DSLs tend to need only finite look-ahead and many parser tools
 effectively compute the optimal value for $k$ automatically. A special case is
 LL(*), where $k$ is unbounded and the parser can look ahead arbitrarily many
-tokens to make decisions.
+tokens to make decisions \laurie{so? ...}.
 
 
 Supporting only a subclass of all possible context-free grammars poses
@@ -559,7 +559,7 @@ Expr ::= ID
 In the ideal case, composing two such grammars should be trivial --- just copy
 them into the same file. However, reality is often less than ideal. There are a
 number of challenges that arise in practice, related to ambiguity and to grammar
-class restrictions.
+class restrictions. \laurie{If you want to cite anything on this, my Hacker News article goes into these things in more detail http://tratt.net/laurie/tech_articles/articles/parsing_the_solved_problem_that_isnt http://tratt.net/laurie/research/publications/bibtex/tratt__parsing_the_solved_problem_that_isnt.bib}
 
 
 \begin{itemize}
@@ -892,6 +892,8 @@ formalisms relevant to Xtext, Spoofax and MPS. We will illustrate them in more
 detail in the respective tool example sections.
 
 \subsection{EMF Ecore}
+
+\laurie{this section came as a surprise to me. I'm sure many people will say ``what has UML got to do with ASTs?'' Maybe motivate it better?}
 
 The Eclipse Modeling Framework\footnote{http://www.eclipse.org/modeling/emf/}
 (EMF) is at the core of all Eclipse Modeling tools. Its core component is the
@@ -1366,7 +1368,7 @@ encode precedence. To understand this, let's consider how \ic{2 * 3} is parsed:
   expected.
 \end{itemize}
 
-If we'd parsed \ic{4 + 2*3} the \ic{+} would have matched before the \ic{*},
+\laurie{this paragraph is messy and hard to understand} If we'd parsed \ic{4 + 2*3} the \ic{+} would have matched before the \ic{*},
 because it is "mentioned earlier" in the grammar. It is in a lower-precedence
 group, the \ic{AdditionLevel}. Once we're a the \ic{4 +} tree, we'd go down
 again to match the \ic{2}. As we unwind the stack after matching the \ic{2} we'd

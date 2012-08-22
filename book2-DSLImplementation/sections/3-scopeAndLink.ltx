@@ -1,7 +1,7 @@
 \chapter{Scoping and Linking}		
 \label{Ch:scopes}
 
-\chapterabstract{Linking refers to the resolution of name-based references to
+\chapterabstract{\laurie{Linking is universally understood to mean combining together object files. The use of linking here is quite different. I think you might want to point out that `linking' is being used in a different way to the norm.} Linking refers to the resolution of name-based references to
 the references symbols in parser-based languages. In projectional systems this
 is not necessary since every reference is stored as a direct pointer to the
 target element. However, in both cases we have to define which elements are
@@ -804,7 +804,7 @@ public IScope scope_State(CoolingProgram ctx, EReference ref) {
 \noindent 
 The implementation of the scopes is simple, and relatively similar in all three
 cases. We write Java code that crawls up the containment hierarchy until we
-arrive at a \ic{CoolingProgram} (in the last alternative, we already get the
+arrive at a \ic{CoolingProgram} (\laurie{huh?} in the last alternative, we already get the
 \ic{CoolingProgram} as an argument, so we don't need to move up the tree), and
 then construct an \ic{IScope} that contains the \ic{State}s defined in that
 \ic{CoolingProgram}. Here is a possible implementation:
@@ -1017,7 +1017,7 @@ AtomicLevel returns Expression:
 While this approach will technically work, it would lead to an awkward syntax
 and is hence typically not used. The only remaining alternative is to make all
 referencable elements extend \ic{SymbolDeclaration} and use a single reference
-concept, as shown above.
+concept, as shown above. \laurie{I'm not quite sure I understand this sub-section}
 
 
 
