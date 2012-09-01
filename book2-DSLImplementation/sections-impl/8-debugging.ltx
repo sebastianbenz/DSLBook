@@ -42,11 +42,11 @@ understand the structure of an existing program. For example, any program
 element can be inspected in the \emph{Explorer}. \fig{mps-explorer} shows the
 information for a trivial C function:
 
-\begin{code}
+\begin{lstlisting}
 int8_t add(int8_t x, int8_t y) { 
   return x + y; 
 } 
-\end{code}
+\end{lstlisting}
 
 
 \begin{figure}[h]
@@ -200,7 +200,7 @@ investigate a simple example C program that contains a message definition and a
 \ic{report} statement. The \ic{report} statement is transformed to \ic{printf}
 statements.
 
-\begin{code}
+\begin{lstlisting}
 module Simple imports nothing { 
    
   message list messages { 
@@ -212,11 +212,11 @@ module Simple imports nothing {
     return 0; 
   } 
 }
-\end{code}
+\end{lstlisting}
 
 Below is the mapping configuration for this program: 
 
-\begin{code}
+\begin{lstlisting}
 [ 1 ]
 com.mbeddr.core.modules.gen.generator.template.main.removeCommentedCode
 [ 2 ]
@@ -224,7 +224,7 @@ com.mbeddr.core.util.generator.template.main.reportingPrintf
 [ 3 ]
 com.mbeddr.core.buildconfig.generator.template.main.desktop
 com.mbeddr.core.modules.gen.generator.template.main.main
-\end{code}
+\end{lstlisting}
 
 This particular model is generated in three phases. The first one removes
 commented code to make sure it does not show up in the resulting C text file.
@@ -240,7 +240,7 @@ can be kept around for inspection. Each of the phases is represented by one or
 more transient models. As an example, here is the program after the \ic{report}
 statement has been transformed:
 
-\begin{code}
+\begin{lstlisting}
 module Simple imports nothing { 
 
   exported int32_t main(int32_t argc, int8_t*[] argv) { 
@@ -249,7 +249,7 @@ module Simple imports nothing {
     return 0;
   } 
 } 
-\end{code}
+\end{lstlisting}
 
 MPS also supports tracing an element through the intermediate models.
 \fig{mps-tracer} shows an example. Users can select a program element in the
@@ -352,26 +352,26 @@ imperative language in the first place. For languages that make use of
 sophisticated expressions, a different approach is recommended. Consider the
 following example:
 
-\begin{code}
+\begin{lstlisting}
 Collection[Type] argTypes = aClass.operations.arguments.type;
-\end{code}
+\end{lstlisting}
 
 If you wanted to print the list of operations and arguments, you would have to
 change the program to something like this:
 
-\begin{code}
+\begin{lstlisting}
 print("operations: " + aClass.operations);
 print("arguments: " + aClass.operations.arguments);
 Collection[Type] argTypes = aClass.operations.arguments.type;
-\end{code}
+\end{lstlisting}
 
 A much simpler alternative uses \emph{inlined} reporting expressions:
 
 
-\begin{code}
+\begin{lstlisting}
 Collection[Type] argTypes = aClass.operations.print("operations:")
                             .arguments.print("arguments:").type;
-\end{code}
+\end{lstlisting}
  
 To make this convenient to use, the \ic{print} function has to return the object
 it is called on (the one before the dot), and it must be typed accordingly if a
@@ -386,7 +386,7 @@ execution may be useful. In this approach, all execution steps in a program are
 automatically traced and logged into a tree-like data structure. The
 refrigerator cooling language uses this approach. Here is an example program:
 
-\begin{code}
+\begin{lstlisting}
 cooling program HelloWorld {
     var temp: int
     start:
@@ -395,14 +395,14 @@ cooling program HelloWorld {
         check temp < 10 { state s2 }
     state s2: 
 }
-\end{code} 
+\end{lstlisting} 
 
 Upon startup, it enters the \ic{start} state and immediately transitions to
 state \ic{s1}. It remains in \ic{s1} until the variable \ic{temp} becomes less
 than 10. It then transitions to \ic{s2}. Below is a test for this program that
 verifies this behavior:
 
-\begin{code}
+\begin{lstlisting}
 test HelloWorldTest for HelloWorld {
     prolog {
         set temp = 30
@@ -414,7 +414,7 @@ test HelloWorldTest for HelloWorld {
     step
     assert-currentstate-is s2
 }
-\end{code}
+\end{lstlisting}
 
 \fig{interpreterlog} shows the execution trace. It shows the execution of each
 statement and the evaluation of each expression. The log viewer is a table tree
@@ -444,7 +444,7 @@ that describe whatever the method did, and then passes the child to any other
 interpreter methods it calls. As an example, here is the implementation of the
 \ic{AssignmentStatement}:
 
-\begin{code}
+\begin{lstlisting}
 protected void executeAssignmentStatement(AssignmentStatement s, LogEntry log) {
     LogEntry c = log.child(Kind.info, context, "executing AssignmentStatement" ); 
     Object l = s.getLeft();
@@ -452,7 +452,7 @@ protected void executeAssignmentStatement(AssignmentStatement s, LogEntry log) {
     eec().environment.put(symbol, r);
     c.child(Kind.debug, context, "setting " + symbol.getName() + " to " + r);
 }
-\end{code}
+\end{lstlisting}
 
 If instead of an interpreter a code generator were used, the same approach could
 essentially be used. Instead of embedding the tracing code in the interpreter,
@@ -631,26 +631,26 @@ its size, since in C an array cannot be queried for its size. Inside the
 \ic{foreach} body, \ic{it} acts as a reference to the current iteration's array
 element.
 
-\begin{code}
+\begin{lstlisting}
 int8_t s = 0;                                              
 int8_t[] a = {1, 2, 3};                  
 foreach (a sized 3) {    
     s += it;    
 } 
-\end{code}
+\end{lstlisting}
 
 The code generated from this piece of extended C looks as follows. The
 \ic{foreach} statement is expanded into a regular \ic{for} statement and an
 additional variable \ic{\_\_it}:
 
-\begin{code}
+\begin{lstlisting}
 int8_t s = 0;                                              
 int8_t[] a = {1, 2, 3};                  
 for (int __c = 0; __c < 3; __c++) {    
     int8_t __it = a[__c];
     s += __it;    
 } 
-\end{code}
+\end{lstlisting}
 
 To make the \ic{foreach} extension modular, it lives in a separate language
 module named \ic{ForeachLanguage}. The new language extends C, since we will
@@ -695,14 +695,14 @@ As shown in the code snippet below, the
 \ic{array} must be of type \ic{ArrayType}, and the type of \ic{len} must be
 \ic{int64\_t} or any of its shorter subtypes.
  
-\begin{code}
+\begin{lstlisting}
 rule typeof_ForeachStatement for ForeachStatement as fes do {
     typeof(fes.len) :<=: <int64_t>; if
     (!(fes.array.type.isInstanceOf(ArrayType))) {
       error "array required" -> fes.array; 
     } 
 }
-\end{code}
+\end{lstlisting}
  
 
 The generator translates a \ic{ForeachStatement} to a regular \ic{for} statement
@@ -733,7 +733,7 @@ expressions are expected. The editor consists of a single cell with the keyword
 \ic{it}. A constraint enforces that the \ic{ItExpression} is only used inside
 the body of a \ic{foreach}:
 
-\begin{code}
+\begin{lstlisting}
 concepts constraints ItExpression { 
   can be child 
     (context, scope, parentNode, link, childConcept)->boolean { 
@@ -741,17 +741,17 @@ concepts constraints ItExpression {
       parentNode.ancestor<StatementList, +>.isNotNull;   
     }   
 }
-\end{code}
+\end{lstlisting}
 
 
 The type of \ic{it} must be the base type of the \ic{array} (e.g. \ic{int} in
 case of \ic{int{[]}}), as shown in the code below:
 
-\begin{code}
+\begin{lstlisting}
 node<Type> basetype = typeof(it.ancestor<ForeachStatement>.array) 
                          as ArrayType.baseType; 
 typeof(it) :==: basetype.copy;
-\end{code}
+\end{lstlisting}
 
 
 The \ic{foreach} generator already generated a local variable
@@ -787,12 +787,12 @@ breakpoints on these possible next statements. The
 \ic{contributeStepOverStrategies} method collects strategies for the \emph{step
 over} case:
  
-\begin{code}
+\begin{lstlisting}
 void contributeStepOverStrategies(list<IDebugStrategy> res) {
    ancestor
    statement list: this.body   
 }
-\end{code}
+\end{lstlisting}
 
 The method is implemented using a domain-specific language for debugger
 specification, which is part of the mbeddr debugger framework\footnote{This
@@ -814,12 +814,12 @@ so, the debugger has to step into each of those, in turn. Otherwise the debugger
 falls back to \emph{step over}. An additional method configures the expression
 trees which the debugger must inspect:
 
-\begin{code}
+\begin{lstlisting}
 void contributeStepIntoStrategies(list<IDebugStrategy> res) { 
   subtree: this.array 
   subtree: this.len     
 }
-\end{code}
+\end{lstlisting}
       
 
 By default, the Watch window contains all C symbols (global and local variables,
@@ -830,7 +830,7 @@ This is exactly the wrong way: the watch window should show \ic{it}, but not
 \ic{IWatchProvider}. Here is the code for \ic{foreach}, also expressed in the
 debugger definition DSL:
 
-\begin{code}
+\begin{lstlisting}
 void contributeWatchables(list<UnmappedVariable> unmapped, 
                                  list<IWatchable> mapped) { 
   hide "__c" 
@@ -838,7 +838,7 @@ void contributeWatchables(list<UnmappedVariable> unmapped,
     type: this.array.type : ArrayType.baseType 
     category: WatchableCategories.LOCAL_VARIABLES 
     context: this    }
-\end{code}
+\end{lstlisting}
 
 The first line hides \ic{\_\_c}. The rest \ic{map}s a base-level C variable to a
 Watchable. It finds a C variable named \ic{\_\_it} (inserted by the \ic{foreach}
@@ -1114,17 +1114,17 @@ from \ic{isExtStackFrame}. Its \ic{getStackFrameName} is shown below: the
 tree-level stack frame has the name of the \ic{event} that triggered the
 transition and the name of the owning \ic{state}.
 
-\begin{code}
+\begin{lstlisting}
 public string getStackFrameName() {
   this.ancestor<State>.name+" - "+this.trigger.event.name; }
-\end{code}
+\end{lstlisting}
 
 
 The code snippet below shows a testing scenario with three stack frame
 contributors: a function \ic{main}, two test cases, and an
 \ic{executeTests} expression: 
 
-\begin{code}
+\begin{lstlisting}
 int32_t main() {
   return executeTests testIntRandom, testRealRandom; 
 }
@@ -1136,7 +1136,7 @@ test case testIntRandom {
 test case testRealRandom { 
   assert randomReal() != randomReal(); 
 }
-\end{code}
+\end{lstlisting}
 
 \noindent The \ic{main} function remains a function in generated C. The test case is
 mapped to a function as well, and it is possible to step into test cases. So
@@ -1154,7 +1154,7 @@ way the debugger creates tree-level stack frames for called \ic{functions}
 and \ic{test cases} with their respective name. The following snippet shows the
 implementation for \ic{functions}:
 
-\begin{code}
+\begin{lstlisting}
 string getStackFrameName() { 
   return this.name; 
 }
@@ -1167,7 +1167,7 @@ void contributeStepOutStrategies(list<IDebugStrategy> res) {
   if (name.equals("main")) new ResumeWithoutBreakpoint();
   else new StepToOuter(this); 
 }
-\end{code}
+\end{lstlisting}
 
 \noindent For stepping out, we use the \ic{StepToOuter} strategy which
 suspends the execution within the outer stack frame contributor. In C, the
@@ -1182,7 +1182,7 @@ where the execution should be suspended after a \ic{step out}. The following
 code shows the \ic{createBreakpoint} implementation of the custom strategy used
 in this case:
 
-\begin{code}
+\begin{lstlisting}
 void configure(IStrategyConfiguration strategyConfiguration) { 
   this.dslStackMapping = conf.getDSLStackMapping(); 
   this.strategyConfiguration = strategyConfiguration; 
@@ -1198,7 +1198,7 @@ void createBreakpoint() throws Exception {
     strategy.createBreakpoint(); 
   } 
 }
-\end{code}
+\end{lstlisting}
  
 \noindent Going back to the example, consider the debugger is suspended in the
 \emph{testIntRandom} test case: the tree-level call stack contains

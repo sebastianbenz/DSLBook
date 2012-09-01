@@ -38,11 +38,11 @@ these cases.
 To illustrate the relationship between the concrete and abstract syntax,
 consider the following example program:
 
-\begin{code}
-var x: int;
+\begin{lstlisting}[morekeywords={var, int, calc}]
+var x: int; 
 calc y: int = 1 + 2 * sqrt(x)
-\end{code}
- 
+\end{lstlisting}
+  
 \noindent This program has a hierarchical structure: definitions of \ic{x} and
 \ic{y} at the top, inside \ic{y} there's a nested expression. This
 structure is reflected in the corresponding abstract syntax tree. A possible AST
@@ -246,11 +246,11 @@ a simple arithmetic expression language using BNF notation. Basic expressions
 are built up of \ic{NUM} number literals and the \ic{+} and \ic{*} 
 operators.
 
-\begin{code}
+\begin{lstlisting}[morekeywords={Exp, NUM, Expr}]
 Exp ::= NUM
       | Exp "+" Exp
       | Exp "*" Exp
-\end{code}
+\end{lstlisting}
 
  
 \noindent Note how expression nesting is described using recursion in this
@@ -314,11 +314,11 @@ parsing algorithm.}. As an example, consider a grammar for property or field
 access, expressions of the form \ic{customer.name} or
 \ic{"Tim".length}\footnote{Note that we use ID to indicate identifier patterns
 and STRING to indicate string literal patterns in these examples.}:
-\begin{code} 
+\begin{lstlisting}[morekeywords={Exp, NUM, Expr,ID, STRING}]
 Exp ::= ID 
       | Exp "." ID 
       | STRING
-\end{code}
+\end{lstlisting}
 
 \noindent 
 This grammar uses left-recursion: the left-most symbol of one of the
@@ -333,24 +333,24 @@ recursion. Left-factoring introduces additional rules that act as intermediaries
 and often makes repetition explicit using the \ic{+} and \ic{*} operators. The
 example grammar uses recursion for repetition, which can be made explicit as
 follows:
-\begin{code}
+\begin{lstlisting}[morekeywords={Exp, NUM, Expr,ID, STRING}]
 Exp ::= ID
       | (Exp ".")+ ID
       | STRING
-\end{code}
+\end{lstlisting}
 
 \noindent 
 The resulting grammar is still left-recursive, but we can introduce an
 intermediate rule to eliminate the recursive call to \ic{Exp}:
 
-\begin{code}
+\begin{lstlisting}[morekeywords={Exp, NUM, Expr,ID, STRING, FieldPart}]
 Exp ::= ID
       | (FieldPart ".")+ ID
       | STRING
 
 FieldPart ::= ID
             | STRING
-\end{code}
+\end{lstlisting}
 
 \noindent 
 Unfortunately, this resulting grammar still has overlapping rules (a
@@ -359,13 +359,13 @@ conflict can be eliminated by removing the \ic{Exp ::= ID} rule and making
 the \ic{+} (one or more) repetition into a \ic{*} (zero or more)
 repetition:
 
-\begin{code}
+\begin{lstlisting}[morekeywords={Exp, NUM, Expr,ID, STRING, FieldPart}]
 Exp       ::= (FieldPart ".")* ID
             | STRING
             
 FieldPart ::= ID
             | STRING
-\end{code}
+\end{lstlisting}
 
 \noindent 
 This last grammar now describes the same language as the original field access
@@ -403,11 +403,11 @@ possible ASTs. This obviously is a problem for parser implementation as some
 decision has to be made on which AST is preferred. Consider again the expression
 language introduced above.
 
-\begin{code}
+\begin{lstlisting}[morekeywords={Exp, NUM, Expr,ID, STRING, FieldPart}]
 Exp ::= NUM
       | Exp "+" Exp
       | Exp "*" Exp
-\end{code}
+\end{lstlisting}
  
 \noindent 
 It is ambiguous, since for a string \ic{1*2+3} there are two possible trees
@@ -461,12 +461,12 @@ other risks of ambiguity requires carefully layering the grammar in such a way
 that it encodes the desired properties. To encode left-associativity and a lower
 priority for the \ic{+} operator we can rewrite the grammar as follows:
 
-\begin{code}
+\begin{lstlisting}[morekeywords={Exp, NUM, Expr,ID, STRING, FieldPart, Mult}]
 Expr ::= Expr "+" Mult
        | Mult
 Mult ::= Mult "*" NUM
        | NUM
-\end{code}
+\end{lstlisting}
 
 \noindent 
 The resulting grammar is a valid LR grammar. Note how it puts the \ic{+}
@@ -478,10 +478,11 @@ of the operators. The grammar can be left-factored to a corresponding LL grammar
 as follows. We will see more extensive examples of this approach in the section
 on Xtext (\Section{Sec:xtext-syntax}).
 
-\begin{code}
+\begin{lstlisting}[morekeywords={Exp, NUM, Expr,ID, STRING, FieldPart, Mult,
+NUM}] 
 Expr ::= Mult ("+" Mult)*
 Mult ::= NUM ("*" NUM)*
-\end{code}
+\end{lstlisting}
 
 
 \parhead{Ambiguity with generalized parsers} General parsers accept grammars
@@ -496,22 +497,24 @@ A way of programmatically selecting one alternative is \emph{disambiguation
 filters}. For example, left-associativity can be indicated on a per-production
 basis:
 
-\begin{code}
+\begin{lstlisting}[morekeywords={Exp, NUM, Expr,ID, STRING, FieldPart, Mult,
+NUM}] 
 Exp ::= NUM
       | Exp "+" Exp {left}
       | Exp "*" Exp {left}
-\end{code}
+\end{lstlisting}
 
 \noindent 
 This indicates that both operators are left-associative (using the
 \ic{\{left\}} annotation from Spoofax). Operator precedence can be
 indicated with relative priorities or with precedence annotations:
 
-\begin{code}
+\begin{lstlisting}[morekeywords={Exp, NUM, Expr,ID, STRING, FieldPart, Mult,
+NUM}] 
 Exp ::= Exp "*" Exp {left}
 >
 Exp ::= Exp "+" Exp {left}
-\end{code}
+\end{lstlisting}
 
 \noindent 
 The \ic{>} indicates that the \ic{*} operator binds stronger than the
@@ -531,11 +534,12 @@ of grammars is an efficient way of reusing grammars and quickly constructing or
 extending new grammars\footnote{We discuss this extensively in
 \sect{modularization}}. As a basic example of grammar composition, consider once
 again our simple grammar for arithmetic expressions:
-\begin{code}
+\begin{lstlisting}[morekeywords={Exp, NUM, Expr,ID, STRING, FieldPart, Mult,
+NUM}] 
 Expr ::= NUM
        | Expr "*" Expr
        | Expr "+" Expr
-\end{code}
+\end{lstlisting}
 
 \noindent 
 Once more operators are added and the proper associativities and precedences are
@@ -549,11 +553,12 @@ name \ic{Expr}. Some grammar definition formalisms support mechanisms such as
 grammar mixins and renaming operators to work with grammar modules where the
 symbol names do not match.}:
 
-\begin{code}
+\begin{lstlisting}[morekeywords={Exp, NUM, Expr,ID, STRING, FieldPart, Mult,
+NUM}] 
 Expr ::= ID
        | STRING
        | Expr "." ID
-\end{code}
+\end{lstlisting}
 
 \noindent 
 In the ideal case, composing two such grammars should be trivial --- just copy
@@ -582,11 +587,11 @@ different lexical syntax are composed together, conflicts can arise. For
 example, consider what happens when we compose the grammar of Java with the
 grammar of SQL:
 
-\begin{code}
+\begin{lstlisting}[morekeywords={for, SELECT, FROM, WHERE}] 
 for (Customer c : SELECT customer FROM accounts WHERE balance < 0) {
   ...
 }
-\end{code}
+\end{lstlisting}
 
 \noindent The SQL grammar reserves keywords such as \ic{SELECT}, even though
 they are not reserved in Java. Such a language change could break compatibility
@@ -935,7 +940,7 @@ Compared to XML or JSON, perhaps the most significant distinction is that
 ATerms often rely on the order of subterms rather than on labels. For example,
 a product may be modeled in JSON as follows:
 
-\begin{code}
+\begin{lstlisting}[morekeywords={}] 
 {
   "product": {
     "itemnumber": 5,
@@ -943,7 +948,7 @@ a product may be modeled in JSON as follows:
     "customer": "Mr. White"  
   }
 }
-\end{code}
+\end{lstlisting}
 
 \noindent
 Note how this specification includes the actual data describing the particular product (the model), but also a
@@ -951,9 +956,9 @@ description of each of the elements (the meta model). With XML, a product would 
 fashion. An equivalent of the JSON above written in ATerm format would be the
 following:
 
-\begin{code}
+\begin{lstlisting}[morekeywords={}]
 Order([ItemNumber(5), Quantity(15), Customer("Mr.\ White")])
-\end{code}
+\end{lstlisting}
 
 \noindent 
 However, this representation contains a lot of redundant information that also
@@ -972,9 +977,9 @@ tools can convert between ATerms and XML.
 In addition to the basic elements above, ATerms support annotations to add
 additional information to terms. These are similar to attributes in XML. For
 example, it is possible to annotate a product number with its product name:
-\begin{code}
+\begin{lstlisting}[morekeywords={}]
 Order(5{ProductName("Apples")}, 15, "Mr. White")
-\end{code}
+\end{lstlisting}
 
 \noindent 
 Spoofax also uses annotations to add information about references to other
@@ -989,10 +994,9 @@ Nodes are instances of \emph{concepts}, which conceptually corresponds to EMF's 
 \ic{EClass}es, concepts are meta circular, i.e.\ there is a concept that defines the
 properties of concepts:
 
-\begin{code} 
+\begin{lstlisting}[language=mps] 
 concept ConceptDeclaration extends AbstractConceptDeclaration                          
-                           implements INamedConcept                     
-                                      IStructureDeprecatable            
+                           implements INamedConcept            
                                                                                 
   instance can be root: false                                                   
                                                                                 
@@ -1001,7 +1005,7 @@ concept ConceptDeclaration extends AbstractConceptDeclaration
     rootable : boolean                                                             
                                                                                 
   children:         
-    InterfaceConceptReference  implements                 0..n                                                             
+    InterfaceConceptReference  implementsInterfaces       0..n                                                             
     LinkDeclaration            linkDeclaration            0..n                       
     PropertyDeclaration        propertyDeclaration        0..n               
     ConceptProperty            conceptProperty            0..n                       
@@ -1010,11 +1014,11 @@ concept ConceptDeclaration extends AbstractConceptDeclaration
     ConceptLinkDeclaration     conceptLinkDeclaration     0..n         
                                                                                 
   references:                                                  
-    ConceptDeclaration         extends                   0..1
+    ConceptDeclaration         extendsConceps             0..1
                                                                                 
   concept properties:                                                           
     alias = concept                       
-\end{code}
+\end{lstlisting}
 
  
 \noindent 
@@ -1041,7 +1045,7 @@ the behavioral aspect of the refrigerator descriptions. Here is a trivial
 program that can be used to illustrate some of the features of the language. The
 program is basically a state machine.
 
-\begin{code} 
+\begin{lstlisting}[language=cooling] 
 cooling program HelloWorld uses stdlib {
      
     var v: int
@@ -1056,7 +1060,7 @@ cooling program HelloWorld uses stdlib {
         entry { set v = 0 }
           
 } 
-\end{code}
+\end{lstlisting}
 
 \noindent 
 The program declares a variable \ic{v} and an event \ic{e}. When the program
@@ -1065,9 +1069,9 @@ system then (automatically) transitions into the \ic{start} state. There it
 waits until it receives the \ic{e} event. It then transition to the state
 \ic{s}, where it uses an entry action to set \ic{v} back to \ic{0}. More complex
 programs include checks of changes of properties of hardware elements
-(\ic{aCompartment->currentTemp}) and commands to the hardware\ic{set aCompartment->isCooling = true}, as shown in the next snippet:
+(\ic{aCompartment->currentTemp}) and commands to the hardware\ic{set aCompartment->isCooling = true}, as shown in the next snippet: 
 
-\begin{code} 
+\begin{lstlisting}[language=cooling] 
 start:
     check ( aCompartment->currentTemp > maxTemp ) {
         set aCompartment->isCooling = true
@@ -1081,7 +1085,7 @@ state initialCooling:
     check ( aCompartment->currentTemp < maxTemp ) {
         state normalCooling
     }
-\end{code}
+\end{lstlisting}
 
 
 \parhead{Grammar basics} \marginnote[5mm]{It is also possible to first create
@@ -1094,7 +1098,7 @@ rules specify the concrete syntax of a program element, as well as its mapping
 to the AS. From the grammar, Xtext generates an Ecore meta model to describe the
 AS. Here is the definition of the \ic{CoolingProgram} rule:
 
-\begin{code} 
+\begin{lstlisting}[language=xtextgrammar] 
 CoolingProgram:
     "cooling" "program" name=ID "{"
       (events+=CustomEvent |
@@ -1102,7 +1106,7 @@ CoolingProgram:
       (initBlock=InitBlock)?
       (states+=State)*
     "}";
-\end{code} 
+\end{lstlisting} 
 
 \noindent 
 Rules begin with the name (\ic{CoolingProgram}), a colon, and then the rule
@@ -1113,9 +1117,9 @@ parent grammar from which we inherit (not shown). \ic{ID} is defined as an
 unbounded sequence of lowercase and uppercase characters, digits, and the
 underscore, although it may not start with a digit. This terminal rule is
 defined as follows:
-\begin{code} 
+\begin{lstlisting} [language=xtextgrammar]
 terminal ID: ('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'_'|'0'..'9')*;
-\end{code} 
+\end{lstlisting} 
 
 \noindent 
 In pure grammar languages, one would write \ic{"cooling" "program" ID "\{ ..."}, 
@@ -1154,19 +1158,19 @@ variables collection, events are assigned to the events collection.
 This notation means that we can mix events and variables in any order. The
 following alternative notation would first expect all events, and then all
 variables. 
-\begin{code} 
+\begin{lstlisting}[language=xtextgrammar] 
       (events+=CustomEvent)*
       (variables+=Variable)*
-\end{code} 
+\end{lstlisting} 
 
 \noindent 
 The definition of \ic{State} is interesting, since \ic{State} is intended to be an
 abstract meta class with several subtypes.
 
-\begin{code} 
+\begin{lstlisting}[language=xtextgrammar] 
 State:
     BackgroundState | StartState | CustomState;
-\end{code} 
+\end{lstlisting} 
 
 \noindent 
 The vertical bar operator is used here to express syntactic alternatives. This
@@ -1174,7 +1178,7 @@ is translated to inheritance in the meta model. The definition of
 \ic{CustomState} is shown in the following code snippet. It uses the set of
 grammar language features explained above.
 
-\begin{code} 
+\begin{lstlisting}[language=xtextgrammar] 
 CustomState:
     "state" name=ID ":"
         (invariants+=Invariant)*
@@ -1185,7 +1189,7 @@ CustomState:
             (eachTimeStatements+=Statement)*
         "}")?
         (events+=EventHandler | signals+=SignalHandler)*;
-\end{code}  
+\end{lstlisting}  
 
 \noindent 
 \ic{StartState} and \ic{BackgroundState}, the other two subtypes of \ic{State},
@@ -1212,9 +1216,9 @@ state is entered and left, respectively. \ic{set v = 1} in the hello world progr
 example. \ic{Statement} itself is \ic{abstract} and has the various kinds
 of statements as subtypes/alternatives:
 
-\begin{code} 
+\begin{lstlisting}[language=xtextgrammar] 
 Statement:
-    IfStatement | AssignmentStatement | PerformAsyncStatement | 
+    Statement | AssignmentStatement | PerformAsyncStatement | 
     ChangeStateStatement | AssertStatement; 
 
 ChangeStateStatement:
@@ -1222,7 +1226,7 @@ ChangeStateStatement:
 
 AssignmentStatement:
     "set" left=Expr "=" right=Expr;
-\end{code}  
+\end{lstlisting}  
 
 \noindent 
 The \ic{ChangeStateStatement} is used to transition into another state. It uses
@@ -1257,12 +1261,12 @@ bar in the reference\footnote{Notice that in this case the vertical bar does not
 represent an \emph{alternative}, it is merely used as a \emph{separator} between
 the target type and the terminal used to represent the reference.}. 
 
-\begin{code} 
+\begin{lstlisting}[language=xtextgrammar] 
 ChangeStateStatement:
     "state" targetState=[State|QID];
 
 QID: ID ("." ID)*;
-\end{code}  
+\end{lstlisting}  
 
 \noindent 
 The other remaining detail is scoping. During the linking phase, where the text
@@ -1278,7 +1282,7 @@ following snippet is a subset of the actual definition of expressions (we have
 omitted some additional expressions that don't add anything to the description
 here).
 
-\begin{code} 
+\begin{lstlisting}[language=xtextgrammar]  
 Expr:
     ComparisonLevel;
 
@@ -1306,7 +1310,7 @@ AtomicLevel returns Expression:
     ({ParenExpr} "(" expr=Expr ")") |
     ({NumberLiteral} value=DECIMAL_NUMBER) |
     ({SymbolRef} symbol=[SymbolDeclaration|QID]);
-\end{code}   
+\end{lstlisting}   
 
 \noindent 
 To understand the above definition, we first have to explain in more detail how
@@ -1397,7 +1401,7 @@ functions. To illustrate the language, below are two data type definitions
 related to a shopping list app. It supports lists of items that can be
 favorited, checked, and so on, and are associated with some \ic{Store}.
 
-\begin{code}
+\begin{lstlisting}[language=webdsl]
 module shopping
 
 entity Item {
@@ -1408,7 +1412,7 @@ entity Item {
   order    : Num
   store    : Store
 }
-\end{code}
+\end{lstlisting}
 
 \noindent 
 In mobl, most files starts with a module header, which can be followed by a list
@@ -1422,9 +1426,9 @@ syntax definition formalism, supported by the SGLR parser generator. It can
 generate efficient, Java-based scannerless and general parsers. An example of a
 production written in SDF is
 
-\begin{code}
+\begin{lstlisting}[language=sdf]
 "module" ID Entity* -> Start {"Module"}
-\end{code}
+\end{lstlisting}
 
 \noindent 
 The pattern on the left-hand side of the arrow is matched by the
@@ -1462,7 +1466,7 @@ are defined in the \ic{lexical syntax} section.
 
 \begin{figure}[ht]
 \begin{center}
-\begin{code}
+\begin{lstlisting}[language=sdf]
 module MoblEntities
 
 context-free start symbols
@@ -1494,7 +1498,7 @@ lexical syntax
   [A-Za-z][A-Za-z0-9]* -> ID
   [0-9]+               -> INT
   [\ \t\n]             -> LAYOUT
-\end{code}
+\end{lstlisting}
   \caption[]{A basic SDF grammar for a subset of Mobl. The grammar
   does not yet specify the associativity, priority, or name bindings
   of the language.}
@@ -1535,7 +1539,7 @@ any input file. As an example, the following is the textual representation of an
 abridged abstract syntax term for the shopping module shown at the beginning of
 this section:
 
-\begin{code}
+\begin{lstlisting}
 Module(
   "shopping",
   [ Entity(
@@ -1544,7 +1548,7 @@ Module(
     )
   ]
 ]) 
-\end{code}
+\end{lstlisting}
 
 \noindent 
 Note how this term uses the constructor labels of the syntax above:
@@ -1555,9 +1559,9 @@ a list of \ic{Decl} symbols (lists are in square brackets).
 In addition to constructor labels, productions that specify parentheses can
 use the special \ic{bracket} annotation:  
 
-\begin{code}
+\begin{lstlisting}[language=sdf]
 "(" Exp ")" -> Exp {bracket}
-\end{code}
+\end{lstlisting}
 
 \noindent 
 The \ic{bracket} annotation specifies that there should not be a
@@ -1570,9 +1574,9 @@ and not \ic{Plus("1",Parens("2"))}.
 specifying the associativity and precedence of operators or other
 syntactic constructs. As an example, let us consider the production of the
 \ic{Plus} operator. So far, it has been defined as
-\begin{code}
+\begin{lstlisting}[language=sdf]
 Exp "+" Exp -> Exp {"Plus"}
-\end{code}
+\end{lstlisting}
 
 \noindent 
 Based on this operator, a parser can be generated that can parse an
@@ -1582,12 +1586,12 @@ a term \ic{Plus("1", Plus("2", "3"))} or \ic{Plus(Plus("1", "2"), "3")}. If you
 try the grammar in Spoofax, it will show \emph{both} interpretations using the
 special \ic{amb} constructor:
 
-\begin{code}
+\begin{lstlisting}
 amb([
   Plus("1", Plus("2", "3")),
   Plus(Plus("1", "2"), "3")
 )]
-\end{code}
+\end{lstlisting}
 
 \noindent 
 The \ic{amb} node indicates an \emph{ambiguity} and shows all
@@ -1599,21 +1603,21 @@ the intended interpretation. For the \ic{Plus} operator, we can resolve the
 ambiguity by specifying that it is left-associative, using the \ic{left}
 annotation:
 
-\begin{code}
+\begin{lstlisting}[language=sdf]
 Exp "+" Exp -> Exp {"Plus", left}
-\end{code}
+\end{lstlisting}
 
 \noindent 
 In a similar fashion, SDF makes it possible to describe the precedence order of
 operators. For this, the productions can be placed in a \ic{context-free
 priorities} section:
 
-\begin{code}
+\begin{lstlisting}[language=sdf]
 context-free priorities
   Exp "*" Exp -> Exp {"Mul", left}
 >
   Exp "+" Exp -> Exp {"Plus", left}
-\end{code}
+\end{lstlisting}
 
 \noindent This example specifies that the \ic{Mul} operator has a higher
 priority than the \ic{Plus} operator, resolving the ambiguity that arises for an
@@ -1627,13 +1631,13 @@ recognize any token that corresponds to a keyword in the grammar as a reserved
 keyword, \emph{irrespective of its location in the program}. In SDF, it is also
 possible to use keywords that are not reserved, or keywords that are only
 reserved in a certain context. As an example, the following is a legal entity in
-mobl:
+mobl\footnote{Note how we cannot provide syntax highlighting, since the Latex
+Listing package \emph{cannot} deal with this case!}:
 
-\begin{code}
+\begin{lstlisting}
 entity entity {
-
 }
-\end{code}
+\end{lstlisting}
 
 \noindent 
 Since our grammar did not specify that \ic{entity} is a reserved word, it can be
@@ -1641,9 +1645,9 @@ used as a normal \ic{ID} identifier. However, there are cases where it is useful
 to reserve keywords, for example to prevent ambiguities. Consider what would
 happen if we added a new production for a \ic{true} literal:
 
-\begin{code}
+\begin{lstlisting}[language=sdf]
 "true" -> Exp {"True"}
-\end{code}
+\end{lstlisting}
  
 \noindent 
 If we would now parse an expression \ic{true}, it would be ambiguous:
@@ -1653,18 +1657,18 @@ ambiguous because \emph{at the same location in a program} both interpretations
 are possible.}. Keywords can be reserved in SDF by using a production that
 rejects a certain interpretation:
 
-\begin{code}
+\begin{lstlisting}[language=sdf]
 "true" -> ID {reject}
-\end{code}
+\end{lstlisting}
 
 \noindent 
 This expresses that \ic{true} can never be interpreted as an identifier.
 Alternatively, we could say that we prefer the one interpretation over the
 other:
 
-\begin{code}
+\begin{lstlisting}[language=sdf]
 "true" -> Exp {"True", prefer}
-\end{code}
+\end{lstlisting}
 
 \noindent 
 This means that this production is to be preferred if there are any
@@ -1680,10 +1684,10 @@ allows the grammar to specify the intended behavior. In Spoofax, the default is
 specified in the \emph{Common} syntax module using a \ic{lexical restrictions}
 section:
 
-\begin{code}
+\begin{lstlisting}[language=sdf]
 lexical restrictions
   ID -/- [A-Za-z0-9]
-\end{code}
+\end{lstlisting}
 
 \noindent 
 This section restricts the grammar by specifying that any \ic{ID} cannot be
@@ -1692,19 +1696,19 @@ enforces a longest match policy for the \ic{ID} symbol. SDF also allows the use
 of lexical restrictions for keywords. By default it does not enforce longest
 match, which means it allows the following definition of a mobl entity:
 
-\begin{code}
+\begin{lstlisting}
 entityMoblEntity {}
-\end{code}
+\end{lstlisting}
 
 \noindent 
 As there is no longest match, the parser can recognize the \ic{entity} keyword
 even if it is not followed by a space. To avoid this behavior, we can specify a
 longest match policy for the \ic{entity} keyword:
 
-\begin{code}
+\begin{lstlisting}[language=sdf]
 lexical restrictions
   "entity" -/- [A-Za-z0-9]
-\end{code}
+\end{lstlisting}
  
 \parhead{Name bindings} So far we have discussed purely syntax specification in
 SDF. Spoofax also allows the specification of name binding annotations in SDF
@@ -1720,7 +1724,7 @@ the one used in the mbeddr extendible C. Core concepts include
 machine can be embedded in C code as we will see later. The language supports
 the definition of state machines as shown in the following piece of code:
 
-\begin{code}
+\begin{lstlisting}[language=mbeddr]
 module LineFollowerStatemachine { 
    
   statemachine LineFollower {                                                              
@@ -1744,7 +1748,7 @@ module LineFollowerStatemachine {
    }                                                                  
   }
 }                                                                             
-\end{code}
+\end{lstlisting}
 
 
 \parhead{Concept Definition} MPS is projectional, so we start with the
@@ -1760,7 +1764,7 @@ menu). State machines also implements a couple of interfaces;
 module owns a collection of \ic{IModuleContents}, just like the state machine
 contains states and events.
 
-\begin{code}
+\begin{lstlisting}[language=mps]
 concept Statemachine extends BaseConcept                            
                      implements IModuleContent                      
                                 ILocalVarScopeProvider              
@@ -1769,11 +1773,11 @@ concept Statemachine extends BaseConcept
     InEvent inEvents 0..n                         
                                                                     
   references:                                                       
-    State   initial  1 specializes: <none>                               
+    State   initial  1                               
                                                                     
   concept properties:                                               
     alias = statemachine                                              
-\end{code}
+\end{lstlisting}
 
 \noindent 
 A \ic{State} contains two \ic{StatementLists} as \ic{entryActions} and
@@ -1782,7 +1786,7 @@ A \ic{State} contains two \ic{StatementLists} as \ic{entryActions} and
 language extends \ic{com.mbeddr.core.statements}. Finally, a \ic{State}
 contains a collection of \ic{Transition}s.
 
-\begin{code}
+\begin{lstlisting}[language=mps]
 concept Transition     
   children:                             
     Trigger        trigger  1 
@@ -1794,7 +1798,7 @@ concept Transition
                                         
   concept properties:                   
     alias = on                    
-\end{code}
+\end{lstlisting}
 
 
 \noindent 
@@ -1894,10 +1898,10 @@ solution would be a lot of work in a projectional editor.}. For example, in the
 previous section we mentioned that we use them to add entry actiom statements to
 a \ic{State}. Here is the intention code:
 
-\begin{code}
+\begin{lstlisting}[language=mps]
 intention addEntryActions for concept State {                                                                                             
   error intention : false                                                                                                                 
-  available in child nodes : true                                                                                                         
+  available in child nodes : true                                                                                                          
                                                                                                                                           
   description(editorContext, node)->string { 
     "Add Entry Action"; 
@@ -1912,7 +1916,7 @@ intention addEntryActions for concept State {
     editorContext.selectWRTFocusPolicy(node.entryAction); 
   }
 }
-\end{code}
+\end{lstlisting}
 
 \noindent 
 An intention is defined for a specific language concept (\ic{State} in the
@@ -1957,7 +1961,8 @@ so-called side transforms. The code below shows the right side transformation fo
 expressions that transforms an arbitrary expression into a \ic{PlusExpression}
 by putting the \ic{PlusExpression} "on top" of the current node. 
 
-\begin{code}
+\begin{lstlisting}[language=mps, morekeywords={node, add, custom, items,
+output, tag, simple, item, matching, text, do, right}] 
 side transform actions makeArithmeticExpression                                                                                                                                                                                                                                  
  
   right transformed node: Expression tag: default_                                                                                                                                                                                                              
@@ -1975,7 +1980,7 @@ side transform actions makeArithmeticExpression
             expr.right.set new(<default>); 
             return expr.right; 
           }                    
-\end{code}
+\end{lstlisting}
 
 
 \noindent 
@@ -1999,7 +2004,7 @@ its precedence. The higher the number, the higher the precedence (i.e. the
 lower in the tree). The action code shown above is change to include a call to a
 helper function that rearranges the tree according to the precedence values.  
 
-\begin{code}
+\begin{lstlisting}[language=mps, morekeywords={do}]
 do transform                                                                                                                                                                                                                                                             
   (operationContext, scope, model, sourceNode, pattern)->node< > { 
     node<PlusExpression> expr = new node<PlusExpression>(); 
@@ -2009,7 +2014,7 @@ do transform
     PrecedenceHelper.rearrange(expr);
     return expr.right; 
   }
-\end{code}
+\end{lstlisting}
 
 \noindent 
 This helper function scans through an expression tree and checks for cases where
@@ -2028,18 +2033,18 @@ list of \ic{Statement}s. So every subtype of \ic{Statement} can be used inside a
 function body. In general, this is the desired behavior, but in some cases, it
 is not. Consider test cases. Here is a simple example:
 
-\begin{code}
-module UnitTestDemo from cdesignpaper.unittest imports nothing { 
+\begin{lstlisting}[language=mbeddr]
+module UnitTestDemo imports nothing { 
    
   test case testMultiply { 
-    assert(0) times2(21) == 42; 
+    assert (0) times2(21) == 42; 
   } 
    
   int8_t times2(int8_t a) { 
     return 2 * a; 
   } 
 }
-\end{code} 
+\end{lstlisting} 
 
 \noindent 
 Test cases are defined in a separate language \ic{com.mbeddr.core.unittest}. The
@@ -2053,14 +2058,14 @@ of the \ic{assert} statement to C expects code generated from the \ic{UnitTest}
 to surround it}. To support such a use case, MPS supports a set of constraints.
 Here is the implementation for \ic{AssertStatement}:
 
-\begin{code}
-concepts constraints AssertStatement { 
+\begin{lstlisting}[language=mps]
+concept constraints AssertStatement { 
   can be child 
     (operationContext, scope, parentNode, link, childConcept)->boolean { 
       parentNode.ancestor<concept = TestCase, +>.isNotNull; 
     } 
 }
-\end{code}
+\end{lstlisting}
 
 \noindent 
 This constraint checks that a \ic{TestCase} is among the ancestors of a

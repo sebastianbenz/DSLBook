@@ -10,20 +10,20 @@ modularized and organized in directories. For example, Mobl's syntax definition
 comes with a module for entities, which imports modules for statements and
 expressions. These modules reside in the same directory:
 
-\begin{code}
+\begin{lstlisting}
 module MoblEntities
 
 imports
   MoblStatements
   MoblExpressions
-\end{code}
+\end{lstlisting}
 
 Similarly, rewrite rules for program analysis, editor services, program
 transformation, and code generation are organized in modules, which are imported
 from Mobl's main module. Thereby, the various modules for program analysis,
 editor services, and program transformation are organized in subdirectories:
 
-\begin{code}
+\begin{lstlisting}
 module mobl
 
 imports
@@ -36,7 +36,7 @@ imports
   trans/desugar
   trans/normalize
   generate
-\end{code}
+\end{lstlisting}
 
 
 \subsection{Referencing}
@@ -46,16 +46,16 @@ screen definition language, where a \ic{Screen} defined in the UI model refers
 to \ic{Entities} from Mobl's entity language, and \ic{Field}s in a screen refer
 to entity \ic{Property}. Here is some example code:
 
-\begin{code} entity Task {
+\begin{lstlisting} entity Task {
   name        : String description : String done        : Bool date        :
   DateTime
 }
-\end{code}
+\end{lstlisting}
 \noindent This fragment is written in Mobl's data definition language. It
 defines an entity \ic{Task} with some properties. We discussed the language in
 several examples throughout the book already.
 
-\begin{code}
+\begin{lstlisting}
 screen root() {
   header("Tasks")
   group {
@@ -64,7 +64,7 @@ screen root() {
     }
   }
 }
-\end{code}
+\end{lstlisting}
 
 \noindent This is a screen definition written in Mobl's screen definition
 language. It defines a root screen for a list of tasks, using the \ic{name} of a
@@ -76,27 +76,27 @@ property of that \ic{Entity}.
 languages typically share a definition of identifiers. For example, the screen
 definition language imports the same lexical module as the data modelling
 language does via the expression module:
-\begin{code}
+\begin{lstlisting}
 module MoblEntities
 
 imports
 	\ldots
 	MoblExpressions
-\end{code}
+\end{lstlisting}
 
-\begin{code}
+\begin{lstlisting}
 module MoblExpressions
 
 imports
 	lexical/Common
-\end{code}
+\end{lstlisting}
 
-\begin{code}
+\begin{lstlisting}
 module MoblScreens
 
 imports
 	lexical/Common
-\end{code}
+\end{lstlisting}
 
 \noindent However, Spoofax also supports the use of different, typically
 overlapping identifier definitions\footnote{This requires scannerless parsing,
@@ -108,10 +108,10 @@ resolved. Definition sites are already defined by the referenced language. The
 corresponding references need to be defined in the referencing language by using
 the namespaces from the referenced language:
 
-\begin{code}
+\begin{lstlisting}
 "list" Item@=ID "in" Collection "{" Item* "}" -> List       {"ScreenList"}
 Entity@ID "." "all" "(" ")"                   -> Collection {"Collection"}
-\end{code}
+\end{lstlisting}
 
 \noindent This fragment from the syntax definition of the screen definition
 language specifies lists and items in these lists. The screen definition
@@ -126,22 +126,22 @@ language.
 Similarly, the screen definition language uses the namespace \ic{Property} from
 the data modelling language, to refer to properties of entities:
 
-\begin{code}
+\begin{lstlisting}
 "item" "{" ItemPart* "}"                -> Item     {"Item"}
 "label" "(" Item@ID "." Property@ID ")" -> ItemPart {"LabelPart"}
-\end{code}
+\end{lstlisting}
 
 
 \parhead{Type System} Similar to the name resolution, the type system of the
 referencing language needs to be defined with the knowledge of the type system
 of the referenced language.
-\begin{code}
+\begin{lstlisting}
 constraint-error: 
   LabelPart(item, property) -> (property, "Label has to be a string.")
   where
     type := <type-of> property 
     not (!type => !StringType())
-\end{code}
+\end{lstlisting}
 
 \noindent This constraint checks whether a label is of type string or not.
 Therefore, it needs to determine the type of the property used as a label.
@@ -166,7 +166,7 @@ a data source, but the language makes no assumption about how this data source
 looks (and which language is used to define it). Consequently, the grammar has
 no dependency on another other one:
 
-\begin{code} 
+\begin{lstlisting} 
 module DBTables
   "database" DB@=ID Table*         -> Database {"DB"}
   "table" Table@=ID Column*        -> Table    {"DBTable"}
@@ -176,7 +176,7 @@ module DBTables
   
   "char"   -> DataType {"DBCharType"}
   "number" -> DataType {"DBNumberType"}
-\end{code}
+\end{lstlisting}
 
 \noindent Again, the \ic{Column} rule has an optional \ic{ColumnMapper} which
 works as the hook for reuse. The reusable language provides only a rule for a
@@ -184,19 +184,19 @@ missing column mapper. Rules for a concrete mapper are missing, but can be added
 later in a sublanguage. In the next step, we want to be able to reference
 properties from Mobl's data modelling language:
 
-\begin{code}database TaskDB
+\begin{lstlisting}database TaskDB
 
 table Tasks
 
   char name        <- Task.name
   char description <- Task.description
-\end{code}
+\end{lstlisting}
 
 \noindent To do this, we define an adapter module, which imports the reusable
 table module and the data modelling language:
 
 \todo{add rule for column mapper}
-\begin{code}
+\begin{lstlisting}
 module MoblDBAdapter
 
 imports
@@ -206,7 +206,7 @@ imports
 context-free syntax
 
    "<-" Entity@ID "." Property@ID -> ColumnMapper {"PropertyMapper"}
-\end{code}
+\end{lstlisting}
 
 \noindent There is only one rule in this module, which defines a concrete
 mapper. On the right-hand side, it uses the same sort as the rule in the table
@@ -219,7 +219,7 @@ our example, the types of the database language needs to be connected to the
 primitive types used in Mobl. Constraints ensure we only map those fields to a
 particular column that are type-compatible:
 
-\begin{code}
+\begin{lstlisting}
 module reuse/dbtables/analysis/types
 
 rules
@@ -230,7 +230,7 @@ rules
       <not(compatible-types)> (type, type')
       
   compatible-types: _ -> <fail>
-\end{code}
+\end{lstlisting}
 
 \noindent The code above is defined in the generic implementation of the
 database language. It assumes that a mapper has a type and checks if this type
@@ -240,7 +240,7 @@ compatibility, which always fails.
 The connection to the type system of the entity language can now be made in an
 adapter module:
 
-\begin{code} 
+\begin{lstlisting} 
 module analysis/types/adapter
 
 imports
@@ -253,7 +253,7 @@ rules
   
   compatible-types: (DBCharType(), StringType()) -> <id>
   compatible-types: (DBNumberType(), IntType())  -> <id>
-\end{code}
+\end{lstlisting}
 
 The first rule defines the type of a \ic{PropertyMapper} to be the type of the
 property. Then, two rules define type compatibility for Mobl's \ic{String} type
@@ -273,7 +273,7 @@ of inlined code, which requires an extendable generator of the reusable
 language. With rewrite rules, this can be easily achieved in Spoofax. The
 reusable generator calls a dedicated rule for generating the inlined code, but
 defines only a failing implementation of this rule:
-\begin{code}
+\begin{lstlisting}
 module reuse/table/generate
 
 rules
@@ -285,7 +285,7 @@ rules
     
   to-fetch-method-parameters: _ -> <fail>
   to-fetch-statements(|n)   : _ -> <fail>
-\end{code}
+\end{lstlisting}
 
 \noindent This rule generates code for columns. It generates a private field and
 a protected method to fetch the content. This method needs a name, parameters,
@@ -294,7 +294,7 @@ generator. For the other parts, the generic generator only provides failing
 placeholder rules. These have to be implemented in a concrete reuse setting:
 
 
-\begin{code}
+\begin{lstlisting}
 module generate/java/adapter
 
 imports 
@@ -313,7 +313,7 @@ rules
          [Assign(VarRef(field-name), MethodCall(VarRef("entity"), m, []), Return(True())] 
    where
      m := <property-to-get-method-name> property
-\end{code} 
+\end{lstlisting} 
 
 \noindent This adapter code generates a single parameter for the fetch method.
 It is named \ic{entity} and its type is provided by a rule from the entity
@@ -362,7 +362,7 @@ list heads, as well as expressions in labels:
 flavor, since MoblScreens now has a direct dependency to MoblExpressions.
 Right?}
 
-\begin{code}
+\begin{lstlisting}
 module MoblScreens
 
 imports MoblExpressions 
@@ -371,7 +371,7 @@ context-free syntax
 
   "list" VarDef "in" Exp "{" Item* "}" -> List     {"ScreenList"}
   "label" "(" Exp ")"                  -> ItemPart {"LabelPart"}
-\end{code}
+\end{lstlisting}
 
 \parhead{Type System} The type system needs to connect the types from the host
 and guest languages. This can be achieved by adding typing rules for embedded
@@ -383,7 +383,7 @@ collection. Finally, the expression for a label should provide a string. We can
 capture these requirements in constraints:
 
 
-\begin{code}
+\begin{lstlisting}
 constraint-error: 
   ScreenList(_, e, _) -> (e, "Needs to provide a collection.")
   where
@@ -396,7 +396,7 @@ constraint-error:
     type  := <type-of> e ;
     type' := <collection-type> type ;
     <not(is-assignable)> (t, type')
-\end{code}
+\end{lstlisting}
 
 
 \parhead{Generator} There are two strategies for code generation for embedded
@@ -411,12 +411,12 @@ The screen definition language needs to generate a method which returns the text
 of a label. Therefore, it relies on the code generator for expressions, to
 translate the expression into Java code:
 
-\begin{code}
+\begin{lstlisting}
 generate-label-text-method: 
   LabelPart(exp) -> Method([PUBLIC()], StringType(), "getText", [Return(java-exp)])
   where
     java-exp := <to-java> exp
-\end{code}
+\end{lstlisting}
 
 \noindent
 
@@ -429,7 +429,7 @@ syntax trees for code generation fragments. These trees need to be desugared
 into Stratego pattern matching constructs. For example, the embedded \ic|[return
 |[x]|; ]| will yield the following abstract syntax tree:
 
-\begin{code}
+\begin{lstlisting}
 ToJava(
   Return(
     FromJava(
@@ -437,24 +437,24 @@ ToJava(
     )
   )
 ) 
-\end{code}
+\end{lstlisting}
 
 \noindent In ordinary Stratego without an embedded target language, we would
 have written the pattern \ic{Return(x)} instead. The corresponding abstract
 syntax tree looks like this:
-\begin{code}
+\begin{lstlisting}
 NoAnnoList(
   App(
     Op("Result"),
     [Var("x")]
   )
 ) 
-\end{code}
+\end{lstlisting}
 
 \noindent The desugar transformation now needs to transform the first abstract
 syntax tree into the second one:
 
-\begin{code}
+\begin{lstlisting}
 desugar-all: x -> <bottomup(try(desugar-embedded))> x
 
 desugar-embedded: ToJava(e) -> <ast-to-pattern> e
@@ -469,7 +469,7 @@ ast-to-pattern:
       args    := <arguments> ast ;
       ps      := <map(ast-to-pattern)> args ;
       pattern := NoAnnoList(App(Op(c), ps))
-\end{code}
+\end{lstlisting}
 
 The first rule drives the desugaring of the overall tree. It tries to apply
 \ic{desugar-embedded} in a bottom-up traversal. The only rule for desugaring

@@ -123,9 +123,9 @@ Language elements that contribute names to a a namespace can be annotated with
 \ic{Namespace@=Symbol}, where \ic{Namespace} is the namespace of the definition,
 and \ic{Symbol} is the grammatical symbol that represents the name of the
 concept, and that is contributed to the namespace. As an example, wecan add this annotation to the production for \ic{Entity} definitions:
-\begin{code}
+\begin{lstlisting}
 "entity" Type@=ID "{" EntityBodyDecl* "}" -> Decl {"Entity"}
-\end{code}
+\end{lstlisting}
 
 \noindent 
 The annotation indicates that every program element that corresponds to this
@@ -143,9 +143,9 @@ and string types to the \ic{Type} namespace, even though they are syntactically
 
 References to definitions are defined in a similar fashion, using the notation
 \ic{Namespace@Symbol}:
-\begin{code}
+\begin{lstlisting}
 Property@=ID ":" Type@ID -> EntityBodyDecl {"Property"}
-\end{code}
+\end{lstlisting}
 
 \noindent 
 The first annotation here says that the production defines something in the 
@@ -164,16 +164,16 @@ function. The same principle applies to fields in a Java class, properties in a
 mobl entity, and so on. Block structures can be specified by adding
 \ic{scope(Namespace)} at the end of a production:
 
-\begin{code}
+\begin{lstlisting}
 "entity" Type@=ID "{" EntityBodyDecl* "}" -> Entity {"Entity", scope(Property)}
-\end{code}
+\end{lstlisting}
 
 \noindent 
 Here, the \ic{scope} annotation indicates that every entity scopes the
 properties inside it. These scopes are used to qualify the names of every
 property inside an entity:
 
-\begin{code}
+\begin{lstlisting}
 entity Customer {
   name : String		// Customer.name
 }
@@ -181,7 +181,7 @@ entity Customer {
 entity Product {
   name : String 	// Product.name
 }
-\end{code}
+\end{lstlisting}
 
 \noindent 
 In this example, the two \ic{name} properties both live the \ic{Property}
@@ -196,7 +196,7 @@ We show how to specify a constraint for that later on \todo{ref}.}. The full
 grammar of the mobl entities language with annotations is the following (leaving
 out the lexical syntax):
 
-\begin{code}
+\begin{lstlisting}
 module MoblEntities
 
 context-free start symbols
@@ -223,7 +223,7 @@ context-free syntax
   Exp "*" Exp                      -> Exp {"Mul"}
   _@ID                             -> Exp {"Var"}
   INT                              -> Exp {"Int"}
-\end{code}
+\end{lstlisting}
 
 \noindent 
 A special case in this grammar is the rule for \ic{"Var"}, which can refer to
@@ -243,13 +243,13 @@ automatically, based on the namespace and scope annotations in the grammar. As
 an example, consider the following entity.
 
 
-\begin{code}
+\begin{lstlisting}
 module storage
 entity Store {
   name    : String
   address : Address
 }
-\end{code}
+\end{lstlisting}
 
 \noindent 
 Following the annotated mobl grammar, there are two block constructs in this
@@ -265,9 +265,9 @@ reverse order used in the representation makes it easier to efficiently store
 and manipulate URIs in memory: every tail of such a list can share the same
 memory space.}:
 
-\begin{code}
+\begin{lstlisting}
 [Property(), "name", "Store", "storage"]
-\end{code}
+\end{lstlisting}
 
 
 \noindent 
@@ -277,9 +277,9 @@ do not have a name associated with them. Block statements in C-like languages
 are an example of this. These scopes are handled differently from named scopes. 
 We can add a block statement to our grammar by adding the following production:
 
-\begin{code}
+\begin{lstlisting}
 "{" Stm* "}" -> Stm {"Block", Scope(Var)}
-\end{code}
+\end{lstlisting}
 
 \noindent 
 The block statement does not define a definition name, but can still become part
@@ -291,7 +291,7 @@ syntax view. The analyzed syntax view shows the abstract syntax with all URIs as
 annotations. Consider the following example with both named and anonymous
 blocks:
 
-\begin{code}
+\begin{lstlisting}
 module banking
 
 entity BankAccount {
@@ -305,12 +305,12 @@ entity BankAccount {
     } 
   }
 }
-\end{code}
+\end{lstlisting}
 
 \noindent 
 The analyzed abstract syntax for this example is the following:
 
-\begin{code}
+\begin{lstlisting}
 Module(
   "banking"{[Module(),"banking"]},
   [ Entity(
@@ -341,7 +341,7 @@ Module(
     )
   ]
 ) 
-\end{code}
+\end{lstlisting}
 
 \noindent 
 The annotations indicate the URIs of each definition and reference.
@@ -387,14 +387,14 @@ Spoofax\footnote{The default strategy can be customized, but we first take a
 closer look at how name resolution works just based on the annotations in the
 grammar.}. Consider the \ic{address} property in the \ic{Store} entity:
 
-\begin{code}
+\begin{lstlisting}
 module storage
 
 entity Store {
   name    : String
   address : Address
 }
-\end{code}
+\end{lstlisting}
 
 \noindent 
 The \ic{address} property references something named \ic{Address}. According to
@@ -433,10 +433,10 @@ Rewrite rules in Spoofax are provided as part of the Stratego program
 transformation language. A basic rewrite rule that transforms a term pattern
 \ic{term1} to a term pattern \ic{term2} has the following form:
 
-\begin{code}
+\begin{lstlisting}
 rule-name:
   term1 -> term2
-\end{code}
+\end{lstlisting}
 
 \noindent 
 Term patterns have the same form as terms: any term is a legal term pattern.
@@ -445,10 +445,10 @@ on, they also support variables (e.g., \ic{v} or \ic{name}) and wildcards
 (indicated by \ic{\_}). As an example, the following rewrite rule rewrites an
 \ic{Entity} to the list of properties contained in that entity:
 
-\begin{code}
+\begin{lstlisting}
 get-properties-types:
   Entity(name, properties) -> properties
-\end{code}
+\end{lstlisting}
 
 \noindent 
 So, for an entity \ic{Entity("User", [Property("name", String)])}, it binds
@@ -459,10 +459,10 @@ they can be defined multiple times for different patterns\todo{This is
 comparable to polymorphic overloading.}. In the case of \ic{get-properties}, we
 could add another definition that works for property access expressions:
 
-\begin{code}
+\begin{lstlisting}
 get-properties:
   FieldAccess(expr, property) -> property
-\end{code} 
+\end{lstlisting} 
 
 \noindent 
 Rules can have complex patterns. For example, it is possible to write a rule
@@ -470,10 +470,10 @@ that succeeds only for entities with \emph{only} a \ic{name}
 property\footnote{Note how this rule uses a wildcard since it doesn't care about
 the name of the entity.}:
 
-\begin{code}
+\begin{lstlisting}
 is-name-only-entity:
   Entity(_, [Property("name", "String")]) -> True()
-\end{code}
+\end{lstlisting}
 
 
 \noindent 
@@ -488,12 +488,12 @@ used for assignments and calls to other rules. As an example, we can write the
 rule above using a \ic{with}. This rule assigns the value of \ic{get-properties}
 to a variable \ic{result} and returns that as the result value of the rule:
 
-\begin{code}
+\begin{lstlisting}
 invoke-get-properties:
   Entity(name, properties) -> result
   with
     result := <get-properties> Entity(name, properties)
-\end{code}
+\end{lstlisting}
 
 \noindent 
 Rules can also have conditions. These can be specified using
@@ -502,14 +502,14 @@ conditions do not succeed, a rule is said to \emph{fail}.}. These clauses
 typically use the operators listed in \Figure{Fig:stratego-operators}.
 An example of a rule with a \ic{where} clause is the following:
 
-\begin{code}
+\begin{lstlisting}
 has-properties:
   Entity(name, properties) -> True()
   with
     properties := <get-properties> Entity(name, properties);
   where
     not(!properties => [])  
-\end{code}
+\end{lstlisting}
 
 \noindent 
 This rule only succeeds for entities where the condition \ic{not(!properties =>
@@ -550,7 +550,7 @@ number of higher-order rules, i.e.\ rules that take other rules as their
 argument. These rules are used for common operations on abstract syntax trees:
 for example, \ic{map(r)} applies a rule \ic{r} to all elements of a list:
 
-\begin{code}
+\begin{lstlisting}
 get-property-types:
   Entity(_, properties) -> types
   with
@@ -558,7 +558,7 @@ get-property-types:
 
 get-property-type:
   Property(_, type) -> type
-\end{code}
+\end{lstlisting}
 
 \noindent 
 Rules like \ic{map} specify a \emph{traversal} on a certain term structure: they
@@ -579,7 +579,7 @@ so it can be invoked by Spoofax. It can be redefined to apply to specific
 langauage concepts.}. As an example, consider how a reference to a local
 property is resolved in mobl:
 
-\begin{code}
+\begin{lstlisting}
 entity BankAccount {
   function getNumber() : number {
     return number;
@@ -588,7 +588,7 @@ entity BankAccount {
   name   : String
   number : Num
 }
-\end{code}
+\end{lstlisting}
 
 \noindent 
 Here, the function \ic{getNumber} references the local \ic{number} property.
@@ -596,21 +596,21 @@ The production rule we previously specified for these kinds of references
 used an underscore to indicate that we would manually specify how to resolve
 it\footnote{Because properties and variables can be referenced.}:
 
-\begin{code}
+\begin{lstlisting}
 _@ID -> Exp {"Var"}
-\end{code}
+\end{lstlisting}
 
 \noindent 
 So, we need to specify a \ic{adjust-index-lookup} rule for the variables:
 
-\begin{code}
+\begin{lstlisting}
 adjust-index-lookup(target |namespace, path, name):
   Var(x) -> adjusted-uris
   where
     <target> x
   with 
     adjusted-uris := ...
-\end{code}
+\end{lstlisting}
 
 \noindent 
 Each \ic{adjust-index-lookup} rule has this exact signature: it gets a
@@ -628,7 +628,7 @@ Spoofax will then use these URIs to further resolve the element.
 A variable might refer either to a variable (namespace \ic{Var}) or a property (namespace \ic{Property}).
 Since we got the current \ic{path} of the variable as a parameter, we can construct two possible URIs, where the definition site can be found: \ic{Var://path} and \ic{Property://path}\footnote{Remember that URIs are represented as lists. We use the namespace as the head of the list and the path as the tail. The variable name is not part of these URIs.}:
 
-\begin{code}
+\begin{lstlisting}
 adjust-index-lookup(target |namespace, path, prefix):
   Var(x) -> adjusted-uris
   where
@@ -637,7 +637,7 @@ adjust-index-lookup(target |namespace, path, prefix):
     var-uri       := [Var() | path];
     property-uri  := [Property() | path];  
     adjusted-uris := [var-uri, property-uri]
-\end{code}
+\end{lstlisting}
 
 Note, that the URIs do not contain the variable name \ic{x}.
 This is, because the URIs specify containers telling Spoofax where to look for the variable.
@@ -648,21 +648,21 @@ Spoofax will first look only for variables, before it will look for properties.
 The example code we have seen so far is pretty verbose for explanation.
 A typical shorter way to adjust variable lookup, would look like this:
 
-\begin{code}
+\begin{lstlisting}
 adjust-index-lookup(target |namespace, path, prefix):
   Var(<target>) -> [[Var() | path], [Property() | path]]
- \end{code}
+ \end{lstlisting}
 
 Here, the \ic{target} is marked in the left-hand side of the rule. On the
 right-hand side, we construct the list of adjusted URIs right away.
 
-% \begin{code}
+% \begin{lstlisting}
 % "import" Module@ID -> Decl {"Import"}
-% \end{code}
+% \end{lstlisting}
 % 
 % \ic{Import("customers")}
 % 
-% \begin{code}
+% \begin{lstlisting}
 %   adjust-index-lookup(target |namespace, path, prefix): 
 %     Type(<target>) -> <concat> [primitives, [[Type() | path]], importPaths]
 %     with
@@ -671,7 +671,7 @@ right-hand side, we construct the list of adjusted URIs right away.
 %     
 %   import-to-path:
 %     Def([Import(), EntityImport(mod, ent)|_]) -> Def([Type(), ent, mod])
-% \end{code}
+% \end{lstlisting}
 
 
 
@@ -684,19 +684,19 @@ right-hand side, we construct the list of adjusted URIs right away.
 %When needed, the path elements that are created for a scope can be customized
 %using a rewrite rule:
 %
-%\begin{code}
+%\begin{lstlisting}
 %adjust-index-path(is-def | namespace, path, prefix):
 %  Entity(name, body) -> [Entity(), name]
-%\end{code}
+%\end{lstlisting}
 %
 %\MV{What is a rewrite rule? Why do you want to rewrite the scopes?}
 %%
 %
 %
-%\begin{code}
+%\begin{lstlisting}
 %adjust-index-path(target | namespace, path, prefix):
 %  Var(<target>) -> 
-%\end{code}
+%\end{lstlisting}
 
 
 
@@ -726,11 +726,11 @@ method takes the \ic{EReference} (which identifies the reference for which the
 scope that needs to be calculated) as well as the current
 instance of the language concept whose reference should be scoped.
 
-\begin{code} 
+\begin{lstlisting} 
 public interface IScopeProvider {
     IScope getScope(EObject context, EReference reference);
 }
-\end{code}
+\end{lstlisting}
 
 \noindent 
 To make the scoping implementation easier, Xtext provides so-called declarative
@@ -741,29 +741,29 @@ express this information via the name of the method (using a naming convention).
 Two different naming conventions are available:
 
 
-\begin{code}
+\begin{lstlisting}
 // <X>, <R>: we are trying to scope the <R> reference of the <X> concept 
 public IScope scope_<X>_<R>(<X> ctx, EReference ref );
 
 // <X>: the language concept we are looking for
 // <Y>: the concept from under which we try to look for the reference 
 public IScope scope_<X>(<Y> ctx, EReference ref);
-\end{code}
+\end{lstlisting}
 
  
 \noindent 
 Let's assume we want to scope the \ic{targetState} reference of the
 \ic{ChangeStateStatement}. Its definition in the grammar looks as follows:
 
-\begin{code}
+\begin{lstlisting}
 ChangeStateStatement:
     "state" targetState=[State];
-\end{code}
+\end{lstlisting}
 
 \noindent 
 We can use the following two alternative methods:
 
-\begin{code}
+\begin{lstlisting}
 public IScope scope_ChangeStateStatement_targetState
             (ChangeStateStatement ctx, EReference ref ) {
     ...            
@@ -772,7 +772,7 @@ public IScope scope_ChangeStateStatement_targetState
 public IScope scope_State(ChangeStateStatement ctx, EReference ref) {
     ...
 }
-\end{code}
+\end{lstlisting}
 
 
 \noindent 
@@ -794,11 +794,11 @@ the more general variants of the scoping function
 most general variants, unless you specifically want to scope one specific
 reference.}.
 
-\begin{code}
+\begin{lstlisting}
 public IScope scope_State(CoolingProgram ctx, EReference ref) {
     ...
 }
-\end{code}
+\end{lstlisting}
 
 
 \noindent 
@@ -810,13 +810,13 @@ then construct an \ic{IScope} that contains the \ic{State}s defined in that
 \ic{CoolingProgram}. Here is a possible implementation:
 
 
-\begin{code}
+\begin{lstlisting}
 public IScope scope_ChangeStateStatement_targetState
             (ChangeStateStatement ctx, EReference ref ) {
     CoolingProgram owningProgram = Utils.ancestor( ctx, CoolingProgram.class );
     return Scopes.scopeFor(owningProgram.getStates());
 }
-\end{code}
+\end{lstlisting}
 
 \noindent 
 The \ic{Scopes} class provides a couple of helper methods to create \ic{IScope}
@@ -839,7 +839,7 @@ a different approach is recommended. Here is an example of a program expressed i
 a language with nested blocks:
 
 
-\begin{code}
+\begin{lstlisting}
 var int x;		
 var int g;
  
@@ -855,7 +855,7 @@ function addAll( int es ... ) {
     }
     x = sum;                     // 3
 }
-\end{code}
+\end{lstlisting}
 
 
 \noindent 
@@ -890,7 +890,7 @@ different name, such as \ic{outer.x} if it is referenced from location \ic{1}.
 The following is pseudo-code that implements this behavior:
 
 
-\begin{code}
+\begin{lstlisting}
 // recursive method to build nested scopes
 private IScope collect( StatementList ctx ) { 
     IScope outer = null
@@ -912,7 +912,7 @@ private IScope collect( StatementList ctx ) {
 public IScope scope_Symbol( StatementList ctx ) {
     return collect( ctx )
 }	
-\end{code}
+\end{lstlisting}
 
 
 \subsection{Global Scopes} 
@@ -972,11 +972,11 @@ variables and hardware elements (compressors or fans defined in a different
 model). All of these referenceble elements extend the \ic{SymbolDeclaration}
 meta class. This means that all of them can be referenced by the single
 \ic{SymbolRef} construct.
-\begin{code} 
+\begin{lstlisting} 
 AtomicLevel returns Expression:
     ...
     ({SymbolRef} symbol=[SymbolDeclaration|QID]);
-\end{code}  
+\end{lstlisting}  
 
 \noindent 
 The problem with this situation is that the reference itself does not encode the
@@ -989,13 +989,13 @@ the different referencable elements. In this case, the reference itself is
 specific to the referenced element, making processing much easier\footnote{It
 would also make writing the scopes and extending the language simpler}:
 
-\begin{code} 
+\begin{lstlisting} 
 AtomicLevel returns Expression:
     ...
     ({VariableRef} var=[Variable]);
     ({ParameterRef} param=[Parameter]);
     ({HardwareBuildingBlockRef} hbb=[HardwareBuildingBlock]);
-\end{code}  
+\end{lstlisting}  
 
 \noindent 
 However, this is not possible with Xtext, since the parser cannot distinguish
@@ -1005,13 +1005,13 @@ kind of element is actually referenced, but this is too late for the parser,
 which needs an unambiguous grammar. The grammar could be disambiguated by using
 a different syntax for each element:
 
-\begin{code} 
+\begin{lstlisting} 
 AtomicLevel returns Expression:
     ...
     ({VariableRef} var=[Variable]);
     ({ParameterRef} "%" param=[Parameter]);
     ({HardwareBuildingBlockRef} "#" hbb=[HardwareBuildingBlock]);
-\end{code}  
+\end{lstlisting}  
 
 \noindent 
 While this approach will technically work, it would lead to an awkward syntax
@@ -1043,12 +1043,12 @@ corresponding reference concept is instantiated, and the selected target is set.
 \parhead{Simple Scopes} As an example, we begin with the scope definition for
 the target reference of the \ic{Transition} concept. To recap, it is defined as:
 
-\begin{code}
+\begin{lstlisting}
 concept Transition      
   // ...                                        
   references:                           
     State   target  1       
-\end{code}
+\end{lstlisting}
 
 \noindent 
 The scope itself is defined via the search scope constraint below. The system
@@ -1061,7 +1061,7 @@ the transition. To implement this, the expression in the body of this function
 crawls up the containment hierarchy until it finds a \ic{Statemachine} and then
 returns its \ic{states}\footnote{The code used to express scopes can be arbitrarily 
 complex and is implemented in MPS' BaseLanguge, an extended version of Java.}.
-\begin{code}
+\begin{lstlisting}
 link {target} 
   referent set handler:
     <none> 
@@ -1074,7 +1074,7 @@ link {target}
     <default> 
   presentation : 
     <no presentation> 
-;\end{code}
+;\end{lstlisting}
 
 \noindent 
 Note that for a smart reference, where the refernece object is created only
@@ -1106,7 +1106,7 @@ This approach is used in the mbeddr C language, for example for local variables,
 because those are affected by shadowing from blocks. Here is the code for the
 \ic{variable} reference of the \ic{LocalVariableReference} concept:
 
-\begin{code}
+\begin{lstlisting}
 link {variable} 
   search scope: 
     (model, scope, referenceNode, linkTarget, enclosingNode, operationContext)->join(ISearchScope | sequence<node<LocalVariableDeclaration>>) {
@@ -1130,7 +1130,7 @@ link {variable}
       // finally we create the scope and get the visible variables; 
       scopeProvider.getLocalVarScope(s, pos).getVisibleLocalVars(); 
     } 
-\end{code}
+\end{lstlisting}
 
 
 \parhead{Polymorphic References} We have explained above how references work in
@@ -1140,7 +1140,7 @@ location only one kind of reference for any given syntactic form can be
 implemented. Consider the following example, where we refer to a global variable
 \ic{a} and an event parameter (\ic{timestamp}) from within expressions:
 
-\begin{code}
+\begin{lstlisting}
 var int a;
 var int b;
 
@@ -1154,7 +1154,7 @@ statemachine linefollower {
     }
   }                                                                            
 }                                                                                   
-\end{code}
+\end{lstlisting}
 
 \noindent 
 Both references to local variables and to event parameters use the same
@@ -1183,7 +1183,7 @@ in a modular fashion, since the new reference expression comes with its own,
 independent scoping rule. The following is the respective code for the
 \ic{EventArgRef} expression:
 
-\begin{code}
+\begin{lstlisting}
 concept EventArgRef extends Expression // this is the Expression concept from C
 
 ...
@@ -1195,7 +1195,7 @@ link {arg}
       enclosingNode.ancestor<concept = Transition, +>.trigger.event.args; 
     } 
 ;
-\end{code} 
+\end{lstlisting} 
 
 \noindent 
 Entering the reference happens by typing the name of the referenced element (cf.

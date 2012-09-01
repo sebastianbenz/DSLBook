@@ -47,17 +47,17 @@ method name has to correspond to rule/property whose code completion menu you
 want to customize. In this example, we want to customize the \ic{symbol}
 property of the \ic{Atomic} expression:
 
-\begin{code}
+\begin{lstlisting}
 Atomic returns Expression:
     ...
     ({SymbolRef} symbol=[appliances::SymbolDeclaration|QID]);
-\end{code}
+\end{lstlisting}
 
 \noindent 
 The method takes various arguments, the first one, \ic{model}, represents the
 program element for which the \ic{symbol} property should be completed. 
 
-\begin{code}
+\begin{lstlisting}
 public class CoolingLanguageProposalProvider 
              extends AbstractCoolingLanguageProposalProvider {
     
@@ -68,7 +68,7 @@ public class CoolingLanguageProposalProvider
         ...
     }
 }
-\end{code}
+\end{lstlisting}
 
 \noindent 
 Let us now look at the actual implementation of the method. In line three we get
@@ -77,7 +77,7 @@ and change their appearance in the code completion menu. To be able to get the
 scope, we need the \ic{EReference} for the particular reference. The first two
 lines in this method are used to this end.
 
-\begin{code}
+\begin{lstlisting}
 CrossReference crossReference = ((CrossReference)assignment.getTerminal()); 
 EReference ref = GrammarUtil.getReference(crossReference);
 IScope scope = getScopeProvider().getScope(model, ref);
@@ -87,7 +87,7 @@ for (IEObjectDescription od: candidates) {
     String ccInsert = od.getName().toString();
     acceptor.accept(createCompletionProposal(ccInsert, ccText, null, context));
 }
-\end{code}
+\end{lstlisting}
 
 \noindent 
 Once we have the scope we can iterate over all its contents (i.e. the target
@@ -111,7 +111,7 @@ The contents of the code completion menu for references can be customized in MPS
 as well. It is instructive to take a look at this in addition to Xtext for two
 reasons. The first one is brevity. Consider the following code:
 
-\begin{code}
+\begin{lstlisting}
 link {function} 
   referent set handler:<none> 
   search scope: 
@@ -121,7 +121,7 @@ link {function}
                linkTarget, enclosingNode, operationContext)->string {
         parameterNode.signatureInfo(); 
   } 
-\end{code}
+\end{lstlisting}
 
 \noindent 
 To customize the contents of the code completion menu, one simply has to provide
@@ -183,13 +183,13 @@ can be selected from the code completion menu. For example, the code completion
 menu may contain an \ic{if-then-else} entry, which, if you select it, gets
 expanded into the following code in the program:
 
-\begin{code}
+\begin{lstlisting}
 if ( expr ) {
 
 } else {
 
 }
-\end{code}
+\end{lstlisting}
 
 \noindent 
 Xtext provides templates for this purpose. These can be defined either as part
@@ -298,7 +298,7 @@ to define the styles you want to apply to parts of the text. This is done in a
 the highlighting configuration of the particular language:
 
 
-\begin{code}
+\begin{lstlisting}
 public class CLHighlightingConfiguration extends DefaultHighlightingConfiguration {
     
     public static final String VAR = "var";
@@ -316,7 +316,7 @@ public class CLHighlightingConfiguration extends DefaultHighlightingConfiguratio
         return t;
     }
 }
-\end{code}
+\end{lstlisting}
 
 \noindent 
 The \ic{varTextStyle} method creates a \ic{TextStyle} object. The method
@@ -343,7 +343,7 @@ method \ic{provideHighlightingFor} to be implemented. To highlight references to
 variables (not the variables themselves!) with the style defined above works the
 following way:
 
-\begin{code}
+\begin{lstlisting}
 public void provideHighlightingFor(XtextResource resource, 
                                    IHighlightedPositionAcceptor acceptor) {
     EObject root = resource.getContents().get(0);
@@ -361,7 +361,7 @@ public void provideHighlightingFor(XtextResource resource,
         }
     }
 }
-\end{code}
+\end{lstlisting}
 
 \noindent 
 The method gets passed in an \ic{XtextResource}, which represents a model file.
@@ -398,7 +398,7 @@ For the lexical level, Spoofax predefines the token classes \ic{keyword},
 values) and optionally a font style (\ic{bold}, \ic{italic}, or both). Spoofax
 generates the following default specification:
 
-\begin{code}
+\begin{lstlisting}
 module MoblLang-Colorer.generated
 
 colorer Default, token-based highlighting
@@ -419,7 +419,7 @@ colorer System colors
   blue      = 0 0 255       
   ...
   default   = _             
-\end{code}
+\end{lstlisting}
 
 \noindent 
 The generated specification can be customized on the lexical level, but also
@@ -427,7 +427,7 @@ extended on the syntactic level. These extensions are based on syntactic sorts
 and constructor names. For example, the following specification will color the
 \ic{int} type in declarations with a dark green:
 
-\begin{code}
+\begin{lstlisting}
 module DSLbook-Colorer
 
 imports DSLbook-Colorer.generated
@@ -435,7 +435,7 @@ imports DSLbook-Colorer.generated
 colorer
                         
   Type.IntType: darkgreen          
-\end{code}
+\end{lstlisting}
 
 \noindent 
 Here, \ic{Type} is a sort from the syntax definition, while \ic{IntType} is the
@@ -489,7 +489,7 @@ implemented. Typically, language developers will inerit from one of the existing
 base classes, such as the \ic{TypeAwareHyperlinkHelper}. A typical
 implementation looks as follows:
 
-\begin{code}
+\begin{lstlisting}
 public void createHyperlinksTo(XtextResource from, Region region, 
                                EObject to, IHyperlinkAcceptor acceptor) {
     if ( to instanceof TheEConceptIAmInterestedIn ) {
@@ -499,7 +499,7 @@ public void createHyperlinksTo(XtextResource from, Region region,
         super.createHyperlinksTo(from, region, to, acceptor);
     }
 }
-\end{code}
+\end{lstlisting}
 
 
 \parhead{Customized Finders im MPS} In many cases, there are different kinds of
@@ -527,7 +527,7 @@ components requiring the interface.
 Implementing finders is simple, since, as usual, MPS provides a DSL for
 specifying them. The following code shows the implementation.
 
-\begin{code}
+\begin{lstlisting}
 simple finder findProviders for concept Interface
   description: Providers 
  
@@ -543,7 +543,7 @@ simple finder findProviders for concept Interface
   getCategory(node)->string { 
     "Providers"; 
   }  
-\end{code}
+\end{lstlisting}
 
 \begin{marginfigure}[29mm]
 \begin{center}
@@ -575,11 +575,11 @@ to be specified in the editor specification, preferably in
 tells Spoofax to use a custom rewrite rule to hyperlink \ic{this} expressions to
 the surrounding class:
 
-\begin{code}
+\begin{lstlisting}
 references
                 
   reference Exp.This : resolve-this
-\end{code}
+\end{lstlisting}
 
 \noindent 
 On the left-hand side of the colon, the \ic{reference} rule specifies a
@@ -588,13 +588,13 @@ customized\footnote{As in colorer specifications, we can use \ic{\_} as a
 wildcard for syntactic sorts and constructors.}. On the right-hand side of the
 colon, the rule names a rewrite rule which implements the hyperlinking:
 
-\begin{code}
+\begin{lstlisting}
 resolve-this:
     (link, position, ast, path, project-path) -> target
     where
       Entity(t) := <type-of> link ;
       target    := <index-lookup> t
-\end{code} 
+\end{lstlisting} 
 
 \noindent 
 This rule determines the type of a \emph{this} expression and links it to the
@@ -638,7 +638,7 @@ syntax definition of a language. For example, Spoofax generates the following
 pretty-printer definition from the Mobl syntax definition, expressed in the Box
 language: 
 
-\begin{code}
+\begin{lstlisting}
  @PhdThesis{deJonge:2003:TROTBR,
   author =       "Jonge, Merijn de",
   title =        "To Reuse or To Be Reused: Techniques for Component Composition and Construction",
@@ -648,9 +648,9 @@ language:
   month =        jan
 }
 chapter 4
-\end{code}
+\end{lstlisting}
 
-\begin{code}
+\begin{lstlisting}
 [
    Module                   -- KW["module"] _1 _2,
    Module.2:iter-star       -- _1,
@@ -676,7 +676,7 @@ chapter 4
    Var                      -- _1,
    Int                      -- _1
 ]
-\end{code}
+\end{lstlisting}
 
 \noindent 
 In this language, rules consist of constructors (.i.e. AS elements or language
@@ -727,9 +727,9 @@ pretty-printed. It then applies the default rules to pretty-print the remaining
 parts. For example, we could define our own pretty-printing rule for Mobl
 modules:
 
-\begin{code}
+\begin{lstlisting}
    Module                   -- V vs=1 is=4 [ H [KW["module"] _1] _2]
-\end{code}
+\end{lstlisting}
 
 \noindent 
 The \ic{H} box operator layouts sub-boxes horizontally. The desired horizontal
@@ -750,25 +750,25 @@ explicitly. This is done in a language's \ic{Formatter}. Formatters use a Java
 API to specify whitespace policies for a grammar. Let us consider an example
 from the cooling language. Assume we enter the following code:
 
-\begin{code}
+\begin{lstlisting}
     state Hello   : entry { if true { } }
-\end{code}
+\end{lstlisting}
 
 \noindent 
 If we run the formatter (e.g. by pressing \keystroke{Ctrl-Shift-F} in the IDE),
 we want it to format it to look like this:
 
-\begin{code}
+\begin{lstlisting}
     state Hello: 
         entry { 
             if true { } 
         }
-\end{code}
+\end{lstlisting}
 
 \noindent 
 The following formatter code implements this. 
 
-\begin{code}
+\begin{lstlisting}
 protected void configureFormatting(FormattingConfig c) {
     CoolingLanguageGrammarAccess f = (CoolingLanguageGrammarAccess) getGrammarAccess();
 
@@ -782,7 +782,7 @@ protected void configureFormatting(FormattingConfig c) {
     c.setLinewrap().before(f.getCustomStateAccess().getRightCurlyBracketKeyword_5_3());
     c.setIndentationDecrement().before(f.getCustomStateAccess().getRightCurlyBracketKeyword_5_3());
 }
-\end{code}
+\end{lstlisting}
 
 \noindent 
 In the first line we get the \ic{CoolingLanguageGrammarAccess} object, an API to
@@ -823,7 +823,7 @@ modification and subsequent serizalization. As an example, consider the
 following constraint defined in the cooling language's
 \ic{CoolingLanguageJavaValidator}:
 
-\begin{code}
+\begin{lstlisting}
 public static final String VARIABLE_LOWER_CASE = "VARIABLE_LOWER_CASE"; 
 
 @Check
@@ -833,7 +833,7 @@ public void checkVariable( Variable v ) {
                 al.getSymbolDeclaration_Name(), VARIABLE_LOWER_CASE ); 
     }
 }
-\end{code}
+\end{lstlisting}
 
 \noindent 
 Based on our discussion of constraint checks (in \todo{ref}), this code should
@@ -845,7 +845,7 @@ resides in the UI part of the language, since, in contrast to the constraint
 check, it is relevant only in the editor.}. Notice how in the \ic{@Fix}
 annotation we refer to the same constant that was used in the constraint check.
 
-\begin{code}
+\begin{lstlisting}
 @Fix(CoolingLanguageJavaValidator.VARIABLE_LOWER_CASE)
 public void capitalizeName(final Issue issue, IssueResolutionAcceptor acceptor) {
     acceptor.accept(issue, "Deapitalize name", "Decapitalize the name.", "upcase.png", new IModification() {
@@ -856,7 +856,7 @@ public void capitalizeName(final Issue issue, IssueResolutionAcceptor acceptor) 
         }
     });
 }
-\end{code}
+\end{lstlisting}
 
 \noindent 
 Quick fix methods accept the \ic{Issue} that caused the problem as well as an
@@ -876,7 +876,7 @@ locations on the concrete syntax would be cumbersome and brittle}. For these
 cases, one can use an instance of \ic{ISemanticModification} instead:
 
 
-\begin{code}
+\begin{lstlisting}
     @Fix(CoolingLanguageJavaValidator.VARIABLE_LOWER_CASE)
     public void fixName(final Issue issue, IssueResolutionAcceptor acceptor) {
         acceptor.accept(issue, "Decapitalize name", "Decapitalize the name", "upcase.png", 
@@ -886,7 +886,7 @@ cases, one can use an instance of \ic{ISemanticModification} instead:
                 }
             });
     }
-\end{code}
+\end{lstlisting}
 
 \noindent 
 A quick fix using an \ic{ISemanticModification} basically works the same way;
@@ -903,7 +903,7 @@ the concrete syntax is projected in any case. Here is a constraint that checks
 that the name of an element that implements \ic{INameAllUpperCase} actually
 consists of only upper case letter:
 
-\begin{code}
+\begin{lstlisting}
 checking rule check_INameAllUpperCase {                                                                          
   applicable for concept = INameAllUpperCase as a                                                            
                                                                                                                  
@@ -913,7 +913,7 @@ checking rule check_INameAllUpperCase {
     }
   }                                                                                                              
 }                                                                                                                
-\end{code}
+\end{lstlisting}
 
 \noindent 
 The quick fix below upper cases the name if necessary. The quick fix is
@@ -924,7 +924,7 @@ fact that the language and the workbench/editor are inseparable in the first
 place}. Quick fixes are executed by selecting them from the intentions menu
 (\ic{Alt-Enter}).
 
-\begin{code}
+\begin{lstlisting}
 quick fix fixAllUpperCase                                                                                                                                                                                                                                                                                                                                                                                           
                                                                                                                                                                                                                                                                                                                                                                                                                 
 arguments:                                                                                                                                                                                                                                                                                                                                                                                                      
@@ -935,7 +935,7 @@ description(node)->string { "Fix name"; }
 execute(node)->void { 
     node.name = node.name.toUpperCase(); 
 }
-\end{code}
+\end{lstlisting}
 
 
 \parhead{Model Synchronization via Quick Fixes} A particularly interesting
@@ -990,14 +990,14 @@ specified in the editor specification (preferably in
 For example, the following specification specifies a refactoring for renaming
 entities:
 
-\begin{code}
+\begin{lstlisting}
 refactorings
 
   refactoring Decl.Entity : "Rename Entity" = rename-entity (cursor)
     shortcut : "org.eclipse.jdt.ui.edit.text.java.rename.element"
     input
       identifier : "new name" = ""
-\end{code}
+\end{lstlisting}
 
 \noindent 
 The specification starts with a syntactic sort and a constructor, on which the
@@ -1011,7 +1011,7 @@ renaming. Finally, it defines an interactive \ic{input} dialog, with a label
 \ic{"new name"} and an empty default input. The refactoring itself is
 implemented in a rewrite rule:
 
-\begin{code}
+\begin{lstlisting}
 rename-entity:
     (newname, Entity(name, elems), position, ast, path, project-path) -> ([(ast, new-ast)], errors, [], [])
     with
@@ -1028,7 +1028,7 @@ rename-entity:
 
   rename-entity-local(|old-name, new-name):
     EntType(old-name) -> EntType(new-name)
-\end{code}\ignore{$}
+\end{lstlisting}\ignore{$}
 
 \noindent 
 As we have seen already for other editor services, rewrite rules for
@@ -1061,7 +1061,7 @@ it up. If we find an entity, the renamed entity would clash with this one.
 procedural language such as C is to introduce a new local variable. Consider
 the following code:
 
-\begin{code}
+\begin{lstlisting}
 int8_t someFunction(int8_t v) { 
   int8_t y = somethingElse(v * FACTOR); 
   if ( v * FACTOR > 20 ) { 
@@ -1070,13 +1070,13 @@ int8_t someFunction(int8_t v) {
     return 0; 
   }  
 } 
-\end{code}
+\end{lstlisting}
 
 \noindent 
 As you can see, the first two lines contain the same expression (\ic{v *
 FACTOR}) twice. A nicer version of this code could look like this:
 
-\begin{code}
+\begin{lstlisting}
 int8_t someFunction(int8_t v) { 
   int8_t product = v * FACTOR;
   int8_t y = somethingElse(product); 
@@ -1086,7 +1086,7 @@ int8_t someFunction(int8_t v) {
     return 0; 
   }  
 } 
-\end{code}
+\end{lstlisting}
 
 \noindent 
 The \emph{Introduce Local Variable} refactoring performs just this change. MPS
@@ -1095,7 +1095,7 @@ ca. 20 lines of code. We'll go through it in steps. We start with the
 declaration of the refactoring itself.
 
 
-\begin{code}
+\begin{lstlisting}
 refactoring introduceLocalVariable ( "Introduce Local Variable" ) 
 keystroke: <ctrl+alt>+<V>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
 target: node<Expression>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
@@ -1103,7 +1103,7 @@ target: node<Expression>
         isApplicableToNode(node)->boolean { 
             node.ancestor<concept = Statement>.isNotNull; 
         }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
-\end{code}
+\end{lstlisting}
                        
 \noindent 
 The code above specifies the name of the refactoring
@@ -1116,7 +1116,7 @@ as the \ic{init} expression for a global constant). We find out about that by
 checking whether the \ic{Expression} has a \ic{Statement} among its ancestors in
 the tree. Next, we define a parameter for the refactoring:
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
-\begin{code}
+\begin{lstlisting}
 parameters:                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
   varName chooser: type: string                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
                    title: Name of the new Variable                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
@@ -1124,7 +1124,7 @@ parameters:
 init(refactoringContext)->boolean { 
   return ask for varName; 
 }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
-\end{code}
+\end{lstlisting}
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
 \noindent 
 The parameter represents the name of the newly introduced variable. In the
@@ -1142,11 +1142,11 @@ the selected nodes.}. We then grab the \ic{Statement} under which this
 expression is located. Finally, we get the \ic{index} of the \ic{Statement} 
 (\ic{.index} returns the index of an element in its owning collection).
            
-\begin{code}
+\begin{lstlisting}
 node<Expression> targetExpr = refactoringContext.node;
 node<Statement> targetStmt = targetExpr.ancestor<concept = Statement>;
 int index = targetStmt.index;
-\end{code}
+\end{lstlisting}
      
 \noindent 
 Next, we iterate over all \ic{siblings} of the statement in which the expression
@@ -1155,7 +1155,7 @@ to the one we're executing the refactoring on (using
 \ic{MatchingUtil.matchNodes}). We remember a matching expression if it occurs in
 a statement that us \emph{after} the one that contains our target expression.
      
-\begin{code}
+\begin{lstlisting}
 nlist<Expression> matchingExpressions = new nlist<Expression>; 
 sequence<node<>> siblings = targetStmt.siblings.union(new singleton<node<Statement>>(stmt)); 
 foreach s in siblings { 
@@ -1167,7 +1167,7 @@ foreach s in siblings {
     } 
   } 
 } 
-\end{code}     
+\end{lstlisting}     
      
 \noindent 
 The next step is to actually introduce the new local variable. We simply create
@@ -1179,13 +1179,13 @@ this new variable to the list of statements, just \ic{before} the on which
 contains our target expression. We use the very handy \ic{add prev-sibling}
 built-in function for that.
      
-\begin{code}
+\begin{lstlisting}
 node<LocalVariableDeclaration> lvd = new node<LocalVariableDeclaration>(); 
 lvd.name = varName; 
 lvd.type = targetExpr.type.copy; 
 lvd.init = targetExpr.copy; 
 targetStmt.add prev-sibling(lvd); 
-\end{code}     
+\end{lstlisting}     
 
 \noindent 
 There is one more step we have to do. We have to replace all the occurences of
@@ -1196,13 +1196,13 @@ this collection\sidenote{Note how the actual replacement is done with the
 to manually find out in which property or collection the expression lives in
 order to replace it.}:
      
-\begin{code}
+\begin{lstlisting}
 foreach e in matchingExpressions { 
   node<LocalVarRef> ref = new node<LocalVarRef>(); 
   ref.var = lvd; 
   e.replace with(ref); 
 } 
-\end{code}     
+\end{lstlisting}     
 
 \noindent 
 All in all, building refactorings is straight forward with MPS' refactoring
@@ -1222,7 +1222,7 @@ the language's \ic{LabelProvider}. To define the label text, you simply override
 the \ic{text} method for your element. For the icon, override the \ic{image}
 method. Here are a couple of examples from the cooling langauage:
 
-\begin{code}
+\begin{lstlisting}
 public class CoolingLanguageLabelProvider extends DefaultEObjectLabelProvider {
 
     String text(CoolingProgram prg) {
@@ -1241,7 +1241,7 @@ public class CoolingLanguageLabelProvider extends DefaultEObjectLabelProvider {
         return "variable.png";
     }
 }
-\end{code}
+\end{lstlisting}
 
 \noindent 
 Notice how the label and the image are defined via methods, you can can change
@@ -1288,7 +1288,7 @@ programs to look the one shown in \fig{outlineXtext}.
 The tree view organizes the contents of a file by first showing all programs and
 then all tests. To do this, we provide a suitable \ic{\_createChildren}:
 
-\begin{code}
+\begin{lstlisting}
 protected void _createChildren(DocumentRootNode parentNode, Model m) {
     for (EObject prg : m.getCoolingPrograms()) {
         createNode(parentNode, prg);
@@ -1297,7 +1297,7 @@ protected void _createChildren(DocumentRootNode parentNode, Model m) {
         createNode(parentNode, t);
     }
 }
-\end{code}
+\end{lstlisting}
 
 \noindent 
 Inside the method, we first grab all the \ic{CoolingProgram}s from the root
@@ -1311,7 +1311,7 @@ Inside a program, we want to show variabes and states in separate sections, i.e.
 under separate intermediate nodes (see \fig{outlineXtext}). Here is how this
 works:
 
-\begin{code}
+\begin{lstlisting}
 protected void _createChildren(IOutlineNode parentNode, CoolingProgram p) {
     TextOnlyOutlineNode vNode = new TextOnlyOutlineNode(parentNode, 
                                     imageHelper.getImage("variable.png"),
@@ -1325,7 +1325,7 @@ protected void _createChildren(IOutlineNode parentNode, CoolingProgram p) {
         createNode(sNode, s);
     }
 }
-\end{code}
+\end{lstlisting}
 
 \noindent 
 We introduce intermediate nodes that do not represent a program element; they
@@ -1333,14 +1333,14 @@ are used purely for structuring the tree. The \ic{TextOnlyOutlineNode} is a
 class we created; it simply extends the class \ic{AbstractOutlineNode} provided
 by Xtext.
 
-\begin{code}
+\begin{lstlisting}
 public class TextOnlyOutlineNode extends AbstractOutlineNode {
 
     protected TextOnlyOutlineNode(IOutlineNode parent, Image image, Object text) { 
         super(parent, image, text, false); 
     }
 }
-\end{code}
+\end{lstlisting}
 
 \noindent 
 Xtext provides alphabetical sorting for outlines by default. There is also
@@ -1354,7 +1354,7 @@ appear in the outline, are selected based on their syntactic sort and
 constructor names. For example, the following outline specification will include
 all entity declarations:
 
-\begin{code}
+\begin{lstlisting}
 module MoblLang-Outliner
 
 imports MoblLang-Outliner.generated
@@ -1362,7 +1362,7 @@ imports MoblLang-Outliner.generated
 outliner Entity Outliner
 
   Decl.Entity
-\end{code}
+\end{lstlisting}
 
 \noindent 
 Like in the specification of other editor services, we can use \ic{\_} as a
@@ -1407,7 +1407,7 @@ behavior, you have to implement your own subclass of
 way. For example, to \emph{not} provide folding for \ic{CustomState}s, you could
 do the following:
 
-\begin{code}
+\begin{lstlisting}
 public class CLFoldingRegionProvider extends DefaultFoldingRegionProvider {
 
     @Override
@@ -1418,14 +1418,14 @@ public class CLFoldingRegionProvider extends DefaultFoldingRegionProvider {
         return super.isHandled(eObject);
     }
 }
-\end{code}
+\end{lstlisting}
 
 \parhead{Folding in Spoofax} Spoofax allows to specify folding declaratively in
 the editor specification, preferably in \ic{<LanguageName>-Folding.esv}.
 Very similar to the specification of outlines, folding is specified in terms of
 syntactic sort and constructor names:
 
-\begin{code}
+\begin{lstlisting}
 module Mobl-Folding
 
 folding Entity folding
@@ -1433,7 +1433,7 @@ folding Entity folding
   Module._
   Decl.Entity
   _.Function
-\end{code}
+\end{lstlisting}
 
 \noindent 
 Like for outlines, Spoofax analyses the syntax definition and tries to come up
@@ -1545,9 +1545,9 @@ framework provided by JFace can be used.
 rewrite rules, which need to be defined as hovers in the editor specification,
 preferable in \ic{<LanguageName-References.esv>}:
 
-\begin{code}
+\begin{lstlisting}
 hover _: editor-hover 
-\end{code}    
+\end{lstlisting}    
 
 \noindent 
 This line tells Spoofax to use a rewrite rule \ic{editor-hover} to retrieve
@@ -1561,10 +1561,10 @@ left-hand side and need to yield strings on their right-hand sides.
 The strings are then used as tooltips. For example, the following rewrite rule
 will provide type information for any typable node:
 
-\begin{code}
+\begin{lstlisting}
 editor-hover:
     (target, position, ast, path, project-path) -> <type-of; pp-MoblLang-string> target
-\end{code}   
+\end{lstlisting}   
 
 \parhead{MPS} MPS does not support tooltips at this time, however, there is an
 acceptable workaround: the additional information for a program element can be

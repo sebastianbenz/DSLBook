@@ -53,7 +53,7 @@ efficient, it is useful if the language has the following characteristics:
 
 Here is an example constraint written in a pseudo-language:
 
-\begin{code}
+\begin{lstlisting}
 constraint for: 
   Class
 expression: 
@@ -62,7 +62,7 @@ expression:
 message: 
   "class "+this.name+" uses complex numbers, so the ComplexNumberSupportLib must
   be imported"
-\end{code}
+\end{lstlisting}
 
 \noindent 
 Some kinds of constraints require specialized data structures to be built or
@@ -94,7 +94,7 @@ that each such state can actually be reached by verifying that it has incoming
 transitions (expressed via a \ic{ChangeStateStatement}):
 	
 
-\begin{code}
+\begin{lstlisting}
 @Check(CheckType.NORMAL)
 public void checkOrphanEndState( CustomState ctx ) {
     CoolingProgram coopro = Utils.ancestor(ctx, CoolingProgram.class);
@@ -109,7 +109,7 @@ public void checkOrphanEndState( CustomState ctx ) {
     error("no transition ever leads into this state", 
     	CoolingLanguagePackage.eINSTANCE.getState_Name());
 }
-\end{code}
+\end{lstlisting}
 
 
 \noindent 
@@ -139,7 +139,7 @@ version of Java that has some of the features that makes constraints more
 concise. Here is the code for the same \emph{state unreachable} constraint,
 which we can make use of in the state machines extension to C:
 
-\begin{code}
+\begin{lstlisting}
 checking rule stateUnreachable {                                                                                                                                                                         
   applicable for concept = State as state                                                                                                                                                                       
   do {                                                                                                                                                                                                          
@@ -151,7 +151,7 @@ checking rule stateUnreachable {
     }
   }                                                                                                                                                                                                             
 }                                                                                                                                                                                                               
-\end{code}
+\end{lstlisting}
 
 \noindent 
 Currently there is no way to control when a constraint is run, it is decided
@@ -186,7 +186,7 @@ debugging tool when building your own data flow graphs and analyses.}.
 data flow builders (DFBs) for your language concepts. These are programs
 expressed in MPS' data flow DSL that build the data flow graph for instances of
 those concepts in programs. Here is the DFB for \lcr{LocalVariableDeclaration}.
-\begin{code}
+\begin{lstlisting}
 data flow builder for LocalVariableDeclaration { 
   (node)->void { 
     if (node.init != null) { 
@@ -197,7 +197,7 @@ data flow builder for LocalVariableDeclaration {
     }
   } 
 }
-\end{code}
+\end{lstlisting}
 
 \noindent 
 If the \lcr{LocalVariableDecaration} has an \ic{init} expression (it is
@@ -222,14 +222,14 @@ In an \lcr{AssignmentStatement}, we first execute the DFB for the \lcr{rvalue}
 and then "flow" the \lcr{rvalue} into the \lcr{lvalue} --- the purpose of an 
 assignment:
 
-\begin{code}
+\begin{lstlisting}
 data flow builder for AssigmentStatement { 
   (node)->void { 
     code for node.rvalue 
     write node.lvalue = node.rvalue 
   } 
 }
-\end{code}
+\end{lstlisting}
 
 \noindent 
 For a \lcr{StatementList}, we simply mark the list as visited and then execute
@@ -255,13 +255,13 @@ interesting: depending on whether the condition is \ic{true} or \ic{false}, we e
 the \lcr{thenPart} or we jump to where the \lcr{else if} parts begin. Here is
 the code so far:
 
-\begin{code}
+\begin{lstlisting}
 nop 
 code for node.condition 
 ifjump after elseIfBlock // elseIfBlock is a label defined later 
 code for node.thenPart 
 { jump after node } 
-\end{code}
+\end{lstlisting}
 
 \noindent 
 The \lcr{ifjump} statement means that we may jump to the specified label (i.e.
@@ -285,7 +285,7 @@ jump \emph{after the whole \lcr{IfStatement}}. This is specified in the DFB for
 the \lcr{ElseIfPart}, which we'll illustrate below. Here is the rest of the code
 for the \lcr{IfStatement}'s DFB:
 
-\begin{code}
+\begin{lstlisting}
 label elseIfBlock 
 foreach elseIf in node.elseIfs { 
   code for elseIf 
@@ -293,7 +293,7 @@ foreach elseIf in node.elseIfs {
 if (node.elsePart != null) { 
   code for node.elsePart 
 }
-\end{code}
+\end{lstlisting}
 
 \noindent 
 We can now inspect the DFB for the \lcr{ElseIfPart}. We first run the DFB for
@@ -307,12 +307,12 @@ contains a \ic{return} statement. So we have to use the curly braces again for t
 jump to after the whole \lcr{if}. The code is below, and an example data flow
 graph is shown on figure \fig{ifdfg}.
 
-\begin{code}
+\begin{lstlisting}
 code for node.condition 
 ifjump after node 
 code for node.body 
 { jump after node.ancestor<concept = IfStatement> } 
-\end{code}
+\end{lstlisting}
 
 
 
@@ -329,7 +329,7 @@ else { j = 2; } }}
 \noindent 
 The DFB for a loop make s use of the fact that loops can be represented using
 conditional branching. Here is the DFB for the \lcr{for} loop:
-\begin{code}
+\begin{lstlisting}
 code for node.iterator 
 label start 
 code for node.condition 
@@ -337,7 +337,7 @@ ifjump after node
 code for node.body 
 code for node.incr 
 jump after start
-\end{code}
+\end{lstlisting}
 
 \noindent 
 We first execute the DFB for the \lcr{iterator} (which is a subconcept of
@@ -356,7 +356,7 @@ analyses can be used for any language, once the DFBs for that language map
 programs to data flow graphs. The following utility class uses the unreachable
 code analysis: 
 
-\begin{code}
+\begin{lstlisting}
 public class DataflowUtil { 
 
   private Program prog; 
@@ -385,7 +385,7 @@ public class DataflowUtil {
     } 
   } 
 } 
-\end{code}
+\end{lstlisting}
 
 \noindent 
 The class constructs a \lcr{Program} object in the constructor. \lcr{Program}s
@@ -396,7 +396,7 @@ nodes from the graph (see comments in the code above) and reports errors for
 them. To actually run the check, we call this method from a
 \lcr{NonTypesystemRule} for C functions:
 
-\begin{code}
+\begin{lstlisting}
 checking rule check_DataFlow {                            
   applicable for concept = Function as fct                
   overrides false                                         
@@ -404,7 +404,7 @@ checking rule check_DataFlow {
     new DataflowUtil(fct.body).checkForUnreachableNodes();
   }                                                       
 }                                                         
-\end{code}
+\end{lstlisting}
 
 
 
@@ -427,12 +427,12 @@ note, these rules have to be overwritten for the relevant term patterns. The
 following example is created by default by the Spoofax project wizard. It simply 
 reports a note for any module named \ic{example}:
 
-\begin{code}
+\begin{lstlisting}
 constraint-note:
   Module(name, _) -> (name, "This is just an example program.")
   where
     !name => "example"
-\end{code}
+\end{lstlisting}
 
 \noindent The condition checks if the module \ic{name} matches the string
 \ic{"example"}\footnote{Remember, \ic{!x => y} matches a term \ic{x} against a
@@ -446,12 +446,12 @@ strings have the form \ic{\$[...]} where variables can be escaped using
 A standard library rule \ic{string-starts-with-capitals} is used\footnote{These
 and other library rules are documented on the Spoofax website athttp://www.spoofax.org/.}.
 
-\begin{code}  
+\begin{lstlisting}  
   constraint-warning:
     Entity(theName, _) -> (theName, $[Entity [theName] does not have a capitalized name])
     where
       not(<string-starts-with-capital> theName)
-\end{code}
+\end{lstlisting}
 \ignore{$}
 
 
@@ -469,9 +469,9 @@ is using the URI annotations on the abstract syntax. These are placed on each
 reference and definition. For example, a valid reference to a mobl variable 
 \ic{v} is represented in abstract syntax with an annotated term such as
 
-\begin{code}
+\begin{lstlisting}
 Var("v"{[Var(),"v","function","module"]})
-\end{code}
+\end{lstlisting}
 
 Without an annotation, the term reads \ic{Var("v")}. The annotation is added
 directly to the name, surrounded with curly braces. The annotation itself is a
@@ -482,20 +482,20 @@ namespace, the name, and the path in reverse order.
 Unresolved references are represented by terms such as the following. Notice the
 \ic{Unresolved} term, surrounding the namespace:
 
-\begin{code}
+\begin{lstlisting}
 Var("u"{[Unresolved(Var()),"u","function","module"]})
-\end{code}
+\end{lstlisting}
 
 \noindent 
 In most languages, references that cannot be statically resolved indicate an 
 error. The following constraint rule reports an error for these cases: 
 
-\begin{code}
+\begin{lstlisting}
   constraint-error:
     x -> (x, $[Unable to resolve reference.])
     where
       !x => _{[Unresolved(t) | _]}
-\end{code}\ignore{$}
+\end{lstlisting}\ignore{$}
 
 
 \noindent 
@@ -535,7 +535,7 @@ definitions are not allowed for functions or entities, but they are allowed for
 variables, just as in JavaScript. The following constraint rules checks for
 duplicates definitions:
 
-\begin{code}
+\begin{lstlisting}
 constraint-error:
   name -> (name, $[Duplicate definition])
   where
@@ -546,7 +546,7 @@ constraint-error:
     
 is-duplicates-allowed:
   Var() -> True()
-\end{code}\ignore{$}
+\end{lstlisting}\ignore{$}
 
 
 Again, this rule is created automatically in a new Spoofax project, but it
@@ -569,10 +569,10 @@ duplicates, and should normally not be changed by users. Instead, like before,
 the rule uses a helper rule that can be customized to determine which namespaces
 require definition before use:
 
-\begin{code}
+\begin{lstlisting}
 is-ordered-namespace:
   Var() -> True()
-\end{code}
+\end{lstlisting}
 
 \noindent 
 More sophisticated constraints and error messages can be specified using a type
@@ -617,10 +617,10 @@ used at the beginning of the section on syntax. As a reminder here is the
 example code, and \fig{astexample-again} shows the abstract syntax tree. 
 
 
-\begin{code}
+\begin{lstlisting}
 var x: int;
 calc y: int = 1 + 2 * sqrt(x)
-\end{code}
+\end{lstlisting}
  
 
 \begin{figure}[ht]
@@ -713,12 +713,12 @@ applied within its own definition.
 The standard example is the calculation of factorial, where the \ic{factorial}
 function calls itself:
 
-\begin{code}
+\begin{lstlisting}
 int factorial( int n ) {
     if ( n <= 1 ) return 1;
     else return n * factorial( n-1 );
 }
-\end{code}
+\end{lstlisting}
  
 
 \noindent 
@@ -729,21 +729,21 @@ polymorphic overloads} to calculate the types of those elements on which its own
 type depends. Let us consider the following example grammar (we use Xtext
 notation here):
 
-\begin{code}
+\begin{lstlisting}
 LocalVarDecl:
     "var" name=ID ":" type=Type ("=" init=Expr)?;
-\end{code}
+\end{lstlisting}
  
 
 \noindent 
 The following examples are structurally valid example sentences:
  
-\begin{code}
+\begin{lstlisting}
 var i: int          // 1
 var i: int = 42     // 2
 var i: int = 33.33  // 3
 var i = 42          // 4
-\end{code}
+\end{lstlisting}
  
 
 \noindent 
@@ -751,14 +751,14 @@ Let's develop the pseudo-code for \ic{typeof} function the \ic{LocalVarDecl}.
 A first attempt could look as follows:
 
  
-\begin{code}
+\begin{lstlisting}
 typeof( LocalVarDecl lvd ) {
     return typeof( lvd.type )
 }
 
 typeof( IntType it ) { return it }
 typeof( DoubleType dt ) { return dt }
-\end{code}
+\end{lstlisting}
  
 
 \noindent 
@@ -770,14 +770,14 @@ makes sure that, if an \ic{init} expression is specified, it has the same type
 (or a subtype) of the \ic{type} property. This could be achieved as follows:
 
  
-\begin{code} 
+\begin{lstlisting} 
 typeof( LocalVarDecl lvd ) {
     if isSpecified( lvd.init ) { 
         assert typeof( lvd.init ) isSameOrSubtypeOf typeof( lvd.type )
     } 
     return typeof( lvd.type )
 }
-\end{code}
+\end{lstlisting}
 
 \noindent 
 Notice (in the grammar) that the specification of the variable type (in the
@@ -785,7 +785,7 @@ Notice (in the grammar) that the specification of the variable type (in the
 elaborate version of the function:
 
  
-\begin{code} 
+\begin{lstlisting} 
 typeof( LocalVarDecl lvd ) {
     if !isSpecified( lvd.type ) && !isSpecified( lvd.init ) 
         raise error
@@ -800,7 +800,7 @@ typeof( LocalVarDecl lvd ) {
     assert typeof( lvd.init ) isSameOrSubtypeOf typeof( lvd.type )
     return typeof( lvd.type )
 }
-\end{code}
+\end{lstlisting}
 
 
 \noindent 
@@ -813,13 +813,13 @@ is \ic{null} is a good example of custom semantics that is useful for a given
 purpose. Essentially, we have just defined a DSL for type calculations based on
 recursive function calls)}.
  
-\begin{code} 
+\begin{lstlisting} 
 typeof( LocalVarDecl lvd ) {
     assert isSpecified lvd.type || isSpecified lvd.init
     assert typeof( lvd.init ) isSameOrSubtypeOf typeof( lvd.type )
     return typeof( lvd.type )
 }
-\end{code}
+\end{lstlisting}
 
 
 
@@ -837,11 +837,11 @@ While this sounds quite sophisticated, we have all used unification in
 high-school for solving sets of linear equations. The \emph{equational theory} is 
 algebra. Here is an example: 
 
-\begin{code} 
+\begin{lstlisting} 
 (1) 2 * x == 10
 (2) x + x == 10 
 (3) x + y == 2 * x + 5
-\end{code}
+\end{lstlisting}
 
 \noindent 
 \emph{Substitution} refers to assignment of values to \ic{x} and \ic{y}. A
@@ -858,12 +858,12 @@ an equation cannot be satisfied for any assignment of type values to type
 variables, a type error is detected. To illustrate this, we return to the
 \ic{LocalVarDecl} example introduced above.
  
-\begin{code}
+\begin{lstlisting}
 var i: int          // 1
 var i: int = 42     // 2
 var i: int = 33.33  // 3
 var i = 42          // 4
-\end{code}
+\end{lstlisting}
  \noindent 
 The following two type equations constitute the complete type system
 specification. The \ic{:==:} operator expresses type equation (left side must be
@@ -872,10 +872,10 @@ must be same type or subtype of right side, the pointed side of \ic{<} points
 to the "smaller", the more specialized type). The operators are taken from MPS,
 which uses this unification for the type system.
  
-\begin{code}
+\begin{lstlisting}
 typeof( LocalVarDecl.init ) :<=: typeof( LocalVarDecl.type) 
 typeof( LocalVarDecl ) :==: typeof( LocalVarDecl.type ) 
-\end{code}
+\end{lstlisting}
  
 \noindent 
 Let us look at the four examples cases. We use capital letters for free type
@@ -885,11 +885,11 @@ type of the variable declaration, to be \ic{int}. The second equations acts as a
 derivation rule and defines the type of the overall \ic{LocalVarDecl}
 to be \ic{int}.
 
-\begin{code}
+\begin{lstlisting}
 // var i: int          
 typeof( int ) :<=: typeof( -null- ) // ignore
 typeof( T ) :==: typeof( int )      // T := int
-\end{code}
+\end{lstlisting}
 
 \noindent 
 In the second case the \ic{type} and the \ic{init} expression are given, and
@@ -899,21 +899,21 @@ type variables, but it is \ic{true} with the type values specified (two \ic{int}
 Notice how in this case the equation acts as a type check: if the equation were
 not \ic{true} for the two given values, a type error would be reported. The second 
 equation works the same as above, deriving \ic{T} to be \ic{int}.
-\begin{code} 
+\begin{lstlisting} 
 // var i: int = 42
 typeof( int ) :<=: typeof( int )    // true
 typeof( T ) :==: typeof( int )      // T := int
-\end{code}
+\end{lstlisting}
  
 \noindent 
 The third case is similar to the second case; but the first equation, in which
 all types are specified, is not \ic{true}, so a type error is raised.
  
-\begin{code}
+\begin{lstlisting}
 // var i: int = 33.33 
 typeof( int ) :<=: typeof( double ) // error!
 typeof( T ) :==: typeof( int )      // T := int
-\end{code}
+\end{lstlisting}
  
 
 \noindent 
@@ -923,21 +923,21 @@ expression. In this case there are two free variables in the equations,
 substituting both with \ic{int} solves both equations. Notice how the unification
 approach automatically leads to support for type inference!
 
-\begin{code}
+\begin{lstlisting}
 // var i = 42    
 typeof( U ) :<=: typeof( int )  // U := int
 typeof( T ) :==: typeof( U )    // T := int
-\end{code}
+\end{lstlisting}
 
 \noindent 
 To further illustrate how unification works, consider the following example
 where we try to provide typing rules for array types and array initializers.
  
-\begin{code}
+\begin{lstlisting}
 var i: int[]
 var i: int[] = {1, 2, 3}
 var i = {1, 2, 3}
-\end{code}
+\end{lstlisting}
  
 \noindent 
 Compared to the \ic{LocalVarDecl} example above, the additional complication in
@@ -945,13 +945,13 @@ this case is that we need to make sure that \emph{all} the initialization
 expressions (inside the curly braces) have the same or compatible types. Here
 are the typing equations:
  
-\begin{code}
+\begin{lstlisting}
 type var T
 foreach ( e: init.elements ) 
     T :<=: typeof(e)
 typeof( LocalVarDecl.type ) :<=: T
 typeof( LocalVarDecl ) :==: typeof( LocalVarDecl.type ) 
-\end{code}
+\end{lstlisting}
  
 
 \noindent 
@@ -1032,7 +1032,7 @@ are reported as part of the Xtext validation, the type system framework
 has to be integrated into the Xtext validation framework manually:
 
  
-\begin{code}
+\begin{lstlisting}
 @Inject 
 private ITypesystem ts;
 
@@ -1040,7 +1040,7 @@ private ITypesystem ts;
 public void validateTypes( EObject m ) {
     ts.checkTypesystemConstraints( m, this );
 }    
-\end{code}
+\end{lstlisting}
  
 
 \noindent 
@@ -1057,7 +1057,7 @@ which cannot be specified declaratively, an operation \ic{type(..)} can be
 implemented to programmatically define types.
 
  
-\begin{code}
+\begin{lstlisting}
 public class CLTypesystem extends DefaultTypesystem {
 
     private CoolingLanguagePackage cl = CoolingLanguagePackage.eINSTANCE;
@@ -1076,7 +1076,7 @@ public class CLTypesystem extends DefaultTypesystem {
         return create(cl.getIntType());
     }
 }
-\end{code}
+\end{lstlisting}
  
 
 \noindent 
@@ -1123,12 +1123,12 @@ to be a copy as opposed to the object itself, because the actual program element
 must not be pulled out of the EMF containment tree.}. This is specified as
 follows:
 
-\begin{code}
+\begin{lstlisting}
 typeof BoolType -> clone
 typeof IntType -> clone
 typeof DoubleType -> clone
 typeof StringType -> clone
-\end{code}
+\end{lstlisting}
 
 \noindent 
 Alternatively, since all primitive types extend an abstract meta class
@@ -1136,9 +1136,9 @@ Alternatively, since all primitive types extend an abstract meta class
 operator specifies that the rule applied for the specified concept and all its
 subconcepts:
 
-\begin{code}
+\begin{lstlisting}
 typeof PrimitiveType + -> clone
-\end{code}
+\end{lstlisting}
 
 
 \noindent 
@@ -1146,9 +1146,9 @@ For concepts that have a fixed type that is different from the concept itself
 (or a clone), the type can simply be specified:
 
  
-\begin{code}
+\begin{lstlisting}
 typeof StringLiteral -> StringType
-\end{code}
+\end{lstlisting}
  
 
 \noindent 
@@ -1158,9 +1158,9 @@ declare that this class is abstract, and hence no typing rule is given. However,
 the editor reports a warning if there are concrete subclasses of an abstract
 class for which no type is specified either.
  
-\begin{code}
+\begin{lstlisting}
 typeof Expr -> abstract
-\end{code}
+\end{lstlisting}
 
 \noindent 
 The notation provided by the DSL groups typing rules and type checks for a
@@ -1169,12 +1169,12 @@ concept. It declares the type of \ic{Plus} to be the common type of the
 \ic{left} and \ic{right} arguments ("the more general one") and then adds two
 constraints that check that the \ic{left} and \ic{right} argument are either
 \ic{string}s, \ic{int}s or \ic{double}s. 
-\begin{code}
+\begin{lstlisting}
 typeof Plus -> common left right {
     ensureType left :<=: StringType, IntType, DoubleType
     ensureType right :<=: StringType, IntType, DoubleType
 } 
-\end{code}
+\end{lstlisting}
 
 \noindent 
 The typing rules for \ic{Equals} are also interesting. It specifies that the
@@ -1186,7 +1186,7 @@ collection of types. In this case it is \ic{IntType}, \ic{DoubleType}, and
 types of the two properties \ic{left} and \ic{right} must either be the same, 
 or \ic{left} must be a subtype or \ic{right}, or vice versa.
  
-\begin{code}
+\begin{lstlisting}
 characteristic COMPARABLE {
     IntType, DoubleType, BoolType
 }
@@ -1195,7 +1195,7 @@ typeof Equals -> BoolType {
     ensureType right :<=: char(COMPARABLE)
     ensureCompatibility left :<=>: right
 }
-\end{code}
+\end{lstlisting}
  
 
 \noindent 
@@ -1205,11 +1205,11 @@ statement!), but the \ic{left} and \ic{right} argument must exhibit ordered
 compatibility: they either have to be the same types, or \ic{right} must be a
 subtype of \ic{left}, \emph{but not vice versa}.
  
-\begin{code}
+\begin{lstlisting}
 typeof AssignmentStatement -> none {
     ensureCompatibility right :<=: left
 }
-\end{code}
+\end{lstlisting}
  
 \noindent 
 The framework uses the generation gap pattern, i.e. from the DSL-based type
@@ -1236,7 +1236,7 @@ the remaining examples.}. It establishes an equation between the type of the
 \ic{LocalVariableReference} itself and the variable it references. \ic{typeof}
 is a built-in operator returns the type for its argument. 
  
-\begin{code}
+\begin{lstlisting}
 rule typeof_LocalVariableReference {                    
   applicable for concept = LocalVariableReference as lvr
   overrides false                                       
@@ -1245,7 +1245,7 @@ rule typeof_LocalVariableReference {
     typeof(lvr) :==: typeof(lvr.variable);              
   }                                                     
 }                                                       
-\end{code}
+\end{lstlisting}
  
 
 \noindent 
@@ -1254,10 +1254,10 @@ one makes sure that the negated expression is Boolean. The second one types the
 \ic{NotExpression} itself to be Boolean. Just as in Xtext, in MPS types are
 instances of language concepts.
  
-\begin{code}
+\begin{lstlisting}
 typeof(notExpr.expression) :==: new node<BooleanType>(); 
 typeof(notExpr) :==: <boolean>; 
-\end{code}
+\end{lstlisting}
  \noindent 
 In MPS there are two different ways how language concepts can be instantiated. 
 The first one (as shown in the first equation above) uses the BaseLanguage
@@ -1267,7 +1267,7 @@ inlined into program code. It uses the concrete syntax of the quoted construct
 A more interesting example is the typing of \ic{struct}s. Consider the
 following C code:
  
-\begin{code}
+\begin{lstlisting}
 struct Person {
     char* name;
     int	age;
@@ -1276,7 +1276,7 @@ struct Person {
 int addToAge( Person p, int delta ) {
     return p.age + delta;
 }
-\end{code}
+\end{lstlisting}
  
 
 \noindent 
@@ -1285,9 +1285,9 @@ the \ic{p.age} expression. The type of the \ic{FunctionParameter} concept is the
 type of its type. This is not specific to the fact that the parameter refers to
 a \ic{struct}. 
 
-\begin{code}
+\begin{lstlisting}
 typeof(parameter) :==: typeof(parameter.type);
-\end{code}
+\end{lstlisting}
 
 
 \noindent 
@@ -1315,7 +1315,7 @@ example). \begin{marginfigure}[2cm]
 \end{marginfigure} 
 
  
-\begin{code}
+\begin{lstlisting}
 concept StructAttributeReference extends Expression
                                  implements ILValue
   children:                                        
@@ -1323,7 +1323,7 @@ concept StructAttributeReference extends Expression
                                                    
   references:                                      
     StructAttribute attribute 1 specializes: <none>  
-\end{code}
+\end{lstlisting}
  
                                                    
 \noindent 
@@ -1332,10 +1332,10 @@ below. The \ic{context}, the expression on which we use the dot operator, has
 to be a \ic{GenericStructType}, or a subtype thereof (i.e. a \ic{StructType} which points to an actual
 \ic{StructDeclaration}). Second, the type of the whole expression is the type of the
 reference \ic{attribute} (e.g. \ic{int} in case of \ic{p.age}).  
-\begin{code}
+\begin{lstlisting}
 typeof(structAttrRef.context) :<=: new node<GenericStructType>(); 
 typeof(structAttrRef) :==: typeof(structAttrRef.attribute);
-\end{code}
+\end{lstlisting}
  
 
 \noindent 
@@ -1346,7 +1346,7 @@ aspects of language definition, specifically scopes. The referenced
 from the \ic{StructType}. The following scope definition illustrates this:
 
  
-\begin{code}
+\begin{lstlisting}
 link {attribute} 
   search scope: 
     (model, scope, referenceNode, linkTarget, enclosingNode)->join(ISearchScope | sequence<node< >>) { 
@@ -1357,7 +1357,7 @@ link {attribute}
         return null; 
       } 
     } 
-\end{code}
+\end{lstlisting}
  
 
 \noindent 
@@ -1369,11 +1369,11 @@ the type system, specifically for binary operators such as \ic{+}, \ic{>} or
 \ic{==}. As an example consider the introduction of complex numbers into C. It
 should be possible to write code like this:
  
-\begin{code}
+\begin{lstlisting}
 complex c1 = (1, 2i);
 complex c2 = (3, 5i);
 complex c3 = c1 + c2; // results in (4, 7i)
-\end{code}
+\end{lstlisting}
  
 
 \noindent 
@@ -1390,7 +1390,7 @@ To enable this, MPS supports so-called overloaded operations containers. The
 following container, taking from the mbeddr C core language, defines the type of
 \ic{+} and \ic{-} if both arguments are \ic{int} or \ic{double}.
  
-\begin{code}
+\begin{lstlisting}
 overloaded operations rules binaryOperation                                                                          
                                                                                                                      
 operation concepts: PlusExpression | MinusExpression
@@ -1405,7 +1405,7 @@ right operand type: <double>
 operation type: (operation, leftOperandType, rightOperandType)->node<> { 
   <double>; 
 }                                            
-\end{code}
+\end{lstlisting}
  
 
 \noindent 
@@ -1416,7 +1416,7 @@ overloaded operations containers}. Using the \ic{operation type} construct, the
 typing rules ties in with overloaded operation containers.
 
  
-\begin{code}
+\begin{lstlisting}
 rule typeof_BinaryExpression {                                                                                                                                                                                                                                                                                                                                           
   applicable for concept = BinaryExpression as be                                                                                                                                                                                                                                                                                                                        
                                                                                                                                                                                                                                                                                                                                                                          
@@ -1430,7 +1430,7 @@ rule typeof_BinaryExpression {
     } 
   } 
 }                                                                                                                                                                                                                                                                                                                                                                    
-\end{code}
+\end{lstlisting}
  
 
 \noindent 
@@ -1440,13 +1440,13 @@ containers. For the complex number example, this could look like the following:
 we declare that as soon as one of the arguments is of type complex, the
 resulting type will be complex as well.
  
-\begin{code}
+\begin{lstlisting}
 operation concepts: PlusExpression | MinusExpression                                     
 one operand type: <complex>      
 operation type: (operation, leftOperandType, rightOperandType)->node<> { 
   <complex>; 
 }                       
-\end{code}
+\end{lstlisting}
 
 \noindent 
 The type system DSL in MPS covers a large fraction of the type system rules
@@ -1464,28 +1464,28 @@ section.
 \parhead{Typing Rules in Spoofax} For typing rules in Spoofax, the basic idea is
 to use rewrite rules to rewrite language constructs to their types. For example,
 the following rule rewrites integer numbers to the integer type:
-\begin{code}
+\begin{lstlisting}
   type-of: Int(value) -> IntType()
-\end{code}
+\end{lstlisting}
 
 \noindent 
 This is an example for assigning a fixed type to a language element. Similarly,
 we can rewrite a \ic{+} expression to the integer type:
-\begin{code}
+\begin{lstlisting}
   type-of: Add(exp1, exp2) -> IntType()
-\end{code}
+\end{lstlisting}
 
 \noindent 
 However, it is good practice to assign types only to well-typed language 
 constructs. Thus, we should add type checks for the subexpressions:
 
-\begin{code}
+\begin{lstlisting}
   type-of:
     Add(exp1, exp2) -> IntType()
     where
       <type-of> exp1 => IntType() ;
       <type-of> exp2 => IntType()
-\end{code}
+\end{lstlisting}
 
 \noindent 
 Spoofax allows for multiple typing rules for the same language construct.
@@ -1493,13 +1493,13 @@ This is particular useful for typing overloaded operators, since each case can
 be handled by a separate typing rule. For example, when the operator \ic{+} is 
 overloaded to support string concatenation, we can add the following typing rule:
 
-\begin{code}
+\begin{lstlisting}
   type-of:
     Add(exp1, exp2) -> StringType()
     where
       <type-of> exp1 => StringType() ;
       <type-of> exp2 => StringType()
-\end{code}
+\end{lstlisting}
 
 
 \parhead{Persistence of Typing Information} As we discussed earlier, Spoofax
@@ -1508,24 +1508,24 @@ index. This typically includes information about types. Consider the following
 typing rules, which rewrites property and variable declarations to their
 declared types:
 
-\begin{code}
+\begin{lstlisting}
   type-of: Property(name, type) -> type
   type-of: VarDecl(name, type) -> type
   type-of: VarDeclInit(name, type, init-exp) -> type
   type-of: Param(name, type) -> type
-\end{code}
+\end{lstlisting}
 
 \noindent 
 Spoofax relies on these rules storing type information about property and
 variable declarations in the index. This is achieved by the following generic
 rewrite rule:
 
-\begin{code}
+\begin{lstlisting}
   adjust-index-def-data(store-results |namespace, path):
     def -> <store-results> DefData([namespace | path], Type(), type)
     where
       type := <type-of> def
-\end{code}
+\end{lstlisting}
 
 \noindent Spoofax tries to apply this rule for every definition. If the
 definition has a type, \ic{type-of} will succeed and the returned type is stored
@@ -1533,13 +1533,13 @@ in the index. If the definition has no type, \ic{type-of} will fail. By this,
 the whole rule will fail and nothing is stored. The stored type information can
 then be used in the typing rules for variable references and property accesses:
 
-\begin{code}
+\begin{lstlisting}
   type-of:
     Var(name) -> <index-lookup-type> name
   
   type-of:
     PropAccess(exp, name) -> <index-lookup-type> name
-\end{code}
+\end{lstlisting}
 
 \noindent 
 Both rules rewrite references to the type of their definition sites. First, the
@@ -1547,13 +1547,13 @@ definition of a reference is looked-up in the index. Next, this definition is
 rewritten to its type. This uses the \ic{index-lookup-type} rule, which is
 another generic rewrite rule:
 
-\begin{code}
+\begin{lstlisting}
   index-lookup-type:
     ref -> type
     where
       def  := <index-get-data(|Type())> ref ;
       type := <index-lookup> def 
-\end{code}
+\end{lstlisting}
 
 
 \parhead{Additional Types} In Spoofax, types are represented as terms. The
@@ -1567,10 +1567,10 @@ of every other type, a \emph{bottom} type is a subtype of every other type.}.
 For example, Java's type system has a special type for \ic{null} values at the
 bottom of its type hierarchy, which cannot be used as a type in Java programs.Spoofax allows to define constructors for additional types in signatures:
 
-\begin{code}
+\begin{lstlisting}
 signature constructors 
   FunType: List(Type) * Type -> FunType
-\end{code}
+\end{lstlisting}
 
 \noindent 
 This defines a binary constructor \ic{FunType} for function types. The first
@@ -1578,7 +1578,7 @@ subterm of a function type is a list of parameter types (\ic{List(Type)}). The
 second subterm is the return type. We can employ the so defined function type in
 the typing rules for function definitions and calls:
 
-\begin{code}
+\begin{lstlisting}
   type-of:
     Function(name, param*, type) -> FunType(type*, type)
     with
@@ -1588,7 +1588,7 @@ the typing rules for function definitions and calls:
     Call(name, arg*) -> type
     where
       <index-lookup-type> name => FunType(type*, type)
-\end{code}
+\end{lstlisting}
 
 
 \parhead{Type Constraints} Like any other constraint, type constraints are
@@ -1596,7 +1596,7 @@ specified in Spoofax by rewrite rules which rewrite language constructs to
 errors, warnings, or notes. For example, we can define a constraint on
 additions:
 
-\begin{code}
+\begin{lstlisting}
   constraint-error:
     exp -> (exp, $[Operator + cannot be applied to arguments [<pprint> type1], [<pprint> type2].])
     where
@@ -1604,7 +1604,7 @@ additions:
       <not(type-of)> exp ;
       type1 := <type-of> exp1 ;
       type2 := <type-of> exp2 
-\end{code}\ignore{$}
+\end{lstlisting}\ignore{$}
 
 \noindent 
 Basically, an expression is non-well-typed or \emph{ill-typed}, if it cannot be 
@@ -1617,7 +1617,7 @@ subexpressions are then used to construct a meaningful error message.
 
 % Similar to expressions, we can define type constraints on statements:
 % 
-% \begin{code}
+% \begin{lstlisting}
 %   constraint:
 %     Assign(lhs, rhs) -> Error(rhs, $[Type mismatch: Cannot convert from [<pprint> type1] to [<pprint> type2].])
 %     where
@@ -1630,7 +1630,7 @@ subexpressions are then used to construct a meaningful error message.
 %     where
 %       type2 := <type-of> exp;
 %       <not(is-compatible-to)> (type1, type2)
-% \end{code}
+% \end{lstlisting}
 % \MV{Again: constraint-error?}
 % 
 % In an assignment, the type of the expression on the right-hand side has to be 
@@ -1643,28 +1643,28 @@ by rewrite rules. These rules rewrite a pair of types to the second element of
 the pair, if the first one is compatible to it. In the simplest case, both types
 are the same:
 
-\begin{code}
+\begin{lstlisting}
   is-compatible-to: (type, type) -> type
-\end{code}    
+\end{lstlisting}    
 
 \noindent 
 A type might also be compatible to a type, to which its supertype is compatible:
 
-\begin{code}
+\begin{lstlisting}
   is-compatible-to: 
     (subtype, type) -> type
     where
       supertype := <supertype> subtype ;
       <is-compatible-to> (supertype, type)
-\end{code}    
+\end{lstlisting}    
 
 \noindent 
 For this case, the subtype relation is defined by a rewrite rule, which 
 rewrites a type to its supertype:
 
-\begin{code}
+\begin{lstlisting}
   supertype: IntType() -> FloatType()
-\end{code}    
+\end{lstlisting}    
 
 \noindent 
 This approach only works for type systems where each type has at most one 
@@ -1672,7 +1672,7 @@ supertype. When a type system allows for multiple supertypes, we have to use
 lists of supertypes and need to adapt the rule for \ic{is-compatible-to} 
 accordingly:
  
-\begin{code}
+\begin{lstlisting}
   supertypes: IntType() -> [ FloatType() ]
   
   is-compatible-to: 
@@ -1680,7 +1680,7 @@ accordingly:
     where
       supertype* := <supertypes> subtype ;
       <fetch-elem(is-compatible-to(|type))> supertype*
-\end{code}    
+\end{lstlisting}    
 
 \noindent 
 Here, \ic{fetch-elem} tries to find an element in a list of supertypes, 
@@ -1689,19 +1689,19 @@ in order to deal with a list of types. This variant does not rewrite a pair of
 types but only the first type. The second type is passed as a parameter to the 
 rewrite rule. It can be defined in terms of the variant for pairs:
 
-\begin{code}
+\begin{lstlisting}
   is-compatible-to(|type2): type1 ->  <is-compatible-to> (type1, type2)
-\end{code}
+\end{lstlisting}
 
 \noindent 
 The compability of types can easily be extended to compability of lists of types:
 
-\begin{code}
+\begin{lstlisting}
   is-compatible-to: 
     (type1*, type2*) -> type*
     where
       type* := <zip(is-compatible-to)> (type1*, type2*)
-\end{code}    
+\end{lstlisting}    
 
 \noindent 
 A list \ic{type1*} of types is compatible to another list \ic{type2*} of types, 
@@ -1714,7 +1714,7 @@ With the extension on lists, we can define a constraint for function calls,
 which ensures that the types of the actual arguments are compatible to the 
 types of the formal parameters:
 
-\begin{code}
+\begin{lstlisting}
   constraint-error: 
     Call(name, arg*) -> (arg*, $[Function [name] cannot be applied to arguments [<pprint> arg-type*].])
     where
@@ -1722,7 +1722,7 @@ types of the formal parameters:
       !fun-type => FunType(para-type*, type) ;
       arg-type* := <map(type-of)> arg* ;
       <not(is-compatible-to)> (arg-type*, par-type*)
-\end{code}\ignore{$}
+\end{lstlisting}\ignore{$}
 
 % \parhead{Degrees of Type Compability}
 % While typing rules should be named \ic{type-of} in order to work correctly with
@@ -1739,7 +1739,7 @@ types of the formal parameters:
 % error. In Spoofax, we can capture this with different compatibility rules:
 % 
 % 
-% \begin{code}
+% \begin{lstlisting}
 %   boxed-type: IntType() -> ClassType("Integer")
 %   
 %   is-compatible: 
@@ -1756,5 +1756,5 @@ types of the formal parameters:
 %     where
 %       boxed := <boxed-type> type1 ;
 %       <is-convertible> (boxed, type2)
-% \end{code}
+% \end{lstlisting}
 

@@ -43,7 +43,7 @@ testing
 utilities\footnote{http://code.google.com/a/eclipselabs.org/p/xtext-utils/wiki/Unit\_Testing}.
 It is a JUnit 4 test case with special support for the Xtext infrastructure.
 
-\begin{code}
+\begin{lstlisting}
 @RunWith(XtextRunner.class)
 @InjectWith(CoolingLanguageInjectorProvider.class)
 public class InterpreterTests extends XtextTest {
@@ -54,7 +54,7 @@ public class InterpreterTests extends XtextTest {
     }
     
 }                                                                                                                                                                                                               
-\end{code}
+\end{lstlisting}
 
 
 \noindent 
@@ -73,14 +73,14 @@ instead of complete sentences or programs. The following piece of Xtext example
 code tests the \ic{CustomState} parser rule:
 
 
-\begin{code}
+\begin{lstlisting}
 @Test 
 public void testStateParserRule() throws Exception {
     testParserRule("state s:", "CustomState" );
     testParserRule("state s: entry { do fach1->anOperation }", "CustomState" );
     testParserRule("state s: entry { do fach1->anOperation }", "State" );
 }
-\end{code}
+\end{lstlisting}
 
 \noindent 
 The first line asserts that the string \ic{state s:} can be parsed with the
@@ -94,13 +94,13 @@ although \ic{anOperation} is not defined as a callable operation anywhere.
 \parhead{An Example with Spoofax} Spoofax supports writing tests for language
 definitions using a testing language. Consider the following test suite:
 
-\begin{code}
+\begin{lstlisting}
 module example
 language MoblEntities
 
 test empty module [[module foo]] parse succeeds
 test missing layout (module name) [[modulefoo]] parse fails
-\end{code}
+\end{lstlisting}
 
 \noindent 
 The first two lines specify the name of the test suite and the language under
@@ -111,9 +111,9 @@ determines what kind of test should be performed (\ic{parsing}) and what the
 expected outcome is (\ic{succeeds} or\ic{fails}). We can also specify the
 expected abstract syntax based on the ATerm textual notation:
 
-\begin{code}
+\begin{lstlisting}
 test empty module (AST) [[module foo]] parse to Module("foo", [])
-\end{code}
+\end{lstlisting}
 
 \noindent 
 Instead of specifying a complete abstract syntax tree, we can only specify the
@@ -121,29 +121,29 @@ interesting parts in a pattern. For example, if we only want to verify that the
 definition list of an empty module is indeed empty, we can use \ic{\_} as a
 wildcard for the module name:
 
-\begin{code}
+\begin{lstlisting}
 test empty module (AST) [[module foo]] parse to Module(_, [])
-\end{code}
+\end{lstlisting}
 
 \noindent 
 Abstract syntax patterns are particularly useful for testing operator precedence 
 and associativity:
 
-\begin{code}
+\begin{lstlisting}
 test multiply and add [[1 + 2 * 3]] parse to Add(_, Mul(_, _))
 test add and multiply [[1 * 2 + 3]] parse to Add(Mul(_, _), _)
 test add and add [[1 + 2 + 3]] parse to Add(Add(_, _), _)
-\end{code}
+\end{lstlisting}
 
 \noindent 
 Alternatively, we can specify an equivalent context-syntax fragment instead of 
 an abstract syntax pattern:
 
-\begin{code}
+\begin{lstlisting}
 test multiply and add [[1 + 2 * 3]] parse to [[1 + (2 * 3)]]
 test add and multiply [[1 * 2 + 3]] parse to [[(1 * 2) + 3]]
 test add and add [[1 + 2 + 3]] parse to [[(1 + 2) + 3]]
-\end{code}
+\end{lstlisting}
 
 \noindent A test suite can be run from the \emph{Transform} menu. This will open
 the \emph{Spoofax Test Runner View} which provides information about failing and
@@ -195,7 +195,7 @@ The unit testing utilities mentioned above also support testing constraints. The
 utilities come with an internal Java DSL that supports checking for the presence
 of error annotations after parsing and constraint-checking a model file.
 
-\begin{code}
+\begin{lstlisting}
 @Test 
 public void testTypesOfParams() throws Exception {
     testFileNoSerializer("typesystem/tst1.cool", "tests.appl", "stdparams.cool");
@@ -205,7 +205,7 @@ public void testTypesOfParams() throws Exception {
     assertConstraints( issues.under(Variable.class, "w1").             // 3
       errorsOnly().sizeIs(2).oneOfThemContains("incompatible type") ); // 3
 }
-\end{code}
+\end{lstlisting}
 
 
 \noindent 
@@ -224,14 +224,14 @@ localizing (potential) problems in the test. The following is the error message
 if no error message is found that contains the substring \emph{incompatible type}:
 
 
-\begin{code}
+\begin{lstlisting}
 junit.framework.AssertionFailedError: <no id> failed
   - failed oneOfThemContains: none of the issues 
     contains substring 'incompatible type' 
   at junit.framework.Assert.fail(Assert.java:47)
   at junit.framework.Assert.assertTrue(Assert.java:20)
   ...
-\end{code}
+\end{lstlisting}
 
 
 \noindent 
@@ -239,7 +239,7 @@ A test may also fail earlier in the chain of filter expressions if, for example,
 there is no \ic{Variable} named \ic{v1} in the program. More output is provided
 in this case: 
 
-\begin{code}
+\begin{lstlisting}
 junit.framework.AssertionFailedError: <no id> failed
   - no elements of type 
     com.bsh.pk.cooling.coolingLanguage.Variable named 'v1' found 
@@ -247,7 +247,7 @@ junit.framework.AssertionFailedError: <no id> failed
     contains substring 'incompatible type'
   at junit.framework.Assert.fail(Assert.java:47) 
   ...
-\end{code}
+\end{lstlisting}
 
 \noindent 
 Scopes can be tested in the same way: we can write example programs where
@@ -305,7 +305,7 @@ example.
 \parhead{An Example with Spoofax} In Spoofax' testing language, we can write
 test cases which specify the number of errors and warnings in a code fragment:
 
-\begin{code}
+\begin{lstlisting}
 test duplicate entities [[
   module foo
   entity X {}
@@ -316,25 +316,25 @@ test lower case entity name [[
   module foo
   entity x {}
 ]] 1 warning
-\end{code}
+\end{lstlisting}
 
 \noindent 
 Additionally, we can specify parts of the error or warning messages:
 
-\begin{code}
+\begin{lstlisting}
 test duplicate entities [[
   module foo
   entity X {}
   entity X {}
 ]] 1 error /duplicate/
-\end{code}
+\end{lstlisting}
 
 \noindent 
 Like in Xtext and MPS, we can test scopes by means of correct and incorrect
 references. Alternatively, we can specify source and target of a link in a test
 case:
 
-\begin{code}
+\begin{lstlisting}
 test property reference [[
   module foo
   entity X {
@@ -370,7 +370,7 @@ test variable reference [[
   }
 
 ]] resolve #2 to #1
-\end{code}
+\end{lstlisting}
 
 \noindent These cases use double square brackets to select parts of the program
 and specify the expected reference resolving in terms of these selections.
@@ -439,7 +439,7 @@ The following code shows one of the simplest possible cooling programs, as well
 as a test case for that program:
 
 
-\begin{code}
+\begin{lstlisting}
 cooling program EngineProgram0 for Einzonengeraet uses stdlib {
          
     var v: int
@@ -466,7 +466,7 @@ test EngineTest0 for EngineProgram0 {
     assert-currentstate-is s2      // 6
     assert-value v is 0            // 7
 }
-\end{code}
+\end{lstlisting}
 
 
 \noindent The test first asserts that, as soon as the program starts, it is in
@@ -486,7 +486,7 @@ failures are annotated as error marks on the program, or from within JUnit.
 The following piece of code shows how to run the tests from JUnit.
 
 
-\begin{code}
+\begin{lstlisting}
 @RunWith(XtextRunner.class)
 @InjectWith(CoolingLanguageInjectorProvider.class)
 public class InterpreterTests extends PKInterpreterTestCase {
@@ -497,7 +497,7 @@ public class InterpreterTests extends PKInterpreterTestCase {
         runAllTestsInFile( (Model) getModelRoot());
     }
 }
-\end{code}
+\end{lstlisting}
 
 \noindent This is basically a JUnit test that inherits from a base class that
 helps with loading models and running the interpreter. We call the
@@ -509,7 +509,7 @@ running a \ic{TestExecutionEngine}. The \ic{TestExecutionEngine} is a wrapper
 around the interpreter for cooling programs that we have discussed before.
 
 
-\begin{code}
+\begin{lstlisting}
 protected void runAllTestsInFile(Model m) {
     CLTypesystem ts = new CLTypesystem();
     EList<CoolingTest> tests = m.getTests();
@@ -520,7 +520,7 @@ protected void runAllTestsInFile(Model m) {
         e.runTest(logger);    
     }
 }
-\end{code}
+\end{lstlisting}
 
 \noindent 
 The cooling programs are generated to C for execution in the refrigerator. To
@@ -539,7 +539,7 @@ the core C clean.}. \ic{testMultiply} is the actual test case.
 It calls the to-be-tested function \ic{times2} several times with different
 arguments and then uses an \ic{assert} to check for the expected value.
 
-\begin{code}
+\begin{lstlisting}
 module UnitTestDemo { 
    
   int32_t main(int32_t argc, int8_t*[ ] argv) { 
@@ -556,15 +556,15 @@ module UnitTestDemo {
     return 2 * a; 
   }  
 }
-\end{code}
+\end{lstlisting}
 
 \noindent 
 Note that, while this unit testing extension can be used to test any C
 program, we use it a lot to test the generator. Consider the following example:
 
-\begin{code}
+\begin{lstlisting}
   assert(0) 4 * 3 + 2 == 14; 
-\end{code}
+\end{lstlisting}
 
 \noindent The result of \ic{4 * 3 + 2} is only 14 if the correct operator
 precedences are observed (otherwise the result would be 20). One problem we had
@@ -580,7 +580,7 @@ We have built much more elaborate support for testing various other extensions.
 It is illustrative to take a look at two of them. The next piece of code shows a
 test for a state machine:
 
-\begin{code}
+\begin{lstlisting}
 exported test case test1 { 
   initsm(c1);   
   assert(0) isInState<c1, initialState>; 
@@ -592,7 +592,7 @@ exported test case test1 {
     step(1) -> initialState 
   } 
 }
-\end{code}
+\end{lstlisting}
 
 \noindent 
 \ic{c1} is an instance of a state machine. After initializing it, we assert that
@@ -609,13 +609,13 @@ under test. We use this with the components extension. The following is a test
 case that checks if the \ic{client} uses the \ic{PersistenceProvider} interface
 correctly. Let's start by taking a look at the interface:
 
-\begin{code}
+\begin{lstlisting}
 interface PersistenceProvider { 
   boolean isReady() 
   void store(DataPacket* data) 
   void flush() 
 }
-\end{code}
+\end{lstlisting}
 
 \noindent The interface is expected to be used in the following way: clients
 first have to call \ic{isReady}, and only if that method returns \ic{true} are
@@ -627,19 +627,19 @@ declarative specification of valid call sequences}. Assuming it provides an
 operation \ic{run} that uses the persistence provider, we could write the
 following test:
 
-\begin{code}
+\begin{lstlisting}
 exported test case runTest { 
   client.run(); 
   // somehow check is behaved correctly 
 }
-\end{code}
+\end{lstlisting}
 
 \noindent 
 To check if the client behaves correctly, we can use a mock. Our mock specifies
 the \emph{icoming} methods calls it expects to see during the test. We have
 provided a mocking extension to components to support this. Here is the mock:
 
-\begin{code}
+\begin{lstlisting}
 exported mock component PersistenceMock { 
   ports: 
     provides PersistenceProvider pp 
@@ -654,7 +654,7 @@ exported mock component PersistenceMock {
       3: pp.flush 
     } 
 }
-\end{code}
+\end{lstlisting}
 
 \noindent The mock provides the \ic{PersistenceProvider} interface, so any other
 component that \ic{requires} this interface can use this component as the
@@ -665,12 +665,12 @@ be to \ic{isReady}. We return \ic{false}, expecting that the client tries again
 later. If it does, we return \ic{true} and expect the client to continue with
 persisting data. We can now validate the mock as part of the test case:
 
-\begin{code}
+\begin{lstlisting}
 exported test case runTest { 
   client.run(); 
   validate mock persistenceMock  
 }
-\end{code}
+\end{lstlisting}
 
 \noindent 
 In case the \ic{persistenceMock} saw behavior different from the one specified
@@ -686,12 +686,12 @@ tedious and error prone. For example, the following piece of code shows the
 output from executing a C-based test case on the command line:
 
 
-\begin{code}
+\begin{lstlisting}
 ./TestHelperTest
 $$runningTest: running test () @TestHelperTest:test_testCase1:0#767515563077315487
 $$FAILED: ***FAILED*** (testID=0) @TestHelperTest:f:0#9125142491355884683
 $$FAILED: ***FAILED*** (testID=1) @TestHelperTest:f:1#9125142491355901742 
-\end{code}\ignore{$$}
+\end{lstlisting}\ignore{$$}
 
 In mbeddr we have built a tool that simplifies finding the message source. You
 can paste arbitrary text that contains error messages into a text area (for
@@ -722,11 +722,11 @@ from programs to program results. For example, the following tests address a
 transformation \ic{eval-all} which interpretes expressions:
 
 
-\begin{code}
+\begin{lstlisting}
 test evaluate addition [[1+2]] run eval-all to Int("3")
 test evaluate multiplication [[3*4]] run eval-all to Int("12")
 test complex evaluation [[1+2*(3+4)]] run eval-all to Int("15")
-\end{code}
+\end{lstlisting}
 
 \noindent To test generators, we can rely on Spoofax' testing support for
 builders. Since we are not interested in testing in terms of the generated code,
@@ -737,11 +737,11 @@ For example, the following tests address a builder \ic{generate-and-run} which
 generates code from expressions, runs this code, and returns the result of the
 run as a string:
 
-\begin{code}
+\begin{lstlisting}
 test generate addition [[1+2]] build generate-and-run to "3"
 test generate multiplication [[3*4]] run generate-and-run to "12"
 test generate evaluation 1 [[1+2*(3+4)]] run generate-and-run to "15"
-\end{code}
+\end{lstlisting}
 
 \parhead{Structural Testing} What we suggested in the previous subsection tests
 the execution semantics of programs written in DSLs, and, if we have enough of
@@ -789,7 +789,7 @@ result of that transformation itself is not yet executable. The following piece
 of code could be used to check that, for a specific input program, the
 transformation works correctly:
 
-\begin{code}
+\begin{lstlisting}
 // run transformation
 val tp = p.transform
 
@@ -801,7 +801,7 @@ val emergencyState = states.findFirst(s|s.name.equals("EMERGENCY_STOP"))
 states.findFirst(s|s.name.equals("noCooling")).eAllContents.
     filter(typeof(ChangeStateStatement)).
         exists(css|css.targetState == emergencyState)
-\end{code}
+\end{lstlisting}
 
 \noindent 
 This program first runs the transformation, and then grabs all \ic{CustomState}s
@@ -917,7 +917,7 @@ parameter passed with the event. If the \ic{currentVal} would become greater
 than \ic{LIMIT}, the counter wraps around. We can also use the \ic{start} event
 to reset the counter to \ic{0}.
 
-\begin{code}
+\begin{lstlisting}
 verified statemachine Counter { 
   in events 
     start() 
@@ -935,7 +935,7 @@ verified statemachine Counter {
       on start [ ] -> initialState {  } 
     }
 }
-\end{code}
+\end{lstlisting}
 
 \noindent Since this state machine is marked as \ic{verifiable}, we can run the
 model checker from the context menu. \fig{verification1} shows the result of
@@ -954,12 +954,12 @@ running the model checker.
 Here is a subset of the properties it has checked successfully (it performs
 these checks for all states/transitions by default):
 
-\begin{code}
+\begin{lstlisting}
 State 'initialState' can be reached                          SUCCESS	
 Variable 'currentVal' is always between its defined bounds   SUCCESS	
 State 'countState' has deterministic transitions             SUCCESS	
 Transition 0 of state 'initialState' is not dead             SUCCESS	
-\end{code}
+\end{lstlisting}
 
 \noindent 
 The first one reports that NuSMV has successfully proven that the
@@ -972,19 +972,19 @@ point.
 
 Let us provoke an error. We change the two transitions in \ic{countState} to 
 
-\begin{code}
+\begin{lstlisting}
 on step [currentVal + size >= LIMIT] -> initialState {  } 
 on step [currentVal + size <= LIMIT] -> countState { currentVal = currentVal + size; }
-\end{code}
+\end{lstlisting}
 
 \noindent 
 You perhaps don't even recognize the difference --- which is exactly why you
 would want to use a model checker! We have changed the \ic{>} to a \ic{>=} in
 the first transition. Running the model checker again, we get, among others,
 
-\begin{code}
+\begin{lstlisting}
 State 'countState' contains nondeterministic transitions     FAIL    4
-\end{code}
+\end{lstlisting}
 
 \noindent 
 This means that there is a case where the two transitions are
@@ -993,7 +993,7 @@ which one should be used. The \ic{4} at the end means that the execution trace
 to this problem contains four steps. Clicking on the failed property check
 reveals the problematic execution trace:
 
-\begin{code} 
+\begin{lstlisting} 
 State initialState	
   LIMIT	                       10
   currentVal                    0
@@ -1008,7 +1008,7 @@ State countState
 State initialState	
   LIMIT	                       10
   currentVal                   10
-\end{code}
+\end{lstlisting}
 
 \noindent 
 This is one (of potentially many) execution traces of this state machine that
@@ -1022,11 +1022,11 @@ generated NuSMV input code (which is \emph{much} longer than the state machine
 itself!), users can use convenient patterns, where they just have to fill in
 values. Here are two examples:
 
-\begin{code}
+\begin{lstlisting}
 verification conditions 
   never LIMIT != 10 
   always eventually reachable initialState
-\end{code}
+\end{lstlisting}
 
 \noindent The first one allows to express that we want the model checker to
 prove that any Boolean condition will never happen. In our example, we check
@@ -1176,18 +1176,18 @@ testing various language aspects, among them, for example, code completion. It
 does so by embedding test expectations as comments inside the to-be-tested
 program. Here is an example based on a Hello World grammar (literally):
 
-\begin{code}
+\begin{lstlisting}
 Model: 
   greetings+=Greeting*;
 
 Greeting:
   'Hello' name=ID '!';
-\end{code}
+\end{lstlisting}
 
 The following piece of code shows an example program that includes Xpect
 statements that test whether code completion works as expected:
 
-\begin{code}
+\begin{lstlisting}
 // XPECT_TEST org.example.MyJUnitContentAssistTest END_TEST 
 
 // XPECT contentAssist at |Hel --> Hello
@@ -1195,7 +1195,7 @@ Hello Peter!
 
 // XPECT contentAssist at |! --> !
 Hello Heiko!
-\end{code}
+\end{lstlisting}
 
 Xpect processor processes all comments that start with \ic{XPECT}. In this case,
 we test the content assist (e.g. code completion) functionality. Let us look at

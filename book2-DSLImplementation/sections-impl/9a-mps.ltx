@@ -45,7 +45,7 @@ terminology introduced in the DSL design section \todo{}, root nodes (and their
 descendants) are considered \emph{fragments}, while the models are partitions
 (actually, they are XML files).}. 
 
-\begin{code}
+\begin{lstlisting}
 module company {          
   entity Employee {     
     id : int            
@@ -59,7 +59,7 @@ module company {
     description : string
   }   
 }                  
-\end{code}
+\end{lstlisting}
 
 
 \phead{Structure and Syntax} \fig{entities} shows a UML diagram of the structure
@@ -85,12 +85,12 @@ of children of type \ic{Attribute} in the \ic{attributes} collection.
 \fig{editordefinition} shows the definition of the editor for \ic{Entity}.
 
 
-\begin{code}
+\begin{lstlisting}
 concept Entity extends BaseConcept implements INamedConcept        
   can be root: true
   children:                                     
     Attribute 	attributes 		0..n
-\end{code}                                               
+\end{lstlisting}                                               
 
 
 \begin{figure}[h]
@@ -110,13 +110,13 @@ concept Entity extends BaseConcept implements INamedConcept
 rules. The first one specifies that the type of the primitives (\ic{int},
 \ic{string}) is a clone of themselves:
 
-\begin{code}
+\begin{lstlisting}
 rule typeof_Type applicable for concept = Type as type {
   do {                                 
     typeof(type) :==: type.copy;       
   }                                    
 }                                      
-\end{code}
+\end{lstlisting}
 
 \noindent 
 The only other typing rule is an equation that defines the type of the attribute
@@ -197,7 +197,7 @@ fragment (expressed in the \ic{entities} language). Both fragments are
 \emph{homogeneous} since they consist of sentences expressed in a single
 language.
 
-\begin{code}
+\begin{lstlisting}
 form CompanyStructure                                                                                                                                  
   uses Department                                                                                                                                      
   uses Employee                                                                                                                                        
@@ -205,7 +205,7 @@ form CompanyStructure
   field Role: combobox(Boss, TeamMember) -> Employee.role                                                                                              
   field Freelancer: checkbox -> Employee.freelancer
   field Office: textfield(20) -> Department.description                                                                                                
-\end{code}
+\end{lstlisting}
 
 \begin{figure}[htp]
 \begin{center}
@@ -231,7 +231,7 @@ that shall be edited via the field. Below is the definition of the \ic{Field}
 concept. It owns a \ic{Widget} and refers to an \ic{Attribute}.
 
  
-\begin{code}
+\begin{lstlisting}
 concept Field extends BaseConcept implements <none>               
   properties:                                 
     label : string                              
@@ -239,7 +239,7 @@ concept Field extends BaseConcept implements <none>
     Widget      widget      1      
   references:                                 
     Attribute   attribute   1
-\end{code}                                                                                            
+\end{lstlisting}                                                                                            
 
 
 \phead{Type System} The language enforces  limitations regarding which widget
@@ -248,7 +248,7 @@ type, a \ic{ComboWidget} requires a \ic{string} type). The necessary typing rule
 is defined in the \ic{uispec} language and references types from the \ic{entities} language.
 The following is the code for the type check. 
 
-\begin{code}
+\begin{lstlisting}
 checking rule checkTypes {                                                                                                                                                                                                                                                                                                                        
   applicable for concept = Field as field                                                                                                                                                                                                                                                                                                                
   overrides false                                                                                                                                                                                                                                                                                                                                        
@@ -263,7 +263,7 @@ checking rule checkTypes {
     } 
   } 
 }
-\end{code}
+\end{lstlisting}
 
 
 \phead{Generation} The defining characteristic of language referencing is that
@@ -282,7 +282,7 @@ operator and binds tightly; the code below casts the attribute's parent to
 \ic{Entity} and then accesses the \ic{name} property):
 
 
-\begin{code}
+\begin{lstlisting}
 concept behavior Attribute {                                                 
   public string qname() {                                                    
     this.parent : Entity.name + "." + this.name;                             
@@ -294,7 +294,7 @@ concept behavior Attribute {
     "get" + this.name.toFirstUpper();
   }                                                                          
 }                                                                            
-\end{code}
+\end{lstlisting}
 
 
 \noindent 
@@ -333,7 +333,7 @@ of the block expression in \fig{expressionBlock} transforms it into this
 structure:
 
 
-\begin{code}
+\begin{lstlisting}
 // the argument to setName is what was the block expression,
 // it is replaced by a method call to the generated method
 aEmployee.setName(retrieve_name(aEmployee, widget0));
@@ -344,7 +344,7 @@ public String retrieve_name(Employee aEmployee, JComponent widget0) {
   String newValue = ((JTextField) widget0).getText();
   return newValue;
 }
-\end{code}
+\end{lstlisting}
 
 
 
@@ -357,11 +357,11 @@ fragments that use the \ic{exprblocks} language, can now use
 The fragments become \emph{heterogeneous}, because languages are
 syntactically mixed.
 
-\begin{code}
+\begin{lstlisting}
 concept BlockExpression extends Expression implements INamedConcept
   children:                                     
     StatementList body 1 specializes: <none>      
-\end{code}
+\end{lstlisting}
           
           
 \phead{Type System} The type of the \ic{yield} statement is the type of the
@@ -372,14 +372,14 @@ has to have a type as well. Since it is not explicitly specified, the type of
 the \ic{BlockExpression} is the common super type of the types of all the
 \ic{yield}s. The following typing rule computes this type:
 
-\begin{code}
+\begin{lstlisting}
 var resultType ; 
 for (node<BlockExpressionYield> y : 
         blockExpr.descendants<concept = BlockExpressionYield>) { 
   resultType :==: typeof(y.result); 
 } 
 typeof(blockExpr) :==: resultType;
-\end{code}
+\end{lstlisting}
           
           
 \phead{Generator} The generator for \ic{BlockExpression}s reduces the new
@@ -499,7 +499,7 @@ you have to specify this mapping. The following code shows the reusable part: a
 database is defined that contains tables with columns. Columns have
 (database-specific) data types.
 
-\begin{code}
+\begin{lstlisting}
 Database CompanyDB                          
   table Departments                         
     number id           
@@ -509,7 +509,7 @@ Database CompanyDB
     char name              
     char role              
     char isFreelancer
-\end{code}
+\end{lstlisting}
 
 \noindent 
 \fig{relmapping} shows the structure of the relmapping language. The abstract
@@ -542,7 +542,7 @@ and we could use arbitrary concepts from the \ic{entities} language mixed into
 the \ic{relmapping} fragment.}:
 
 
-\begin{code}
+\begin{lstlisting}
 Database CompanyDB                          
   table Departments                         
     number id <- Department.id              
@@ -552,7 +552,7 @@ Database CompanyDB
     char name <- Employee.name              
     char role <- Employee.role              
     char isFreelancer <- Employee.freelancer
-\end{code}
+\end{lstlisting}
 
 
 \phead{Type System} The type of a column is the type of its \ic{type} property.
@@ -565,24 +565,24 @@ reusable. With this in mind, the typing rules of the \ic{relmapping}
 language look as follows:
 
 
-\begin{code}
+\begin{lstlisting}
 typeof(column) :==: typeof(column.type);
 typeof(column.type) :==: typeof(column.mapper);
 typeof(columnMapper) :==: columnMapper.typeMappedToDB();
-\end{code}
+\end{lstlisting}
 
 \noindent 
 The \ic{AttributeColMapping} concept from the \ic{relmapping\_entities} implements
 this method by mapping \ic{int}s to \ic{number}s, and everything else to \ic{char}s.
 
-\begin{code}
+\begin{lstlisting}
 public node<> typeMappedToDB() 
   overrides ColumnMapper.typeMappedToDB {                                                                          
   node<> attrType = this.attribute.type.type; 
   if (attrType.isInstanceOf(IntType)) { return new node<NumberType>(); } 
   return new node<CharType>();
 }                                                                                                                                                  
-\end{code}
+\end{lstlisting}
 
 
 \phead{Generator} The generated code is also separated into a reusable part (a
@@ -599,7 +599,7 @@ reusable relmapping generator). A \ic{relmapping} fragment (without the
 concrete column mappers) is sufficient for generating the generic base class.
 
 
-\begin{code}
+\begin{lstlisting}
 public abstract class CompanyDBBaseAdapter {
 
   private void createTableDepartments() {
@@ -631,7 +631,7 @@ public abstract class CompanyDBBaseAdapter {
 
   // abstract getValue methods for the People table
 }
-\end{code}
+\end{lstlisting}
 
 \noindent The subclass, generated by the generator in the
 \ic{relmapping\_entities} language implements the abstract methods defined by
@@ -639,7 +639,7 @@ the generic superclass. The interface, represented by the \ic{applicationData}
 object, has to be kept generic so any kind of user data can be passed in. 
 
 
-\begin{code}
+\begin{lstlisting}
 public class CompanyDBAdapter extends CompanyDBBaseAdapter {
   public String getValueForDepartments_id(Object applicationData) {
     Object[] arr = (Object[]) applicationData;
@@ -654,7 +654,7 @@ public class CompanyDBAdapter extends CompanyDBBaseAdapter {
     return val;
   }
 }
-\end{code}
+\end{lstlisting}
  
  
 Note how this class references the Beans generated from the \ic{entities}. So
@@ -673,7 +673,7 @@ to a new reuse context.
 access control, to specify access permissions for the \ic{entities} language.
 Here is some example code:
 
-\begin{code}
+\begin{lstlisting}
 RBAC                           
                                
 users:                         
@@ -688,7 +688,7 @@ roles:
 permissions:                   
   admin, W : Department        
   consulting, R : Employee.name
-\end{code}
+\end{lstlisting}
 
 \noindent 
 The structure is shown in \fig{rbac}. Like \ic{relmapping}, it provides a
@@ -719,7 +719,7 @@ separated from the code generated from \ic{entities}. Instead, inside the setter
 of the Java beans, a permission check is required.
 
 
-\begin{code}
+\begin{lstlisting}
 public void setName(String newValue) {
   // check permissions (from rbac_entities) 
   if (!new RbacSpecEntities().currentUserHasWritePermission("Employee.name")) { 
@@ -727,7 +727,7 @@ public void setName(String newValue) {
   }
   this.name = newValue;
 }
-\end{code}
+\end{lstlisting}
 
 \noindent 
 The generated fragment is homogeneous (it is all Java code), but it is
@@ -814,7 +814,7 @@ sublanguage of the \ic{uispec} language. It supports writing code such as
 the following in the UI form specifications:
 
 
-\begin{code}
+\begin{lstlisting}
 form CompanyStructure                                                                                                                                  
   uses Department                                                                                                                                      
   uses Employee                                                                                                                                        
@@ -825,7 +825,7 @@ form CompanyStructure
         validate if (isSet(Employee.worksAt)) Employee.freelancer == true else
                     Employee.freelancer == false 
   field Office: textfield(20) -> Department.description                                                                                                
-\end{code}
+\end{lstlisting}
 
 \noindent Writing the expressions is supported by embedding an
 \ic{expressions} language. \fig{uival} shows the structure. To be able to use
@@ -854,7 +854,7 @@ users could simply type \ic{validate} on the right of a field definition to
 trigger the transformation code below.}. The core of the intention is the
 following script, which performs the actual transformation:
 
-\begin{code}
+\begin{lstlisting}
 execute(editorContext, node)->void { 
     node<ValidatedField> vf = new node<ValidatedField>(); 
     vf.widget = node.widget; 
@@ -862,7 +862,7 @@ execute(editorContext, node)->void {
     vf.label = node.label; 
     node.replace with(vf); 
 }
-\end{code}
+\end{lstlisting}
 
 
 \noindent The \ic{uispec\_validation} language extends the \ic{uispec} language.
@@ -887,7 +887,7 @@ language; however, it may only reference those attributes of those entities that
 are used in the form in which we define the validation expression.
 The following is the code for the search scope:
 
-\begin{code}
+\begin{lstlisting}
 (model, scope, referenceNode, linkTarget, enclosingNode)
                              ->join(ISearchScope | sequence<node< >>) { 
   nlist<Attribute> res = new nlist<Attribute>; 
@@ -897,7 +897,7 @@ The following is the code for the search scope:
   } 
   res; 
 }
-\end{code}
+\end{lstlisting}
 
 \noindent Notice that the actual syntactic embedding of the \ic{expressions}
 language in the \ic{uispec\_validation} language is no problem at all as a
@@ -916,11 +916,11 @@ The type of an attribute reference is the type of the attribute's \ic{type} prop
 \ic{typeof(are) :==: typeof(are.attr.type);}. However, consider now the
 following code:
 
-\begin{code}
+\begin{lstlisting}
   field Freelancer: checkbox -> Employee.freelancer 
         validate if (isSet(Employee.worksAt)) Employee.freelancer == false else
                     Employee.freelancer == true 
-\end{code}
+\end{lstlisting}
 
 \noindent This code states that if the \ic{worksAt} attribute of an employee is
 set, then its \ic{freelancer} attribute must be \ic{false} else it must be
@@ -936,7 +936,7 @@ rules. We specify the resulting type for an \ic{EqualsExpression} depending on
 its argument types. Here is the code in the \ic{expressions} language that defines
 the resulting type to be \ic{boolean} if the two arguments are \ic{Equallable}:
 
-\begin{code}
+\begin{lstlisting}
 operation concepts: EqualsExpression                                                     
   left operand type: new node<Equallable>() 
   right operand type: new node<Equallable>() 
@@ -944,7 +944,7 @@ operation type:
   (operation, leftOperandType, rightOperandType)->node< > { 
     <boolean>; 
   }               
-\end{code}
+\end{lstlisting}
 
 \noindent 
 In addition to this code, we have to specify that \ic{expressions.BooleanType}
@@ -952,7 +952,7 @@ is a subtype of \ic{Equallable}, so this rule applies if we use equals with two
 \ic{expressions.BooleanType} arguments. We have to tie this overloaded operation
 specification into a regular type inference rule.
 
-\begin{code}
+\begin{lstlisting}
 rule typeof_BinaryExpression {                                                                                                                                                                                                                                                                                                                                                                                                                                                   
   applicable for concept = BinaryExpression as binaryExpression                                                                                                                                                                                                                                                                                                                                                                                                                  
   do {                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
@@ -966,21 +966,21 @@ rule typeof_BinaryExpression {
            -> binaryExpression; } 
       }  
   } 
-\end{code}
+\end{lstlisting}
 
 \noindent 
 To override these typing rules to work with \ic{entities.BooleanType}, we simply
 provider another overloaded operation specification in the \ic{uispec\_validation}
 language:
 
-\begin{code}
+\begin{lstlisting}
 operation concepts: EqualsExpression                                       
   one operand type: <boolean> // this is the entities.BooleanType!     
 operation type:                                                            
   (operation, leftOperandType, rightOperandType)->node< > { 
     <boolean>;  // this is the expressions.BooleanType 
   } 
-\end{code}
+\end{lstlisting}
 
 
 \phead{Generator} The generator has to create BaseLanguage code, which is then
@@ -1056,13 +1056,13 @@ operators provided by the reusable expression language inside validation rules
 in \ic{uispec\_validation}. This can be achieved by implementing a 
 \ic{can be ancestor} constraint on \ic{ValidatedField}.
 
-\begin{code}
+\begin{lstlisting}
 can be ancestor:
   (operationContext, scope, node, childConcept)->boolean { 
     return !(childConcept == concept/GreaterEqualsExpression/ || 
              childConcept == concept/LessEqualsExpression/); 
   }
-\end{code}
+\end{lstlisting}
 
 
 \subsection{Language Annotations}
@@ -1098,7 +1098,7 @@ mapping. Using this approach, we can store the mapping from entity attributes to
 database columns directly in the \ic{Entity}, resulting in the following code:
 
 
-\begin{code}
+\begin{lstlisting}
 module company                                 
   entity Employee {                            
     id : int -> People.id                      
@@ -1112,7 +1112,7 @@ module company
     id : int -> Departments.id                 
     description : string -> Departments.descr  
   }                                            
-\end{code}
+\end{lstlisting}
 
 
 This is a heterogeneous fragment, consisting of code from \ic{entities}, as well
@@ -1128,7 +1128,7 @@ is necessary.
 language as well as the \ic{relmapping} language. In this language we define the
 following concept:
 
-\begin{code}
+\begin{lstlisting}
 concept AttrToColMapping extends NodeAnnotation  
   references:                               
     Column column 1       
@@ -1136,7 +1136,7 @@ concept AttrToColMapping extends NodeAnnotation
     role = colMapping
   concept links:
     annotated = Attribute
-\end{code}                                            
+\end{lstlisting}                                            
 
 \noindent \ic{AttrToColMapping} concept extends \ic{NodeAnnotation}, a concept
 predefined by MPS. Concepts that extend \ic{NodeAnnotation} have to provide a

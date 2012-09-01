@@ -13,6 +13,7 @@
 \usepackage{alltt}
 \usepackage{boxedminipage}
 \usepackage{booktabs}
+\usepackage{listings} 
  
 
 \usepackage{tikz}
@@ -71,17 +72,110 @@
 \newcommand{\exwebdsl}[1]{\excode{WebDSL:}{#1}}
 
 \usepackage{verbatim}
-\newenvironment{code} 
-    {\vspace{3mm}
-     \noindent
-     \rule{\textwidth}{0.7pt}
-     \vspace{-4mm}
-     \scriptsize \verbatim}
-    {\endverbatim \normalsize
-	 \vspace{-4mm}
-	 \rule{\textwidth}{0.7pt}
-	 \vspace{0mm}
-	 }
+
+
+
+% important for nicer code font
+\usepackage{beramono}
+
+\definecolor{lightlightgray}{gray}{0.9}
+\definecolor{codecolor}{gray}{0.1} 
+\definecolor{javadocblue}{rgb}{0,0,0.8} % javadoc
+\definecolor{blackblack}{rgb}{0,0,0}
+
+ 
+\lstset{
+basicstyle=\ttfamily\scriptsize\color{codecolor}, 
+keywordstyle=\color{blackblack}\bfseries,       
+% keywordstyle=\color{javadocblue},     
+commentstyle=\color{gray},              
+numbers=none,                           
+numberstyle=\tiny,                      % Line-numbers fonts
+stepnumber=1,                           % Step between two line-numbers
+numbersep=5pt,                          % How far are line-numbers from code
+%backgroundcolor=\color{lightlightgray}, % Choose background color
+tabsize=2,     
+%xleftmargin=1.5mm,
+%xrightmargin=1.5mm,
+frame=lines,
+captionpos=b,                           % Caption-position = bottom
+breaklines=true,                        % Automatic line breaking?
+breakatwhitespace=false,                % Automatic breaks only at whitespace?
+showspaces=false,                       % Dont make spaces visible
+showtabs=false,                         % Dont make tabls visible
+columns=flexible,                       % Column format
+morekeywords={}  
+stringstyle=\color{OliveGreen},
+mathescape=true,
+showstringspaces=false,
+keepspaces=true,
+sensitive=true,
+columns=fullflexible,
+columns=fullflexible,
+otherkeywords={::,:,->,=>,[,],;,==;+=,=,:<=:,:==:,<,+,&,!}, 
+} 
+
+
+\lstdefinelanguage{mbeddr}
+{morekeywords={return,test,case,exported,int8_t,foreach,it,int32,void,sized,assert,rule,as,
+applicable,concept,overrides,do,typeof,if,applicable,error,int64_t,
+concepts,constraints,can,be,child,ancestor,isNotNull,node,int32_t,executeTests,
+module, statemachine, events, states, initial, state, on, assert, imports},
+alsodigit={(,),0,1,2,3,4,5,6,7,8,9,0}, morestring=[b]",
+comment=[l]{//},
+}
+
+\lstdefinelanguage{mps}
+{morekeywords={concept, extends, implements, instance, can, be, root,
+properties, string, boolean, children, references, intention, true, false,
+error, available, in, child, nodes, side, transform, actions,
+transformed, constraints}, 
+alsodigit={(,),0,1,2,3,4,5,6,7,8,9,0},
+morestring=[b]",
+comment=[l]{//},
+}
+
+
+\lstdefinelanguage{archdsl}
+{morekeywords={namespace, feature, component, instance, dynamic, connect, aspect, provides},
+alsodigit={(,),0,1,2,3,4,5,6,7,8,9,0},
+morestring=[b]",
+comment=[l]{//},
+}
+
+\lstdefinelanguage{cooling}
+{morekeywords={cooling, program, uses, var, int, event, init, start, set,
+state, entry, check},
+alsodigit={(,),0,1,2,3,4,5,6,7,8,9,0},
+morestring=[b]",
+comment=[l]{//},
+}
+
+\lstdefinelanguage{webdsl}
+{morekeywords={module, entity},
+alsodigit={(,),0,1,2,3,4,5,6,7,8,9,0},
+morestring=[b]",
+comment=[l]{//},
+}
+
+
+\lstdefinelanguage{xtextgrammar}{
+morekeywords={ID, STRING, terminal, current, returns},
+alsodigit={(,),0,1,2,3,4,5,6,7,8,9,0},
+morestring=[b]",
+comment=[l]{//},
+} 
+
+\lstdefinelanguage{sdf}{
+morekeywords={ID, module, context, free, start, symbols, priorities, syntax,
+lexical, left, reject, prefer, restrictions}, 
+alsodigit={(,),0,1,2,3,4,5,6,7,8,9,0},
+morestring=[b]",
+comment=[l]{//},
+}
+
+
+
 
 
 \usepackage[T1]{fontenc}
@@ -122,7 +216,7 @@
 \renewcommand{\dfrac}[2]{\frac{\displaystyle #1}{\displaystyle #2}}
 \newcommand{\lmrc}{LMR\&C}
 
- 
+
 
 
  
