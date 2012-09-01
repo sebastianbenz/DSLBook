@@ -174,7 +174,7 @@ We start with the high-level structure of the C code generated for a cooling
 program. The following piece of code illustrates Xtend's power to navigate a
 model as well as the template syntax for text generation.
 
-\begin{lstlisting}
+\begin{lstlisting}[language=xtend]
 def compile(CoolingProgram program) { 
     '''
     <<FOR appl : program.modules.map(m|m.module).filter(typeof(Appliance))>>  
@@ -204,7 +204,7 @@ the dot operator. \ic{map} and \ic{filter} are collection methods defined by the
 Xtend standard library. We also have to generate an \ic{enum} for the states in
 the cooling program.
 
-\begin{lstlisting}
+\begin{lstlisting}[language=xtend]
 typedef enum states {
     null_state, 
     <<FOR s : program.concreteStates SEPARATOR ",">>
@@ -223,7 +223,7 @@ method; since it has no arguments, it looks like property access. The method is
 defined further down in the \ic{CoolingLanguageGenerator} class and looks as
 follows:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=xtend]
 def concreteStates(CoolingProgram p) {
     p.states.filter(s | !(s instanceof BackgroundState) && !(s instanceof ShadowState))
 }
@@ -235,7 +235,7 @@ first executes the exit actions of the current state, performs the state
 change (\ic{current\_state = new\_state;}) and then performs the entry actions
 of the new state (not shown):
 
-\begin{lstlisting}
+\begin{lstlisting}[language=xtend]
 if (new_state != current_state) {
     <<IF program.concreteStatesWitExitActions.size > 0>>
         // execute exit action for state if necessary
@@ -280,7 +280,7 @@ cooling language, represented by a subclass of \ic{Statement}, there is an
 implementation of this method. The next piece of code shows some example
 implementations.
 
-\begin{lstlisting}
+\begin{lstlisting}[language=xtend]
 class StatementExtensions {
     
     def dispatch compileStatement(Statement s){
@@ -323,7 +323,7 @@ The \ic{compileStatement} methods are implemented in the
 (\ic{st.compileStatement}). This works because they are injected as extensions
 using the following statement:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=xtend]
 @Inject extension StatementExtensions
 \end{lstlisting}
 
@@ -333,7 +333,7 @@ Expressions are handled in the same way as statements. The injected class
 \ic{ExpressionExtensions} defines a set of overloaded \ic{dispatch} methods for
 \ic{Expression} and all its subtypes.
 
-\begin{lstlisting}
+\begin{lstlisting}[language=xtend]
 def dispatch String compileExpr (Equals e){
     e.left.compileExpr + " == " + e.right.compileExpr
 }
@@ -387,7 +387,7 @@ string as the result, they produce another object graph. So the general
 structure of a transformation is similar. In fact, the two can be mixed. Let us
 go back to the first code example of the generator:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=xtend]
 def compile(CoolingProgram program) { 
     val transformedProgram = program.transform
     '''
@@ -418,7 +418,7 @@ existing state that checks if the new event occurred, and if so, transitions to
 the new state. Essentially, this adds emergency stop behavior to any existing
 state machine. Let us look at the implementation:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=xtend, morekeywords={for, return}]
 class Transformation {
     
     @Inject extension CoolingBuilder 
@@ -1039,7 +1039,7 @@ strings:
            [<map(to-java)> ps]
        }
      ]
-\end{lstlisting}\ignore{$}
+\end{lstlisting}
 
 \noindent 
 Indentation is important both for the readability of rewrite rules and of the

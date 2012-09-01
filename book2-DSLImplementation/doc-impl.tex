@@ -106,13 +106,13 @@ showtabs=false,                         % Dont make tabls visible
 columns=flexible,                       % Column format
 morekeywords={}  
 stringstyle=\color{OliveGreen},
-mathescape=true,
+mathescape=false,
 showstringspaces=false,
 keepspaces=true,
 sensitive=true,
 columns=fullflexible,
 columns=fullflexible,
-otherkeywords={::,:,->,=>,[,],;,==;+=,=,:<=:,:==:,<,+,&,!}, 
+otherkeywords={::,:,->,=>,;,==;+=,=,:<=:,:==:,<,+,&,!}, 
 } 
 
 
@@ -132,7 +132,9 @@ comment=[l]{//},
 properties, string, boolean, children, references, intention, true, false,
 error, available, in, child, nodes, side, transform, actions,
 transformed, constraints, link, referent, set, handler, validator, search,
-scope, presentation, if, return
+scope, presentation, if, return, checking, rule, applicable, for, do, data,
+flow, builder, if, else, code, write, void, after, jump, label, null, foreach,
+overrides, as, new, typeof, overloaded, operations, rules, operation, operand
 }, alsodigit={(,),0,1,2,3,4,5,6,7,8,9,0},
 morestring=[b]",
 comment=[l]{//},
@@ -141,6 +143,14 @@ comment=[l]{//},
 
 \lstdefinelanguage{archdsl}
 {morekeywords={namespace, feature, component, instance, dynamic, connect, aspect, provides},
+alsodigit={(,),0,1,2,3,4,5,6,7,8,9,0},
+morestring=[b]",
+comment=[l]{//},
+}
+
+\lstdefinelanguage{xts}
+{morekeywords={typeof, clone, abstract, common, ensureType, characteristic,
+char, ensureCompatibility, none}, 
 alsodigit={(,),0,1,2,3,4,5,6,7,8,9,0},
 morestring=[b]",
 comment=[l]{//},
@@ -156,6 +166,14 @@ comment=[l]{//},
 
 \lstdefinelanguage{webdsl}
 {morekeywords={module, entity, function, var, return},
+alsodigit={(,),0,1,2,3,4,5,6,7,8,9,0},
+morestring=[b]",
+comment=[l]{//},
+}
+
+\lstdefinelanguage{xtend}
+{morekeywords={def, FOR, ENDFOR, SEPARATOR, instanceof, IF, ENDIF,
+dispatch, class, extension, val, create}, 
 alsodigit={(,),0,1,2,3,4,5,6,7,8,9,0},
 morestring=[b]",
 comment=[l]{//},
