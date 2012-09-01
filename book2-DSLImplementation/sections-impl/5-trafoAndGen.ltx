@@ -9,6 +9,7 @@ code generation refers to the case where textual concrete syntax is created. In
 some systems, the two are unified into a common approach. The Xtext, MPS and
 Spoofax examples illustrate this point.}
 
+\noindent
 Transformation of models is an essential step in working with DSLs. We typically
 distinguish between two different cases: if models are transformed into other
 models we call this \emph{model transformation}. If models are transformed into
@@ -130,7 +131,7 @@ generators and model transformations.
 
 \begin{figure}[ht]
 \begin{center}
-  \includegraphics[width=11cm]{figures-impl/5/xtext-gen-1.png}
+  \includegraphics[width=\columnwidth]{figures-impl/5/xtext-gen-1.png}
   \caption[]{The top level structure of a generator written in Xtext is a class
   that implements the \ic{IGenerator} interface, which requires the
   \ic{doGenerate} method. Inside generator methods, template expressions
@@ -572,7 +573,8 @@ since it is only used in the last stage of generation where the AST is
 essentially structurally identical to the generated text\footnote{If you wantto generate text that is structurally different, then the textgen language isa bit of a pain to use; in this case, the MPS philosophy recommends you builda suitable intermediate language (such as for XML, or even for a particularschema).}.
  
 \begin{figure}[ht]
-\begin{center}
+\fbox{
+\begin{minipage}{104.5mm}
   \includegraphics[width=8cm]{figures-impl/5/mps-textgen.png}
   \caption[]{The AST-to-text generator for an \ic{if} statement. If first
   checks if the condition happens to be a \ic{true} literal, in which case the \ic{if}
@@ -582,7 +584,8 @@ essentially structurally identical to the generated text\footnote{If you wantto
   its own textgen, and we delegate to that one. We finally output the code for
   the \ic{else} part.}
   \label{mps-textgen} 
-\end{center} 
+\end{minipage}
+}
 \end{figure}
 
 
@@ -671,12 +674,14 @@ This high level structure is clearly discernable from the two main templates
 shown in \fig{mps-sm-gen-1} and \fig{mps-sm-gen-2}. 
 
 \begin{figure}[h]
-\begin{center} 
-  \includegraphics[width=11cm]{figures-impl/5/mps-sm-gen-1.png}
+\fbox{
+\begin{minipage}{104.5mm}
+  \includegraphics[width=10cm]{figures-impl/5/mps-sm-gen-1.png}
   \caption[]{The MPS generator that inserts two\ic{enum} definitions
   and a \ic{struct} into the module which contains the \ic{StateMachine}.}
   \label{mps-sm-gen-1}  
-\end{center} 
+\end{minipage}
+}
 \end{figure}
 
 
@@ -693,7 +698,7 @@ it.
 
 \begin{figure}[ht]
 \begin{center}
-  \includegraphics[width=11cm]{figures-impl/5/mps-gen-phases.png}
+  \includegraphics[width=\columnwidth]{figures-impl/5/mps-gen-phases.png}
   \caption[]{State machines are transformed (via a model-to-model
   transformation, if you will) into two \ic{enum}s, a \ic{struct} and a
   function. These are then transformed to text via the regular
@@ -724,14 +729,16 @@ For the literals of the events \ic{enum} we use a similar expression
 (\ic{node.events;}).
 
 \begin{figure}[ht]
-\begin{center}
+\fbox{
+\begin{minipage}{104.5mm}
   \includegraphics[width=\columnwidth]{figures-impl/5/mps-sm-inspector1.png}
-  \caption[]{The inspector is used to provide the implementation
-  details for the macros used in the templates. This one belongs to a
-  \ic{LOOP} macro, so we provide an expression that returns a
-  collection, over which the \ic{LOOP} macro iterates.}
-  \label{mps-sm-inspector1} 
-\end{center} 
+\end{minipage}
+}
+\caption[]{The inspector is used to provide the implementation
+details for the macros used in the templates. This one belongs to a
+\ic{LOOP} macro, so we provide an expression that returns a
+collection, over which the \ic{LOOP} macro iterates.}
+\label{mps-sm-inspector1} 
 \end{figure}
  
 
@@ -780,7 +787,11 @@ reference to the correct \ic{EnumDeclaration}? We use a reference macro
 expression.
 
 \begin{figure*}[ht]
+\fbox{
+\begin{minipage}{105mm}
   \includegraphics[width=17cm]{figures-impl/5/mps-ref-macro.png}
+\end{minipage}
+}
   \caption[][-10mm]{A reference macro has to return either the target node,
   or the name of the target node. The name is then resolved using the scoping
   rules for the particular reference concept.}
@@ -801,13 +812,15 @@ convenient and works also for cross-model references, where mapping labelsdon't
 
  
 \begin{figure}[h]
-\begin{center}
-  \includegraphics[width=11cm]{figures-impl/5/mps-sm-gen-2.png}
+\fbox{
+\begin{minipage}{105mm}
+  \includegraphics[width=\columnwidth]{figures-impl/5/mps-sm-gen-2.png}
+\end{minipage}
+}
   \caption[][40mm]{The transformation template for generating the
   \ic{switch}-based implementation of a \ic{StateMachine}. See the text for
   details.}
   \label{mps-sm-gen-2} 
-\end{center} 
 \end{figure}
 
 
@@ -877,12 +890,14 @@ casts the element to a pointer to the type of the argument, and then
 dereferences everything.
 
 \begin{figure}[h]
-\begin{center}
-  \includegraphics[width=11cm]{figures-impl/5/mps-eventArgRef.png}
+\fbox{ 
+\begin{minipage}{105mm}
+  \includegraphics[width=\columnwidth]{figures-impl/5/mps-eventArgRef.png}
+\end{minipage}
+}
   \caption[]{The reduction rule for references to event arguments (to
   be used inside guard conditions of transitions). }
   \label{mps-eventArgRef} 
-\end{center} 
 \end{figure}
 
 \noindent 
@@ -930,14 +945,18 @@ a version of the \ic{TriggerSMStatement} that does not include event arguments.
 \fig{mps-trigger} shows the template. 
 
  
-\begin{figure*}[h]
-  \includegraphics[width=13cm]{figures-impl/5/mps-trigger.png}
+\begin{figure}[h]
+\fbox{
+\begin{minipage}{105mm}
+  \includegraphics[width=\columnwidth]{figures-impl/5/mps-trigger.png}
+\end{minipage}
+}
   \caption[][-55mm]{The reduction rule for a \ic{trigger} statement. It is
   transformed to a call to the function that implements the behavior of the
   state machine that is referenced in the first argument of the \ic{trigger}
   statement.}
   \label{mps-trigger} 
-\end{figure*}
+\end{figure}
 
 \noindent We use a dummy function \ic{someMethod} so we can embed a function
 call --- because we have to generate a function call to the execute function generated
@@ -1941,15 +1960,17 @@ dispatch statement, a kind of "pimped switch". \fig{mps-dispatch} shows an
 example.
 
 \begin{figure}[ht]
-\begin{center}
-  \includegraphics[width=14cm]{figures-impl/5/mps-dispatch.png}
+\fbox{
+\begin{minipage}{105mm}
+  \includegraphics[width=\columnwidth]{figures-impl/5/mps-dispatch.png}
+\end{minipage}
+}
   \caption[][4cm]{An extension to MPS' BaseLanguage that makes writing
   interpreters simpler. The \ic{dispatch} statement has the neat feature that,
   on the right side of the \ic{->}, the \ic{\$} reference to the \ic{ex}
   expression is already downcast to the type mentioned on the left of the
   \ic{->}.}
   \label{mps-dispatch} 
-\end{center}
 \end{figure}
 
 \noindent 

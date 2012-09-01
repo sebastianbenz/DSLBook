@@ -97,7 +97,8 @@ numbersep=5pt,                          % How far are line-numbers from code
 tabsize=2,     
 %xleftmargin=1.5mm,
 %xrightmargin=1.5mm,
-frame=lines,
+%frame=lines,
+frame=single,
 captionpos=b,                           % Caption-position = bottom
 breaklines=true,                        % Automatic line breaking?
 breakatwhitespace=false,                % Automatic breaks only at whitespace?
@@ -108,103 +109,84 @@ morekeywords={}
 stringstyle=\color{OliveGreen},
 mathescape=false,
 showstringspaces=false,
+xleftmargin=1.5mm,
+xrightmargin=1.5mm,
 keepspaces=true,
 sensitive=true,
 columns=fullflexible,
 columns=fullflexible,
-otherkeywords={::,:,->,=>,;,==;+=,=,:<=:,:==:,<,+,&,!}, 
+alsodigit={0,1,2,3,4,5,6,7,8,9,0}, 
+morestring=[b]",
+comment=[l]{//},
+% otherkeywords={::,:,->,=>,;,==;+=,=,:<=:,:==:,<,+,&,!}, 
 } 
 
 
 \lstdefinelanguage{mbeddr}
-{morekeywords={return,test,case,exported,int8_t,foreach,it,int32,void,sized,assert,rule,as,
-applicable,concept,overrides,do,typeof,if,applicable,error,int64_t,
-concepts,constraints,can,be,child,ancestor,isNotNull,node,int32_t,executeTests,
+{morekeywords={
+return,test,case,exported,foreach,it,void,sized,assert,rule,as,
+applicable,concept,overrides,do,typeof,if,applicable,error,
+concepts,constraints,can,be,child,ancestor,isNotNull,node,executeTests,
 module, statemachine, events, states, initial, state, on, assert, imports, in,
-event, int, out, local, variables
-}, 
-alsodigit={(,),0,1,2,3,4,5,6,7,8,9,0}, morestring=[b]",
-comment=[l]{//},
-}
+event, int, out, local, variables, interface, boolean, component, true, false,
+provides, requires
+}}
 
-\lstdefinelanguage{mps}
-{morekeywords={concept, extends, implements, instance, can, be, root,
+\lstdefinelanguage{mps}{morekeywords={
+concept, extends, implements, instance, can, be, root,
 properties, string, boolean, children, references, intention, true, false,
-error, available, in, child, nodes, side, transform, actions,
+error, available, in, child, nodes, side, transform, actions, int,
 transformed, constraints, link, referent, set, handler, validator, search,
 scope, presentation, if, return, checking, rule, applicable, for, do, data,
 flow, builder, if, else, code, write, void, after, jump, label, null, foreach,
 overrides, as, new, typeof, overloaded, operations, rules, operation, operand,
-behavior, public, private, protected
-}, 
-alsodigit={(,),0,1,2,3,4,5,6,7,8,9,0},
-morestring=[b]",
-comment=[l]{//},
-}
+behavior, public, private, protected, typevar
+}}
 
 
-\lstdefinelanguage{archdsl}
-{morekeywords={namespace, feature, component, instance, dynamic, connect, aspect, provides},
-alsodigit={(,),0,1,2,3,4,5,6,7,8,9,0},
-morestring=[b]",
-comment=[l]{//},
-}
+\lstdefinelanguage{archdsl}{morekeywords={
+namespace, feature, component, instance, dynamic, connect, aspect, provides
+}}
 
-\lstdefinelanguage{xts}
-{morekeywords={typeof, clone, abstract, common, ensureType, characteristic,
-char, ensureCompatibility, none}, 
-alsodigit={(,),0,1,2,3,4,5,6,7,8,9,0},
-morestring=[b]",
-comment=[l]{//},
-}
+\lstdefinelanguage{xts}{morekeywords={
+typeof, clone, abstract, common, ensureType, characteristic,
+char, ensureCompatibility, none 
+}}
 
-\lstdefinelanguage{cooling}
-{morekeywords={cooling, program, uses, var, int, event, init, start, set,
-state, entry, check, on},
-alsodigit={(,),0,1,2,3,4,5,6,7,8,9,0},
-morestring=[b]",
-comment=[l]{//},
-}
+\lstdefinelanguage{cooling}{morekeywords={
+cooling, program, uses, var, int, event, init, start, set,
+state, entry, check, on
+}}
 
-\lstdefinelanguage{webdsl}
-{morekeywords={module, entity, function, var, return},
-alsodigit={(,),0,1,2,3,4,5,6,7,8,9,0},
-morestring=[b]",
-comment=[l]{//},
-}
+\lstdefinelanguage{webdsl}{morekeywords={
+module, entity, function, var, return
+}}
 
-\lstdefinelanguage{xtend}
-{morekeywords={def, FOR, ENDFOR, SEPARATOR, instanceof, IF, ENDIF,
-dispatch, class, extension, val, create, var}, 
-alsodigit={(,),0,1,2,3,4,5,6,7,8,9,0},
-morestring=[b]",
-comment=[l]{//},
-}
+\lstdefinelanguage{xtend}{morekeywords={
+def, FOR, ENDFOR, SEPARATOR, instanceof, IF, ENDIF,
+dispatch, class, extension, val, create, var 
+}}
 
-\lstdefinelanguage{stratego}
-{morekeywords={with, where},
-alsodigit={(,),0,1,2,3,4,5,6,7,8,9,0},
-morestring=[b]",
-comment=[l]{//},
-}
+\lstdefinelanguage{stratego}{morekeywords={
+with, where, if, else, end, then
+}}
 
 
-\lstdefinelanguage{xtextgrammar}{
-morekeywords={ID, STRING, terminal, current, returns},
-alsodigit={(,),0,1,2,3,4,5,6,7,8,9,0},
-morestring=[b]",
-comment=[l]{//},
-} 
+\lstdefinelanguage{xtextgrammar}{morekeywords={
+ID, STRING, terminal, current, returns
+}}
 
-\lstdefinelanguage{sdf}{
-morekeywords={module, context, free, start, symbols, priorities, syntax,
+\lstdefinelanguage{sdf}{morekeywords={
+module, context, free, start, symbols, priorities, syntax,
 lexical, left, reject, prefer, restrictions, imports, exports, signature,
-constructors}, 
-alsodigit={(,),0,1,2,3,4,5,6,7,8,9,0},
-otherkeywords={::,:,->,=>,[,],;,==;+=,=,:<=:,:==:,<,+,&,!,@}, 
-morestring=[b]",
-comment=[l]{//},
-}
+constructors 
+}}
+
+\lstdefinelanguage{mpsmodex}{morekeywords={
+module, entity, int, string, boolean, form, uses, field, textfield, 
+combobox, checkbox, textfield, database, table, char, number, RBAC, users,
+roles, permissions, role, user, if, true, false, else, validate
+}}
 
 
 

@@ -442,7 +442,7 @@ It is ambiguous, since for a string \ic{1*2+3} there are two possible trees
             child { node {3}}}};
 \end{Tree}
 
-The grammar does not describe which interpretation should be preferred.
+\noindent The grammar does not describe which interpretation should be preferred.
 Parser generators for restricted grammar classes and generalized parsers handle
 ambiguity differently. We discuss both approaches.
 
@@ -854,7 +854,7 @@ element has a unique ID, \emph{move} can be distinguished from
 
 \begin{figure}[ht] 
 \begin{center}
-  \includegraphics[width=11cm]{figures-impl/2/mps-diff.png}
+  \includegraphics[width=\columnwidth]{figures-impl/2/mps-diff.png}
   \caption[]{The diff/merge tool presents MPS programs in their
   concrete syntax, i.e. text for textual notations. However, other notations,
   such as tables, would also be rendered in their native form.}
@@ -1198,13 +1198,15 @@ up into the abstract \ic{State} meta class so they can be accessed polymorphical
 \fig{Fig:xtext-metamodel} shows the resulting meta model using EMF's tree view.
 
 \begin{figure}[ht]
-\begin{center}
+\fbox{
+\begin{minipage}{104.5mm}
   \includegraphics[scale=0.7]{figures-impl/2/xtext-metamodel.png}
   \caption[]{Part of the Ecore meta model derived from the Xtext grammar
   for the cooling program. Grammar rules become \ic{EClass}es, assignments in
   the grammar rules become \ic{EProperties} (i.e. attributes and references).}
   \label{Fig:xtext-metamodel}  
-\end{center}
+\end{minipage}
+}
 \end{figure}
 
 
@@ -1822,16 +1824,16 @@ is not empty (a condition is attached to the respective cells, marked by the
 \ic{?} in front of the cell). An intention is used (see next section) to add a
 new statement and hence make the respective list visible.
 \begin{figure}[ht]
-\vspace{-5mm}
-\begin{center}
-  \includegraphics[width=11cm]{figures-impl/2/mps-stateeditor.png}
+\fbox{
+\begin{minipage}{104.5mm}
+  \includegraphics[width=10cm]{figures-impl/2/mps-stateeditor.png}
   \caption[]{The definition of the editor for the \ic{State} concept.
   In MPS, editors are made from cells. In the editor definition your arrange
   the cells and define what they project; this defined the projection rule that
   is then used when instances of the concept are edited.}
   \label{Fig:mps-stateeditor}  
-\end{center}
-\vspace{-10mm}
+\end{minipage}
+} 
 \end{figure}
 
 
@@ -1843,15 +1845,18 @@ surrounded by brackets, and an arrow (\ic{->}) in front of the target state. The
 editor for the actions \ic{StatementList} comes with its own set of curly
 braces. 
 
+\todo{Fix image}
 \begin{figure*}[ht]
-\vspace{-5mm}
+\fbox{
+\begin{minipage}{104.5mm}
   \includegraphics[width=16cm]{figures-impl/2/mps-transeditor.png}
   \caption[][-30mm]{The editor for transitions. Note how we embed the
   guard condition expression simply by referring to the \ic{guard} child
   relationship. We "inherit" the syntax for expressions from the
   \ic{com.mbeddr.core.expressions} language.}
   \label{Fig:mps-transeditor}  
-\vspace{-5mm}
+\end{minipage}
+} 
 \end{figure*}
 \noindent The \ic{\%targetState\% -> \{name\}} part is interesting; it expresses
 that in order to render the target state, the target's state's \ic{name} attribute
@@ -2040,7 +2045,7 @@ module UnitTestDemo imports nothing {
     assert (0) times2(21) == 42; 
   } 
    
-  int8_t times2(int8_t a) { 
+  int8 times2(int8 a) { 
     return 2 * a; 
   } 
 }

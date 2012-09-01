@@ -42,21 +42,23 @@ understand the structure of an existing program. For example, any program
 element can be inspected in the \emph{Explorer}. \fig{mps-explorer} shows the
 information for a trivial C function:
 
-\begin{lstlisting}
-int8_t add(int8_t x, int8_t y) { 
+\begin{lstlisting}[language=c]
+int8 add(int8 x, int8 y) { 
   return x + y; 
 } 
 \end{lstlisting}
 
 
 \begin{figure}[h]
-\begin{center}
+\fbox{
+\begin{minipage}{105mm}
   \includegraphics[width=8cm]{figures-impl/8/mps-explorer.png}
+\end{minipage}
+}
   \caption[]{The MPS explorer shows the structure of a program as a tree.
   The explorer also shows the concept for each program element as well as the
   type, if an element has one.}
   \label{mps-explorer} 
-\end{center} 
 \end{figure}
 
 MPS provides similar support for understanding the projection rules. For any
@@ -132,7 +134,7 @@ the solver including the values it assigns to type variables as well as which
 type system rules are applied to which program element.
 
 \begin{figure}[h]
-  \includegraphics[width=11cm]{figures-impl/8/mps-ts-trace.png} 
+  \includegraphics[width=\columnwidth]{figures-impl/8/mps-ts-trace.png} 
   \caption[][-20mm]{This
   example shows the solver state for the \ic{Argument x}. It first applies the
   rule \ic{typeof\_ITyped} (\ic{Argument} implements \ic{ITyped}) which
@@ -200,21 +202,22 @@ investigate a simple example C program that contains a message definition and a
 \ic{report} statement. The \ic{report} statement is transformed to \ic{printf}
 statements.
 
-\begin{lstlisting}
+\begin{lstlisting}[language=mbeddr, morekeywords={message, list, active,
+report}] 
 module Simple imports nothing { 
    
   message list messages { 
     INFO aMessage() active: something happened 
   } 
    
-  exported int32_t main(int32_t argc, int8_t*[] argv) { 
-    report(0) messages.aMessage() on/if; 
+  exported int32 main(int32 argc, int8*[] argv) { 
+    report (0) messages.aMessage(); 
     return 0; 
   } 
 }
 \end{lstlisting}
 
-Below is the mapping configuration for this program: 
+\noindent Below is the mapping configuration for this program: 
 
 \begin{lstlisting}
 [ 1 ]
@@ -240,10 +243,10 @@ can be kept around for inspection. Each of the phases is represented by one or
 more transient models. As an example, here is the program after the \ic{report}
 statement has been transformed:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=mbeddr]
 module Simple imports nothing { 
 
-  exported int32_t main(int32_t argc, int8_t*[] argv) { 
+  exported int32 main(int32 argc, int8*[] argv) { 
     printf("$$ aMessage: something happened "); 
     printf("@ Simple:main:0#240337946125104144 \n "); 
     return 0;
@@ -386,7 +389,7 @@ execution may be useful. In this approach, all execution steps in a program are
 automatically traced and logged into a tree-like data structure. The
 refrigerator cooling language uses this approach. Here is an example program:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=cooling]
 cooling program HelloWorld {
     var temp: int
     start:
@@ -402,7 +405,8 @@ state \ic{s1}. It remains in \ic{s1} until the variable \ic{temp} becomes less
 than 10. It then transitions to \ic{s2}. Below is a test for this program that
 verifies this behavior:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=cooling, morekeywords={test, prolog, step, assert,
+currentstate, mock}] 
 test HelloWorldTest for HelloWorld {
     prolog {
         set temp = 30
@@ -424,7 +428,7 @@ respective program element in the source node. By adding special comments to the
 source, the log can be structured further.
 
 \begin{figure}[h]
-  \includegraphics[width=11cm]{figures-impl/8/interpreterlog.png}
+  \includegraphics[width=\columnwidth]{figures-impl/8/interpreterlog.png}
   \caption[]{The log viewer represents a program's execution as a tree. The
   first column contains a timestamp and the tree nesting structure. The second
   column contains the kind (severity) of the log message. A filter can be used
@@ -444,7 +448,7 @@ that describe whatever the method did, and then passes the child to any other
 interpreter methods it calls. As an example, here is the implementation of the
 \ic{AssignmentStatement}:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=java]
 protected void executeAssignmentStatement(AssignmentStatement s, LogEntry log) {
     LogEntry c = log.child(Kind.info, context, "executing AssignmentStatement" ); 
     Object l = s.getLeft();
@@ -631,9 +635,9 @@ its size, since in C an array cannot be queried for its size. Inside the
 \ic{foreach} body, \ic{it} acts as a reference to the current iteration's array
 element.
 
-\begin{lstlisting}
-int8_t s = 0;                                              
-int8_t[] a = {1, 2, 3};                  
+\begin{lstlisting}[language=c, morekeywords={foreach, sized}]
+int8 s = 0;                                              
+int8[] a = {1, 2, 3};                  
 foreach (a sized 3) {    
     s += it;    
 } 
@@ -643,11 +647,11 @@ The code generated from this piece of extended C looks as follows. The
 \ic{foreach} statement is expanded into a regular \ic{for} statement and an
 additional variable \ic{\_\_it}:
 
-\begin{lstlisting}
-int8_t s = 0;                                              
-int8_t[] a = {1, 2, 3};                  
+\begin{lstlisting}[language=c]
+int8 s = 0;                                              
+int8[] a = {1, 2, 3};                  
 for (int __c = 0; __c < 3; __c++) {    
-    int8_t __it = a[__c];
+    int8 __it = a[__c];
     s += __it;    
 } 
 \end{lstlisting}
@@ -682,9 +686,11 @@ in \fig{foreachEditorImage}. It consists of a horizontal list of cells: the
 expression, the closing parenthesis and the editor of the \ic{body}.
 
 \begin{figure}[h]
-\begin{center} 
+\fbox{
+\begin{minipage}{105mm}
   \includegraphics[width=85mm]{figures-impl/8/mbeddr/foreachEditor2.png}
-\end{center}
+\end{minipage}
+}
 \caption{The editor definition of the
 \ic{foreach} statement and its relationship to an example
 instance.}
@@ -695,10 +701,10 @@ As shown in the code snippet below, the
 \ic{array} must be of type \ic{ArrayType}, and the type of \ic{len} must be
 \ic{int64\_t} or any of its shorter subtypes.
  
-\begin{lstlisting}
+\begin{lstlisting}[language=mps]
 rule typeof_ForeachStatement for ForeachStatement as fes do {
-    typeof(fes.len) :<=: <int64_t>; if
-    (!(fes.array.type.isInstanceOf(ArrayType))) {
+    typeof( fes.len ) :<=: <int64>; 
+    if (!(fes.array.type.isInstanceOf(ArrayType))) {
       error "array required" -> fes.array; 
     } 
 }
@@ -714,9 +720,11 @@ is an existing generator for C that outputs C text which is subsequently
 compiled.
  
 \begin{figure}[h]
-\begin{center}  
-  \includegraphics[width=110mm]{figures-impl/8/mbeddr/foreachGenerator.png}
-\end{center} 
+\fbox{
+\begin{minipage}{105mm}
+  \includegraphics[width=\columnwidth]{figures-impl/8/mbeddr/foreachGenerator.png}
+\end{minipage}
+}
 \vspace{-2mm}
 \caption{The \ic{foreach} generator template. A \ic{ForeachStatement} is replaced by what is framed \ic{<TF .. TF>}
 when the template is executed, the \ic{dummy} function around it just provides
@@ -733,8 +741,8 @@ expressions are expected. The editor consists of a single cell with the keyword
 \ic{it}. A constraint enforces that the \ic{ItExpression} is only used inside
 the body of a \ic{foreach}:
 
-\begin{lstlisting}
-concepts constraints ItExpression { 
+\begin{lstlisting}[language=mps]
+concept constraints ItExpression { 
   can be child 
     (context, scope, parentNode, link, childConcept)->boolean { 
       parentNode.ancestor<ForeachStatement, +>.isNotNull && 
@@ -747,9 +755,9 @@ concepts constraints ItExpression {
 The type of \ic{it} must be the base type of the \ic{array} (e.g. \ic{int} in
 case of \ic{int{[]}}), as shown in the code below:
 
-\begin{lstlisting}
-node<Type> basetype = typeof(it.ancestor<ForeachStatement>.array) 
-                         as ArrayType.baseType; 
+\begin{lstlisting}[language=mps]
+node<Type> basetype = typeof(it.ancestor<ForeachStatement>.array)
+                         :ArrayType.baseType; 
 typeof(it) :==: basetype.copy;
 \end{lstlisting}
 
@@ -787,7 +795,7 @@ breakpoints on these possible next statements. The
 \ic{contributeStepOverStrategies} method collects strategies for the \emph{step
 over} case:
  
-\begin{lstlisting}
+\begin{lstlisting}[language=java, morekeywords={ancestor, statement, list}]
 void contributeStepOverStrategies(list<IDebugStrategy> res) {
    ancestor
    statement list: this.body   
@@ -814,7 +822,7 @@ so, the debugger has to step into each of those, in turn. Otherwise the debugger
 falls back to \emph{step over}. An additional method configures the expression
 trees which the debugger must inspect:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=java, morekeywords={subtree}]
 void contributeStepIntoStrategies(list<IDebugStrategy> res) { 
   subtree: this.array 
   subtree: this.len     
@@ -830,14 +838,16 @@ This is exactly the wrong way: the watch window should show \ic{it}, but not
 \ic{IWatchProvider}. Here is the code for \ic{foreach}, also expressed in the
 debugger definition DSL:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=java, morekeywords={hide, map, to, type, category,
+contex}] 
 void contributeWatchables(list<UnmappedVariable> unmapped, 
                                  list<IWatchable> mapped) { 
   hide "__c" 
   map "__it" to "it" 
     type: this.array.type : ArrayType.baseType 
     category: WatchableCategories.LOCAL_VARIABLES 
-    context: this    }
+    context: this    
+}
 \end{lstlisting}
 
 The first line hides \ic{\_\_c}. The rest \ic{map}s a base-level C variable to a
@@ -1114,7 +1124,7 @@ from \ic{isExtStackFrame}. Its \ic{getStackFrameName} is shown below: the
 tree-level stack frame has the name of the \ic{event} that triggered the
 transition and the name of the owning \ic{state}.
 
-\begin{lstlisting}
+\begin{lstlisting}[language=mps]
 public string getStackFrameName() {
   this.ancestor<State>.name+" - "+this.trigger.event.name; }
 \end{lstlisting}
@@ -1124,8 +1134,8 @@ The code snippet below shows a testing scenario with three stack frame
 contributors: a function \ic{main}, two test cases, and an
 \ic{executeTests} expression: 
 
-\begin{lstlisting}
-int32_t main() {
+\begin{lstlisting}[language=mbeddr]
+int32 main() {
   return executeTests testIntRandom, testRealRandom; 
 }
 
@@ -1154,7 +1164,7 @@ way the debugger creates tree-level stack frames for called \ic{functions}
 and \ic{test cases} with their respective name. The following snippet shows the
 implementation for \ic{functions}:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=mps]
 string getStackFrameName() { 
   return this.name; 
 }
@@ -1182,7 +1192,7 @@ where the execution should be suspended after a \ic{step out}. The following
 code shows the \ic{createBreakpoint} implementation of the custom strategy used
 in this case:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=mps]
 void configure(IStrategyConfiguration strategyConfiguration) { 
   this.dslStackMapping = conf.getDSLStackMapping(); 
   this.strategyConfiguration = strategyConfiguration; 

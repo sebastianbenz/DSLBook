@@ -43,14 +43,15 @@ testing
 utilities\footnote{http://code.google.com/a/eclipselabs.org/p/xtext-utils/wiki/Unit\_Testing}.
 It is a JUnit 4 test case with special support for the Xtext infrastructure.
 
-\begin{lstlisting}
+\begin{lstlisting}[language=java]
 @RunWith(XtextRunner.class)
 @InjectWith(CoolingLanguageInjectorProvider.class)
 public class InterpreterTests extends XtextTest {
 
     @Test 
     public void testET0() throws Exception {
-        testFileNoSerializer("interpreter/engine0.cool", "tests.appl", "stdparams.cool" ); 
+        testFileNoSerializer("interpreter/engine0.cool", "
+              tests.appl", "stdparams.cool" ); 
     }
     
 }                                                                                                                                                                                                               
@@ -73,7 +74,7 @@ instead of complete sentences or programs. The following piece of Xtext example
 code tests the \ic{CustomState} parser rule:
 
 
-\begin{lstlisting}
+\begin{lstlisting}[language=java]
 @Test 
 public void testStateParserRule() throws Exception {
     testParserRule("state s:", "CustomState" );
@@ -94,7 +95,8 @@ although \ic{anOperation} is not defined as a callable operation anywhere.
 \parhead{An Example with Spoofax} Spoofax supports writing tests for language
 definitions using a testing language. Consider the following test suite:
 
-\begin{lstlisting}
+\begin{lstlisting}[morekeywords={module, language, test, parse, succeeds,
+fails}] 
 module example
 language MoblEntities
 
@@ -111,7 +113,8 @@ determines what kind of test should be performed (\ic{parsing}) and what the
 expected outcome is (\ic{succeeds} or\ic{fails}). We can also specify the
 expected abstract syntax based on the ATerm textual notation:
 
-\begin{lstlisting}
+\begin{lstlisting}[morekeywords={module, language, test, parse, succeeds,
+fails, to}] 
 test empty module (AST) [[module foo]] parse to Module("foo", [])
 \end{lstlisting}
 
@@ -121,7 +124,8 @@ interesting parts in a pattern. For example, if we only want to verify that the
 definition list of an empty module is indeed empty, we can use \ic{\_} as a
 wildcard for the module name:
 
-\begin{lstlisting}
+\begin{lstlisting}[morekeywords={module, language, test, parse, succeeds,
+fails, to}] 
 test empty module (AST) [[module foo]] parse to Module(_, [])
 \end{lstlisting}
 
@@ -129,7 +133,8 @@ test empty module (AST) [[module foo]] parse to Module(_, [])
 Abstract syntax patterns are particularly useful for testing operator precedence 
 and associativity:
 
-\begin{lstlisting}
+\begin{lstlisting}[morekeywords={module, language, test, parse, succeeds,
+fails, to}] 
 test multiply and add [[1 + 2 * 3]] parse to Add(_, Mul(_, _))
 test add and multiply [[1 * 2 + 3]] parse to Add(Mul(_, _), _)
 test add and add [[1 + 2 + 3]] parse to Add(Add(_, _), _)
@@ -139,7 +144,8 @@ test add and add [[1 + 2 + 3]] parse to Add(Add(_, _), _)
 Alternatively, we can specify an equivalent context-syntax fragment instead of 
 an abstract syntax pattern:
 
-\begin{lstlisting}
+\begin{lstlisting}[morekeywords={module, language, test, parse, succeeds,
+fails, to}] 
 test multiply and add [[1 + 2 * 3]] parse to [[1 + (2 * 3)]]
 test add and multiply [[1 * 2 + 3]] parse to [[(1 * 2) + 3]]
 test add and add [[1 + 2 + 3]] parse to [[(1 + 2) + 3]]
@@ -195,7 +201,7 @@ The unit testing utilities mentioned above also support testing constraints. The
 utilities come with an internal Java DSL that supports checking for the presence
 of error annotations after parsing and constraint-checking a model file.
 
-\begin{lstlisting}
+\begin{lstlisting}[language=java]
 @Test 
 public void testTypesOfParams() throws Exception {
     testFileNoSerializer("typesystem/tst1.cool", "tests.appl", "stdparams.cool");
@@ -270,13 +276,15 @@ error is detected, hence the red squiggly. We use another annotation to assert
 the presence of the error.
 
 \begin{figure}[h]
-\begin{center}
+\fbox{
+\begin{minipage}{105mm}
   \includegraphics[scale=0.6]{figures-impl/7/mps-test.jpg}
+\end{minipage}
+}
   \caption[]{Using MPS \ic{NodesTestCase}, assertions about types and the
   presence of errors can be directly annotated on programs written in any
   language.}
   \label{mps-testexample} 
-\end{center}
 \end{figure}
 
 
@@ -305,7 +313,7 @@ example.
 \parhead{An Example with Spoofax} In Spoofax' testing language, we can write
 test cases which specify the number of errors and warnings in a code fragment:
 
-\begin{lstlisting}
+\begin{lstlisting}[morekeywords={test, error, warning}]
 test duplicate entities [[
   module foo
   entity X {}
@@ -321,7 +329,7 @@ test lower case entity name [[
 \noindent 
 Additionally, we can specify parts of the error or warning messages:
 
-\begin{lstlisting}
+\begin{lstlisting}[morekeywords={test, error, warning}]
 test duplicate entities [[
   module foo
   entity X {}
@@ -334,9 +342,9 @@ Like in Xtext and MPS, we can test scopes by means of correct and incorrect
 references. Alternatively, we can specify source and target of a link in a test
 case:
 
-\begin{lstlisting}
+\begin{lstlisting}[morekeywords={test, resolve, to}]
 test property reference [[
-  module foo
+  module foo 
   entity X {
   	[[p]]: int
   	function f(q: int) {
@@ -439,7 +447,8 @@ The following code shows one of the simplest possible cooling programs, as well
 as a test case for that program:
 
 
-\begin{lstlisting}
+\begin{lstlisting}[language=cooling, morekeywords={assert, currentstate, is,
+value, step, event, test, for}] 
 cooling program EngineProgram0 for Einzonengeraet uses stdlib {
          
     var v: int
@@ -486,7 +495,7 @@ failures are annotated as error marks on the program, or from within JUnit.
 The following piece of code shows how to run the tests from JUnit.
 
 
-\begin{lstlisting}
+\begin{lstlisting}[language=java]
 @RunWith(XtextRunner.class)
 @InjectWith(CoolingLanguageInjectorProvider.class)
 public class InterpreterTests extends PKInterpreterTestCase {
@@ -509,7 +518,7 @@ running a \ic{TestExecutionEngine}. The \ic{TestExecutionEngine} is a wrapper
 around the interpreter for cooling programs that we have discussed before.
 
 
-\begin{lstlisting}
+\begin{lstlisting}[language=java]
 protected void runAllTestsInFile(Model m) {
     CLTypesystem ts = new CLTypesystem();
     EList<CoolingTest> tests = m.getTests();
@@ -539,20 +548,20 @@ the core C clean.}. \ic{testMultiply} is the actual test case.
 It calls the to-be-tested function \ic{times2} several times with different
 arguments and then uses an \ic{assert} to check for the expected value.
 
-\begin{lstlisting}
+\begin{lstlisting}[language=mbeddr] 
 module UnitTestDemo { 
    
-  int32_t main(int32_t argc, int8_t*[ ] argv) { 
+  int32 main(int32 argc, int8*[ ] argv) { 
     return test testMultiply; 
   } 
    
   test case testMultiply { 
-    assert(0) times2(21) == 42; 
-    assert(1) times2(0) == 0; 
-    assert(2) times2(-10) == -20; 
+    assert (0) times2(21) == 42; 
+    assert (1) times2(0) == 0; 
+    assert (2) times2(-10) == -20; 
   } 
    
-  int8_t times2(int8_t a) { 
+  int8 times2(int8 a) { 
     return 2 * a; 
   }  
 }
@@ -562,8 +571,8 @@ module UnitTestDemo {
 Note that, while this unit testing extension can be used to test any C
 program, we use it a lot to test the generator. Consider the following example:
 
-\begin{lstlisting}
-  assert(0) 4 * 3 + 2 == 14; 
+\begin{lstlisting}[language=mbeddr] 
+assert (0) 4 * 3 + 2 == 14; 
 \end{lstlisting}
 
 \noindent The result of \ic{4 * 3 + 2} is only 14 if the correct operator
@@ -580,10 +589,10 @@ We have built much more elaborate support for testing various other extensions.
 It is illustrative to take a look at two of them. The next piece of code shows a
 test for a state machine:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=mbeddr]  
 exported test case test1 { 
   initsm(c1);   
-  assert(0) isInState<c1, initialState>; 
+  assert (0) isInState<c1, initialState>; 
   test statemachine c1 { 
     start -> countState 
     step(1) -> countState 
@@ -609,7 +618,7 @@ under test. We use this with the components extension. The following is a test
 case that checks if the \ic{client} uses the \ic{PersistenceProvider} interface
 correctly. Let's start by taking a look at the interface:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=mbeddr] 
 interface PersistenceProvider { 
   boolean isReady() 
   void store(DataPacket* data) 
@@ -627,7 +636,7 @@ declarative specification of valid call sequences}. Assuming it provides an
 operation \ic{run} that uses the persistence provider, we could write the
 following test:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=mbeddr] 
 exported test case runTest { 
   client.run(); 
   // somehow check is behaved correctly 
@@ -639,8 +648,9 @@ To check if the client behaves correctly, we can use a mock. Our mock specifies
 the \emph{icoming} methods calls it expects to see during the test. We have
 provided a mocking extension to components to support this. Here is the mock:
 
-\begin{lstlisting}
-exported mock component PersistenceMock { 
+\begin{lstlisting}[language=mbeddr, morekeywords={mock, ports, expectations,
+total, no, of, calls, is, sequence}] 
+exported mock component PersistenceMock {  
   ports: 
     provides PersistenceProvider pp 
   expectations: 
@@ -665,7 +675,7 @@ be to \ic{isReady}. We return \ic{false}, expecting that the client tries again
 later. If it does, we return \ic{true} and expect the client to continue with
 persisting data. We can now validate the mock as part of the test case:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=mbeddr, morekeywords={validate, mock}] 
 exported test case runTest { 
   client.run(); 
   validate mock persistenceMock  
@@ -691,7 +701,7 @@ output from executing a C-based test case on the command line:
 $$runningTest: running test () @TestHelperTest:test_testCase1:0#767515563077315487
 $$FAILED: ***FAILED*** (testID=0) @TestHelperTest:f:0#9125142491355884683
 $$FAILED: ***FAILED*** (testID=1) @TestHelperTest:f:1#9125142491355901742 
-\end{lstlisting}\ignore{$$}
+\end{lstlisting}
 
 In mbeddr we have built a tool that simplifies finding the message source. You
 can paste arbitrary text that contains error messages into a text area (for
@@ -706,7 +716,7 @@ You can then click on the node to select it in the editor
 
 \begin{figure}[h]
 \begin{center}
-  \includegraphics[width=11cm]{figures-impl/7/analyzeErrorOutput2.png}
+  \includegraphics[width=\columnwidth]{figures-impl/7/analyzeErrorOutput2.png}
   \caption[][5mm]{The mbeddr error output analyzer parses test output and
   supports navigating to the source of error messages in the MPS program.}
   \label{analyzeErrorOutput} 
@@ -722,7 +732,7 @@ from programs to program results. For example, the following tests address a
 transformation \ic{eval-all} which interpretes expressions:
 
 
-\begin{lstlisting}
+\begin{lstlisting}[morekeywords={test, run, to}]
 test evaluate addition [[1+2]] run eval-all to Int("3")
 test evaluate multiplication [[3*4]] run eval-all to Int("12")
 test complex evaluation [[1+2*(3+4)]] run eval-all to Int("15")
@@ -733,14 +743,14 @@ builders. Since we are not interested in testing in terms of the generated code,
 but in the behaviour of the generated code, we need a builder which generates
 code, runs the generated code, and finally yields the result of this run.
 
-For example, the following tests address a builder \ic{generate-and-run} which
+For example, the following tests address a builder \ic{generate-and-execute} which
 generates code from expressions, runs this code, and returns the result of the
 run as a string:
 
-\begin{lstlisting}
-test generate addition [[1+2]] build generate-and-run to "3"
-test generate multiplication [[3*4]] run generate-and-run to "12"
-test generate evaluation 1 [[1+2*(3+4)]] run generate-and-run to "15"
+\begin{lstlisting}[morekeywords={test, run, to, build}]
+test generate addition [[1+2]] build generate-and-execute to "3"
+test generate multiplication [[3*4]] run generate-and-execute to "12"
+test generate evaluation 1 [[1+2*(3+4)]] run generate-and-execute to "15"
 \end{lstlisting}
 
 \parhead{Structural Testing} What we suggested in the previous subsection tests
@@ -789,7 +799,7 @@ result of that transformation itself is not yet executable. The following piece
 of code could be used to check that, for a specific input program, the
 transformation works correctly:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=xtend]
 // run transformation
 val tp = p.transform
 
@@ -917,8 +927,8 @@ parameter passed with the event. If the \ic{currentVal} would become greater
 than \ic{LIMIT}, the counter wraps around. We can also use the \ic{start} event
 to reset the counter to \ic{0}.
 
-\begin{lstlisting}
-verified statemachine Counter { 
+\begin{lstlisting}[language=mbeddr, morekeywords={verifiable}]
+verifiable statemachine Counter { 
   in events 
     start() 
     step(int[0..10] size)  
@@ -931,7 +941,9 @@ verified statemachine Counter {
     } 
     state countState { 
       on step [currentVal + size > LIMIT] -> initialState { } 
-      on step [currentVal + size <= LIMIT] -> countState { currentVal = currentVal + size; } 
+      on step [currentVal + size <= LIMIT] -> countState { 
+         currentVal = currentVal + size; 
+      } 
       on start [ ] -> initialState {  } 
     }
 }
@@ -944,7 +956,7 @@ running the model checker.
 
 \begin{figure}[ht]
 \begin{center}
-  \includegraphics[width=11cm]{figures-impl/7/verification1.png}
+  \includegraphics[width=\columnwidth]{figures-impl/7/verification1.png}
   \caption[]{}
   \label{verification1} 
 \end{center} 
@@ -972,9 +984,11 @@ point.
 
 Let us provoke an error. We change the two transitions in \ic{countState} to 
 
-\begin{lstlisting}
+\begin{lstlisting}[language=mbeddr]
 on step [currentVal + size >= LIMIT] -> initialState {  } 
-on step [currentVal + size <= LIMIT] -> countState { currentVal = currentVal + size; }
+on step [currentVal + size <= LIMIT] -> countState { 
+    currentVal = currentVal + size; 
+}
 \end{lstlisting}
 
 \noindent 
@@ -1022,7 +1036,8 @@ generated NuSMV input code (which is \emph{much} longer than the state machine
 itself!), users can use convenient patterns, where they just have to fill in
 values. Here are two examples:
 
-\begin{lstlisting}
+\begin{lstlisting}[morekeywords={verification, conditions, never, always,
+eventually, reachable}] 
 verification conditions 
   never LIMIT != 10 
   always eventually reachable initialState
@@ -1052,12 +1067,14 @@ column headers, as well as arbitrary values in the content cells.
 \fig{dectabexample} shows an example. 
 
 \begin{figure}[ht]
-\begin{center}
-  \includegraphics[width=11cm]{figures-impl/7/dectabexample.png}
+\fbox{
+\begin{minipage}{105mm}
+  \includegraphics[width=\columnwidth]{figures-impl/7/dectabexample.png}
+\end{minipage}
+}
   \caption[]{An example decision table in mbeddr C. SAT solving is used to
   check it for consistency and completeness.}
   \label{dectabexample} 
-\end{center}
 \end{figure}
 
 \noindent 
@@ -1176,7 +1193,7 @@ testing various language aspects, among them, for example, code completion. It
 does so by embedding test expectations as comments inside the to-be-tested
 program. Here is an example based on a Hello World grammar (literally):
 
-\begin{lstlisting}
+\begin{lstlisting}[language=xtextgrammar]
 Model: 
   greetings+=Greeting*;
 
@@ -1187,7 +1204,7 @@ Greeting:
 The following piece of code shows an example program that includes Xpect
 statements that test whether code completion works as expected:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=xtextgrammar]
 // XPECT_TEST org.example.MyJUnitContentAssistTest END_TEST 
 
 // XPECT contentAssist at |Hel --> Hello
@@ -1218,8 +1235,8 @@ content assist is expected to suggest the keyword \ic{Hello} and in the second
 test the exclamation point is expected.
 \end{itemize}
 
-Xpect implements a custom JUnit runner which allows to execute Xpect tests as
-JUnit test, integration into IDEs such as Eclipse and CI environments is
+\noindent Xpect implements a custom JUnit runner which allows to execute Xpect
+tests as JUnit test, integration into IDEs such as Eclipse and CI environments is
 ensured. 
 
 Xpext is in fact a generic infrastructure for integration tests. As you can see

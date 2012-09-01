@@ -45,11 +45,11 @@ terminology introduced in the DSL design section \todo{}, root nodes (and their
 descendants) are considered \emph{fragments}, while the models are partitions
 (actually, they are XML files).}. 
 
-\begin{lstlisting}
+\begin{lstlisting}[language=mpsmodex]
 module company {          
   entity Employee {     
     id : int            
-    name : string       
+    name : string    ´   
     role : string       
     worksAt : Department
     freelancer : boolean
@@ -67,7 +67,7 @@ of the \ic{entities} language. Each box represents a language concept.
 
 \begin{figure}[htp]
 \begin{center}
-  \includegraphics[width=11cm]{figures-impl/9/a/entities2.png}
+  \includegraphics[width=\columnwidth]{figures-impl/9/a/entities2.png}
   \caption[]{The abstract syntax of the entities language. Entities
   have attributes, those have types and names. \ic{EntityType} extends 
   \ic{Type} and references \ic{Entity}. This "adapts" entities to types 
@@ -84,8 +84,8 @@ simplified to show the essentials.}. \ic{Entity} implements the
 of children of type \ic{Attribute} in the \ic{attributes} collection. 
 \fig{editordefinition} shows the definition of the editor for \ic{Entity}.
 
-
-\begin{lstlisting}
+ 
+\begin{lstlisting}[language=mps]
 concept Entity extends BaseConcept implements INamedConcept        
   can be root: true
   children:                                     
@@ -94,8 +94,11 @@ concept Entity extends BaseConcept implements INamedConcept
 
 
 \begin{figure}[h]
-\begin{center}
+\fbox{
+\begin{minipage}{105mm}
   \includegraphics[scale=0.6]{figures-impl/9/a/editordefinition.png}
+\end{minipage}
+}
   \caption[]{The editor for \ic{Entity}. The outermost cell is a
   vertical list. In the first line, we use a horizontal list that contains
   the "keyword" \ic{entity}, the value of the \ic{name} property and an opening
@@ -103,14 +106,13 @@ concept Entity extends BaseConcept implements INamedConcept
   of the contents of the \ic{attributes} collection. Finally, the third line
   contains the closing curly.}
   \label{editordefinition} 
-\end{center}
 \end{figure}
 
 \phead{Type System} For the \ic{entities} language, we specify two simple typing
 rules. The first one specifies that the type of the primitives (\ic{int},
 \ic{string}) is a clone of themselves:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=mps]
 rule typeof_Type applicable for concept = Type as type {
   do {                                 
     typeof(type) :==: type.copy;       
@@ -138,8 +140,11 @@ shows a part of the mapping configuration for the \ic{entities} language.
 
 
 \begin{figure}[htp]
-\begin{center}
+\fbox{
+\begin{minipage}{105mm}
   \includegraphics[scale=0.55]{figures-impl/9/a/entitiesmc.png}
+\end{minipage}
+}
   \caption[]{The mapping configuration for the \ic{entities} language. The
   root mapping rule for \ic{Entity} specifies that instances of \ic{Entity} should
   be transformed with the \ic{map\_Entity} template. The reduction rules use
@@ -150,7 +155,6 @@ shows a part of the mapping configuration for the \ic{entities} language.
   \ic{Double} to a reference to the class generated from the referenced
   \ic{Entity}.}
   \label{entitiesmc} 
-\end{center}
 \end{figure}
 
 \noindent \fig{entitytemplate} shows the \ic{map\_Entity} template. It generates
@@ -174,13 +178,15 @@ inspector).
 
 
 \begin{figure}[htp]
-\begin{center}
+\fbox{
+\begin{minipage}{105mm}
   \includegraphics[scale=0.55]{figures-impl/9/a/entitytemplate.png}
+\end{minipage}
+}
   \caption[]{The template for creating a Java class from an \ic{Entity}.
   The running text explains the details. The \ic{<<placeholder>>} is a special
   concept used later.}
   \label{entitytemplate} 
-\end{center}
 \end{figure}
 
 
@@ -197,7 +203,7 @@ fragment (expressed in the \ic{entities} language). Both fragments are
 \emph{homogeneous} since they consist of sentences expressed in a single
 language.
 
-\begin{lstlisting}
+\begin{lstlisting}[language=mpsmodex]
 form CompanyStructure                                                                                                                                  
   uses Department                                                                                                                                      
   uses Employee                                                                                                                                        
@@ -231,7 +237,7 @@ that shall be edited via the field. Below is the definition of the \ic{Field}
 concept. It owns a \ic{Widget} and refers to an \ic{Attribute}.
 
  
-\begin{lstlisting}
+\begin{lstlisting}[language=mps]
 concept Field extends BaseConcept implements <none>               
   properties:                                 
     label : string                              
@@ -248,18 +254,18 @@ type, a \ic{ComboWidget} requires a \ic{string} type). The necessary typing rule
 is defined in the \ic{uispec} language and references types from the \ic{entities} language.
 The following is the code for the type check. 
 
-\begin{lstlisting}
+\begin{lstlisting}[language=mps]
 checking rule checkTypes {                                                                                                                                                                                                                                                                                                                        
   applicable for concept = Field as field                                                                                                                                                                                                                                                                                                                
   overrides false                                                                                                                                                                                                                                                                                                                                        
   do {                                                                                                                                                                                                                                                                                                                                                   
     if (field.widget.isInstanceOf(CheckBoxWidget) 
          && !(field.attribute.type.isInstanceOf(BooleanType))) { 
-      error "checkbox can only be used with booleans" -> field.widget; 
+      error "only use checkbox with booleans" -> field.widget; 
     } 
     if (field.widget.isInstanceOf(ComboWidget) 
          && !(field.attribute.type.isInstanceOf(StringType))) { 
-      error "combobox can only be used with strings" -> field.widget; 
+      error "cannot use combobox with strings" -> field.widget; 
     } 
   } 
 }
@@ -282,7 +288,7 @@ operator and binds tightly; the code below casts the attribute's parent to
 \ic{Entity} and then accesses the \ic{name} property):
 
 
-\begin{lstlisting}
+\begin{lstlisting}[language=mps]
 concept behavior Attribute {                                                 
   public string qname() {                                                    
     this.parent : Entity.name + "." + this.name;                             
@@ -313,15 +319,19 @@ concepts make writing generators \emph{that generate base language code} much
 simpler. \fig{expressionBlock} shows an example. We use a screenshot instead of
 text because we use non-textual notations (the big brackets) and color.
 
-\begin{figure*}[htp]
-  \includegraphics[width=15cm]{figures-impl/9/a/expressionBlock.png}
+\begin{figure}[htp]
+\fbox{
+\begin{minipage}{105mm}
+  \includegraphics[width=\columnwidth]{figures-impl/9/a/expressionBlock.png}
+\end{minipage}
+}
   \caption[]{block expressions (in blue) are basically anonymous
   inline methods. Upon transformation, a method is generated that contains the
   block content, and the block expression is replaced with a call to this
   method. Block expressions are used mostly when implementing generators; this
   screenshot shows a generator that uses a block expressions.}
   \label{expressionBlock} 
-\end{figure*}
+\end{figure}
 
 \phead{Structure and Syntax} A block expression is a block that can be used
 where an \ic{Expression} is expected\cite{BravenboerVVV05}. The block can
@@ -333,7 +343,7 @@ of the block expression in \fig{expressionBlock} transforms it into this
 structure:
 
 
-\begin{lstlisting}
+\begin{lstlisting}[language=java]
 // the argument to setName is what was the block expression,
 // it is replaced by a method call to the generated method
 aEmployee.setName(retrieve_name(aEmployee, widget0));
@@ -357,7 +367,7 @@ fragments that use the \ic{exprblocks} language, can now use
 The fragments become \emph{heterogeneous}, because languages are
 syntactically mixed.
 
-\begin{lstlisting}
+\begin{lstlisting}[language=mps]
 concept BlockExpression extends Expression implements INamedConcept
   children:                                     
     StatementList body 1      
@@ -372,8 +382,8 @@ has to have a type as well. Since it is not explicitly specified, the type of
 the \ic{BlockExpression} is the common super type of the types of all the
 \ic{yield}s. The following typing rule computes this type:
 
-\begin{lstlisting}
-var resultType ; 
+\begin{lstlisting}[language=mps]
+typevar resultType ; 
 for (node<BlockExpressionYield> y : 
         blockExpr.descendants<concept = BlockExpressionYield>) { 
   resultType :==: typeof(y.result); 
@@ -389,18 +399,19 @@ fragment (using only BaseLanguage). The first step is the creation of the
 additional method for the block expression (\fig{expressionBlockGenerator1}).
 
 
-
-
-
-\begin{figure*}[h]
-  \includegraphics[scale=0.6]{figures-impl/9/a/expressionBlockGenerator1.png}
+\begin{figure}[h]
+\fbox{
+\begin{minipage}{105mm}
+  \includegraphics[width=\columnwidth]{figures-impl/9/a/expressionBlockGenerator1.png}
+\end{minipage}
+}
   \caption[]{We use a weaving rule to create an additional method for
   this. A weaving rule processes an input element (\ic{BlockExpression}) by creating
   another node in a different place. The context function defines this
   other place. In this case, it simply gets the class in which we have defined
   the block expression.} 
   \label{expressionBlockGenerator1} 
-\end{figure*}
+\end{figure}
  
 
 \noindent The template shown in \fig{expressionBlockGenerator2} shows the
@@ -411,8 +422,12 @@ method call that replaces the \ic{BlockExpression}
 (shown in \fig{expressionBlockGenerator3}).
 
 
-\begin{figure*}[htp]
+\begin{figure}[htp]
+\fbox{
+\begin{minipage}{105mm}
   \includegraphics[scale=0.5]{figures-impl/9/a/expressionBlockGenerator2.png}
+\end{minipage}
+}
   \caption[]{The generator creates a method from the \ic{BlockExpression}. It
   uses \ic{COPY\_SRC} macros to replace the \ic{string} type with the computed
   return type of the block expression, inserts a computed name, adds a parameter
@@ -421,7 +436,7 @@ method call that replaces the \ic{BlockExpression}
   \ic{COPY\_SRCL} macro that iterates over all of the statements in the
   \ic{ExpressionBlock}). The \ic{blockExprToMethod} mapping label is used later in the method call.}
   \label{expressionBlockGenerator2} 
-\end{figure*}
+\end{figure}
 
 
 
@@ -433,14 +448,16 @@ reduction rule to replace the placeholder with whatever they want to put at this
 location. It is a means to building extensible generator.
 
 \begin{figure}[h]
-\begin{center}
+\fbox{
+\begin{minipage}{105mm}
   \includegraphics[scale=0.6]{figures-impl/9/a/expressionBlockGenerator3.png}
+\end{minipage}
+}
   \caption[]{Here we generate the call to the previously generated
   method. We use the mapping label \ic{blockExprToMethod} to refer to the
   correct method (not shown; happens inside the ->\$ macro). We pass in the
   environment va riables as actual arguments.}
   \label{expressionBlockGenerator3} 
-\end{center}
 \end{figure}
 
 
@@ -499,8 +516,8 @@ you have to specify this mapping. The following code shows the reusable part: a
 database is defined that contains tables with columns. Columns have
 (database-specific) data types.
 
-\begin{lstlisting}
-Database CompanyDB                          
+\begin{lstlisting}[language=mpsmodex]
+database CompanyDB                          
   table Departments                         
     number id           
     char descr    
@@ -518,7 +535,7 @@ in a different context, we extend this hook by context-specific code.
 
 \begin{figure}[htp]
 \begin{center}
-  \includegraphics[width=11cm]{figures-impl/9/a/relmapping2.png}
+  \includegraphics[width=\columnwidth]{figures-impl/9/a/relmapping2.png}
   \caption[]{A \ic{Database} contains \ic{Tables} which contain
   \ic{Columns}. A column has a name and a type. A column also has a
   \ic{ColumnMapper}. This is an abstract concept that determines where the
@@ -542,8 +559,8 @@ and we could use arbitrary concepts from the \ic{entities} language mixed into
 the \ic{relmapping} fragment.}:
 
 
-\begin{lstlisting}
-Database CompanyDB                          
+\begin{lstlisting}[language=mpsmodex]
+database CompanyDB                          
   table Departments                         
     number id <- Department.id              
     char descr <- Department.description    
@@ -565,7 +582,7 @@ reusable. With this in mind, the typing rules of the \ic{relmapping}
 language look as follows:
 
 
-\begin{lstlisting}
+\begin{lstlisting}[language=mps]
 typeof(column) :==: typeof(column.type);
 typeof(column.type) :==: typeof(column.mapper);
 typeof(columnMapper) :==: columnMapper.typeMappedToDB();
@@ -575,9 +592,8 @@ typeof(columnMapper) :==: columnMapper.typeMappedToDB();
 The \ic{AttributeColMapping} concept from the \ic{relmapping\_entities} implements
 this method by mapping \ic{int}s to \ic{number}s, and everything else to \ic{char}s.
 
-\begin{lstlisting}
-public node<> typeMappedToDB() 
-  overrides ColumnMapper.typeMappedToDB {                                                                          
+\begin{lstlisting}[language=mps]
+public node<> typeMappedToDB() overrides ColumnMapper.typeMappedToDB {                                                                          
   node<> attrType = this.attribute.type.type; 
   if (attrType.isInstanceOf(IntType)) { return new node<NumberType>(); } 
   return new node<CharType>();
@@ -599,7 +615,7 @@ reusable relmapping generator). A \ic{relmapping} fragment (without the
 concrete column mappers) is sufficient for generating the generic base class.
 
 
-\begin{lstlisting}
+\begin{lstlisting}[language=java]
 public abstract class CompanyDBBaseAdapter {
 
   private void createTableDepartments() {
@@ -639,7 +655,7 @@ the generic superclass. The interface, represented by the \ic{applicationData}
 object, has to be kept generic so any kind of user data can be passed in. 
 
 
-\begin{lstlisting}
+\begin{lstlisting}[language=java]
 public class CompanyDBAdapter extends CompanyDBBaseAdapter {
   public String getValueForDepartments_id(Object applicationData) {
     Object[] arr = (Object[]) applicationData;
@@ -673,7 +689,7 @@ to a new reuse context.
 access control, to specify access permissions for the \ic{entities} language.
 Here is some example code:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=mpsmodex]
 RBAC                           
                                
 users:                         
@@ -719,7 +735,7 @@ separated from the code generated from \ic{entities}. Instead, inside the setter
 of the Java beans, a permission check is required.
 
 
-\begin{lstlisting}
+\begin{lstlisting}[language=java]
 public void setName(String newValue) {
   // check permissions (from rbac_entities) 
   if (!new RbacSpecEntities().currentUserHasWritePermission("Employee.name")) { 
@@ -772,15 +788,17 @@ the placeholder in it was generated.
 
 
 \begin{figure}[htp] 
-\begin{center}
+\fbox{
+\begin{minipage}{105mm}
   \includegraphics[scale=0.55]{figures-impl/9/a/placeholder.png}
+\end{minipage}
+}
   \caption[]{This generator fragment creates a setter method for each
   attribute of an entity. The \ic{LOOP} iterates over all attributes. The \ic{\$} macro
   computes the name of the method, and the \ic{COPY\_SRC} macro on the argument type
   computes the type. The placeholder is used to mark the location at which the 
   permission check will be inserted by a subsequent generator.}
   \label{placeholder}  
-\end{center}
 \end{figure}
 
 \noindent 
@@ -795,8 +813,12 @@ for compilation). We use generator priorities, i.e. a partial ordering, to
 achieve this.
 
 
-\begin{figure*} 
-  \includegraphics[scale=0.50]{figures-impl/9/a/placeholderreduction.png}
+\begin{figure} 
+\fbox{
+\begin{minipage}{105mm}
+  \includegraphics[width=\columnwidth]{figures-impl/9/a/placeholderreduction.png}
+\end{minipage}
+}
   \caption[]{This reduction rule replaces \ic{PlaceholderStatement}s
   with a permission check. Using the condition, we only match those
   placeholders whose identifier is \ic{pre-set} (notice how we have defined
@@ -804,7 +826,7 @@ achieve this.
   generated class that contains the actual permission check. A runtime
   exception is thrown if the check fails.}
   \label{placeholderreduction}  
-\end{figure*}
+\end{figure}
 
 
 \subsection{Language Embedding}
@@ -814,7 +836,7 @@ sublanguage of the \ic{uispec} language. It supports writing code such as
 the following in the UI form specifications:
 
 
-\begin{lstlisting}
+\begin{lstlisting}[language=mpsmodex, deletekeywords={role}]
 form CompanyStructure                                                                                                                                  
   uses Department                                                                                                                                      
   uses Employee                                                                                                                                        
@@ -854,7 +876,7 @@ users could simply type \ic{validate} on the right of a field definition to
 trigger the transformation code below.}. The core of the intention is the
 following script, which performs the actual transformation:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=java, deletekeywords={label}]
 execute(editorContext, node)->void { 
     node<ValidatedField> vf = new node<ValidatedField>(); 
     vf.widget = node.widget; 
@@ -887,7 +909,7 @@ language; however, it may only reference those attributes of those entities that
 are used in the form in which we define the validation expression.
 The following is the code for the search scope:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=mps, morekeywords={join}]
 (model, scope, referenceNode, linkTarget, enclosingNode)
                              ->join(ISearchScope | sequence<node< >>) { 
   nlist<Attribute> res = new nlist<Attribute>; 
@@ -916,10 +938,10 @@ The type of an attribute reference is the type of the attribute's \ic{type} prop
 \ic{typeof(are) :==: typeof(are.attr.type);}. However, consider now the
 following code:
 
-\begin{lstlisting}
-  field Freelancer: checkbox -> Employee.freelancer 
-        validate if (isSet(Employee.worksAt)) Employee.freelancer == false else
-                    Employee.freelancer == true 
+\begin{lstlisting}[language=mpsmodex]
+field Freelancer: checkbox -> Employee.freelancer 
+      validate if (isSet(Employee.worksAt)) Employee.freelancer == false else
+                  Employee.freelancer == true 
 \end{lstlisting}
 
 \noindent This code states that if the \ic{worksAt} attribute of an employee is
@@ -936,7 +958,7 @@ rules. We specify the resulting type for an \ic{EqualsExpression} depending on
 its argument types. Here is the code in the \ic{expressions} language that defines
 the resulting type to be \ic{boolean} if the two arguments are \ic{Equallable}:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=mps, morekeywords={type, left, right, concepts}]
 operation concepts: EqualsExpression                                                     
   left operand type: new node<Equallable>() 
   right operand type: new node<Equallable>() 
@@ -952,18 +974,19 @@ is a subtype of \ic{Equallable}, so this rule applies if we use equals with two
 \ic{expressions.BooleanType} arguments. We have to tie this overloaded operation
 specification into a regular type inference rule.
 
-\begin{lstlisting}
+\begin{lstlisting}[language=mps, morekeywords={type, concepts},
+deletekeywords={concept}] 
 rule typeof_BinaryExpression {                                                                                                                                                                                                                                                                                                                                                                                                                                                   
-  applicable for concept = BinaryExpression as binaryExpression                                                                                                                                                                                                                                                                                                                                                                                                                  
+  applicable for BinaryExpression as binex                                                                                                                                                                                                                                                                                                                                                                                                                  
   do {                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
-    node<> opType = operation type( binaryExpression , left , right ); 
+    node<> opType = operation type( binex , left , right ); 
       if (opType != null) { 
-        typeof(binaryExpression) :==: opType; 
+        typeof(binex) :==: opType; 
       } else { 
-        error "operator " + binaryExpression.concept.name + 
-              " cannot be applied to these operand types " + 
+        error "operator " + binex.concept.name + 
+              " cannot apply to these argument types " + 
               left.concept.name + "/" + right.concept.name 
-           -> binaryExpression; } 
+           -> binex; } 
       }  
   } 
 \end{lstlisting}
@@ -973,11 +996,12 @@ To override these typing rules to work with \ic{entities.BooleanType}, we simply
 provider another overloaded operation specification in the \ic{uispec\_validation}
 language:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=mps, morekeywords={type, concepts, one},
+deletekeywords={concept}] 
 operation concepts: EqualsExpression                                       
   one operand type: <boolean> // this is the entities.BooleanType!     
 operation type:                                                            
-  (operation, leftOperandType, rightOperandType)->node< > { 
+  (op, leftOperandType, rightOperandType)->node< > { 
     <boolean>;  // this is the expressions.BooleanType 
   } 
 \end{lstlisting}
@@ -1014,16 +1038,18 @@ though \ic{de.voelter.mps.expressions.blgen} only contains a generator (from
 terminology.}. \fig{expr2blgen} shows some of these reduction rules.
 
 
-\begin{figure}[htp]
-\begin{center}
-  \includegraphics[scale=0.50]{figures-impl/9/a/expr2blgen.png}
+\begin{figure}[h]
+\fbox{
+\begin{minipage}{105mm}
+  \includegraphics[width=\columnwidth]{figures-impl/9/a/expr2blgen.png}
+\end{minipage}
+}
   \caption[]{A number of reduction rules that map the reusable
   \ic{expressions} language to BaseLanguage (Java). Since the languages are very
   similar, the mapping is trivial. For example, a \ic{PlusExpression} is mapped
   to a \ic{+} in Java, the \ic{left} and \ic{right} arguments are reduced recursively through
   the \ic{COPY\_SRC} macro.}
   \label{expr2blgen}  
-\end{center}
 \end{figure}
 
 \noindent In addition to these, we also need reduction rules for those new
@@ -1038,14 +1064,16 @@ the case of the \ic{rbac\_entities} language.
 
 
 \begin{figure}[h]
-\begin{center}
-  \includegraphics[scale=0.50]{figures-impl/9/a/reductionAttributeRef.png}
+\fbox{
+\begin{minipage}{105mm}
+  \includegraphics[width=\columnwidth]{figures-impl/9/a/reductionAttributeRef.png}
+\end{minipage}
+}
   \caption[]{References to entity attributes are mapped to a call to
   their getter method. The tempalte fragment (inside the TF) uses two reference
   macros (->\$) to "rewire" the object reference to the Java bean instance, and
   the \ic{toString} method call to a call to the getter.}
   \label{reductionAttributeRef}  
-\end{center}
 \end{figure}
 
 \noindent 
@@ -1056,7 +1084,8 @@ operators provided by the reusable expression language inside validation rules
 in \ic{uispec\_validation}. This can be achieved by implementing a 
 \ic{can be ancestor} constraint on \ic{ValidatedField}.
 
-\begin{lstlisting}
+\begin{lstlisting}[language=mps, morekeywords={ancestor},
+deletekeywords={scope}] 
 can be ancestor:
   (operationContext, scope, node, childConcept)->boolean { 
     return !(childConcept == concept/GreaterEqualsExpression/ || 
@@ -1098,7 +1127,7 @@ mapping. Using this approach, we can store the mapping from entity attributes to
 database columns directly in the \ic{Entity}, resulting in the following code:
 
 
-\begin{lstlisting}
+\begin{lstlisting}[language=mpsmodex]
 module company                                 
   entity Employee {                            
     id : int -> People.id                      
@@ -1128,7 +1157,7 @@ is necessary.
 language as well as the \ic{relmapping} language. In this language we define the
 following concept:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=mps]
 concept AttrToColMapping extends NodeAnnotation  
   references:                               
     Column column 1       
@@ -1155,9 +1184,11 @@ annotation is not part of the original language, it must be attached to nodes
 via an intention.
 
 \begin{figure}[htp]
-\begin{center}
-  \vspace{-2mm}
-  \includegraphics[scale=0.55]{figures-impl/9/a/annotationeditor.png}
+\fbox{
+\begin{minipage}{105mm}
+  \includegraphics[width=\columnwidth]{figures-impl/9/a/annotationeditor.png}
+\end{minipage}
+}
   \caption[labelInTOC]{The editor for the \ic{AttrToColMapping} embeds the
   editor of the concept it is annotated to (using the \ic{attributed node}
   cell). It then projects the reference to the referenced column. This way the
@@ -1165,7 +1196,6 @@ via an intention.
   element is projected.}
   \label{annotationeditor}  
   \vspace{-4mm}
-\end{center}
 \end{figure}
 
 \phead{Type System} The same typing rules are necessary as in the
