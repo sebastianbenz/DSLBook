@@ -10,7 +10,7 @@ In this section we look at an example roughly similar to the one for MPS
 discussed in the previous section. We start out with a DSL for entities.  Here
 is an example program:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=mpsmodex, deletekeywords={role}]
 module company {
     entity Employee {
         id : int
@@ -30,8 +30,10 @@ module company {
 The grammar is straight forward and should be clear if you have read the
 implementation part so far.
 
-\begin{lstlisting}
-grammar org.xtext.example.lmrc.entity.EntityDsl with org.eclipse.xtext.common.Terminals
+
+\begin{lstlisting}[language=xtextgrammar, morekeywords={}, deletekeywords={}]
+grammar org.xtext.example.lmrc.entity.EntityDsl 
+        with org.eclipse.xtext.common.Terminals
 
 generate entityDsl "http://www.xtext.org/example/lmrc/entity/EntityDsl"
 
@@ -74,7 +76,7 @@ specification language where a \ic{Form} defined in the UI model refers to
 \ic{Entities} from the language defined above, and \ic{Field}s in a form refers
 to entity \ic{Attribute}. Here is some example code:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=mpsmodex, morekeywords={}, deletekeywords={}]
 form CompanyStructure
   uses Department // reference to Department entity
   uses Employee   // reference to Employee entity
@@ -96,7 +98,7 @@ fact that the grammar of the \ic{uispec} language does not refer to the
 \emph{grammar} of the \ic{entity} language, but to the derived meta model.}.
 Here is the header of the \ic{uispec} language:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=xtextgrammar, morekeywords={}, deletekeywords={}]
 grammar org.xtext.example.lmrc.uispec.UispecDsl with org.eclipse.xtext.common.Terminals
 
 import "http://www.xtext.org/example/lmrc/entity/EntityDsl" as entity
@@ -110,7 +112,7 @@ used. Note that the meta model import does not make the \emph{grammar rules}
 visilble, so the meta classes can only be used in references and as base types
 (as we will see later). In case of referencing, we use them in references:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=xtextgrammar, morekeywords={}, deletekeywords={}]
 EntityReference:
     "uses" entity=[entity::Entity|FQN];
 
@@ -144,7 +146,7 @@ referenced in the current \ic{Form}'s \ic{uses} clauses, and they should be
 referenced with a qualified name (\ic{Employee.role} instead of just \ic{role}).
 Scoping has to be customized to achieve this:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=java, morekeywords={}, deletekeywords={}]
 public IScope scope_Field_attribute(Field context, EReference ref) {
     Form form = EcoreUtil2.getContainerOfType(context, Form.class);
     List<Attribute> visibleAttributes = new ArrayList<Attribute>();
@@ -202,7 +204,7 @@ about how this data source looks (and which language is used to define it).
 Consequently, the grammar has no dependency on another other one, and imports no
 other meta model:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=java, morekeywords={}, deletekeywords={}]
 grammar org.xtext.example.lmrc.db.DbDsl with org.eclipse.xtext.common.Terminals
 generate dbDsl "http://www.xtext.org/example/lmrc/db/DbDsl"
 
@@ -240,7 +242,7 @@ been designed \emph{for} reuse, because it has this hook
 still independent. In the next step, we want to be able to reference
 \ic{Attribute}s from the \ic{entities} language:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=mpsmodex, morekeywords={}, deletekeywords={role}]
 database CompanyDB
 
 table Departments
@@ -264,8 +266,9 @@ the \ic{entities} language in a \ic{db2entity} program, we can only \emph{refere
 them.}. This is reflected by the header of the \ic{db2entity} language (notice
 the \ic{with} clause):
 
-\begin{lstlisting}
-grammar org.xtext.example.lmrc.db2entity.Db2EntityDsl with org.xtext.example.lmrc.db.DbDsl
+\begin{lstlisting}[language=xtextgrammar, morekeywords={}, deletekeywords={}]
+grammar org.xtext.example.lmrc.db2entity.Db2EntityDsl 
+        with org.xtext.example.lmrc.db.DbDsl
 
 import "http://www.xtext.org/example/lmrc/db/DbDsl" as db
 import "http://www.xtext.org/example/lmrc/entity/EntityDsl" as entity
@@ -277,7 +280,7 @@ generate db2EntityDsl "http://www.xtext.org/example/lmrc/db2entity/Db2EntityDsl"
 We now have to overwrite the \ic{AbstractColumnMapper} rule defined in the
 \ic{db} language. 
 
-\begin{lstlisting}
+\begin{lstlisting}[language=xtextgrammar, morekeywords={}, deletekeywords={}]
 AbstractColumnMapper returns db::AbstractColumnMapper:
     {EntityColumnMapper} "<-" entity=[entity::Attribute|FQN];
 \end{lstlisting}
@@ -303,7 +306,7 @@ grammar, i.e. the parser starts consuming a model file using this rule. In our
 won't work. We have to add the real root, which is simply the same one as in the
 \ic{db} language:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=xtextgrammar, morekeywords={}, deletekeywords={}]
 Root returns db::Root :
     Database;
 \end{lstlisting}
@@ -354,7 +357,7 @@ generators.}. Here is how you would do that:
   some way.}. The Xtend class we delegate to would be an abstract class that has
   one abstract method \ic{generateGetDataCodeFor(Column c)}. 
   
-\begin{lstlisting}
+\begin{lstlisting}[language=xtend, morekeywords={}, deletekeywords={}]
 class GetDataGenerator {
     def void generateGetDataCodeFor(Column c)
 }
@@ -365,7 +368,6 @@ class DbDslGenerator implements IGenerator {
     @Inject GetDataGenerator gdg
 
     def someGenerationMethod(Column c) {
-        
         // ...
         String getDataCode = gdg.generateGetDataCodeFor(c)
         // then embed getDataCode somewhere in the 
@@ -420,23 +422,26 @@ questionable whether using Xbase makes sense in this case at all.}. As an
 example, we essentially create another entity language; thanks to Xbase, we will
 be able to write:
 
-\begin{lstlisting} module sample {
-    entity Person {
-        lastname : String firstname : String String fullName(String from) {
-            return "Hello " + firstname + " "  + lastname + " from " + from
-        }
+\begin{lstlisting}[language=mpsmodex, morekeywords={}, deletekeywords={}]
+entity Person {
+    lastname : String 
+    firstname : String 
+    String fullName(String from) {
+        return "Hello " + firstname + " "  + lastname + " from " + from
     }
-} \end{lstlisting}
+}
+\end{lstlisting}
 
 \noindent Below is the essential part of the grammar. Note how it extends the
 Xbase grammar (the \ic{with} clause) and how it uses various elements from Xbase
 throughout the code (those whose names start with an \ic{X}).
 
-\begin{lstlisting} grammar org.xtext.example.lmrc.entityexpr.EntityWithExprDsl with
-org.eclipse.xtext.xbase.Xbase
+\begin{lstlisting}[language=xtextgrammar, morekeywords={}, deletekeywords={}]
+grammar org.xtext.example.lmrc.entityexpr.EntityWithExprDsl 
+        with org.eclipse.xtext.xbase.Xbase
 
-generate entityWithExprDsl
-"http://www.xtext.org/example/lmrc/entityexpr/EntityWithExprDsl"
+generate entityWithExprDsl 
+           "http://www.xtext.org/example/lmrc/entityexpr/EntityWithExprDsl"
 
 Module:
     "module" name=ID "{"
@@ -473,7 +478,7 @@ a structurally equivalent Java "model". By doing this, we get a number of
 benefits "for free", including scoping, typing and a code generator. Let us look
 at this crucial step in some detail.
 
-\begin{lstlisting}
+\begin{lstlisting}[language=xtend, morekeywords={}, deletekeywords={}]
 class EntityWithExprDslJvmModelInferrer extends AbstractModelInferrer {
     
     @Inject extension IQualifiedNameProvider
@@ -495,7 +500,7 @@ it for the \ic{Entity} concept. We also have the \ic{IQualifiedNameProvider}
 and \ic{JvmTypesBuilder} injected. The latter provides a builder API for
 creating all kinds JVM objects, such as fields, setters, classes or operations.
 
-\begin{lstlisting}
+\begin{lstlisting}[language=xtend, morekeywords={}, deletekeywords={}]
 acceptor.accept(
     entity.toClass( entity.fullyQualifiedName ) [
         documentation = entity.documentation
@@ -515,12 +520,12 @@ omit the \ic{it}, so when we write \ic{documentation = ...} this actually means
 created class to be the documentation of the \ic{entity}. Next we create a
 field, a getter and a setter for each of the attributes of the \ic{Entity} andadd them to the \ic{Class}' \ic{members} collection:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=xtend, morekeywords={}, deletekeywords={}]
 for ( attr : entity.attributes ) {
     members += attr.toField(attr.name, attr.type)
     members += attr.toGetter(attr.name, attr.type)
     members += attr.toSetter(attr.name, attr.type)
-}
+} 
 \end{lstlisting}
 
 \noindent 
@@ -529,7 +534,7 @@ the \ic{JvmTypesBuilder}. Let us better understand what they do. Here is the
 implementation of \ic{toSetter}. Note that the first argument supplied by the
 object in front of the dot, i.e. the \ic{Attribute}. 
 
-\begin{lstlisting}
+\begin{lstlisting}[language=java, morekeywords={}, deletekeywords={}]
 public JvmOperation toSetter(EObject sourceElement, final String name, JvmTypeReference typeRef) {
     JvmOperation result = TypesFactory.eINSTANCE.createJvmOperation();
     result.setVisibility(JvmVisibility.PUBLIC);
@@ -565,7 +570,7 @@ for the \ic{Entity}. The last step before our detour was that we created fields,
 setters and getters for all attributes of our \ic{Entity}. We have to deal with
 the operations of our \ic{Entity} next. 
 
-\begin{lstlisting}
+\begin{lstlisting}[language=xtend, morekeywords={}, deletekeywords={}]
 for ( op : entity.operations ) {
     members += op.toMethod(op.name, op.type) [
         for (p : op.parameters) {
@@ -585,7 +590,7 @@ The last step is particularly important. Notice that we don't clone the body, we
 assign the object \emph{directly}. Looking into the \ic{setBody} method (the
 assignment is actually mapped to a setter in Xtend), we see the following:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=java, morekeywords={}, deletekeywords={}]
 public void setBody(JvmExecutable logicalContainer, XExpression expr) {
     if (expr == null)
         return;
@@ -638,7 +643,7 @@ unchanged) Xbase language into a simple DSL. Let us now look at how to extend
 Xbase itself by adding new literals and new operators. We start by defining a
 literal for dates:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=xtextgrammar, morekeywords={}, deletekeywords={}]
 XDateLiteral:
     'date' ':' year=INT '-' month=INT '-' day=INT;
 \end{lstlisting}
@@ -649,7 +654,7 @@ subtypes of \ic{XLiteral}. Notice how we override the \ic{XLiteral} rule defined
 in Xbase. We have to repeat its original contents, there is no way to "add" to
 the literals.
 
-\begin{lstlisting}
+\begin{lstlisting}[language=xtextgrammar, morekeywords={}, deletekeywords={}]
 XLiteral returns xbase::XExpression:
     XClosure |
     XBooleanLiteral |
@@ -663,7 +668,7 @@ XLiteral returns xbase::XExpression:
 \noindent We use the same approach to add an additional operator represented
 with \ic{===}:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=xtextgrammar, morekeywords={}, deletekeywords={}]
 OpEquality:
     '==' | '!=' | '===';
 \end{lstlisting}
@@ -675,7 +680,7 @@ specify the name of the method that should be called if the operator shows up
 in a program. The second line of the \ic{initializeMapping}
 method maps the new operator to a method named \ic{operator\_identity}:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=java, morekeywords={}, deletekeywords={}]
 public class DomainModelOperatorMapping extends OperatorMapping {
 
     public static final QualifiedName IDENTITY = create("===");
@@ -695,7 +700,7 @@ contains the implementations for the existing \ic{==} and \ic{!=} operators,
 hence the name}\footnote{Through the \ic{operator\_identity} operation, we have
 expressed all the semantics: the Xbase generator will generate a call to that 
 operation in the generated Java code.}:
-\begin{lstlisting}
+\begin{lstlisting}[language=java, morekeywords={}, deletekeywords={}]
 public class ObjectExtensions2 {
     public static boolean operator_identity(Object a, Object b) {
         return a == b;
@@ -709,7 +714,7 @@ date literals. We don't have to specify the mapping to a method name,
 since the mapping for \ic{+} is already defined in Xbase. However, we have
 to provide an overloaded implementation of \ic{+} for dates:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=java, morekeywords={}, deletekeywords={}]
 public class DateExtensions {
     public static Date operator_plus(Date a, Date b) {
         return new Date(a.getTime() + b.getTime());
@@ -723,7 +728,7 @@ do so, we extend the \ic{ExtensionClassNameProvider}. It associates the classes
 that contain the operator implementation methods with the types for which these
 classes contain the applicable methods:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=java, morekeywords={}, deletekeywords={}]
 public class DomainModelExtensionClassNameProvider extends ExtensionClassNameProvider {
 
     @Override
@@ -742,7 +747,7 @@ date literals. We create a type provider that extends the default
 \ic{XbaseTypeProvider}\footnote{Don't forget to register this class with
 Guice, just like all the other DSL-specific subclasses of framework classes.}:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=java, morekeywords={}, deletekeywords={}]
 @Singleton
 public class DomainModelTypeProvider extends XbaseTypeProvider {
 
@@ -773,7 +778,7 @@ overriding the \ic{\_expectedType} operation in \ic{XbaseTypeProvider}.
 
 Finally we have to extend the Xbase compiler so it can handle date literals:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=java, morekeywords={}, deletekeywords={}]
 public class DomainModelCompiler extends XbaseCompiler {
 
     protected void _toJavaExpression(XDateLiteral expr, IAppendable b) {
