@@ -182,17 +182,17 @@ textual notations later in the process.
 mind if and how a syntax can be support by the IDE, especially regarding code
 completion. Consider query languages. An example SQL query looks like this:
 
-\begin{code}
+\begin{lstlisting}[morekeywords={SELECT, FROM, WHERE}]
 SELECT field1, field2 FROM aTable WHERE ...
-\end{code}
+\end{lstlisting}
 
 When entering this query the IDE cannot provide code completion for the fields
 after the \ic{SELECT} because at this point the table has not yet specified. A
 more suitable syntax, with respect to IDE support, would be
 
-\begin{code}
+\begin{lstlisting}[morekeywords={SELECT, FROM, WHERE}]
 FROM aTable SELECT field1, field2 WHERE ...
-\end{code}
+\end{lstlisting}
 
 \noindent because now the IDE can provide support code completion for the fields
 based on the table name that has already been entered when you specify the

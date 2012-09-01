@@ -13,6 +13,7 @@
 \usepackage{alltt}
 \usepackage{boxedminipage}
 \usepackage{booktabs}
+\usepackage{listings} 
  
 
 \usepackage{tikz}
@@ -82,6 +83,70 @@
 	 \rule{\textwidth}{0.7pt}
 	 \vspace{0mm}
 	 }
+
+
+
+% important for nicer code font
+\usepackage{beramono}
+
+\definecolor{lightlightgray}{gray}{0.9}
+\definecolor{codecolor}{gray}{0.1} 
+\definecolor{javadocblue}{rgb}{0,0,0.8} % javadoc
+\definecolor{blackblack}{rgb}{0,0,0}
+
+ 
+\lstset{
+basicstyle=\ttfamily\scriptsize\color{codecolor}, 
+keywordstyle=\color{blackblack}\bfseries,       
+% keywordstyle=\color{javadocblue},     
+commentstyle=\color{gray},              
+numbers=none,                           
+numberstyle=\tiny,                      % Line-numbers fonts
+stepnumber=1,                           % Step between two line-numbers
+numbersep=5pt,                          % How far are line-numbers from code
+%backgroundcolor=\color{lightlightgray}, % Choose background color
+tabsize=2,     
+%xleftmargin=1.5mm,
+%xrightmargin=1.5mm,
+frame=lines,
+captionpos=b,                           % Caption-position = bottom
+breaklines=true,                        % Automatic line breaking?
+breakatwhitespace=false,                % Automatic breaks only at whitespace?
+showspaces=false,                       % Dont make spaces visible
+showtabs=false,                         % Dont make tabls visible
+columns=flexible,                       % Column format
+morekeywords={}  
+stringstyle=\color{OliveGreen},
+mathescape=true,
+showstringspaces=false,
+sensitive=true,
+columns=fullflexible,
+columns=fullflexible,
+} 
+
+
+\lstdefinelanguage{mbeddr}
+{morekeywords={return,test,case,exported,int8_t,foreach,it,int32,void,sized,assert,rule,as,
+applicable,concept,overrides,do,typeof,if,applicable,error,int64_t,
+concepts,constraints,can,be,child,ancestor,isNotNull,node,int32_t,executeTests},
+otherkeywords={::,:,->,=>,[,],;,==;+=,=,\{,\},(,),:<=:,:==:,<,+,&,!}, 
+alsodigit={(,),0,1,2,3,4,5,6,7,8,9,0},
+morestring=[b]",
+comment=[l]{//},
+}
+
+
+\lstdefinelanguage{archdsl}
+{morekeywords={namespace, feature, component, instance, dynamic, connect, aspect, provides},
+otherkeywords={::,:,->,=>,[,],;,==;+=,=,\{,\},(,),:<=:,:==:,<,+,&,!}, 
+alsodigit={(,),0,1,2,3,4,5,6,7,8,9,0},
+morestring=[b]",
+comment=[l]{//},
+}
+
+
+
+
 
 
 \usepackage[T1]{fontenc}
