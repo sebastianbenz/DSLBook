@@ -457,7 +457,7 @@ create model elements in EMF. It is generated as part of the EMF code
 generator}. However, simply creating objects can be done with a regular method
 as well:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=xtend]
 def emergencyState() {
     val result = factory.createCustomState
     result.name = "EMERGENCY_STOP"
@@ -493,7 +493,7 @@ emergency state we've just created. Notice how we just call the
 \ic{emergencyState} function again; It returns the same object! We then use a
 builder to add the following code to each of the existing states.
 
-\begin{lstlisting}
+\begin{lstlisting}[language=cooling]
 on emergency_button_pressed {
     state EMERGENCY_STOP
 }
@@ -504,7 +504,7 @@ on emergency_button_pressed {
 This code could be constructed by procedurally calling the respective
 factory methods:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=xtend]
 val eh = factory.createEventHandler
 val sr = factory.createSymbolRef
 sr.symbol = emergencyEvent
@@ -526,7 +526,7 @@ create these builder functions once, and then create many different
 transformations, this approach makes a lot of sense.}. Since this class is
 imported with the \ic{@Inject extension} construct, the methods become available "just so":
 
-\begin{lstlisting}
+\begin{lstlisting}[language=xtend]
 class CoolingBuilder {
     
     CoolingLanguageFactory factory = CoolingLanguageFactory::eINSTANCE
@@ -611,8 +611,8 @@ like \ic{struct}s they can be instantiated. The following code shows an example.
 Notice the two global variables \ic{c1} and \ic{c2}, which are instances of the
 same state machine \ic{Counter}.
 
-\begin{lstlisting}
-module Statemachine from cdesignpaper.statemachine imports nothing { 
+\begin{lstlisting}[language=mbeddr]
+module Statemachine imports nothing { 
    
   statemachine Counter { 
     in events 
@@ -639,8 +639,8 @@ module Statemachine from cdesignpaper.statemachine imports nothing {
       } 
   }
   
-  var Counter c1; 
-  var Counter c2; 
+  Counter c1; 
+  Counter c2; 
    
   void aFunction() { 
     trigger(c1, start); 
@@ -747,7 +747,7 @@ property macro is used to replace values of properties\footnote{The node
 macros used above (\ic{COPY\_SRC}) replace whole nodes as opposed toprimitive \emph{properties} of nodes.}. In this case we use it to replace the\ic{name} property of the generated \ic{EnumLiteral}. Here is the implementation 
 expression of the property macro (also entered in the inspector):
 
-\begin{lstlisting}
+\begin{lstlisting}[language=mps]
 node.cEnumLiteralName();
 \end{lstlisting}
 
@@ -759,7 +759,7 @@ part of the behavior aspect of the \ic{State} concept. It concatenates the
 the name of the current state. We use property macros in a similar way to define
 the names of the two generated \ic{enum}s themselves.
 
-\begin{lstlisting}
+\begin{lstlisting}[language=mps]
 concept behavior State {                      
                                               
   public string cEnumLiteralName() {         
@@ -839,7 +839,7 @@ literal. Inside the \ic{case}, we embed another \ic{switch} that switches over
 the \ic{event} argument. Inside this inner \ic{switch} we iterate over all
 transitions that are triggered by the event we currently iterate over:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=mps]
 node<State> state = (node<State>) node.adapter.getUserObject("outer"); 
 state.transitions.where({~it => it.trigger.event == node; });
 \end{lstlisting}
@@ -853,7 +853,7 @@ reduction rules for this node (and all its descendants), if there are any. For
 example, in a guard condition, you can refer to event arguments. The reference
 to \ic{size} in the \ic{step} transition is an example.
 
-\begin{lstlisting}
+\begin{lstlisting}[language=mbeddr]
 statemachine Counter { 
   in events 
     step(int[0..10] size) 
@@ -893,7 +893,7 @@ dummy statement that will be replaced by a the statements in the exit actions
 (\ic{COPY\_SRCL} replaces a node with a \emph{list} of nodes). The respective
 expression is this:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=mps]
 (node, genContext, operationContext)->sequence<node<>> { 
   if (node.parent : State.exitAction != null) { 
     return node.parent : State.exitAction.statements; 
@@ -914,8 +914,8 @@ function.
 As the last example I want to show how the \ic{TriggerSMStatement} is
 translated. It "injects" an event into a state machine, and is used as follows:
 
-\begin{lstlisting}
-var Counter c1; 
+\begin{lstlisting}[language=mbeddr]
+Counter c1; 
  
 void aFunction() { 
   trigger(c1, start); 
@@ -949,7 +949,7 @@ reference macro to retarget the \ic{function} reference in the function call. It
 uses the following expression, which returns the name of the function generated
 for the state machine referenced in the \ic{statemachine} expression of the
 trigger statement:
-\begin{lstlisting}
+\begin{lstlisting}[language=mps]
 node.statemachine.type : StatemachineType.machine.cFunctionName();
 \end{lstlisting}
 
@@ -961,7 +961,7 @@ The second argument of the \ic{trigger} statement is a reference to the event we
 want to trigger. We can use another reference macro to find
 the \ic{enum} literal generated for this event. The macro code is straight forward:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=mps]
 node.event.cEnumLiteralName();
 \end{lstlisting}
 
@@ -982,11 +982,11 @@ abstract syntax trees to text can be realised by rewriting to strings. The
 following simple rules rewrite types to their corresponding representation in
 Java:
 
-\begin{lstlisting}
-  to-java: IntType()     -> "int"
-  to-java: BoolType()    -> "boolean"
-  to-java: StringType()  -> "String"
-  to-java: EntType(name) -> name
+\begin{lstlisting}[language=stratego]
+to-java: IntType()     -> "int"
+to-java: BoolType()    -> "boolean"
+to-java: StringType()  -> "String"
+to-java: EntType(name) -> name
 \end{lstlisting}
 \noindent
 For entity types, we use their name as the Java representation.
@@ -996,7 +996,7 @@ error messages \todo{ref}.} to construct strings from fixed and variable parts.
 For example, the following two rewrite rules generate Java code for entities and
 their properties:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=stratego]
   to-java:
     Entity(x, ps) ->
     $[ class [x] {
@@ -1032,7 +1032,7 @@ also use any other kind of bracket: \ic{\{\ldots\}}, \ic{<\ldots>}, and
 directly the results from other rewrite rules that yield strings or lists of
 strings:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=stratego]
   to-java:
     Entity(x, ps) ->
     $[ class [x] {
@@ -1049,7 +1049,7 @@ generated output. This way, we can indent the generated code, but also our
 rewrite rules. Applying \ic{to-java} to the initial \ic{shopping} entity, will
 yield the following Java code:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=java]
 class Item {
     
     private String name;
@@ -1091,7 +1091,7 @@ specify the following rewrite rule, which turns a string into a list of
 characters, upper-cases the first character, and turns the characters back into
 a string:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=stratego]
 to-upper-first: s -> s'
   where
     [first|chars] := <explode-string> s ;
@@ -1103,7 +1103,7 @@ to-upper-first: s -> s'
 \parhead{Editor Integration} To integrate the code generation into our editor,
 we first have to define the following rewrite rule:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=stratego]
   generate-java:
     (selected, position, ast, path, project-path) -> (filename, result)
     with
@@ -1124,7 +1124,7 @@ replace the last line by \ic{result := <to-java> ast}.
 Once we have defined this rule, we can register it as a \ic{builder} in
 \ic{editor/Lang-Builders.esv}. Here, we add the following rule:
 
-\begin{lstlisting}
+\begin{lstlisting}[morekeywords={builder, generate, java, openeditor, realtime}]
 builder: "Generate Java code (for selection)" = generate-java (openeditor) (realtime)
 \end{lstlisting}
 
@@ -1169,7 +1169,7 @@ concrete syntax, i.e. by using model-to-model transformations instead of code
 (text) generation. This can be achieved by constructing terms on the left-hand
 side of rewrite rules:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=stratego]
   to-java: IntType()    -> IntBaseType()
   to-java: BoolType()   -> BooleanBaseType()
   to-java: StringType() -> ClassType("java.lang.String")
@@ -1222,7 +1222,7 @@ target languages. There, it is important to keep the sorts of the languages
 disjunct. This can be achieved by renaming sorts in an imported module, which we
 do in the following example for the \ic{Java} and the \ic{Stratego} module:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=sdf]
 module Stratego-Mobl-Java
 imports Mobl
 imports Java     [ ID   => JavaId ]
@@ -1237,7 +1237,7 @@ fragments of the target language in Stratego rewrite rules. We add a production
 rule for every sort of concrete syntax fragments that we like to use in our
 rewrite rules:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=sdf]
 exports context-free syntax
 
   "|[" Module "]|"         -> StrategoTerm {"ToTerm"}
@@ -1267,7 +1267,7 @@ Third, we need to define antiquotations, which will enclose Stratego code in
 target language concrete syntax fragments. Here, we add a production rule for
 every sort where we like to inject Stratego code into concrete syntax fragments:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=sdf]
 exports context-free syntax
 
   "|[" StrategoTerm "]|" -> JavaId    {"FromTerm"}
@@ -1290,7 +1290,7 @@ Meta([ Syntax("Stratego-Mobl-Java") ])
 \noindent 
 Now, we can use concrete syntax fragments in our rewrite rules:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=stratego]
   to-java:
     |[ entity |[x]| { |[ps]| } ]| ->
     |[ class |[x]| { |[<mapconcat(to-java)> ps]| } ]|
@@ -1349,7 +1349,7 @@ directly traversing the DSL program and performing the semantic actions
 associated with the respective program elements. The chapter contains examples
 for interpeters with Xtext, MPS and Spoofax.}
  
-Interpreters are basically programs that read a model, traverse the AST and
+\noindent Interpreters are basically programs that read a model, traverse the AST and
 perform actions corresponding to the semantics of the language constructs whose
 instances appear in the AST. How an interpreter implementation looks depends a
 lot on the programming language used for implementing it. Also, the complexity
@@ -1501,7 +1501,7 @@ generation process. The fragment is configured with the abstract meta classes
 for expressions and statements. The following code shows the fragment
 configuration:
 
-\begin{lstlisting}
+\begin{lstlisting}[morekeywords={fragment}]
 fragment = de.itemis.interpreter.generator.InterpreterGenerator {
     expressionRootClassName = "Expression"
     statementRootClassName = "Statement"
@@ -1521,7 +1521,7 @@ The class also uses a logging framework (based on the \ic{LogEntry} class) that
 can be used to create a tree shaped trace of expression evaluation, which, short
 of building an actual debugger, is very useful for debugging and understandingthe execution of the interpreter.
 
-\begin{lstlisting}
+\begin{lstlisting}[language=java]
 public abstract class AbstractCoolingLanguageExpressionEvaluator 
                       extends AbstractExpressionEvaluator {
 
@@ -1547,17 +1547,20 @@ public abstract class AbstractCoolingLanguageExpressionEvaluator
 
     protected Object evalEquals( Equals expr, LogEntry log ) 
               throws InterpreterException {
-        throw new MethodNotImplementedException(expr, "method evalEquals not implemented");
+        throw new MethodNotImplementedException(expr, 
+              "method evalEquals not implemented");
     } 
     
     protected Object evalUnequals( Unequals expr, LogEntry log ) 
               throws InterpreterException {
-        throw new MethodNotImplementedException(expr, "method evalUnequals not implemented");
+        throw new MethodNotImplementedException(expr, 
+              "method evalUnequals not implemented");
     } 
     
     protected Object evalGreater( Greater expr, LogEntry log )
               throws InterpreterException {
-        throw new MethodNotImplementedException(expr, "method evalGreater not implemented");
+        throw new MethodNotImplementedException(expr, 
+              "method evalGreater not implemented");
     } 
     
 }
@@ -1573,7 +1576,7 @@ Let us now take a look at some example method implementations. The following
 code shows the implementation of \ic{evalNumberLiteral} which evaluates number
 literals such as \ic{2} or \ic{2.3} or \ic{-10.2}. To recap, the following
 grammar is used for defining number literals:
-\begin{lstlisting}
+\begin{lstlisting}[language=xtextgrammar]
 Atomic returns Expression:
     ...
     ({NumberLiteral} value=DECIMAL_NUMBER);
@@ -1601,19 +1604,19 @@ value contains a dot or not and returns either a \ic{DoubleType} or
 Java \ic{Double} or \ic{Integer} as the value of the \ic{NumberLiteral}. In
 addition, it creates log entries that document these decisions.
 
-\begin{lstlisting}
-    protected Object evalNumberLiteral(NumberLiteral expr, LogEntry log) {
-        String v = ((NumberLiteral) expr).getValue();
-        EObject type = eec().typesystem.typeof(expr, new TypeCalculationTrace());
-        if (type instanceof DoubleType) {
-            log.child(Kind.debug, expr, "value is a double, " + v);
-            return Double.valueOf(v);
-        } else if (type instanceof IntType) {
-            log.child(Kind.debug, expr, "value is a int, " + v);
-            return Integer.valueOf(v);
-        }
-        return null;
+\begin{lstlisting}[language=java]
+protected Object evalNumberLiteral(NumberLiteral expr, LogEntry log) {
+    String v = ((NumberLiteral) expr).getValue();
+    EObject type = eec().typesystem.typeof(expr, new TypeCalculationTrace());
+    if (type instanceof DoubleType) {
+        log.child(Kind.debug, expr, "value is a double, " + v);
+        return Double.valueOf(v);
+    } else if (type instanceof IntType) {
+        log.child(Kind.debug, expr, "value is a int, " + v);
+        return Integer.valueOf(v);
     }
+    return null;
+}
 \end{lstlisting}
 
 
@@ -1629,7 +1632,7 @@ log entry for this recursive call and stops the interpreter if the value passed
 in is \ic{null} (which would mean the AST is somehow broken). Once we have
 evaluated the two children we can simply return a conjunction of the two.
 
-\begin{lstlisting}
+\begin{lstlisting}[language=java]
 protected Object evalLogicalAnd(LogicalAnd expr, LogEntry log) {
     boolean leftVal = ((Boolean)evalCheckNullLog( expr.getLeft(), log ))
                       .booleanValue();
@@ -1645,7 +1648,7 @@ So far, we haven't used the environment, since we haven't worked with variables
 and their (changing) values. Let's now look and how variable assignment is
 handled. We first look at the \ic{AssignmentStatement},  which is implemented 
 in the \ic{StatementExecutor}:
-\begin{lstlisting}
+\begin{lstlisting}[language=java]
 protected void executeAssignmentStatement(AssignmentStatement s, LogEntry log){
     Object l = s.getLeft();
     Object r = evalCheckNullLog(s.getRight(), log);
@@ -1676,7 +1679,7 @@ we would probably just return \ic{null}, since nothing seems to have been
 assigned to the symbol yet}. Otherwise we return the value.
 
 
-\begin{lstlisting}
+\begin{lstlisting}[language=java]
 protected Object evalSymbolRef(SymbolRef expr, LogEntry log) {
     SymbolDeclaration s = expr.getSymbol();
     Object val = eec().environment.get(s);
@@ -1702,7 +1705,7 @@ grammar. Constraints make sure that argument lists are only used if the
 referenced symbol is actually a \ic{FunctionDeclaration}.
 
 
-\begin{lstlisting}
+\begin{lstlisting}[language=xtextgrammar]
 FunctionDeclaration returns Symbol:
     {FunctionDeclaration} "function" type=Type name=ID "(" 
         (params+=Parameter  ("," params+=Parameter)* )?  ")" "{"    
@@ -1724,7 +1727,7 @@ references to any symbol are handled via the \ic{SymbolRef} class. We have
 discussed this in \todo{ref}.}.
 
 
-\begin{lstlisting}
+\begin{lstlisting}[language=java]
 protected Object evalSymbolRef(SymbolRef expr, LogEntry log) {
     Symbol symbol = expr.getSymbol();
     if ( symbol instanceof VarDecl ) {
@@ -1751,7 +1754,7 @@ body, a symbol that should be used for the return value in the environment as
 well as the obligatory log. The utility method is implemented as follows:
 
 
-\begin{lstlisting}
+\begin{lstlisting}[language=java]
 protected Object callAndReturnWithPositionalArgs(String name, 
         EList<? extends EObject> formals, EList<? extends EObject> actuals, 
         EList<? extends EObject> bodyStatements, Object returnSymbol, 
@@ -1795,7 +1798,7 @@ executing a \ic{ChangeStateStatement}, which simply references the state that
 should be entered. Here is the interpreter code in \ic{StatementExecutor}:
 
 
-\begin{lstlisting}
+\begin{lstlisting}[language=java]
 protected void executeChangeStateStatement(ChangeStateStatement s, LogEntry l) {
     engine.enterState(s.getTargetState(), log);
 }
@@ -1823,7 +1826,7 @@ always terminates the current step. The main method \ic{step()} triggered by the
 external timer can be considered the main program of the interpreter. It looks
 as follows:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=java]
 public int step(LogEntry logger) {
     try {
         context.currentStep++;
@@ -1859,7 +1862,7 @@ that can deal with the currently processed event. If so, it executes the
 statement list associated with this event handler.
 
 
-\begin{lstlisting}
+\begin{lstlisting}[language=java]
 private void processEventFromQueue(CustomEvent event, LogEntry logger) {
     for ( EventHandler eh: getCurrentState().getEventHandlers()) {
         if ( reactsOn( eh, event ) ) {
@@ -1874,7 +1877,7 @@ private void processEventFromQueue(CustomEvent event, LogEntry logger) {
 The DSL also supports executing code asynchronously, i.e. after a specified
 number of steps. The grammar looks as follows:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=xtextgrammar]
 PerformAsyncStatement:
     "perform" "after" time=Expr "{"
         (statements+=Statement)*
@@ -1886,7 +1889,7 @@ PerformAsyncStatement:
 The following method interprets the \ic{PerformAsyncStatement}s:
 
 
-\begin{lstlisting}
+\begin{lstlisting}[language=java]
 protected void executePerformAsyncStatement(PerformAsyncStatement s, 
                 LogEntry log) throws InterpreterException {
     int inSteps = ((Integer)evalCheckNullLog(s.getTime(), log)).intValue();
@@ -1903,7 +1906,7 @@ at the beginning of the \ic{step} method described above checks whether the time
 come and executes those statements:
 
 
-\begin{lstlisting}
+\begin{lstlisting}[language=java]
 private void executeAsyncStuff(LogEntry logger) {
     List<AsyncElement> stuffToRun = new ArrayList<AsyncElement>();
     for (AsyncElement e: context.asyncElements) {
@@ -2000,7 +2003,7 @@ languages when building this interpreter.}. Thus, no extra term signatures are
 needed and the initialisation transformation is given by identity. For the step
 transformation, we can define rewrite rules for the different expression kinds:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=stratego]
 eval: Add(Int(x), Int(y)) -> Int(z) where z := <add> (x, y)
 eval: Mul(Int(x), Int(y)) -> Int(z) where z := <mul> (x, y)
 
@@ -2020,7 +2023,7 @@ eval: LazyAnd(_, False(), _)  -> False()
 \noindent We can orchestrate these rules in two different styles. For a
 small-step interpreter, we only apply one rule in each step:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=stratego]
 eval-one: exp -> <oncebu(eval)> exp
 \end{lstlisting}
 
@@ -2034,7 +2037,7 @@ expression, which might need further evaluation.
 In contrast, we can directly apply as many rules as possible, trying to evaluate
 the whole expression. This will give us a big-step interpreter:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=stratego]
 eval-all: exp -> <bottomup(try(eval))> exp
 \end{lstlisting}
 
@@ -2047,7 +2050,7 @@ If we want to evaluate statements, we need states which capture the value of
 variables and the list of statements which needs to be evaluated. We can define
 these states with a signature for terms:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=sdf]
 signature constructors
 
      : ID * IntValue  -> VarValue
@@ -2061,7 +2064,7 @@ State: List(VarValue) * List(Statement) -> State
 defines a binary constructor \ic{State} which combines a list of variable values
 with a list of statements. We first have to adapt the evaluation of expressions
 to handle variable references in expressions.
-\begin{lstlisting}
+\begin{lstlisting}[language=stratego]
 eval(|varvals): exp -> <eval> exp
 eval(|varvals): VarRef(var) -> <lookup> (var, varvals)
     
@@ -2079,7 +2082,7 @@ expressions, just as before.
 We can now define evaluation rules for statements. These rules rewrite the
 current state into a new state:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=stratego]
 eval: 
   (varvals, [Init(type, var, exp)|stmts]) -> (varvals', stmts)
   where
@@ -2102,7 +2105,7 @@ values and removes the statement from the list of statements. The second rule
 handling assignments is quite similar. The third rule handles block statements,
 by concatenating the statements from a block with the remaining statements.The following rule handle an \ic{if} statement:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=stratego]
 eval:
   (varvals, [If(exp, then, else)|stmts]) -> (varvals, [stmt|stmts])
   where
@@ -2122,7 +2125,7 @@ the statement from the \ic{else} branch is chosen. If the result is neither
 \ic{True()} nor \ic{False()}, the rule will fail. The following rule handles
 \ic{while} loops:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=stratego]
 eval:
   (varvals, [While(exp, body)|stmts]) -> (varvals, stmts')
   where
@@ -2144,7 +2147,7 @@ The \ic{eval} rules define already a small-step interpreter, going from one
 evaluation state to the next. We can define a big-step interpreter by adding a
 driver, which repeats the evaluation until it reaches a final state:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=stratego]
 eval-all: state -> <repeat(eval)> state
 \end{lstlisting}
 
