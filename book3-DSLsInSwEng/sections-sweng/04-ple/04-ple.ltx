@@ -253,14 +253,14 @@ attributes (of any type).
 \caption{An example feature model in mbeddr. Until MPS will provide support for
 graphical notations (planned for 2013), we use a textual notation.}
 \label{fminmbeddr}
-\end{figure}
+\end{figure} 
 
 
 A configuration is a named set of selections from the features in a feature
 model. The selection has to be valid regarding the constraints defined in the
 feature model. \fig{twoconfigs} shows two example configurations. If an invalid
 configuration is created, errors will be shown in the configuration model.
- 
+  
 
 \begin{figure}[h]
 \begin{center} 
@@ -296,9 +296,11 @@ transformation, those parts of programs that are not in the product are removed
 from the model. 
 
 \begin{figure}[h] 
-\begin{center} 
-  \includegraphics[width=118mm]{figures-sweng/ple/projection.png}
-\end{center} 
+\fbox{
+\begin{minipage}{105mm}
+  \includegraphics[width=\columnwidth]{figures-sweng/ple/projection.png}
+\end{minipage}
+}
 \caption{\textbf{Left:} A C program with product line annotations.
 \textbf{Right:} The program rendered in in the \ic{Production} variant.}
 \label{projection} 
@@ -380,8 +382,8 @@ following:
   \item Should messages be queued? What is the queue size?
 \end{itemize}
 
-Because of the "select from set of options"-metaphor, feature model-based
-configuration is simple to use --- product definition is basically a decision
+\noindent Because of the "select from set of options"-metaphor, feature
+model-based configuration is simple to use --- product definition is basically a decision
 tree. This makes product configuration efficient, and potentially accessible for
 stakeholders other than software developers. Also, as described by Batory
 \cite{Batory05} and Czarnecki \cite{CzarneckiW07}, a one advantage of
@@ -443,10 +445,10 @@ recursion~\cite{CzarneckiHE05}. For example, the feature model in \fig{exfm} is
 equivalent to the following grammar. We use all caps to represent terminals, and
 camel-case identifiers as non-terminals:
 
-\begin{code}
+\begin{lstlisting}
 Fountain -> Basin PUMP
 Basin -> ISFULLSENSOR? (ONENOZZLE | TWONOZZLES)
-\end{code}
+\end{lstlisting}
 
 
 \noindent This grammar generates a finite number of sentences, i.e there are
@@ -464,28 +466,28 @@ references.
 could have an integer attribute \ic{rpm}, representing the power setting of
 the pump. Some feature modeling tools (e.g. pure::variants) support attributes.
 
-\begin{code}
+\begin{lstlisting}
 Fountain -> Basin PUMP(rpm:int)
 Basin -> ISFULLSENSOR? (ONENOZZLE | TWONOZZLES)
-\end{code}
+\end{lstlisting}
 
 
-\emph{Recursive} grammars can be used to model repetition and nesting.
+\noindent \emph{Recursive} grammars can be used to model repetition and nesting.
 Repetition is also supported by cardinality-based feature models, as described
 in \cite{CzarneckiHE05}. Nesting is necessary to model tree structures such as
 those occurring in expressions. The following grammar extends the fountain
 feature model with a \ic{Behavior}, which consists of a number of
 \ic{Rules}. The \ic{Basin} can now have any number of \ic{Nozzles}.
 
-\begin{code}
-  Fountain -> Basin PUMP(rpm:int) Behavior
-  Basin -> ISFULLSENSOR? NOZZLE*
-  Behavior -> Rule*
-  Rule -> CONDITION CONSEQUENCE
-\end{code}
+\begin{lstlisting}
+Fountain -> Basin PUMP(rpm:int) Behavior
+Basin -> ISFULLSENSOR? NOZZLE*
+Behavior -> Rule*
+Rule -> CONDITION CONSEQUENCE
+\end{lstlisting}
 
 
-\emph{References} allow the creation of context-sensitive relations
+\noindent \emph{References} allow the creation of context-sensitive relations
 between parts of generated sentences --- or subtrees of the generated
 derivation trees. For example, by further extending our fountain grammar
 we can describe a rule whose condition refers to the \ic{full} attribute of
@@ -493,21 +495,21 @@ the \ic{ISFULLSENSOR} and whose consequence sets a \ic{PUMP}'s
 \ic{rpm} to 0.
 
 
-\begin{code} 
-  Fountain -> Basin id:PUMP(rpm:int)? Behavior
-  Basin -> id:ISFULLSENSOR(full:boolean)? id:NOZZLE*
-  Behavior -> Rule*
+\begin{lstlisting} 
+Fountain -> Basin id:PUMP(rpm:int)? Behavior
+Basin -> id:ISFULLSENSOR(full:boolean)? id:NOZZLE*
+Behavior -> Rule*
 
-  Rule -> Condition Consequence
-  Condition -> Expression
-  Expression -> ATTRREFEXPRESSION | AndExpression | 
-               GreaterThanExpression | INTLITERAL;
+Rule -> Condition Consequence
+Condition -> Expression
+Expression -> ATTRREFEXPRESSION | AndExpression | 
+              GreaterThanExpression | INTLITERAL;
 
-  AndExpression -> Expression Expression
-  GreaterThanExpression -> Expression Expression
+AndExpression -> Expression Expression
+GreaterThanExpression -> Expression Expression
 
-  Consequence -> ATTRREFEXPRESSION Expression
-\end{code}
+Consequence -> ATTRREFEXPRESSION Expression
+\end{lstlisting}
 
 
 
@@ -522,7 +524,7 @@ the \ic{ISFULLSENSOR} and whose consequence sets a \ic{PUMP}'s
 \end{figure}
  
 
-\fig{exfm-extended} shows a possible rendering of the grammar with an
+\noindent \fig{exfm-extended} shows a possible rendering of the grammar with an
 enhanced feature modeling notation. We use cardinalities, as well as references
 to existing features, the latter are shown as dotted boxes. A valid
 configuration could be the one shown in \fig{exfm-extended-inst}. It shows a fountain with one basin,
@@ -556,27 +558,27 @@ grammar:
 
 
 
-\begin{code} 
-  Fountain -> "fountain" Basin Pump Behavior
-  Basin -> "basin" IsFullSensor Nozzle*
-  Behavior -> Rule*
+\begin{lstlisting} 
+Fountain -> "fountain" Basin Pump Behavior
+Basin -> "basin" IsFullSensor Nozzle*
+Behavior -> Rule*
 
-  Rule -> "if" Condition "then" Consequence
-  Condition -> Expression
-  Expression -> AttrRefExpression | AndExpression | 
-               GreaterThanExpression | IntLiteral;
+Rule -> "if" Condition "then" Consequence
+Condition -> Expression
+Expression -> AttrRefExpression | AndExpression | 
+              GreaterThanExpression | IntLiteral;
 
-  AndExpression -> Expression "&&" Expression
-  GreaterThanExpression -> Expression ">" Expression
-  AttrRefExpression -> <attribute-ref-by-name> 
-  IntLiteral -> (0..9)*
+AndExpression -> Expression "&&" Expression
+GreaterThanExpression -> Expression ">" Expression
+AttrRefExpression -> <attribute-ref-by-name> 
+IntLiteral -> (0..9)*
 
-  Consequence -> AttrRefExpression "=" Expression
+Consequence -> AttrRefExpression "=" Expression
 
-  IsFullSensor: "sensor" ID (full:boolean)?
-  Nozzle: "nozzle" ID
-  Pump: "pump" ID (rpm:int)?
-\end{code}
+IsFullSensor: "sensor" ID (full:boolean)?
+Nozzle: "nozzle" ID
+Pump: "pump" ID (rpm:int)?
+\end{lstlisting}
 
 
 \noindent We can now write a program that uses a convenient textual notation,
@@ -587,18 +589,18 @@ rules and other constraints, but that is beyond the scope of this paper.
 
 
 
-\begin{code} 
-  fountain
-    basin sensor s
-          nozzle n1
-          nozzle n2
-    pump p
-    if s.full && p.rpm > 0 then p.rpm = 0
-\end{code}
+\begin{lstlisting} 
+fountain
+  basin sensor s
+        nozzle n1
+        nozzle n2
+  pump p
+  if s.full && p.rpm > 0 then p.rpm = 0
+\end{lstlisting}
 
 
-DSLs fill the gap between feature models and programming languages. They can be
-more expressive than feature models, but they are not as unrestricted and
+\noindent DSLs fill the gap between feature models and programming languages.
+They can be more expressive than feature models, but they are not as unrestricted and
 low-level as programming languages. Like programming languages, DSLs, support
 \ic{construction}, allowing the composition of an unlimited number of
 programs. Construction happens by
@@ -635,7 +637,7 @@ a mapping to SAT solvers to support validation of models. The following code is
 Clafer code (adapted from Michal Antkiewicz' \emph{Concept Modeling Using
 Clafer} tutorial at http://gsd.uwaterloo.ca/node/310). 
 
-\begin{code} 
+\begin{lstlisting}[morekeywords={abstract, or, xor}] 
   abstract Person
     name : String
     firstname : String
@@ -655,7 +657,7 @@ Clafer} tutorial at http://gsd.uwaterloo.ca/node/310).
 
   abstract WaitingLine 
     participants -> Person *
-\end{code}
+\end{lstlisting}
 
 \noindent
 The Clafer code example describes a concept \ic{Person} with the following
@@ -671,8 +673,8 @@ characteristics:
   optional features in feature modeling)
 \end{itemize}
 
-The code also shows a reference: a \ic{WaitingLine} refers to any number of
-\ic{Persons}.
+\noindent The code also shows a reference: a \ic{WaitingLine} refers to any
+number of \ic{Persons}.
 
 
 Note, however, that an important ingredient for making DSLs work in practice is
@@ -743,8 +745,8 @@ technical space of DSLs. First we briefly recap the core PLE concepts.
 
 \end{itemize}
 
-In the following sections we now elaborate on how these concepts are realized
-when DSLs are used.
+\noindent In the following sections we now elaborate on how these concepts are
+realized when DSLs are used.
 
 
 \subsection{Variation Points and Kinds of Variability}
@@ -832,8 +834,8 @@ is part of the platform executes the DSL program directly.
 
 \end{itemize}
 
-When to use transformation vs. interpretation depends on various, usually
-non-functional concerns. Transformation and code generation is the more
+\noindent When to use transformation vs. interpretation depends on various,
+usually non-functional concerns. Transformation and code generation is the more
 mainstream approach because most people find it easier to implement and debug.
 It has a couple of advantages compared to interpretation, better performance
 being the most important one, especially in embedded systems. Interpretation is

@@ -76,13 +76,14 @@ enforce this, a \emph{can be child} constraint is defined
 
 
 \begin{figure}[h]
-\begin{code} 
-  concepts constraints AssertStatement { 
-    can be child 
-      (context, scope, parentNode, link, childConcept)->boolean { 
-        parentNode.ancestor<TestCase>.isNotNull; 
-  }   } 
-\end{code}
+\begin{lstlisting}[language=mps, deletekeywords={scope, link}] 
+concept constraints AssertStatement { 
+  can be child 
+    (context, scope, parentNode, link, childConcept)->boolean { 
+      parentNode.ancestor<TestCase>.isNotNull; 
+    }   
+} 
+\end{lstlisting}
 \caption{This constraint restricts an \lcr{AssertStatement} to be used only
 inside a \lcr{TestCase} by checking that at least one of its ancestors is a
 \lcr{TestCase}.}
@@ -93,35 +94,14 @@ inside a \lcr{TestCase} by checking that at least one of its ancestors is a
 
 
 \begin{figure}[h]
-\begin{minipage}[b]{0.3\linewidth}
-\begin{code}
-test case exTest {
-  int x = add(2, 2);               
-  assert(0) x == 4;         
-} 
-
-\end{code}
-\end{minipage}
-\hspace{0.025\linewidth}
-\begin{minipage}[b]{0.3\linewidth}
-\begin{code} 
-void test_exTest {
-  int x = add(2, 2);               
-  report 
-    test.FAIL(0) 
-    on !(x == 4);}
-\end{code}
-\end{minipage}
-\hspace{0.025\linewidth}
-\begin{minipage}[b]{0.3\linewidth}
-\begin{code} 
-void test_exTest {
-  int x = add(2, 2);
-  if (!(x == 4)) {
-    printf("fail:0");
-} } 
-\end{code}
-\end{minipage} 
+\begin{lstlisting}[language=mbeddr, morekeywords={report}]
+test case exTest {          void test_exTest {           void test_exTest {
+  int x = add(2, 2);          int x = add(2, 2);           int x = add(2, 2);             
+  assert(0) x == 4;           report                       if (!(x == 4)) {
+}                               test.FAIL(0)                 printf("fail:0");   
+                                on !(x == 4);              }
+                            }                            }
+\end{lstlisting}
 \caption{Two-stage transformation of \lcr{TestCase}s. The \lcr{TestCase} is
 transformed into a C function using the logging framework to output error
 messages. The \lcr{report} statement is in turn transformed into a
@@ -131,6 +111,21 @@ device (configured by the user in the build configuration).}
 \label{unittest2c}
 
 \end{figure}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -165,11 +160,11 @@ contains a \lcr{StatementList} as its body, as well as a list of
 existing mechanism for handling variable shadowing (explained below).
   
 \begin{figure} 
-
-\rule{\columnwidth}{0.4pt}
-\vspace{-5mm}
+\fbox{
+\begin{minipage}{105mm}
 \includegraphics[width=85mm]{figures-sweng/impl/safeheap.png}
-\vspace{1mm}
+\end{minipage}
+}
 \caption{A \lcr{safeheap} statement declares heap variables which can only be
 used inside the body of the statement. When the body is left, the memory is
 automatically freed. Notice also how we report an error in case the variable
@@ -198,7 +193,7 @@ name from a \emph{higher} level in the hierarchy. So, to plug the
 
 
 \begin{figure}[h]
-\begin{code} 
+\begin{lstlisting}[language=mps, deletekeywords={scope}] 
 public LocalVarScope getLocalVarScope(node<> ctx, int stmtIdx) {
   LocalVarScope scope = 
       new LocalVarScope(getContainedLocalVariables()); 
@@ -212,7 +207,7 @@ public LocalVarScope getLocalVarScope(node<> ctx, int stmtIdx) {
 public sequence<node<LocalVariableDecl>> getContainedLocalVars() {
   this.vars;  
 }
-\end{code} 
+\end{lstlisting} 
 \caption{A \lcr{safeheap} statement implements the two methods declared by the
 \lcr{ILocalVarScopeProvider} interface. \lcr{getContainedLocalVariables}
 returns the \lcr{LocalVarDecl}s that are declared between the parentheses (see
@@ -234,7 +229,7 @@ a reference to a \ic{safeheap} variable is passed to a function.
 
 
 \begin{figure}[t]
-\begin{code} 
+\begin{lstlisting}[language=mps] 
 checking rule check_safeVarRef for concept = LocalVarRef as lvr {                  
     boolean isInSafeHeap = 
       lvr.ancestor<SafeHeapStatement>.isNotNull; 
@@ -245,7 +240,7 @@ checking rule check_safeVarRef for concept = LocalVarRef as lvr {
     if (isInSafeHeap && isInFunctionCall && referencesSafeHeapVar) 
          error "cannot pass a safe heap var to a function" -> lvr; 
 } 
-\end{code} 
+\end{lstlisting} 
 \caption{This type system rule reports an error if a reference to a local
 variable declared and allocated by the \ic{safeheap} statement is used
 in a function call.}
@@ -316,27 +311,27 @@ compatible with the return type of the surrounding function.
 
 
 \begin{figure}[h]
-\begin{code} 
-  // the type of the whole decision table expression
-  // is the type specified in the type field
+\begin{lstlisting}[language=java, morekeywords={typeof, foreach, in, infer}] 
+// the type of the whole decision table expression
+// is the type specified in the type field
 typeof(dectab) :==: typeof(dectabc.type);   
-  // for each of the expressions in
-  // the column headers, the type must be boolean
+// for each of the expressions in
+// the column headers, the type must be boolean
 foreach expr in dectab.colHeaders {        
   typeof(expr) :==: <boolean>;               
 }                                          
-  // ... same for the row headers
+// ... same for the row headers
 foreach expr in dectabc.rowHeaders {       
   typeof(expr) :==: <boolean>;             
 }                                          
-  // the type of each of the result values must 
-  // be the same or a subtype of the table itself
+// the type of each of the result values must 
+// be the same or a subtype of the table itself
 foreach expr in dectab.resultValues {      
   infer typeof(expr) :<=: typeof(dcectab);  
-}  
-  // ... same for the default
+}   
+// ... same for the default
 typeof(dc.def) :<=: typeof(dectab);        
-\end{code} 
+\end{lstlisting} 
 \caption{The type equations for the decision table (see the
 comments for details).}
 \label{dectabtyping}
@@ -381,13 +376,13 @@ the reference.
  
 
 \begin{figure}[h]
-\begin{code} 
+\begin{lstlisting}[language=mps, morekeywords={}, deletekeywords={}]
 link {unit} search scope: 
-    (model, scope, refNode, enclosingNode, operationContext) 
+    (model, refNode, enclosingNode, operationContext) 
                              ->sequence<node<UnitDeclaration>> { 
       enclosingNode.ancestor<IVisibleNodeProvider>.
               visibleContentsOfType(concept/UnitDeclaration/); } 
-\end{code} 
+\end{lstlisting} 
 \caption{The \lcr{visibleContentsOfType} operation returns all instances of the
 concept argument in the current module, as well as
 all exported instances in modules imported by the current module.}
@@ -414,25 +409,27 @@ the exponents of the SI units are added.
 
 
 \begin{figure}[h]
-\begin{code}
+\begin{lstlisting}[language=mps, morekeywords={left, right, type, concepts, is},
+deletekeywords={}] 
 operation concepts: MultiExpression
   left operand type: new node<UnitType>() 
   right operand type: new node<UnitType>() 
 is applicable:
-  (operation, leftOpType, rightOpType)->boolean {
-    node<> resultingValueType = operation type(operation,
+  (op, leftOpType, rightOpType)->boolean {
+    node<> resultingValueType = operation type(op,
                   leftOpType.valueType , rightOpType.valueType ); 
-    resultingValueType != null; }
+    return resultingValueType != null; 
+  }
 operation type:
-  (operation, leftOpType, rightOpType)->node<> {
-     node<> resultingValueType = operation type(operation, 
+  (op, leftOpType, rightOpType)->node<> {
+     node<> resultingValueType = operation type(op, 
                leftOpType.valueType,  rightOpType.valueType );
      UnitType.create(resultingValueType,
                       leftOpType.unit.toSIBase().add(
                          rightOpType.unit.toSIBase(), 
                          1 ) ); 
   }
-\end{code} 
+\end{lstlisting} 
 \caption{This code overloads the \ic{MultiExpression} to work for
 \ic{UnitType}s. In the \ic{is applicable} section we check whether there is a
 typing rule for the two value types (e.g. \ic{int * float}). This is achieved by
@@ -462,7 +459,8 @@ and whose \ic{valueType} is a supertype of the current \ic{UnitType}'s value typ
 
 
 \begin{figure}[h]
-\begin{code}
+\begin{lstlisting}[language=java, morekeywords={concept, subtyping, rule, as,
+foreach, in}, deletekeywords={}] 
 subtyping rule supertypeOf_UnitType 
               for concept = UnitType as ut {
   nlist<> res = new nlist<>;
@@ -471,7 +469,7 @@ subtyping rule supertypeOf_UnitType
   }
   return res;
 }
-\end{code} 
+\end{lstlisting} 
 \caption{This typing rule computes the direct supertypes of a \ic{UnitType}. It
 iterates over all immediate supertypes of the current \ic{UnitType}'s value
 type, wrapped into a \ic{UnitType} with the same unit as the original one.}
@@ -503,8 +501,11 @@ transformation that maps the C tree to C text for compilation.
  
 
 \begin{figure}[t]
-\rule{\columnwidth}{0.4pt}
+\fbox{
+\begin{minipage}{105mm}
   \includegraphics[width=85mm]{figures-sweng/impl/safetransformation.png}
+\end{minipage}
+}
 \caption{This \emph{reduction rule} transforms instances of \lcr{PlusExpression}
 into a call to a library function \lcr{addWithRangeChecks}, passing in the left 
 and right argument of the \lcr{+} using the two \lcr{COPY\_SRC} macros. The 
@@ -538,7 +539,7 @@ property that is used to store \ic{TraceAnnotation}s under the annotated node.
 
 
 \begin{figure}[h]
-\begin{code}
+\begin{lstlisting}[language=mps, morekeywords={concept}, deletekeywords={}]
 concept TraceAnnotation extends NodeAttribute implements <none>     
   children:                                   
     TraceKind        tracekind   1    
@@ -547,7 +548,7 @@ concept TraceAnnotation extends NodeAttribute implements <none>
     role = trace                                
   concept links:                              
     attributed = BaseConcept                    
-\end{code} 
+\end{lstlisting} 
 \caption{Annotations have to extend the MPS-predefined concept
 \ic{NodeAttribute}. They can have an arbitrary child structure (\ic{tracekind},
 \ic{refs}), but they have to specify the \ic{role} (the name of the property
@@ -567,10 +568,11 @@ in the program. This is key to enabling arbitrary annotations on arbitrary progr
 
        
 \begin{figure}[t]
-\vspace{-8mm}
-\begin{center} 
+\fbox{
+\begin{minipage}{105mm}
   \includegraphics[width=85mm]{figures-sweng/impl/tracesAll.png}
-\end{center}
+\end{minipage}
+}
 \caption{The editor definition for the \lcr{ReqTrace}
 annotation (an example trace annotation is shown in \fig{screenshot}). It
 consists of a vertical list \lcr{[/ .. /]} with two lines.
@@ -588,16 +590,19 @@ selects the target element, presses \ic{Alt-Enter} and selects \ic{Add Trace} fr
 intention that attaches a requirements trace.
 
 \begin{figure}[h]
-\begin{code}
+\begin{lstlisting}[language=mps, morekeywords={intention}, deletekeywords={}]
 intention addTrace for BaseConcept {
   description(node)->string { 
-    "Add Trace"; }                                                                                                                                                                           
+    "Add Trace"; 
+  }                                                                                                                                                                           
   isApplicable(node)->boolean { 
-    node.@trace == null; }                                                                
+    node.@trace == null; 
+  }                                                                
   execute(editorContext, node)->void { 
-    node.@trace = new node<TraceAnnotation>(); }
+    node.@trace = new node<TraceAnnotation>(); 
+  }
 }
-\end{code} 
+\end{lstlisting} 
 \caption{An intention definition consists of three parts. The \ic{description}
 returns the string that is shown in the intentions popup menu. The
 \ic{isApplicable} section determines under which conditions the intention is

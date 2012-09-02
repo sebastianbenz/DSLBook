@@ -179,7 +179,7 @@ communication endpoints typed with an interface. Ports have a direction
 (provides, requires) as well as a cardinality. Based on this initial version of
 the ADSL, we could write the following example code:
 
-\begin{code}
+\begin{lstlisting}[language=archdsl]
 component DelayCalculator {
   provides aircraft: IAircraftStatus 
   provides managementConsole: IManagementConsole 
@@ -197,7 +197,7 @@ component InfoScreen {
 component AircraftModule {
   requires calculator[1]: IAircraftStatus
 }
-\end{code}
+\end{lstlisting}
 
 
 \noindent It is important to not just state which interfaces a component
@@ -213,12 +213,12 @@ pooling and redundant physical instances had not been made yet. We also
 introduce connectors to define actual communication paths between components
 (and their ports).
 
-\begin{code}
+\begin{lstlisting}[language=archdsl]
 instance dc: DelayCalculator
 instance screen1: InfoScreen
 instance screen2: InfoScreen
 connect dc.screens to (screen1.default, screen2.default)
-\end{code}
+\end{lstlisting}
 
 
 \noindent At some point it became clear that in order to not get lost in all the
@@ -226,7 +226,7 @@ components, instances and connectors, we need to introduce some kind of
 namespace. It became equally clear that we'd need to distribute things to
 different files:
 
-\begin{code}
+\begin{lstlisting}[language=archdsl]
 namespace com.mycompany {
 
   namespace datacenter {
@@ -235,7 +235,7 @@ namespace com.mycompany {
       provides aircraft: IAircraftStatus 
       provides managementConsole: IManagementConsole 
       requires screens[0..n]: IInfoScreen
-    }
+    } 
     
     component Manager {
       requires backend[1]: IManagementConsole
@@ -255,7 +255,7 @@ namespace com.mycompany {
     
   }
 } 
-\end{code}
+\end{lstlisting}
 
 
 \noindent It is also a good idea to keep component and interface definition
@@ -263,7 +263,7 @@ namespace com.mycompany {
 instances), so we introduced the concept of compositions, which make a group of
 instances and connectors identifiable by a name:
 
-\begin{code}
+\begin{lstlisting}[language=archdsl]
 namespace com.mycompany.test {
 
   composition testSystem {
@@ -272,9 +272,8 @@ namespace com.mycompany.test {
     instance screen2: InfoScreen
     connect dc.screens to (screen1.default, screen2.default)
   }
-  
 } 
-\end{code}
+\end{lstlisting}
 
 
 \noindent Of course in a real system, the \ic{DelayCalculator} would have to
@@ -286,7 +285,7 @@ technology; we just express that we have to be able to run the queries
 specified in the model against the implementation.}. It is re-executed
 every 60 seconds to find the \ic{InfoScreen}s that had just come online.
 
-\begin{code}
+\begin{lstlisting}[language=archdsl]
 namespace com.mycompany.production {
 
   instance dc: DelayCalculator
@@ -298,7 +297,7 @@ namespace com.mycompany.production {
     status = active
   }
 } 
-\end{code}
+\end{lstlisting}
 
 
 \noindent A similar approach can be used to address load balancing or fault
@@ -312,7 +311,7 @@ specified, the following example registers a primary and a backup instance for
 the \ic{DelayCalculator}:
 
 
-\begin{code}
+\begin{lstlisting}[language=archdsl]
 namespace com.mycompany.datacenter {
 
   registered instance dc1: DelayCalculator {
@@ -323,7 +322,7 @@ namespace com.mycompany.datacenter {
     registration parameters {role = backup}
   }
 } 
-\end{code}
+\end{lstlisting}
 
 
 \noindent So far we didn't really define what an interface is. We knew that we'd
@@ -339,7 +338,7 @@ patterns are there? We identified several, here are examples of \ic{oneway} and
 
 
 
-\begin{code}
+\begin{lstlisting}[language=archdsl]
 interface IAircraftStatus {
 
   oneway message reportPosition(aircraft: ID, pos: Position )
@@ -349,7 +348,7 @@ interface IAircraftStatus {
     reply (repairProcedure: ID) 
   }
 } 
-\end{code}
+\end{lstlisting}
 
 
 \noindent We talked a long time about various message interaction patterns.
@@ -384,7 +383,7 @@ whenever something changes in the local data structure. However, the
 data when it is started up).
 
 
-\begin{code}
+\begin{lstlisting}[language=archdsl]
 struct FlightInfo {
   from: Airport
   to: Airport
@@ -403,7 +402,7 @@ component DelayCalculator {
 component InfoScreen {
   consumes flights { update 60 }
 }
-\end{code}
+\end{lstlisting}
 
 \noindent This is much more concise compared to a description based on messages.
 We can automatically derive the kinds of messages needed for full update, incremental
@@ -421,7 +420,7 @@ is to use protocol state machines. Here is an example that expresses that you
 can only report positions and problems once the aircraft is registered. In other
 words, the first thing an aircraft has to do is register itself.
 
-\begin{code}
+\begin{lstlisting}[language=archdsl]
 interface IAircraftStatus {
 
   oneway message registerAircraft(aircraft: ID! ) 
@@ -446,7 +445,7 @@ interface IAircraftStatus {
     }
   }
 } 
-\end{code}
+\end{lstlisting}
 
 \noindent Initially, the protocol state machine is in the \ic{new} state where
 the only valid message is \ic{registerAircraft}. If this is received, we
@@ -468,18 +467,18 @@ visible aspects change which is why no ports and other externally-exposed
 details of the component are declared. For all intents and purposes, it's the
 same thing --- just maybe a couple of bugs are fixed.
 
-\begin{code}
+\begin{lstlisting}[language=archdsl]
 component DelayCalculator {
   publishes flights { publication = onchange }
 }
 newImplOf component DelayCalculator: DelayCalculatorV2
-\end{code}
+\end{lstlisting}
 
 
 \noindent To evolve the externally visible signature of a component, one can
 write this: 
 
-\begin{code}
+\begin{lstlisting}[language=archdsl]
 component DelayCalculator {
   publishes flights { publication = onchange }
 }
@@ -488,7 +487,7 @@ newVersionOf component DelayCalculator: DelayCalculatorV3 {
   publishes flights { publication = onchange }
   provides somethingElse: ISomething
 }
-\end{code}
+\end{lstlisting}
 
 \noindent The keyword \ic{newVersionOf} allows to add additional provided ports
 (such as the \ic{somethingElse} port) and to remove required ports. You cannot
@@ -642,8 +641,8 @@ DSL) and also how to generate code and how to use the programming model (how to
 fill in the implementation code into the generated skeletons).
 \end{description}
 
-There are more aspects of an architecture that might be worth documenting, but
-the above two are the most important ones.
+\noindent There are more aspects of an architecture that might be worth
+documenting, but the above two are the most important ones.
 
 
 \subsection{Embedding Business Logic via DSLs}
@@ -780,8 +779,8 @@ model:
 
 
 
-The \emph{System} viewpoint describes the system infrastructure onto which the
-logical system defined with the two previous viewpoints is deployed
+\noindent The \emph{System} viewpoint describes the system infrastructure onto
+which the logical system defined with the two previous viewpoints is deployed
 (\fig{viewpoints_system}), as well as the mapping of the Composition viewpoint
 onto this execution infrastructure\sidenote[][-15mm]{In some cases it may make
 sense to separate the infrastructure definition from the mapping to the Composition
