@@ -58,6 +58,26 @@ analyzability, two are for end user convenience and three are to simplify the
 implementation in MPS. We discuss some of them below, and \fig{mbeddrCChanges}
 shows a summary.
 
+
+
+\begin{marginfigure} 
+\includegraphics[width=50mm]{figures-sweng/impl/modules.png}  
+\caption{Modules are the top-level container in mbeddr C. They can import other
+modules, whose exported contents they can then use. Exported contents are put
+into the header files generated from modules.}
+\label{moduleexample}
+\end{marginfigure} 
+
+
+
+\noindent mbeddr C provides \emph{modules} (\fig{moduleexample}). A module
+contains the top level C constructs (such as \ic{struct}s, functions or global variables).
+These module contents can be \lcr{exported}. Modules can \emph{import} other modules,
+in which case they can access the exported contents of the imported modules.
+While header files are generated, we do not expose them to the user: modules
+provide a more convenient means of controlling modularizing programs and
+limiting which elements are visible globally.
+
 \begin{figure}[h]
 \begin{center}
     \begin{tabular}{ | l | l |}
@@ -105,27 +125,8 @@ convenience and three are to simplify the implementation in MPS.}
 \end{figure}
 
 
-\begin{marginfigure} 
-\includegraphics[width=50mm]{figures-sweng/impl/modules.png}  
-\caption{Modules are the top-level container in mbeddr C. They can import other
-modules, whose exported contents they can then use. Exported contents are put
-into the header files generated from modules.}
-\label{moduleexample}
-\end{marginfigure} 
-
-
-
-mbeddr C provides \emph{modules} (\fig{moduleexample}). A module contains the
-top level C constructs (such as \ic{struct}s, functions or global variables).
-These module contents can be \lcr{exported}. Modules can \emph{import} other modules,
-in which case they can access the exported contents of the imported modules.
-While header files are generated, we do not expose them to the user: modules
-provide a more convenient means of controlling modularizing programs and
-limiting which elements are visible globally.
-
-
-mbeddr C does not support the \emph{preprocessor}. Empirical studies such as
-\cite{2002_ernst_empirical_analysis_of_c_preprocessor_use} show that it is often
+\noindent mbeddr C does not support the \emph{preprocessor}. Empirical studies
+such as \cite{2002_ernst_empirical_analysis_of_c_preprocessor_use} show that it is often
 used to emulate missing features of C in ad-hoc way, leading to problems
 regarding maintenance and analyzability. Instead, mbeddr C provides first class
 support for the most important use cases of the preprocessor. Examples include
