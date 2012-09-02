@@ -72,17 +72,6 @@
 \newcommand{\exwebdsl}[1]{\excode{WebDSL:}{#1}}
 
 \usepackage{verbatim}
-\newenvironment{code} 
-    {\vspace{3mm}
-     \noindent
-     \rule{\textwidth}{0.7pt}
-     \vspace{-4mm}
-     \scriptsize \verbatim}
-    {\endverbatim \normalsize
-	 \vspace{-4mm}
-	 \rule{\textwidth}{0.7pt}
-	 \vspace{0mm}
-	 }
 
 
 
@@ -108,7 +97,8 @@ numbersep=5pt,                          % How far are line-numbers from code
 tabsize=2,     
 %xleftmargin=1.5mm,
 %xrightmargin=1.5mm,
-frame=lines,
+%frame=lines,
+frame=single,
 captionpos=b,                           % Caption-position = bottom
 breaklines=true,                        % Automatic line breaking?
 breakatwhitespace=false,                % Automatic breaks only at whitespace?
@@ -117,33 +107,87 @@ showtabs=false,                         % Dont make tabls visible
 columns=flexible,                       % Column format
 morekeywords={}  
 stringstyle=\color{OliveGreen},
-mathescape=true,
+mathescape=false,
 showstringspaces=false,
+xleftmargin=1.5mm,
+xrightmargin=1.5mm,
+keepspaces=true,
 sensitive=true,
 columns=fullflexible,
 columns=fullflexible,
+alsodigit={0,1,2,3,4,5,6,7,8,9,0}, 
+morestring=[b]",
+comment=[l]{//},
+% otherkeywords={::,:,->,=>,;,==;+=,=,:<=:,:==:,<,+,&,!}, 
 } 
 
 
 \lstdefinelanguage{mbeddr}
-{morekeywords={return,test,case,exported,int8_t,foreach,it,int32,void,sized,assert,rule,as,
-applicable,concept,overrides,do,typeof,if,applicable,error,int64_t,
-concepts,constraints,can,be,child,ancestor,isNotNull,node,int32_t,executeTests},
-otherkeywords={::,:,->,=>,[,],;,==;+=,=,\{,\},(,),:<=:,:==:,<,+,&,!}, 
-alsodigit={(,),0,1,2,3,4,5,6,7,8,9,0},
-morestring=[b]",
-comment=[l]{//},
-}
+{morekeywords={
+return,test,case,exported,foreach,it,void,sized,assert,rule,as,
+applicable,concept,overrides,do,typeof,if,applicable,error,
+concepts,constraints,can,be,child,ancestor,isNotNull,node,executeTests,
+module, statemachine, events, states, initial, state, on, assert, imports, in,
+event, int, out, local, variables, interface, boolean, component, true, false,
+provides, requires
+}}
+
+\lstdefinelanguage{mps}{morekeywords={
+concept, extends, implements, instance, can, be, root,
+properties, string, boolean, children, references, intention, true, false,
+error, available, in, child, nodes, side, transform, actions, int,
+transformed, constraints, link, referent, set, handler, validator, search,
+scope, presentation, if, return, checking, rule, applicable, for, do, data,
+flow, builder, if, else, code, write, void, after, jump, label, null, foreach,
+overrides, as, new, typeof, overloaded, operations, rules, operation, operand,
+behavior, public, private, protected, typevar
+}}
 
 
-\lstdefinelanguage{archdsl}
-{morekeywords={namespace, feature, component, instance, dynamic, connect, aspect, provides},
-otherkeywords={::,:,->,=>,[,],;,==;+=,=,\{,\},(,),:<=:,:==:,<,+,&,!}, 
-alsodigit={(,),0,1,2,3,4,5,6,7,8,9,0},
-morestring=[b]",
-comment=[l]{//},
-}
+\lstdefinelanguage{archdsl}{morekeywords={
+namespace, feature, component, instance, dynamic, connect, aspect, provides
+}}
 
+\lstdefinelanguage{xts}{morekeywords={
+typeof, clone, abstract, common, ensureType, characteristic,
+char, ensureCompatibility, none 
+}}
+
+\lstdefinelanguage{cooling}{morekeywords={
+cooling, program, uses, var, int, event, init, start, set,
+state, entry, check, on
+}}
+
+\lstdefinelanguage{webdsl}{morekeywords={
+module, entity, function, var, return, screen
+}}
+
+\lstdefinelanguage{xtend}{morekeywords={
+def, FOR, ENDFOR, SEPARATOR, instanceof, IF, ENDIF,
+dispatch, class, extension, val, create, var, void, extends, boolean, for
+}}
+
+\lstdefinelanguage{stratego}{morekeywords={
+with, where, if, else, end, then, module, rules
+}}
+
+
+\lstdefinelanguage{xtextgrammar}{morekeywords={
+ID, STRING, terminal, current, returns, grammar, with, generate, import
+}}
+
+\lstdefinelanguage{sdf}{morekeywords={
+module, context, free, start, symbols, priorities, syntax,
+lexical, left, reject, prefer, restrictions, imports, exports, signature,
+constructors 
+}}
+
+\lstdefinelanguage{mpsmodex}{morekeywords={
+module, entity, int, string, boolean, form, uses, field, textfield, 
+combobox, checkbox, textfield, database, table, char, number, RBAC, users,
+roles, permissions, role, user, if, true, false, else, validate, String,
+return
+}}
 
 
 
