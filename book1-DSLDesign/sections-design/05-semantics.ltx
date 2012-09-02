@@ -580,15 +580,16 @@ cleaner and more efficient. Programmers trade flexibility for performance.}
 \end{itemize}
 
 \begin{figure}[h]
-  \rule{1\textwidth}{0.7pt}
-  \vspace{-0.5cm}
+\fbox{
+\begin{minipage}{105mm}
   \includegraphics[width=10cm]{figures-design/embc/restrictedport.png}
+\end{minipage}
+}
   \caption[][0.3cm]{The required port \lcr{lowlevel} is not just bound to the
   \lcr{ILowLevel} interface, but restricted tot the \lcr{ll} port of the
   \lcr{LowLevelCode} component. This way, it is statically known which C
   function implements the behavior and the generated code can be optimized.}
   \label{restrictedport} 
-  \rule{1\textwidth}{0.7pt}    
 \end{figure}
 
 

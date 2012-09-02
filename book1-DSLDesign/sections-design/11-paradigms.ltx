@@ -199,9 +199,11 @@ Although these specifications are attached to interfaces, they are actually
 checked (at runtime) for all components that provide the respective interface.}
 
 \begin{figure}[h]
-  \rule{1\textwidth}{0.7pt}
-  \vspace{-0.5cm}
+\fbox{
+\begin{minipage}{105mm}
   \includegraphics[width=90mm]{figures-design/embc/ppc.png}
+\end{minipage}
+}
   \caption{An interface using semantic specifications. Preconditions check the
   values of arguments for validity. Postconditions express constraints on the
   values of \ic{query} operations after the execution of the operation. Notice
@@ -212,9 +214,7 @@ checked (at runtime) for all components that provide the respective interface.}
   be used if the protocol state machine is already in the \ic{forward} state.
   The system gets into the \ic{forward} state by invoking the
   \ic{driveContinuoslyForward} operation.}
-  \vspace{2mm}
   \label{ppc} 
-  \rule{1\textwidth}{0.7pt} 
 \end{figure}  
 
 
@@ -303,13 +303,14 @@ aspect (\fig{monitoring}). An aspect may introduce an additional port
 to query the adviced components via the \lcr{IMonitoring} interface.}
 
 \begin{figure}[h]
-  \rule{1\textwidth}{0.7pt}
-  \vspace{-0.5cm} 
+\fbox{
+\begin{minipage}{105mm}
   \includegraphics[width=10cm]{figures-design/comparch/monitoring.png}
+\end{minipage}
+}
   \caption[][0.3cm]{The aspect component contributes an additional required port
   to each of the other components defined in the system.}
   \label{monitoring}
-  \rule{1\textwidth}{0.7pt}
 \end{figure} 
 
 \exwebdsl{Entity declarations can be \emph{extended} in separate modules. This
@@ -527,9 +528,11 @@ equations is generated. A solver then makes sure they are consistent by trying
 to find an example solution that violates the Boolean equations.}
 
 \begin{figure}[h]
-  \rule{1\textwidth}{0.7pt}
-  \vspace{-0.5cm}
+\fbox{
+\begin{minipage}{105mm}
   \includegraphics[width=10cm]{figures-design/embc/presencecond.png}
+\end{minipage}
+}
   \caption[][0.3cm]{This module contains variability expressed with presence
   conditions. The affected program elements are highlighted in a color that
   represents the condition. If the feature \ic{highRes} is selected, the code
@@ -538,7 +541,6 @@ to find an example solution that violates the Boolean equations.}
   depend on single features (such as \ic{logging}) but also on arbitrary
   expressions such as \ic{logging \&\& highRes}.}
   \label{presencecond}
-  \rule{1\textwidth}{0.7pt}
 \end{figure} 
 
 
@@ -548,10 +550,14 @@ declarative specification of equations between input and output parameters of a
 block. A solver comes up with an closed, sequential solution that efficiently
 calculates the output of an overall block diagram.}
 
+\todo{reduce indent level; makes figure less wide}
+
 \begin{figure}[h]
-  \rule{1\textwidth}{0.7pt}
-  \vspace{-0.5cm}
-  \includegraphics[width=15cm]{figures-design/mscript.jpg}
+\fbox{
+\begin{minipage}{105mm}
+  \includegraphics[width=\columnwidth]{figures-design/mscript.jpg}
+\end{minipage}
+}
   \caption[][1.0cm]{An Mscript block specifies input and output arguments
   of a block ($u$ and $v$) as well as configuration parameters
   ($initialCondition$ and $gain$). The assertions specify constraints on the
@@ -560,7 +566,6 @@ calculates the output of an overall block diagram.}
   supported, where the value for the $n$-th step depends on values from
   previous steps (e.g. $n-1$).  }
   \label{mscript}
-  \rule{1\textwidth}{0.7pt}
 \end{figure} 
 
 

@@ -198,16 +198,14 @@ that the tools needed to achieve the model purpose (analysis, translation) have
 to treat these cases specially.} idioms or patterns are required to express
 interesting programs in $D$. Consider the two examples of loops in a Java-like
 language:
-
-\footnotesize
-\begin{verbatim} 
+\begin{lstlisting}[language=java]
   int[] arr = ...                         int[] arr = ...
   for (int i=0; i<arr.size(); i++) {      OrderedList<int> l = ... 
-      sum += arr[i];                      for (int i=0;  i<arr.size(); i++) { 
-  }                                           l.add( arr[i] );
-                                          }
-\end{verbatim}
-\normalsize
+      sum += arr[i];                      for (int i=0;  i<arr.size(); i++) {  
+  }	                                           l.add( arr[i] );
+  	                                      }
+\end{lstlisting}
+
 
 The left loop can be parallelized, since the order of summing up the array
 elements is irrelevant. The right one cannot, since the order of the elements in
@@ -218,13 +216,11 @@ parallelized. The following alternative expression of the same behavior uses
 better linguistic abstractions, because it is clear without analysis that the
 first loop can be parallelized and the second cannot:
 
-\footnotesize
-\begin{verbatim} 
+\begin{lstlisting}[language=java]
     for (int i in arr) {             seqfor (int i in arr) { 
         sum += i;                        l.add( arr[i] );
     }                                }
-\end{verbatim}
-\normalsize
+\end{lstlisting}
 
 
 The property of a language $L_D$ of having first-class concepts for abstractions
@@ -286,9 +282,11 @@ inside of a \lcr{with port} referencing that same port.}
 
 
 \begin{figure}[h]
-  \rule{1\textwidth}{0.7pt}
-  \vspace{-0.5cm}
-  \includegraphics[width=12cm]{figures-design/embc/optionalport.png}
+\fbox{
+\begin{minipage}{105mm}
+  \includegraphics[width=\columnwidth]{figures-design/embc/optionalport.png}
+\end{minipage}
+}
   \caption[][0.3cm]{The \lcr{with port} statement is required to surround an
   invocation on an optional required port; otherwise, an error is reported in
   the IDE. If the port is not connected for any given instance, the code inside the
@@ -296,7 +294,6 @@ inside of a \lcr{with port} referencing that same port.}
   it cannot contain an expression as its condition, the correct use of the
   \lcr{with port} statement can be statically checked.}
   \label{optionalport}  
-  \rule{1\textwidth}{0.7pt}
 \end{figure}
  
  
@@ -385,14 +382,15 @@ elements \emph{without} the need to change the generator. They are not treated
 specially!}
 
 \begin{figure}
-  \rule{1\textwidth}{0.7pt}
-  \vspace{-0.5cm} 
+\fbox{
+\begin{minipage}{105mm}
   \includegraphics[width=8cm]{figures-design/cooling/coolinglib.png} 
+\end{minipage}
+}
   \caption[][0.3cm]{The standard library for the refrigerator configuration
   language defines which properties are available for the various types of
   hardware elements.}
   \label{coolinglib}
-  \rule{1\textwidth}{0.7pt}
 \end{figure}
 
 Some languages treat some abstractions defined in the standard library
