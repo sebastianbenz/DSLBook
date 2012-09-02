@@ -10,7 +10,7 @@ modularized and organized in directories. For example, Mobl's syntax definition
 comes with a module for entities, which imports modules for statements and
 expressions. These modules reside in the same directory:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=sdf]
 module MoblEntities
 
 imports
@@ -23,7 +23,7 @@ transformation, and code generation are organized in modules, which are imported
 from Mobl's main module. Thereby, the various modules for program analysis,
 editor services, and program transformation are organized in subdirectories:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=sdf]
 module mobl
 
 imports
@@ -46,16 +46,19 @@ screen definition language, where a \ic{Screen} defined in the UI model refers
 to \ic{Entities} from Mobl's entity language, and \ic{Field}s in a screen refer
 to entity \ic{Property}. Here is some example code:
 
-\begin{lstlisting} entity Task {
-  name        : String description : String done        : Bool date        :
-  DateTime
+\begin{lstlisting}[language=webdsl]
+entity Task {
+  name        : String 
+  description : String 
+  done        : Bool 
+  date        : DateTime
 }
 \end{lstlisting}
 \noindent This fragment is written in Mobl's data definition language. It
 defines an entity \ic{Task} with some properties. We discussed the language in
 several examples throughout the book already.
 
-\begin{lstlisting}
+\begin{lstlisting}[language=webdsl]
 screen root() {
   header("Tasks")
   group {
@@ -76,22 +79,22 @@ property of that \ic{Entity}.
 languages typically share a definition of identifiers. For example, the screen
 definition language imports the same lexical module as the data modelling
 language does via the expression module:
-\begin{lstlisting}
+\begin{lstlisting}[language=sdf]
 module MoblEntities
 
 imports
-	\ldots
+	...
 	MoblExpressions
 \end{lstlisting}
 
-\begin{lstlisting}
+\begin{lstlisting}[language=sdf]
 module MoblExpressions
 
 imports
 	lexical/Common
 \end{lstlisting}
 
-\begin{lstlisting}
+\begin{lstlisting}[language=sdf]
 module MoblScreens
 
 imports
@@ -108,7 +111,7 @@ resolved. Definition sites are already defined by the referenced language. The
 corresponding references need to be defined in the referencing language by using
 the namespaces from the referenced language:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=sdf]
 "list" Item@=ID "in" Collection "{" Item* "}" -> List       {"ScreenList"}
 Entity@ID "." "all" "(" ")"                   -> Collection {"Collection"}
 \end{lstlisting}
@@ -126,7 +129,7 @@ language.
 Similarly, the screen definition language uses the namespace \ic{Property} from
 the data modelling language, to refer to properties of entities:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=sdf]
 "item" "{" ItemPart* "}"                -> Item     {"Item"}
 "label" "(" Item@ID "." Property@ID ")" -> ItemPart {"LabelPart"}
 \end{lstlisting}
@@ -135,7 +138,7 @@ the data modelling language, to refer to properties of entities:
 \parhead{Type System} Similar to the name resolution, the type system of the
 referencing language needs to be defined with the knowledge of the type system
 of the referenced language.
-\begin{lstlisting}
+\begin{lstlisting}[language=stratego]
 constraint-error: 
   LabelPart(item, property) -> (property, "Label has to be a string.")
   where
@@ -166,13 +169,12 @@ a data source, but the language makes no assumption about how this data source
 looks (and which language is used to define it). Consequently, the grammar has
 no dependency on another other one:
 
-\begin{lstlisting} 
+\begin{lstlisting}[language=sdf]
 module DBTables
   "database" DB@=ID Table*         -> Database {"DB"}
   "table" Table@=ID Column*        -> Table    {"DBTable"}
   DataType Column@=ID ColumnMapper -> Column   {"DBColumn"}
-  
-  -> ColumnMapper {"DBMissingMapper"}
+          -> ColumnMapper {"DBMissingMapper"}
   
   "char"   -> DataType {"DBCharType"}
   "number" -> DataType {"DBNumberType"}
@@ -184,7 +186,8 @@ missing column mapper. Rules for a concrete mapper are missing, but can be added
 later in a sublanguage. In the next step, we want to be able to reference
 properties from Mobl's data modelling language:
 
-\begin{lstlisting}database TaskDB
+\begin{lstlisting}[language=mpsmodex]
+database TaskDB
 
 table Tasks
 
@@ -196,7 +199,7 @@ table Tasks
 table module and the data modelling language:
 
 \todo{add rule for column mapper}
-\begin{lstlisting}
+\begin{lstlisting}[language=sdf]
 module MoblDBAdapter
 
 imports
@@ -204,7 +207,6 @@ imports
   MoblEntities
   
 context-free syntax
-
    "<-" Entity@ID "." Property@ID -> ColumnMapper {"PropertyMapper"}
 \end{lstlisting}
 
@@ -219,7 +221,7 @@ our example, the types of the database language needs to be connected to the
 primitive types used in Mobl. Constraints ensure we only map those fields to a
 particular column that are type-compatible:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=stratego]
 module reuse/dbtables/analysis/types
 
 rules
@@ -240,7 +242,7 @@ compatibility, which always fails.
 The connection to the type system of the entity language can now be made in an
 adapter module:
 
-\begin{lstlisting} 
+\begin{lstlisting}[language=sdf]
 module analysis/types/adapter
 
 imports
@@ -248,7 +250,6 @@ imports
   module reuse/dbtables/analysis/types 
 
 rules
-
   type-of: PropertyMapper(e, p) -> <type-of> p
   
   compatible-types: (DBCharType(), StringType()) -> <id>
@@ -273,12 +274,13 @@ of inlined code, which requires an extendable generator of the reusable
 language. With rewrite rules, this can be easily achieved in Spoofax. The
 reusable generator calls a dedicated rule for generating the inlined code, but
 defines only a failing implementation of this rule:
-\begin{lstlisting}
+\begin{lstlisting}[language=stratego]
 module reuse/table/generate
 
 rules
   db-to-java: Column(t, n, mapper) -> 
-       [Field([PRIVATE], t', n), Method([PROTECTED], BoolType, n', params, stmts)] where
+       [Field([PRIVATE], t', n), Method([PROTECTED], BoolType, n', params, stmts)] 
+  where
     n'    := <to-fetch-method-name> n ;
     param := <to-fetch-method-parameters> mapper ;
     stmts := <to-fetch-statements(|n)> mapper
@@ -294,15 +296,13 @@ generator. For the other parts, the generic generator only provides failing
 placeholder rules. These have to be implemented in a concrete reuse setting:
 
 
-\begin{lstlisting}
+\begin{lstlisting}[language=stratego]
 module generate/java/adapter
-
 imports 
   generate/java
   reuse/table/generate
   
 rules
-
  to-fetch-method-parameters: 
    PropertyMapper(entity, property) -> [Param(type, "entity")]
    where
@@ -362,13 +362,12 @@ list heads, as well as expressions in labels:
 flavor, since MoblScreens now has a direct dependency to MoblExpressions.
 Right?}
 
-\begin{lstlisting}
+\begin{lstlisting}[language=sdf]
 module MoblScreens
 
 imports MoblExpressions 
 
 context-free syntax
-
   "list" VarDef "in" Exp "{" Item* "}" -> List     {"ScreenList"}
   "label" "(" Exp ")"                  -> ItemPart {"LabelPart"}
 \end{lstlisting}
@@ -383,7 +382,7 @@ collection. Finally, the expression for a label should provide a string. We can
 capture these requirements in constraints:
 
 
-\begin{lstlisting}
+\begin{lstlisting}[language=stratego]
 constraint-error: 
   ScreenList(_, e, _) -> (e, "Needs to provide a collection.")
   where
@@ -411,7 +410,7 @@ The screen definition language needs to generate a method which returns the text
 of a label. Therefore, it relies on the code generator for expressions, to
 translate the expression into Java code:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=stratego]
 generate-label-text-method: 
   LabelPart(exp) -> Method([PUBLIC()], StringType(), "getText", [Return(java-exp)])
   where
@@ -454,7 +453,7 @@ NoAnnoList(
 \noindent The desugar transformation now needs to transform the first abstract
 syntax tree into the second one:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=stratego]
 desugar-all: x -> <bottomup(try(desugar-embedded))> x
 
 desugar-embedded: ToJava(e) -> <ast-to-pattern> e
