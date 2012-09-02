@@ -61,8 +61,8 @@ int8 add(int8 x, int8 y) {
   \label{mps-explorer} 
 \end{figure}
 
-MPS provides similar support for understanding the projection rules. For any
-program node MPS can show the cell structure as a tree. The tree contains
+\noindent MPS provides similar support for understanding the projection rules.
+For any program node MPS can show the cell structure as a tree. The tree contains
 detailed information about the cell hierarchy, the program element associated
 with each cell as well as the properties of the cell (height, width, etc.).
 
@@ -229,8 +229,8 @@ com.mbeddr.core.buildconfig.generator.template.main.desktop
 com.mbeddr.core.modules.gen.generator.template.main.main
 \end{lstlisting}
 
-This particular model is generated in three phases. The first one removes
-commented code to make sure it does not show up in the resulting C text file.
+\noindent This particular model is generated in three phases. The first one
+removes commented code to make sure it does not show up in the resulting C text file.
 The second phase runs the generator that transforms \ic{report} statements into
 \ic{printf}s. Finally, the \ic{desktop} generator generates a \ic{make} file
 from the build configuration, and the last step generates the C text from the C
@@ -254,7 +254,7 @@ module Simple imports nothing {
 } 
 \end{lstlisting}
 
-MPS also supports tracing an element through the intermediate models.
+\noindent MPS also supports tracing an element through the intermediate models.
 \fig{mps-tracer} shows an example. Users can select a program element in the
 source, target or an intermediate model and trace it to the respective other
 ends of the transformation.
@@ -359,8 +359,8 @@ following example:
 Collection[Type] argTypes = aClass.operations.arguments.type;
 \end{lstlisting}
 
-If you wanted to print the list of operations and arguments, you would have to
-change the program to something like this:
+\noindent If you wanted to print the list of operations and arguments, you would
+have to change the program to something like this:
 
 \begin{lstlisting}
 print("operations: " + aClass.operations);
@@ -368,7 +368,7 @@ print("arguments: " + aClass.operations.arguments);
 Collection[Type] argTypes = aClass.operations.arguments.type;
 \end{lstlisting}
 
-A much simpler alternative uses \emph{inlined} reporting expressions:
+\noindent A much simpler alternative uses \emph{inlined} reporting expressions:
 
 
 \begin{lstlisting}
@@ -376,8 +376,8 @@ Collection[Type] argTypes = aClass.operations.print("operations:")
                             .arguments.print("arguments:").type;
 \end{lstlisting}
  
-To make this convenient to use, the \ic{print} function has to return the object
-it is called on (the one before the dot), and it must be typed accordingly if a
+\noindent To make this convenient to use, the \ic{print} function has to return
+the object it is called on (the one before the dot), and it must be typed accordingly if a
 language with static type checking is used\footnote{The original
 openArchitectureWare Xtend did it this way.}.
 
@@ -400,8 +400,8 @@ cooling program HelloWorld {
 }
 \end{lstlisting} 
 
-Upon startup, it enters the \ic{start} state and immediately transitions to
-state \ic{s1}. It remains in \ic{s1} until the variable \ic{temp} becomes less
+\noindent Upon startup, it enters the \ic{start} state and immediately
+transitions to state \ic{s1}. It remains in \ic{s1} until the variable \ic{temp} becomes less
 than 10. It then transitions to \ic{s2}. Below is a test for this program that
 verifies this behavior:
 
@@ -420,8 +420,8 @@ test HelloWorldTest for HelloWorld {
 }
 \end{lstlisting}
 
-\fig{interpreterlog} shows the execution trace. It shows the execution of each
-statement and the evaluation of each expression. The log viewer is a table tree
+\noindent \fig{interpreterlog} shows the execution trace. It shows the execution
+of each statement and the evaluation of each expression. The log viewer is a table tree
 so the various execution steps can be selectively expanded and collapsed. To
 connect to the program, users can double-click on an entry to select the
 respective program element in the source node. By adding special comments to the
@@ -458,8 +458,8 @@ protected void executeAssignmentStatement(AssignmentStatement s, LogEntry log) {
 }
 \end{lstlisting}
 
-If instead of an interpreter a code generator were used, the same approach could
-essentially be used. Instead of embedding the tracing code in the interpreter,
+\noindent If instead of an interpreter a code generator were used, the same
+approach could essentially be used. Instead of embedding the tracing code in the interpreter,
 the code generator would generate code that would build the respective trace
 data structure in the executing program. Upon termination, the data structure
 could be dumped to an XML file and subsequently loaded by the IDE for
@@ -643,7 +643,7 @@ foreach (a sized 3) {
 } 
 \end{lstlisting}
 
-The code generated from this piece of extended C looks as follows. The
+\noindent The code generated from this piece of extended C looks as follows. The
 \ic{foreach} statement is expanded into a regular \ic{for} statement and an
 additional variable \ic{\_\_it}:
 
@@ -656,8 +656,8 @@ for (int __c = 0; __c < 3; __c++) {
 } 
 \end{lstlisting}
 
-To make the \ic{foreach} extension modular, it lives in a separate language
-module named \ic{ForeachLanguage}. The new language extends C, since we will
+\noindent To make the \ic{foreach} extension modular, it lives in a separate
+language module named \ic{ForeachLanguage}. The new language extends C, since we will
 refer to concepts defined in C (see \fig{umldiag}).
  
 
@@ -711,8 +711,8 @@ rule typeof_ForeachStatement for ForeachStatement as fes do {
 \end{lstlisting}
  
 
-The generator translates a \ic{ForeachStatement} to a regular \ic{for} statement
-that iterates over the elements with a counter variable \ic{\_\_c}
+\noindent The generator translates a \ic{ForeachStatement} to a regular \ic{for}
+statement that iterates over the elements with a counter variable \ic{\_\_c}
 (\fig{foreachGenerator}). Inside the \ic{for} body, we create a variable
 \ic{\_\_it} that refers to the array element at position \ic{\_\_c}. We then
 copy in the other statements from the body of the \ic{foreach}. Note that there
@@ -752,8 +752,8 @@ concept constraints ItExpression {
 \end{lstlisting}
 
 
-The type of \ic{it} must be the base type of the \ic{array} (e.g. \ic{int} in
-case of \ic{int{[]}}), as shown in the code below:
+\noindent The type of \ic{it} must be the base type of the \ic{array} (e.g.
+\ic{int} in case of \ic{int{[]}}), as shown in the code below:
 
 \begin{lstlisting}[language=mps]
 node<Type> basetype = typeof(it.ancestor<ForeachStatement>.array)
@@ -762,7 +762,7 @@ typeof(it) :==: basetype.copy;
 \end{lstlisting}
 
 
-The \ic{foreach} generator already generated a local variable
+\noindent The \ic{foreach} generator already generated a local variable
 \ic{\_\_it} into the body of the \ic{for} loop. We can thus translate an
 \ic{ItExpression} into a \ic{LocalVariableReference} that refers to
 \ic{\_\_it}.
@@ -802,8 +802,8 @@ void contributeStepOverStrategies(list<IDebugStrategy> res) {
 }
 \end{lstlisting}
 
-The method is implemented using a domain-specific language for debugger
-specification, which is part of the mbeddr debugger framework\footnote{This
+\noindent The method is implemented using a domain-specific language for
+debugger specification, which is part of the mbeddr debugger framework\footnote{This
 simplifies the implementation of debuggers significantly. It is another example
 of where using DSLs for defining DSLs is a good idea.}. It is an extension of
 MPS' \ic{BaseLanguage}, a Java-based language used for expressing behavior in
@@ -830,8 +830,8 @@ void contributeStepIntoStrategies(list<IDebugStrategy> res) {
 \end{lstlisting}
       
 
-By default, the Watch window contains all C symbols (global and local variables,
-arguments) as supplied by the native C debugger. In case of the \ic{foreach},
+\noindent By default, the Watch window contains all C symbols (global and local
+variables, arguments) as supplied by the native C debugger. In case of the \ic{foreach},
 this means that \ic{it} is not available, but \ic{\_\_it} and \ic{\_\_c} are.
 This is exactly the wrong way: the watch window should show \ic{it}, but not
 \ic{\_\_it} and \ic{\_\_c}. To customize Watches, a concept has to implement
@@ -850,8 +850,8 @@ void contributeWatchables(list<UnmappedVariable> unmapped,
 }
 \end{lstlisting}
 
-The first line hides \ic{\_\_c}. The rest \ic{map}s a base-level C variable to a
-Watchable. It finds a C variable named \ic{\_\_it} (inserted by the \ic{foreach}
+\noindent The first line hides \ic{\_\_c}. The rest \ic{map}s a base-level C
+variable to a Watchable. It finds a C variable named \ic{\_\_it} (inserted by the \ic{foreach}
 generator) and creates a watch variable named \ic{it}. At the same time, it
 hides the base-level variable \ic{\_\_it}. The type of \ic{it} is the base type
 of the array over which we iterate. We assign the \ic{it} Watchable to the local
@@ -1130,7 +1130,7 @@ public string getStackFrameName() {
 \end{lstlisting}
 
 
-The code snippet below shows a testing scenario with three stack frame
+\noindent The code snippet below shows a testing scenario with three stack frame
 contributors: a function \ic{main}, two test cases, and an
 \ic{executeTests} expression: 
 

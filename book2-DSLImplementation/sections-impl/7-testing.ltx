@@ -399,8 +399,8 @@ In the simplest case this can be done the following way:
   the generated program's behavior based on the understanding of what the DSL program should do
 \end{itemize}
 
-Notice how we do \emph{not} test the structure or syntax of the generated
-artifact. Instead we test it's meaning, which is exactly what we \emph{want} to
+\noindent Notice how we do \emph{not} test the structure or syntax of the
+generated artifact. Instead we test it's meaning, which is exactly what we \emph{want} to
 test. An important variation of this appraoch is the following: instead of
 writing the unit tests manually in the target language, we can also write the
 tests in the DSL, assuming the DSL has syntax to express such
@@ -773,8 +773,8 @@ structural test. In principle, this is simple:
   structures
 \end{itemize}
 
-Depending on the target formalism you can use regular expressions, XPath
-expressions or OCL-like expressions to achieve this\ic{Remember that you should
+\noindent Depending on the target formalism you can use regular expressions,
+XPath expressions or OCL-like expressions to achieve this\ic{Remember that you should
 still automate this!}. 
 
 Note that you really should only use this if you cannot use semantics testing
@@ -862,8 +862,8 @@ is how it works in principle:
   try again}.
 \end{itemize}
 
-Conceptually, the model checker performs an exhaustive search during the
-verification process. Obviously, the more complex your state machine is, the
+\noindent Conceptually, the model checker performs an exhaustive search during
+the verification process. Obviously, the more complex your state machine is, the
 more possibilities the checker has to address, a problem known as state space
 explosion. With finite memory, this limits scalability. In reality the model
 checker does \emph{not} perform an exhaustive search; clever algorithms have
@@ -894,7 +894,7 @@ flavours of) temporal logic. Here are some examples, expressed in plain English:
   entering \ic{state X} turns the car lights red.
 \end{itemize}
 
-The important property of these temporal logic specifications is that
+\noindent The important property of these temporal logic specifications is that
 quantifiers such as \emph{always}, \emph{whenever} and \emph{there exists} are
 available. Using these one can specify \emph{global truths} about the
 \emph{execution} of a system\footnote{Three different flavours of languages exist to
@@ -1145,9 +1145,8 @@ general. There are three ways of approaching this:
 \end{itemize}
 
 
-
-In practice, I try to use the third alternative as far as possible: for
-non-trivial IDE functionality in quick fixes and refactorings, I isolate the
+\noindent In practice, I try to use the third alternative as far as possible:
+for non-trivial IDE functionality in quick fixes and refactorings, I isolate the
 behavior and write unit tests. For simple things I don't do any automated tests.
 For the actual UI, I typically don't do any automated tests at all, for three
 reasons. (1) it is simply too cumbersome and not worth the trouble, (2) as we
@@ -1201,8 +1200,8 @@ Greeting:
   'Hello' name=ID '!';
 \end{lstlisting}
 
-The following piece of code shows an example program that includes Xpect
-statements that test whether code completion works as expected:
+\noindent The following piece of code shows an example program that includes
+Xpect statements that test whether code completion works as expected:
 
 \begin{lstlisting}[language=xtextgrammar]
 // XPECT_TEST org.example.MyJUnitContentAssistTest END_TEST 
@@ -1214,8 +1213,8 @@ Hello Peter!
 Hello Heiko!
 \end{lstlisting}
 
-Xpect processor processes all comments that start with \ic{XPECT}. In this case,
-we test the content assist (e.g. code completion) functionality. Let us look at
+\noindent Xpect processor processes all comments that start with \ic{XPECT}. In
+this case, we test the content assist (e.g. code completion) functionality. Let us look at
 the details:
 
 \begin{itemize}
@@ -1270,8 +1269,8 @@ understand or even write the test cases --- not just the DSL developer.}:
   \item results from interpreters or execution of generated code.
 \end{itemize}
 
-By embedding test expectations into the subject programs, Xpect implicitly
-solves the navigation problem\footnote{If you want to test language properties
+\noindent By embedding test expectations into the subject programs, Xpect
+implicitly solves the navigation problem\footnote{If you want to test language properties
 such as content assist or scoping, you’ll have to navigate/point/refer to  to a
 model element after you have created the test data. This leads to boilerplate
 code in Java-based tests.} by allowing you to use the \ic{|} to select offsets
@@ -1318,7 +1317,7 @@ though:
   \item Do the users of the DSL like the notation?
 \end{itemize}
  
-Answering these questions is impossible to automate. Manual reviews and
-validation relative to the (explicit or tacit) requirements for the DSL have to
+\noindent Answering these questions is impossible to automate. Manual reviews
+and validation relative to the (explicit or tacit) requirements for the DSL have to
 be performed. Getting these aspects right is the main reason why DSLs should be
 developed incrementally and iteratively. 

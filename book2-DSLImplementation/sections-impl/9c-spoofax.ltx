@@ -18,8 +18,8 @@ imports
   MoblExpressions
 \end{lstlisting}
 
-Similarly, rewrite rules for program analysis, editor services, program
-transformation, and code generation are organized in modules, which are imported
+\noindent Similarly, rewrite rules for program analysis, editor services,
+program transformation, and code generation are organized in modules, which are imported
 from Mobl's main module. Thereby, the various modules for program analysis,
 editor services, and program transformation are organized in subdirectories:
 
@@ -256,8 +256,8 @@ rules
   compatible-types: (DBNumberType(), IntType())  -> <id>
 \end{lstlisting}
 
-The first rule defines the type of a \ic{PropertyMapper} to be the type of the
-property. Then, two rules define type compatibility for Mobl's \ic{String} type
+\noindent The first rule defines the type of a \ic{PropertyMapper} to be the
+type of the property. Then, two rules define type compatibility for Mobl's \ic{String} type
 with the \ic{char} type in the table language, and Mobl's \ic{int} type with the
 \ic{num} type.
 
@@ -418,7 +418,6 @@ generate-label-text-method:
 \end{lstlisting}
 
 \noindent
-
 Another strategy is to define a model-to-model transformation which desugars (or
 "assimilates") embedded constructs to constructs of the host language. This
 transformation is then applied first, before the host generator is applied to
@@ -470,8 +469,8 @@ ast-to-pattern:
       pattern := NoAnnoList(App(Op(c), ps))
 \end{lstlisting}
 
-The first rule drives the desugaring of the overall tree. It tries to apply
-\ic{desugar-embedded} in a bottom-up traversal. The only rule for desugaring
+\noindent The first rule drives the desugaring of the overall tree. It tries to
+apply \ic{desugar-embedded} in a bottom-up traversal. The only rule for desugaring
 embedded target language code matches the embedded code and applies
 \ic{ast-to-pattern} to it. If this is applied to an antiquote, the contained
 subnode is already a regular Stratego pattern. Otherwise, the node has to be an

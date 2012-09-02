@@ -26,8 +26,8 @@ semantics. Typical examples for constraints are:
   \item the assignee is type-compatible with the right hand side expression.
 \end{itemize}
 
-The last item is an example of a type system rule: these verify the correctness
-of types in programs, e.g. they make sure you don't assign a \ic{float} to an
+\noindent The last item is an example of a type system rule: these verify the
+correctness of types in programs, e.g. they make sure you don't assign a \ic{float} to an
 \ic{int}. Particularly in expression languages, type calculation and checking
 can become quite complicated and therefore warrants special support. This is
 why we distinguish between simple constraints (covered in this chapter)  and
@@ -51,8 +51,6 @@ efficient, it is useful if the language has the following characteristics:
   declaratively with the language concept for whose instances it should be
   executed
 \end{itemize}
-
-\todo{add noindents after itemizes, figures and lstlisting}
 
 \noindent Here is an example constraint written in a pseudo-language:
 
@@ -456,7 +454,6 @@ constraint-warning:
   where
       not(<string-starts-with-capital> theName)
 \end{lstlisting}
-\ignore{$}
 
 
 
@@ -477,8 +474,8 @@ reference and definition. For example, a valid reference to a mobl variable
 Var("v"{[Var(),"v","function","module"]})
 \end{lstlisting}
 
-Without an annotation, the term reads \ic{Var("v")}. The annotation is added
-directly to the name, surrounded with curly braces. The annotation itself is a
+\noindent Without an annotation, the term reads \ic{Var("v")}. The annotation is
+added directly to the name, surrounded with curly braces. The annotation itself is a
 URI \ic{Var://module/function/v}, represented as a list consisting of the
 namespace, the name, and the path in reverse order.
 
@@ -553,8 +550,8 @@ is-duplicates-allowed:
 \end{lstlisting}\ignore{$}
 
 
-Again, this rule is created automatically in a new Spoofax project, but it
-provides an interesting showcase of the index API. This rule matches any tree
+\noindent Again, this rule is created automatically in a new Spoofax project,
+but it provides an interesting showcase of the index API. This rule matches any tree
 node \ic{name} and starts by determining its namespace using \ic{index-namespace}.
 Then, it fires a helper rule \ic{is-duplicates-allowed}. We only report
 duplicate definitions if the helper does not succeed (indicated by the
