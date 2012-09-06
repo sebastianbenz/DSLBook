@@ -266,8 +266,8 @@ grammar: the \ic{Exp} rule calls itself, so sentences like \ic{2 + 3 * 4} are
 possible. This poses two practical challenges for parser generation systems:
 first, the precedence and associativity of the operators is not described by
 this grammar. Second, not all parser generators provide full support for
-recursion. We elaborate on these issues in the remainder of the section and in
-the Spoofax and Xtext examples.
+recursion\todoGuido{example?}. We elaborate on these issues in the remainder of
+the section and in the Spoofax and Xtext examples.
 
 
 
@@ -293,12 +293,13 @@ supports LL($k$) and LL(*). In this naming scheme, the first L stands for
 left-to-right scanning, and the second L in LL and the R in LR stand for
 leftmost and rightmost derivation. The constant $k$ in LL($k$) and LR($k$)
 indicates the maximum number (of tokens or characters) the parser will look
-ahead to decide which production rule it can recognize. Typically, grammars for
-"real" DSLs tend to need only finite look-ahead and many parser tools
-effectively compute the optimal value for $k$ automatically. A special case is
-LL(*), where $k$ is unbounded and the parser can look ahead arbitrarily many
-tokens to make decisions, increasing the set of syntactic forms that can be
-parsed successfully.
+ahead to decide which production rule it can recognize. The bigger $k$, the more
+syntactic forms can be parsed\footnote{Bigger values of $k$ may also reduce
+parser performance, though}. Typically, grammars for "real" DSLs tend to need
+only finite look-ahead and many parser tools effectively compute the optimal
+value for $k$ automatically. A special case is LL(*), where $k$ is unbounded and
+the parser can look ahead arbitrarily many tokens to make decisions. This
+increases the set of syntactic forms that can be parsed successfully.
 
 
 Supporting only a subclass of all possible context-free grammars poses
@@ -626,9 +627,9 @@ In projectional editors, the process happens the other way round: as a user
 edits the program, the AST is modified directly. A projection engine then
 creates some representation of the AST with which the user interacts, and which
 reflects the changes. This approach is well-known from graphical editors in
-general, and the MVC pattern specifically. In editing a UML diagram, users don't
-draw pixels onto a canvas, and a "pixel parser" then creates the AST. Rather,
-the editor creates and instance of \ic{uml.Class} as you drag a class from
+general, and the MVC pattern specifically. When users edit a UML diagram,
+they don't draw pixels onto a canvas, and a "pixel parser" then creates
+the AST. Rather, the editor creates and instance of \ic{uml.Class} as you drag a class from
 the palette to the canvas. A projection engine renders the diagram, in this case
 drawing a rectangle for the class. This approach can be generalized to work
 with any notation, including textual.
@@ -642,17 +643,17 @@ with any notation, including textual.
 \end{marginfigure} 
 
 This explicit instantiation of AST objects happens by picking the respective
-concept from the code completion menu using a character sequence defined by
-the respective concept. If at any given program location two concepts can be
-instantiated using \emph{the same character sequence}, then the projection editor prompts the user to
-decide\footnote{As discussed above, this is the situation where many
-grammar-based systems run into problems from ambiguity.}. Once a concept is
-instantiated, it is stored as a node with a unique
-ID (UID) in the AST. References between program elements are based on actual
-pointers (references to UIDs), and the projected syntax that represents the
-reference can be arbitrary. The AST is actually an ASG, an abstract syntax
-graph, from the start because cross-references are first-class rather than being
-resolved after parsing. The program is stored using a generic tree
+concept from the code completion menu using a character sequence defined by the
+respective concept. If at any given program location two concepts can be
+instantiated using \emph{the same character sequence}, then the projection
+editor prompts the user to decide\footnote{As discussed above, this is the
+situation where many grammar-based systems run into problems from ambiguity.}.
+Once a concept is instantiated, it is stored as a node with a unique ID (UID) in
+the AST. References between program elements are based on actual pointers
+(references to UIDs), and the projected syntax that represents the reference can
+be arbitrary. The AST is actually an abstract
+syntax \emph{graph}, from the start because cross-references are first-class rather
+than being resolved after parsing. The program is stored using a generic tree
 persistence mechanism, often XML.
 
 
@@ -671,7 +672,7 @@ text should be editable with the editing gestures known from text editors.}.
 \subsection{Editing Experience}
 
 In free text editing, any regular text editor will do. However, users expect
-powerful IDE that includes support for syntax coloring, code completion, go to
+a powerful IDE that includes support for syntax coloring, code completion, go to
 definition, find references, error annotations, refactoring and the like. Xtext
 and Spoofax provide such IDE support. However, you can always go back to any
 text editor to edit the programs.
@@ -703,7 +704,7 @@ others, the following strategies:
   to be replaced by an instance of the binary \ic{+} operator, with the \ic{2}
   in the left slot and the \ic{3} in the right. Instead of removing the \ic{2}
   and manually inserting a \ic{+}, users can simply type \ic{+} on the right
-  side of the \ic{2}; the system performs the tree refactoring that moves the
+  side of the \ic{2}; the system performs the tree restructuring that moves the
   \ic{+} to the root of the subtree, puts the \ic{2} in the left slot, and then
   puts the cursor into the right slot, to accept the second argument. This means
   that expressions (or anything else) can be entered linearly, as expected. For
@@ -854,10 +855,10 @@ editing integrate nicely with these tools.
 In projectional IDEs, special support needs to be provided for infrastructure
 integration. Since the CS is not pure text, a generic persistence format is
 used, typically based on XML. While XML is technically text as well, it is not
-practical to perform diff, merge and the like on the level of the XML. 
-Therefore, special tools need to be provided for diff and merge. MPS provides
-integration with the usual version control systems and handles diff and merge in
-the IDE, using the concrete, projected syntax. Note that since every program
+practical to require uses to perform diff, merge and the like on the level of
+the XML. Therefore, special tools need to be provided for diff and merge. MPS provides
+integration with the usual version control systems and handles
+diff and merge in the IDE, using the concrete, projected syntax. Note that since every program
 element has a unique ID, \emph{move} can be distinguished from
 \emph{delete/create}, providing richer semantics for diff and merge.
 \fig{fig:mps-diff.png} shows an example of an MPS diff.
@@ -1000,11 +1001,14 @@ the annotations are used to represent the graph-like references.
 
 \subsection{MPS' Structure Definition}
 
-Every program element in MPS is a \emph{node}. A node has a structure definition and
-projection rules for rendering. This is also true for language definitions.
-Nodes are instances of \emph{concepts}, which conceptually corresponds to EMF's \ic{EClass}. Like
-\ic{EClass}es, concepts are meta circular, i.e.\ there is a concept that defines the
-properties of concepts:
+In MPS, programs are trees/graphs of \emph{nodes}. A node is an instance of a
+\emph{concept} which defines the structure, syntax, type system and semantics of
+its instance nodes\footnote{The term concept used in this book to refer to
+language constructs including abstract syntax, concrete syntax and semantics is
+inspired by MPS' use of the term}. Like \ic{EClass}es\footnote{Nodes correspond
+to \ic{EObject}s in EMF, concepts resemble \ic{EClass}es}, concepts are meta
+circular, i.e.\ there is a concept that defines the properties of concepts:
+
 
 \begin{lstlisting}[language=mps] 
 concept ConceptDeclaration extends AbstractConceptDeclaration                          
