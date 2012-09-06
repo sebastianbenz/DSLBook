@@ -16,13 +16,13 @@ for reasons described in \todo{reference to the respective place in the
 introduction}. We refer to other forms where appropriate.
   
 The \emph{abstract syntax} (short: AS) of a language is a data structure that
-holds the information represented by the concrete syntax, but without any of the
-syntactic details. Keywords and symbols, layout (e.g., whitespace), and comments
-are typically not included in the AS. Note that the syntactic information that
-doesn't end up in the AS is often preserved in some "hidden" form so the CS can be
-reconstructed from the combination of the AS and this hidden information ---
-this bidirectionality simplifies creating IDE features such as quick fixes or
-formatters a lot.
+holds the core information in a program, but without any of the syntactic
+details contained in the concrete syntax: keywords and symbols, layout (e.g.,
+whitespace), and comments are typically not included in the AS. Note that the
+syntactic information that doesn't end up in the AS is often preserved in some
+"hidden" form so the CS can be reconstructed from the combination of the AS and
+this hidden information --- this bidirectionality simplifies creating IDE
+features such as quick fixes or formatters a lot.
 
 In most cases, the abstract syntax is a tree data structure. Instances that
 represent actual programs (i.e., sentences in the language) are hence often
@@ -47,13 +47,12 @@ calc y: int = 1 + 2 * sqrt(x)
 \ic{y} at the top, inside \ic{y} there's a nested expression. This
 structure is reflected in the corresponding abstract syntax tree. A possible AST
 is illustrated in \fig{astexample}\footnote{We say \emph{possible} because
-there are typically several ways of structuring the abstract syntax.}. The boxes
-represent program elements, and the names in the boxes represent language 
-concepts that make up the abstract syntax.
+there are typically several ways of structuring the abstract syntax.}. 
 
+\todo{gro§ genug?}
 \begin{figure}[ht]
 \begin{center}
-  \includegraphics[scale=0.5]{figures-impl/2/astexample.png}
+  \includegraphics[scale=0.65]{figures-impl/2/astexample.png}
   \caption[]{Abstract syntax tree for the above program. Boxes
   represent instances of language concepts, solid lines represent containment,
   dotted lines represent cross-references}
@@ -62,18 +61,20 @@ concepts that make up the abstract syntax.
 \end{figure}
 
 \noindent There are two ways of defining the relationship between the CS and the
-AS as part of language development:  
+AS as part of language development:
 \begin{description}
-  \item[AS first] We first define the AS. This is then annotated with
-  concrete syntax definitions. Mapping rules determine how the concrete syntax maps to 
-  abstract syntax structures\footnote{This is often done if the AS structure already
-  exists, has to conform to externally imposed constraints or is developed by
-  another party than the language developer.}.
   \item[CS first] From a concrete syntax definition, an abstract syntax is
   derived, either automatically or using hints in the concrete
   syntax specification\footnote{This is more convenient, but the resulting AS
   may not be as clean as if it were defined manually; it may contain
-  idiosyncracies that result from the derivation from the CS.}.
+  idiosyncracies that result from the derivation from the CS.}. This is the
+  default use for Xtext, where Xtext derives the Ecore meta model from an Xtext
+  grammar.
+  \item[AS first] We first define the AS. We then define the concrete
+  syntax, referring to the AS in the definition of the concrete syntax\footnote{This is often done if the AS structure already
+  exists, has to conform to externally imposed constraints or is developed by
+  another party than the language developer.}. For example, in Xtext it is
+  possible to define grammar for an existing meta model.
 \end{description}
 
 \noindent Once the language is defined, there are again two ways how the
@@ -81,35 +82,40 @@ abstract syntax and the concrete syntax can relate as the language is used to
 create programs\footnote{We will discuss these two approaches in more detail in
 the next subsection.}:
 \begin{description}
-  \item[Parsing] In parser-based systems, the abstract syntax tree is
+  \item[Parsing] In the parser-based approach, the abstract syntax tree is
   constructed from the concrete syntax of a program; a parser instantiates and populates the
   AS, based on the information in the program text. In this case, the
-  (formal) definition of the CS is usually called a \emph{grammar}.
-  \item[Projection] In projectional systems, the abstract syntax tree is built
-  directly by editor actions, and the concrete syntax is rendered from the AST
-  via projection rules.
-\end{description}
+  (formal) definition of the CS is usually called a
+  \emph{grammar}\footnote{Sometimes the parser creates a concrete syntax tree
+  which is then transformed to an AST --- however, we ignore this aspect in
+  the rest of the book, it is not essential.}. Xtext and Spoofax use this
+  approach.
+  \item[Projection] In the projectional approach, the abstract syntax tree is
+  built directly by editor actions, and the concrete syntax is rendered from the AST
+  via projection rules. MPS is an example of a tool that uses projectional
+  editing.
+\end{description} 
 
 \noindent \fig{astandcst} shows the typical combinations of these two
-dimensions.
-In practice, parser-based systems typically derive the AS from the CS --- i.e.,
-CS first. In projectional systems, the CS is usually annotated onto the AS data
-structures - i.e., AS first. 
+dimensions. In practice, parser-based systems typically derive the AS from the
+CS --- i.e., CS first. In projectional systems, the CS is usually annotated onto
+the AS data structures - i.e., AS first.
 
-\begin{figure}[ht]
+\begin{marginfigure}
 \begin{center}
-  \includegraphics[scale=0.6]{figures-impl/2/astandcst.png}
+  \includegraphics[width=50mm]{figures-impl/2/astandcst.png}
   \caption[]{Dimensions of defining the concrete and abstract syntax
   of a language. Xtext is mentioned twice because it supports CS first and AS
   first, although CS first is the default.}
   \label{astandcst} 
 \end{center}
-\end{figure}
+\end{marginfigure}
+
 
 
 \section{Fundamentals of Free Text Editing and Parsing} 
 
-Most general-purpose programming environments rely on free text editing, where
+Most programming environments rely on free text editing, where
 programmers edit programs at the text/character level to form (key)words and
 phrases.
 
@@ -146,26 +152,27 @@ grammar and parser classes further on in this section.
 
 \subsection{Parser Generation Technology}
 
-In traditional compilers, parsers are often written by hand as a big program
-that reads a stream of characters and uses recursion to create a tree structure.
-Manually writing a parser in this way requires significant expertise in
-parsing and a large development effort. For standardized programming languages
+In traditional compilers and IDEs (such as gcc or the Eclipse JDT), parsers are
+often written by hand as a big program that reads a stream of characters and
+uses recursion to create a tree structure.
+However, manually writing a parser requires significant expertise
+in parsing and a large development effort. For standardized programming languages
 that don't change very often, and that have a large user community, this
 approach makes sense. It can lead to very fast parsers that also exhibit good
-error recovery (the ability to continue parsing after a syntax error has been 
-found).
+error reporting and error recovery (the ability to continue parsing after a
+syntax error has been found).
 
 In contrast, language workbenches, and increasingly also traditional compilers,
 \emph{generate} a parser from a grammar. A grammar is a syntax specification
 written in a DSL for formally defining textual concrete syntax. These generated
-parsers may not provide the same performance or error recovery as a
+parsers may not provide the same performance or error reporting/recovery as a
 hand-tailored parser constructed by an expert, but they provide bounded
 performance guarantees that make them (usually) more than fast enough for modern
 machines. However, the most important argument to use parser generation is that
-the effort for building a parser is \textbf{much} lower than manually writing a
+the effort for building a parser is \emph{much} lower than manually writing a
 custom parser. The grammar definition is also much more readable and
 maintainable than the actual parser implementation (either custom-written or
-generated).
+generated). Finally, it means that the developer who defines a language does nothave to be an expert in parsing technology.
 
 \parhead{Parsing versus scanning} Because of the complexity inherent in parsing,
 parser implementations tend to split the parsing process into a number of
@@ -203,7 +210,7 @@ the actual parsing. The Java language is an example of this: it uses a fixed set
 of keywords, such as \ic{class} and \ic{public}, that cannot be used
 as identifiers.
 
-A context-unaware scanner can also introduce problems when languages
+A context-unaware scanner can also introduce problems when grammars
 are extended or composed. In the case of Java, this was seen with the
 \ic{assert} and \ic{enum} keywords that were introduced in
 Java 1.4 and Java 5, respectively. Any programs that used identifiers with those
@@ -290,7 +297,8 @@ ahead to decide which production rule it can recognize. Typically, grammars for
 "real" DSLs tend to need only finite look-ahead and many parser tools
 effectively compute the optimal value for $k$ automatically. A special case is
 LL(*), where $k$ is unbounded and the parser can look ahead arbitrarily many
-tokens to make decisions.
+tokens to make decisions, increasing the set of syntactic forms that can be
+parsed successfully.
 
 
 Supporting only a subclass of all possible context-free grammars poses
@@ -565,7 +573,8 @@ Expr ::= ID
 In the ideal case, composing two such grammars should be trivial --- just copy
 them into the same file. However, reality is often less than ideal. There are a
 number of challenges that arise in practice, related to ambiguity and to grammar
-class restrictions.
+class
+restrictions\footnote{http://tratt.net/laurie/tech_articles/articles/parsing\_the\_solved\_problem\_that\_isnt}.
 
 
 \begin{itemize}
@@ -902,7 +911,9 @@ detail in the respective tool example sections.
 The Eclipse Modeling Framework\footnote{http://www.eclipse.org/modeling/emf/}
 (EMF) is at the core of all Eclipse Modeling tools. Its core component is the
 Ecore meta meta model, a version of the EMOF
-standard\footnote{http://en.wikipedia.org/wiki/Meta-Object\_Facility}. The
+standard\footnote{http://en.wikipedia.org/wiki/Meta-Object\_Facility}. Xtext
+uses Ecore as the foundation for the AS: from a grammar definition, Xtext
+derives the AS as an instance of Ecore. Ecore's 
 central concepts are: \ic{EClass} (representing AS elements or language
 concepts), \ic{EAttribute} (representing primitive properties of \ic{EClass}es),
 \ic{EReference} (representing associations between \ic{EClass}es) and
@@ -1372,12 +1383,12 @@ encode precedence. To understand this, let's consider how \ic{2 * 3} is parsed:
   present, no more objects are created. The tree structure is as we had
   expected.
 \end{itemize}
-
+\todo{Can we make this paragraph more readable (Laurie)}
 \noindent If we'd parsed \ic{4 + 2*3} the \ic{+} would have matched before the
 \ic{*}, because it is "mentioned earlier" in the grammar. It is in a lower-precedence
-group, the \ic{AdditionLevel}. Once we're a the \ic{4 +} tree, we'd go down
+group, the \ic{AdditionLevel}. Once we're a \ic{4 +}, we'd go down
 again to match the \ic{2}. As we unwind the stack after matching the \ic{2} we'd
-match the \ic{*}, creating a \ic{Multi} again. The \ic{current}, at this point,
+match the \ic{*}, creating a \ic{Multi} again. The \ic{current} at this point
 would be the \ic{2}, so it would be put onto the \ic{left} side of the \ic{*},
 making the \ic{*} the \ic{current}. Unwinding further, that \ic{*} would be put
 onto the \ic{right} side of the \ic{+}, building the tree just as we'd expect.
