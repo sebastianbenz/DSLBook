@@ -651,9 +651,10 @@ situation where many grammar-based systems run into problems from ambiguity.}.
 Once a concept is instantiated, it is stored as a node with a unique ID (UID) in
 the AST. References between program elements are based on actual pointers
 (references to UIDs), and the projected syntax that represents the reference can
-be arbitrary. The AST is actually an abstract
-syntax \emph{graph}, from the start because cross-references are first-class rather
-than being resolved after parsing. The program is stored using a generic tree
+be arbitrary. The AST is actually an abstract syntax \emph{graph}, from the
+start because cross-references are first-class rather than being resolved after
+parsing\footnote{There is still one single containment hierarchy, so it is
+really a tree with cross-references.} The program is stored using a generic tree
 persistence mechanism, often XML.
 
 
@@ -1040,8 +1041,9 @@ concept ConceptDeclaration extends AbstractConceptDeclaration
 \noindent 
 A concept may extend a single other concept and implement any number of
 interfaces\footnote{Note that interfaces can provide implementations for the
-methods they specify --- they are hence more like Scala traits.}. It can declare
-references and child collections. It may also have a number of primitive-type
+methods they specify --- they are hence more like Scala traits or mixins
+known from AOP and some programming languages.}.
+It can declare references and child collections. It may also have a number of primitive-type
 properties as well as a couple of "static" features. In addition, concepts can
 have behavior methods.
                  
@@ -1109,8 +1111,8 @@ the Ecore meta model and then define a grammar for it. While this is a bit more
 work, it is also more flexible because not all possible Ecore meta models can be
 described implicitly by a grammar. For example, Ecore interfaces cannot be
 expressed from the grammar.} In Xtext, the syntax is
-specified using a grammar, a collection of productions that are typically called \emph{parser rules}. These
-rules specify the concrete syntax of a program element, as well as its mapping
+specified using an EBNF-like grammar, a collection of productions that are
+typically called \emph{parser rules}. These rules specify the concrete syntax of a program element, as well as its mapping
 to the AS. From the grammar, Xtext generates an Ecore meta model to describe the
 AS. Here is the definition of the \ic{CoolingProgram} rule:
 
@@ -1125,8 +1127,8 @@ CoolingProgram:
 \end{lstlisting} 
 
 \noindent 
-Rules begin with the name (\ic{CoolingProgram}), a colon, and then the rule
-body. The body defines the syntactic structure of the language concept defined
+Rules begin with the name (\ic{CoolingProgram} in the example above), a colon,
+and then the rule body. The body defines the syntactic structure of the language concept defined
 by the rule. In our case, we expect the keywords \ic{cooling} and \ic{program},
 followed by an \ic{ID}. \ic{ID} is a \emph{terminal rule} that is defined in the
 parent grammar from which we inherit (not shown). \ic{ID} is defined as an
@@ -1138,17 +1140,23 @@ terminal ID: ('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'_'|'0'..'9')*;
 \end{lstlisting} 
 
 \noindent 
-In pure grammar languages, one would write \ic{"cooling" "program" ID "\{ ..."}, 
-specifying that after the two keywords we expect an \ic{ID}. However, Xtext
-grammars don't just express the concrete syntax --- they also determine the
-mapping to the AS. We have encountered two such mappings so far. The first one
-is implicit (although it can be made explicit as well): the name of the rule
-will be the name of the generated meta class. So we will get a meta class
-\ic{CoolingProgram}. The second mapping we have encountered in \ic{name=ID}. It
-specifies that the meta class gets a property \ic{name} that holds the contents
-of the \ic{ID} from the parsed program text. Since nothing else is specified in
-the \ic{ID} terminal rule, the type of this property defaults to \ic{EString}, Ecore's
-version of a string data type.
+In pure grammar languages, one would typically write the following: 
+
+\begin{lstlisting} [language=xtextgrammar]
+"cooling" "program" ID "\{ ..."} 
+\end{lstlisting} 
+
+This expresses that after the two keywords we expect an \ic{ID}.
+However, Xtext grammars don't just express the concrete syntax --- they also
+determine the mapping to the AS. We have encountered two such mappings so far.
+The first one is implicit (although it can be made explicit as well): the name
+of the rule will be the name of the derived meta class\todo{did we explain the
+derivation of meta classes already? Otherwise we'd have to say this here}.
+So we will get a meta class \ic{CoolingProgram}. The second mapping we have
+encountered is \ic{name=ID}. It specifies that the meta class gets a property \ic{name} that
+holds the contents of the \ic{ID} from the parsed program text. Since nothing
+else is specified in the \ic{ID} terminal rule, the type of this property
+defaults to \ic{EString}, Ecore's version of a string data type.
 
 The rest of the definition of a cooling program is enclosed in curly braces. It
 contains three elements: first the program contains a collection of events and
@@ -1212,7 +1220,7 @@ CustomState:
 share some properties. Consequently, Xtext's AS derivation algorithm pulls them
 up into the abstract \ic{State} meta class so they can be accessed polymorphically.
 \fig{Fig:xtext-metamodel} shows the resulting meta model using EMF's tree view.
-
+\todo{should this go to the beginning of the section?}
 \begin{figure}[ht]
 \fbox{
 \begin{minipage}{104.5mm}
@@ -1277,7 +1285,7 @@ syntax, i.e. a simple (identifier-like) text string is expected. However, this
 can be overridden by specifying the concrete syntax terminal behind a vertical
 bar in the reference\footnote{Notice that in this case the vertical bar does not
 represent an \emph{alternative}, it is merely used as a \emph{separator} between
-the target type and the terminal used to represent the reference.}. 
+the target type and the terminal used to represent the reference.}. In thefollowing piece of code, the \ic{targetState} reference uses the \ic{QID}terminal as the reference syntax.
 
 \begin{lstlisting}[language=xtextgrammar] 
 ChangeStateStatement:
@@ -1294,7 +1302,7 @@ rules of the language. To constrain the possible reference targets, scoping
 functions are used. These will be explained in the next chapter.
 
 
-\parhead{Expressions} The \ic{AssignmentStatement} shown above is one of the
+\parhead{Expressions} The \ic{AssignmentStatement} shown earlier is one of the
 statements that uses expressions. The
 following snippet is a subset of the actual definition of expressions (we have
 omitted some additional expressions that don't add anything to the description
@@ -1353,7 +1361,8 @@ encoded and parsed. In the expression grammar above, for the rules with the
 \ic{Level} suffix, no meta classes are created, because (as Xtext is able to
 find out statically) they are never instantiated. They merely act as a way to
 encode precedence. To understand this, let's consider how \ic{2 * 3} is parsed:
-
+\todo{can we show the resulting AST as it "grows" next to the text? maybe
+number the items and then use these numbers in the diagram.}
 \begin{itemize}
   \item The \ic{AssignmentStatement} refers to the \ic{Expr} rule in its
   \ic{left} and \ic{right} properties, so we "enter" the expression tree at the
@@ -1364,9 +1373,10 @@ encode precedence. To understand this, let's consider how \ic{2 * 3} is parsed:
   \item The parser "dives down" until it finds something that matches the
   first symbol in the parsed text: the \ic{2}. This occurs on \ic{AtomicLevel}, as
   it matches the \ic{DECIMAL\_NUMBER} terminal. At this point it creates an 
-  instance of \ic{NumberLiteral} and assigns the number \ic{2} to
+  instance of the \ic{NumberLiteral} meta class and assigns the number \ic{2} to
   the \ic{value} property. It also sets the \ic{current} object to point to the
-  just created \ic{NumberLiteral}.
+  just created \ic{NumberLiteral}, since this is now the AST object created
+  most recently.
   \item The \ic{AtomicLevel} rule ends, and the stack is unwound. We're back at
   \ic{PrefixOpLevel}, in the second branch. Since nothing else is specified
   after the call to \ic{AtomicLevel}, we unwind once more.
@@ -1432,6 +1442,9 @@ entity Item {
 }
 \end{lstlisting}
 
+\guido{I would expect more information on the semantics:
+what is this header for? does it allow us to define namespaces?}
+
 \noindent 
 In mobl, most files starts with a module header, which can be followed by a list
 of entity type definitions. In turn, each entity can have one or more property
@@ -1439,10 +1452,13 @@ or function definitions (shown in the next example snippet).
 
 
 \parhead{Grammar basics} In Spoofax, the syntax of languages is described using
-SDF\footnote{http://www.syntax-definition.org/}. SDF is a modular and flexible
-syntax definition formalism, supported by the SGLR parser generator. It can
-generate efficient, Java-based scannerless and general parsers. An example of a
+SDF\footnote{http://www.syntax-definition.org/}. SDF is short for Syntax
+Definition Formalism and is a modular and flexible syntax definition formalism,
+supported by the SGLR parser generator. It can generate efficient, Java-based scannerless and general parsers. An example of a
 production written in SDF is
+
+\guido{what is SGLR?}
+\guido{In what way is SDF different from e.g. ANTLR}
 
 \begin{lstlisting}[language=sdf]
 "module" ID Entity* -> Start {"Module"}
@@ -1456,6 +1472,9 @@ left-hand and right-hand side. After the right-hand side, SDF productions may
 specify annotations using curly brackets. Most productions specify a quoted
 \emph{constructor label} that is used for the abstract syntax. This particular
 production creates a tree node with the label \ic{Module}. The tree node willhave two children that represent the \ic{ID} and the list of \ic{Entities},respectively. In contrast to Xtext, these children are not named; instead,they are identified via the position in the child collection (the \ic{ID} isfist, the \ic{Entity} list is second).
+
+\guido{Could you draw a SDF-based AST for a small example. From my
+understanding there shouldn't be labels at the edges}
 
 The left-hand side of an SDF production is the pattern it matches against.
 SDF supports symbols, literals, and character classes in this pattern.
@@ -1737,10 +1756,11 @@ these relations are specified in \Chapter{Ch:scopes}.
 \section{MPS Example}
 
 We start by defining a simple language for state machines, roughly similar to
-the one used in the mbeddr extendible C. Core concepts include
-\ic{StateMachine}, \ic{State}, \ic{Transition} and \ic{Trigger}. The state
-machine can be embedded in C code as we will see later. The language supports
-the definition of state machines as shown in the following piece of code:
+the one used in the mbeddr extensible C\footnote{http://mbeddr.com}. Core
+concepts include \ic{StateMachine}, \ic{State}, \ic{Transition} and
+\ic{Trigger}. The state machine can be embedded in C code as we will see later.
+The language supports the definition of state machines as shown in the following
+piece of code:
 
 \begin{lstlisting}[language=mbeddr]
 module LineFollowerStatemachine { 
@@ -1887,16 +1907,20 @@ alias. This way, if a user types the \ic{on} alias to instantiate a transition,
 it feels as if she would just type the leading keyword of a transition (as in a
 regular text editor). 
 
-If a language extension defined a new concept \ic{SpecialKindOfTransition},
-they could use another alias to uniquely identify this concept in the code
-completion menu. When the user enters a transition, he has to decide which alias
-to use, depending on whether he wants to instantiate a \ic{Transition} or a
+If a language extension defined a new concept \ic{SpecialKindOfTransition}, they
+could use another alias to uniquely identify this concept in the code completion
+menu. When the user enters a transition, he has to decide which alias to use,
+depending on whether he wants to instantiate a \ic{Transition} or a
 \ic{SpecialKindOfTransition}. Alternatively, the \ic{SpecialKindOfTransition}
 could use \emph{the same alias} \ic{on}. In this case, if the user types
 \ic{on}, the code completion menu pops open and the user has to decide which of
-the two concepts to instantiate. As we have discussed above, this means that
-there is never an ambiguity that cannot be handled --- as long as the user is
-willing and able to make the decision which concept should be instantiated.
+the two concepts to instantiate\footnote{The code completion menu by default
+shows from which language a language concept originates, so this is a way to
+distinguish the two. Alternatively, a short explaining text can be shown for
+each entry in the code completion menu that helps the user make the decision.}.
+As we have discussed above, this means that there is never an ambiguity that
+cannot be handled --- as long as the user is willing and able to make the
+decision which concept should be instantiated.
 
 
 \todo{Once tables work well in MPS: add a table projection to show off non
@@ -1911,12 +1935,12 @@ textual notations}
 \end{marginfigure} 
 \parhead{Intentions} Intentions are MPS' term for what is otherwise known as a
 Quick Fix: a little menu can be popped up on a program element that contains a
-set of actions that typically change the underlying program (see
+set of actions that typically change the underlying program element (see
 \fig{intention}). In MPS the intentions menu is opened via \ic{Alt-Enter}. In MPS, intentions play an
 important role in the editor. Some changes to the program can \emph{only} be
 made via an intention\footnote{This is mostly because building a just-type-along
-solution would be a lot of work in a projectional editor.}. For example, in the
-previous section we mentioned that we use them to add entry actiom statements to
+solution would be a lot of work in a projectional editor in some cases.}. For
+example, in the previous section we mentioned that we use them to add entry actiom statements to
 a \ic{State}. Here is the intention code:
 
 \begin{lstlisting}[language=mps]
@@ -1970,11 +1994,11 @@ Expressions are arranged into a hierarchy starting with the abstract concept
 or indirectly. For example, \ic{PlusExpression} extends \ic{BinaryExpression}
 which in turn extends \ic{Expression}. \ic{BinaryExpressions} have \ic{left} and
 \ic{right} child \ic{Expressions}. This way, arbitrarily complex expressions can
-be built. Representing expressions as trees is a standard approach; in that
-sense, the abstract syntax of MPS expressions is not very interesing. The
-editors are also trivial --- in case of the \ic{+} expression, they are a
-horizontal list of: editor for \ic{left} argument, the \ic{+} symbol, and the
-editor for the \ic{right} argument.
+be built. Representing expressions as trees is a standard approach that we have
+seen with the Xtext example already; in that sense, the abstract syntax of MPS
+expressions is not very interesing. The editors are also trivial --- in case of
+the \ic{+} expression, they are a horizontal list of: editor for \ic{left}
+argument, the \ic{+} symbol, and the editor for the \ic{right} argument.
 
 As we have explained in the general discussion about projectional editing
 \todo{ref}, MPS supports linear input of hierarchical expressions using
