@@ -123,9 +123,10 @@ is a \ic{ChangeStateStatement}, and if the \ic{targetState} property of the
 found a transition leading into the current state. If we don't find one of
 these, we report an error. An error report contains the error message, a
 severity (\ic{INFO}, \ic{WARNING}, \ic{ERROR}), the element to which it is
-attached, as well as the particular feature of that element that should be
-highlighted. The \ic{CheckType.NORMAL} in the annotation defines
-when this check should run:
+attached, as well as the particular feature\footnote{Feature is EMF's term for
+properties, references and operations of \ic{EClass}es.} of that element that
+should be highlighted. The \ic{CheckType.NORMAL} in the annotation defines when
+this check should run:
 
 \begin{itemize}
   \item \ic{CheckType.NORMAL}: run when the file is saved 
@@ -638,14 +639,14 @@ are not used with values for which that operation makes no sense.
 \end{quote}
 
 \noindent In summary, type systems associate types with program elements and then check
-whether these types conform to predefined typing rules. We distinguish between
-dynamic type systems which perform the type checks as the program executes, and
-static type systems, where type checks are performed ahead of execution, mostly
-based on type specifications in the program. This chapter focuses exclusively on
+whether these types conform to predefined typing rules\footnote{Type systems
+(together with constraints) are also referred to as the static semantics of a
+program.}. We distinguish between dynamic type systems which perform the type
+checks as the program executes, and static type systems, where type checks are performed ahead of execution, mostly based on type specifications in the program. This chapter focuses exclusively on
 static type checks.
  
  
-\section{Type Systems Basics}
+\section{Type Systems Basics}\label{tsbasics}
 
 To introduce the basic concepts of type systems, let us go back to the example
 used at the beginning of the section on syntax. As a reminder here is the
@@ -705,7 +706,6 @@ do:
 
 \end{description}
 
-\todo{noindent auch nach desription und abstract}
 
 \noindent
 Note that the type of a program element is generally not the same as it's
@@ -740,32 +740,13 @@ these conceptually, and then provide examples in the tool sections.
 
 \subsection{Recursion}
 
-Recursion is widely used in computer science. According to Wikipedia, it refers
-to 
-
-\begin{quote}
-a method of defining functions in which the function being defined is
-applied within its own definition.
-\end{quote}
-
-The standard example is the calculation of factorial, where the \ic{factorial}
-function calls itself:
-
-\begin{lstlisting}[language=java]
-int factorial( int n ) {
-    if ( n <= 1 ) return 1;
-    else return n * factorial( n-1 );
-}
-\end{lstlisting}
- 
-
-\noindent 
-In the context of type systems, the recursive approach for calculating a type
-defines a polymorhphic function \ic{typeof}, which takes a program element and
-returns its type, while calling itself\footnote{or, most likely, one of the
-polymorphic overloads} to calculate the types of those elements on which its own
-type depends. Let us consider the following example grammar (we use Xtext
-notation here):
+Recursion is widely used in computer science and we assume that every reader is
+familiar with it. In the context of type systems, the recursive approach for
+calculating a type defines a polymorhphic function \ic{typeof}, which takes a
+program element and returns its type, while calling itself\footnote{or, most
+likely, one of the polymorphic overrides} to calculate the types of those
+elements on which its own type depends. Let us consider the following example
+grammar (we use Xtext notation here):
 
 \begin{lstlisting}[language=xtextgrammar]
 LocalVarDecl:
@@ -909,12 +890,12 @@ The following two type equations constitute the complete type system
 specification. The \ic{:==:} operator expresses type equation (left side must be
 the same type as right side), \ic{:<=:} refers to subtype-equation (left side
 must be same type or subtype of right side, the pointed side of \ic{<} points
-to the "smaller", the more specialized type). The operators are taken from MPS,
-which uses this unification for the type system.
+to the "smaller", the more specialized type)\footnote{The operators are taken from MPS,
+which uses this unification for the type system.}. 
  
 \begin{lstlisting}[language=mps] 
-typeof( LocalVarDecl.init ) :<=: typeof( LocalVarDecl.type ) 
-typeof( LocalVarDecl ) :==: typeof( LocalVarDecl.type ) 
+typeof( LocalVarDecl.type ) :>=: typeof( LocalVarDecl.init ) 
+typeof( LocalVarDecl )      :==: typeof( LocalVarDecl.type ) 
 \end{lstlisting}
  
 \noindent 
@@ -925,10 +906,12 @@ type of the variable declaration, to be \ic{int}. The second equations acts as a
 derivation rule and defines the type of the overall \ic{LocalVarDecl}
 to be \ic{int}.
 
+\todo{Check the direction of the arrow and the ordering of the equations.}
+
 \begin{lstlisting}[language=mps]
 // var i: int          
-typeof( int ) :<=: typeof( -null- ) // ignore
-typeof( T ) :==: typeof( int )      // T := int
+typeof( int ) :>=: typeof( int )      // ignore
+typeof( T )   :==: typeof( int )      // T := int
 \end{lstlisting}
 
 \noindent 
@@ -941,8 +924,8 @@ not \ic{true} for the two given values, a type error would be reported. The seco
 equation works the same as above, deriving \ic{T} to be \ic{int}.
 \begin{lstlisting} [language=mps]
 // var i: int = 42
-typeof( int ) :<=: typeof( int )    // true
-typeof( T ) :==: typeof( int )      // T := int
+typeof( int ) :>=: typeof( int )    // true
+typeof( T )   :==: typeof( int )    // T := int
 \end{lstlisting}
  
 \noindent 
@@ -951,8 +934,8 @@ all types are specified, is not \ic{true}, so a type error is raised.
  
 \begin{lstlisting}[language=mps]
 // var i: int = 33.33 
-typeof( int ) :<=: typeof( double ) // error!
-typeof( T ) :==: typeof( int )      // T := int
+typeof( int ) :>=: typeof( double )   // error!
+typeof( T )   :==: typeof( int )      // T := int
 \end{lstlisting}
  
 
@@ -965,7 +948,7 @@ approach automatically leads to support for type inference!
 
 \begin{lstlisting}[language=mps]
 // var i = 42    
-typeof( U ) :<=: typeof( int )  // U := int
+typeof( U ) :>=: typeof( int )  // U := int
 typeof( T ) :==: typeof( U )    // T := int
 \end{lstlisting}
 
@@ -988,9 +971,10 @@ are the typing equations:
 \begin{lstlisting}[language=mps, morekeywords={typevar}]
 typevar T
 foreach ( e: init.elements ) 
-    T :<=: typeof(e)
-typeof( LocalVarDecl.type ) :<=: T
-typeof( LocalVarDecl ) :==: typeof( LocalVarDecl.type ) 
+    typeof(e) :<=: T
+            
+typeof( LocalVarDecl.type ) :>=: new ArrayType(T)
+typeof( LocalVarDecl )      :==: typeof( LocalVarDecl.type ) 
 \end{lstlisting}
  
 
@@ -1005,13 +989,13 @@ The only way to achieve this is that all array initializer members are of the
 same (sub-)type. In the examples, this makes \ic{T} to be \ic{int}. The rest of
 the equations works as explained above. Notice that if we'd write \ic{var i =
 \{1, 33.33, 3\}}, then \ic{T := double}, but the equations would still work
-because we use the \ic{:<=:} operator.
+because we use the \ic{:>=:} operator.
 
 
 \subsection{Pattern Matching}
 
-In pattern matching, we simply list the possible combinations of types
-in a big table. Cases that are not listed in the table will result in errors.
+In pattern matching, we simply list the possible combinations of types in a big
+table. Cases that are not listed in the table will result in errors.
 For our \ic{LocalVarDecl} example, such a table could look like the following:
 
 \vspace{5mm}
@@ -1024,8 +1008,7 @@ For our \ic{LocalVarDecl} example, such a table could look like the following:
 \ic{double} & \ic{double} & \ic{double}\\
 \ic{double} & - & \ic{double}\\
 - & \ic{double} & \ic{double}\\
-\ic{int} & \ic{double} & \ic{int}\\
-\ic{double} & \ic{int} & \ic{int}\\
+\ic{double} & \ic{int} & \ic{double}\\
 \end{tabular}
 \vspace{5mm}
  
@@ -1056,13 +1039,15 @@ Up until version 1.0, Xtext provided no support for implementing type systems
 (beyond implementing everything manually and plugging it into the constraints).
 In version 2.0, a type system integrated with the JVM's type system is available. Since
 it is limited to JVM-related types, it is not as versatile as it couldbe\footnote{We illustrate it to some extent in the section on languagemodularity \todo{ref}.}, since it cannot easily be used for languages that haveno relationship with the JVM, such as C or C++.
-
-As a consequence, two third-party libraries have been developed: the Xtext
-Typesystem Framework (developed by the
+As a consequence of this limitation and the fact that Xtext is widely used, two
+third-party libraries have been developed: 
+the Xtext Typesystem Framework (developed by the
 author\footnote{http://code.google.com/a/eclipselabs.org/p/xtext-typesystem/},
 and XTypes (developed by Lorenzo
 Bettini\footnote{http://xtypes.sourceforge.net/}. In the remainder of this
-section we will look at the Xtext Typesystem Framework.
+section we will look at the Xtext Typesystem Framework.
+
+\todo{reference SLE paper that compares the approaches}
 
 
 \parhead{Xtext Typesystem Framework} The Xtext Typesystem Framework is
@@ -1085,18 +1070,17 @@ public void validateTypes( EObject m ) {
 \end{lstlisting}
  
 
-\noindent 
-As we have discussed above, most type systems are built from a limited set of
-typing strategies (assigning fixed types, deriving the type of an element from
-one of its properties, calculating the type as the common type of its two
-arguments). The \ic{DefaultTypesystem} class implements \ic{ITypesystem} and
-provides support for declaratively specifying these strategies. In the code
+\noindent As we have discussed in \sect{tsbasics}, many type systems rely on a
+limited set of typing strategies (assigning fixed types, deriving the type of an
+element from one of its properties, calculating the type as the common type of
+its two arguments). The \ic{DefaultTypesystem} class implements \ic{ITypesystem}
+and provides support for declaratively specifying these strategies. In the code
 below, a simplified version of the type system specification for the cooling
 language, the \ic{initialize} method defines one type (the type of the
 \ic{IntType} is a clone of itself) and defines one typing constraint (the
 \ic{expr} property of the \ic{IfStatement} must be a Boolean). Also, for types
 which cannot be specified declaratively, an operation \ic{type(..)} can be
-implemented to programmatically define types.
+implemented to programmatically define types.
 
  
 \begin{lstlisting}[language=java]
@@ -1210,11 +1194,11 @@ single concept. The following is the typing information for the \ic{Plus}
 concept. It declares the type of \ic{Plus} to be the common type of the
 \ic{left} and \ic{right} arguments ("the more general one") and then adds two
 constraints that check that the \ic{left} and \ic{right} argument are either
-\ic{string}s, \ic{int}s or \ic{double}s. 
+\ic{int}s or \ic{double}s\footnote{These rules do not support using \ic{+} forconcatenating strings and for concatenating strings with numbers (as in \ic{"a"+ 1}). However, support for this feature can be provided as well by using acoercion rule.}. 
 \begin{lstlisting}[language=xts]
 typeof Plus -> common left right {
-    ensureType left :<=: StringType, IntType, DoubleType
-    ensureType right :<=: StringType, IntType, DoubleType
+    ensureType left  :<=: IntType, DoubleType
+    ensureType right :<=: IntType, DoubleType
 } 
 \end{lstlisting}
 
@@ -1233,8 +1217,8 @@ characteristic COMPARABLE {
     IntType, DoubleType, BoolType
 }
 typeof Equals -> BoolType {
-    ensureType left :<=: char ( COMPARABLE )
-    ensureType right :<=: char ( COMPARABLE )
+    ensureType left          :<=: char ( COMPARABLE )
+    ensureType right         :<=: char ( COMPARABLE )
     ensureCompatibility left :<=>: right
 }
 \end{lstlisting}
@@ -1268,6 +1252,8 @@ of Java code.}.
 
 \section{MPS Example}
 
+\todo{Is this too detailed?}
+
 MPS includes a DSL for type system rule definition. It is based on
 unification, and pattern matching for binary operators. 
 
@@ -1298,7 +1284,7 @@ instances of language concepts.
  
 \begin{lstlisting}[language=mps]
 typeof( notExpr.expression ) :==: new node<BooleanType>(); 
-typeof( notExpr ) :==: <boolean>; 
+typeof( notExpr )            :==: <boolean>; 
 \end{lstlisting}
  \noindent 
 In MPS there are two different ways how language concepts can be instantiated. 
@@ -1376,7 +1362,7 @@ to be a \ic{GenericStructType}, or a subtype thereof (i.e. a \ic{StructType} whi
 reference \ic{attribute} (e.g. \ic{int} in case of \ic{p.age}).  
 \begin{lstlisting}[language=mps]
 typeof( structAttrRef.context ) :<=: new node<GenericStructType>(); 
-typeof( structAttrRef ) :==: typeof( structAttrRef.attribute );
+typeof( structAttrRef )         :==: typeof( structAttrRef.attribute );
 \end{lstlisting}
  
 
@@ -1500,7 +1486,7 @@ BaseLanguage code can be used to implement typing rules as well.
 
 Spoofax' rewrite rules support both the recursive approach and pattern matching
 in specifying type systems. However, in most projects the recursive approach
-will be found. Therefor, we will focus on it in the remainder of the
+will be found. Therefore we will focus on it in the remainder of the
 section.
 
 \parhead{Typing Rules in Spoofax} For typing rules in Spoofax, the basic idea is
@@ -1559,8 +1545,9 @@ declared types:
 
 \noindent 
 Spoofax relies on these rules storing type information about property and
-variable declarations in the index. This is achieved by the following generic
-rewrite rule:
+variable declarations in the index\guido{This sentence was not understood
+by a review.}. This is achieved by the following generic rewrite rule:
+
 
 \begin{lstlisting}[language=stratego]
   adjust-index-def-data(store-results |namespace, path):
@@ -1569,9 +1556,9 @@ rewrite rule:
       type := <type-of> def
 \end{lstlisting}
 
-\noindent Spoofax tries to apply this rule for every definition. If the
-definition has a type, \ic{type-of} will succeed and the returned type is stored
-in the index. If the definition has no type, \ic{type-of} will fail. By this,
+\noindent Spoofax tries to apply this rule for every definition\guido{What
+is a definition?}. If the definition has a type, \ic{type-of} will succeed and
+the returned type is stored in the index. If the definition has no type, \ic{type-of} will fail. By this,
 the whole rule will fail and nothing is stored. The stored type information can
 then be used in the typing rules for variable references and property accesses:
 
