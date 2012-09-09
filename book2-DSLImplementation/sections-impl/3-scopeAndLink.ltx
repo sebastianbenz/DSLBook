@@ -73,6 +73,7 @@ invalid.
 %lexical scopes.
 %}
 
+\todo{Add a picture on the right showing a hierarchy of scopes}
 Scopes can be hierarchical, in which case they are organized as a stack of
 collections --- confusingly, these collections are often called scopes
 themselves. During resolution of a cross-reference, the lowest or
@@ -115,7 +116,7 @@ the mobl language. This chapter shows how to add annotations and rules to define
 name resolution for this language.
 
 To understand naming in Spoofax, the notion of a \emph{namespace} is essential.
-A namespace is a collection of names. A namespace is not necessarily connected
+A namespace is a collection of names and is not necessarily connected
 to a specific language concept. Different concepts can contribute names to a
 single namespace. During reference resolution, names are resolved against
 namespaces.
@@ -127,6 +128,13 @@ concept, and that is contributed to the namespace. As an example, wecan add thi
 \begin{lstlisting}[language=sdf]
 "entity" Type@=ID "{" EntityBodyDecl* "}" -> Decl {"Entity"}
 \end{lstlisting}
+
+\guido{AFAIU, namespaces in spoofax are kind of meta-namespaces. This means, 
+you cannot define new namespace based on ID of the element, but you rather 
+can populate existing namespace with additional ID in it.. 
+Usually in programming languages namespaces are something similar to package 
+f.q.name (derived from the model itself, not defined in meta-model) so m.b. 
+talk a bit about it here.}
 
 \noindent 
 The annotation indicates that every program element that corresponds to this
@@ -196,6 +204,9 @@ most languages it is desirable to prevent assigning duplicate (qualified) names.
 We show how to specify a constraint for that later on \todo{ref}.}. The full
 grammar of the mobl entities language with annotations is the following (leaving
 out the lexical syntax):
+
+\guido{how are the fully qualified names built?
+how can "private" properties be implemented?}
 
 \begin{lstlisting}[language=sdf]
 module MoblEntities
@@ -288,9 +299,9 @@ of a URI. Instead of a name, that part will then have the form \ic{Anon(n)}
 where \ic{n} is a generated number that identifies the block. \ic{Anon(n)} is anexample of a complex term.
 
 URIs can be inspected using the default hover help popups, or using the analyzed
-syntax view. The analyzed syntax view shows the abstract syntax with all URIs as
-annotations. Consider the following example with both named and anonymous
-blocks:
+syntax view\guido{what is this view? - is this a Spoofax editor feature?}. The
+analyzed syntax view shows the abstract syntax with all URIs as annotations.
+Consider the following example with both named and anonymous blocks:
 
 \begin{lstlisting}[language=webdsl]
 module banking
@@ -354,7 +365,7 @@ Any references that cannot be resolved are annotated with a special
 represented as
 \ic{Var("nonexistent"\curlies{[Unresolved(Var()),"non\-existent",...]})}. This
 makes it easy to recognize any unresolved references in analyses or
-transformations.
+transformations\guido{give some examples of analyses + transformations}.
 
 
 \subsection{Persistence of Naming Information}
@@ -413,8 +424,9 @@ designers to \emph{manage by exception}.}. By default, it does not care about
 file boundaries: if an \ic{Address} is defined in a different file, it will
 still find it. There is also no default constraint for duplicate names: two
 definitions of \ic{Address} are fine (in which case the reference has two
-targets). Lastly, the default strategy knows nothing about import definitions
-for a specific language, as these can vary quite a bit among languages.
+targets)\guido{what does this mean? How do you process that? it is unintuitive
+to me what "two targets" mean; Another reviewer had the same question.}. Lastly,
+the default strategy knows nothing about import definitions for a specific language, as these can vary quite a bit among languages.
 
 
 Spoofax provides support for adding constraints and for customization of the
@@ -569,6 +581,9 @@ the name of the \emph{Stratego} transformation language comes from.}.
 In Spoofax, strategies are used to control traversals in constraints,
 transformation, and code generation.
 
+\guido{this section is extremely dense -- to me it is now unclear what the
+intention is: to provide a manual about Spoofax? or to present more abstract concepts?
+}
 
 \subsection{Customizing the Name Resolution Strategy}
 
@@ -582,7 +597,7 @@ property is resolved in mobl:
 
 \begin{lstlisting}[language=webdsl]
 entity BankAccount {
-  function getNumber() : number {
+  function getNumber() : Num {
     return number;
   }
   
@@ -705,27 +720,29 @@ the right-hand side, we construct the list of adjusted URIs right away.
 
 \section{Scoping in Xtext}
 
-Xtext uses Java code for implementing all aspects of languages except the
-grammar\footnote{Most likely, some of these aspects will be implementable in
-Xtend2 in the future.}. Language developers implement various classes that
-implement Xtext-provided interfaces and then contribute those to Xtext using
-Google Guice, a dependency injection
-framework\footnote{http://code.google.com/p/google-guice/}. A lot of
-functionality is provided out-of-the-box with minimal configuration, but it's
-easy to swap out specific parts by binding another or a custom class through
-Guice.
+Xtext provides Java APIs for implementing all aspects of languages except the
+grammar\footnote{In fact, you can use any JVM-based language for implementing
+these language aspects, including Xtend}. Language developers typically provide
+Java classes that implement aspect-specific interfaces and then contribute those
+to Xtext using Google Guice, a dependency injection
+framework\footnote{http://code.google.com/p/google-guice/}. For most language
+aspects, Xtext comes with various default implementations developers can build
+on. A lot of functionality is provided out-of-the-box with minimal
+configuration, but it's easy to swap out specific parts by binding another or a
+custom class through Guice.
 
 \subsection{Simple, Local Scopes}
 
 To implement scopes, language developers have to contribute a class that
-implements the \ic{IScopeProvider} interface. It has one method that returns an
-\ic{IScope} for a given reference. An \ic{IScope} is basically a collection of
-candidate reference targets, together with the textual representation by which
-these may be referenced from the current reference site (the same target may be
-referenced by different text strings from different program locations). The
-method takes the \ic{EReference} (which identifies the reference for which the
-scope that needs to be calculated) as well as the current
-instance of the language concept whose reference should be scoped.
+implements the \ic{IScopeProvider} interface. It has one method called
+\ic{getScope} that returns an \ic{IScope} for a given reference. An \ic{IScope}
+is basically a collection of candidate reference targets, together with the
+textual representation by which these may be referenced from the current
+reference site (the same target may be referenced by different text strings from
+different program locations). The \ic{getScope} method has two arguments: the
+first one, \ic{context}, is the current program element for which a reference
+should be scoped; the second one, \ic{reference}, identifies the reference for
+which the scope that needs to be calculated.
 
 \begin{lstlisting}[language=java] 
 public interface IScopeProvider {
@@ -743,10 +760,10 @@ Two different naming conventions are available:
 
 
 \begin{lstlisting}[language=java]
-// <X>, <R>: we are trying to scope the <R> reference of the <X> concept 
+// <X>, <R>: scoping the <R> reference of the <X> concept 
 public IScope scope_<X>_<R>(<X> ctx, EReference ref );
 
-// <X>: the language concept we are looking for
+// <X>: the language concept we are looking for as a reference target
 // <Y>: the concept from under which we try to look for the reference 
 public IScope scope_<X>(<Y> ctx, EReference ref);
 \end{lstlisting}
@@ -821,7 +838,7 @@ public IScope scope_ChangeStateStatement_targetState
 
 \noindent 
 The \ic{Scopes} class provides a couple of helper methods to create \ic{IScope}
-objects from collections of elements. The simple \ic{scopeFor} method we use
+objects from collections of elements. The simple \ic{scopeFor} method 
 will use the \ic{name} of the target element as the text by which it will be
 referenced\footnote{You can pass in code that creates other strings than then
 name from the target element.}. So if a state is called \ic{normalCooling}, then
@@ -871,7 +888,8 @@ declare new symbols. References from within these blocks can see the symbols
 defined in that block, as well as all ancestor blocks. Symbols in inner blocks
 typically hide symbols with the same name in outer blocks. The symbols in outer
 blocks are either not accessible at all, or a special name has to be used, for
-example, by prefixing them with some \ic{outer} keyword (as in \ic{outer.x}).
+example, by prefixing them with some \ic{outer} keyword (for example,
+\ic{outer.x}).
 
 Xtext's scopes support this scenario. \ic{IScopes} can reference outer scopes.
 If a symbol is not found in any given scope, that scope delegates to its outer
@@ -890,6 +908,13 @@ definition. This can be used to make shadowed variables visible under a
 different name, such as \ic{outer.x} if it is referenced from location \ic{1}.
 The following is pseudo-code that implements this behavior:
 
+\todo{how is implementing the "line dependent scoping"? -- e.g.
+
+{
+  int x = a;  // this should not be valid since a was not declared
+  int a;
+  x=a; // this should be valid
+}}
 
 \begin{lstlisting}[language=java]
 // recursive method to build nested scopes
@@ -929,20 +954,23 @@ into another file, the import statements in all referencing files had to be
 updated.
 
 Since Xtext 1.0 both of these problems are solved using the so-called
-index\footnote{This is similar to Spoofax'es index discussed above}. The index
-is a data structure that stores (\ic{String},\ic{IEObjectDescription})-pairs.
+index\footnote{This is similar to Spoofax'es index discussed above}.
+The index is a data structure that stores
+(\ic{String},\ic{IEObjectDescription})-pairs.
 The first argument is the qualified name of the object and the second one, the
 \ic{IEObjectDescription}, contains information about a model element, including
-a URI, a kind of global pointer that also includes the file in which the element
-is stored. All references are checked against this name in the index, not
-against the actual object. If the actual object has to be resolved, the URI
-stored in the index is used. Only then is the respective file
+a URI (a kind of global pointer that also includes the file in which the element
+is stored) as well as arbitrary additional data provided by the language
+implementation. By default, all references are checked against this name in the
+index, not against the actual object. If the actual object has to be resolved,
+the URI stored in the index is used. Only then is the respective file
 loaded\footnote{This is what improved scalability; files are only loaded if a
 reference target is accessed, not to check a reference for validity}. The index
-is updated whenever a file is saved, or a rebuild is performed. This way, if an
-element is moved to a different file while keeping its qualified name
-(which is based on the logical program structure) constant, the reference
-remains valid. Only the URI in the index is updated.
+is updated whenever a file is changed (even when it has not been saved, so
+references against dirty editors work). This way, if an element is moved to a
+different file while keeping its qualified name (which is based on the logical
+program structure) constant, the reference remains valid.
+Only the URI in the index is updated.
 
 There are two ways to customize what gets stored in the index, and how. The
 \ic{IQualifiedNameProvider} returns a qualified name for each program element.
@@ -1051,39 +1079,41 @@ concept Transition
     State   target  1       
 \end{lstlisting}
 
-\noindent 
-The scope itself is defined via the search scope constraint below. The system
-provides an anonymous function \ic{search scope} that has a number of arguments
-that describe the context including the enclosing node and the referencing node.
+\noindent The scope itself is defined via the search scope constraint below. The
+system provides an anonymous function \ic{search scope} that has a number of
+arguments that describe the context including the enclosing node and the
+referencing node.
 As the signature shows, the function has to return either an \ic{ISearchScope}
 or simply a sequence of nodes of type \ic{State}. The scope of the target state
 is simply the set of states of the state machine that (transitively) contains
 the transition. To implement this, the expression in the body of this function
-crawls up the containment hierarchy until it finds a \ic{Statemachine} and then
-returns its \ic{states}\footnote{The code used to express scopes can be arbitrarily 
-complex and is implemented in MPS' BaseLanguge, an extended version of Java.}.
-\begin{lstlisting}[language=mps]
-link {target} 
+crawls up the containment hierarchy\footnote{Note that for a smart reference,
+where the reference object is created only \emph{after} selecting the target,
+the \ic{referenceNode} argument is \ic{null}! This is why we write the scope
+using the \ic{enclosingNode} argument.
+} until it finds a \ic{Statemachine} and then returns its
+\ic{states}\footnote{The code used to express scopes can be arbitrarily complex
+and is implemented in MPS' BaseLanguge, an extended version of Java.}.
+\todo{mention new way of scoping in MPS - talk to Alex. Maybe mention that the
+kinds of scopes used for local var refs are now built in, kinda?}
+\begin{lstlisting}[language=mps] link {target}
   referent set handler:
-    <none> 
-  search scope: 
+    <none>
+  search scope:
     (model, scope, referenceNode, linkTarget, enclosingNode)
-    	->join(ISearchScope | sequence<node<State>>) { 
-      enclosingNode.ancestor<concept = Statemachine>.states; 
-    } 
-  validator: 
-    <default> 
-  presentation : 
-    <none> 
+   ->join(ISearchScope | sequence<node<State>>) {
+      enclosingNode.ancestor<concept = Statemachine>.states;
+    }
+  validator:
+    <default>
+  presentation :
+    <none>
 ;\end{lstlisting}
 
-\noindent 
-Note that for a smart reference, where the refernece object is created only
-\emph{after} selecting the target, the \ic{referenceNode} argument is \ic{null}!
-This is why we write the scope using the \ic{enclosingNode} argument.
+ 
 
-In addition to the search scope, language developers can provide code that
-should be executed if a new reference target is set (\ic{referent set handler}),
+\noindent In addition to the search scope, language developers can provide code
+that should be executed if a new reference target is set (\ic{referent set handler}),
 additional validation (\ic{validator}), as well as customized
 presentation in the code completion menu (\ic{presentation}).
 
@@ -1100,7 +1130,7 @@ nested scopes, a different implementation pattern is recommended:
   \ic{IScopeProvider}, passing in the concept whose instances it wants to see 
   (\ic{State} in the above example).
   \item The implementation of the method recursively calls the method on its
-  owning \ic{IScopeProvider}, until there is none anymore. It also removes 
+  owning \ic{IScopeProvider}, as long as there is one. It also removes 
   elements that are shadowed from the result.
 \end{itemize}
 \noindent This approach is used in the mbeddr C language, for example for local
@@ -1209,5 +1239,10 @@ make an explicit decision, at the time of entry (the name won't bind, and the
 code completion menu requires a choice). It is important to understand that,
 although the names are similar, the tool still knows whether a particular
 reference refers to a \ic{LocalVariable} or to an \ic{EventParameter}, because
-the reference is encoded using the ID of the target.
+the reference is encoded using the ID of the target\footnote{It may not,
+however, be obvious to the user, so use this approach with caution and/or use
+different syntax highlighting to distinguish the two. The real benefit of this
+approach is that if two independent language extensions define such scopes
+independently, there will not be any ambiguity if these extensions are used
+together in a single program.}.
 
