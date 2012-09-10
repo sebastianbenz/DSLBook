@@ -21,8 +21,8 @@ not always easy to make, and the boundary becomes blurred.
 A fundamentally different approach to processing models is
 \emph{interpretation}. While in case of transformation and generation the model
 is migrated to artifacts expressed in a different language, in case of
-interpretation no such migration happens. Instead, an interpreter traverses a
-model and \emph{directly} performs actions depending on the contents of the AS.
+interpretation no such migration happens. Instead, an interpreter traverses an
+AST and \emph{directly} performs actions depending on the contents of the AS.
 Strictly speaking, we have already seen examples of interpretation in the
 sections on constraints and type systems: constraint and type checks can be seen
 as an interpreter where the actions performed as the tree is traversed are
@@ -61,7 +61,7 @@ smoothly, most specialized transformation languages assume that the source and
 target models are build with the same AST formalism (e.g. EMF Ecore). Model
 transformation languages typically provide support for efficiently navigating
 source models, and for creating instances of AS of the target language (tree
-construction). Examples for this approach once again include Xtext's Xtend2 as
+construction). Examples for this approach once again include Xtext's Xtend as
 well as QVT Operational\footnote{http://en.wikipedia.org/wiki/QVT} and
 ATL\footnote{http://www.eclipse.org/atl/}. MPS can also be used in this way. A
 slightly different approach just establishes relations between the source and
@@ -133,7 +133,9 @@ functions provided by Xtend make it also very well suited for navigating and
 querying models. In the rest of this section we will use Xtend for writing code
 generators and model transformations.
 
-\todo{remove the border and increase the font?}
+\todo{allContentsIterable was removed. Why not just resource.getContents.
+filter() or something like that. It's usually not required to traverse the 
+complete model to find the top level structures}
 \begin{figure}[ht]
 \begin{center}
   \includegraphics[width=\columnwidth]{figures-impl/5/xtext-gen-1.png}
@@ -162,15 +164,15 @@ Alternatively, Xtend generators can also be run from the command line, from
 another Java program or from and and maven.} (represented by the \ic{resource}
 argument), and it has to output the corresponding generated code via the
 \ic{fsa} (file system access) object\footnote{Like any other Xtext language
-aspect, the generator has to be registered in the runtime module. Once this is
-done, the generator is automatically called for each changed resource associated
-with the respective language.}.
+aspect, the generator has to be registered with the runtime module, Xtext's main
+configuration data structure. Once this is done, the generator is automatically
+called for each changed resource associated with the respective language.}.
 
 When generating code from models there are two distinct cases. In the first
 case, the majority of the generated code is fixed; only some isolated parts
 of the code depend on the input model. In this case a template language is the
 right tool, because template control code can be "injected" into code that looks
-similar to what shall be generated. On the other hand there are fine grained
+similar to what shall be generated. In the other case there are fine grained
 structures, such as expressions. Since those are basically trees, using template
 languages for these parts of programs seems unnatural and implies a lot of
 syntactic noise. A more functional approach is useful. We will illustrate both
@@ -183,8 +185,8 @@ model as well as the template syntax for text generation.
 \begin{lstlisting}[language=xtend]
 def compile(CoolingProgram program) { 
     '''
-    <<FOR appl : program.modules.map(m|m.module).filter(typeof(Appliance))>>  
-        <<FOR c : appl.contents>>
+    <<FOR appl:  program.moduleImports.map(mi|mi.module).filter(typeof(Appliance))>> 
+        <<FOR c: appl.contents>> 
             #define <<c.name>> <<c.index>>
         <<ENDFOR>>
     <<ENDFOR>>
@@ -195,9 +197,9 @@ def compile(CoolingProgram program) {
 \end{lstlisting}
 
 \noindent 
-The \ic{FOR} loop follows the \ic{modules} collection of the \ic{program},
-follows the \ic{module} reference of each one, and then selects all
-\ic{Appliance}s from the resulting collection. The nested loop then iterates
+The \ic{FOR} loop iterates over the \ic{moduleImports} collection of the
+\ic{program}, follows the \ic{module} reference of each of these, and then
+selects all \ic{Appliance}s from the resulting collection. The nested loop then iterates
 over the contents of each \ic{appl}iance and generates a \ic{\#define}. Notice
 how the the first two and the last two lines are enclosed in the guillemets.
 Since we are in template expression mode (\ic{''' \ldots '''}) the guillemets escape
@@ -274,8 +276,8 @@ if (new_state != current_state) {
 
 \noindent 
 The code first uses an \ic{IF} statement to check whether the program has any
-states with exit actions (via an extension method call). Only if we have such
-states is the subsequent \ic{switch} statement generated. The \ic{switch}
+states with exit actions (by calling the \ic{concreteStatesWitExitActions} 
+extension method). Only if we have such states is the subsequent \ic{switch} statement generated. The \ic{switch}
 switches over the \ic{current\_state}, and then adds a \ic{case} for each state
 with exit actions\footnote{The \ic{s.name} expression in the \ic{case}
 is actually a reference to the enum literal generated earlier for
@@ -531,8 +533,8 @@ s.events += eh
 \noindent 
 The notation used in the actual implementation is more concise and resembles the
 tree structure of the code much more closely. It uses the well-known
-\emph{builder} notation. Builders are implemented in Xtend with a clever combination of
-closures and implicit arguments and a number of functions implemented in the
+\emph{builder} notation\todo{ref}. Builders are implemented in Xtend with a 
+combination of closures and implicit arguments and a number of functions implemented in the
 \ic{CoolingBuilder} class\footnote{Of course, if you add the line count and
 effort for implementing the builder, then using this alternative over the
 plain procedural one might not look so interesting. However, if you just
@@ -713,6 +715,7 @@ state machines to the various elements we mentioned above. Notice how the
 surrounding module remains unchanged, because no reduction rule is defined for
 it. 
 
+\todo{change figures to remove the med stuff}
 \begin{figure}[ht]
 \begin{center}
   \includegraphics[width=\columnwidth]{figures-impl/5/mps-gen-phases.png}
@@ -778,9 +781,10 @@ node.cEnumLiteralName();
 
 \todo{clean up I and we}
 
-\noindent In the code above, \ic{cEnumLiteralName} is a behavior method. It is
-defined as part of the behavior aspect of the \ic{State} concept. It
-concatenates the \ic{name} of the parent \ic{Statemachine} with the string
+\noindent In the code above, \ic{cEnumLiteralName} is a behavior method.
+Behavior methods are defined as part of the behavior aspect of the \ic{State}
+concept.
+It concatenates the \ic{name} of the parent \ic{Statemachine} with the string
 \ic{\_\_state\_} and the name of the current state (in order to get a unique
 name for each state). We use property macros in a similar way to define the
 names of the two generated \ic{enum}s themselves.
@@ -849,9 +853,8 @@ the execute function. Looking at the template fragment markers (\ic{<TF ...
 TF>}) reveals that we only generate the \ic{switch} statement with this
 template, \emph{not} the function that contains it. The reason is that we need
 to be able to embed the state machine \ic{switch} into other function-like
-concepts as well (e.g. component operations), so we have separated the
-generation of the function from the generation of the actual state machine
-behavior.
+concepts as well (e.g. operations in components defined in the mbeddr
+components extension), so we have separated the generation of the function fromthe generation of the actual state machine behavior.
 
 The \ic{switch} expression is interesting. It switches over the current state of
 the current state machine instance. That instance is represented by the
@@ -1137,6 +1140,9 @@ to-upper-first: s -> s'
     s'            := <implode-string> [upper|chars]
 \end{lstlisting}
 
+\guido{what are these explode/implode-strings? 
+are they library functions of Spoofax rewrite rules? are they fix, can they 
+be extended with new functions?}
 
 \parhead{Editor Integration} To integrate the code generation into our editor,
 we first have to define the following rewrite rule:
@@ -1165,6 +1171,8 @@ Once we have defined this rule, we can register it as a \ic{builder} in
 \begin{lstlisting}[morekeywords={builder, generate, java, openeditor, realtime}]
 builder: "Generate Java code (for selection)" = generate-java (openeditor) (realtime)
 \end{lstlisting}
+
+\guido{for somebody that does not know spoofax, this is too detailed}
 
 \noindent 
 This defines a label for our transformation, which is added to the editor's
@@ -1226,6 +1234,9 @@ side of rewrite rules:
       setter := Method([Public()], Void(), $[set_[x]], [Param(t', x)], [assign]) ;
       assign := Assign(FieldRef(This(), x), VarRef(x)) 
 \end{lstlisting}
+
+\guido{the Concrete Object Syntax paragraph header shows up twice. Can't be
+intended, right?}
 
 \parhead{Concrete Object Syntax}%
 %
@@ -1974,7 +1985,7 @@ dispatcher that calls the \ic{eval} methods for the expression classes, suitable
 modular language extensions can be defined in the first place.
  
 For example, BaseLanguage could be extended with support for polymorphic
-dispatch (similar to what Xtend2 does). An alternative solution involves a
+dispatch (similar to what Xtend does). An alternative solution involves a
 dispatch statement, a kind of "pimped switch". \fig{mps-dispatch} shows an
 example.
 
