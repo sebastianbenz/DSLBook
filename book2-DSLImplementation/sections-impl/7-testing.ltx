@@ -31,16 +31,18 @@ don't describe in detail how this works for each of the tools.}
  
 \section{Syntax Testing}
 
-Testing the syntax is simpxle in principle. Developers simply try to write all
-relevant programs and see if they can be expressed with the language. If not,
-the concrete syntax is incomplete. We may also want to try to write ``wrong''
-programs and check that the errors are detected, and that meaningful error
-messages are reported. 
+Testing the syntax is simple in principle. Developers simply try to write a
+large set of relevant programs and see if they can be expressed with the
+language. If not, the concrete syntax is incomplete. We may also want to try to
+write "wrong" programs and check that the errors are detected, and that
+meaningful error messages are reported.
 
 \parhead{An Example with Xtext} The following piece of code is the fundamental
 code that needs to be written in Xtext to test a DSL program using the Xtext
 testing
-utilities\footnote{http://code.google.com/a/eclipselabs.org/p/xtext-utils/wiki/Unit\_Testing}.
+utilities\footnote{http://code.google.com/a/eclipselabs.org/p/xtext-utils/wiki/Unit\_Testing;
+more testing utilities for Xtext can be found in the
+\ic{org.eclipse.xtext.junit4} package.}.
 It is a JUnit 4 test case with special support for the Xtext
 infrastructure\footnote{It is tested with Xtext 2.x.}.
 
@@ -402,16 +404,17 @@ In the simplest case this can be done the following way:
 
 \noindent Notice how we do \emph{not} test the structure or syntax of the
 generated artifact. Instead we test it's meaning, which is exactly what we \emph{want} to
-test. An important variation of this appraoch is the following: instead of
+test. An important variation of this approach is the following: instead of
 writing the unit tests manually in the target language, we can also write the
 tests in the DSL, assuming the DSL has syntax to express such
 tests\footnote{Many DSLs are explicitly extended to support this use case}.
 Writing the test cases on DSL level results in more concise and readable
 tests.\marginnote{Testing DSL programs by running tests expressed in the same
 language runs the risk of doubly-negating errors. If the generators for the
-tests and the core program in a compatible way, errors in either one may not be
-found. However, this problem can be alleviated by running a large enough number
-of tests.}
+tests and the core program are wrong in a "consistent" way, errors in either one
+may not be found. However, this problem can be alleviated by running a large enough number
+of tests and/or by having the generators for the core system and for the test
+cases written by different (groups of) people.}
 
 The same approach can be used to test execution semantics based on an
 interpreter, although it may be a little bit more difficult to manually write
@@ -422,15 +425,17 @@ program, the approach works well.
 
 Strictly speaking, this approach tests the semantics of a \emph{specific}
 program. As always in testing, we have to write many of these tests to make sure
-we have covered all of the possible executions paths through a generator or
-interpreter. If we do that, the set of tests implicitly tests the generator or
-interpreter --- which is the goal we want to achieve in semantics testing.
+we have covered all\footnote{There may actually be an infinite number of
+possible execution paths, so we have to limit ourselves to a reasonable set of
+tests.} of the possible executions paths through a generator or interpreter.
+If we do that, the set of tests implicitly tests the generator or interpreter
+--- which is the goal we want to achieve in semantics testing.
 
 If we have several execution backends, such as an interpreter \emph{and} a
 compiler it must be ensured that both have the same semantics. This can be
 achieved by writing the tests in the DSL and then executing them in \emph{both}
-backends. By executing enough tests, the semantic equivalence of the backends
-can be ensured.
+backends. By executing enough tests, we can get a high degree of confidence that
+the semantics of the backends are aligned.
 
 
 \parhead{Testing an Interpreter with Xtext} The cooling language provides a way
@@ -777,8 +782,8 @@ structural test. In principle, this is simple:
 \end{itemize}
 
 \noindent Depending on the target formalism you can use regular expressions,
-XPath expressions or OCL-like expressions to achieve this\ic{Remember that you should
-still automate this!}. 
+XPath expressions or OCL-like expressions to achieve this\footnote{Remember that
+you should still automate this!}. 
 
 Note that you really should only use this if you cannot use semantics testing
 based on execution. Inspecting the generated C code for syntactic correctness,
@@ -799,7 +804,7 @@ Testing this via execution invariably tests the model-to-model transformation as
 well as the generator (or interpreter). If we wanted to test the model-to-model
 transformation in isolation, we have to use structural testing, because the
 result of that transformation itself is not yet executable. The following piece
-of code could be used to check that, for a specific input program, the
+of Xtend code could be used to check that, for a specific input program, the
 transformation works correctly:
 
 \begin{lstlisting}[language=xtend]
@@ -840,15 +845,18 @@ transformation, you have to write and execute a lot of tests. This can be a lot
 of work, and, more importantly, you may not think about certain (exceptional)
 scenarios, and hence you may not test them. Bugs may go unnoticed.
 
-Verification checks \ic{the whole program} at once. Various non-trivial
+Verification checks \emph{the whole program} at once. Various non-trivial
 algorithms are used to do that, and understanding these algorithms in detail is
 beyond the scope of this book. Also, formal verification has inherent
 limitations (e.g. the halting problem) that can only be solved by testing. So
 testing and verification each have sweet spots. None can fully replace the
 other. However, it is very useful to know these approaches exist, especially
 since, over the last couple of years, they have become scalable enough to
-address real-world problems. In this section we look at two examples: model
-checking and SAT solving.
+address real-world problems. In mbeddr, we verify on a higher level of
+abstraction, leaving out a lot of accidental complexity. This makes  
+analysis much more feasible. 
+
+In this section we look at two examples: model checking and SAT solving.
 
 \parhead{Model Checking State Machines} Model Checking is a verification
 technique for state machines. In this section we can only scratch the surface;
@@ -857,10 +865,10 @@ is how it works in principle:
 
 \begin{itemize}
   \item Some functionality is expressed as a state machine.
-  \item You then specify \emph{properties} of the state machine. Properties are
-  expressions that have to \ic{true} about the state machine. For example, 
-  such a property could state that whenever you go to state \ic{X}, you will
-  have been in state \ic{y} directly before.
+  \item You then specify \emph{properties} about the behavior of the state
+  machine. Properties are expressions that have to \ic{true} about the state
+  machine's execution. For example, such a property could state that whenever
+  you go to state \ic{X}, you will have been in state \ic{y} directly before.
   \item You then run the model checker with the state machine and the properties
   as input.
   \item The output of the model checker either confirms that your properties
@@ -880,7 +888,10 @@ more possibilities the checker has to address, a problem known as state space
 explosion. With finite memory, this limits scalability because at some point,
 you will out of memory. In reality the model checker does \emph{not} perform an
 exhaustive search; clever algorithms have been devised that are semantically
-equivalent to an exhaustive search, but don't actually perform one. This makes
+equivalent to an exhaustive search, but don't actually perform one\footnote{For
+example, \emph{bounded} model checking searches for counterexamples only for a
+bounded set of execution step. If not counterexample is found within the bound,
+the model checker assumes (rightly on not) that the property holds.}. This makes
 model checking scalable and fast enough for real-world problems, although there
 is still a limit in terms of input model complexity.
 
@@ -932,8 +943,8 @@ select the context menu on a state machine and invoke the model checker. The
 model checker input is generated, the model checker is executed, and the replies
 are rendered in a nice table in MPS (for an example see \todo{}). Finally, we
 have abstracted the property specification language by providing support for the
-most important idioms; these can be specified relatively easily (for example
-\ic{never <expr>} or \ic{always eventually reachable <state>}).
+most important idioms\footnote{http://patterns.projects.cis.ksu.edu/}; these can
+be specified relatively easily (for example \ic{never <expr>} or \ic{always eventually reachable <state>}).
 Also, a number of properties are automatically checked for each state machine.
 
 Let us look at an example. The following code shows a state machine that
@@ -998,8 +1009,8 @@ The first one reports that NuSMV has successfully proven that the
 variable \ic{currentVal} stays within its bounds (notice how \ic{currentVal} is
 a bounded integer). Line three reports that \ic{countState} it never happens
 that in \ic{countState}, more than one transition is ready to fire at any time.
-Finally, it reports that the first of the transitions is actually used at some
-point. 
+Finally, it reports that all transitions are not dead, i.e. each of them is 
+actually used at some point. 
 
 Let us provoke an error. We change the two transitions in \ic{countState} to 
 
@@ -1012,8 +1023,8 @@ on step [currentVal + size <= LIMIT] -> countState {
 
 \noindent 
 You perhaps don't even recognize the difference --- which is exactly why you
-would want to use a model checker! We have changed the \ic{>} to a \ic{>=} in
-the first transition. Running the model checker again, we get, among others, the
+would want to use a formal verification! We have changed the \ic{>} to a \ic{>=}
+in the first transition. Running the model checker again, we get, among others, the
 following messages:
 
 \begin{lstlisting}
@@ -1064,23 +1075,26 @@ verification conditions
 \end{lstlisting}
 
 \noindent The first one allows to express that we want the model checker to
-prove that any Boolean condition will never happen. In our example, we check
-that the \ic{LIMIT} really is a constant and is never (accidentally) changed.
+prove that a specific Boolean condition will never be true. In our example,
+we check that the \ic{LIMIT} really is a constant and is never (accidentally) changed.
 The second one specifies that wherever we are in the execution of the state
 machine, it is still possible (after an arbitrary number of steps) to reach the
 \ic{initialState}. Both properties hold for the example state machine.
 
 
-\parhead{SAT Solving} SAT solving, which is short for satisfiability solving,
-concerns the satisfiability of sets of Boolean equations. Users specify a set of
+\parhead{SAT/SMT Solving} SAT solving, which is short for satisfiability
+solving, concerns the satisfiability of sets of Boolean equations. Users specify a set of
 Boolean equations and the solver tries to assign truth values to the free
 variables so as to satisfy all specified equations\footnote{There are also
 solvers that work with arithmetic expressions in addition to Booleans.}. SAT
 solving is an NP-complete problem, so there is no analytic approach: exhaustive
 search (implemented, of course, in much more clever ways) is the way to address
-these problems.
+these problems. SMT solving (Satisfiability Modulo Theories) is an extension of
+SAT solving that allows other constructs in addition to logical operators ---
+the most frequently used ones are those of linear arithmetic, arrays or
+bit-vectors. 
 
-For example, SAT solving can be used to address the following problem. In the
+As an example, SMT solving can be used to address the following problem. In the
 mbeddr C language, we support decision tables. A decision table has a set of
 Boolean conditions as row headers as well as a set of Boolean conditions in the
 column headers, as well as arbitrary values in the content cells. A decision
@@ -1088,24 +1102,25 @@ table essentially represents nested \ic{if} statements: the result value of the
 table is that content cell whose row and column header are \ic{true}.
 \fig{dectabexample} shows an example.
 
+\todo{Remove the yellow "selected line" background if it is still in}
 \begin{figure}[ht]
 \fbox{
 \begin{minipage}{105mm}
   \includegraphics[width=\columnwidth]{figures-impl/7/dectabexample.png}
 \end{minipage}
 }
-  \caption[]{An example decision table in mbeddr C. SAT solving is used to
+  \caption[]{An example decision table in mbeddr C. SMT solving is used to
   check it for consistency and completeness.}
   \label{dectabexample} 
 \end{figure}
 
 \noindent 
-SAT solving can be used to check whether all cases are handled. It can detect if
+SMT solving can be used to check whether all cases are handled. It can detect if
 combinations of the relevant variables exist for which no combination of row
 header and column header expressions match; in this case, the decision table
 would not return any value. 
 
-SAT solvers have some of the same challenges as model checkers regarding
+SAT and SMT solvers have some of the same challenges as model checkers regarding
 scalability, a low level and limited input language and the challenge of
 interpreting and understanding the output of a solver. Hence we use the same
 approach to solve the problem: from higher level models (such as the decision
@@ -1127,8 +1142,12 @@ behavior expressed in the model. There are three ways to address this:
   of tests, you then only have to verify the models --- since you know they will
   be translated correctly.
   \item Some tools, for example the UPAAL model
-  checker\footnote{http://www.uppaal.com/}, can also generate test cases. These 
-  are stimuli to the model, together with the expected reactions.
+  checker\footnote{http://www.uppaal.com/}, can also generate test
+  cases\footnote{One can generate test cases by using the model checking
+  technology: just specify that some property is \ic{false} and the model checker
+  will provide a counterexample that illustrates the execution of the
+  state machine up to the point where the property is \ic{true}.}. These are 
+  stimuli to the model, together with the expected reactions.
   You can generate those into your target language and then run them in your
   target language. This is essentially an automated version of the first
   approach.
@@ -1210,9 +1229,12 @@ embedding the subject DSL into the DSL for describing the editor test case.
 \parhead{An example with Xtext/Xpect} Xpect is a framework for integration
 testing of Xtext DSLs developed by Moritz
 Eysholdt\footnote{https://github.com/meysholdt/Xpect}. It can be used for
-testing various language aspects, among them, for example, code completion. It
-does so by embedding test expectations as comments inside the to-be-tested
-program. Here is an example based on a Hello World grammar (literally):
+testing various language aspects, among them, for example, code
+completion\footnote{Xtext itself comes with a set of helpers for IDE service
+testing such as content assist or builder tests. They run with and often even
+without an SWT display (e.g. headless)}. It does so by embedding test
+expectations as comments inside the to-be-tested program. Here is an example
+based on a Hello World grammar (literally):
 
 \begin{lstlisting}[language=xtextgrammar]
 Model: 
