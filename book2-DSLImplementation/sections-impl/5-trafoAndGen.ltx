@@ -1398,13 +1398,17 @@ directly traversing the DSL program and performing the semantic actions
 associated with the respective program elements. The chapter contains examples
 for interpeters with Xtext, MPS and Spoofax.}
  
-\noindent Interpreters are basically programs that read a model, traverse the AST and
-perform actions corresponding to the semantics of the language constructs whose
-instances appear in the AST. How an interpreter implementation looks depends a
+\noindent Interpreters are basically programs that read a model, traverse the
+AST and perform actions corresponding to the semantics of the language
+constructs whose instances appear in the AST\footnote{They may also produce text
+(in which case such an interpreter is typically called a generator), inspecting
+the structure and check constraints (in which case they are called a validator).
+In this section we focus on interpreters that directly execute the program
+according to its semantics.}. How an interpreter implementation looks depends a
 lot on the programming language used for implementing it. Also, the complexity
 of the interpreter directly reflects the complexity of the language it
-processes\footnote{For example, building an interpreter for a pure expression
-language with a functional programming language is almost trivial. In contrast,
+processes in terms of size, structure and semantics\footnote{For example,
+building an interpreter for a pure expression language with a functional programming language is almost trivial. In contrast,
 the interpreters for languages that support parallelism can be much more
 challenging.}. The following list explains some typical ingredients that go into
 building interpreters for functional and procedural languages. It assumes a
@@ -1420,7 +1424,7 @@ action on the result. Consider an expression \ic{3 * 2 + 5}. Since the \ic{+} is
 at the root of the AST, \ic{eval(Plus)} would be called (by some outside
 entity). It is implemented to add the values obtained by evaluating its
 arguments. So it calls \ic{eval(Multi)} and \ic{eval(5)}. Evaluating a number
-literal is trivial, since it simply returns the number itself. \ic{eval(Multi)}
+literal is minimal, since it simply returns the number itself. \ic{eval(Multi)}
 would call \ic{eval(3)} and \ic{eval(2)}, multiplying their results and
 returning the result of the multiplication as its own result, allowing plus to
 finish its calculation\marginnote{Technically, \ic{eval} could be implemented as
@@ -1435,10 +1439,12 @@ in programming languages that have side effects. In other words, execution of
 such a language concept produces some effect either on global data in the
 program (re-assignable variables, object state) or on the environment of the
 program (sending network data or rendering a UI). Such program elements are
-typically called \ic{Statements}. Statements are typically not recursively
-nested in a tree, but rather arranged in a list, called a \ic{StatementList}. To
-execute those, there is typically a function \ic{execute} that is overloaded for
-all of the different statement types\footnote{It is also overloaded for
+typically called \ic{Statements}. Statements are either arranged in a list
+(typically called a statement list) or arranged recursively nested as a tree
+(an \ic{if} statement has a \ic{then} and an \ic{else} part which are themselves
+statements or statement lists). To execute those, there is typically a function
+\ic{execute} that is overloaded for all of the different statement
+types\footnote{It is also overloaded for
 \ic{StatementList} which iterates over all statements and calls \ic{execute}
 for each one.}. Note that statements often contain expressions and more
 statement lists (as in \ic{if (a > 3) \{ print a; a=0; \} else \{ a=1;\}}), so
@@ -1447,6 +1453,8 @@ based on the result (such as deciding whether to execute the \ic{then}-part of
 the \ic{else}-part of the \ic{if} statement). Executing the \ic{then}-part and
 the \ic{else}-part simply boils down to called \ic{execute} on the respective
 statement lists.
+
+
 
 \parhead{Environments} Languages that have can express assignment to variables
 (or modify any other global state) require an environment during execution to
@@ -1507,9 +1515,17 @@ allow DSL users to "play" with the cooling programs before or instead of
 generating C code. The interpreter can execute test cases (and report success or
 failure) as well as simulate the program interactively. Since no code generation
 and no real target hardware is involved, the turn-around time is much shorter
-and the required infrastructure is trivial --- just the IDE. The execution
-engine, as the interpreter is called here, has to handle the following language
-aspects:
+and the required infrastructure is trivial --- just the IDE\footnote{ The
+abstraction level of such an interpreter must be decided. One alternative might
+ignore for example the use of registers when performing an assignment, avoiding
+problems resulting from parallelism. Alternatively, the interpreter might model
+everything and thereby can address issues related to parallelism. In other
+words, an interpreter defines a virtual machine and it is fundamental that this
+virtual machine has an adequate abstraction level and/or the users are aware of
+exactly what it means for the execution of the program on the target hardware if
+the program runs on the virtual machine.}. The execution engine, as the
+interpreter is called here, has to handle the following language aspects:
+\todo{I think the big footnote above should go into the design part.}
 
 \begin{itemize}
 
@@ -1636,7 +1652,7 @@ terminal DECIMAL_NUMBER:
 
 
 \noindent 
-Before we delve into the details of the interpreter code below, it is worth
+Before we dive into the details of the interpreter code below, it is worth
 mentioning that the "global data" held by the execution engine is stored and
 passed around using an instance of \ic{EngineExecutionContext}. For example, it
 contains the environment that keeps track of symbol values, and it also has
@@ -1669,25 +1685,28 @@ protected Object evalNumberLiteral(NumberLiteral expr, LogEntry log) {
 \end{lstlisting}
 
 
-\noindent 
-The evaluator for \ic{NumberLiteral} was simple because number literals are
-leaves in the AST and have no children, so no recursive invocations of \ic{eval}
-are required. This is different for the \ic{LogicalAnd}, which has two children
-in the \ic{left} and \ic{right} properties. The following code shows the
-implementation of \ic{evalLogicalAnd}. The first two statements recursively call
-the evaluator, for the \ic{left} and \ic{right} properties, respectively. They
-use a utility method called \ic{evalCheckNullLog} which automatically creates a
-log entry for this recursive call and stops the interpreter if the value passed
-in is \ic{null} (which would mean the AST is somehow broken). Once we have
-evaluated the two children we can simply return a conjunction of the two.
+\noindent The evaluator for \ic{NumberLiteral} was simple because number
+literals are leaves in the AST and have no children, so no recursive invocations
+of \ic{eval} are required. This is different for the \ic{LogicalAnd}, which has
+two children in the \ic{left} and \ic{right} properties. The following code
+shows the implementation of \ic{evalLogicalAnd}. The first statement calls the
+evaluator, for the \ic{left} properties. If \ic{leftVal} is \ic{false} we return
+without evaluating the right argument\footnote{Most programming languages never
+evaluate the right argument of a logical and if the left one is \ic{false} and
+hence the overall logical and can never become \ic{true}.} If it is \ic{true} we
+evaluate the right argument. The argument evaluation uses a utility method
+called \ic{evalCheckNullLog} which automatically creates a log entry for this
+recursive call and stops the interpreter if the value passed in is \ic{null}
+(which would mean the AST is somehow broken). 
 
 \begin{lstlisting}[language=java]
 protected Object evalLogicalAnd(LogicalAnd expr, LogEntry log) {
     boolean leftVal = ((Boolean)evalCheckNullLog( expr.getLeft(), log ))
                       .booleanValue();
+    if ( !leftVal ) return false;                  
     boolean rightVal = ((Boolean)evalCheckNullLog( expr.getRight(), log ))
                       .booleanValue(); 
-    return leftVal && rightVal;
+    return rightVal;
 }
 \end{lstlisting}
 
@@ -1780,7 +1799,7 @@ discussed this in \todo{ref}.}.
 protected Object evalSymbolRef(SymbolRef expr, LogEntry log) {
     Symbol symbol = expr.getSymbol();
     if ( symbol instanceof VarDecl ) {
-        return log( symbol, ctx.environment.getCheckNull(symbol), log);
+        return log( symbol, eec().environment.getCheckNull(symbol), log);
     }
     if ( symbol instanceof FunctionDeclaration ) {
         FunctionDeclaration fd = (FunctionDeclaration) symbol;
@@ -1806,17 +1825,16 @@ well as the obligatory log. The utility method is implemented as follows:
 \begin{lstlisting}[language=java]
 protected Object callAndReturnWithPositionalArgs(String name, 
         EList<? extends EObject> formals, EList<? extends EObject> actuals, 
-        EList<? extends EObject> bodyStatements, Object returnSymbol, 
-        LogEntry log) {
-    ctx.environment.push(name);
+        EList<? extends EObject> bodyStatements) {
+    eec().environment.push(name);
     for( int i=0; i<actuals.size(); i++ ) {
         EObject actual = actuals.get(i);
         EObject formal = formals.get(i);
-        ctx.environment.put(formal, evalCheckNullLog(actual, log));
+        eec().environment.put(formal, evalCheckNullLog(actual, log));
     }
-    ctx.getExecutor().execute( bodyStatements, log );
-    Object res = ctx.environment.get(returnSymbol);
-    ctx.environment.pop();
+    eec().getExecutor().execute( bodyStatements, log );
+    Object res = eec().environment.get(RETURN_SYMBOL);
+    eec().environment.pop();
     return res;
 }
 \end{lstlisting}
@@ -1826,7 +1844,7 @@ protected Object callAndReturnWithPositionalArgs(String name,
 Remember from the above discussion about environments and function calls, that
 each invocation of a function has to get its own environment to handle the local
 variables for the particular invocation. We can see this in the first line of
-the implementation above: we first creates a new environment and push it onto
+the implementation above: we first create a new environment and push it onto
 the call stack. Then the implementation iterates over the actual arguments,
 evaluates each of them and "assigns" them to the formals by creating an
 association between the formal argument symbol and the actual argument value in
@@ -1836,8 +1854,8 @@ deals with its own variables and function calls, it uses the \emph{new}
 environment created, pushed onto the stack and populated by this method! When
 the execution of the body has finished, we retrieve the return value from the
 environment. The \ic{return} statement in the function has put it there under a
-name we have prescribed, the \ic{returnSymbol}, so we know how to find it in the
-environment. Finally, we pop the environment, restoring the caller's state of
+name we have prescribed, the \ic{RETURN_SYMBOL}, so we know how to find it in
+the environment. Finally, we pop the environment, restoring the caller's state of
 the world and return the return value as the resulting value of the thefunction call expression.
 
 
@@ -1906,7 +1924,7 @@ first event from the queue and executes it. After processing an event the step
 is always terminated. Lastly, if there was no event to be processed, we process
 signal handlers (the \ic{check} statements in the cooling programs).
 
-Processing events simply checks if the current state declares and event handler
+Processing events simply checks if the current state declares an event handler
 that can deal with the currently processed event. If so, it executes the
 statement list associated with this event handler.
 
@@ -1924,7 +1942,8 @@ private void processEventFromQueue(CustomEvent event, LogEntry logger) {
 
 \noindent 
 The DSL also supports executing code asynchronously, i.e. after a specified
-number of steps. The grammar looks as follows:
+number of steps (representing logical program time). The grammar looks as
+follows:
 
 \begin{lstlisting}[language=xtextgrammar]
 PerformAsyncStatement:
@@ -1971,6 +1990,9 @@ private void executeAsyncStuff(LogEntry logger) {
 \end{lstlisting}
 
 
+\todo{Talk a little bit about Xtend for building interpeters using
+extension methods and the cool switch statement}
+
 
 
 \section{An interpreter in MPS}
@@ -1986,7 +2008,7 @@ modular language extensions can be defined in the first place.
  
 For example, BaseLanguage could be extended with support for polymorphic
 dispatch (similar to what Xtend does). An alternative solution involves a
-dispatch statement, a kind of "pimped switch". \fig{mps-dispatch} shows an
+dispatch expression, a kind of "pimped switch". \fig{mps-dispatch} shows an
 example.
 
 \begin{figure}[ht]
@@ -2004,8 +2026,8 @@ example.
 \end{figure}
 
 \noindent 
-The dispatch statement tests if the argument \ic{ex} is an instance of the type
-referenced in the cases. If so, the code on the right side of the arrow is
+The dispatch expression tests if the argument \ic{ex} is an instance of the
+type referenced in the cases. If so, the code on the right side of the arrow is
 executed. Notice the special expression \ic{\$} used on the right side of the
 arrow. It refers to the argument \ic{ex}, but it is already downcast to the type
 on the left of the case's arrow. This way, annoying downcasts can be avoided.
@@ -2018,6 +2040,12 @@ there\footnote{We discuss language modularization and composition is
 \todo{ref}.}. Also, the \ic{\$} expression is restricted to only be usable on
 the right side of the \ic{->}. This way the overall base language namespace is kept
 clean.
+
+Since MPS is a projectional editor, it can show things in the editor that are
+read-only. For example, the result of an interpreter run can be integrated
+directly into the editor. \todo{Show the insurance example thingy, and also
+show how it is actually called.}
+
 
 \section{An Interpreter in Spoofax}
 
@@ -2074,6 +2102,8 @@ eval: LazyAnd(_, False(), _)  -> False()
 
 \noindent We can orchestrate these rules in two different styles. For a
 small-step interpreter, we only apply one rule in each step:
+\guido{the distinction in purpose between small-step and big-step interpreters
+is not clear in this section}
 
 \begin{lstlisting}[language=stratego]
 eval-one: exp -> <oncebu(eval)> exp
