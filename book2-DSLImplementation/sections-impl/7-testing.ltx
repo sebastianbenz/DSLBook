@@ -41,7 +41,8 @@ messages are reported.
 code that needs to be written in Xtext to test a DSL program using the Xtext
 testing
 utilities\footnote{http://code.google.com/a/eclipselabs.org/p/xtext-utils/wiki/Unit\_Testing}.
-It is a JUnit 4 test case with special support for the Xtext infrastructure.
+It is a JUnit 4 test case with special support for the Xtext
+infrastructure\footnote{It is tested with Xtext 2.x.}.
 
 \begin{lstlisting}[language=java]
 @RunWith(XtextRunner.class)
@@ -388,7 +389,7 @@ and specify the expected reference resolving in terms of these selections.
 \section{Semantics Testing}
 
 Fundamentally, testing the execution semantics of a program involves 
-writing constraints against the \emph{execution} of a program as it is executed.
+writing assertions against the \emph{execution} of a program.
 In the simplest case this can be done the following way:
 
 \begin{itemize}
@@ -450,19 +451,15 @@ as a test case for that program:
 \begin{lstlisting}[language=cooling, morekeywords={assert, currentstate, is,
 value, step, event, test, for}] 
 cooling program EngineProgram0 for Einzonengeraet uses stdlib {
-         
     var v: int
     event e1
-        
     init { set v = 1 }
-       
+
     start:   
        entry { set v = v * 2 }
        on e1 { state s2 } 
-           
     state s2:
         entry { set v = 0 }
-          
 } 
 
 
@@ -479,14 +476,15 @@ test EngineTest0 for EngineProgram0 {
 
 
 \noindent The test first asserts that, as soon as the program starts, it is in
-the \ic{start} state (line 1). We then assert that \ic{v} is \ic{2}. The only
-reasonable way how \ic{v} can become \ic{2} is that the code in the \ic{init}
-block as well as the code in the entry action of the \ic{start} start have been
-executed. Note that this arrangement even checks that the \ic{init} block is
-executed before the entry action of the start state, since otherwise \ic{v}
-would be \ic{1}! We then perform one step in the execution of the program in
-line 3. At this point nothing should happen, since no event was triggered. Then
-we trigger the event \ic{e1} (line 4) and perform another \ic{step} (line 5).
+the \ic{start} state (line 1; we refer to the line numbers in the comments in
+the test script). We then assert that \ic{v} is \ic{2}. The only reasonable way
+how \ic{v} can become \ic{2} is that the code in the \ic{init} block as well as
+the code in the entry action of the \ic{start} start have been executed. Note
+that this arrangement even checks that the \ic{init} block is executed before
+the entry action of the start state, since otherwise \ic{v} would be \ic{1}! We
+then perform one step in the execution of the program in line 3. At this point
+nothing should happen, since no event was triggered. Then we trigger the event
+\ic{e1} (line 4) and perform another \ic{step} (line 5).
 After this step, the program must transition to the state \ic{s2}, whose entry
 action sets \ic{v} back to 0. We assert both of these in lines 6 and 7.
 
@@ -508,8 +506,8 @@ public class InterpreterTests extends PKInterpreterTestCase {
 }
 \end{lstlisting}
 
-\noindent This is basically a JUnit test that inherits from a base class that
-helps with loading models and running the interpreter. We call the
+\noindent This code above basically a JUnit test that inherits from a base class
+that helps with loading models and running the interpreter. We call the
 \ic{runAllTestsInFile} method, passing in the model's root element.
 \ic{runAllTestsInFile} is defined by the \ic{PKInterpreterTestCase} base class,
 which in turn inherits from \ic{XtextTest}, which we have seen before. The
@@ -540,13 +538,14 @@ interpreter and the generator, we ensure that both behave the same way.
 
 
 \parhead{Testing a Generator with MPS} The following is a test case expressed
-using the testing extension to mbeddr C. It contributes \ic{test case}s to
+using the testing extension of mbeddr C. It contributes \ic{test case}s to
 modules\footnote{Instead of using a separate viewpoint for expressing test
 cases, these are inlined into the same program in this case. However, the
 \emph{language} for expressing test cases is a modular extension to C, to keep
 the core C clean.}. \ic{testMultiply} is the actual test case.
 It calls the to-be-tested function \ic{times2} several times with different
-arguments and then uses an \ic{assert} to check for the expected value.
+arguments and then uses an \ic{assert} statement to check for the expected
+value.
 
 \begin{lstlisting}[language=mbeddr] 
 module UnitTestDemo { 
@@ -632,9 +631,9 @@ they supposed to call \ic{store}, and then after any number of calls to
 \ic{store}, they have to call \ic{flush}. Let us assume now we want to check if
 a certain client component uses the interface correctly\footnote{Our components
 language actually also supports protocol state machines which support the
-declarative specification of valid call sequences}. Assuming it provides an
-operation \ic{run} that uses the persistence provider, we could write the
-following test:
+declarative specification of valid call sequences}. Assuming the component
+provides an operation \ic{run} that uses the persistence provider, we could
+write the following test:
 
 \begin{lstlisting}[language=mbeddr] 
 exported test case runTest { 
@@ -645,8 +644,9 @@ exported test case runTest {
 
 \noindent 
 To check if the client behaves correctly, we can use a mock. Our mock specifies
-the \emph{icoming} methods calls it expects to see during the test. We have
-provided a mocking extension to components to support this. Here is the mock:
+the \emph{incoming} methods calls it expects to see during the test. We have
+provided a mocking extension to components to support the declarative
+specification of such expectations. Here is the mock:
 
 \begin{lstlisting}[language=mbeddr, morekeywords={mock, ports, expectations,
 total, no, of, calls, is, sequence}] 
@@ -654,7 +654,7 @@ exported mock component PersistenceMock {
   ports: 
     provides PersistenceProvider pp 
   expectations: 
-    total no. of calls is 4 
+    total no. of calls: 4 
     sequence { 
       0: pp.isReady return false; 
       1: pp.isReady return true; 
@@ -669,11 +669,12 @@ exported mock component PersistenceMock {
 \noindent The mock provides the \ic{PersistenceProvider} interface, so any other
 component that \ic{requires} this interface can use this component as the
 implementation. But instead of actually implementing the operations prescribed
-by \ic{PersistenceProvider}, we specify the sequence of invocations we expect
-to see. We expect a total number of 4 invocations. The first one is expected to
-be to \ic{isReady}. We return \ic{false}, expecting that the client tries again
-later. If it does, we return \ic{true} and expect the client to continue with
-persisting data. We can now validate the mock as part of the test case:
+by \ic{PersistenceProvider}, we specify the sequence of invocations we expect to
+see. We expect a total number of 4 invocations (\ic{total no. of calls: 4}).
+The first one is expected to be to \ic{isReady}. We return \ic{false}, expecting
+that the client tries again later. If it does, we return \ic{true} and expect
+the client to continue with persisting data. We can now validate the mock as
+part of the test case:
 
 \begin{lstlisting}[language=mbeddr, morekeywords={validate, mock}] 
 exported test case runTest { 
@@ -682,10 +683,12 @@ exported test case runTest {
 }
 \end{lstlisting}
 
-\noindent 
-In case the \ic{persistenceMock} saw behavior different from the one specified
-above, the \ic{validate mock} statement will fail --- and with it, the whole
-test.
+\noindent In case the \ic{persistenceMock} saw behavior different from the one
+specified above\footnote{The generator for mock components translates the
+expectations into implementations of the interface methods that track and record
+invocations. The \ic{validate mock} statement works with this recorded data to
+determine whether the expectations were met.}, the \ic{validate mock} statement
+will fail --- and with it, the whole test.
 
 One particular challenge with this approach to semantics testing is that, if an
 assertion fails, you get some kind of \ic{assertion XYZ failed at ABC} output
@@ -829,21 +832,23 @@ specific structures. For example, we explicitly look for a state called
 
 
 
-\parhead{Formal Verification} Formal verification is an alternative to testing
-in some cases. The fundamental difference between testing and verification is
-this: in testing, each test case specifies \ic{one} particular execution
-scenario. To get reasonable or full coverage of the whole model or
+\parhead{Formal Verification} Formal verification can be used in addition to
+testing in some cases. The fundamental difference between testing and
+verification is this: in testing, each test case specifies \ic{one} particular
+execution scenario. To get reasonable coverage of the whole model or
 transformation, you have to write and execute a lot of tests. This can be a lot
 of work, and, more importantly, you may not think about certain (exceptional)
 scenarios, and hence you may not test them. Bugs may go unnoticed.
 
 Verification checks \ic{the whole program} at once. Various non-trivial
 algorithms are used to do that, and understanding these algorithms in detail is
-beyond the scope of this book. However, it is very useful to know these
-appraoches exist, especially since, over the last couple of years, they have
-become scalable enough to address real-world problems. 
-
-In this section we look at two examples: model checking and SAT solving.
+beyond the scope of this book. Also, formal verification has inherent
+limitations (e.g. the halting problem) that can only be solved by testing. So
+testing and verification each have sweet spots. None can fully replace the
+other. However, it is very useful to know these approaches exist, especially
+since, over the last couple of years, they have become scalable enough to
+address real-world problems. In this section we look at two examples: model
+checking and SAT solving.
 
 \parhead{Model Checking State Machines} Model Checking is a verification
 technique for state machines. In this section we can only scratch the surface;
@@ -851,33 +856,43 @@ to learn more about model checking, we recommend \cite{BerardBidoitM2001}. Here
 is how it works in principle:
 
 \begin{itemize}
-  \item some functionality is expressed as a state machine
-  \item you then specify \emph{properties} of the state machine. Properties are
-  expressions that have to \ic{true} about the state machine
-  \item you run the model checker with the state machine and the properties as
-  input
-  \item the output of the model checker either confirms that your properties
+  \item Some functionality is expressed as a state machine.
+  \item You then specify \emph{properties} of the state machine. Properties are
+  expressions that have to \ic{true} about the state machine. For example, 
+  such a property could state that whenever you go to state \ic{X}, you will
+  have been in state \ic{y} directly before.
+  \item You then run the model checker with the state machine and the properties
+  as input.
+  \item The output of the model checker either confirms that your properties
   hold, or it shows a counter example\footnote{It may also report Out Of
   Memory, in which case you have to reformulate or modularize your program and
   try again}.
 \end{itemize}
 
+\todo{Laurie: in reality, only a subset of problems are model-checkable. State
+ex- plosion is a massive, intractable, prob- lem. The tricks do make some 
+cases work, but many more simply don’t work, requiring more RAM than there 
+are atoms in the universe!}
+
 \noindent Conceptually, the model checker performs an exhaustive search during
 the verification process. Obviously, the more complex your state machine is, the
 more possibilities the checker has to address, a problem known as state space
-explosion. With finite memory, this limits scalability. In reality the model
-checker does \emph{not} perform an exhaustive search; clever algorithms have
-been devised that are semantically equivalent to an exhaustive search, but don't
-actually perform one. This makes model checking scalable and fast enough for
-real-world problems, although there is still a limit in terms of input model
-complexity.
+explosion. With finite memory, this limits scalability because at some point,
+you will out of memory. In reality the model checker does \emph{not} perform an
+exhaustive search; clever algorithms have been devised that are semantically
+equivalent to an exhaustive search, but don't actually perform one. This makes
+model checking scalable and fast enough for real-world problems, although there
+is still a limit in terms of input model complexity.
 
 The interesting aspect of model checking is that the properties you specify are
 not just simple Boolean expressions such as \emph{each state must have at least
 one outgoing transition, unless it is a stop state}. Such a check can be
-performed statically, by "just looking" at the model. The properties model
-checkers are more elaborate and are often typically expressed in (various
-flavours of) temporal logic. Here are some examples, expressed in plain English:
+performed statically, by "just looking" at the model. The properties
+addressed by model checkers are more elaborate and are often typically
+expressed in (various flavours of) temporal logic. Here are some examples, expressed in plain
+English\footnote{There are various formalism for temporal logic, including
+LTL, CTL and CTL+. Each of those have particular characteristics and
+limitations, but those are beyond the scope of this book.}:
 
 \begin{itemize}
   \item \emph{It is always true that after we have been in state X we will
@@ -910,15 +925,16 @@ checker comes to mind here!}.
 To make model checking more user friendly the mbeddr C language provides a nice
 syntax for state machines and then generates the corresponding representation in
 the input language of the model checker (we use the
-NuSMV\footnote{http://nusmv.fbk.eu/} model checker). 
+NuSMV\footnote{http://nusmv.fbk.eu/} model checker).
 The replies of the model checker are also reinterpreted in the context of the
 higher level state machine. Tool integration is provided as well: users can
 select the context menu on a state machine and invoke the model checker. The
 model checker input is generated, the model checker is executed, and the replies
-are rendered in a nice table in MPS. Finally, we have abstracted the property
-specification language by providing support for the most important idioms; these
-can be specified relatively easily. Also, a number of properties are
-automatically checked for each state machine. 
+are rendered in a nice table in MPS (for an example see \todo{}). Finally, we
+have abstracted the property specification language by providing support for the
+most important idioms; these can be specified relatively easily (for example
+\ic{never <expr>} or \ic{always eventually reachable <state>}).
+Also, a number of properties are automatically checked for each state machine.
 
 Let us look at an example. The following code shows a state machine that
 represents a counter. We can send the \ic{step} event into the state machine,
@@ -950,8 +966,11 @@ verifiable statemachine Counter {
 \end{lstlisting}
 
 \noindent Since this state machine is marked as \ic{verifiable}, we can run the
-model checker from the context menu. \fig{verification1} shows the result of
-running the model checker.
+model checker from the context menu\footnote{Marking a state machine as
+\ic{verifiable} also enforces a few restrictions on the state machine (for
+example, each state machine local variable may only be assigned once during a
+transition). State machines restricted this way are easier to model check.}.
+\fig{verification1} shows the result of running the model checker.
 
 
 \begin{figure}[ht]
@@ -994,7 +1013,8 @@ on step [currentVal + size <= LIMIT] -> countState {
 \noindent 
 You perhaps don't even recognize the difference --- which is exactly why you
 would want to use a model checker! We have changed the \ic{>} to a \ic{>=} in
-the first transition. Running the model checker again, we get, among others,
+the first transition. Running the model checker again, we get, among others, the
+following messages:
 
 \begin{lstlisting}
 State 'countState' contains nondeterministic transitions     FAIL    4
@@ -1002,9 +1022,9 @@ State 'countState' contains nondeterministic transitions     FAIL    4
 
 \noindent 
 This means that there is a case where the two transitions are
-non-deterministic, i.e. both are possible based on the guard, and it not clear
-which one should be used. The \ic{4} at the end means that the execution trace
-to this problem contains four steps. Clicking on the failed property check
+non-deterministic, i.e. both are possible based on the guard, and it is not
+clear which one should be fired. The \ic{4} at the end means that the execution
+trace to this problem contains four steps. Clicking on the failed property check
 reveals the problematic execution trace:
 
 \begin{lstlisting} 
@@ -1063,8 +1083,10 @@ these problems.
 For example, SAT solving can be used to address the following problem. In the
 mbeddr C language, we support decision tables. A decision table has a set of
 Boolean conditions as row headers as well as a set of Boolean conditions in the
-column headers, as well as arbitrary values in the content cells.
-\fig{dectabexample} shows an example. 
+column headers, as well as arbitrary values in the content cells. A decision
+table essentially represents nested \ic{if} statements: the result value of the
+table is that content cell whose row and column header are \ic{true}.
+\fig{dectabexample} shows an example.
 
 \begin{figure}[ht]
 \fbox{
@@ -1314,7 +1336,8 @@ though:
   to express everything with the DSL?
   \item Even if the DSL covers the domain completely: are the abstractions
   chosen appropriate for the model purpose? 
-  \item Do the users of the DSL like the notation?
+  \item Do the users of the DSL like the notation? Can the users work
+  efficiently with the notation?
 \end{itemize}
  
 \noindent Answering these questions is impossible to automate. Manual reviews
