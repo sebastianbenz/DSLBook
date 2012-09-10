@@ -64,12 +64,15 @@ source models, and for creating instances of AS of the target language (tree
 construction). Examples for this approach once again include Xtext's Xtend2 as
 well as QVT Operational\footnote{http://en.wikipedia.org/wiki/QVT} and
 ATL\footnote{http://www.eclipse.org/atl/}. MPS can also be used in this way. A
-slightly different approach establishes relationships between the source and
+slightly different approach just establishes relations between the source and
 target models instead of "imperatively" constructing a target tree as the source
 is traversed. While this is often less intuitive to write down, the approach has
 the advantage that it supports transformation in both directions, and also
-supports model diff. QVT relational\footnote{http://en.wikipedia.org/wiki/QVT}
-is an example of this approach. 
+supports model diff\footnote{(It does so by "relating" two instances of the same
+language and marking both as \ic{readoqnly}; the engine then points out the
+difference between the two.}. QVT
+relational\footnote{http://en.wikipedia.org/wiki/QVT} is an example of this
+approach.
 
 
 In addition to the two classical cases described above, there are also hybrid
@@ -81,20 +84,22 @@ semantics of the template language \emph{and} the target language. Both MPS and
 Spoofax/SDF support this approach to various extents.
 
 
-In MPS, program is projected and every editing operation directly modifies the
+In MPS, a program is projected and every editing operation directly modifies the
 AST, while using a typically textual-looking notation as the "user interface".
-Template code and target-language code can be represented as nested ASTs, each using its own
-textual syntax. MPS uses a slightly different approach based on a
-concept called annotations: As we have elaborated previously,
-projectional editors can store arbitrary information in an AST. Specifically, it
-can store information that does \emph{not} correspond to the AS as defined by the
-language we want to represent ASTs of. MPS code generation templates exploit
-this approach: template code is fundamentally an instance of the target
-language. This "example model" is then annotated with template annotations that
-define how the example model relates to the source model, and which example
-nodes must be replaced by (further transformed) nodes from the source model.
-This way, any language can be "templatized" without changing the language
-definition itself. The MPS example below will elaborate on this approach.
+Template code (the code that controls the transformation process) and
+target-language code (the code you want to generate) can be represented as
+nested ASTs, each using its own textual syntax. MPS uses a slightly different
+approach based on a concept called annotations: As we have elaborated
+previously, projectional editors can store arbitrary information in an AST.
+Specifically, it can store information that does \emph{not} correspond to the AS
+as defined by the language we want to represent ASTs of. MPS code generation
+templates exploit this approach: template code is fundamentally an instance of
+the target language. This "example model" is then annotated with template
+annotations that define how the example model relates to the source model, and
+which example nodes must be replaced by (further transformed) nodes from the
+source model. This way, any language can be "templatized" without changing the
+language definition itself. The MPS example below will elaborate on this
+approach.
 
 Spoofax, with its Stratego transformation language uses a similar approach based
 on parser technology. As we have already seen, the underlying grammar formalism
@@ -117,10 +122,10 @@ some of Java's noise (it has type inference, property access syntax, operator
 overloading) and adds syntactic sugar (extension methods, multiple-dispatch and
 closures). Xtend comes with an interpreter and a compiler, the latter generating
 Java source. Xtend is built with Xtext, so it comes with a powerful Xtext-based
-IDE. One particularly interesting language feature in the context of code
+editor. One particularly interesting language feature in the context of code
 generators are Xtend's \emph{template expressions}. Inside these expressions, a
-complete template language is available (similar to the old oAW Xpand). It also
-provides automatic whitespace management\footnote{Indentation of template code
+complete template language is available (similar to the older Xpand language).
+It also provides automatic whitespace management\footnote{Indentation of template code
 is traditionally a challenge, because it is not clear whether whitespace in
 template code is intended to go into the target file, or is just used for
 indenting the template itself.} The functional abstractions and higher-order
@@ -128,7 +133,7 @@ functions provided by Xtend make it also very well suited for navigating and
 querying models. In the rest of this section we will use Xtend for writing code
 generators and model transformations.
 
-
+\todo{remove the border and increase the font?}
 \begin{figure}[ht]
 \begin{center}
   \includegraphics[width=\columnwidth]{figures-impl/5/xtext-gen-1.png}
@@ -151,7 +156,7 @@ generators and model transformations.
 We will take a look at generating the C code that implements cooling programs.
 \fig{xtext-gen-1} shows a screenshot of a typical generator. The generator is an
 Xtend class that implements \ic{IGenerator}, which requires the \ic{doGenerate}
-method to be defined. The method is called for each model file that has
+method to be implemented. The method is called for each model file that has
 changed\footnote{This is achieved by a Builder that comes with Xtext.
 Alternatively, Xtend generators can also be run from the command line, from
 another Java program or from and and maven.} (represented by the \ic{resource}
@@ -162,7 +167,7 @@ done, the generator is automatically called for each changed resource associated
 with the respective language.}.
 
 When generating code from models there are two distinct cases. In the first
-case, the majority of the generated code is fixed; only some well-defined part
+case, the majority of the generated code is fixed; only some isolated parts
 of the code depend on the input model. In this case a template language is the
 right tool, because template control code can be "injected" into code that looks
 similar to what shall be generated. On the other hand there are fine grained
@@ -195,15 +200,20 @@ follows the \ic{module} reference of each one, and then selects all
 \ic{Appliance}s from the resulting collection. The nested loop then iterates
 over the contents of each \ic{appl}iance and generates a \ic{\#define}. Notice
 how the the first two and the last two lines are enclosed in the guillemets.
-Since we are in template expression mode (''' \ldots ''') the guillemets escape
+Since we are in template expression mode (\ic{''' \ldots '''}) the guillemets escape
 to template control code. The \ic{\#define} is \emph{not} in guillemets, so it
 is generated into the target file. After the \ic{\#define} we generate the name
 of the respective content element and then its \ic{index}. From within
 templates, the properties and references of model elements (such as the
 \ic{name} or the \ic{module} or the \ic{contents}) can simply be accessed using
 the dot operator. \ic{map} and \ic{filter} are collection methods defined by the
-Xtend standard library. We also have to generate an \ic{enum} for the states in
-the cooling program.
+Xtend standard library\footnote{\ic{map} creates a new collection from an existing
+collection where, for each element in the existing collection, the expression
+after the \ic{|} creates the corresponding value for the new collection.
+\ic{filter} once again creates a new collection from an existing one where only
+those elements are included that are an instance of the type passed as an
+argument to \ic{filter}.}. We also have to generate an \ic{enum} for the
+states in the cooling program.
 
 \begin{lstlisting}[language=xtend]
 typedef enum states {
@@ -214,15 +224,16 @@ typedef enum states {
 };
 \end{lstlisting}
 
-\noindent 
-Here we embed a \ic{FOR} loop inside the \ic{enum} text. Note how we use the
-\ic{SEPARATOR} keyword to put a comma \emph{between} two subsequent states. In the
-\ic{FOR} loop we call \ic{concreteStates} on the cooling program. However, if
-you looked at the grammar or the meta model, you will see that no
-\ic{concreteStates} property is defined there. Instead, we call an extension
-method; since it has no arguments, it looks like property access. The method is
-defined further down in the \ic{CoolingLanguageGenerator} class and looks as
-follows:
+\noindent Here we embed a \ic{FOR} loop inside the \ic{enum} text. Note how we
+use the \ic{SEPARATOR} keyword to put a comma \emph{between} two subsequent
+states. In the \ic{FOR} loop we access the \ic{concreteStates} property on the
+cooling program. However, if you looked at the grammar or the meta model, you
+will see that no \ic{concreteStates} property is defined there. Instead, we call
+an extension method\footnote{An extension method is an \emph{additional} methods
+for an \emph{existing} class, defined without invasively changing the definition
+of this class}; since it has no arguments, it looks like property access. The
+method is defined further down in the \ic{CoolingLanguageGenerator} class and
+is essentially a shortcut for a complex expression:
 
 \begin{lstlisting}[language=xtend]
 def concreteStates(CoolingProgram p) {
@@ -231,10 +242,11 @@ def concreteStates(CoolingProgram p) {
 \end{lstlisting}
 
 \noindent 
-The following code is part of generating the code for a state transition. It
-first executes the exit actions of the current state, performs the state
-change (\ic{current\_state = new\_state;}) and then performs the entry actions
-of the new state (not shown):
+The following code is part of the generator that generates the code
+for a state transition. It first generates code to execute the exit actions of
+the current state, then performs the state change (\ic{current\_state =
+new\_state;}) and finally executes the entry actions of the new state (not
+shown):
 
 \begin{lstlisting}[language=xtend]
 if (new_state != current_state) {
@@ -273,7 +285,7 @@ structural or type errors are only revealed upon compilation of the generated
 code.}. Inside the case we iterate over all the \ic{exitStatements} and call
 \ic{compileStatement} for each of them.
 
-\ic{compileStatement} is a multimethod. It is polymorphically overloaded based
+\ic{compileStatement} is a multimethod: it is polymorphically overloaded based
 on its argument\footnote{Note that Java can only perform a polymorphic dispatch
 based on the \ic{this} pointer. Xtend can dispatch polymorphically over the
 arguments of methods marked as \ic{dispatch}.}. For each statement in the
@@ -329,10 +341,12 @@ using the following statement:
 \end{lstlisting}
 
 
-\noindent 
-Expressions are handled in the same way as statements. The injected class
-\ic{ExpressionExtensions} defines a set of overloaded \ic{dispatch} methods for
-\ic{Expression} and all its subtypes.
+\noindent Expressions are handled in the same way as statements. The injected
+class \ic{ExpressionExtensions} defines a set of overloaded \ic{dispatch}
+methods for \ic{Expression} and all its subtypes\footnote{Earlier we
+distinguished between generating a lot of code with only specific parts being
+model dependent and fine-grained tree structures in expressions? This is an
+example of the latter.}.
 
 \begin{lstlisting}[language=xtend]
 def dispatch String compileExpr (Equals e){
@@ -383,8 +397,8 @@ and object instantiation. Scala and Groovy are much more interesting in this
 respect}.
 
 Essentially, model-to-model transformations are similar to code generators in
-the sense that they navigate over the model. But instead of producing a text
-string as the result, they produce another object graph. So the general
+the sense that they traverse over the model. But instead of producing a text
+string as the result, they produce another AST. So the general
 structure of a transformation is similar. In fact, the two can be mixed. Let us
 go back to the first code example of the generator:
 
@@ -403,21 +417,21 @@ def compile(CoolingProgram program) {
 }
 \end{lstlisting}
 
-\noindent 
-We have added a call to a function \ic{transform} at the beginning of the
-transformation process. This program creates a new \ic{CoolingProgram} from the
-original one, and the code generator then uses the \ic{transformedProgram} as
-the object from which it generates code. In effect, we have added a
-"preprocessor" model-to-model transformation to the generator. As discussed in
-the design section \todo{ref}, this is one of the most common uses of
-model-to-model transformations. 
+\noindent We have added a call to a function \ic{transform} at the beginning of
+the transformation process. This function creates a new \ic{CoolingProgram} from
+the original one, and we store it in the \ic{transformedProgram} variable.
+The code generator then uses the \ic{transformedProgram} as the source from
+which it generates code. In effect, we have added a "preprocessor"
+model-to-model transformation to the generator. As discussed in the design
+section \todo{ref}, this is one of the most common uses of model-to-model
+transformations.
 
-The transformation described below enriches the existing model. It creates a new
-state (\ic{EMERGENCY\_STOP}), creates a new event
+The \ic{transform} function (described below) enriches the existing model. It
+creates a new state (\ic{EMERGENCY\_STOP}), creates a new event
 (\ic{emergency\_button\_pressed}) and then adds a new transition to each
 existing state that checks if the new event occurred, and if so, transitions to
 the new state. Essentially, this adds emergency stop behavior to any existing
-state machine. Let us look at the implementation:
+state machine. Let us look at the implementation:
 
 \begin{lstlisting}[language=xtend, morekeywords={for, return}]
 class Transformation {
@@ -451,12 +465,11 @@ class Transformation {
 }
 \end{lstlisting}
 
-\noindent 
-Let us start with the two \ic{create} methods. These methods create new objects,
-as the \ic{create} prefix suggests\footnote{The \ic{factory} is the way to
+\noindent The two \ic{create} methods create new objects, as the \ic{create}
+prefix suggests\footnote{The \ic{factory} used in these methods is the way to
 create model elements in EMF. It is generated as part of the EMF code
 generator}. However, simply creating objects can be done with a regular method
-as well:
+as well:
 
 \begin{lstlisting}[language=xtend]
 def emergencyState() {
@@ -560,17 +573,21 @@ class CoolingBuilder {
 
 \todo{Do we want to discuss the builder lang extension?}
  
-As we have seen above, the distinction between code generators and
-model-to-model transformations is much less clear in MPS. While there is a
-specialized language for ASCII text generation it is really just used "at the
-end" of the transformation chain as a language like Java or C is generated to
-text so it can be passed to existing compilers. \fig{mps-textgen} shows the
-\ic{textgen} component for mbeddr C's \ic{IfStatement}. MPS' text generation
-language basically appends text to a buffer. We won't discuss this aspect of MPS
-any further, since MPS textgen is basically a wrapper language around a
-\ic{StringBuffer}. However, this is perfectly adequate for the task at hand,
-since it is only used in the last stage of generation where the AST is
-essentially structurally identical to the generated text\footnote{If you wantto generate text that is structurally different, then the textgen language isa bit of a pain to use; in this case, the MPS philosophy recommends you builda suitable intermediate language (such as for XML, or even for a particularschema).}.
+The distinction between code generators and model-to-model transformations is
+much less clear in MPS. While there is the specialized \ic{textgen} language for
+text generation, it is really just used "at the end" of the transformation chain
+where code expressed in GPLs (like Java or C) is generated to text so it can be passed
+to existing compilers.
+\fig{mps-textgen} shows the \ic{textgen} component for mbeddr C's
+\ic{IfStatement}. MPS' text generation language basically appends text to a
+buffer. We won't discuss this aspect of MPS any further, since MPS \ic{textgen} is
+basically a wrapper language around a \ic{StringBuffer}. However, this is
+perfectly adequate for the task at hand, since it is only used in the last stage
+of generation where the AST is essentially structurally identical to the
+generated text\footnote{If you want to generate text that is structurally
+different, then the textgen language is a bit of a pain to use; in this case,
+the MPS philosophy recommends you build a suitable intermediate language (such
+as for XML, or even for a particular schema).}.
  
 \begin{figure}[ht]
 \fbox{
@@ -592,7 +609,7 @@ essentially structurally identical to the generated text\footnote{If you wantto
 \noindent 
 DSLs and language extensions typically use model-to-model transformations to
 "generate" code expressed in a low level programming language. In general,
-writing transformation in MPS involves two ingredients. Templates define the
+writing transformations in MPS involves two ingredients. Templates define the
 actual transformation. Mapping configurations define which template to run when
 and where. Templates are valid sentences of the target language. So-called
 macros are used to express dependencies on and queries over the input model. For
@@ -688,9 +705,9 @@ templates shown in \fig{mps-sm-gen-1} and \fig{mps-sm-gen-2}.
 \noindent 
 The MPS transformation engine works in phases. Each phase transforms models
 expressed in some languages to other models expressed in the same or other
-languages. Model element for which no transformation rules are specified are
-simply copied. Reduction rules are used to intercept program elements and
-transform them as generation progresses through the phases. \fig{mps-gen-phases}
+languages. Model elements for which no transformation rules are specified are
+simply copied from one phase to the next. Reduction rules are used to intercept
+program elements and transform them as generation progresses through the phases. \fig{mps-gen-phases}
 shows how this affects state machines. A reduction rule is defined that maps
 state machines to the various elements we mentioned above. Notice how the
 surrounding module remains unchanged, because no reduction rule is defined for
@@ -720,13 +737,14 @@ mbeddr C language.
 We have to create an \ic{enum} literal for each state and each event. To achieve
 this, we iterate over all states (and events, respectively). This is expressed
 with the \ic{LOOP} macros in the template (\fig{mps-sm-gen-1}). The expression
-that determines what we iterate over is entered in the Inspector;
-\fig{mps-sm-inspector1} shows the code for iterating over the
-states\sidenote[-10mm]{Note that the only really interesting part of
-\fig{mps-sm-inspector1} is the body of the anonymous function
+that determines what we iterate over is entered in the Inspector, MPS'
+equivalent to a properties window; \fig{mps-sm-inspector1} shows the code for
+iterating over the states\sidenote[][-10mm]{Note that the only really
+interesting part of \fig{mps-sm-inspector1} is the body of the anonymous function
 (\ic{node.states;}), which is why in the future we will only show this part.}.
 For the literals of the events \ic{enum} we use a similar expression
-(\ic{node.events;}).
+(\ic{node.events;}).
+\todo{above, the sidenote is somehow broken (-10)}
 
 \begin{figure}[ht]
 \fbox{
@@ -744,10 +762,10 @@ collection, over which the \ic{LOOP} macro iterates.}
 
 \noindent 
 The \ic{LOOP} macro iterates over collections and then creates an instance of
-the concept it is attached to for every iteration. In case of the two
+the concept it is attached to for each iteration. In case of the two
 \ic{enum}s, the \ic{LOOP} macro is attached to an \ic{EnumLiteral}, so we create
 an \ic{EnumLiteral} for each event and state we iterate over. However, these
-various \ic{EnumLiteral}s all have to have different names. In fact, the name of
+various \ic{EnumLiteral}s all must have different names. In fact, the name of
 each literal should be the name of the state/event for which it is created. We
 can use a property macro, denoted by the \ic{\$} sign, to acheive this. A
 property macro is used to replace values of properties\footnote{The node
@@ -758,13 +776,14 @@ expression of the property macro (also entered in the inspector):
 node.cEnumLiteralName();
 \end{lstlisting}
 
+\todo{clean up I and we}
 
-\noindent 
-In the code above, \ic{cEnumLiteralName} is a behavior method. It is defined as
-part of the behavior aspect of the \ic{State} concept. It concatenates the
-\ic{name} of the parent \ic{Statemachine} with the string \ic{\_\_state\_} and
-the name of the current state. We use property macros in a similar way to define
-the names of the two generated \ic{enum}s themselves.
+\noindent In the code above, \ic{cEnumLiteralName} is a behavior method. It is
+defined as part of the behavior aspect of the \ic{State} concept. It
+concatenates the \ic{name} of the parent \ic{Statemachine} with the string
+\ic{\_\_state\_} and the name of the current state (in order to get a unique
+name for each state). We use property macros in a similar way to define the
+names of the two generated \ic{enum}s themselves.
 
 \begin{lstlisting}[language=mps]
 concept behavior State {                      
@@ -853,7 +872,7 @@ the \ic{event} argument. Inside this inner \ic{switch} we iterate over all
 transitions that are triggered by the event we currently iterate over:
 
 \begin{lstlisting}[language=mps]
-node<State> state = (node<State>) node.adapter.getUserObject("outer"); 
+node<State> state = // get current state from context 
 state.transitions.where({~it => it.trigger.event == node; });
 \end{lstlisting}
 
