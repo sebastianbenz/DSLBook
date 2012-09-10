@@ -5,13 +5,14 @@
 IDE. This includes code completion, syntax coloring, pretty printing,
 go-to-definition and find references, refactoring, outline views, folding, diff
 and merge, tooltips and visualization (debugging is handled separately in
-Chapter \ref{ch:debugging}). We provide examples for each of them with either
-MPS, Spoofax or Xtext.}
+Chapter \ref{ch:debugging}). In contrast to the other chapters this one is not
+organized by tool but rather by IDE service. We then provide examples for
+each service with one or more of the tools.}
 
 In this chapter we illustrate typical services provided by the IDE that are
 \emph{not} automatically derived from the language definition itself and
 additional configuration or programming is required. Note that we are not going
-to show every service with every example tool\footnote{. So, if we don't show
+to show every service with every example tool\footnote{So, if we don't show
 how X works in some tool, this does \emph{not} mean that you cannot do X with
 this particular tool.}.
 
@@ -25,10 +26,10 @@ reference, the IDE will show you the valid targets of this reference (as
 defined in the scope) in the code completion menu. Selecting one establishes the
 reference. 
 
-\parhead{Customizing code completion for a reference} Consider the cooling DSL.
-Cooling programs can reference symbols. Symbols can be hardware building blocks,
-local variables or configuration parameters. It would be useful in the code
-completion menu to show what kind of symbol a particular symbol is
+\parhead{Customizing code completion for a reference in Xtext} Consider the
+cooling DSL. Cooling programs can reference symbols. Symbols can be hardware
+building blocks, local variables or configuration parameters. It would be useful
+in the code completion menu to show what kind of symbol a particular symbol is
 (\fig{xtext-cc}).
 
 \begin{marginfigure}
@@ -42,7 +43,7 @@ completion menu to show what kind of symbol a particular symbol is
 
 This can be achieved by overriding the content assist provider for the
 particular reference. To customize code completion, you have to implement a
-\ic{complete...} method in the \ic{ProposalProvider} for your language. The
+method in the \ic{ProposalProvider} for your language. The
 method name has to correspond to rule/property whose code completion menu you
 want to customize. In this example, we want to customize the \ic{symbol}
 property of the \ic{Atomic} expression:
@@ -88,6 +89,12 @@ for (IEObjectDescription od: candidates) {
     acceptor.accept(createCompletionProposal(ccInsert, ccText, null, context));
 }
 \end{lstlisting}
+
+\todo{What this snippet does would usually be implemened in
+'getStyledDisplayString' where the Eclass name would even be styled according 
+to Eclipse style guides. Furthermore it bypasses important concepts such as 
+the value conversion for the insertion string. Also look at the MPS text below
+which emphasizes "brevity" over Xtext.}
 
 \noindent 
 Once we have the scope we can iterate over all its contents (i.e. the target
@@ -258,8 +265,8 @@ colored in grey instead of black.
   \includegraphics[width=\columnwidth]{figures-impl/6/globalvareditor.png}
 \end{minipage}
 }
-  \caption[]{Syntax coloring is achieved by simply associating one or more
-  style properties with the elements at hand. In this case we assign a
+  \caption[]{In MPS, syntax coloring is achieved by simply associating one or
+  more style properties with the elements at hand. In this case we assign a
   \ic{darkGreen} text foreground color as well as a \ic{bold} font style.}
   \label{globalvareditor} 
 \end{figure}
@@ -268,15 +275,16 @@ colored in grey instead of black.
 starting with purely syntactic highlighting. \fig{globalvareditor} shows a
 collage of several ingredients: at the top we see the editor for
 \ic{GlobalVariableDeclaration}. \ic{GlobalVariableDeclaration} implements the
-interface \ic{IModuleContent}. \ic{IModuleContent}s can be exported, so we
-define an editor component (a reusable editor fragment) for \ic{IModuleContent}
-that renders the \ic{exported} flag. This editor component is embedded into the
-editor of \ic{GlobalVariableDeclaration} (it is also embedded into the editor of
-all other concepts that implement \ic{IModuleContent}). The editor component
-simply defines a keyword \ic{exported} that is rendered in dark green and in
-bold font. This can be achieved by simply specifying the respective style
-properties for the editor cell\footnote{Groups of style definitions can also be
-modularized into style sheets and reused for several cells.}.
+interface \ic{IModuleContent}. \ic{IModuleContent}s can be exported (which means
+they can be seen by modules importing the current one), so we define an editor
+component (a reusable editor fragment) for \ic{IModuleContent} that renders the
+\ic{exported} flag. This editor component is embedded into the editor of
+\ic{GlobalVariableDeclaration}, and it is also embedded into the editor of all
+other concepts that implement \ic{IModuleContent}. The editor component simply
+defines a keyword \ic{exported} that is rendered in dark green and in bold font.
+This can be achieved by specifying the respective style properties for
+the editor cell\footnote{Groups of style definitions can also be modularized
+into style sheets and reused for several cells.}.
 
 Semantic highlighting works essentially the same way. Instead of using a
 constant (\ic{darkGreen}) for the color we embed a query expression. The code in
@@ -341,8 +349,10 @@ application using the preferences dialog (\fig{coloringprefs}).
 \end{center}
 \end{marginfigure}
 
-We now have to associate the style with program syntax. The semantic
-highlighting calculator for the target language is used to this
+We now have to associate the style with program syntax\footnote{A particularly
+nice feature of Xtext syntax coloring is that styles are combined more than
+one style apply to a given program element.}.
+The semantic highlighting calculator for the target language is used to this
 end\footnote{Even though it is called \emph{semantic} highlighting calculator,
 it is used for syntactic and semantic highlighting. It simply associates
 concrete syntax nodes with styles; it does not matter how it establishes the
@@ -371,8 +381,8 @@ public void provideHighlightingFor(XtextResource resource,
 }
 \end{lstlisting}
 
-\noindent 
-The method gets passed in an \ic{XtextResource}, which represents a model file.
+\noindent The method gets passed in an \ic{XtextResource}, which represents a
+model file.
 From it we get the root element and iterate over all its contents. If we find a
 \ic{SymbolRef}, we continue with coloring. Notice that in the cooling language
 we reference \emph{any} symbol (variable, event, hardware element) with a
@@ -383,23 +393,22 @@ If we have successfully identified a reference to a variable, we now have to
 move from the abstract syntax tree (on which we have worked all the time so far)
 to the concrete syntax tree, so we can identify particular tokens that shall be
 colored. The concrete syntax tree in Xtext is a complete representation of the
-parse result, including keywords, symbols and whitespace\sidenote{It is
-represented as an EMF model as well so we can access it with the usual means.}.
-We use a utility method to find the \ic{ICompositeNode} that represents the
-\ic{SymbolRef} in the concrete syntax tree. Finally we use the \ic{acceptor} to
-perform the actual highlighting using the position of the text string in the
-text. We pass in the \ic{VAR} style defined before. Notice how we color the
-\emph{complete} reference. Since it is only one text string anyway, this is just
-as well. If we had more structured concrete syntax (as in \ic{state someState
-\{\}}), and we only wanted to highlight parts of it (e.g. the \ic{state}
-keyword), we'd have to do some further analysis on the \ic{ICompositeNode} to
-find out the actual concrete syntax node for the keyword.
+parse result, including keywords, symbols and whitespace. We use a utility
+method to find the \ic{ICompositeNode} that represents the \ic{SymbolRef} in the
+concrete syntax tree. Finally we use the \ic{acceptor} to perform the actual
+highlighting using the position of the text string in the text. We pass in the
+\ic{VAR} style defined before. Notice how we color the \emph{complete}
+reference. Since it is only one text string anyway, this is just as well. If we
+had more structured concrete syntax (as in \ic{state someState \{\}}), and we
+only wanted to highlight parts of it (e.g. the \ic{state} keyword), we'd have to
+do some further analysis on the \ic{ICompositeNode} to find out the actual
+concrete syntax node for the keyword.
 
 
 \parhead{An example with Spoofax} In Spoofax, syntax coloring can be specified
-declaritively on the lexical and on the syntactic level. Both specifications
-need to be part of the editor specification, preferably in
-\ic{<LanguageName>-Colorer.esv}.
+declaratively on the lexical and on the syntactic level\guido{Is this a bug or a
+feature? Why is this?}. Both specifications need to be part of the editor
+specification, preferably in \ic{<LanguageName>-Colorer.esv}.
 For the lexical level, Spoofax predefines the token classes \ic{keyword},
 \ic{identifier}, \ic{string}, \ic{number}, \ic{var}, \ic{operator}, and
 \ic{layout}. For each of these, we can specify a color (either by name or by RGB
@@ -470,7 +479,9 @@ font from the identifier specification.
 Following a reference (go to definition, \keystroke{Ctrl-Click}) as well as
 finding references to a given program element works automatically without any
 customization in any of the language workbenches. However, one might want to
-change the default behavior.
+change the default behavior, for example because the underlying program element
+is not a reference at all (but you still want to go somewhere when
+\ic{Ctrl-Click}ing on it).
 
 \parhead{Customizing the Target with Xtext} Let us first take a look at how to
 change the target of the go-to-definition functionality. Strictly speaking, we
@@ -492,8 +503,8 @@ follow the hyperlink}. As a consequence,
 \noindent To add hyperlinks to a language concepts, Xtext provides the
 \ic{IHyperlinkHelper}. It can be implemented by language developers to customize
 hyperlinking behavior. It requires one method, \ic{createHyperlinksTo} to be
-implemented. Typically, language developers will inerit from one of the existing
-base classes, such as the \ic{TypeAwareHyperlinkHelper}. A typical
+implemented. Typically, language developers will inherit from one of the
+existing base classes, such as the \ic{TypeAwareHyperlinkHelper}. A typical
 implementation looks as follows:
 
 \begin{lstlisting}[language=java]
@@ -527,7 +538,7 @@ references, we may want to distinguish between these different cases.
 \end{center}
 \end{marginfigure} 
 MPS provides so-called finders to achieve this. \fig{finders} shows the
-resulting Find Usages dialog for an \ic{Interface} after we have added two
+resulting Find Usages dialog for an \ic{Interface} after we have implemented two
 finders to the language: one for components providing the interface and one for
 components requiring the interface.
 
@@ -540,11 +551,8 @@ finder findProviders for concept Interface
  
   find(node, scope)->void { 
     nlist<> nodes = execute NodeUsages ( node , <same scope> ); 
-    foreach n in nodes { 
-      if (n.isInstanceOf(ProvidedPort)) { 
-        add result n.parent ; 
-      } 
-    } 
+    foreach n in nodes.select(it|it.isInstanceOf(ProvidedPort)) 
+            add result n.parent ; 
   }  
   
   getCategory(node)->string { 
@@ -632,7 +640,19 @@ graphical editor that operates in parallel to a text editor on the same AST.
 as part of the projection\footnote{On the flipside, MPS users do not have the
 option of changing the layout or formatting of a program, since the projection
 rules implement the one true way of formatting. Of course, this can be
-considered a plus or a minus, depending on the context.}.
+considered a plus or a minus, depending on the context.}. However, version 3.0
+of MPS will support defining several different editors for a single concept.
+They may be fundamentally different (e.g. providing a textual and a graphical
+syntax for state machines) or just provide different "layouts" for a single
+notation (different positions of the opening curly brace, for example).
+
+More generally, there is no reason why a projectional editor may not provide a
+certain degree of freedom regarding layout. Users may be able to press
+\ic{ENTER} to start a new line in a long expression, or press \ic{TAB} to indent
+a statement\footnote{Note that such layout information must be stored with the
+program, or possibly in a separate layout model. This is especially true if
+the notation is graphical, which will always allow some degree of custom
+layout and positioning of shapes}. However, MPS does currently not support this.
 
 \parhead{Pretty Printing in Spoofax}%
 %
@@ -742,8 +762,8 @@ modules:
 The \ic{H} box operator layouts sub-boxes horizontally. The desired horizontal
 separation between the sub-boxes can be specified by the spacing option \ic{hs}.
 Its default value is \ic{1}, that is, a single space is added between the boxes.
-Similarly, the \ic{V} box operator places sub-boxes vertically.
-The desired vertical separation between the sub-boxes can be specified by the
+Similarly, the \ic{V} box operator places sub-boxes vertically\guido{this is too
+abstract - without a concrete example it is hard to follow}. The desired vertical separation between the sub-boxes can be specified by the
 spacing option \ic{vs}. Its default value is \ic{0}, that is, no blank lines are
 added between the boxes. For indenting boxes in a vertical combination, the
 spacing option \ic{is} can be specified. All boxes except the first will be
@@ -844,7 +864,7 @@ public void checkVariable( Variable v ) {
 
 \noindent 
 Based on our discussion of constraint checks (in \todo{ref}), this code should
-be fairly self-explaing. What is interesting is the third argument to the
+be fairly self-explaining. What is interesting is the third argument to the
 \ic{warning} method: we pass in a constant to uniquely identify the problem. The
 quick fix will be tied to this constant. The following code is the quick fix,
 implemented in the \ic{CoolingLanguageQuickfixProvider}\footnote{This code
@@ -925,11 +945,8 @@ checking rule check_INameAllUpperCase {
 \noindent 
 The quick fix below upper cases the name if necessary. The quick fix is
 associated with the constraint check by simply referencing the fix from the
-error message\footnote{Note that the separation between core language and UI
-concerns is not as clear in MPS as it is in Xtext. This is mainly due to the
-fact that the language and the workbench/editor are inseparable in the first
-place}. Quick fixes are executed by selecting them from the intentions menu
-(\ic{Alt-Enter}).
+error message. Quick fixes are executed by selecting them from the intentions
+menu (\ic{Alt-Enter}).
 
 \begin{lstlisting}[language=mps, morekeywords={quick, fix, arguments}]
 quick fix fixAllUpperCase                                                                                                                                                                                                                                                                                                                                                                                           
@@ -945,11 +962,14 @@ execute(node)->void {
 \end{lstlisting}
 
 
+
+
+
 \parhead{Model Synchronization via Quick Fixes} A particularly interesting
-feature of MPS' quick fixes is that they can be executed \emph{automatically}.
-This can be used for synchronizing different parts of a model: a constraint
-check detects an inconsistency in the model, and the automatically executed
-quick fix resolves the inconsistency.
+feature of MPS' quick fixes is that they can be executed \emph{automatically} in
+the editor. This can be used for synchronizing different parts of a model: a
+constraint check detects an inconsistency in the model, and the automatically
+executed quick fix resolves the inconsistency.
 
 Here is an example where this makes sense. Consider the interfaces and
 components extension to C. An interface declares a couple of operations, each
@@ -973,22 +993,25 @@ declared.
 Refactoring concerns changing the program structure without changing its
 behavior. It is typically used to ``clean up'' the program structure after it
 has gotten messy over time. While DSLs and their programs tend to be simpler
-than GPL programs, structured refactorings are still useful.
+than GPL programs, refactorings are still useful.
 
 \parhead{Renaming in Xtext} One of the most essential refactorings is renaming a
 program element. The reason why it is a refactoring (and not just typing a new
 name) is because all references to this element have to be updated. In textual
 languages, such references are by name, and if the name of the target element
 changes, so has the text of the reference. Xtext comes with a rename refactoring
-that handles this. Every language supports a rename refactoring automatically.
-The only thing the user has to remember is to not just type a new name, but
-instead invoke the Rename refactoring, for example with via
+that handles this. Every language supports a rename refactoring
+automatically\footnote{In fact, it works \emph{across} languages and even
+integrates with tools that are not implemented with Xtext, such as the JDT or
+XMI-persisted EMF models such as GMF diagrams.}. The only thing the user has to
+remember is to not just type a new name, but instead invoke the Rename
+refactoring, for example with via
 \keystroke{Ctrl-Alt-R}\marginnote[-5\baselineskip]{Note that in a projectional
 editor such as MPS renaming is not even a refactoring. A reference is
 established with the UUID of the target element. Renaming it does not lead to
 any structural change. And since the editor for the \emph{referencing} element
 defines how to render the reference, it will just display the updated name in
-case it changes.}.
+case it changes.}.q
 
 
 \parhead{Renaming in Spoofax} Like code generators, refactorings need to be
@@ -1063,6 +1086,7 @@ it up. If we find an entity, the renamed entity would clash with this one.
 
 
 
+\todo{Update this to new refactorings (separation UI and code)}
 \parhead{Introduce Local Variable in MPS} A very typical refactoring for a
 procedural language such as C is to introduce a new local variable. Consider
 the following code:
@@ -1182,7 +1206,7 @@ foreach s in siblings {
      
 \noindent 
 The next step is to actually introduce the new local variable. We simply create
-a new \ic{LocalVariableDeclaration} using the tree API. We set the \ic{name} to
+a new \ic{LocalVariableDeclaration} using the API. We set the \ic{name} to
 the one we've asked the user for (\ic{varName}), we set its type to a copy of
 the type calculated by the type system for the target expression, and we
 initialize the variable with a copy of the target expression itself. We then add
@@ -1228,10 +1252,12 @@ non-trivial.
 Labels and icons for language concepts are used in several places, among them
 the outline view and the code completion menu. 
 
-\parhead{Labels and icons in Xtext} Labels and icons are defined in
-the language's \ic{LabelProvider}. To define the label text, you simply override
-the \ic{text} method for your element. For the icon, override the \ic{image}
-method. Here are a couple of examples from the cooling langauage:
+\parhead{Labels and icons in Xtext} Labels and icons are defined in the
+language's \ic{LabelProvider} which is generated by Xtext for each language by
+default. To define the label text, you simply override the \ic{text} method for
+your element, which returns either a \ic{String} or a \ic{StyledString} (which
+includes formatting information). For the icon, override the \ic{image} method.
+Here are a couple of examples from the cooling language:
 
 \begin{lstlisting}[language=java]
 public class CoolingLanguageLabelProvider extends DefaultEObjectLabelProvider {
@@ -1255,7 +1281,7 @@ public class CoolingLanguageLabelProvider extends DefaultEObjectLabelProvider {
 \end{lstlisting}
 
 \noindent 
-Notice how the label and the image are defined via methods, you can can change
+Notice how the label and the image are defined via methods, you can change
 the text and the icon dynamically, based on some property of the model.
 
 \parhead{Labels and Icons in MPS} Labels are defined by overriding the
@@ -1389,15 +1415,14 @@ statement.
 \parhead{The Outline in MPS} MPS does not have a cutomizable outline view. It
 shows the AST of the complete program as part of the project explorer, but the
 structure cannot be customized. However, it is of course possible to arbitrary
-additional views (called \emph{tools} in MPS) to MPS. We discuss this briefly
-below\sidenote[][-2\baselineskip]{The MPS tutorial at \ic{http://bit.ly/xU78ys}
+additional views (called \emph{tools} in MPS) to MPS\sidenote[][-2\baselineskip]{The MPS tutorial at \ic{http://bit.ly/xU78ys}
 shows how to implement your own outline view.}.
 
 
 
 \section{Code Folding} Code folding refers to the small minuses in the gutter of
 an editor that let you collapse code regions (see \fig{folding}). The editor
-shows an ellipsis (\ic{\ldots}) for the folded parts of the code. Clicking on
+shows an ellipsis (\ic{..}) for the folded parts of the code. Clicking on
 the \ic{+} or on the ellipsis restores the full code.
 \begin{marginfigure}[-4mm]
 \begin{center}
@@ -1453,7 +1478,7 @@ specification with our own rules, disable particular specifications by adding a
 statement. A \ic{(folded)} annotation tells Spoofax to fold a node by default in
 an opening editor, which is typically seen for import sections.
 
-\parhead{Folding in MPS} In MPS, folding can be activated for any vertical
+\parhead{Folding in MPS} In MPS, folding can be activated for any
 collection. For example, in a state machine, each state contains a vertical list
 of transitions. \fig{statefolding} shows the definition of the \ic{State}
 editor. It contains the \ic{transitions} collection, which is an indent
@@ -1462,11 +1487,12 @@ transitions vertically.
 \begin{marginfigure}
 \begin{center}
   \includegraphics[width=65mm]{figures-impl/6/statefolding.png}
-  \caption[]{Code folding in Xtext. If you hover over the folded code, a popup
-  shows the hidden code.}
+  \caption[]{}
   \label{statefolding} 
 \end{center}
 \end{marginfigure}
+\todo{in the above figure we DO NOT show how to set the folding property. Also
+update the caption, which is useless right now.}
 
 To enable folding for this collection, we simple set the \ic{uses folding}
 property for the collection to \ic{true}. It can also be set to \ic{query}, in
@@ -1489,8 +1515,8 @@ just showing three dots.
 
 \noindent 
 As \fig{statefolding2} shows, we use a \ic{read only model access} cell, which
-allows us to return an arbitrary string. In the example, we essentially output
-the number of "hidden" transitions.
+allows us to access the underlying model and return an arbitrary string. In the
+example, we essentially output the number of "hidden" transitions.
 
 MPS provides a second mechanism that can be used to the same effect. Since MPS
 is a projectional editor, some parts of the editor may be projected
@@ -1512,10 +1538,12 @@ the projection rule only shows it conditionally.
 \begin{center}
   \includegraphics[width=65mm]{figures-impl/6/requirementsExpanded.png}
   \caption[]{Optionally, the details about a requirement can be shown online in
-  the editor.}
+  the editor. Double-clicking on the name of the requirement }
   \label{requirementsExpanded} 
 \end{center}
 \end{marginfigure}
+\todo{Update the figure above with the new one from ASE that has the plus and
+minus icons. Then improve the caption.}
  
 \begin{figure}[h]
 \begin{center}
@@ -1536,10 +1564,12 @@ integration. For tools like Xtext that store models as ASCII text this is a
 non-issue: existing diff/merge tools can be used, be they in the IDE or on the
 command line. 
 
-For projectional editors such as MPS, the story is more complicated. Diff and
-merge has to be performed on the concrete projected syntax. MPS provides this
-feature. MPS also annotates the editor with gutter annotations that highlight
-whether a part of the program has changed relative to the last checkout. 
+For projectional editors such as MPS, the story is more complicated.
+Since they store the programs based on the abstract syntax (e.g. using XML),
+diff and merge has to be performed on the concrete projected syntax. MPS
+provides this feature. MPS also annotates the editor with gutter annotations
+that highlight whether a part of the program has changed relative to the last
+checkout.
 
 
 \section{Tooltips/Hover} 
@@ -1551,6 +1581,8 @@ about the referenced element.
 
 \parhead{Xtext} While Xtext does not support tooltips directly, the tooltip
 framework provided by JFace can be used.
+\todo{Is this still true? Add a bit more integration on how to integrate them.}
+
 
 \parhead{Spoofax} Spoofax supports tooltips directly. Tooltips are provided by
 rewrite rules, which need to be defined as hovers in the editor specification,
@@ -1607,14 +1639,16 @@ details about the referenced element.
   \caption[]{The editor definition for the \ic{RequirementRef} projects details
   about the referenced element in the inspector. Notice the use of the
   \ic{\$swing component\$} as a means to embed the Swing \ic{JTextArea} that
-  shows the prose description of the requirement.}
+  shows the prose description of the requirement. The code behind the
+  \ic{\$swing component\$} also populates the text area and writes back the
+  changed text to the AST.}
   \label{inspectedCellLayout} 
 \end{figure}
   
 
 \section{Visualizations} 
 
-To provide an overview over the structure of the programs, graphical
+To provide an overview over the structure of the programs, read-only graphical
 representations are useful. Note that these are not necessarily a workaround for
 not having graphical editors. Visualizations can provide real added value.
 
@@ -1633,8 +1667,8 @@ the model lead to updates in the graph immediately.
 \end{marginfigure}
  
 The mapping from the model to the graph is expressed with an Xtext-based mapping
-DSL that extends Xbase, which means you can use Xbase expressions to traverse
-and query the model you want to visualize (in \fig{jansGraphView} an example
+DSL that extends Xbase (Xtext's reusable expression language), which means you
+can use Xbase expressions to traverse and query the model you want to visualize (in \fig{jansGraphView} an example
 would be the \ic{this.eSuperTypes()} expression). In addition, a separate
 styling DSL supports the definition of shapes, colors and line styles.
 Double clicking a node in the graph opens the corresponding program element in
@@ -1643,6 +1677,7 @@ the Xtext editor.
 
 \parhead{MPS} In MPS we have integrated ZGRViewer\footnote{http://bit.ly/qvJJ2},
 a Java-based renderer for GraphViz\footnote{http://bit.ly/2BqWbh} dot files.
+\fig{visualizationInMPS} shows an example.
 
 \begin{figure}[h]
 \begin{center}
@@ -1654,8 +1689,8 @@ a Java-based renderer for GraphViz\footnote{http://bit.ly/2BqWbh} dot files.
 \end{figure}
  
 \noindent 
-As part of the transformations, we map the model to model expressed in a graph
-description language. This model is then generated into a \ic{dot} file. The
+As part of the transformations, we map the model to another model expressed in a
+graph description language. This model is then generated into a \ic{dot} file. The
 graph viewer scans the output directory for \ic{dot} files and shows them in the
 tree view at the top. Double-clicking on a graph node in the tree opens a
 rendered \ic{dot} file in the graph view. 
