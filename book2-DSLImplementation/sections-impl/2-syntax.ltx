@@ -6,14 +6,14 @@ projectional editing. We also discuss the advantages and drawbacks of these two
 appraoches. We discuss the characteristics of typical AST definition
 formalisms. The meat of the chapter is made of extensive examples of defining
 language structure and syntax with Xtext, Spoofax and MPS.}
-
+ 
 \todo{remove the mentioning of the example tools in all abstracts. They setence
 doesn't really help.}
 
 \todo{Show stuff in MPS with tables and graphics}
 
-The \emph{concrete syntax} (CS) of a language is what the user interacts
-with to create programs. It may be textual, graphical, tabular or any
+\noindent The \emph{concrete syntax} (CS) of a language is what the user
+interacts with to create programs. It may be textual, graphical, tabular or any
 combination thereof. In this book we focus mostly on textual concrete syntaxes
 for reasons described in \todo{reference to the respective place in the
 introduction}. Examples of other forms are briefly discussed \todo{ref}. We
@@ -277,7 +277,7 @@ grammar: the \ic{Exp} rule calls itself, so sentences like \ic{2 + 3 * 4} are
 possible. This poses two practical challenges for parser generation systems:
 first, the precedence and associativity of the operators is not described by
 this grammar. Second, not all parser generators provide full support for
-recursion\todoGuido{example?}. We elaborate on these issues in the remainder of
+recursion\guido{example?}. We elaborate on these issues in the remainder of
 the section and in the Spoofax and Xtext examples.
 
 
@@ -511,7 +511,7 @@ will end up further up in the expression tree than a \ic{*}; this means that the
 the \ic{*} first.}, and how it uses left-recursion to encode left-associativity
 of the operators. The grammar can be left-factored to a corresponding LL grammar
 as follows. We will see more extensive examples of this approach in the section
-on Xtext (\Section{Sec:xtext-syntax}).
+on Xtext (\sect{Sec:xtext-syntax}).
 
 \begin{lstlisting}[morekeywords={Exp, NUM, Expr,ID, STRING, FieldPart, Mult,
 NUM}] 
@@ -1393,10 +1393,10 @@ functions are used. These will be explained in the next chapter.
 \parhead{Expressions} The \ic{AssignmentStatement} shown earlier is one of the
 statements that uses expressions. We repeat it here:
 
-\begin{lstlising}[language=xtextgrammar]
+\begin{lstlisting}[language=xtextgrammar]
 AssignmentStatement:
   "set" left=Expr "=" right=Expr;
-\end{lstlising}
+\end{lstlisting}
 
 
 \noindent The following snippet is a subset of the actual definition of
@@ -1667,7 +1667,7 @@ label in the abstract syntax, as they form terminals in the abstract syntax
 trees (i.e.~they don't own any child nodes).
 
 \parhead{Abstract syntax} To produce abstract syntax trees, Spoofax uses the
-ATerm format, described in \Section{Sec:spoofax-aterm}. SDF combines the
+ATerm format, described in \sect{Sec:spoofax-aterm}. SDF combines the
 specification of concrete and abstract syntax, primarily through the
 specification of constructor labels. The way this works is most easily
 understood using an example. Spoofax allows users to view the abstract syntax of
@@ -1849,7 +1849,7 @@ lexical restrictions
 \parhead{Name bindings} So far we have discussed purely syntax specification in
 SDF. Spoofax also allows the specification of name binding annotations in SDF
 grammars, which specify semantic relations between productions. We discuss how
-these relations are specified in \Chapter{Ch:scopes}.
+these relations are specified in \sect{Ch:scopes}.
 
  
 \section{MPS Example}
