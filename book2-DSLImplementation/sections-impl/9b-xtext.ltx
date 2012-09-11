@@ -168,15 +168,14 @@ public IScope scope_Field_attribute(Field context, EReference ref) {
 \ic{visibleAttributes}. The second part of the scoping function defines a
 \ic{Function} object\sidenote{Note how we have to use the ugly function object
 notation, because Java does not provide support for closures or lambdas at this
-point! I am looking forward to being able to do this with Xtend, which does
-support closures.} that represents a function from \ic{Attribute} to
-\ic{QualifiedName}. In the implementation method \ic{apply} we create a
-qualified name made from two parts: the entity name and the attribute name (the
-dot between the two is default behavior for the \ic{QualifiedName} class). When
-we create the scope itself in the last line we pass in the list of attributes as
-well as the function object. Xtext's scoping framework uses the function object
-to determine the name by which each of the attributes is referencable from this
-particular context.
+point! Alternatively you could do this with Xtend, which does support closures.}
+that represents a function from \ic{Attribute} to \ic{QualifiedName}. In the
+implementation method \ic{apply} we create a qualified name made from two parts:
+the entity name and the attribute name (the dot between the two is default
+behavior for the \ic{QualifiedName} class). When we create the scope itself in
+the last line we pass in the list of attributes as well as the function object.
+Xtext's scoping framework uses the function object to determine the name by
+which each of the attributes is referencable from this particular context.
 
 \parhead{Type System} As we have discussed in the design section \todo{ref},
 dealing with type systems in the referencing case is not particularly
@@ -652,7 +651,8 @@ XDateLiteral:
 These new literals should be literals in terms of Xbase, so we have to make them
 subtypes of \ic{XLiteral}. Notice how we override the \ic{XLiteral} rule defined
 in Xbase. We have to repeat its original contents, there is no way to "add" to
-the literals.
+the literals\footnote{Similarly, if you want to remove concepts you have to
+overwrite the rule with the removed concept missing from the enumeration.}.
 
 \begin{lstlisting}[language=xtextgrammar, morekeywords={}, deletekeywords={}]
 XLiteral returns xbase::XExpression:
@@ -699,7 +699,7 @@ We implement this method in a new class which we call
 contains the implementations for the existing \ic{==} and \ic{!=} operators,
 hence the name}\footnote{Through the \ic{operator\_identity} operation, we have
 expressed all the semantics: the Xbase generator will generate a call to that 
-operation in the generated Java code.}:
+operation in the generated Java code. Alternatively, as a performanceimprovement, you could use the @Inline annotation to inline the function in thegenerated code.}:
 \begin{lstlisting}[language=java, morekeywords={}, deletekeywords={}]
 public class ObjectExtensions2 {
     public static boolean operator_identity(Object a, Object b) {
@@ -708,16 +708,18 @@ public class ObjectExtensions2 {
 }
 \end{lstlisting}
 
-\noindent 
-We also want to override the existing \ic{+} operator for the new
-date literals. We don't have to specify the mapping to a method name,
-since the mapping for \ic{+} is already defined in Xbase. However, we have
-to provide an overloaded implementation of \ic{+} for dates:
+\noindent We also want to override the existing \ic{-} operator for the new date
+literals to calculate the time between two dates. We don't have to specify the
+mapping to a method name, since the mapping for \ic{-} is already defined in
+Xbase. However, we have to provide an overloaded implementation of \ic{-} for
+dates:
 
 \begin{lstlisting}[language=java, morekeywords={}, deletekeywords={}]
 public class DateExtensions {
-    public static Date operator_plus(Date a, Date b) {
-        return new Date(a.getTime() + b.getTime());
+    public static long operator_minus(Date a, Date b) {
+        long resInMilliSeconds = a.getTime() - b.getTime();
+        return millisecondsToDays( resInMilliSeconds );
+        
     }
 }
 \end{lstlisting}
