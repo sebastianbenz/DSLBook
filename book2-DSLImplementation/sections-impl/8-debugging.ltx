@@ -20,9 +20,8 @@ transformations.
 \subsection{Understanding and Debugging the Language Structure}
 
 In parser-based systems, the transformation from text to the AST performed by
-the parser\footnote{... and the lexer, if there is one ...} is itself a
-non-trivial process and has a potential for errors. Debugging the parsing
-process can be important.
+the parser is itself a non-trivial process and has a potential for errors.
+Debugging the parsing process can be important.
 
 \parhead{Xtext} Xtext uses ANTLR\footnote{http://antlr.org} under the hood. In
 other words, from the Xtext grammar, an ANTLR grammar is generated which
@@ -177,7 +176,7 @@ template expressions).
 Xtend supports debugging either on the level of the generated code, or on the
 Xtend source level. As \fig{templatesdebugging} shows, even the template
 expressions can be debugged. The Variables view shows the EMF representation
-(i.e. the implementation) of program elements. 
+(i.e.~the implementation) of program elements. 
  
 \begin{figure*}[h]
   \includegraphics[width=17cm]{figures-impl/8/xtext-templatesdebugging.png} 
@@ -197,8 +196,8 @@ MPS provides support for debugging the transformation process. This support
 includes two ingredients. The first one is showing the mapping partitioning. For
 a given model, MPS computes the order in which transformations apply and reports
 it to the user. This is useful to understand which transformations are executed
-in which order\footnote{... and to debug transformation priorities!}. Let us
-investigate a simple example C program that contains a message definition and a
+in which order\footnote{It is also useful to debug transformation
+priorities.}. Let us investigate a simple example C program that contains a message definition and a
 \ic{report} statement. The \ic{report} statement is transformed to \ic{printf}
 statements.
 
@@ -280,7 +279,7 @@ in terms of the intermediate models and the element traces through them.
 \section{Debugging DSL Programs}
 
 To find errors in DSL programs, we can either debug them on the level of the DSL
-program or in its $L_{D-1}$ representation (i.e. in the generated code or the
+program or in its $L_{D-1}$ representation (i.e.~in the generated code or the
 interpreter). Debugging on $L_{D-1}$ is useful if you want to find problems in
 the execution engine, or, to some extent, if the language users are programmers
 and they have an intimate understanding of the $L_{D-1}$ representation of the
@@ -488,7 +487,7 @@ familiar\footnote{... familiar to programmers, but not to the target audience!}
 UI of a debugger, it actually is a debugger\footnote{As we have said above,
 the fact that it runs in the interpreter instead of the generated code is not
 a problem if we ensure the two are semantically identical. Of course we cannot
-find bugs in the implementation (i.e. in the generator) this way. But to
+find bugs in the implementation (i.e.~in the generator) this way. But to
 detect those, debugging on the level of the generated C code is more useful
 anyway.}!
 
@@ -679,7 +678,7 @@ refer to concepts defined in C (see \fig{umldiag}).
 
 \phead{Developing the Language Extension}  In the new language, we define
 the \ic{ForeachStatement}. To make it usable wherever C expects \ic{Statement}s
-(i.e. in functions), \ic{ForeachStatement} extends C's \ic{Statement}.
+(i.e.~in functions), \ic{ForeachStatement} extends C's \ic{Statement}.
 \ic{ForeachStatement}s have three children (see \fig{umldiag}): an
 \ic{Expression} that represents the array, an \ic{Expression} for the array
 length, and a \ic{StatementList} for the body.
@@ -736,7 +735,7 @@ compiled.
 when the template is executed, the \ic{dummy} function around it just provides
 context. The \ic{COPY\_SRC} and
 \ic{COPY\_SRCL} macros contain expressions (not shown) that determine 
-with what the nodes in square brackets (e.g. \ic{10}, \ic{int8\_t x;}) are
+with what the nodes in square brackets (e.g.,~\ic{10}, \ic{int8\_t x;}) are
 replaced during a transformation.}
 \label{foreachGenerator}
 \end{figure}
@@ -1007,7 +1006,7 @@ aspect of the framework.
 
 Stepping relies on \ic{ISteppable} contributing \emph{step over} and
 \emph{step into} strategies. Many \ic{ISteppable}s are embedded in an
-\ic{ISteppableContext} (e.g. \ic{Statement}s in \ic{StatementList}s).
+\ic{ISteppableContext} (e.g.,~\ic{Statement}s in \ic{StatementList}s).
 Strategies may delegate to the containing \ic{ISteppableContext} to determine
 where to stop next (the \ic{ancestor} strategy in the \ic{foreach} example).
  
@@ -1192,7 +1191,7 @@ frame. We use \ic{ResumeWithoutBreakpoint} in this case.
 
 In contrast, the \ic{ExecuteTestExpression} (which is also generated into a
 function) uses a \ic{DelegateToOuter} to delegate the request to its outer stack
-frame contributor, i.e. a \ic{Function}. We must delegate the request, since an
+frame contributor, i.e.~a \ic{Function}. We must delegate the request, since an
 \ic{ExecuteTestExpression} has no callable semantics and does therefore not know
 where the execution should be suspended after a \ic{step out}. The following
 code shows the \ic{createBreakpoint} implementation of the custom strategy used

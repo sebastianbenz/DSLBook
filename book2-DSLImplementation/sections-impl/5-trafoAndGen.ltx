@@ -41,7 +41,7 @@ language source code (or other text). In this context, a clear distinction is
 made between models and source code. Models are represented as an AST expressed
 with some preferred AST formalism (or meta meta model); an API exists for the
 transformation developer to interact with the AST. In contrast, the generated
-source code is treated as text, i.e. a sequence of characters. The tool of
+source code is treated as text, i.e.~a sequence of characters. The tool of
 choice for transforming an AST into text are template languages. They support
 the syntactic mixing of model traversal code and to-be-generated text. The two
 are separated using some escape character. Since the generated code is treated
@@ -58,7 +58,7 @@ target languages. The source AST is transformed using the source language AS API
 and a suitable traversal language. As the tree is traversed, the API of the
 target language AS is used to assemble the target model. For this to work
 smoothly, most specialized transformation languages assume that the source and
-target models are build with the same AST formalism (e.g. EMF Ecore). Model
+target models are build with the same AST formalism (e.g.,~EMF Ecore). Model
 transformation languages typically provide support for efficiently navigating
 source models, and for creating instances of AS of the target language (tree
 construction). Examples for this approach once again include Xtext's Xtend as
@@ -853,7 +853,7 @@ the execute function. Looking at the template fragment markers (\ic{<TF ...
 TF>}) reveals that we only generate the \ic{switch} statement with this
 template, \emph{not} the function that contains it. The reason is that we need
 to be able to embed the state machine \ic{switch} into other function-like
-concepts as well (e.g. operations in components defined in the mbeddr
+concepts as well (e.g.,~operations in components defined in the mbeddr
 components extension), so we have separated the generation of the function fromthe generation of the actual state machine behavior.
 
 The \ic{switch} expression is interesting. It switches over the current state of
@@ -1211,7 +1211,7 @@ need to parse the generated code from the previous step before we can apply the
 actual transformation.
 
 Both problems can be avoided by generating abstract syntax trees instead of
-concrete syntax, i.e. by using model-to-model transformations instead of code
+concrete syntax, i.e.~by using model-to-model transformations instead of code
 (text) generation. This can be achieved by constructing terms on the left-hand
 side of rewrite rules:
 
@@ -1416,7 +1416,7 @@ programming language that can polymorphically invoke functions or methods.
 
 \parhead{Expressions} For program elements that can be evaluated to values,
 i.e., expressions, there is typically a function \ic{eval} that is defined for
-the various expression concepts in the language, i.e. it is polymorphically
+the various expression concepts in the language, i.e.~it is polymorphically
 overridden for subconcepts of \ic{Expression}. Since nested expressions are
 almost always represented as nested trees in the AST, the \ic{eval} function
 calls itself with the program elements it owns, and then performs some semantic
@@ -1485,7 +1485,7 @@ return value passing, and the values of local variables. Assume a function
 \ic{add(2, 3);} the actual arguments \ic{2} and \ic{3} have to be bound to the
 formal arguments \ic{a} and \ic{b}. An environment must be established for the
 execution of \ic{add} that keeps track of these assignments. If functions can
-also access global state (i.e. symbols that are not explicitly passed in via
+also access global state (i.e.~symbols that are not explicitly passed in via
 arguments), then this environment must delegate to the global environment in
 case a referenced symbol cannot be found in the local environment. Supporting
 recursively callable entities (as in \ic{int fac(int i) \{ return i == 0 ? 1 :
@@ -1536,7 +1536,7 @@ interpreter is called here, has to handle the following language aspects:
   \item The top level structure of a cooling program is a state machine. So the
   interpreter has to deal with states, events and transitions.
 
-  \item The language supports deferred execution (i.e. perform a set of
+  \item The language supports deferred execution (i.e.~perform a set of
   statements at a later time), so the interpreter has to keep track of deferred
   parts of the program
   \item The language supports writing tests for cooling programs incl. mock
@@ -1561,7 +1561,7 @@ the dispatcher for the \ic{StatementExecutor} or the \ic{ExpressionEvaluator}
 since Xtend provides polymorphic dispatch on method arguments. However, the
 fundamental logic and structure of the interpreter would have been similar.}.
 The generation of this dispatcher is integrated with Xtext via an Xtext workflow
-fragment, i.e. the dispatcher is generated during the overall Xtext code
+fragment, i.e.~the dispatcher is generated during the overall Xtext code
 generation process. The fragment is configured with the abstract meta classes
 for expressions and statements. The following code shows the fragment
 configuration:
@@ -1740,7 +1740,7 @@ the execution of the interpreter.
 The implementation of the \ic{ExpressionEvaluator} for a symbol reference (if it
 is used not as an lvalue) is shown in the following code. We use the same
 environment to look up the value for the symbol. We then check if the value is
-\ic{null} (i.e. nothing has been assigned to the symbol as yet). In this case we
+\ic{null} (i.e.~nothing has been assigned to the symbol as yet). In this case we
 return the default value for the respective type and log a warning\footnote{This
 is specialized functionality in the cooling language; in most other languages,
 we would probably just return \ic{null}, since nothing seems to have been
@@ -1887,7 +1887,7 @@ it is handled by the engine class itself). The method simply sets the current
 state to the target state passed into the method (the current state is kept
 track of in the execution context). It then executes the set of entry statements
 of the new state. After this it throws an exception \ic{NewStateEntered} which
-stops the current execution step. The overall engine is step driven, i.e. an
+stops the current execution step. The overall engine is step driven, i.e.~an
 external "timer" triggers distinct execution steps of the engine. A state change
 always terminates the current step. The main method \ic{step()} triggered by the
 external timer can be considered the main program of the interpreter. It looks
@@ -1941,7 +1941,7 @@ private void processEventFromQueue(CustomEvent event, LogEntry logger) {
 
 
 \noindent 
-The DSL also supports executing code asynchronously, i.e. after a specified
+The DSL also supports executing code asynchronously, i.e.~after a specified
 number of steps (representing logical program time). The grammar looks as
 follows:
 

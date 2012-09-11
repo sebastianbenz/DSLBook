@@ -36,6 +36,7 @@ working on the book. It would probably have come out a year later, if that had
 not been the case. Thank you!
 
 
+
 \section{Why this book}
 
 First of all, there is currently no book available that explicitly covers DSLs
@@ -61,6 +62,44 @@ the "old" MDSD book, you really should continue reading. This one is very
 different, but in many ways a natural evolution of the old one. It may gloss
 over certain details present in the older book, but it will expand greatly on
 others.
+\section{What you will learn}
+
+The purpose of this book is to give you a solid overview of the state of the art
+of today's DSLs. This includes DSL design, DSL implementation, and the use of
+DSLs in software engineering\footnote{Each of these topics has a part of the
+book dedicated to it.}. After reading this book you should have a solid
+understanding of how to design, build and use DSLs. A few myths (good and bad)
+about DSLs should also be dispelled in the process. 
+
+Part II of the book, the one on DSL implementation, contains a lot of example
+code. However, this part is \emph{not} intended as a full tutorial for any of
+the three tools. However, You should get a solid understanding of what these
+tools --- and the classes of tools they stand for --- can do for you.
+
+\section{Why Free, and why no Publisher?}
+
+This book is available as a free PDF from \ic{http://voelter.de/dslbook} or
+as a printed version from Amazon: \todo{link} (which is not free, but sold at
+essentially zero margin).
+
+Here is some background on book writing and making money: unless you are really
+famous, you will get one or two euros for each copy sold. That is, if you go
+through a "real" publisher. So, if you don't sell books in the tens or hundreds
+of thousands of copies, the money you can get out of a book directly is really
+not relevant, considering the amount of work you put into the book. 
+
+Going through a publisher will also make the book more expensive for you as the
+reader, so fewer people will read it. I decided that it is more important for me
+to reach as many readers as possible. While publishers may help get the book
+advertised. However, in 2013 it seems to be more productive to use word of
+mouth, Twitter and blogs to spread the word. Most mainstream publishers are not
+too well connected to the DSL/MDSD community in the first place. So I hope that
+you (personally :-)) will help me spread word about the book.
+
+Finally, if you feel sorry for me not making any money with the book you can
+donate some money via Flattr or Paypal (links for both options are at
+\ic{http://voelter.de/dslbook}).
+
 
 
 \section{Who should Read This Book}
@@ -129,6 +168,11 @@ more interested in. If you are new to DSLs, I suggest you start with Part III on
 DSL implementation. Part II about DSL Design is perhaps a bit too abstract and
 dense if you don't have any hands-on experience with DSLs.
 
+Some of the examples in Part III are quite detailed. We wanted to make sure we
+didn't skim about relevant details. However, if some parts become too detailed,
+just skip ahead --- usually the details are not important to understand
+subsequent subsections.
+
 The chapters in Part IV are independent from each other and can be read in any
 sequence.
 
@@ -194,7 +238,7 @@ tabular, graphical) and a wide range of language composition features. MPS is
 open source under the Apache 2.0 license, and developed by JetBrains. It is not
 as widely used as Xtext, but supports many advanced features.
 
-
+ 
 \subsection{SDF/Stratego/Spoofax}
 \marginnote[3.2mm]{http://strategoxt.org/Spoofax} 
 These tools are developed at the university of Delft in Eelco Visser's group.
@@ -232,42 +276,60 @@ set of case studies to illustrate many issues, especially in Part II, DSL
 design. These examples are introduced below. These are taken from real-world
 projects.
 
-\begin{figure}[h]
-  \rule{1\textwidth}{0.7pt}
-  \vspace{-0.5cm}
-  \includegraphics[scale=0.35]{figures-intro/compArch1.png}
-  \caption[][0.3cm]{Components and interfaces. An interface is a collection of
-  methods (not shown) or collections of messages. Components then provide and
-  require ports, where each port has a name, an interface an optionally, a
-  cardinality.}
-  \label{compArch1} 
-  \rule{1\textwidth}{0.7pt}
-\end{figure}
-
 \subsection{Component Architecture}
 \label{cscomparch}
-
+ 
 This language is an architecture DSL used to define the software architecture of
 a complex, distributed, component-based system in the transportation domain.
 Among other architectural abstractions, the DSL supports the definition of
-components and interfaces (\fig{compArch1}) as well as the definition of 
-systems, which are connected instances of components (\fig{compArch2}). 
-Code generators generate code that acts as the basis for the implementation
-of the system, as well as all the code necessary to work with the
+components and interfaces as well as the definition of systems, which are
+connected instances of components. The code below shows interfaces and
+components. An interface is a collection of methods (not shown) or collections
+of messages. Components then provide and require ports, where each port has a
+name, an interface an optionally, a cardinality. 
+
+  
+\begin{lstlisting}[language=archdsl]
+namespace com.mycomany {
+  namespace datacenter {
+    component DelayCalculator {
+      provides aircraft: IAircraftStatus
+      provides console: IManagementConsole
+      requires screens[0..n]: IInfoScreen
+    }
+    component Manager {
+      requires backend[1]: IManagementConsole
+    }
+    interface IInfoScreen {
+      message expectedAircraftArrivalUpdate( id: ID, time: Time ) 
+      message flightCancelled( id: ID ) 
+    }
+	interface IAircraftStatus ...
+	interface IManagementConsole ...    
+  }
+}
+\end{lstlisting}
+
+\noindent The next piece of code shows how these components can be instantiated
+and connected with each other.
+
+\begin{lstlisting}[language=archdsl]
+namespace com.mycomany.test {
+  system testSystem {
+    instance dc: DelayCalculator
+    instance screen1: InfoScreen
+    instance screen2: InfoScreen
+    connect dc.screens to (screen1.default, screen2.default)
+  }
+}
+\end{lstlisting}
+
+\noindent Code generators generate code that acts as the basis for the
+implementation of the system, as well as all the code necessary to work with the
 distributed communication middleware. It is used by software developers and
 architects and implemented with Eclipse Xtext.
 
 
- 
-\begin{figure}[h]
-  \rule{1\textwidth}{0.7pt}
-  \vspace{-0.5cm}
-  \includegraphics[scale=0.35]{figures-intro/compArch2.png}
-  \caption[][0.3cm]{To compose a system, components can be instantiated and
-  connected by connectors.}
-  \label{compArch2} 
-  \rule{1\textwidth}{0.7pt}
-\end{figure}
 
 
 \subsection{Refrigerator Configuration}
@@ -291,7 +353,7 @@ used by thermodynamists and are implemented with Eclipse Xtext.
   colling compartments and compressor compartments. A cooling compartment
   contains various building blocks that are important to the cooling process in
   a refrigerator. A compressor compartment contains the cooling infrastructure
-  itself, e.g. a compressor and a fan.}
+  itself, e.g.,~a compressor and a fan.}
   \label{cooling1} 
   \vspace{0.2cm}
 
@@ -726,7 +788,7 @@ There are some who maintain that DSLs are always declarative (it is not
 completely clear what declarative means anyway), or that they may never be
 Turing complete. I disagree. They may well be. However, if your DSL becomes as
 big and general as, say, Java, you might want to consider just using
-Java\marginnote{\ldots or, if your tooling allows it, extending Java with
+Java\marginnote{Alternatively, if your tooling allows it, extending Java with
 domain-specific concepts}. DSLs often start simple, based on an initially
 limited understanding of the domain, but then grow more and more sophisticated
 over time, a phenomenon Hudak notes in his '96 paper\cite{Hudak96}.
@@ -849,7 +911,7 @@ difference in the first place? I guess the primary reason is history, the two
 worlds have different origins and have evolved in different directions.
 
 Programming languages have traditionally been using textual concrete syntax,
-i.e. the program is represented as a stream of characters. Modeling languages
+i.e.~the program is represented as a stream of characters. Modeling languages
 traditionally have been using graphical notations. Of course there are textual
 domain specific languages (and mostly failed graphical general purpose
 programming languages), but the use of textual syntax for domain specific
@@ -905,7 +967,7 @@ the next section.
 
 I distinguish between the size of a language and its scope. Language size simply
 refers to the number of language concepts in that language. Language scope
-describes the area of applicability for the language, i.e. the size of the
+describes the area of applicability for the language, i.e.~the size of the
 domain. The same domain can be covered with big and small languages. A big
 language makes use of linguistic abstraction, whereas a small language allows
 the user to define their own in-language abstractions. We discuss the tradeoffs
@@ -962,7 +1024,7 @@ core) is relatively straight forward. New, customized language modules can be
 built and used at any time. A language module is like a framework or library,
 but it comes with its own syntax, editor, type system, and IDE tooling. Once a
 language module is imported, it behaves as an integral part of the composed
-language, i.e. it is integrated with other modules by referencing symbols or by
+language, i.e.~it is integrated with other modules by referencing symbols or by
 being syntactically embedded in code expressed with another module. Integration
 on the level of the type system, the semantics and the IDE is also provided. An
 extension module may even be embeddable in \emph{different} core
@@ -1258,7 +1320,7 @@ interactive simulators that are suitable for use by domain experts.
 \subsection{Productive Tooling}
 In contrast to libraries, frameworks, and internal DSLs (those embedded into a
 host language and implemented with host language abstractions), external DSLs
-can come with tools, i.e. IDEs that are aware of the language. This can result
+can come with tools, i.e.~IDEs that are aware of the language. This can result
 in a much improved user experience. Static Analyses, code completion,
 visualizations, debuggers, simulators and all kinds of other niceties can be
 provided. These features improve the productivity of the users and also make it
@@ -1275,7 +1337,7 @@ interpreting it) you can use nice, domain-specific abstractions without paying
 any runtime overhead, because the generator, just like a compiler, can remove
 the abstractions and generate efficient code. And it generates the same
 low-overhead code, every time, automatically. This is very useful in cases where
-performance, throughput or resource efficiency is a concern (i.e. in embedded
+performance, throughput or resource efficiency is a concern (i.e.~in embedded
 systems, but also in The Cloud where you run many, many processes in server
 farms, and energy consumption is an issue these days).
 
@@ -1296,7 +1358,7 @@ closely to the concepts provided by the target platform.}. It is absolutely
 feasible to change the execution engine and the target platform "underneath" a
 DSL to execute the code on a new platform. Portability is enhanced, as is
 maintainability, because DSLs support separation of concerns - the concerns
-expressed in the DSL (e.g., the application logic) is separated from
+expressed in the DSL (e.g.,~the application logic) is separated from
 implementation details and target platform specifics.
 
 
@@ -1324,10 +1386,10 @@ into the overall cost-benefit analysis. For technical
 DSLs\sidenote[][-2.7mm]{Technical DSLs are those that address aspects of
 software engineering such as components, state machines or persistence mappings, not
 application domain DSLs for a technical domain (such as automotive software or
-machine control)}, there is a huge potential for reuse (e.g., a large class of
+machine control)}, there is a huge potential for reuse (e.g.,~a large class of
 web or mobile applications can be described with the same DSL), so here the
 investment is easily justified. On the other side, application domain-specific
-DSLs (e.g., pension plan specifications) are often very narrow in focus, so the
+DSLs (e.g.,~pension plan specifications) are often very narrow in focus, so the
 investment of building them is harder to justify at first glance. But these DSLs
 are often tied to the core know-how of a business and provide a way for
 describing this knowledge in a formal, uncluttered, portable and maintainable
@@ -1443,7 +1505,7 @@ people for help who have done it before.
 
 Let us look at when you should \emph{not} use DSLs. If you don't understand the
 domain you want to write a DSL for or if you don't have the means to learn about
-it (e.g., access to somebody who knows the domain), you're in trouble. You will
+it (e.g.,~access to somebody who knows the domain), you're in trouble. You will
 identify the wrong abstractions, miss the expectations of your future users and
 generally have to iterate a lot to get it right, making the development
 expensive\sidenote{If everyone is aware of this, then you might still want to

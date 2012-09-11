@@ -40,7 +40,7 @@ difference between the projectional and parser-based approach:
 \end{itemize}
 
 \noindent Typically, a language's structure definition specifies which concepts
-constitute valid target concepts for references (e.g., a \ic{Function}, a \ic{Variable}, or
+constitute valid target concepts for references (e.g.,~a \ic{Function}, a \ic{Variable}, or
 a \ic{State}), but this is usually too imprecise. Language-specific visibility
 rules determine which \emph{instances} of these concepts are actually permitted
 as a reference target. For example, only the function and variables \emph{in the
@@ -376,7 +376,7 @@ called the index\footnote{It can also store information about definitions, such
 as type information, as we show in the next chapter.}. By collecting all this
 summary information about files in a project together, it ensures fast access to
 global information. The index is updated automatically with changes to the file
-system (e.g., files being deleted or removed) and is persisted as Eclipse exits.
+system (e.g.,~files being deleted or removed) and is persisted as Eclipse exits.
 All entries in the index have a URI as we showed previously. Index entries can
 be represented in the ATerm format (see \todo{ref}). For example,
 \ic{Def([Module(),"banking"])} is a definition entry for a banking module.
@@ -442,6 +442,11 @@ is why we explain them in quite some detail here.}.
 \subsection{Rewrite Rules}
 \label{Sec:rewrite-rules}
 
+\guido{Please explain why we need all this detail here AT THIS LOCATION (along
+the lines of: we need a general intro to rewriting somewhere, because we'll use
+rewriting later. So we decided to put it here, because we need some of it for linking
+and scoping).}
+
 Rewrite rules in Spoofax are provided as part of the Stratego program
 transformation language. A basic rewrite rule that transforms a term pattern
 \ic{term1} to a term pattern \ic{term2} has the following form:
@@ -454,7 +459,7 @@ rule-name:
 \noindent 
 Term patterns have the same form as terms: any term is a legal term pattern.
 In addition to the basic constructors, string literals, integer literals, and so
-on, they also support variables (e.g., \ic{v} or \ic{name}) and wildcards
+on, they also support variables (e.g.,~\ic{v} or \ic{name}) and wildcards
 (indicated by \ic{\_}). As an example, the following rewrite rule rewrites an
 \ic{Entity} to the list of properties contained in that entity:
 

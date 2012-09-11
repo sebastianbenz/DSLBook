@@ -10,7 +10,7 @@ to the domain.}
 DSL testing is a multi-faceted problem. DSL testing needs to address all the
 aspects of the DSL implementation we have discussed so far. In particular, this
 includes the syntax, the constraints and type system as well as the execution
-semantics (i.e. transformations or interpreters). Here are some examples:
+semantics (i.e.~transformations or interpreters). Here are some examples:
 
 \begin{itemize}
   \item can the syntax cover all required sentences? Is the concrete syntax
@@ -225,7 +225,7 @@ errors beyond those asserted in the rest of the test case. Next, in line 2, we
 check that the instance of \ic{Variable} named \ic{v1} has exactly one error
 annotation, and it has the text \emph{incompatible type} in the error message.
 Finally, in line 3 we assert that there are exactly two errors anywhere under
-(i.e. in the subtree below) a \ic{Variable} named \ic{w1}, and one of these
+(i.e.~in the subtree below) a \ic{Variable} named \ic{w1}, and one of these
 contains \emph{incompatible type} in the error message. Using the fluent API style
 shown by these examples, it is easy to express errors and their locations in the
 program. If a test fails, a meaningful error message is output that supports
@@ -260,8 +260,8 @@ junit.framework.AssertionFailedError: <no id> failed
 
 \noindent 
 Scopes can be tested in the same way: we can write example programs where
-references point to valid targets (i.e. those in scope) and invalid targets
-(i.e. not in scope). Valid references may not have errors, invalid references
+references point to valid targets (i.e.~those in scope) and invalid targets
+(i.e.~not in scope). Valid references may not have errors, invalid references
 must have errors. 
 
 
@@ -272,7 +272,7 @@ in the program. For example, the third line of the nodes section in
 \fig{mps-testexample} reads \ic{var double d3 = d} without annotations. This is
 a valid variable declaration in mbeddr C. After this has been written down,
 annotations can be added. They are rendered in green. Line three asserts that
-the type of the variable \ic{d} is \ic{double}, i.e. it tests that variable
+the type of the variable \ic{d} is \ic{double}, i.e.~it tests that variable
 references assume the type of the referenced variable. In line four we assign a
 \ic{double} to an \ic{int}, which is illegal according to the typing rules. The
 error is detected, hence the red squiggly. We use another annotation to assert
@@ -297,7 +297,7 @@ the example we assert that the \ic{var} reference of the node referred to as
 \ic{dref} points to the node referred to as \ic{dnode}. Note how labels (green,
 underlined) are used to add names to program elements so they can be referred to
 from test expressions. This approach can be used to test scopes. If two
-variables with the same name are defined (e.g. because one of them is defined
+variables with the same name are defined (e.g.,~because one of them is defined
 in an outer block, and we assume that the inner variable shadows the outer
 variable of the same name) we can use this mechanism to check that a reference
 actually points to the inner variable. \fig{testShadowingInMPS} shows an
@@ -848,7 +848,7 @@ scenarios, and hence you may not test them. Bugs may go unnoticed.
 Verification checks \emph{the whole program} at once. Various non-trivial
 algorithms are used to do that, and understanding these algorithms in detail is
 beyond the scope of this book. Also, formal verification has inherent
-limitations (e.g. the halting problem) that can only be solved by testing. So
+limitations (e.g.,~the halting problem) that can only be solved by testing. So
 testing and verification each have sweet spots. None can fully replace the
 other. However, it is very useful to know these approaches exist, especially
 since, over the last couple of years, they have become scalable enough to
@@ -1009,7 +1009,7 @@ The first one reports that NuSMV has successfully proven that the
 variable \ic{currentVal} stays within its bounds (notice how \ic{currentVal} is
 a bounded integer). Line three reports that \ic{countState} it never happens
 that in \ic{countState}, more than one transition is ready to fire at any time.
-Finally, it reports that all transitions are not dead, i.e. each of them is 
+Finally, it reports that all transitions are not dead, i.e.~each of them is 
 actually used at some point. 
 
 Let us provoke an error. We change the two transitions in \ic{countState} to 
@@ -1033,7 +1033,7 @@ State 'countState' contains nondeterministic transitions     FAIL    4
 
 \noindent 
 This means that there is a case where the two transitions are
-non-deterministic, i.e. both are possible based on the guard, and it is not
+non-deterministic, i.e.~both are possible based on the guard, and it is not
 clear which one should be fired. The \ic{4} at the end means that the execution
 trace to this problem contains four steps. Clicking on the failed property check
 reveals the problematic execution trace:
@@ -1180,7 +1180,7 @@ general. There are three ways of approaching this:
   \item You can use generic UI testing tools to simulate typing and clicking in
   the editor, and checking the resulting behavior.
   \item Finally, you can isolate the algorithmic aspects of the IDE behavior
-  (e.g. in refactorings or quick fixes) into separate modules (classes) and then
+  (e.g.,~in refactorings or quick fixes) into separate modules (classes) and then
   unit test those with the techniques discussed in the rest of this chapter,
   independent of the actual UI.
 \end{itemize}
@@ -1232,7 +1232,7 @@ Eysholdt\footnote{https://github.com/meysholdt/Xpect}. It can be used for
 testing various language aspects, among them, for example, code
 completion\footnote{Xtext itself comes with a set of helpers for IDE service
 testing such as content assist or builder tests. They run with and often even
-without an SWT display (e.g. headless)}. It does so by embedding test
+without an SWT display (e.g.,~headless)}. It does so by embedding test
 expectations as comments inside the to-be-tested program. Here is an example
 based on a Hello World grammar (literally):
 
@@ -1258,7 +1258,7 @@ Hello Heiko!
 \end{lstlisting}
 
 \noindent Xpect processor processes all comments that start with \ic{XPECT}. In
-this case, we test the content assist (e.g. code completion) functionality. Let us look at
+this case, we test the content assist (e.g.,~code completion) functionality. Let us look at
 the details:
 
 \begin{itemize}

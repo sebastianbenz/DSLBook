@@ -18,7 +18,7 @@ correctness beyond syntax and scoping/linking, but short of actual execution
 semantics. Typical examples for constraints are:
 
 \begin{itemize}
-  \item uniqueness of names in lists of elements (e.g. functions in a
+  \item uniqueness of names in lists of elements (e.g.,~functions in a
   namespace);
   \item every non-start state of a state machine has at least one incoming
   transition;
@@ -27,7 +27,7 @@ semantics. Typical examples for constraints are:
 \end{itemize}
 
 \noindent The last item is an example of a type system rule: these verify the
-correctness of types in programs, e.g. they make sure you don't assign a \ic{float} to an
+correctness of types in programs, e.g.,~they make sure you don't assign a \ic{float} to an
 \ic{int}. Particularly in expression languages, type calculation and checking
 can become quite complicated and therefore warrants special support. This is
 why we distinguish between simple constraints (covered in this chapter)  and
@@ -93,7 +93,7 @@ A constraint checking method is a Java method with the following
 characteristics: it is public, returns \ic{void}, has any name, it has a
 single argument of the type for which the check should apply, and it has the \ic{@Check} annotation. 
 For example, the following method is a check that is invoked for all instances
-of \ic{CustomState} (i.e. not for start states and background states). It checks
+of \ic{CustomState} (i.e.~not for start states and background states). It checks
 that each such state can actually be reached by verifying that it has incoming
 transitions (expressed via a \ic{ChangeStateStatement}):
 	
@@ -130,7 +130,7 @@ this check should run:
 
 \begin{itemize}
   \item \ic{CheckType.NORMAL}: run when the file is saved 
-  \item \ic{CheckType.FAST}: run after each model change (i.e. after each keypress) 
+  \item \ic{CheckType.FAST}: run after each model change (i.e.~after each keypress) 
   \item \ic{CheckType.EXPENSIVE}: run only if requested via the context menu
 \end{itemize}
  
@@ -306,7 +306,7 @@ the data flow does not visit it, that's fine (typically because we return from
 the method before we get a chance to execute this code).
 
 Let's continue with the \lcr{else if}s. We arrive at the \lcr{elseIfBlock} label
-if the condition was \ic{false}, i.e. the above \lcr{ifjump} actually happened. We
+if the condition was \ic{false}, i.e.~the above \lcr{ifjump} actually happened. We
 then iterate over the \lcr{elseIf}s and execute their DFB. After that, we run
 the code for the \lcr{elsePart}, if there is one. The following code can only be
 understood if we know that, if we execute one of the \lcr{else if}s, then we
@@ -1238,7 +1238,7 @@ typeof AssignmentStatement -> none {
 \end{lstlisting}
  
 \noindent 
-The framework uses the generation gap pattern, i.e. from the DSL-based type
+The framework uses the generation gap pattern, i.e.~from the DSL-based type
 specification, a generator creates a class \ic{CLTypesystemGenerated} (for the
 cooling language) that contains all the code that can be derived from the type
 system specification. Additional specifications that cannot be expressed with
@@ -1357,9 +1357,9 @@ concept StructAttributeReference extends Expression
 \noindent 
 The typing rule for the \ic{StructAttributeReference} is shown in the code
 below. The \ic{context}, the expression on which we use the dot operator, has 
-to be a \ic{GenericStructType}, or a subtype thereof (i.e. a \ic{StructType} which points to an actual
+to be a \ic{GenericStructType}, or a subtype thereof (i.e.~a \ic{StructType} which points to an actual
 \ic{StructDeclaration}). Second, the type of the whole expression is the type of the
-reference \ic{attribute} (e.g. \ic{int} in case of \ic{p.age}).  
+reference \ic{attribute} (e.g.,~\ic{int} in case of \ic{p.age}).  
 \begin{lstlisting}[language=mps]
 typeof( structAttrRef.context ) :<=: new node<GenericStructType>(); 
 typeof( structAttrRef )         :==: typeof( structAttrRef.attribute );

@@ -62,7 +62,7 @@ used, a possible error message comes from the \emph{parser}. That error message
 may read something like \emph{expecting SUCH\_AND\_SUCH, found SOMETHING\_ELSE}.
 This is not very useful to the DSL user. If a more tolerant ($0..n$) grammar is
 used, the constraint error message can be made to express a real domain
-constraint (e.g. \emph{at least one SUCH\_AND\_SUCH is required, because
+constraint (e.g.,~\emph{at least one SUCH\_AND\_SUCH is required, because
 \ldots}).}
  
 
@@ -94,7 +94,7 @@ transformed into a program expressed in $L_1$\footnote{Note how this also
 applies to the classical case where $L_2$ is your DSL and $L_1$ is a GPL which
 is then compiled!}. Make sure that \emph{every} valid program in $L_3$ leads to
 a valid program in $L_2$. If the processing of $L_2$ fails with an error message
-using abstractions from $L_2$ (e.g. compiler errors), users of $L_3$ will not be
+using abstractions from $L_2$ (e.g.,~compiler errors), users of $L_3$ will not be
 able to understand them; they may have never seen the programs
 generated in $L_2$. Again, automated testing is the way to address this issue.
 
@@ -103,7 +103,7 @@ model, performance may become an issue. Even if the DSL tool is clever about
 this and only revalidates the constraints for those program elements that
 changed, it can still be a problem if some kind of whole-model validation is
 tied to a particular element. To solve this problem, many DSL tools allow users
-to classify the constraints according to their cost (i.e. performance overhead).
+to classify the constraints according to their cost (i.e.~performance overhead).
 Cheap constraints are executed for each changing program element, in real-time,
 as it changes. Progressively more expensive constraints are checked, for
 example, as a fragment is saved or only upon explicit request by the user.
@@ -202,7 +202,7 @@ machines extension to C. Structural and type system correctness (for C and for
 state machines) is always checked for every program. However, if a state machine
 is marked as \ic{verifiable}, then the action code is further
 restricted via additional constraints. For example, it is not allowed to read
-and write the same variable within a single transition (i.e. in the total of
+and write the same variable within a single transition (i.e.~in the total of
 exit actions, transition actions and entry actions). This is necessary to keep
 the complexity of the generated model checker input code within limits.}
 \embc{Another example concerns the use of floating point types. Some target
@@ -377,7 +377,7 @@ semantic gap between two languages: how many constructs do two languages share, 
 "synonyms" exist, how many constructs are the same but have different meanings?
 In practice, the size of the gap is an intuition of the transformation
 designer.}. Modularization breaks down this big semantic gap into several
-smaller ones, making each of them easier to understand, test andmaintain\footnote{... if the tools support multi-staged transformationwell. This is not true for all DSL tools.}.
+smaller ones, making each of them easier to understand, test andmaintain\footnote{This approach can only be used if the tools supportmulti-staged transformation well. This is not true for all DSL tools.}.
 
 
 Another reason for multi-stage transformations is the potential for reuse of 
@@ -447,7 +447,7 @@ simpler, since only the subset of the language has to be mapped to code.
 
 
 \embc{Consider the case of a state machine where you want to be able to add an
-"emergency stop" feature, i.e. a new transition from each existing state to a
+"emergency stop" feature, i.e.~a new transition from each existing state to a
 new STOP state. Instead of handling this case in the code generator a model
 transformation script preprocesses the state machine model and adds all the new
 transitions and the new emergency stop state (\fig{states2}). Once done, the
@@ -495,7 +495,7 @@ the overall program. Also, an optimization will always rely on some set of rules
 that determine when and how to optimize. There will always be corner cases where
 an experienced developer will be able to write more efficient $D_{-1}$ code
 manually. However, this requires a competent developer and, usually, a lot of
-effort \emph{for each specific program}. A tool (i.e. the transformation in this
+effort \emph{for each specific program}. A tool (i.e.~the transformation in this
 case) will typically address the 90\% case well: it will produce reasonably
 efficient code in the vast majority of cases with very little effort (once the
 optimizations have been defined). In most cases, this is good enough --- in the
@@ -510,7 +510,7 @@ languages.}.
 artifact, like object files in a C compiler. However, that's not quite true. At
 least during development and test of the generator you may have to read,
 understand and debug the generated code. For incomplete DSLs\sidenote{We cover
-completeness in \sect{sect:completeness}.}, i.e. those where parts of the
+completeness in \sect{sect:completeness}.}, i.e.~those where parts of the
 resulting program have to be written manually in $L_{D-1}$, readability and good structure
 is even more important, because the manually written code has to be integrated
 with the generated parts of the $L_{D-1}$ program. Hence, generated code should use
@@ -767,7 +767,7 @@ interpreted approach would not work in this scenario.}
 Combinations between the two approaches are also possible. For example,
 transformation can create an intermediate representation which is then
 interpreted. Or an interpreter can generate code on the fly as a means of
-optimization. While this approach is common in GPLs (e.g. the JVM), we
+optimization. While this approach is common in GPLs (e.g.,~the JVM), we
 have not seen this approach used for DSLs. 
 
 \subsection{Sufficiency}
@@ -806,7 +806,7 @@ executed in all executable representations, expecting them to succeed in all. If
 the coverage of these test cases is high enough to cover all of the observable
 behavior, then it can be assumed with reasonable certainty that the semantics
 are indeed the same\footnote{Strictly speaking they are just bug-compatible,
-i.e. they may all make the same mistakes.}.
+i.e.~they may all make the same mistakes.}.
 
 \pension{The unit tests in the pension plans DSL are executed by an interpreter
 in the IDE. However, as Java code is generated from the pension plan
@@ -866,7 +866,7 @@ often are the reason for the different transformations in the first place).
 It may be beneficial to limit the expressiveness of a language. Limited
 expressiveness often results in more sophisticated analyzability. For example,
 while state machines are not very expressive (compared to fully fledged C),
-sophisticated formal verification algorithms are available (e.g. model checking
+sophisticated formal verification algorithms are available (e.g.,~model checking
 using SPIN\sidenote[][-2\baselineskip]{http://spinroot.com} or
 NuSMV\sidenote[][-1\baselineskip]{http://nusmv.fbk.eu/}). The same is true for first-order logic,
 where satisfiability (SAT) solvers\cite{Mitchell05} can be used to check

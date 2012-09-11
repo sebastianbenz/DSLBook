@@ -300,7 +300,7 @@ efficiency of the generated parsers. Various algorithms were designed that could
 parse text in a bounded amount of time and memory. However, these time and space
 guarantees could only be provided for certain subclasses of the context-free
 grammars, described by acronyms such as LL(1), LL($k$), LR(1), and so on. A
-particular parser tool supports a specific class of grammars --- e.g., ANTLR
+particular parser tool supports a specific class of grammars --- e.g.,~ANTLR
 supports LL($k$) and LL(*). In this naming scheme, the first L stands for
 left-to-right scanning, and the second L in LL and the R in LR stand for
 leftmost and rightmost derivation. The constant $k$ in LL($k$) and LR($k$)
@@ -349,7 +349,7 @@ This grammar uses left-recursion: the left-most symbol of one of the
 definitions of \ic{Exp} is a call to \ic{Exp}, i.e.\ it is recursive. Left-recursion is
 not supported by LL parsers such as ANTLR. 
 
-The left-recursion can be removed by \emph{left-factoring} the grammar, i.e. by
+The left-recursion can be removed by \emph{left-factoring} the grammar, i.e.~by
 changing it to a form where all left recursion is eliminated. The essence of
 left-factoring is that the grammar is rewritten in such a way that all recursive
 production rules consume at least one token or character before going into the
@@ -718,7 +718,7 @@ In free text editing, any regular text editor will do. However, users expect a
 powerful IDE that includes support for syntax coloring, code completion,
 go-to-definition, find references, error annotations, refactoring and the like.
 Xtext and Spoofax provide IDE support that is essentially similar to what a
-modern IDE provides for mainstream languages (e.g. Eclipse for Java)\footnote{We
+modern IDE provides for mainstream languages (e.g.,~Eclipse for Java)\footnote{We
 assume that you are familiar with modern IDEs, so we do not discuss their
 features in great detail in this section}. However, you can always go back to
 any text editor to edit the programs.
@@ -729,7 +729,7 @@ the AST. A specialized editor has to be supplied. Like in free text editing, it
 has to provide the IDE support features mentioned above. MPS provides those.
 However, there is another challenge: for textual-looking notations, it is
 important that the editor tries and makes the editing experience as text-like as
-possible, i.e. the keyboard actions we have gotten used to from free-text
+possible, i.e.~the keyboard actions we have gotten used to from free-text
 editing should work as far as possible. MPS does a decent job here, using, among
 others, the following strategies\footnote{The following list may be hard torelate to if you have never used a projectional editor. However, understandingthis section in detail is not essential for the rest of the book.}:
 \todo{We should add a screenshot here. Maybe the "big one" from the ASE paper.}
@@ -742,7 +742,7 @@ others, the following strategies\footnote{The following list may be hard torela
   inconvenient. In MPS, languages can instead define aliases for language
   concepts, allowing users to "just type" the alias, after which the concept
   is immediately instantiated\footnote{By making the alias the same as the
-  leading keyword (e.g. \ic{if} for an \ic{IfStatement}), users can "just
+  leading keyword (e.g.,~\ic{if} for an \ic{IfStatement}), users can "just
   type" the code.}.
 
   \item So-called side transforms make sure that expressions can be entered
@@ -932,7 +932,7 @@ painless as in a purely textual world.
 \begin{center}
   \includegraphics[width=\columnwidth]{figures-impl/2/mps-diff.png}
   \caption[]{The diff/merge tool presents MPS programs in their
-  concrete syntax, i.e. text for textual notations. However, other notations,
+  concrete syntax, i.e.~text for textual notations. However, other notations,
   such as tables, would also be rendered in their native form.}
   \label{fig:mps-diff.png} 
 \end{center}
@@ -998,7 +998,7 @@ derives the AS as an instance of Ecore. Ecore's central concepts are:
 \ic{EClass} (representing AS elements or language concepts), \ic{EAttribute}
 (representing primitive properties of \ic{EClass}es), \ic{EReference}
 (representing associations between \ic{EClass}es) and \ic{EObject} (representing
-instances of \ic{EClass}es, i.e. AST nodes.
+instances of \ic{EClass}es, i.e.~AST nodes.
 \ic{EReferences} can be containing or not -- each \ic{EObject} can be contained
 by at most one \ic{EReference} instance. \fig{fig:ecore-metamodel} shows a class
 diagram of Ecore.
@@ -1315,7 +1315,7 @@ up into the abstract \ic{State} meta class so they can be accessed polymorphical
   \includegraphics[scale=0.7]{figures-impl/2/xtext-metamodel.png}
   \caption[]{Part of the Ecore meta model derived from the Xtext grammar
   for the cooling program. Grammar rules become \ic{EClass}es, assignments in
-  the grammar rules become \ic{EProperties} (i.e. attributes and references).}
+  the grammar rules become \ic{EProperties} (i.e.~attributes and references).}
   \label{Fig:xtext-metamodel}  
 \end{minipage}
 }
@@ -1347,7 +1347,7 @@ The \ic{ChangeStateStatement} is used to transition into another state. It uses
 the keyword \ic{state} followed by a reference to the actual target state.
 Notice how Xtext uses square brackets to express the fact that the \ic{targetState}
 property points to an \emph{existing} state as opposed to containing a new one
-(which would be written as \ic{targetState=State}), i.e. the square brackets
+(which would be written as \ic{targetState=State}), i.e.~the square brackets
 leads to non-containing cross-references. 
 
 This is another example of where the Xtext grammar language goes beyond
@@ -1369,7 +1369,7 @@ string), which makes processing the models much easier.
 Note that the cross-reference definition only specifies the target type
 (\ic{State}) of the cross-reference, but not the concrete syntax of the
 reference itself. By default, the \ic{ID} terminal is used for the reference
-syntax, i.e. a simple (identifier-like) text string is expected. However, this
+syntax, i.e.~a simple (identifier-like) text string is expected. However, this
 can be overridden by specifying the concrete syntax terminal behind a vertical
 bar in the reference\footnote{Notice that in this case the vertical bar does not
 represent an \emph{alternative}, it is merely used as a \emph{separator} between
@@ -1555,7 +1555,7 @@ supported by the SGLR parser generator. It can generate efficient, Java-based sc
 production written in SDF is
 
 \guido{what is SGLR?}
-\guido{In what way is SDF different from e.g. ANTLR}
+\guido{In what way is SDF different from e.g.,~ANTLR}
 
 \begin{lstlisting}[language=sdf]
 "module" ID Entity* -> Start {"Module"}
@@ -1664,7 +1664,7 @@ context-free and lexical productions: lexical symbols such as identifiers and
 integer literals cannot be interleaved with layout. The second distinguishing
 feature is that lexical syntax productions usually do not have a constructor
 label in the abstract syntax, as they form terminals in the abstract syntax
-trees (i.e. they don't own any child nodes).
+trees (i.e.~they don't own any child nodes).
 
 \parhead{Abstract syntax} To produce abstract syntax trees, Spoofax uses the
 ATerm format, described in \Section{Sec:spoofax-aterm}. SDF combines the
@@ -1946,10 +1946,10 @@ various specializations are possible, the default implementation is the
 \ic{EventTrigger}, which references an \ic{Event}. The guard condition is an
 \ic{Expression}, a concept reused from \ic{com.mbeddr.core.expressions}. A type
 system rule will be defined later to constrain this expression to be Boolean.
-The target state is a reference, i.e. we point to an existing state instead of
+The target state is a reference, i.e.~we point to an existing state instead of
 owning it. \ic{actions} is another \ic{StatementList} that can contain arbitraryC statements used as the transition actions.
 
-\parhead{Editor Definition} Editors, i.e. the projection rules, are made of
+\parhead{Editor Definition} Editors, i.e.~the projection rules, are made of
 cells. When defining editors, various cell types are arranged so that the
 resulting syntax has the desired structure. \fig{Fig:mps-stateeditor} shows the
 editor definition for the \ic{State} concept. It uses an \ic{indent} collection
@@ -2134,7 +2134,7 @@ side transform actions makeArithmeticExpression
 
 
 \noindent 
-Using the alias (i.e. the operator symbol) of the respective
+Using the alias (i.e.~the operator symbol) of the respective
 \ic{BinaryExpression} and the inheritance hierarchy, it is possible to factor
 all side transformations for all binary operations into one single action
 implementation, resulting in much less implementation effort.
@@ -2150,7 +2150,7 @@ hence not an option in practice.}.
 
 To deal with this problem, we proceed as follows: each subconcept of
 \ic{BinaryExpression} has a numerical value associated with it that expresses
-its precedence. The higher the number, the higher the precedence (i.e. the
+its precedence. The higher the number, the higher the precedence (i.e.~the
 lower in the tree). The action code shown above is change to include a call to a
 helper function that rearranges the tree according to the precedence values.  
 

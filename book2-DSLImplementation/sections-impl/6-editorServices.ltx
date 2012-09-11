@@ -97,12 +97,12 @@ the value conversion for the insertion string. Also look at the MPS text below
 which emphasizes "brevity" over Xtext.}
 
 \noindent 
-Once we have the scope we can iterate over all its contents (i.e. the target
+Once we have the scope we can iterate over all its contents (i.e.~the target
 elements). Note how the scope does not directly contain the target
 \ic{EObjects}, but rather \ic{IEObjectDescription}s. This is because the code
 completion is resolved against the index, a data structure maintained by Xtext
 that contains all referencable elements. This approach has the advantage that
-the target resource, i.e. the file that contains the target element, does not
+the target resource, i.e.~the file that contains the target element, does not
 have to be loaded just to be able to reference into it. 
 
 Inside the loop we then use the name of the target object plus the name of the
@@ -145,7 +145,7 @@ called function (plus the actual arguments).
 
 
 \parhead{Code completion for simple properties} In Xtext, code completion can be
-provided for any property of a rule, not just for references (i.e. also for
+provided for any property of a rule, not just for references (i.e.~also for
 children or for primitive properties such as strings or numbers). The mechanism
 to do that is the same as the one shown above. Instead of using the scope (only
 references have scopes) one could use a statically populated list of strings as
@@ -400,7 +400,7 @@ highlighting using the position of the text string in the text. We pass in the
 \ic{VAR} style defined before. Notice how we color the \emph{complete}
 reference. Since it is only one text string anyway, this is just as well. If we
 had more structured concrete syntax (as in \ic{state someState \{\}}), and we
-only wanted to highlight parts of it (e.g. the \ic{state} keyword), we'd have to
+only wanted to highlight parts of it (e.g.,~the \ic{state} keyword), we'd have to
 do some further analysis on the \ic{ICompositeNode} to find out the actual
 concrete syntax node for the keyword.
 
@@ -576,7 +576,7 @@ example). We then have to implement the \ic{find} method. Notice how in the
 first line of the implementation we delegate to an existing finder, \ic{Node
 Usages}, which finds \emph{all} references. We then simply check if the
 referencing element is a \ic{ProvidedPort}, and if so, we add the parent of the
-port, i.e. a \ic{Component}, to the result\footnote{Note how we make use of extensions
+port, i.e.~a \ic{Component}, to the result\footnote{Note how we make use of extensions
 to the MPS BaseLanguage to concisely specify finders: \ic{execute} and \ic{add
 result} are only available in the finder specification language.}. Finally,
 \ic{getCategory} returns a string that is use to structure the result.
@@ -626,7 +626,7 @@ hyperlink.
 parsing\footnote{It is also known as \emph{serialization}.}. A parser transforms
 a character sequence into an abstract syntax tree. A pretty printer (re-)creates
 the text string from the AST. As the term \emph{pretty} printing suggests, the
-resulting text should be \emph{pretty}, i.e. whitespace must be managed
+resulting text should be \emph{pretty}, i.e.~whitespace must be managed
 properly.
 
 So when and where is a formatter useful? There is the obvious use case: users
@@ -642,7 +642,7 @@ option of changing the layout or formatting of a program, since the projection
 rules implement the one true way of formatting. Of course, this can be
 considered a plus or a minus, depending on the context.}. However, version 3.0
 of MPS will support defining several different editors for a single concept.
-They may be fundamentally different (e.g. providing a textual and a graphical
+They may be fundamentally different (e.g.,~providing a textual and a graphical
 syntax for state machines) or just provide different "layouts" for a single
 notation (different positions of the opening curly brace, for example).
 
@@ -706,7 +706,7 @@ language:
 \end{lstlisting}
 
 \noindent 
-In this language, rules consist of constructors (.i.e. AS elements or language
+In this language, rules consist of constructors (.i.e.~AS elements or language
 concepts) on the left-hand side of a rule and a sequence of \emph{boxes} and
 numbers on the right-hand side. The basic box construct is a simple
 string, representing a string in the output. 
@@ -782,7 +782,7 @@ from the cooling language. Assume we enter the following code:
 \end{lstlisting}
 
 \noindent 
-If we run the formatter (e.g. by pressing \keystroke{Ctrl-Shift-F} in the IDE),
+If we run the formatter (e.g.,~by pressing \keystroke{Ctrl-Shift-F} in the IDE),
 we want it to format it to look like this:
 
 \begin{lstlisting}[language=cooling]
@@ -845,7 +845,7 @@ have one or more "obvious" fixes. This is not true for all problems.}.
 
 \parhead{Quick fixes in Xtext} Xtext supports quick fixes for constraint
 violations. Quick fixes can either be implemented using the concrete syntax
-(i.e. via text replacement) or via the abtract syntax (i.e. via a model
+(i.e.~via text replacement) or via the abtract syntax (i.e.~via a model
 modification and subsequent serizalization. As an example, consider the
 following constraint defined in the cooling language's
 \ic{CoolingLanguageJavaValidator}:
@@ -1061,7 +1061,7 @@ rename-entity:
 
 \noindent 
 As we have seen already for other editor services, rewrite rules for
-refactorings have to follow a certain interface (i.e. signature). On the
+refactorings have to follow a certain interface (i.e.~signature). On the
 left-hand side, the example rule matches a tuple consisting of the input from
 the refactoring dialog (\ic{newname}), the node on which the refactoring is
 applied, its \ic{position} in the abstract syntax tree, the tree itself
@@ -1142,7 +1142,7 @@ isApplicableToNode(node)->boolean {
 The code above specifies the name of the refactoring
 (\ic{introduce-\\LocalVariable}), the label used in the refactoring menu, the
 keystroke to execute it directly (\ic{Ctrl-Alt-V}) as well as the target. The
-i.e. the language concept on which the refactoring can be executed. In our case,
+i.e.~the language concept on which the refactoring can be executed. In our case,
 we want to refactor \ic{Expression}s, but only if these expressions are used in
 a \ic{Statement} (we cannot refactor an expression if it is used, for example,
 as the \ic{init} expression for a global constant). We find out about that by
@@ -1381,7 +1381,7 @@ public class TextOnlyOutlineNode extends AbstractOutlineNode {
 
 \noindent 
 Xtext provides alphabetical sorting for outlines by default. There is also
-support for styling the outline (i.e. using styled labels as opposed to simple
+support for styling the outline (i.e.~using styled labels as opposed to simple
 text) as well as for filtering the tree.
 
 \parhead{The Outline in Spoofax} With Spoofax, outlines can be specified
@@ -1565,7 +1565,7 @@ non-issue: existing diff/merge tools can be used, be they in the IDE or on the
 command line. 
 
 For projectional editors such as MPS, the story is more complicated.
-Since they store the programs based on the abstract syntax (e.g. using XML),
+Since they store the programs based on the abstract syntax (e.g.,~using XML),
 diff and merge has to be performed on the concrete projected syntax. MPS
 provides this feature. MPS also annotates the editor with gutter annotations
 that highlight whether a part of the program has changed relative to the last
