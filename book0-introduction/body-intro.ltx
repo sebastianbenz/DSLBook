@@ -304,8 +304,8 @@ namespace com.mycomany {
       message expectedAircraftArrivalUpdate( id: ID, time: Time ) 
       message flightCancelled( id: ID ) 
     }
-	interface IAircraftStatus ...
-	interface IManagementConsole ...    
+    interface IAircraftStatus ...
+    interface IManagementConsole ...    
   }
 }
 \end{lstlisting}
@@ -334,59 +334,106 @@ architects and implemented with Eclipse Xtext.
 
 \subsection{Refrigerator Configuration}
 \label{cscooling}
-
+ 
 This case study describes a set of DSLs for developing cooling algorithms in
 refrigerators. Three languages are used. The first one describes the logical
-hardware structure of refrigerators (\fig{cooling1}). The second one describes
+hardware structure of refrigerators. The second one describes
 cooling algorithms in the refrigerators using a state-based, asynchronous
-language (\fig{cooling2}). Cooling programs refer to hardware features and they
+language. Cooling programs refer to hardware features and they
 can access the properties of hardware elements from expressions and commands.
-The third one is used to test cooling programs (\fig{cooling3}). These DSLs are
-used by thermodynamists and are implemented with Eclipse Xtext.
+The third one is used to test cooling programs. These DSLs are
+used by thermodynamicists and are implemented with Eclipse Xtext.
+The code below shows the hardware structure definition in the refrigerator
+case study. An appliance represents the refrigerator. It consists mainly of
+colling compartments and compressor compartments. A cooling compartment
+contains various building blocks that are important to the cooling process in
+a refrigerator. A compressor compartment contains the cooling infrastructure
+itself, e.g.,~a compressor and a fan.
+ 
+\begin{lstlisting}[language=cooling, morekeywords={appliance, compressor,
+compartment, static, compressor, ambient, tempsensor, light, superCoolingMode,
+door, fan, evaporator}] 
+appliance KIR {
 
-\begin{figure}[h]
-  \rule{1\textwidth}{0.7pt}
-  \vspace{-0.5cm}
-  \includegraphics[scale=0.6]{figures-intro/cooling1.png}
-  \caption[][0.3cm]{Hardware structure definition in the refrigerator
-  case study. An appliance represents the refrigerator. It consists mainly of
-  colling compartments and compressor compartments. A cooling compartment
-  contains various building blocks that are important to the cooling process in
-  a refrigerator. A compressor compartment contains the cooling infrastructure
-  itself, e.g.,~a compressor and a fan.}
-  \label{cooling1} 
-  \vspace{0.2cm}
+  compressor compartment cc {
+    static compressor c1
+    fan ccfan
+  }
+  
+  ambient tempsensor at
+  
+  cooling compartment RC {
+    light rclight
+    superCoolingMode
+    door rcdoor
+    fan rcfan
+    evaporator tempsensor rceva
+  }
+}
+\end{lstlisting}
 
-  \rule{1\textwidth}{0.7pt}
-\end{figure}
+
+\noindent The code below shows a simple cooling algorithm. Cooling
+algorithms are state based programs. States can have entry actions and exit actions. Insider
+a state, we check whether certain conditions are true, and then change the
+status of various hardware building blocks or change the state. It is also
+possible to express deferred behavior with the \ic{perform \ldots after}
+keyword.
+
+\begin{lstlisting}[language=cooling, morekeywords={}] 
+program Standardcooling for KIR {
+
+  parameter t_abtauStart: int
+  parameter t_abtauDauer: int
+  parameter t_abtauEnde: int
+  
+  var tuerNachlaufSchwelle: int = 0
+  
+  start:
+    entry { state noCooling }
+    
+  state noCooling:
+    check ( RC->needsCooling && cc.c1->stehzeit > 333 ) {
+      state rcCooling
+    }
+    on isDown ( RC.rcdoor->open ) {
+      set RC.rcfan->active = true
+      set RC.rclight->active = false
+      perform rcfanAbschaltTask after 10 {
+        set RC.rcfan->active = false
+      }      
+    }   
+
+  state rcCooling:
+    ...
+}
+\end{lstlisting}
+
+\noindent Finally, the following code is a test script to test cooling programs.
+It essentially stimulates a cooling algorithm by changing hardware properties
+and then asserting that the algorithm reacts in a certain way.
+
+\begin{lstlisting}[language=cooling, morekeywords={}] 
+cooling test for Standardcooling {
+  prolog {
+    set cc.c1->stehzeit = 0
+  }
+  // initially we are not cooling  
+  assert-currentstate-is noCooling
+  // then we say that RC needs cooling, but
+  // the stehzeit is still too low.
+  mock: set RC->needsCooling = true
+  step
+  assert-currentstate-is noCooling
+  // now we increase stehzeit and check
+  // if it now goes to rcCooling
+  mock: set cc.c1->stehzeit = 400
+  step
+  assert-currentstate-is rcCooling 
+}
+\end{lstlisting}
 
 
-\begin{figure}[h]
-  \rule{1\textwidth}{0.7pt}
-  \vspace{-0.5cm}
-  \includegraphics[scale=0.6]{figures-intro/cooling2.png}
-  \caption[][0.3cm]{A simple cooling algorithm. Cooling algorithms are
-  state based programs. States can have entry actions and exit actions. Insider
-  a state, we check whether certain conditions are true, and then change the
-  status of various hardware building blocks or change the state. It is also
-  possible to express deferred behavior with the \ic{perform \ldots after}
-  keyword.}
-  \label{cooling2} 
-  \rule{1\textwidth}{0.7pt}
-\end{figure}
-
-\begin{figure}[h]
-  \rule{1\textwidth}{0.7pt}
-  \vspace{-0.5cm}
-  \includegraphics[scale=0.6]{figures-intro/cooling3.png}
-  \caption[][0.3cm]{A test script to test cooling programs. It essentially
-  stimulates a cooling algorithm by changing hardware properties and then
-  asserting that the algorithm reacts in a certain way. }
-  \label{cooling3} 
-  \vspace{0.2cm}
-
-  \rule{1\textwidth}{0.7pt}
-\end{figure}
 
 
 
@@ -404,40 +451,43 @@ specific compilers. The DSL is intended to be used by embedded software
 developers and it is implemented with MPS.
 
 \begin{figure}[h]
-  \rule{1\textwidth}{0.7pt}
-  \vspace{-0.5cm}
+\fbox{
+\begin{minipage}{104.5mm}
   \includegraphics[scale=0.4]{figures-intro/mbeddr1.png}
+\end{minipage}
+}
   \caption[]{A simple C module with an embedded decision table. This is a
   nice example of MPS' capability to use non-textual notations thanks to its
   projectional editor (which we describe in detail in the Part III of the
   book).}
   \label{mbeddr1} 
-  \rule{1\textwidth}{0.7pt}
 \end{figure}
 
+
+
 \begin{figure}[h]
-  \rule{1\textwidth}{0.7pt}
-  \vspace{-0.5cm}
+\fbox{
+\begin{minipage}{104.5mm}
   \includegraphics[scale=0.4]{figures-intro/mbeddr2.png}
+\end{minipage}
+}
   \caption[]{This extension to C supports working with physical units (such as
   \ic{kg} and \ic{lb}). The type system has been extended to include type
   checks for units. The example also shows the unit testing extension.}
   \label{mbeddr2} 
-  
-  \rule{1\textwidth}{0.7pt}
 \end{figure}
 
 
 \begin{figure}[h]
-  \rule{1\textwidth}{0.7pt}
-  \vspace{-0.5cm}
+\fbox{
+\begin{minipage}{104.5mm}
   \includegraphics[scale=0.4]{figures-intro/mbeddr3.png}
+\end{minipage}
+}
   \caption[]{This extension shows a state machine. Notice how regular C
   expressions are used in the guard conditions of the transitions. The inset
   code shows how the state machine can be triggered from regular C code. }
   \label{mbeddr3} 
-  
-  \rule{1\textwidth}{0.7pt}
 \end{figure}
 
 
@@ -474,18 +524,20 @@ Intentional Domain Workbench.
 
 \FloatBarrier
 
+\todo{make this figure into two so I can use them below each other. There are
+also some broken refs to these figures in the text} 
 \begin{figure*}[h]
-  \rule{1\textwidth}{0.7pt}
-  \vspace{-0.5cm}
+\fbox{
+\begin{minipage}{104.5mm}
   \includegraphics[width=17cm]{figures-intro/webdsl.jpg}
+\end{minipage}
+}
   \caption[-5mm]{Example Code written in WebDSL. The code shows data
   structures, utility functions, access control rules as well as a page
   definition.}
   \label{webdsl} 
-  \rule{1\textwidth}{0.7pt}
 \end{figure*}
 
-\floatbarrier
 
 \subsection{WebDSL}
 \label{cswebdsl}
@@ -777,8 +829,8 @@ from the second.}
 \label{fig:}
 \end{figure*}
 
-Consider that DSLs pick more characteristics from the third rather than the
-second column, this makes designing DSLs a more manageable problem than
+\noindent Consider that DSLs pick more characteristics from the third rather
+than the second column, this makes designing DSLs a more manageable problem than
 designing general purpose languages. DSLs are typically just much smaller and
 simpler\sidenote[][5mm]{Small and simple can mean that the language has fewer
 concepts, that the type system is less sophisticated or that the expressive power is
@@ -789,7 +841,7 @@ completely clear what declarative means anyway), or that they may never be
 Turing complete. I disagree. They may well be. However, if your DSL becomes as
 big and general as, say, Java, you might want to consider just using
 Java\marginnote{Alternatively, if your tooling allows it, extending Java with
-domain-specific concepts}. DSLs often start simple, based on an initially
+domain-specific concepts.}. DSLs often start simple, based on an initially
 limited understanding of the domain, but then grow more and more sophisticated
 over time, a phenomenon Hudak notes in his '96 paper\cite{Hudak96}.
 
@@ -959,8 +1011,8 @@ to model. They want to program, but:
   other means of execution.
 \end{description}
 
-This vision, or goal, leads to the idea of modular languages, as explained in
-the next section.
+\noindent This vision, or goal, leads to the idea of modular languages, as
+explained in the next section.
 
 
 \section{Modular Languages}
@@ -1161,8 +1213,8 @@ Examples include
 	\item Abstractions for concurrency based on transactional memory or actors
 \end{itemize}
 
-This sounds like a lot of stuff to put into a programming language. But
-remember: it will not all be in one language. Each of those concerns will be a
+\noindent This sounds like a lot of stuff to put into a programming language.
+But remember: it will not all be in one language. Each of those concerns will be a
 separate language module that will  be used in a program only if needed.
 
 It is certainly not possible to define all these language modules in isolation.
@@ -1185,13 +1237,14 @@ additional specifications that configure the mapping. This is a little bit like
 service provider interfaces (SPIs) in Java enterprise technology.
 
 \begin{figure}[h]
-  \rule{1\textwidth}{0.7pt}
-  \vspace{-0.5cm}
-  \includegraphics[width=16cm]{figures-intro/heterogeneous.png}
-  \caption{A program written in a modularly extendable C (from the mbeddr.com
+\fbox{
+\begin{minipage}{104.5mm}
+  \includegraphics[width=\columnwidth]{figures-intro/heterogeneous.png}
+\end{minipage}
+}
+  \caption{A program written in a modularly extendible C (from the mbeddr.com
   project)}
   \label{heterogeneous} 
-  \rule{1\textwidth}{0.7pt}
 \end{figure}
 
 
@@ -1697,10 +1750,10 @@ Fluent API. Let's look at the three:
   (almost like a grammar --- this is why it could be considered a DSL). Here is
   a Java/Easymock example, taken from Wikipedia:
   
-\begin{code}
+\begin{lstlisting}[language=java]
 Collection coll = EasyMock.createMock(Collection.class);
 EasyMock.expect(coll.remove(null)).andThrow(new NullPointerException()).atLeastOnce();
-\end{code}    
+\end{lstlisting}    
 
   \item Fluent APIs are chained sequences of method calls. The syntax makes this
   obvious, and there is no way how to change this syntax, typically, as a
@@ -1710,19 +1763,19 @@ EasyMock.expect(coll.remove(null)).andThrow(new NullPointerException()).atLeastO
   example\footnote{taken from http://rubyonrails.org}, which defines a data
   structure (and, implicitly, a database table) for a blog post:
   
-\begin{code}
+\begin{lstlisting}[morekeywords={class, end}]
 class Post < ActiveRecord::Base
   validates :name,  :presence => true
   validates :title, :presence => true,
                     :length => { :minimum => 5 }
 end
-\end{code}
-  
+\end{lstlisting}
+   
 \end{itemize} 
 
-
-While I recognize the benefits of internal DSLs, I think they are fundamentally
-limited by the fact that an important ingredient is missing: IDE support. In
+ 
+\noindent While I recognize the benefits of internal DSLs, I think they are
+fundamentally limited by the fact that an important ingredient is missing: IDE support. In
 classical internal DSLs, the IDE is not aware of the grammar, constraints or
 other properties of the embedded DSL (beyond what the type system can offer,
 which isn't much in the case of dynamically typed languages). Since I consider
