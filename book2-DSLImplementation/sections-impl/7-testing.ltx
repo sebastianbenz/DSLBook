@@ -26,10 +26,10 @@ semantics (i.e.~transformations or interpreters). Here are some examples:
 
 \marginnote{An important ingredient to testing is that test execution can be
 automated via scripts so they can be run as part of automatic builds. All of the
-test strategies shown below can be executed from \ic{ant} scripts. However, we
+test strategies shown below can be executed from \icsn{ant} scripts. However, we
 don't describe in detail how this works for each of the tools.}
  
-\section{Syntax Testing}
+\sect{Syntax Testing}
 
 Testing the syntax is simple in principle. Developers simply try to write a
 large set of relevant programs and see if they can be expressed with the
@@ -42,7 +42,7 @@ code that needs to be written in Xtext to test a DSL program using the Xtext
 testing
 utilities\footnote{http://code.google.com/a/eclipselabs.org/p/xtext-utils/wiki/Unit\_Testing;
 more testing utilities for Xtext can be found in the
-\ic{org.eclipse.xtext.junit4} package.}.
+\icsn{org.eclipse.xtext.junit4} package.}.
 It is a JUnit 4 test case with special support for the Xtext
 infrastructure\footnote{It is tested with Xtext 2.x.}.
 
@@ -178,7 +178,7 @@ problems can be detected. \fig{brokenSyntaxInMPS} shows an example.
   \includegraphics[width=50mm]{figures-impl/7/brokenSyntaxInMPS.png}
   \caption[]{\textbf{Top:} an interface expressed in the mbeddr C components
   extension. \textbf{Bottom:} The same interface after we have removed the
-  \ic{parameters} collection in an \ic{Operation}. The error reports that the
+  \icsn{parameters} collection in an \icsn{Operation}. The error reports that the
   model contains child nodes in a child collection that does not exist.}
   \label{brokenSyntaxInMPS} 
 \end{center}
@@ -186,7 +186,7 @@ problems can be detected. \fig{brokenSyntaxInMPS} shows an example.
 
 
 
-\section{Constraints Testing}
+\sect{Constraints Testing}
 
 Especially for languages with complex constraints, such as those implied by type
 systems, testing of constraints is essential. The goal of constraints testing is
@@ -284,7 +284,7 @@ the presence of the error.
   \includegraphics[scale=0.6]{figures-impl/7/mps-test.jpg}
 \end{minipage}
 }
-  \caption[]{Using MPS \ic{NodesTestCase}, assertions about types and the
+  \caption[]{Using MPS \icsn{NodesTestCase}, assertions about types and the
   presence of errors can be directly annotated on programs written in any
   language.}
   \label{mps-testexample} 
@@ -388,7 +388,7 @@ and specify the expected reference resolving in terms of these selections.
 
 
 
-\section{Semantics Testing}
+\sect{Semantics Testing}
 
 Fundamentally, testing the execution semantics of a program involves 
 writing assertions against the \emph{execution} of a program.
@@ -691,7 +691,7 @@ exported test case runTest {
 \noindent In case the \ic{persistenceMock} saw behavior different from the one
 specified above\footnote{The generator for mock components translates the
 expectations into implementations of the interface methods that track and record
-invocations. The \ic{validate mock} statement works with this recorded data to
+invocations. The \icsn{validate mock} statement works with this recorded data to
 determine whether the expectations were met.}, the \ic{validate mock} statement
 will fail --- and with it, the whole test.
 
@@ -716,7 +716,7 @@ can paste arbitrary text that contains error messages into a text area (for
 example the example above) on the left in \fig{analyzeErrorOutput}.
 Pressing the \ic{Analyze} button will find the nodes that created a
 particular message\sidenote[][-10mm]{This process is based on the unique node
-ID; this is the long number that follows the \ic{\#} in the message text.}.
+ID; this is the long number that follows the \icsn{\#} in the message text.}.
 You can then click on the node to select it in the editor 
 
 \todo{Check for empty captions and provide text}
@@ -831,8 +831,8 @@ the transformation has added this state. We then check that in the
 retrieved above\footnote{Notice that we don't write an algorithmic check that closely resembles the
 transformation itself. Rather, we test a specific model for the presence of
 specific structures. For example, we explicitly look for a state called
-\ic{noCooling} and check that this one has the correct
-\ic{ChangeStateStatement}.}.
+\icsn{noCooling} and check that this one has the correct
+\icsn{ChangeStateStatement}.}.
 
 
 
@@ -923,9 +923,7 @@ limitations, but those are beyond the scope of this book.}:
 \noindent The important property of these temporal logic specifications is that
 quantifiers such as \emph{always}, \emph{whenever} and \emph{there exists} are
 available. Using these one can specify \emph{global truths} about the
-\emph{execution} of a system\footnote{Three different flavours of languages exist to
-specify these properties: LTL, CTL and CTL+. The concrete syntax is beyond the
-scope of this book.}. 
+\emph{execution} of a system. 
 
 Model checking does come with its challenges. The input language for specifying
 state machines as well as specifying the properties is not necessarily easy to
@@ -978,7 +976,7 @@ verifiable statemachine Counter {
 
 \noindent Since this state machine is marked as \ic{verifiable}, we can run the
 model checker from the context menu\footnote{Marking a state machine as
-\ic{verifiable} also enforces a few restrictions on the state machine (for
+\icsn{verifiable} also enforces a few restrictions on the state machine (for
 example, each state machine local variable may only be assigned once during a
 transition). State machines restricted this way are easier to model check.}.
 \fig{verification1} shows the result of running the model checker.
@@ -1168,7 +1166,7 @@ behavior expressed in the model. There are three ways to address this:
 
 
 
-\section{Testing Editor Services}
+\sect{Testing Editor Services}
 
 Testing IDE services such as code completion (beyond scopes), quick fixes,
 refactorings or outline structure has some of the challenges of UI testing in
@@ -1215,13 +1213,13 @@ embedding the subject DSL into the DSL for describing the editor test case.
 \begin{center}
   \includegraphics[width=10cm]{figures-impl/7/editorTesting.png}
   \caption[]{This test tests whether code completion works correctly. We start
-  with an "empty" variable declaration in the \ic{before} slot. It is marked
-  with \ic{cell}, an special annotation used in UI tests to mark the editor cell for that has the focus for
-  the subsequent scripted behavior. In the \ic{result} slot, we describe the
+  with an "empty" variable declaration in the \icsn{before} slot. It is marked
+  with \icsn{cell}, an special annotation used in UI tests to mark the editor cell for that has the focus for
+  the subsequent scripted behavior. In the \icsn{result} slot, we describe the
   state of the editor \emph{after} the script code has been executed. The script
-  code then simulates typing the word \ic{myVariable}, pressing \ic{TAB},
-  pressing \ic{CTRL-SPACE}, typing \ic{boo} (as a prefix of \ic{boolean}) and
-  pressing \ic{ENTER}.}
+  code then simulates typing the word \icsn{myVariable}, pressing \icsn{TAB},
+  pressing \icsn{CTRL-SPACE}, typing \icsn{boo} (as a prefix of \icsn{boolean}) and
+  pressing \icsn{ENTER}.}
   \label{editorTesting} 
 \end{center} 
 \end{figure}
@@ -1343,7 +1341,7 @@ problem for expectations with a more complex syntactic structure. }.
 \todo{http://christiandietrich.wordpress.com/2012/05/08/unittesting-xtend-generators/}
 
 
-\section{Testing for language appropriateness}
+\sect{Testing for language appropriateness}
 
 A DSL is only useful if it can express what it is supposed to express. A bit
 more formally, one can say that the coverage of the DSL relative to the target

@@ -166,9 +166,9 @@ decision table specifies the type of its result values explicitly
 \begin{marginfigure}[-70mm]
 \includegraphics[width=50mm]{figures-sweng/impl/dectabexample.png} \caption{A decision
 table evaluates to the value in the cell for which the row and column headers are
-\ic{true}, a default value otherwise (\ic{FAIL} in the example). By default, a
-decision table is translated to nested \ic{if}s in a separate function. The
-figure shows the translation for the common case where a decision table is used in a \ic{return}.
+\icsn{true}, a default value otherwise (\icsn{FAIL} in the example). By default, a
+decision table is translated to nested \icsn{if}s in a separate function. The
+figure shows the translation for the common case where a decision table is used in a \icsn{return}.
 This case is optimized to not use the indirection of an extra function.}
 \label{dectab}     
 \end{marginfigure}
@@ -189,9 +189,9 @@ mocks. We do not discuss this in this paper.
 \begin{marginfigure}[10mm]  
 \includegraphics[width=50mm]{figures-sweng/impl/unittest.png}
 \caption{The \emph{unittest} language introduces test cases as well as
-\ic{assert} and \ic{fail} statements which can only be used inside of a test
-case. Test cases are transformed to functions, and the \ic{assert} statements
-become \ic{if} statements with a negated condition. The generated code also
+\icsn{assert} and \icsn{fail} statements which can only be used inside of a test
+case. Test cases are transformed to functions, and the \icsn{assert} statements
+become \icsn{if} statements with a negated condition. The generated code also
 counts the number of failures so it can be reported to the user via a binary's
 exit value.}
 \label{testcase}
@@ -213,9 +213,6 @@ ports have to be connected to compatible provided ports provided by other
 component instances. Polymorhphic invocations (different components "behind"
 the same interface) are supported.
 
-
-  
-  
 \begin{figure*}
 \includegraphics[width=150mm]{figures-sweng/impl/components.png}
 \caption{Two components providing the same interface. The arrow
@@ -250,12 +247,12 @@ integration of formal verification into mbeddr in more detail in
 \begin{figure*}[h]
 \includegraphics[width=160mm]{figures-sweng/impl/statemachine.png}
 \caption{A state machine is embedded in a C module as a top level construct. It
-declares \ic{in} and \ic{out} \ic{events} as well as local variables, states and transitions.
-Transitions react to \ic{in event}s, and \ic{out event}s can be fired in actions. Through
-bindings (e.g.,~\ic{tickHandler}), state machines interact with C code. State
-machines can be instantiated. They are transformed to \ic{enum}s for states and
-events, and a function that executed the state machine using \ic{switch}
-statements. The \ic{trigger} statement injects events into a state machine
+declares \icsn{in} and \icsn{out} \icsn{events} as well as local variables, states and transitions.
+Transitions react to \icsn{in event}s, and \icsn{out event}s can be fired in actions. Through
+bindings (e.g.,~\icsn{tickHandler}), state machines interact with C code. State
+machines can be instantiated. They are transformed to \icsn{enum}s for states and
+events, and a function that executed the state machine using \icsn{switch}
+statements. The \icsn{trigger} statement injects events into a state machine
 instance by calling the state machine function.}
 \label{statemachines}  
 \end{figure*} 
@@ -279,14 +276,14 @@ computations to deal correctly with \ic{speed = length/time}, for example.
 \end{minipage}
 }
 \caption[][30mm]{The \emph{units} extension ships with the SI base units. Users
-can define derived units (such as the \ic{mps} in the example) as well as
+can define derived units (such as the \icsn{mps} in the example) as well as
 convertible units that require a numeric conversion for
 mapping back to SI units. Type checks ensure that the values associated with
 unit literals use the correct unit and perform unit computations (as in speed
 equals length divided by time). Errors are reported if incompatible units are
 used together (e.g.,~if we were to add length and time). To support this feature,
 the typing rules for the existing operators (such as
-\ic{+} or \ic{/}) have to be overridden.} 
+\icsn{+} or \icsn{/}) have to be overridden.} 
 \label{unitsexample}
 \end{figure}
 
@@ -347,8 +344,8 @@ state machine, requirements traces and presence conditions.
   \includegraphics[width=110mm]{figures-sweng/impl/screenshot2b.png}
 \end{center} 
 \caption{A somewhat overloaded example program in the mbeddr IDE (an instance
-of MPS). The module contains an \ic{enum}, a decision table and a state machine.
-Requirements traces are attached to the table and the \ic{step} in event, and a
+of MPS). The module contains an \icsn{enum}, a decision table and a state machine.
+Requirements traces are attached to the table and the \icsn{step} in event, and a
 presence condition is attached to an out event and a transitions}
 \label{screenshot}  
 \end{figure}   

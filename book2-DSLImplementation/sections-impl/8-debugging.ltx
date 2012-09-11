@@ -9,7 +9,7 @@ address both aspects in this chapter, illustrated with examples from the usual
 tools: MPS, Spoofax and Xtext.}
 
 
-\section{Debugging the DSL Definition}
+\sect{Debugging the DSL Definition}
 
 Debugging the definition of the DSL boils down to a language workbench providing
 a debugger for the languages used or language definition. In the section we look
@@ -98,8 +98,8 @@ way. For example, in \fig{mps-mps-debug} we debug the scope for a
   \includegraphics[width=17cm]{figures-impl/8/mps-mps-debug.png}
   \caption[]{The debugger that can debug MPS while it "executes" a language is
   aware of all the relevant extensions to BaseLanguage. For example, in this
-  screenshot we debug a scope constraint. Notice how in the \ic{Variables} view
-  program nodes (such as the \ic{Statement s}) are shown on the abstraction
+  screenshot we debug a scope constraint. Notice how in the \icsn{Variables} view
+  program nodes (such as the \icsn{Statement s}) are shown on the abstraction
   level of the node, not in terms of its underlying Java data structure
   representation.}
   \label{mps-mps-debug} 
@@ -135,15 +135,15 @@ type system rules are applied to which program element.
 \begin{figure}[h]
   \includegraphics[width=\columnwidth]{figures-impl/8/mps-ts-trace.png} 
   \caption[][-20mm]{This
-  example shows the solver state for the \ic{Argument x}. It first applies the
-  rule \ic{typeof\_ITyped} (\ic{Argument} implements \ic{ITyped}) which
+  example shows the solver state for the \icsn{Argument x}. It first applies the
+  rule \icsn{typeof\_ITyped} (\icsn{Argument} implements \icsn{ITyped}) which
   expresses that the type of the element (type variable
-  \ic{c} is the same as the element's \ic{type} property (type variable \ic{d}).
-  It then applies the \ic{typeof\_Type} rule to the argument's type itself. This
-  rule expresses that the type of a \ic{Type} is a clone of itself.
-  Consequently, the type variable \ic{d} can be set to \ic{int8\_t}. In
-  consequence this means that the type variable \ic{c} (which represents the
-  type of the \ic{Argument}) is also \ic{int8\_t}. Note that this is a trivial
+  \icsn{c} is the same as the element's \icsn{type} property (type variable \icsn{d}).
+  It then applies the \icsn{typeof\_Type} rule to the argument's type itself. This
+  rule expresses that the type of a \icsn{Type} is a clone of itself.
+  Consequently, the type variable \icsn{d} can be set to \icsn{int8\_t}. In
+  consequence this means that the type variable \icsn{c} (which represents the
+  type of the \icsn{Argument}) is also \icsn{int8\_t}. Note that this is a trivial
   example. Type system traces can become quite involved.}
   \label{mps-ts-trace} 
 \end{figure}
@@ -276,7 +276,7 @@ templates.}, MPS provides a \emph{static} representation of the transformation
 in terms of the intermediate models and the element traces through them.
 
 
-\section{Debugging DSL Programs}
+\sect{Debugging DSL Programs}
 
 To find errors in DSL programs, we can either debug them on the level of the DSL
 program or in its $L_{D-1}$ representation (i.e.~in the generated code or the
@@ -503,7 +503,7 @@ Essentially only three things have to be done:
   steps\footnote{Remember that the language is time-triggered anyway, so
   execution is basically a sequence of steps triggered by a timer. In the
   simulator/debugger, the timer is replaced with the user pressing the
-  \ic{Next Step} button for single stepping.}. Breakpoints are essentially
+  \icsn{Next Step} button for single stepping.}. Breakpoints are essentially
   Boolean flags associated with program elements: if the
   execution processes a statement that has the \ic{breakpoint} flat set to
   \ic{true}, execution stops.
@@ -637,7 +637,7 @@ conveniently iterate over C arrays. Users have to specify the array as well as
 its size, since in C an array cannot be queried for its size. Inside the
 \ic{foreach} body, \ic{it} acts as a reference to the current iteration's array
 element\footnote{Note that for the sake of the example, we don't consider nested
-\ic{foreach} statements so we would don't have to deal with unique names for
+\icsn{foreach} statements so we would don't have to deal with unique names for
 various (generated) variables.}.
 
 \begin{lstlisting}[language=c, morekeywords={foreach, sized}]
@@ -670,7 +670,7 @@ refer to concepts defined in C (see \fig{umldiag}).
   \centering
     \includegraphics[width=50mm]{figures-impl/8/mbeddr/umldiag.png}
     \caption{UML class diagram showing the structure of the
-    \ic{ForeachLanguage}. Concepts from the C base language are in white
+    \icsn{ForeachLanguage}. Concepts from the C base language are in white
     boxes, new concepts are grey.} 
   \label{umldiag}
 \end{marginfigure}
@@ -697,7 +697,7 @@ expression, the closing parenthesis and the editor of the \ic{body}.
 \end{minipage}
 }
 \caption{The editor definition of the
-\ic{foreach} statement and its relationship to an example
+\icsn{foreach} statement and its relationship to an example
 instance.}
 \label{foreachEditorImage}
 \end{figure}
@@ -731,11 +731,11 @@ compiled.
 \end{minipage}
 }
 \vspace{-2mm}
-\caption{The \ic{foreach} generator template. A \ic{ForeachStatement} is replaced by what is framed \ic{<TF .. TF>}
-when the template is executed, the \ic{dummy} function around it just provides
-context. The \ic{COPY\_SRC} and
-\ic{COPY\_SRCL} macros contain expressions (not shown) that determine 
-with what the nodes in square brackets (e.g.,~\ic{10}, \ic{int8\_t x;}) are
+\caption{The \icsn{foreach} generator template. A \icsn{ForeachStatement} is replaced by what is framed \icsn{<TF .. TF>}
+when the template is executed, the \icsn{dummy} function around it just provides
+context. The \icsn{COPY\_SRC} and
+\icsn{COPY\_SRCL} macros contain expressions (not shown) that determine 
+with what the nodes in square brackets (e.g.,~\icsn{10}, \icsn{int8\_t x;}) are
 replaced during a transformation.}
 \label{foreachGenerator}
 \end{figure}
@@ -789,7 +789,7 @@ over it, a step over ends up on the statement that follows \emph{after the
 whole} \ic{foreach} statement. Otherwise we end up on the first line of the
 \ic{foreach} body (\ic{sum += it;})\footnote{This is the first line of the mbeddr
 program, \emph{not} the first line of the generated base program (which would be
-\ic{int8\_t \_\_it = arr[\_\_c];}).}.
+\icsn{int8\_t \_\_it = arr[\_\_c];}).}.
 
 The debugger cannot guess which alternative will occur since it would require to
 know the state of the program and to evaluate the expressions in the (generated)
@@ -883,10 +883,10 @@ the next subsection. \fig{components} shows the components and their interfaces.
 
 \begin{figure}[h]
   \centering
-    \includegraphics[width=85mm]{figures/8/mbeddr/components.png} \caption{The
-    \ic{Mapper} is the central component of the debugger execution architecture.
-    It is used by the \ic{Debugger UI} and, in turn, uses the
-    \ic{Debug Wrapper}, the \ic{Program Structure} and the \ic{Trace Data}.}
+    \includegraphics[width=85mm]{figures-impl/8/mbeddr/components.png} 
+    \caption{The \icsn{Mapper} is the central component of the debugger execution architecture.
+    It is used by the \icsn{Debugger UI} and, in turn, uses the
+    \icsn{Debug Wrapper}, the \icsn{Program Structure} and the \icsn{Trace Data}.}
   \label{components}
 \end{figure}   
 
@@ -987,7 +987,7 @@ Stepping behavior is configured via the following interfaces:
 \todo{make more vertical}
 \begin{marginfigure}
   \centering
-    \includegraphics[width=60mm]{figures/8/mbeddr/stepping.png}
+    \includegraphics[width=60mm]{figures-impl/8/mbeddr/stepping.png}
     \caption{Structure of language concepts implementing the
     stepping-related interfaces. The boxes represent language concepts
     implementing the interfaces discussed in the text. Those concepts
@@ -1051,7 +1051,7 @@ can find all visible watches by iterating through all ancestor
 \todo{more vertical}
 \begin{marginfigure}
   \centering
-    \includegraphics[width=60mm]{figures/8/mbeddr/watches.png}
+    \includegraphics[width=60mm]{figures-impl/8/mbeddr/watches.png}
     \caption{Typical structure of language concepts implementing the
     Watches-related interfaces} 
   \label{watches}  
@@ -1097,7 +1097,7 @@ make sure we stop in the first line of any of them if the user \emph{steps into}
 a method invocation\footnote{We encounter a similar challenge in state machines: as an event is fired into
 a state machine, we do not know which transition will be triggered. 
 Consequently we set breakpoints in all transitions (translated to
-\ic{case} branches in a \ic{switch} statement) of the state machine.}. 
+\icsn{case} branches in a \icsn{switch} statement) of the state machine.}. 
 
 
 

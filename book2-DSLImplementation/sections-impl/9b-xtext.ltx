@@ -92,10 +92,10 @@ importing the target meta model then defining references to concepts defined in
 this meta model\footnote{Note that the references to entities and fields do not
 technically reference into an entity source file. Instead, these references
 refer to the EMF objects in the AST that has been parsed from the source file.
-So, a similar approach can be used to reference to other \ic{EObject}s. It does
+So, a similar approach can be used to reference to other \icsn{EObject}s. It does
 not matter whether these are created via Xtext or not. This is reflected by the
-fact that the grammar of the \ic{uispec} language does not refer to the
-\emph{grammar} of the \ic{entity} language, but to the derived meta model.}.
+fact that the grammar of the \icsn{uispec} language does not refer to the
+\emph{grammar} of the \icsn{entity} language, but to the derived meta model.}.
 Here is the header of the \ic{uispec} language:
 
 \begin{lstlisting}[language=xtextgrammar, morekeywords={}, deletekeywords={}]
@@ -123,13 +123,13 @@ Field:
 \noindent To make this work, no change is required in the \ic{entities}
 language\footnote{This is true as long as the referenced elements are in the
 index. The index is used by Xtext to resolve references against elements that
-reside in a different model file. By default, all elements that have a \ic{name}
-attribute are in the index. \ic{Entity} and \ic{Attribute} have names, so this
+reside in a different model file. By default, all elements that have a \icsn{name}
+attribute are in the index. \icsn{Entity} and \icsn{Attribute} have names, so this
 works automatically.}. However, the workflow generating the \ic{uispec} language
 has to be changed. The \ic{genmodel} file for the meta model has to be
 registered in the \ic{StandaloneSetup}\sidenote{This is necessary so that the
-EMF code generator, when generating the meta classes for the \ic{uispec}
-language knows where the generated Java classes for the \ic{entities} languages
+EMF code generator, when generating the meta classes for the \icsn{uispec}
+language knows where the generated Java classes for the \icsn{entities} languages
 reside. This is an EMF technicality and we won't discuss it in any more detail}.
 \begin{lstlisting}
 bean = StandaloneSetup {
@@ -234,8 +234,8 @@ NumberType: {NumberType}"number";
 \noindent Just as in the MPS example, the \ic{Column} rule has an optional
 \ic{mapper} property of type \ic{AbstractColumnMapper}. Since it is not possible
 to explicitly mark rules as generating abstract meta classes, we simply define
-the syntax to be \ic{not mapped}\footnote{Since the \ic{mapper} property in
-\ic{Column} is optional, you don't ever have to type this.}. This language has
+the syntax to be \ic{not mapped}\footnote{Since the \icsn{mapper} property in
+\icsn{Column} is optional, you don't ever have to type this.}. This language has
 been designed \emph{for} reuse, because it has this hook
 \ic{AbstractColumnMapper}, which can be customized later. But the language is
 still independent. In the next step, we want to be able to reference
@@ -258,10 +258,10 @@ table People
 \noindent 
 To make this possible, we create a new language \ic{db2entity} which \emph{extends} the
 \ic{db} language and \emph{references} the \ic{entities}
-language\footnote{Notice that we only extend \ic{DbDsl}. The \ic{entities}
+language\footnote{Notice that we only extend \icsn{DbDsl}. The \icsn{entities}
 meta model is just \emph{referenced}. This is because Xtext can only extend one base
 grammar. For this reason we cannot embed language concepts from
-the \ic{entities} language in a \ic{db2entity} program, we can only \emph{reference}
+the \icsn{entities} language in a \icsn{db2entity} program, we can only \emph{reference}
 them.}. This is reflected by the header of the \ic{db2entity} language (notice
 the \ic{with} clause):
 
@@ -470,12 +470,12 @@ body of \ic{Operation}, which essentially allows us to use the full Xbase
 language inside the body of the \ic{Operation}. To make the \ic{parameters}
 visible, we use the \ic{FullJvmFormalParameter} rule\footnote{Above we wrote
 that Xbase is tightly integrated with the JVM and Java. The use of
-\ic{FullJvmFormalParameter} and \ic{JvmTypeReference} is a sign of this.
+\icsn{FullJvmFormalParameter} and \icsn{JvmTypeReference} is a sign of this.
 However, the next piece of code makes this even clearer.}. The
 \ic{JvmModelInferrer}, shown below, maps a model expressed with this language to
 a structurally equivalent Java "model". By doing this, we get a number of
 benefits "for free", including scoping, typing and a code generator. Let us look
-at this crucial step in some detail.
+at this crucial step in some detail.
 
 \begin{lstlisting}[language=xtend, morekeywords={}, deletekeywords={}]
 class EntityWithExprDslJvmModelInferrer extends AbstractModelInferrer {
@@ -635,7 +635,7 @@ still reuse the XBase expression compiler by injecting the
 You can also change or extend the behavior of the default \ic{JvmModelGenerator}
 by overriding its \ic{\_internalDoGenerate(EObject, IFileSystemAccess)} method
 for your particular language concept\footnote{Notice that you also have to make
-sure via Guice that your subclass is used, and not the \ic{JvmModelGenerator}.}.
+sure via Guice that your subclass is used, and not the \icsn{JvmModelGenerator}.}.
 
 \parhead{Extending Xbase} In the above example we had embedded the (otherwise
 unchanged) Xbase language into a simple DSL. Let us now look at how to extend
@@ -695,9 +695,9 @@ public class DomainModelOperatorMapping extends OperatorMapping {
 
 \noindent 
 We implement this method in a new class which we call
-\ic{ObjectExtensions2}\footnote{The existing class \ic{ObjectExtensions}
-contains the implementations for the existing \ic{==} and \ic{!=} operators,
-hence the name}\footnote{Through the \ic{operator\_identity} operation, we have
+\ic{ObjectExtensions2}\footnote{The existing class \icsn{ObjectExtensions}
+contains the implementations for the existing \icsn{==} and \icsn{!=} operators,
+hence the name}\footnote{Through the \icsn{operator\_identity} operation, we have
 expressed all the semantics: the Xbase generator will generate a call to that 
 operation in the generated Java code. Alternatively, as a performanceimprovement, you could use the @Inline annotation to inline the function in thegenerated code.}:
 \begin{lstlisting}[language=java, morekeywords={}, deletekeywords={}]

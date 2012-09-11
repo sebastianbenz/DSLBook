@@ -536,7 +536,7 @@ development.} However, there are several exceptions to this rule:
   In this case it may be better to keep the generator simple and use fully 
   qualified class names throughout the code, and/or to import a few too many
   classes\sidenote{Xtend provides special support for this problem based on an
-  \ic{ImportManager}. It makes generating the correct imports relatively
+  \icsn{ImportManager}. It makes generating the correct imports relatively
   simple.}.
   
   \item Using a generator opens up additional options you wouldn't consider when
@@ -585,9 +585,9 @@ cleaner and more efficient. Programmers trade flexibility for performance.}
   \includegraphics[width=10cm]{figures-design/embc/restrictedport.png}
 \end{minipage}
 }
-  \caption[][0.3cm]{The required port \ic{lowlevel} is not just bound to the
-  \ic{ILowLevel} interface, but restricted tot the \ic{ll} port of the
-  \ic{LowLevelCode} component. This way, it is statically known which C
+  \caption[][0.3cm]{The required port \icsn{lowlevel} is not just bound to the
+  \icsn{ILowLevel} interface, but restricted tot the \icsn{ll} port of the
+  \icsn{LowLevelCode} component. This way, it is statically known which C
   function implements the behavior and the generated code can be optimized.}
   \label{restrictedport} 
 \end{figure}
@@ -699,8 +699,8 @@ of criteria to help with this decision.
 	the generated code may come with its own optimizations which are used
 	automatically if source code is generated and subsequently
 	compiled, simplifying the code generator\sidenote{For example, it is not
-	necessary to optimize away calls to empty functions,\ic{if} statements that 
-	always evaluate to \ic{true}, or arithmetic expressions
+	necessary to optimize away calls to empty functions, \icsn{if} statements that 
+	always evaluate to \icsn{true}, or arithmetic expressions
 	containing only constants.}.
 	Generally, performance is better in generated environments, since 
 	interpreters always imply an additional layer of indirection during the
@@ -874,7 +874,7 @@ programs for consistency. If these kinds of analyses are useful for the model
 purpose, then limiting the expressiveness to the respective formalism may be a
 good idea, even if it makes expressing certain programs in $D$ more
 cumbersome\footnote{A simple example is to use integers with ranges
-\ic{int[0..10] x;} instead of general integers. This makes programs harder to
+\icsn{int[0..10] x;} instead of general integers. This makes programs harder to
 write (ranges must be specified every time) but easier to analyze.}. Possibly a
 DSL should be partitioned into several sub-DSLs, where some of them are
 verifiable and some are not.

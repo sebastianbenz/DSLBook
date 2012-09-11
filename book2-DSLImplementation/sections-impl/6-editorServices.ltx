@@ -17,7 +17,7 @@ how X works in some tool, this does \emph{not} mean that you cannot do X with
 this particular tool.}.
 
 
-\section{Code Completion}
+\sect{Code Completion}
 
 Code completion is perhaps the most essential service provided by an IDE. We
 already saw that code completion is implicitly influenced by
@@ -168,8 +168,8 @@ necessary code.
 \begin{center}
   \includegraphics[width=10cm]{figures-impl/6/cellmenu.png}
   \caption[]{A cell menu for the \ic{name} property of a
-  \ic{LocalVariableDeclaration}. In the editor definition (top window) we
-  select the cell that renders the \ic{name}. In the inspector we can then
+  \icsn{LocalVariableDeclaration}. In the editor definition (top window) we
+  select the cell that renders the \icsn{name}. In the inspector we can then
   define additional properties for the selected cell. In this case we
   contribute an additional cell menu that provides the suggested names.}
   \label{cellmenu} 
@@ -212,7 +212,7 @@ of the language, or by the user in the IDE. \fig{xtext-template} shows the
   completion menu at all locations where that grammar
   rule would be valid as well. The pattern is the actual text that will be 
   inserted into the editor if the template is selected. It
-  can contain so-called variables. Once inserted, the user can use \ic{Tab} to
+  can contain so-called variables. Once inserted, the user can use \icsn{TAB} to
   step through the variables and replace them with text. In the example, we
   define the condition expression as a variable.}
   \label{xtext-template} 
@@ -237,8 +237,8 @@ Alternatively we can use a cell menu (already mentioned above).
 }
   \caption[]{A cell menu to insert the if-then-else statement. Note how we
   contribute \emph{two} menu parts. The first one inserts the default code
-  completion contents for \ic{Statement}. The second one provides an
-  if/then/else statement under the menu text \ic{if-then-else}. Notice how we
+  completion contents for \icsn{Statement}. The second one provides an
+  if/then/else statement under the menu text \icsn{if-then-else}. Notice how we
   can use a quotation (concrete syntax expression) in the cell menu code.
   Because of MPS's support for language composition, the editor even 
   provides code completion etc. \emph{for the contents of the quotation} in
@@ -249,7 +249,7 @@ Alternatively we can use a cell menu (already mentioned above).
 
 
 
-\section{Syntax Coloring}
+\sect{Syntax Coloring}
 
 There are two cases for syntax coloring: syntactic highlighting and semantic
 highlighting. Syntactic highlighting is used to color keywords, for example.
@@ -267,7 +267,7 @@ colored in grey instead of black.
 }
   \caption[]{In MPS, syntax coloring is achieved by simply associating one or
   more style properties with the elements at hand. In this case we assign a
-  \ic{darkGreen} text foreground color as well as a \ic{bold} font style.}
+  \icsn{darkGreen} text foreground color as well as a \icsn{bold} font style.}
   \label{globalvareditor} 
 \end{figure}
 
@@ -297,11 +297,11 @@ constant (\ic{darkGreen}) for the color we embed a query expression. The code in
 \begin{minipage}{105mm}
   \includegraphics[width=100mm]{figures-impl/6/stylequery.png}
   \caption[]{A style query that renders the associated cell in grey if the
-  \ic{state} (to which the cell belongs) has no incoming transitions. We first
+  \icsn{state} (to which the cell belongs) has no incoming transitions. We first
   find out if the state has incoming transitions by finding the
-  \ic{Statemachine} ancestor of the state, finding all the \ic{Transitions} in
-  the subtree under the \ic{Statemachine}, and then checking if one exists whose
-  \ic{targetState} is the current state (\ic{node}). We then use the result of
+  \icsn{Statemachine} ancestor of the state, finding all the \icsn{Transitions} in
+  the subtree under the \icsn{Statemachine}, and then checking if one exists whose
+  \icsn{targetState} is the current state (\icsn{node}). We then use the result of
   this query to color the cell appropriately.}
   \label{stylequery} 
 \end{minipage}
@@ -474,7 +474,7 @@ font from the identifier specification.
 
 
 
-\section{Go-to-Definition and Find References}
+\sect{Go-to-Definition and Find References}
 
 Following a reference (go to definition, \keystroke{Ctrl-Click}) as well as
 finding references to a given program element works automatically without any
@@ -488,7 +488,7 @@ change the target of the go-to-definition functionality. Strictly speaking, we
 don't change go-to-definition at all. We just define a new hyperlinking
 functionality. Go-to-Definition is just the default hyperlinking
 behavior\sidenote{Hyperlinking gets its name from the fact that, as you mouse
-over an element while keeping the \keystroke{Ctrl} key depressed you see the
+over an element while keeping the \icsn{Ctrl} key depressed you see the
 respective element turn blue and underlined. You can the click on to it to
 follow the hyperlink}. As a consequence, 
 
@@ -532,7 +532,7 @@ references, we may want to distinguish between these different cases.
 \begin{marginfigure}[-5\baselineskip]
 \begin{center}
   \includegraphics[width=50mm]{figures-impl/6/finders.png}
-  \caption[]{In the Find Usages dialog for \ic{Interfaces}. The two additional
+  \caption[]{In the Find Usages dialog for \icsn{Interfaces}. The two additional
   Finders in the top left box are contributed by the language.}
   \label{finders} 
 \end{center}
@@ -564,8 +564,8 @@ finder findProviders for concept Interface
 \begin{center}
   \includegraphics[width=50mm]{figures-impl/6/finder-result.png}
   \caption[]{The result dialog of running Find Usages with our customized
-  finders. Note the \ic{Providers} and \ic{Users} categories; these correspongf
-  to the strings returned from \ic{getCategory} in the two finders.}
+  finders. Note the \ic{Providers} and \icsn{Users} categories; these correspongf
+  to the strings returned from \icsn{getCategory} in the two finders.}
   \label{finder-result} 
 \end{center}
 \end{marginfigure} 
@@ -577,7 +577,7 @@ first line of the implementation we delegate to an existing finder, \ic{Node
 Usages}, which finds \emph{all} references. We then simply check if the
 referencing element is a \ic{ProvidedPort}, and if so, we add the parent of the
 port, i.e.~a \ic{Component}, to the result\footnote{Note how we make use of extensions
-to the MPS BaseLanguage to concisely specify finders: \ic{execute} and \ic{add
+to the MPS BaseLanguage to concisely specify finders: \icsn{execute} and \icsn{add
 result} are only available in the finder specification language.}. Finally,
 \ic{getCategory} returns a string that is use to structure the result.
 \fig{finder-result} shows an example result.
@@ -622,7 +622,7 @@ hyperlink.
 
 
 
-\section{Pretty Printing} Pretty printing refers to the reverse activity from
+\sect{Pretty Printing} Pretty printing refers to the reverse activity from
 parsing\footnote{It is also known as \emph{serialization}.}. A parser transforms
 a character sequence into an abstract syntax tree. A pretty printer (re-)creates
 the text string from the AST. As the term \emph{pretty} printing suggests, the
@@ -834,7 +834,7 @@ used by Spoofax) should go a long way.}.
 
 
 
-\section{Quick Fixes}
+\sect{Quick Fixes}
 
 A quick fix is a semi-automatic fix for a constraint violation. It is
 semi-automatic in the sense that it is made available to the user in a menu, and
@@ -987,7 +987,7 @@ can be invoked on any instance of the concept for which the intention is
 declared.
 
 
-\section{Refactoring}
+\sect{Refactoring}
 \label{impl-refa}
 
 Refactoring concerns changing the program structure without changing its
@@ -1011,7 +1011,7 @@ editor such as MPS renaming is not even a refactoring. A reference is
 established with the UUID of the target element. Renaming it does not lead to
 any structural change. And since the editor for the \emph{referencing} element
 defines how to render the reference, it will just display the updated name in
-case it changes.}.q
+case it changes.}.
 
 
 \parhead{Renaming in Spoofax} Like code generators, refactorings need to be
@@ -1057,7 +1057,7 @@ rename-entity:
 
   rename-entity-local(|old-name, new-name):
     EntType(old-name) -> EntType(new-name)
-\end{lstlisting}\ignore{$}
+\end{lstlisting}
 
 \noindent 
 As we have seen already for other editor services, rewrite rules for
@@ -1072,9 +1072,9 @@ abstract syntax tree and lists of fatal errors, normal errors, and warnings.
 For simplicity, the example rule changes the whole abstract syntax tree into a
 new one and provides only duplicate definition errors. Thereby, the new abstract
 syntax tree is retrieved by traversing the old on in a \ic{topdown} fashion,
-\ic{try}ing to apply rewrite rules \ic{rename-entity-local}\footnote{\ic{try(s)} 
-tries to apply a strategy \ic{s} to a term. Thereby, it never fails. If \ic{s}
-succeeds, it will return the result of \ic{s}. Otherwise, it will return the
+\ic{try}ing to apply rewrite rules \ic{rename-entity-local}\footnote{\icsn{try(s)} 
+tries to apply a strategy \icsn{s} to a term. Thereby, it never fails. If \icsn{s}
+succeeds, it will return the result of \icsn{s}. Otherwise, it will return the
 original term.} These rules take the old and new entity name as parameters. They
 take care that declarations and references to entities are renamed. The first
 rule rewrites entity declarations, while the second one rewrites types of the
@@ -1171,7 +1171,7 @@ We are now ready to implement the refactoring algorithm itself in the
 \ic{refactor} block. We first declare two local variables that represent the
 expression on which we invoked the refactoring. We can get it from the
 \ic{refactoringContext}\footnote{In case the refactoring was declared to
-\ic{allow multiple}, we can use \ic{refactoringContext.nodes} to access all of
+\icsn{allow multiple}, we can use \icsn{refactoringContext.nodes} to access all of
 the selected nodes.}. We then grab the \ic{Statement} under which this
 expression is located. Finally, we get the \ic{index} of the \ic{Statement} 
 (\ic{.index} returns the index of an element in its owning collection).
@@ -1227,7 +1227,7 @@ There is one more step we have to do. We have to replace all the occurences of
 our target expression with a reference to the newly introduced local variable.
 We had collected the \ic{matchingExpressions} above, so we can now iterate over
 this collection\sidenote{Note how the actual replacement is done with the
-\ic{replace with} built-in function. It comes in very handy since we don't have
+\icsn{replace with} built-in function. It comes in very handy since we don't have
 to manually find out in which property or collection the expression lives in
 order to replace it.}:
      
@@ -1247,7 +1247,7 @@ non-trivial.
 
 
 
-\section{Labels and Icons}
+\sect{Labels and Icons}
 
 Labels and icons for language concepts are used in several places, among them
 the outline view and the code completion menu. 
@@ -1298,7 +1298,7 @@ fixed and cannot be changed dynamically.
 \end{marginfigure}
 
 
-\section{Outline}
+\sect{Outline}
 
 The outline provides an overview over the contents of some part of the overall
 model, typically a file. By default, it usually shows more or less the AST, down
@@ -1415,12 +1415,12 @@ statement.
 \parhead{The Outline in MPS} MPS does not have a cutomizable outline view. It
 shows the AST of the complete program as part of the project explorer, but the
 structure cannot be customized. However, it is of course possible to arbitrary
-additional views (called \emph{tools} in MPS) to MPS\sidenote[][-2\baselineskip]{The MPS tutorial at \ic{http://bit.ly/xU78ys}
+additional views (called \emph{tools} in MPS) to MPS\sidenote[][-2\baselineskip]{The MPS tutorial at \icsn{http://bit.ly/xU78ys}
 shows how to implement your own outline view.}.
 
 
 
-\section{Code Folding} Code folding refers to the small minuses in the gutter of
+\sect{Code Folding} Code folding refers to the small minuses in the gutter of
 an editor that let you collapse code regions (see \fig{folding}). The editor
 shows an ellipsis (\ic{..}) for the folded parts of the code. Clicking on
 the \ic{+} or on the ellipsis restores the full code.
@@ -1550,13 +1550,13 @@ minus icons. Then improve the caption.}
   \includegraphics[width=80mm]{figures-impl/6/reqEditor.png}
   \caption[][55mm]{The part of the editor that includes the details pane is
   only projected if the \ic{open} property is true. This property is toggled
-  using \keystroke{Ctrl-Shift-D}.}
+  using \icsn{Ctrl-Shift-D}.}
   \label{reqEditor} 
 \end{center}
 \end{figure}
 
 
-\section{Diff and Merge}
+\sect{Diff and Merge}
 
 Highlighting the differences between versions of a program and the allowing the
 resolution of conflicts is important in the context of version control
@@ -1572,7 +1572,7 @@ that highlight whether a part of the program has changed relative to the last
 checkout.
 
 
-\section{Tooltips/Hover} 
+\sect{Tooltips/Hover} 
 
 A tooltip, or hover, is a small, typically yellow window that is shown if the
 user hovers the mouse over a program element. A hover may show the documentation
@@ -1619,7 +1619,7 @@ referenced requirement (see \fig{detailsInInspector}).
 \begin{center}
   \includegraphics[width=55mm]{figures-impl/6/detailsInInspector.png}
   \caption[]{If a user selects a reference to a requirement in a requirements
-  trance (\ic{Arg2} in the example), the inspector shows information about the
+  trance (\icsn{Arg2} in the example), the inspector shows information about the
   referenced requirement.}
   \label{detailsInInspector} 
 \end{center}
@@ -1636,17 +1636,17 @@ details about the referenced element.
   \includegraphics[width=\columnwidth]{figures-impl/6/inspectedCellLayout.png}
 \end{minipage}
 }
-  \caption[]{The editor definition for the \ic{RequirementRef} projects details
+  \caption[]{The editor definition for the \icsn{RequirementRef} projects details
   about the referenced element in the inspector. Notice the use of the
-  \ic{\$swing component\$} as a means to embed the Swing \ic{JTextArea} that
+  \icsn{\$swing component\$} as a means to embed the Swing \icsn{JTextArea} that
   shows the prose description of the requirement. The code behind the
-  \ic{\$swing component\$} also populates the text area and writes back the
+  \icsn{\$swing component\$} also populates the text area and writes back the
   changed text to the AST.}
   \label{inspectedCellLayout} 
 \end{figure}
   
 
-\section{Visualizations} 
+\sect{Visualizations} 
 
 To provide an overview over the structure of the programs, read-only graphical
 representations are useful. Note that these are not necessarily a workaround for

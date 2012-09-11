@@ -117,7 +117,7 @@ the AS data structures - i.e., AS first.
 
 
 
-\section{Fundamentals of Free Text Editing and Parsing} 
+\sect{Fundamentals of Free Text Editing and Parsing} 
 \label{parsingfundamentals}
 
 Most programming environments rely on free text editing, where
@@ -505,10 +505,10 @@ Mult ::= Mult "*" NUM
 
 \noindent 
 The resulting grammar is a valid LR grammar. Note how it puts the \ic{+}
-operator in the highest layer to give it the lowest priority\footnote{A \ic{+}
-will end up further up in the expression tree than a \ic{*}; this means that the
-\ic{*} has higher precedence, since any interpreter or generator will encounter
-the \ic{*} first.}, and how it uses left-recursion to encode left-associativity
+operator in the highest layer to give it the lowest priority\footnote{A \icsn{+}
+will end up further up in the expression tree than a \icsn{*}; this means that the
+\icsn{*} has higher precedence, since any interpreter or generator will encounter
+the \icsn{*} first.}, and how it uses left-recursion to encode left-associativity
 of the operators. The grammar can be left-factored to a corresponding LL grammar
 as follows. We will see more extensive examples of this approach in the section
 on Xtext (\sect{Sec:xtext-syntax}).
@@ -591,7 +591,7 @@ pre- and postconditions in interface definitions or to specify derived
 attributes in a data definition language.}. As an example, suppose we want to
 compose this grammar with the grammar for field access expressions\footnote{
 Here we consider the case where two grammars use a symbol with the identical
-name \ic{Expr}. Some grammar definition formalisms support mechanisms such as
+name \icsn{Expr}. Some grammar definition formalisms support mechanisms such as
 grammar mixins and renaming operators to work with grammar modules where the
 symbol names do not match.}:
 
@@ -651,7 +651,7 @@ lexers}
 
 
 
-\section{Fundamentals of Projectional Editing} 
+\sect{Fundamentals of Projectional Editing} 
 
 In parser-based approaches, users use text editors to enter character sequences
 that represent programs. A parser then checks the program for syntactic
@@ -742,7 +742,7 @@ others, the following strategies\footnote{The following list may be hard torela
   inconvenient. In MPS, languages can instead define aliases for language
   concepts, allowing users to "just type" the alias, after which the concept
   is immediately instantiated\footnote{By making the alias the same as the
-  leading keyword (e.g.,~\ic{if} for an \ic{IfStatement}), users can "just
+  leading keyword (e.g.,~\icsn{if} for an \icsn{IfStatement}), users can "just
   type" the code.}.
 
   \item So-called side transforms make sure that expressions can be entered
@@ -889,7 +889,7 @@ migrated, manually or by a script, to the new version of the language. MPS
 supports this feature, and it is also possible to distribute migration scripts
 with (updated) languages to run the migration automatically\footnote{It is also
 possible to define quick fixes that run \emph{automatically}; so whenever a
-concept that is marked as \ic{deprecated}, this quick fix can trigger an
+concept that is marked as \icsn{deprecated}, this quick fix can trigger an
 automatic migration to a new concpet.}.
 
 Most textual IDEs do not come with explicit support for evolving programs as
@@ -1091,7 +1091,7 @@ In MPS, programs are trees/graphs of \emph{nodes}. A node is an instance of a
 its instance nodes\footnote{The term concept used in this book to refer to
 language constructs including abstract syntax, concrete syntax and semantics is
 inspired by MPS' use of the term}. Like \ic{EClass}es\footnote{Nodes correspond
-to \ic{EObject}s in EMF, concepts resemble \ic{EClass}es}, concepts are meta
+to \icsn{EObject}s in EMF, concepts resemble \icsn{EClass}es}, concepts are meta
 circular, i.e.\ there is a concept that defines the properties of concepts:
 
 
@@ -1201,7 +1201,7 @@ using an EBNF-like grammar, a collection of productions that are typically
 called \emph{parser rules}. These rules specify the concrete syntax of a program
 element, as well as its mapping to the AS. From the grammar, Xtext generate the
 abstract syntax represented in Ecore\footnote{The entity that contains the meta
-classes is actually called an \ic{EPackage}.}. Here is the definition of the
+classes is actually called an \icsn{EPackage}.}. Here is the definition of the
 \ic{CoolingProgram} rule:
 
 \begin{lstlisting}[language=xtextgrammar] 
@@ -1314,8 +1314,8 @@ up into the abstract \ic{State} meta class so they can be accessed polymorphical
 \begin{minipage}{104.5mm}
   \includegraphics[scale=0.7]{figures-impl/2/xtext-metamodel.png}
   \caption[]{Part of the Ecore meta model derived from the Xtext grammar
-  for the cooling program. Grammar rules become \ic{EClass}es, assignments in
-  the grammar rules become \ic{EProperties} (i.e.~attributes and references).}
+  for the cooling program. Grammar rules become \icsn{EClass}es, assignments in
+  the grammar rules become \icsn{EProperties} (i.e.~attributes and references).}
   \label{Fig:xtext-metamodel}  
 \end{minipage}
 }
@@ -1446,7 +1446,7 @@ example in grammar rule \ic{TrueLiteral: "true";} no instance of
 this case, an action can be used to force instantiation: \ic{TrueLiteral:
 \{TrueLiteral\} "true";}\footnote{Notice that the action can instantiate meta
 classes other than those that are derived from the rule name (we could write
-\ic{TrueLiteral: \{SomeOtherThing\} "true";}. While this would not make sense in
+\icsn{TrueLiteral: \{SomeOtherThing\} "true";}. While this would not make sense in
 this case, we'll use this feature later.}. Unless otherwise specified, an
 assignment such as \ic{name=ID} is always interpreted as an assignment on the
 object that has been created most recently. The \ic{current} keyword can be used
@@ -1810,7 +1810,7 @@ other:
 This means that this production is to be preferred if there are any
 other interpretations. However, since these interpretations cannot always be
 foreseen as grammars are extended, it is considered good practice to use the
-more specific \ic{reject} approach instead\footnote{This is the situationwhere a projectional editor like MPS is more flexible, since instead ofrunning into an ambiguity, it would prompt the user to decide whichinterpretation is correct as he types \ic{true}.}.
+more specific \ic{reject} approach instead\footnote{This is the situationwhere a projectional editor like MPS is more flexible, since instead ofrunning into an ambiguity, it would prompt the user to decide whichinterpretation is correct as he types \icsn{true}.}.
 
 \parhead{Longest match} Most scanners apply a \emph{longest match} policy for
 scanning tokens. This means that if it is possible to include the next character
@@ -1963,7 +1963,7 @@ new statement and hence make the respective list visible.
 \fbox{
 \begin{minipage}{104.5mm}
   \includegraphics[width=10cm]{figures-impl/2/mps-stateeditor.png}
-  \caption[]{The definition of the editor for the \ic{State} concept.
+  \caption[]{The definition of the editor for the \icsn{State} concept.
   In MPS, editors are made from cells. In the editor definition your arrange
   the cells and define what they project; this defined the projection rule that
   is then used when instances of the concept are edited.}
@@ -1987,19 +1987,19 @@ braces.
 \begin{minipage}{104.5mm}
   \includegraphics[width=16cm]{figures-impl/2/mps-transeditor.png}
   \caption[][-30mm]{The editor for transitions. Note how we embed the
-  guard condition expression simply by referring to the \ic{guard} child
+  guard condition expression simply by referring to the \icsn{guard} child
   relationship. We "inherit" the syntax for expressions from the
-  \ic{com.mbeddr.core.expressions} language.}
+  \icsn{com.mbeddr.core.expressions} language.}
   \label{Fig:mps-transeditor}  
 \end{minipage}
 } 
 \end{figure*}
 \noindent The \ic{\%targetState\% -> \{name\}} part is interesting; it expresses
 that in order to render the target state, the target's state's \ic{name} attribute
-should be shown. We could use any text string to refer to the target state\footnote{We could even use the symbol \ic{X} to render \emph{all} target state references.
+should be shown. We could use any text string to refer to the target state\footnote{We could even use the symbol \icsn{X} to render \emph{all} target state references.
 The reference would still work, because the underlying data structure uses the
 target's unique ID to establish the reference. It does not matter what we use to
-represent the target in the model. Using \ic{X} for all references would of
+represent the target in the model. Using \icsn{X} for all references would of
 course be bad for human readability, but technically it would work}.
 
 Note how we use \ic{on} both as the leading keyword for a transition and as the
@@ -2029,7 +2029,7 @@ textual notations}
 \begin{marginfigure}
   \includegraphics[width=3.5cm]{figures-impl/2/intention.png}
   \caption{The intentions menu for a local variable declaration. It can be
-  opened via \ic{Alt-Enter}. Note that, to select an action from the menu, you
+  opened via \icsn{Alt-Enter}. Note that, to select an action from the menu, you
   can just start typing the action label, so this is very keyboard-friendly.}
   \label{intention} 
 \end{marginfigure} 
@@ -2084,7 +2084,7 @@ simply rerendered to update the representation of the program in the editor.
 However, we do have to define an editor for each language concept\footnote{Using
 Xtext's automatic derivation of the AS from the grammar, defining simple
 languages is faster with Xtext. However, when one switches to a manually
-maintained AS \ic{EPackage}, then the efforts are comparable.}.
+maintained AS \icsn{EPackage}, then the efforts are comparable.}.
 
 
 
@@ -2204,7 +2204,7 @@ statement. \ic{AssertStatement} extends \ic{Statement}, so by default, an
 \ic{com.mbeddr.core.unittest} is used in a program. However, this is not what we
 want: \ic{assert} statements should be restricted to be used inside a
 \ic{UnitTest}\footnote{This is, among other reasons, because the transformation
-of the \ic{assert} statement to C expects code generated from the \ic{UnitTest}
+of the \icsn{assert} statement to C expects code generated from the \icsn{UnitTest}
 to surround it}. To support such a use case, MPS supports a set of constraints.
 Here is the implementation for \ic{AssertStatement}:
 

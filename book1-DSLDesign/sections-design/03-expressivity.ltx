@@ -19,16 +19,14 @@ We identify seven design dimensions that span the space within which DSLs are
 designed: expressivity, coverage, semantics, separation of concerns,
 completeness, language modularization and syntax.
 We illustrate the design alternatives along each of these dimensions with
-examples from our case studies.
-
-The dimensions provide a vocabulary for describing and comparing the
+examples from our case studies. The dimensions provide a vocabulary for describing and comparing the
 design of existing DSLs and help guide the design of new ones. We also describe
 drivers, or forces, that lead to using one design alternative over another one.
 This chapter is not a complete methodology. It does not present a recipe that
 guarantees a great DSL if followed. I don't believe in methodologies, because
 they pretend precision where there isn't any. Building a DSL is a craft. This
 means that, while there are certain established approaches and conventions,
-building a good DSL also requires experience and practice.}
+building a good DSL also requires experience and practice.} 
 
 
 
@@ -286,12 +284,12 @@ inside of a \ic{with port} referencing that same port.}
   \includegraphics[width=\columnwidth]{figures-design/embc/optionalport.png}
 \end{minipage}
 }
-  \caption[][0.3cm]{The \ic{with port} statement is required to surround an
+  \caption[][0.3cm]{The \icsn{with port} statement is required to surround an
   invocation on an optional required port; otherwise, an error is reported in
   the IDE. If the port is not connected for any given instance, the code inside the
-  \ic{with port} is not executed. It acts like an \ic{if} statement, but since
+  \icsn{with port} is not executed. It acts like an \icsn{if} statement, but since
   it cannot contain an expression as its condition, the correct use of the
-  \ic{with port} statement can be statically checked.}
+  \icsn{with port} statement can be statically checked.}
   \label{optionalport}  
 \end{figure}
  
@@ -336,7 +334,7 @@ library function \ic{isConnected(port)}, we could enforce that a call on an
 optional port is surrounded by an \ic{if (isConnected(port))} \emph{without any
 other expression} in the condition. In this case, the static analyzer would have
 to treat \ic{isConnected} specially\footnote{Treating program elements specially
-is dangerous because the semantics of \ic{isConnected} or \ic{OrderedList} could
+is dangerous because the semantics of \icsn{isConnected} or \icsn{OrderedList} could
 be changed by a library developer, without changing the static analyzer of code
 generator in a consistent way.}. In-Language abstraction can, as the name
 suggests, provide \emph{abstraction}. But it cannot provide

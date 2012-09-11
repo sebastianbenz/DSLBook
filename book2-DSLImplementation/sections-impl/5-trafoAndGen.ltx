@@ -69,7 +69,7 @@ target models instead of "imperatively" constructing a target tree as the source
 is traversed. While this is often less intuitive to write down, the approach has
 the advantage that it supports transformation in both directions, and also
 supports model diff\footnote{(It does so by "relating" two instances of the same
-language and marking both as \ic{readoqnly}; the engine then points out the
+language and marking both as \icsn{readoqnly}; the engine then points out the
 difference between the two.}. QVT
 relational\footnote{http://en.wikipedia.org/wiki/QVT} is an example of this
 approach.
@@ -140,12 +140,12 @@ complete model to find the top level structures}
 \begin{center}
   \includegraphics[width=\columnwidth]{figures-impl/5/xtext-gen-1.png}
   \caption[]{The top level structure of a generator written in Xtext is a class
-  that implements the \ic{IGenerator} interface, which requires the
-  \ic{doGenerate} method. Inside generator methods, template expressions
+  that implements the \icsn{IGenerator} interface, which requires the
+  \icsn{doGenerate} method. Inside generator methods, template expressions
   (using the triple single quotes) are typically used. Inside those, 
   guillemets (the small double angle brackets) are used to switch between
   to-be-generated code (grey background) and template control code. Note also the grey whitespace in the
-  \ic{init} function. Grey whitespace is whitespace that will end up in the
+  \icsn{init} function. Grey whitespace is whitespace that will end up in the
   generated code. White whitespace is used for indentation of template code.
   Xtend figures out which is which automatically.}
   \label{xtext-gen-1} 
@@ -209,12 +209,12 @@ of the respective content element and then its \ic{index}. From within
 templates, the properties and references of model elements (such as the
 \ic{name} or the \ic{module} or the \ic{contents}) can simply be accessed using
 the dot operator. \ic{map} and \ic{filter} are collection methods defined by the
-Xtend standard library\footnote{\ic{map} creates a new collection from an existing
+Xtend standard library\footnote{\icsn{map} creates a new collection from an existing
 collection where, for each element in the existing collection, the expression
-after the \ic{|} creates the corresponding value for the new collection.
-\ic{filter} once again creates a new collection from an existing one where only
+after the \icsn{|} creates the corresponding value for the new collection.
+\icsn{filter} once again creates a new collection from an existing one where only
 those elements are included that are an instance of the type passed as an
-argument to \ic{filter}.}. We also have to generate an \ic{enum} for the
+argument to \icsn{filter}.}. We also have to generate an \ic{enum} for the
 states in the cooling program.
 
 \begin{lstlisting}[language=xtend]
@@ -279,7 +279,7 @@ The code first uses an \ic{IF} statement to check whether the program has any
 states with exit actions (by calling the \ic{concreteStatesWitExitActions} 
 extension method). Only if we have such states is the subsequent \ic{switch} statement generated. The \ic{switch}
 switches over the \ic{current\_state}, and then adds a \ic{case} for each state
-with exit actions\footnote{The \ic{s.name} expression in the \ic{case}
+with exit actions\footnote{The \icsn{s.name} expression in the \icsn{case}
 is actually a reference to the enum literal generated earlier for
 the particular state. From the perspective of Xtend, we simply generate text: it is not obvious
 from the template that the name corresponds to an enum literal. Potential
@@ -289,8 +289,8 @@ code.}. Inside the case we iterate over all the \ic{exitStatements} and call
 
 \ic{compileStatement} is a multimethod: it is polymorphically overloaded based
 on its argument\footnote{Note that Java can only perform a polymorphic dispatch
-based on the \ic{this} pointer. Xtend can dispatch polymorphically over the
-arguments of methods marked as \ic{dispatch}.}. For each statement in the
+based on the \icsn{this} pointer. Xtend can dispatch polymorphically over the
+arguments of methods marked as \icsn{dispatch}.}. For each statement in the
 cooling language, represented by a subclass of \ic{Statement}, there is an
 implementation of this method. The next piece of code shows some example
 implementations.
@@ -468,7 +468,7 @@ class Transformation {
 \end{lstlisting}
 
 \noindent The two \ic{create} methods create new objects, as the \ic{create}
-prefix suggests\footnote{The \ic{factory} used in these methods is the way to
+prefix suggests\footnote{The \icsn{factory} used in these methods is the way to
 create model elements in EMF. It is generated as part of the EMF code
 generator}. However, simply creating objects can be done with a regular method
 as well:
@@ -498,7 +498,7 @@ textual occurrences of a symbol are the same thing (in some sense, text strings
 are value objects). In model transformation the identity of elements does
 matter. It is not the same if we create \emph{one} new state and then reference
 it, or if we create five new states. So a good transformation language helps
-keep track of identities. The \ic{create} methods are a very nice implementation
+keep track of identities. The \icsn{create} methods are a very nice implementation
 of this principle.}.
 
 We can now look at the implementation of \ic{transform} itself. It starts out by
@@ -595,13 +595,13 @@ as for XML, or even for a particular schema).}.
 \fbox{
 \begin{minipage}{104.5mm}
   \includegraphics[width=8cm]{figures-impl/5/mps-textgen.png}
-  \caption[]{The AST-to-text generator for an \ic{if} statement. If first
-  checks if the condition happens to be a \ic{true} literal, in which case the \ic{if}
-  statement is optimized away and only the \ic{thenPart} is output. Otherwise
-  we generate an \ic{if} statement, the condition in parentheses, and then the
-  \ic{thenPart}. We then iterate over all the \ic{elseIfs}; an \ic{elseIf} has
+  \caption[]{The AST-to-text generator for an \icsn{if} statement. If first
+  checks if the condition happens to be a \icsn{true} literal, in which case the \icsn{if}
+  statement is optimized away and only the \icsn{thenPart} is output. Otherwise
+  we generate an \icsn{if} statement, the condition in parentheses, and then the
+  \icsn{thenPart}. We then iterate over all the \icsn{elseIfs}; an \icsn{elseIf} has
   its own textgen, and we delegate to that one. We finally output the code for
-  the \ic{else} part.}
+  the \icsn{else} part.}
   \label{mps-textgen} 
 \end{minipage}
 }
@@ -696,8 +696,8 @@ templates shown in \fig{mps-sm-gen-1} and \fig{mps-sm-gen-2}.
 \fbox{
 \begin{minipage}{104.5mm}
   \includegraphics[width=10cm]{figures-impl/5/mps-sm-gen-1.png}
-  \caption[]{The MPS generator that inserts two\ic{enum} definitions
-  and a \ic{struct} into the module which contains the \ic{StateMachine}.}
+  \caption[]{The MPS generator that inserts two \icsn{enum} definitions
+  and a \icsn{struct} into the module which contains the \icsn{StateMachine}.}
   \label{mps-sm-gen-1}  
 \end{minipage}
 }
@@ -720,9 +720,9 @@ it.
 \begin{center}
   \includegraphics[width=\columnwidth]{figures-impl/5/mps-gen-phases.png}
   \caption[]{State machines are transformed (via a model-to-model
-  transformation, if you will) into two \ic{enum}s, a \ic{struct} and a
+  transformation, if you will) into two \icsn{enum}s, a \icsn{struct} and a
   function. These are then transformed to text via the regular
-  \ic{com.mbeddr.core} textgen.}
+  \icsn{com.mbeddr.core} textgen.}
   \label{mps-gen-phases} 
 \end{center} 
 \end{figure}
@@ -744,7 +744,7 @@ that determines what we iterate over is entered in the Inspector, MPS'
 equivalent to a properties window; \fig{mps-sm-inspector1} shows the code for
 iterating over the states\sidenote[][-10mm]{Note that the only really
 interesting part of \fig{mps-sm-inspector1} is the body of the anonymous function
-(\ic{node.states;}), which is why in the future we will only show this part.}.
+(\icsn{node.states;}), which is why in the future we will only show this part.}.
 For the literals of the events \ic{enum} we use a similar expression
 (\ic{node.events;}).
 \todo{above, the sidenote is somehow broken (-10)}
@@ -757,8 +757,8 @@ For the literals of the events \ic{enum} we use a similar expression
 }
 \caption[]{The inspector is used to provide the implementation
 details for the macros used in the templates. This one belongs to a
-\ic{LOOP} macro, so we provide an expression that returns a
-collection, over which the \ic{LOOP} macro iterates.}
+\icsn{LOOP} macro, so we provide an expression that returns a
+collection, over which the \icsn{LOOP} macro iterates.}
 \label{mps-sm-inspector1} 
 \end{figure}
  
@@ -772,7 +772,7 @@ various \ic{EnumLiteral}s all must have different names. In fact, the name of
 each literal should be the name of the state/event for which it is created. We
 can use a property macro, denoted by the \ic{\$} sign, to acheive this. A
 property macro is used to replace values of properties\footnote{The node
-macros used above (\ic{COPY\_SRC}) replace whole nodes as opposed toprimitive \emph{properties} of nodes.}. In this case we use it to replace the\ic{name} property of the generated \ic{EnumLiteral}. Here is the implementation 
+macros used above (\icsn{COPY\_SRC}) replace whole nodes as opposed toprimitive \emph{properties} of nodes.}. In this case we use it to replace the\ic{name} property of the generated \ic{EnumLiteral}. Here is the implementation 
 expression of the property macro (also entered in the inspector):
 
 \begin{lstlisting}[language=mps]
@@ -827,7 +827,7 @@ would be the name of the target element. Our implementation returns the name of
 the states \ic{enum} generated in the same template. MPS then uses the target
 language's scoping rules to find and link to the correct target
 element\footnote{So this is not simply a global name lookup! Since MPS knows the
-reference is an \ic{EnumLiteralRef} expression, the scope of the that concept is
+reference is an \icsn{EnumLiteralRef} expression, the scope of the that concept is
 used. As long as the name is unique within the scope, this is completely
 deterministic. Alternatively, the actual node can be identified and returned
 from the reference macro using mapping labels. However, using names is much more
@@ -841,7 +841,7 @@ convenient and works also for cross-model references, where mapping labelsdon't
 \end{minipage}
 }
   \caption[][40mm]{The transformation template for generating the
-  \ic{switch}-based implementation of a \ic{StateMachine}. See the text for
+  \icsn{switch}-based implementation of a \icsn{StateMachine}. See the text for
   details.}
   \label{mps-sm-gen-2} 
 \end{figure}
@@ -1068,8 +1068,8 @@ to-java:
 String interpolation takes place inside \ic{\$[\ldots]} brackets and allows to
 combine fixed text with variables that are bound to strings. Variables can be
 inserted using brackets \ic{[\ldots]} without a dollar sign\footnote{You can
-also use any other kind of bracket: \ic{\{\ldots\}}, \ic{<\ldots>}, and
-\ic{(\ldots)} are allowed as well.}. Instead of variables, we can also use
+also use any other kind of bracket: \icsn{\{\ldots\}}, \icsn{<\ldots>}, and
+\icsn{(\ldots)} are allowed as well.}. Instead of variables, we can also use
 directly the results from other rewrite rules that yield strings or lists of
 strings:
 
@@ -1189,7 +1189,8 @@ after changes to the source in the editor. Further options are shown in
 \hline
 \ic{(openeditor)} & Opens the generated file in an editor. \\
 \ic{(realtime)} & Re-generates the file as the source is edited. \\ 
-\ic{(meta)} & Excludes the transformation from the deployed plugin. \\
+\ic{(meta)} & Excludes the transformation  \\
+            & from the deployed plugin. \\
 \ic{(cursor)} & Transforms always the tree node at the cursor. \\                               
 \hline
 \end{tabular}                  
@@ -1427,8 +1428,8 @@ arguments. So it calls \ic{eval(Multi)} and \ic{eval(5)}. Evaluating a number
 literal is minimal, since it simply returns the number itself. \ic{eval(Multi)}
 would call \ic{eval(3)} and \ic{eval(2)}, multiplying their results and
 returning the result of the multiplication as its own result, allowing plus to
-finish its calculation\marginnote{Technically, \ic{eval} could be implemented as
-a method of the AST classes in an object-oriented language. However, this is
+finish its calculation\marginnote{Technically, \icsn{eval} could be implemented
+as a method of the AST classes in an object-oriented language. However, this is
 tyically not done since the interpreter should be kept separate from the AST
 classes, for example, because there may be several interpreters or because the
 interpreter is developed by other people than the AST.}.
@@ -1445,7 +1446,7 @@ typically called \ic{Statements}. Statements are either arranged in a list
 statements or statement lists). To execute those, there is typically a function
 \ic{execute} that is overloaded for all of the different statement
 types\footnote{It is also overloaded for
-\ic{StatementList} which iterates over all statements and calls \ic{execute}
+\icsn{StatementList} which iterates over all statements and calls \icsn{execute}
 for each one.}. Note that statements often contain expressions and more
 statement lists (as in \ic{if (a > 3) \{ print a; a=0; \} else \{ a=1;\}}), so
 an implementation of \ic{execute} may call \ic{eval} and perform some action
@@ -1504,7 +1505,7 @@ environment is popped.
 
 
  
-\section{Building an Interpreter with Xtext} 
+\sect{Building an Interpreter with Xtext} 
 
 \marginnote[3mm]{The example discussed in this section is built using the Xtext
 interpreter framework that ships with the Xtext typesystem framework discussed earlier:
@@ -1553,11 +1554,11 @@ first. As mentioned above, for interpreting expressions, there is typically an
 overloaded \ic{eval} operation, that contains the implementation of expression
 evaluation for each subtype of a generic \ic{Expression} concept. However, Java
 doesn't have polymorphically overloaded member methods\footnote{Java only
-supports polymorphic dispatch on the \ic{this} pointer, but not on method
+supports polymorphic dispatch on the \icsn{this} pointer, but not on method
 arguments}. We compensate this by generating a dispatcher that calls a
 \emph{different} method for each subtype of \ic{Expression}\footnote{If the
 interpreter had been built with Xtend instead, we would not have had to generate
-the dispatcher for the \ic{StatementExecutor} or the \ic{ExpressionEvaluator}
+the dispatcher for the \icsn{StatementExecutor} or the \icsn{ExpressionEvaluator}
 since Xtend provides polymorphic dispatch on method arguments. However, the
 fundamental logic and structure of the interpreter would have been similar.}.
 The generation of this dispatcher is integrated with Xtext via an Xtext workflow
@@ -1692,8 +1693,8 @@ two children in the \ic{left} and \ic{right} properties. The following code
 shows the implementation of \ic{evalLogicalAnd}. The first statement calls the
 evaluator, for the \ic{left} properties. If \ic{leftVal} is \ic{false} we return
 without evaluating the right argument\footnote{Most programming languages never
-evaluate the right argument of a logical and if the left one is \ic{false} and
-hence the overall logical and can never become \ic{true}.} If it is \ic{true} we
+evaluate the right argument of a logical and if the left one is \icsn{false} and
+hence the overall logical and can never become \icsn{true}.} If it is \ic{true} we
 evaluate the right argument. The argument evaluation uses a utility method
 called \ic{evalCheckNullLog} which automatically creates a log entry for this
 recursive call and stops the interpreter if the value passed in is \ic{null}
@@ -1743,7 +1744,7 @@ environment to look up the value for the symbol. We then check if the value is
 \ic{null} (i.e.~nothing has been assigned to the symbol as yet). In this case we
 return the default value for the respective type and log a warning\footnote{This
 is specialized functionality in the cooling language; in most other languages,
-we would probably just return \ic{null}, since nothing seems to have been
+we would probably just return \icsn{null}, since nothing seems to have been
 assigned to the symbol yet}. Otherwise we return the value.
 
 
@@ -1791,7 +1792,7 @@ Atomic returns Expression:
 The following is the code for the evaluation function for the symbol reference.
 It must distinguish between references to variables and to
 functions\footnote{This is once again a consequence of the fact that all
-references to any symbol are handled via the \ic{SymbolRef} class. We have
+references to any symbol are handled via the \icsn{SymbolRef} class. We have
 discussed this in \todo{ref}.}.
 
 
@@ -1854,7 +1855,7 @@ deals with its own variables and function calls, it uses the \emph{new}
 environment created, pushed onto the stack and populated by this method! When
 the execution of the body has finished, we retrieve the return value from the
 environment. The \ic{return} statement in the function has put it there under a
-name we have prescribed, the \ic{RETURN_SYMBOL}, so we know how to find it in
+name we have prescribed, the \ic{RETURN\_SYMBOL}, so we know how to find it in
 the environment. Finally, we pop the environment, restoring the caller's state of
 the world and return the return value as the resulting value of the thefunction call expression.
 
@@ -2018,10 +2019,10 @@ example.
 \end{minipage}
 }
   \caption[][4cm]{An extension to MPS' BaseLanguage that makes writing
-  interpreters simpler. The \ic{dispatch} statement has the neat feature that,
-  on the right side of the \ic{->}, the \ic{\$} reference to the \ic{ex}
+  interpreters simpler. The \icsn{dispatch} statement has the neat feature that,
+  on the right side of the \icsn{->}, the \icsn{\$} reference to the \icsn{ex}
   expression is already downcast to the type mentioned on the left of the
-  \ic{->}.}
+  \icsn{->}.}
   \label{mps-dispatch} 
 \end{figure}
 

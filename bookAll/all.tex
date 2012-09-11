@@ -1,6 +1,5 @@
 \documentclass[justified]{tufte-book}
 
-%\usepackage{bbm} 
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{soul} 
@@ -13,6 +12,7 @@
 \usepackage{alltt}
 \usepackage{boxedminipage}
 \usepackage{booktabs}
+\usepackage{listings} 
  
 
 \usepackage{tikz}
@@ -32,25 +32,20 @@
 \renewcommand{\floatpagefraction}{0.1}
 
  
-
-
-\newenvironment{noparindent}{\parskip0.2\baselineskip\parindent0pt}{}
-
 \setcounter{secnumdepth}{2}
 
    
 \newcommand{\chapterabstract}[1]{
 \begingroup
 \leftskip2em
-\rightskip\leftskip\noindent{#1}
+\rightskip\leftskip\noindent\textit{{#1}}
 \par
 \endgroup
+\vspace{10mm}
 }
-
 
  
 
-\newcommand{\hilight}[1]{#1} %\hl{#1}}
 \newcommand{\excode}[2]{
 \vspace{5pt}
 \begingroup
@@ -70,17 +65,131 @@
 \newcommand{\exwebdsl}[1]{\excode{WebDSL:}{#1}}
 
 \usepackage{verbatim}
-\newenvironment{code} 
-    {\vspace{3mm}
-     \noindent
-     \rule{\textwidth}{0.7pt}
-     \vspace{-4mm}
-     \scriptsize \verbatim}
-    {\endverbatim \normalsize
-	 \vspace{-4mm}
-	 \rule{\textwidth}{0.7pt}
-	 \vspace{0mm}
-	 }
+
+
+
+\usepackage{beramono}
+
+\definecolor{lightlightgray}{gray}{0.9}
+\definecolor{codecolor}{gray}{0.1} 
+\definecolor{javadocblue}{rgb}{0,0,0.8} % javadoc
+\definecolor{blackblack}{rgb}{0,0,0}
+
+ 
+\lstset{
+basicstyle=\ttfamily\scriptsize\color{codecolor}, 
+keywordstyle=\color{blackblack}\bfseries,       
+% keywordstyle=\color{javadocblue},     
+commentstyle=\color{gray},              
+numbers=none,                           
+numberstyle=\tiny,                      % Line-numbers fonts
+stepnumber=1,                           % Step between two line-numbers
+numbersep=5pt,                          % How far are line-numbers from code
+%backgroundcolor=\color{lightlightgray}, % Choose background color
+tabsize=2,     
+%xleftmargin=1.5mm,
+%xrightmargin=1.5mm,
+%frame=lines,
+frame=single,
+captionpos=b,                           % Caption-position = bottom
+breaklines=true,                        % Automatic line breaking?
+breakatwhitespace=false,                % Automatic breaks only at whitespace?
+showspaces=false,                       % Dont make spaces visible
+showtabs=false,                         % Dont make tabls visible
+columns=flexible,                       % Column format
+morekeywords={}  
+stringstyle=\color{OliveGreen},
+mathescape=false,
+showstringspaces=false,
+xleftmargin=1.5mm,
+xrightmargin=1.5mm,
+keepspaces=true,
+sensitive=true,
+columns=fullflexible,
+columns=fullflexible,
+alsodigit={0,1,2,3,4,5,6,7,8,9,0}, 
+morestring=[b]",
+comment=[l]{//},
+% otherkeywords={::,:,->,=>,;,==;+=,=,:<=:,:==:,<,+,&,!}, 
+} 
+
+
+\lstdefinelanguage{mbeddr}
+{morekeywords={
+return,test,case,exported,foreach,it,void,sized,assert,rule,as,
+applicable,concept,overrides,do,typeof,if,applicable,error,
+concepts,constraints,can,be,child,ancestor,isNotNull,node,executeTests,
+module, statemachine, events, states, initial, state, on, assert, imports, in,
+event, int, out, local, variables, interface, boolean, component, true, false,
+provides, requires
+},
+comment=[l]{//}
+}
+
+\lstdefinelanguage{mps}{morekeywords={
+concept, extends, implements, instance, can, be, root,
+properties, string, boolean, children, references, intention, true, false,
+error, available, in, child, nodes, side, transform, actions, int,
+transformed, constraints, link, referent, set, handler, validator, search,
+scope, presentation, if, return, checking, rule, applicable, for, do, data,
+flow, builder, if, else, code, write, void, after, jump, label, null, foreach,
+overrides, as, new, typeof, overloaded, operations, rules, operation, operand,
+behavior, public, private, protected, typevar, instance, connect, to, this
+}}
+
+
+\lstdefinelanguage{archdsl}{morekeywords={
+namespace, feature, component, instance, dynamic, connect, aspect, provides,
+requires, composition, dynamic, query, registered, registration, parameters, 
+oneway, message, request, reply, interface, struct, replicated, singleton,
+consumes, publishes, update, publication, onchange, protocol, initial, state,
+newimplof, newVersionOf, to, system
+}}
+
+\lstdefinelanguage{xts}{morekeywords={
+typeof, clone, abstract, common, ensureType, characteristic,
+char, ensureCompatibility, none 
+}}
+
+\lstdefinelanguage{cooling}{morekeywords={
+cooling, program, uses, var, int, event, init, start, set,
+state, entry, check, on, for, parameter, perform, after, isDown, 
+true, false, prolog, assert, currentstate, is, mock, step
+}}
+
+\lstdefinelanguage{webdsl}{morekeywords={
+module, entity, function, var, return, screen
+}}
+
+\lstdefinelanguage{xtend}{morekeywords={
+def, FOR, ENDFOR, SEPARATOR, instanceof, IF, ENDIF,
+dispatch, class, extension, val, create, var, void, extends, boolean, for
+}}
+
+\lstdefinelanguage{stratego}{morekeywords={
+with, where, if, else, end, then, module, rules
+}}
+
+
+\lstdefinelanguage{xtextgrammar}{morekeywords={
+ID, STRING, terminal, current, returns, grammar, with, generate, import
+}}
+
+\lstdefinelanguage{sdf}{morekeywords={
+module, context, free, start, symbols, priorities, syntax,
+lexical, left, reject, prefer, restrictions, imports, exports, signature,
+constructors 
+}}
+
+\lstdefinelanguage{mpsmodex}{morekeywords={
+module, entity, int, string, boolean, form, uses, field, textfield, 
+combobox, checkbox, textfield, database, table, char, number, RBAC, users,
+roles, permissions, role, user, if, true, false, else, validate, String,
+return
+}}
+
+
+
 
 
 \usepackage[T1]{fontenc}
@@ -88,34 +197,27 @@
 
 \newcommand{\phead}[1]{\vspace{8pt}\noindent$\blacksquare$\hspace{3pt}\textit{{#1}.}\hspace{8pt}}
 
-\newcommand{\ic}[1]{\changefont{cmtt}{m}{n}{#1}\normalfont}  
-\newcommand{\keyword}[1]{\changefont{cmtt}{m}{n}{#1}\normalfont}  
-\newcommand{\keystroke}[1]{\changefont{cmtt}{m}{n}{#1}\normalfont}  
-\newcommand{\lcr}[1]{\changefont{cmtt}{m}{n}{#1}\normalfont} 
+\newcommand{\inlinecodesize}{\fontsize{10.4}{0}\selectfont}
+\newcommand{\inlinecodesizesn}{\fontsize{8.4}{0}\selectfont}
+\definecolor{inlinecodecolor}{gray}{0.3} 
+
+\newcommand{\ic}[1]{\textbf{\inlinecodesize{\textcolor{inlinecodecolor}{\texttt{{#1}}}}}} 
+\newcommand{\icsn}[1]{\textbf{\inlinecodesizesn{\textcolor{inlinecodecolor}{\texttt{{#1}}}}}} 
+
+\newcommand{\keystroke}[1]{\ic{{#1}}}  
 \newcommand{\curlies}[1]{\char123{}#1\char125}
 
-
-
-\newcommand{\mynote}[2]{\marginnote{\textbf{{#1}}: {#2}}}
-\newcommand\MV[1]{\mynote{MV/TODO}{#1}} 
-\newcommand\LK[1]{\mynote{LK/TODO}{#1}} 
-\newcommand\MB[1]{\mynote{MB/TODO}{#1}} 
 \newcommand\todo[1]{} 
-\newcommand\updateSlides[1]{} 
+\newcommand\guido[1]{} 
 
-\newcommand\laurie[1]{\mynote{MARKUS}{#1}} 
-\newcommand\shatalin[1]{\mynote{MARKUS}{#1}} 
-\newcommand\vaclav[1]{\mynote{MARKUS}{#1}} 
-   
-   
 \newcommand{\fig}[1]{Fig.~\ref{#1}}
-\newcommand{\Figure}[1]{\fig{#1}}
 \newcommand{\sect}[1]{Section~\ref{#1}}
-\newcommand{\Section}[1]{\sect{#1}}
-\newcommand{\Chapter}[1]{Chapter~\ref{#1}}
 \newcommand{\parhead}[1]{\vspace{4mm}\noindent$\blacksquare$\hspace{1mm}\textit{{#1}}\hspace{4mm}}
 \newcommand{\seppar}{\vspace{7mm}\noindent}
    
+%\newcommand{\Chapter}[1]{Chapter~\ref{#1}}
+% \newcommand{\Figure}[1]{\fig{#1}}
+% \newcommand{\Section}[1]{\sect{#1}}
 
 \newcommand{\D}[1]{D_{#1}}
 \renewcommand{\dfrac}[2]{\frac{\displaystyle #1}{\displaystyle #2}}
@@ -123,18 +225,14 @@
 
 
 
-
- 
-
-
 \title{DSL Engineering}
 \author{Markus Voelter, voelter@acm.org}
-\def\titlerunning{DSL Design}
+\def\titlerunning{DSL Engineering}
 \def\authorrunning{Markus Voelter}
 \begin{document}
 
 \maketitle
- 
+
 \input{body-intro.ltx}
 \input{body-design.ltx}
 \input{body-impl.ltx}

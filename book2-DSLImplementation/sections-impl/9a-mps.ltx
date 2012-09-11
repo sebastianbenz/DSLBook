@@ -25,12 +25,12 @@ and \emph{embedding} with regards to the expressions language.
 \begin{figure}[htp]
 \begin{center}
   \includegraphics[width=110mm]{figures-impl/9/a/languagestructure2.png}
-  \caption[]{\ic{entities} is the central language. \ic{uispec} defines UI
-  forms for the entities. \ic{uispec\_validation} adds validation rules, and composes
-  a reusable expressions language. \ic{relmapping} provides a reusable database
-  mapping language, \ic{relmapping\_entities} adapts it to the entities language.
-  \ic{rbac} is a reusable language for specifying permissions; \ic{rbac\_entities} adapts
-  this language to the \ic{entities} language. }
+  \caption[]{\icsn{entities} is the central language. \icsn{uispec} defines UI
+  forms for the entities. \icsn{uispec\_validation} adds validation rules, and composes
+  a reusable expressions language. \icsn{relmapping} provides a reusable database
+  mapping language, \icsn{relmapping\_entities} adapts it to the entities language.
+  \icsn{rbac} is a reusable language for specifying permissions; \icsn{rbac\_entities} adapts
+  this language to the \icsn{entities} language. }
   \label{languagestructure}  
 \end{center}
 \end{figure}
@@ -69,8 +69,8 @@ of the \ic{entities} language. Each box represents a language concept.
 \begin{center}
   \includegraphics[width=\columnwidth]{figures-impl/9/a/entities2.png}
   \caption[]{The abstract syntax of the entities language. Entities
-  have attributes, those have types and names. \ic{EntityType} extends 
-  \ic{Type} and references \ic{Entity}. This "adapts" entities to types 
+  have attributes, those have types and names. \icsn{EntityType} extends 
+  \icsn{Type} and references \icsn{Entity}. This "adapts" entities to types 
   (cf. the Adapter pattern).}
   \label{entities} 
 \end{center}
@@ -99,11 +99,11 @@ concept Entity extends BaseConcept implements INamedConcept
   \includegraphics[scale=0.6]{figures-impl/9/a/editordefinition.png}
 \end{minipage}
 }
-  \caption[]{The editor for \ic{Entity}. The outermost cell is a
+  \caption[]{The editor for \icsn{Entity}. The outermost cell is a
   vertical list. In the first line, we use a horizontal list that contains
-  the "keyword" \ic{entity}, the value of the \ic{name} property and an opening
+  the "keyword" \icsn{entity}, the value of the \icsn{name} property and an opening
   curly brace. In the second line we use indentation and a vertical arrangements
-  of the contents of the \ic{attributes} collection. Finally, the third line
+  of the contents of the \icsn{attributes} collection. Finally, the third line
   contains the closing curly.}
   \label{editordefinition} 
 \end{figure}
@@ -145,15 +145,15 @@ shows a part of the mapping configuration for the \ic{entities} language.
   \includegraphics[scale=0.55]{figures-impl/9/a/entitiesmc.png}
 \end{minipage}
 }
-  \caption[]{The mapping configuration for the \ic{entities} language. The
-  root mapping rule for \ic{Entity} specifies that instances of \ic{Entity} should
-  be transformed with the \ic{map\_Entity} template. The reduction rules use
-  inline templates. For example, the \ic{IntType} is replaced with the Java
-  \ic{int} and the \ic{EntityRefType} is reduced to a reference to the class
-  generated from the target entity. The \ic{->\$} is a reference macro. It 
+  \caption[]{The mapping configuration for the \icsn{entities} language. The
+  root mapping rule for \icsn{Entity} specifies that instances of \icsn{Entity} should
+  be transformed with the \icsn{map\_Entity} template. The reduction rules use
+  inline templates. For example, the \icsn{IntType} is replaced with the Java
+  \icsn{int} and the \icsn{EntityRefType} is reduced to a reference to the class
+  generated from the target entity. The \icsn{->\$} is a reference macro. It 
   contains code (not shown) that "rewires" the reference to
-  \ic{Double} to a reference to the class generated from the referenced
-  \ic{Entity}.}
+  \icsn{Double} to a reference to the class generated from the referenced
+  \icsn{Entity}.}
   \label{entitiesmc} 
 \end{figure}
 
@@ -183,8 +183,8 @@ inspector).
   \includegraphics[scale=0.55]{figures-impl/9/a/entitytemplate.png}
 \end{minipage}
 }
-  \caption[]{The template for creating a Java class from an \ic{Entity}.
-  The running text explains the details. The \ic{<<placeholder>>} is a special
+  \caption[]{The template for creating a Java class from an \icsn{Entity}.
+  The running text explains the details. The \icsn{<<placeholder>>} is a special
   concept used later.}
   \label{entitytemplate} 
 \end{figure}
@@ -213,14 +213,14 @@ form CompanyStructure
   field Office: textfield(20) -> Department.description                                                                                                
 \end{lstlisting}
 
-\begin{figure}[htp]
+\begin{figure}[h]
 \begin{center}
   \includegraphics[width=110mm]{figures-impl/9/a/uispec2.png}
-  \caption[]{The abstract syntax of the \ic{uispec} language. Dotted lines
-  represent classes from another language (here: the \ic{entities} language). A
-  \ic{Form} contains \ic{EntityReference}s that connect to an \ic{entities} model. A
-  form also contains \ic{Field}s, each referencing an \ic{Attribute} from an
-  \ic{Entity} and containing a \ic{Widget}.}
+  \caption[]{The abstract syntax of the \icsn{uispec} language. Dotted lines
+  represent classes from another language (here: the \icsn{entities} language). A
+  \icsn{Form} contains \icsn{EntityReference}s that connect to an \icsn{entities} model. A
+  form also contains \icsn{Field}s, each referencing an \icsn{Attribute} from an
+  \icsn{Entity} and containing a \icsn{Widget}.}
   \label{uispec} 
 \end{center}
 \end{figure}
@@ -409,7 +409,7 @@ additional method for the block expression (\fig{expressionBlockGenerator1}).
 \end{minipage}
 }
   \caption[]{We use a weaving rule to create an additional method for
-  this. A weaving rule processes an input element (\ic{BlockExpression}) by creating
+  this. A weaving rule processes an input element (\icsn{BlockExpression}) by creating
   another node in a different place. The context function defines this
   other place. In this case, it simply gets the class in which we have defined
   the block expression.} 
@@ -431,13 +431,13 @@ method call that replaces the \ic{BlockExpression}
   \includegraphics[scale=0.5]{figures-impl/9/a/expressionBlockGenerator2.png}
 \end{minipage}
 }
-  \caption[]{The generator creates a method from the \ic{BlockExpression}. It
-  uses \ic{COPY\_SRC} macros to replace the \ic{string} type with the computed
+  \caption[]{The generator creates a method from the \icsn{BlockExpression}. It
+  uses \icsn{COPY\_SRC} macros to replace the \icsn{string} type with the computed
   return type of the block expression, inserts a computed name, adds a parameter
   for each referenced variable outside the block, and inserts all the statements
   from the block expression into the body of the method (using the
-  \ic{COPY\_SRCL} macro that iterates over all of the statements in the
-  \ic{ExpressionBlock}). The \ic{blockExprToMethod} mapping label is used later in the method call.}
+  \icsn{COPY\_SRCL} macro that iterates over all of the statements in the
+  \icsn{ExpressionBlock}). The \icsn{blockExprToMethod} mapping label is used later in the method call.}
   \label{expressionBlockGenerator2} 
 \end{figure}
 
@@ -457,8 +457,8 @@ at this location. It is a means of building extensible generators.
 \end{minipage}
 }
   \caption[]{Here we generate the call to the previously generated
-  method. We use the mapping label \ic{blockExprToMethod} (not shown; happens
-  inside the ->\$ macro) to refer to the correct method. We pass in the
+  method. We use the mapping label \icsn{blockExprToMethod} (not shown; happens
+  inside the \icsn{->\$} macro) to refer to the correct method. We pass in the
   environment variables as actual arguments.}
   \label{expressionBlockGenerator3} 
 \end{figure}
@@ -539,9 +539,9 @@ in a different context, we extend this hook by context-specific code.
 \begin{figure}[htp]
 \begin{center}
   \includegraphics[width=\columnwidth]{figures-impl/9/a/relmapping2.png}
-  \caption[]{A \ic{Database} contains \ic{Tables} which contain
-  \ic{Columns}. A column has a name and a type. A column also has a
-  \ic{ColumnMapper}. This is an abstract concept that determines where the
+  \caption[]{A \icsn{Database} contains \icsn{Tables} which contain
+  \icsn{Columns}. A column has a name and a type. A column also has a
+  \icsn{ColumnMapper}. This is an abstract concept that determines where the
   column gets its data from. It is a hook intended to be specialized in
   sublanguages that are context-specific.}
   \label{relmapping} 
@@ -558,10 +558,10 @@ GoF book.}. To this end, it provides a subconcept of \ic{ColumnMapper}, the
 to the column. The column mapper is projected on the right of the field
 definition, resulting in the following (heterogeneous) code
 fragment\footnote{This "mixed syntax" is pretty trivial since the
-\ic{AttributeColMapper} just references an attribute with a qualified name
-(\ic{Entity.attribute}). However, arbitrary additional syntax could be added,
-and we could use arbitrary concepts from the \ic{entities} language mixed into
-the \ic{relmapping} fragment.}:
+\icsn{AttributeColMapper} just references an attribute with a qualified name
+(\icsn{Entity.attribute}). However, arbitrary additional syntax could be added,
+and we could use arbitrary concepts from the \icsn{entities} language mixed into
+the \icsn{relmapping} fragment.}:
 
 
 \begin{lstlisting}[language=mpsmodex]
@@ -721,9 +721,9 @@ attributes.
 \begin{figure}[htp]
 \begin{center}
   \includegraphics[width=9cm]{figures-impl/9/a/rbac2.png}
-  \caption[]{Language structure of the \ic{rbac} language. An \ic{RBACSpec}
-  contains \ic{Users}, \ic{Roles} and \ic{Permissions}. Users can be members 
-  in several roles. A permission assigns a right to a \ic{Resource}.}
+  \caption[]{Language structure of the \icsn{rbac} language. An \icsn{RBACSpec}
+  contains \icsn{Users}, \icsn{Roles} and \icsn{Permissions}. Users can be members 
+  in several roles. A permission assigns a right to a \icsn{Resource}.}
   \label{rbac}  
 \end{center}
 \end{figure}
@@ -798,8 +798,8 @@ place, we don't have to predefine \emph{how}.
 \end{minipage}
 }
   \caption[]{This generator fragment creates a setter method for each
-  attribute of an entity. The \ic{LOOP} iterates over all attributes. The \ic{\$} macro
-  computes the name of the method, and the \ic{COPY\_SRC} macro on the argument type
+  attribute of an entity. The \icsn{LOOP} iterates over all attributes. The \icsn{\$} macro
+  computes the name of the method, and the \icsn{COPY\_SRC} macro on the argument type
   computes the type. The placeholder is used to mark the location at which the 
   permission check will be inserted by a subsequent generator.}
   \label{placeholder}  
@@ -817,15 +817,15 @@ for compilation). We use generator priorities, i.e.~a partial ordering, to
 achieve this.
 
 
-\begin{figure} 
+\begin{figure}[h] 
 \fbox{
 \begin{minipage}{105mm}
   \includegraphics[width=\columnwidth]{figures-impl/9/a/placeholderreduction.png}
 \end{minipage}
 }
-  \caption[]{This reduction rule replaces \ic{PlaceholderStatement}s
+  \caption[]{This reduction rule replaces \icsn{PlaceholderStatement}s
   with a permission check. Using the condition, we only match those
-  placeholders whose identifier is \ic{pre-set} (notice how we have defined
+  placeholders whose identifier is \icsn{pre-set} (notice how we have defined
   this identifier in \fig{placeholder}). The inserted code queries another
   generated class that contains the actual permission check. A runtime
   exception is thrown if the check fails.}
@@ -863,9 +863,9 @@ subconcept of \ic{Field}.
 \begin{center}
   \includegraphics[width=100mm]{figures-impl/9/a/uival2.png}
   \caption[]{The uispec\_validation language defines a subtype of
-  \ic{uispec.Field} that contains an \ic{Expression} from an embeddable
+  \icsn{uispec.Field} that contains an \icsn{Expression} from an embeddable
   expression language. The language also defines a couple of additional expressions,
-  specifically the \ic{AttributeRefExpr}, which can be used to refer to
+  specifically the \icsn{AttributeRefExpr}, which can be used to refer to
   attributes of entities.}
   \label{uival}  
 \end{center}
@@ -876,7 +876,7 @@ instances, we provide an intention: the user can press \ic{Alt-Enter} on a
 \ic{Field} and select \ic{Make Validated Field}. This transforms an existing
 \ic{Field} into a \ic{ValidatedField}, so that validation expressions can be
 entered\footnote{Alternatively it could be arranged (with 5 lines of code) that
-users could simply type \ic{validate} on the right of a field definition to
+users could simply type \icsn{validate} on the right of a field definition to
 trigger the transformation code below.}. The core of the intention is the
 following script, which performs the actual transformation:
 
@@ -1047,8 +1047,8 @@ Expression constructs from the reusable \ic{expressions} language and those of
 BaseLanguage are almost identical, so this generator is trivial. We create a new language
 project \ic{de.voelter.mps.expressions.blgen} and add reduction
 rules\sidenote[][-20mm]{In MPS, all "meta stuff" is called a language. So even
-though \ic{de.voelter.mps.expressions.blgen} only contains a generator (from
-\ic{expressions} to BaseLanguage) it is still a \emph{language} in MPS
+though \icsn{de.voelter.mps.expressions.blgen} only contains a generator (from
+\icsn{expressions} to BaseLanguage) it is still a \emph{language} in MPS
 terminology.}. \fig{expr2blgen} shows some of these reduction rules.
 
 
@@ -1059,10 +1059,10 @@ terminology.}. \fig{expr2blgen} shows some of these reduction rules.
 \end{minipage}
 }
   \caption[]{A number of reduction rules that map the reusable
-  \ic{expressions} language to BaseLanguage (Java). Since the languages are very
-  similar, the mapping is trivial. For example, a \ic{PlusExpression} is mapped
-  to a \ic{+} in Java, the \ic{left} and \ic{right} arguments are reduced recursively through
-  the \ic{COPY\_SRC} macro.}
+  \icsn{expressions} language to BaseLanguage (Java). Since the languages are very
+  similar, the mapping is trivial. For example, a \icsn{PlusExpression} is mapped
+  to a \icsn{+} in Java, the \icsn{left} and \icsn{right} arguments are reduced recursively through
+  the \icsn{COPY\_SRC} macro.}
   \label{expr2blgen}  
 \end{figure}
 
@@ -1086,7 +1086,7 @@ the case of the \ic{rbac\_entities} language.
   \caption[]{References to entity attributes are mapped to a call to
   their getter method. The tempalte fragment (inside the TF) uses two reference
   macros (->\$) to "rewire" the object reference to the Java bean instance, and
-  the \ic{toString} method call to a call to the getter.}
+  the \icsn{toString} method call to a call to the getter.}
   \label{reductionAttributeRef}  
 \end{figure}
 
@@ -1203,8 +1203,8 @@ via an intention.
   \includegraphics[width=\columnwidth]{figures-impl/9/a/annotationeditor.png}
 \end{minipage}
 }
-  \caption[labelInTOC]{The editor for the \ic{AttrToColMapping} embeds the
-  editor of the concept it is annotated to (using the \ic{attributed node}
+  \caption[labelInTOC]{The editor for the \icsn{AttrToColMapping} embeds the
+  editor of the concept it is annotated to (using the \icsn{attributed node}
   cell). It then projects the reference to the referenced column. This way the
   editor of the annotation has control of if and how the editor annotated
   element is projected.}
@@ -1241,7 +1241,7 @@ switch.
   \includegraphics[scale=0.50]{figures-impl/9/a/trace.png} 
   \caption[]{\textbf{Left:}
   Requirements traces (green) can be annotated to any arbitrary program element.
-  The annotation is targetted to \ic{BaseConcept}, which means there is no
+  The annotation is targetted to \icsn{BaseConcept}, which means there is no
   explicit dependency any specific language. \textbf{Right:} Traces can then be
   queried in the reverse direction to find which requirements are traced from
   implementation code.}
@@ -1266,7 +1266,7 @@ editable. Details on this approach can be found in \cite{Voelter2010} and
   expresssions over configuration switches that determine whether the annotated program
   element is part of a program variant. The expressions can be annotated to
   arbitrary program elements. \textbf{Right:} The transformation removes all those
-  elements for which the annotation evaluates to \ic{false}. This can also be
+  elements for which the annotation evaluates to \icsn{false}. This can also be
   done in the editor to support variant-specific editing of programs.}
   \label{featuredependencies}  
 \end{figure*}

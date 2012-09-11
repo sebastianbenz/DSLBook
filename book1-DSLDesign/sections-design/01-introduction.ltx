@@ -39,11 +39,11 @@ unambiguous way. However, I want to emphasize that reading or understanding the
 formulae is \emph{not} essential for understanding the language design
 discussion. So if you're not into mathematical formulae, just ignore them.
  
-The part consists of three chapters. In \Chapter{foundations} we introduce
+The part consists of three chapters. In \sect{foundations} we introduce
 important terms and concepts including domain, model purpose and the structure
-of programs and languages. In \Chapter{dimensions} we discuss a set of seven
+of programs and languages. In \sect{dimensions} we discuss a set of seven
 dimensions that guide the design of DSLs: expressivity, coverage, semantics,
-separation of concerns, completeness, language modularization and syntax.Finally, in \Chapter{learnFromGPLs} we look at well-known structural
+separation of concerns, completeness, language modularization and syntax.Finally, in \sect{learnFromGPLs} we look at well-known structural
 and behavioral paradigms (such as inheritance or state based behaviour) and
 discuss their applicability to DSLs.
 
@@ -340,8 +340,8 @@ much more practical way.
 \begin{center}
   \includegraphics[width=3cm]{figures-design/csVsAs.png} 
   \caption{Concrete and abstract syntax for a textual variable declaration.
-  Notice how the abstract syntax does not contain the keyword \ic{var} or the symbols
-  \ic{:} and \ic{;}.}
+  Notice how the abstract syntax does not contain the keyword \icsn{var} or the
+  symbols \icsn{:} and \icsn{;}.}
   \label{csVsAs} 
 \end{center} 
 \end{marginfigure}
@@ -431,8 +431,8 @@ element $e$ is an instance of a concept $c$ defined in some language $l$. \begi
 \begin{figure}[h] 
 \begin{center}
   \includegraphics[width=8cm]{figures-design/conceptOf.png}
-  \caption[][30mm]{The statement \ic{int x = 3;} is an instance of the
-\ic{LocalVariableDeclaration}. $co$ returns the concept for a given element.}
+  \caption[][30mm]{The statement \icsn{int x = 3;} is an instance of the
+\icsn{LocalVariableDeclaration}. $co$ returns the concept for a given element.}
   \label{conceptOf} 
 \end{center}
 \end{figure}
@@ -554,7 +554,7 @@ definition fragment that contains the referenced building block.}
 
 \begin{marginfigure}[-50mm]
   \includegraphics[width=6cm]{figures-design/cooling/dependent.png} 
-  \caption{A \ic{BuildingBlockRef} references a hardware element from within a
+  \caption{A \icsn{BuildingBlockRef} references a hardware element from within a
   cooling algorithm fragment.}
   \label{dependent}
 \end{marginfigure}
@@ -591,8 +591,8 @@ heterogeneous (see \fig{heterogeneous}).}
   global variables (from the \emph{core} language), a state machine (from the
   \emph{statemachines} language) and a test case (from the \emph{unittest}
   language). Note how concepts defined in the \emph{statemachine} language
-  (\ic{trigger}, \ic{isInState} and \ic{test statemachine}) are used inside a
-  \ic{TestCase}.}
+  (\icsn{trigger}, \icsn{isInState} and \icsn{test statemachine}) are used inside a
+  \icsn{TestCase}.}
   \label{heterogeneous} 
 \end{figure}
 

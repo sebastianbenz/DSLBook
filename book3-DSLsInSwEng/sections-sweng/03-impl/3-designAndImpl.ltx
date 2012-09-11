@@ -1,5 +1,5 @@
 
-\section{Design and Implementation}
+\sect{Design and Implementation}
 \label{design} 
  
  
@@ -84,9 +84,9 @@ concept constraints AssertStatement {
     }   
 } 
 \end{lstlisting}
-\caption{This constraint restricts an \ic{AssertStatement} to be used only
-inside a \ic{TestCase} by checking that at least one of its ancestors is a
-\ic{TestCase}.}
+\caption{This constraint restricts an \icsn{AssertStatement} to be used only
+inside a \icsn{TestCase} by checking that at least one of its ancestors is a
+\icsn{TestCase}.}
 \label{assertConstraints} 
 \end{figure}
 
@@ -102,10 +102,10 @@ test case exTest {          void test_exTest {           void test_exTest {
                                 on !(x == 4);              }
                             }                            }
 \end{lstlisting}
-\caption{Two-stage transformation of \ic{TestCase}s. The \ic{TestCase} is
+\caption{Two-stage transformation of \icsn{TestCase}s. The \icsn{TestCase} is
 transformed into a C function using the logging framework to output error
-messages. The \ic{report} statement is in turn transformed into a
-\ic{printf} statement \emph{if} we generate for the Windows/Mac environment. It
+messages. The \icsn{report} statement is in turn transformed into a
+\icsn{printf} statement \emph{if} we generate for the Windows/Mac environment. It
 would be transformed to something else if we generated for the actual target
 device (configured by the user in the build configuration).}
 \label{unittest2c}
@@ -165,7 +165,7 @@ existing mechanism for handling variable shadowing (explained below).
 \includegraphics[width=85mm]{figures-sweng/impl/safeheap.png}
 \end{minipage}
 }
-\caption{A \ic{safeheap} statement declares heap variables which can only be
+\caption{A \icsn{safeheap} statement declares heap variables which can only be
 used inside the body of the statement. When the body is left, the memory is
 automatically freed. Notice also how we report an error in case the variable
 tries to escape.}
@@ -208,12 +208,12 @@ public sequence<node<LocalVariableDecl>> getContainedLocalVars() {
   this.vars;  
 }
 \end{lstlisting} 
-\caption{A \ic{safeheap} statement implements the two methods declared by the
-\ic{ILocalVarScopeProvider} interface. \ic{getContainedLocalVariables}
-returns the \ic{LocalVarDecl}s that are declared between the parentheses (see
-\fig{safeheap}). \ic{getLocalVarScope} constructs a scope that contains these
+\caption{A \icsn{safeheap} statement implements the two methods declared by the
+\icsn{ILocalVarScopeProvider} interface. \icsn{getContainedLocalVariables}
+returns the \icsn{LocalVarDecl}s that are declared between the parentheses (see
+\fig{safeheap}). \icsn{getLocalVarScope} constructs a scope that contains these
 variables and then builds the hierarchy of outer scopes by relying on its
-ancestors that also implement \ic{ILocalVarScopeProvider}. The index of the
+ancestors that also implement \icsn{ILocalVarScopeProvider}. The index of the
 statement that contains the reference is passed in to make sure that only
 variables declared \emph{before} the reference site can be referenced.}
 \label{safeheapbehaviour}
@@ -242,7 +242,7 @@ checking rule check_safeVarRef for concept = LocalVarRef as lvr {
 } 
 \end{lstlisting} 
 \caption{This type system rule reports an error if a reference to a local
-variable declared and allocated by the \ic{safeheap} statement is used
+variable declared and allocated by the \icsn{safeheap} statement is used
 in a function call.}
 \label{safeheapts}
 \end{figure}
@@ -264,9 +264,9 @@ type system rules as well.
 \fig{dectab} shows the decision table expression. It is evaluated to the
 expression in a cell \emph{c} if the column header of \emph{c} and the row
 header of \emph{c} are \ic{true}\footnote{Strictly speaking, it is the
-\emph{first} of the cells for which the headers are \ic{true}. It is optionally
+\emph{first} of the cells for which the headers are \icsn{true}. It is optionally
 possible to use static verification based on an SMT solver to ensure that only
-one of them will be \ic{true} for any given set of input values}.
+one of them will be \icsn{true} for any given set of input values}.
 If none of the condition pairs is \ic{true}, then the default value, \ic{FAIL} in the
 example, is used as the resulting value. A decision table also specifies the
 type of the value it will evaluate to, and all the expression in content cells
@@ -383,7 +383,7 @@ link {unit} search scope:
       enclosingNode.ancestor<IVisibleNodeProvider>.
               visibleContentsOfType(concept/UnitDeclaration/); } 
 \end{lstlisting} 
-\caption{The \ic{visibleContentsOfType} operation returns all instances of the
+\caption{The \icsn{visibleContentsOfType} operation returns all instances of the
 concept argument in the current module, as well as
 all exported instances in modules imported by the current module.}
 \label{scoping}
@@ -430,12 +430,12 @@ operation type:
                          1 ) ); 
   }
 \end{lstlisting} 
-\caption{This code overloads the \ic{MultiExpression} to work for
-\ic{UnitType}s. In the \ic{is applicable} section we check whether there is a
-typing rule for the two value types (e.g.,~\ic{int * float}). This is achieved by
+\caption{This code overloads the \icsn{MultiExpression} to work for
+\icsn{UnitType}s. In the \icsn{is applicable} section we check whether there is a
+typing rule for the two value types (e.g.,~\icsn{int * float}). This is achieved by
 trying to compute the resulting value type. If none is found, the types cannot
-be multiplied. In the computation of the \ic{operation type} we create a new
-\ic{UnitType} that uses the \ic{resultingValueType} as the value type and then
+be multiplied. In the computation of the \icsn{operation type} we create a new
+\icsn{UnitType} that uses the \icsn{resultingValueType} as the value type and then
 computes the resulting unit by adding up the exponents of component SI units
 of the two operand types.}
 \label{ovopcont}
@@ -470,9 +470,9 @@ subtyping rule supertypeOf_UnitType
   return res;
 }
 \end{lstlisting} 
-\caption{This typing rule computes the direct supertypes of a \ic{UnitType}. It
-iterates over all immediate supertypes of the current \ic{UnitType}'s value
-type, wrapped into a \ic{UnitType} with the same unit as the original one.}
+\caption{This typing rule computes the direct supertypes of a \icsn{UnitType}. It
+iterates over all immediate supertypes of the current \icsn{UnitType}'s value
+type, wrapped into a \icsn{UnitType} with the same unit as the original one.}
 \label{supertypes}
 \end{figure}
 
@@ -506,11 +506,11 @@ transformation that maps the C tree to C text for compilation.
   \includegraphics[width=85mm]{figures-sweng/impl/safetransformation.png}
 \end{minipage}
 }
-\caption{This \emph{reduction rule} transforms instances of \ic{PlusExpression}
-into a call to a library function \ic{addWithRangeChecks}, passing in the left 
-and right argument of the \ic{+} using the two \ic{COPY\_SRC} macros. The 
-\ic{condition} ensures that the transformation is only executed if
-the containing \ic{Module} has a \ic{safeAnnotation} attached to it. A
+\caption{This \emph{reduction rule} transforms instances of \icsn{PlusExpression}
+into a call to a library function \icsn{addWithRangeChecks}, passing in the left 
+and right argument of the \icsn{+} using the two \icsn{COPY\_SRC} macros. The 
+\icsn{condition} ensures that the transformation is only executed if
+the containing \icsn{Module} has a \icsn{safeAnnotation} attached to it. A
 transformation priority defined in the properties of the transformation makes
 sure it runs before the C-to-text transformation.}
 \label{safetransformation}  
@@ -550,9 +550,9 @@ concept TraceAnnotation extends NodeAttribute implements <none>
     attributed = BaseConcept                    
 \end{lstlisting} 
 \caption{Annotations have to extend the MPS-predefined concept
-\ic{NodeAttribute}. They can have an arbitrary child structure (\ic{tracekind},
-\ic{refs}), but they have to specify the \ic{role} (the name of the property
-that holds the annotated child under its parent) as well as the \ic{attributed}
+\icsn{NodeAttribute}. They can have an arbitrary child structure (\icsn{tracekind},
+\icsn{refs}), but they have to specify the \icsn{role} (the name of the property
+that holds the annotated child under its parent) as well as the \icsn{attributed}
 concept: the annotations can only be attached to instances of this concept (or
 subconcepts).}
 \label{tracestructure}
@@ -575,9 +575,9 @@ in the program. This is key to enabling arbitrary annotations on arbitrary progr
 }
 \caption{The editor definition for the \ic{ReqTrace}
 annotation (an example trace annotation is shown in \fig{screenshot}). It
-consists of a vertical list \ic{[/ .. /]} with two lines.
+consists of a vertical list \icsn{[/ .. /]} with two lines.
 The first line contains the reference to the requirement. The second line uses the
-\ic{attributed node} construct to embed to the editor of the program node
+\icsn{attributed node} construct to embed to the editor of the program node
 to which this annotation is attached. So the annotation is always rendered
 right on top of whatever syntax the original node uses.}
 \label{traces}  
@@ -603,13 +603,13 @@ intention addTrace for BaseConcept {
   }
 }
 \end{lstlisting} 
-\caption{An intention definition consists of three parts. The \ic{description}
+\caption{An intention definition consists of three parts. The \icsn{description}
 returns the string that is shown in the intentions popup menu. The
-\ic{isApplicable} section determines under which conditions the intention is
+\icsn{isApplicable} section determines under which conditions the intention is
 avavailable in the menu --- in our case, we can only add a trace if there is no
-trace yet on the target node. Finally, the \ic{execute} section performs the
+trace yet on the target node. Finally, the \icsn{execute} section performs the
 action associated with the intention. In our case we simply put an instance of
-\ic{TraceAnnotation} into the \ic{@trace} property of the target node.}
+\icsn{TraceAnnotation} into the \icsn{@trace} property of the target node.}
 \label{traceIntention}
 \end{figure}    
 

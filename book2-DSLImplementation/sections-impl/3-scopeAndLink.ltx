@@ -189,7 +189,7 @@ namespace, but we can still distinguish them: one can be reached as
 is referenced in a function inside \ic{Customer}, then it references the first
 one, not the one in \ic{Product}\footnote{Note that Spoofax does not require
 each name inside a block structure to be unique: by default, it is not an error
-if users add an additional property called name to \ic{Product}. However, in
+if users add an additional property called name to \icsn{Product}. However, in
 most languages it is desirable to prevent assigning duplicate (qualified) names.
 We show how to specify a constraint for that later on \todo{ref}.}. The full
 grammar of the mobl entities language with annotations is the following (leaving
@@ -798,11 +798,11 @@ the visible \ic{State}s from anywhere in a \ic{CoolingProgram}, independent of
 the actual reference\footnote{Depending on the structure of your language, Xtext
 may have a hard time finding out the current location, and hence, the reference
 that needs to be scoped. In this case, the tighter versions of the scoping
-method (\ic{scope\_ChangeStateStatement\_targetState} in the example) might not
+method (\icsn{scope\_ChangeStateStatement\_targetState} in the example) might not
 be called in all the places you expect it to be called. This can be remedied
 either by changing the syntax (often not possible or not desired), or by using
 the more general variants of the scoping function
-\ic{scope\_State(CoolingProgram ctx, ... )}. It is a good idea to always use the
+\icsn{scope\_State(CoolingProgram ctx, ... )}. It is a good idea to always use the
 most general variants, unless you specifically want to scope one specific
 reference.}.
 
@@ -982,7 +982,7 @@ if they return \ic{null}). By default, the
 specific implementation is configured through a Guice binding.}, which provides
 the possibility to reference model elements outside of the current file either
 through their (fully) qualified name or through their unqualified name using an
-\ic{import} statement\footnote{That \ic{import} statement is different from
+\ic{import} statement\footnote{That \icsn{import} statement is different from
 the one mentioned earlier: it makes the contents of the respective namespace
 visible, it does not refer to the a particular file.}.
 
@@ -1083,8 +1083,8 @@ is simply the set of states of the state machine that (transitively) contains
 the transition. To implement this, the expression in the body of this function
 crawls up the containment hierarchy\footnote{Note that for a smart reference,
 where the reference object is created only \emph{after} selecting the target,
-the \ic{referenceNode} argument is \ic{null}! This is why we write the scope
-using the \ic{enclosingNode} argument.
+the \icsn{referenceNode} argument is \icsn{null}! This is why we write the scope
+using the \icsn{enclosingNode} argument.
 } until it finds a \ic{Statemachine} and then returns its
 \ic{states}\footnote{The code used to express scopes can be arbitrarily complex
 and is implemented in MPS' BaseLanguge, an extended version of Java.}.
@@ -1196,9 +1196,9 @@ itself contains no type information about what it references, it is simply a
 \ic{SymbolReference}. Processing code has to inspect the type of the referenced
 symbol to find out what a particular \ic{SymbolReference} actually
 means\footnote{It can also be a problem regarding modularity, because every
-referencable concept must extend \ic{Symbol}. Referencable elements
+referencable concept must extend \icsn{Symbol}. Referencable elements
 contributed by an independently developed language which we may want to embed
-into the C language will \emph{not} extend \ic{Symbol}, though! We discuss
+into the C language will \emph{not} extend \icsn{Symbol}, though! We discuss
 language modularization and composition in \todo{ref}.}.
 
 In projectional editors this is done differently. To solve the example above,
