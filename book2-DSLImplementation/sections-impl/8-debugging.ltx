@@ -522,10 +522,11 @@ Essentially only three things have to be done:
 
 \subsection{Automatic Debugging for Xbase-based DSLs}
 
-DSLs that use Xbase, the reusable expression language that ships with Xtext,
-get debugging mostly for free. This is because of the tight integration of Xbase
-with the JVM. While we describe this integration in more detail in \todo{}. Here
-is the essence. 
+DSLs that use Xbase, the reusable expression language that ships with Xtext, get
+debugging mostly\footnote{"Mostly" because in a few cases you have to manually
+add trace information in transformations.} for free. This is because of the
+tight integration of Xbase with the JVM. While we describe this integration in
+more detail in \todo{}. Here is the essence.
 
 A DSL that uses Xbase typically defines its own structural and high-level
 behavioral aspects but uses Xbase for the fine-grained, expression-level
@@ -536,9 +537,12 @@ Java\footnote{Xbase-based DSLs \emph{must} be mapped to Java to benefit from
 Xbase in the way discussed in this section. If you generate code other than
 Java, Xbase cannot be used sensibly.}, the following approach is used. The
 structural and high-level behavioral aspects are mapped to Java, but \emph{not}
-by generating Java text, but by mapping the DSL AST to a Java AST. For the
-reused Xbase aspects (the finer-grained behavior) there already exists a to-Java
-generator (called the Xbase compiler) which we simply call from our generator.
+by generating Java text, but by mapping the DSL AST to a Java AST\footnote{The
+Java AST serves as a hub for all Xbase languages including it Xtend, your own
+DSL or Xcore. All those work nicely together. The JVM level serves as an
+interoperability layer.}. For the reused Xbase aspects (the finer-grained
+behavior) there already exists a to-Java generator (called the Xbase compiler)
+which we simply call from our generator.
 
 Essentially, we do not create a code generator, but a model-to-model
 transformation from the DSL AST to the Java AST. As part of the this
@@ -633,7 +637,9 @@ language development in \todo{ref}.}. The \ic{foreach} statement can be used to
 conveniently iterate over C arrays. Users have to specify the array as well as
 its size, since in C an array cannot be queried for its size. Inside the
 \ic{foreach} body, \ic{it} acts as a reference to the current iteration's array
-element.
+element\footnote{Note that for the sake of the example, we don't consider nested
+\ic{foreach} statements so we would don't have to deal with unique names for
+various (generated) variables.}.
 
 \begin{lstlisting}[language=c, morekeywords={foreach, sized}]
 int8 s = 0;                                              
