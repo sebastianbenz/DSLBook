@@ -80,8 +80,8 @@ outgoing transitions (dead end, \fig{states}). In a functional language, such a
 constraint could be written as \ic{states.select(s|!s.isInstanceOf(StopState)).
 \\select(s|s.transitions.size == 0)}.} 
 
-When defining languages and transformations, developers often have certain
-constraints in their mind which they consider obvious. They assume that no one
+\noindent When defining languages and transformations, developers often have
+certain constraints in their mind which they consider obvious. They assume that no one
 would ever use the language in a particular way. However, DSL users may be
 creative and actually use the language in that way, leading the transformation
 to crash or create non-compilable code. Make sure that all constraints are
@@ -127,12 +127,12 @@ checking for consistency. Consider the following examples.
 
 \embc{Variables have to be defined in the way shown above, where a type has to
 be specified explicitly. A type specification expresses the intent that this
-variable be, for example, of type \lcr{int}. Alternatively, a type system could
+variable be, for example, of type \ic{int}. Alternatively, a type system could
 be built to automatically derive the type of the variable declaration based on
 the type of the \ic{init} expression, an approach called type inference. This
 would allow the following code to be written:
 \ic{var x = 2 * someFunction(sqrt(2));}. Since no type is explicitly specified,
-the type system will infer the type of \lcr{x} to be the type calculated for the
+the type system will infer the type of \ic{x} to be the type calculated for the
 \ic{init} expression.}
 
 \embc{State machines that are supposed to be verified by the model checker have
@@ -149,7 +149,8 @@ is removed or renamed, validation of the sub plan will report an error. An
 alternative design would simply infer the fact that a rule overrides another
 one if they have the same name and signature.}
 
-Note how in all three cases the constraint checking is done in two steps.
+\noindent Note how in all three cases the constraint checking is done in two
+steps.
 First we declare an \emph{intent} (variable is intended to be \ic{int}, this state machine
 is intended to be verifiable, a rule is intended to override another one). We
 then \emph{check} if the program conforms to this intention. The alternative
@@ -337,8 +338,8 @@ to the executable code.}
 
 
 
-DSL programs may be mapped to \emph{multiple} languages at the same time.
-Typically, there is one primary language that is used for execution of the DSL
+\noindent DSL programs may be mapped to \emph{multiple} languages at the same
+time. Typically, there is one primary language that is used for execution of the DSL
 program (C in \fig{onTheSide}). The other languages may be used to configure the
 target platform (generated XML files) or provide input for verification tools
 (NuSMV in \fig{onTheSide}). In this case, one has to make sure that the
@@ -413,8 +414,8 @@ Osek), an example of backend reuse. All of them are C code, but we generate
 different idioms in the code and different make files.}
 
   
-Multi-stage transformation can also be a natural consequence of incremental
-language extension along the domain hierarchy, where we repeatedly build
+\noindent Multi-stage transformation can also be a natural consequence of
+incremental language extension along the domain hierarchy, where we repeatedly build
 additional higher level languages on top of lower level languages. When
 transforming the higher level languages, it is natural and obvious to transform
 them onto the next lower level, and not onto a language at $D_0$.
@@ -436,8 +437,8 @@ back to C.}
 \end{figure}
 
 
-A special case of a multi-staged transformation is a preprocessor to a code
-generator. Here, a transformation reduces the set of used language
+\noindent A special case of a multi-staged transformation is a preprocessor to a
+code generator. Here, a transformation reduces the set of used language
 concepts in a fragment to a minimal core, and only the minimal core is supported
 in the code generator. Note how, in this case, the source and target languages
 of the transformation are the same. However, the target model only uses a
@@ -471,8 +472,7 @@ in the code generator, you should consider a model transformation step to do it,
 and then write a simpler generator that works with a flattened, non-hierarchical
 model.}
 
-
-Multi-Stage transformations can be challenging. It becomes harder to understand
+\noindent Multi-Stage transformations can be challenging. It becomes harder to understand
 what is going on in total. Debugging the overall transformation can become hard,
 and good tool support is needed\sidenote{MPS addresses this problem by
 (optionally) keeping all intermediate models around for debugging purposes. The
@@ -568,7 +568,7 @@ interface) there is no way for the generated code to know the particular
 function that has to be called for an outgoing call on a required port for a
 given instance. An indirection through function pointers in used instead.
 Consequently, functions implementing operations in components take an additional
-\lcr{struct} as an argument which provides those function pointers for each
+\ic{struct} as an argument which provides those function pointers for each
 operation of each required port. A call on a required port thus is a relatively
 ugly affair based on function pointers. However, to achieve the desired goal, no
 different, cleaner code approach is possible in C. It is optionally possible to
@@ -585,9 +585,9 @@ cleaner and more efficient. Programmers trade flexibility for performance.}
   \includegraphics[width=10cm]{figures-design/embc/restrictedport.png}
 \end{minipage}
 }
-  \caption[][0.3cm]{The required port \lcr{lowlevel} is not just bound to the
-  \lcr{ILowLevel} interface, but restricted tot the \lcr{ll} port of the
-  \lcr{LowLevelCode} component. This way, it is statically known which C
+  \caption[][0.3cm]{The required port \ic{lowlevel} is not just bound to the
+  \ic{ILowLevel} interface, but restricted tot the \ic{ll} port of the
+  \ic{LowLevelCode} component. This way, it is statically known which C
   function implements the behavior and the generated code can be optimized.}
   \label{restrictedport} 
 \end{figure}
@@ -661,8 +661,8 @@ functional, so the debugger "expands" the calculation tree, and users can
 inspect all intermediate results.}
 
 
-For interpretation, the domain hierarchy could be exploited as well: the
-interpreter for $L_D$ could be implemented in $L_{D-1}$. However, in practice we
+\noindent For interpretation, the domain hierarchy could be exploited as well:
+the interpreter for $L_D$ could be implemented in $L_{D-1}$. However, in practice we
 see interpreters written in $L_{D_0}$. They may be extensible, so new
 interpreter code can be added in case specialized languages define new language
 concepts. 
@@ -700,7 +700,7 @@ of criteria to help with this decision.
 	automatically if source code is generated and subsequently
 	compiled, simplifying the code generator\sidenote{For example, it is not
 	necessary to optimize away calls to empty functions,\ic{if} statements that 
-	always evaluate to \lcr{true}, or arithmetic expressions
+	always evaluate to \ic{true}, or arithmetic expressions
 	containing only constants.}.
 	Generally, performance is better in generated environments, since 
 	interpreters always imply an additional layer of indirection during the
@@ -764,8 +764,8 @@ established web standards, and the necessary artifacts have to be generated. An
 interpreted approach would not work in this scenario.}
 
 
-Combinations between the two approaches are also possible. For example,
-transformation can create an intermediate representation which is then
+\noindent Combinations between the two approaches are also possible. For
+example, transformation can create an intermediate representation which is then
 interpreted. Or an interpreter can generate code on the fly as a means of
 optimization. While this approach is common in GPLs (e.g.,~the JVM), we
 have not seen this approach used for DSLs. 
@@ -782,8 +782,8 @@ for one transformation, and insufficient for another.
 generates an HTML doc that describes the hardware. It is insufficient regarding
 the C code generator, since the behavior fragment is required as well.}
 
-Sufficiency is important when large systems are concerned. An sufficient
-fragment can be used for code generation without checking out and/or loading
+\noindent Sufficiency is important when large systems are concerned. An
+sufficient fragment can be used for code generation without checking out and/or loading
 other fragments. This supports modular, incremental transformations of only the
 changed fragments, and hence, potentially significant improvements in
 performance and scalability.
@@ -892,8 +892,8 @@ regarding verification: adapting the state machine to its surrounding C program
 is a separate concern and irrelevant to the model checker.}
 
 
-However, the language may have to be reduced to the point where domain experts
-are not able to use the language because the connection to the domain is too
+\noindent However, the language may have to be reduced to the point where domain
+experts are not able to use the language because the connection to the domain is too
 loose. To remedy this problem, a language with limited expressiveness can be
 used at $D_{-1}$. For analysis and verification, the $L_D$ programs are
 transformed down to the verifiable $L_{D-1}$ language. Verification is performed

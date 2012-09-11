@@ -1,6 +1,5 @@
 \documentclass[justified]{tufte-book}
 
-%\usepackage{bbm} 
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{soul} 
@@ -33,10 +32,6 @@
 \renewcommand{\floatpagefraction}{0.1}
 
  
-
-
-\newenvironment{noparindent}{\parskip0.2\baselineskip\parindent0pt}{}
-
 \setcounter{secnumdepth}{2}
 
    
@@ -49,10 +44,8 @@
 \vspace{10mm}
 }
 
-
  
 
-\newcommand{\hilight}[1]{#1} %\hl{#1}}
 \newcommand{\excode}[2]{
 \vspace{5pt}
 \begingroup
@@ -75,7 +68,6 @@
 
 
 
-% important for nicer code font
 \usepackage{beramono}
 
 \definecolor{lightlightgray}{gray}{0.9}
@@ -205,36 +197,22 @@ return
 
 \newcommand{\phead}[1]{\vspace{8pt}\noindent$\blacksquare$\hspace{3pt}\textit{{#1}.}\hspace{8pt}}
 
-%\newcommand{\ic}[1]{\changefont{cmtt}{m}{n}\textbf{{#1}}\normalfont}  
-%\newcommand{\ic}[1]{\small{\textbf{\texttt{{#1}}}}}
-\newcommand{\ic}[1]{\textbf{\small{\texttt{{#1}}}}}  
-\newcommand{\keyword}[1]{\changefont{cmtt}{m}{n}{#1}\normalfont}  
-\newcommand{\keystroke}[1]{\changefont{cmtt}{m}{n}{#1}\normalfont}  
-\newcommand{\lcr}[1]{\changefont{cmtt}{m}{n}{#1}\normalfont} 
+\newcommand{\inlinecodesize}{\fontsize{10.4}{0}\selectfont}
+\definecolor{inlinecodecolor}{gray}{0.3} 
+\newcommand{\ic}[1]{\textbf{\inlinecodesize{\textcolor{inlinecodecolor}{\texttt{{#1}}}}}} 
+\newcommand{\keystroke}[1]{\ic{{#1}}}  
 \newcommand{\curlies}[1]{\char123{}#1\char125}
 
-
-
-\newcommand{\mynote}[2]{\marginnote{\textbf{{#1}}: {#2}}}
-\newcommand\MV[1]{\mynote{MV/TODO}{#1}} 
-\newcommand\LK[1]{\mynote{LK/TODO}{#1}} 
-\newcommand\MB[1]{\mynote{MB/TODO}{#1}} 
 \newcommand\todo[1]{} 
-\newcommand\updateSlides[1]{} 
 
-\newcommand\laurie[1]{\mynote{MARKUS}{#1}} 
-\newcommand\shatalin[1]{\mynote{MARKUS}{#1}} 
-\newcommand\vaclav[1]{\mynote{MARKUS}{#1}} 
-   
-   
 \newcommand{\fig}[1]{Fig.~\ref{#1}}
-\newcommand{\Figure}[1]{\fig{#1}}
 \newcommand{\sect}[1]{Section~\ref{#1}}
-\newcommand{\Section}[1]{\sect{#1}}
-\newcommand{\Chapter}[1]{Chapter~\ref{#1}}
 \newcommand{\parhead}[1]{\vspace{4mm}\noindent$\blacksquare$\hspace{1mm}\textit{{#1}}\hspace{4mm}}
 \newcommand{\seppar}{\vspace{7mm}\noindent}
    
+%\newcommand{\Chapter}[1]{Chapter~\ref{#1}}
+% \newcommand{\Figure}[1]{\fig{#1}}
+% \newcommand{\Section}[1]{\sect{#1}}
 
 \newcommand{\D}[1]{D_{#1}}
 \renewcommand{\dfrac}[2]{\frac{\displaystyle #1}{\displaystyle #2}}
@@ -242,13 +220,9 @@ return
 
 
 
-
- 
-
-
 \title{DSL Engineering}
 \author{Markus Voelter, voelter@acm.org}
-\def\titlerunning{DSL Design}
+\def\titlerunning{DSL Engineering}
 \def\authorrunning{Markus Voelter}
 \begin{document}
 

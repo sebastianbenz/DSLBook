@@ -132,8 +132,8 @@ commonly employed when using C for embedded software development, linguistic
 abstractions have been defined that provide a "shorthand" for those idioms.
 These linguistic abstractions form the basis of the language extensions.}
 
-The above examples can be considered relatively general --- the domain of
-embedded software development is relatively broad. In contrast, a domain may
+\noindent The above examples can be considered relatively general --- the domain
+of embedded software development is relatively broad. In contrast, a domain may
 also be very specific.
 
 \cooling{The cooling DSL is tailored specifically at expressing refrigerator
@@ -143,7 +143,7 @@ cooling algorithms are described and implemented in that particular
 organization.}
 
 
-The second approach for defining a domain is \emph{deductive} or
+\noindent The second approach for defining a domain is \emph{deductive} or
 \emph{top-down}. In this approach, a domain is considered a body of knowledge
 about the real world, i.e.~outside the realm of software. From this perspective,
 a domain $D$ is a body of knowledge for which we want to provide some form of software
@@ -167,8 +167,8 @@ software.}
   DSL has a large overlap with its target domain ($P_L \approx P_D$).}
   \label{fig:programs}
 \end{marginfigure}
-In the context of DSLs, we can ultimately consider a domain $D$ by a set of
-programs $P_D$, whether we take the deductive or inductive route. There can be
+\noindent In the context of DSLs, we can ultimately consider a domain $D$ by a
+set of programs $P_D$, whether we take the deductive or inductive route. There can be
 multiple languages in which we can express $P_D$ programs. Possibly, $P_D$ can
 only be partially expressed in a language $l$ (Figure~\ref{fig:programs}).
 
@@ -321,8 +321,8 @@ correctness using various forms of tests. A secondary purpose is the generation
 of the complete calculation engine for the computing center and the website.}
 
 
-The purpose of a DSL may also change over time. Consequently, this may require
-changes to the abstractions or notations used in the language. From a technical
+\noindent The purpose of a DSL may also change over time. Consequently, this may
+require changes to the abstractions or notations used in the language. From a technical
 perspective, this is just like any other case of language evolution (discussed
 in \sect{process}).
 
@@ -425,14 +425,14 @@ element $e$ is an instance of a concept $c$ defined in some language $l$. \begi
 \end{marginfigure}
 
 \embc{In C, the statement \ic{int x = 3;} is an instance of the
-\lcr{LocalVariableDeclaration} concept. \ic{int} is an instance of
-\lcr{IntType}, and the \ic{3} is an instance of \lcr{NumberLiteral}.}
+\ic{LocalVariableDeclaration} concept. \ic{int} is an instance of
+\ic{IntType}, and the \ic{3} is an instance of \ic{NumberLiteral}.}
 
 \begin{figure}[h] 
 \begin{center}
   \includegraphics[width=8cm]{figures-design/conceptOf.png}
   \caption[][30mm]{The statement \ic{int x = 3;} is an instance of the
-\lcr{LocalVariableDeclaration}. $co$ returns the concept for a given element.}
+\ic{LocalVariableDeclaration}. $co$ returns the concept for a given element.}
   \label{conceptOf} 
 \end{center}
 \end{figure}
@@ -461,9 +461,9 @@ fragment $f$. Each $c \in Cdn$ has the properties $parent$ and $child$ (see
 figure \fig{sets}; $Cdn$ are all the parent-child "lines" in the picture).
 
 \embc{In \ic{int x = 3;} the local variable declaration is the $parent$ of the
-\ic{type} and the \ic{init} expression \ic{3}. The concept \lcr{Local-
-VariableDeclaration} defines the containment relationships \lcr{type} and
-\lcr{init}, respectively.}
+\ic{type} and the \ic{init} expression \ic{3}. The concept \ic{Local-
+VariableDeclaration} defines the containment relationships \ic{type} and
+\ic{init}, respectively.}
 
 \begin{marginfigure}[10mm]
 \begin{center}
@@ -479,10 +479,10 @@ relationship (see figure \fig{sets}).
 
 \embc{For example, in the \ic{x = 10;} assignment, \ic{x} is a reference to
 a variable of that name, for example, the one declared in the previous example
-paragraph. The concept \lcr{LocalVariableRef} has a non-containing reference
-relationsip \lcr{var} that points to the respective variable.}
+paragraph. The concept \ic{LocalVariableRef} has a non-containing reference
+relationsip \ic{var} that points to the respective variable.}
 
-Finally, we define an inheritance relationship that applies the Liskov
+\noindent Finally, we define an inheritance relationship that applies the Liskov
 Substitution Principle (LSP) to language concepts. The LSP states that, 
 
 
@@ -508,9 +508,9 @@ the properties $super$ and $sub$.\begin{marginfigure}[-63mm]
 \end{center} 
 \end{marginfigure}
 
-\embc{The \lcr{LocalVariableDeclaration} introduced above extends the concept
-\lcr{Statement}. This way, a local variable declaration can be used wherever a
-\lcr{Statement} is expected, for example, in the body of a function, which
+\embc{The \ic{LocalVariableDeclaration} introduced above extends the concept
+\ic{Statement}. This way, a local variable declaration can be used wherever a
+\ic{Statement} is expected, for example, in the body of a function, which
 is a \ic{StatementList}.}
 
 
@@ -546,15 +546,15 @@ non-containing cross references are "empty" in the elements in fragment $f$.
 
 \cooling{The hardware definition language is independent, as are fragments that
 use this language. In contrast, the cooling algorithm language is dependent.
-The \lcr{BuildingBlockRef} concept declares a reference to the
-\lcr{BuildingBlock} concept defined in the hardware language (\fig{dependent}).
+The \ic{BuildingBlockRef} concept declares a reference to the
+\ic{BuildingBlock} concept defined in the hardware language (\fig{dependent}).
 Consequently, if a cooling program refers to a hardware setup using an instance of
-\lcr{BuildingBlockRef}, the fragment becomes dependent on the hardware
+\ic{BuildingBlockRef}, the fragment becomes dependent on the hardware
 definition fragment that contains the referenced building block.}
 
 \begin{marginfigure}[-50mm]
   \includegraphics[width=6cm]{figures-design/cooling/dependent.png} 
-  \caption{A \lcr{BuildingBlockRef} references a hardware element from within a
+  \caption{A \ic{BuildingBlockRef} references a hardware element from within a
   cooling algorithm fragment.}
   \label{dependent}
 \end{marginfigure}
@@ -591,8 +591,8 @@ heterogeneous (see \fig{heterogeneous}).}
   global variables (from the \emph{core} language), a state machine (from the
   \emph{statemachines} language) and a test case (from the \emph{unittest}
   language). Note how concepts defined in the \emph{statemachine} language
-  (\lcr{trigger}, \lcr{isInState} and \ic{test statemachine}) are used inside a
-  \lcr{TestCase}.}
+  (\ic{trigger}, \ic{isInState} and \ic{test statemachine}) are used inside a
+  \ic{TestCase}.}
   \label{heterogeneous} 
 \end{figure}
 

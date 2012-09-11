@@ -281,7 +281,7 @@ parametrization) or from components (where different instances can be connected
 differently to other instances).}. It supports reusing the fixed parts, and
 expressing variability via the parameters.
 
-\embc{Apart from C's \lcr{structs} (which are instantiatable data structures)
+\embc{Apart from C's \ic{structs} (which are instantiatable data structures)
 and components (which can be instantiated and connected), state machines can
 be instantiated as well. Each instance can be in a different state at any given
 time.}
@@ -300,7 +300,7 @@ same set of model fragments.
 \comparch{This DSL provides a way of advising component definitions from an
 aspect (\fig{monitoring}). An aspect may introduce an additional port
 \ic{provided port mon: IMonitoring} that allows a central monitoring component
-to query the adviced components via the \lcr{IMonitoring} interface.}
+to query the adviced components via the \ic{IMonitoring} interface.}
 
 \begin{figure}[h]
 \fbox{
@@ -316,9 +316,9 @@ to query the adviced components via the \lcr{IMonitoring} interface.}
 \exwebdsl{Entity declarations can be \emph{extended} in separate modules. This
 makes it possible to declare in one module all data model declarations of a
 particular feature. For example, in the \emph{researchr} application, a
-\lcr{Publication} can be \lcr{Tag}ged, which requires an extension of the
-\lcr{Publication} entity. This extension is defined in the \lcr{tag}
-module, together with the definition of the \lcr{Tag} entity. This is
+\ic{Publication} can be \ic{Tag}ged, which requires an extension of the
+\ic{Publication} entity. This extension is defined in the \ic{tag}
+module, together with the definition of the \ic{Tag} entity. This is
 essentially a use of superposition.}
 
 
@@ -345,7 +345,7 @@ integration with popular version control systems. Since this DSL is intended
 for use by programmers, working with existing version control systems is not a
 problem.}
 
-\comparch{Components can specify a \lcr{new version of} reference to another
+\comparch{Components can specify a \ic{new version of} reference to another
 component In this case, the new version may specify additional
 provided ports with the same interfaces or new versions of these interfaces. It
 may deprecate required ports. Effectively, this means that the new version of
@@ -393,8 +393,8 @@ interface operations (see \fig{ppc}).}
 \marginnote{This is only an overview over a few paradigms; many more
 exist. I refer to the excellent Wikipedia entry on \emph{Programming Paradigms} and to
 the book\cite{RoyH2004}}
-This section describes some of the most well-known behavioral \\ paradigms that
-can serve as useful starting points for behavior descriptions in
+\noindent This section describes some of the most well-known behavioral \\
+paradigms that can serve as useful starting points for behavior descriptions in
 DSLs. In addition to describing the paradigm, we also briefly investigate how
 easy programs using the paradigm can be analyzed, and how complicated it is to
 build debuggers.
@@ -454,8 +454,8 @@ rules as a tree where all intermediate results of each function call are shown
   \label{debugger}
 \end{figure}
 
-An important subset of functional programming is pure expressions (as in \ic{i >
-3*2 + 7}. Instead of calling functions, operators are used. However, operators
+\noindent An important subset of functional programming is pure expressions (as
+in \ic{i > 3*2 + 7}. Instead of calling functions, operators are used. However, operators
 are just infix notations for function calls. Usually the operators are hard
 wired into the language and it is not possible for users to define their own
 functional abstractions. The latter the main differentiator to functional
@@ -599,7 +599,8 @@ refrigerator door, the crossing of a temperature threshold, or a timeout that
 triggers defrosting of a cooling compartment. Events are queued, and the queues
 are processed in intervals determined by a scheduler.}
 
-Debugging is simple if the timing/frequency of input events can be controlled.
+\noindent Debugging is simple if the timing/frequency of input events can be
+controlled.
 Visualizing incoming events and the code that is triggered as a reaction is
 relatively simple. If the timing of input events cannot be controlled, then
 debugging can be almost impossible, because humans are way too slow to fit "in
@@ -702,8 +703,8 @@ of hardware building blocks. Note that this language is an example where a
 behavioral paradigm is used without significant alterations, but working with
 domain-specific data structures: refrigerator hardware and their properties.}
 
-As mentioned before, state-based behavior description is also interesting in the
-context of model checking. The model checker either determines that the state
+\noindent As mentioned before, state-based behavior description is also
+interesting in the context of model checking. The model checker either determines that the state
 chart conforms to a set of specifications or provides a counter example that
 violates the specifications. Specifications express something about sequences of
 states such as: "it is not possible that two traffic lights show green at the

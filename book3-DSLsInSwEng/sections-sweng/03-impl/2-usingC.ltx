@@ -72,7 +72,7 @@ into the header files generated from modules.}
 
 \noindent mbeddr C provides \emph{modules} (\fig{moduleexample}). A module
 contains the top level C constructs (such as \ic{struct}s, functions or global variables).
-These module contents can be \lcr{exported}. Modules can \emph{import} other modules,
+These module contents can be \ic{exported}. Modules can \emph{import} other modules,
 in which case they can access the exported contents of the imported modules.
 While header files are generated, we do not expose them to the user: modules
 provide a more convenient means of controlling modularizing programs and
@@ -136,7 +136,7 @@ macros, users can create first-class language extensions including type checks
 and IDE support. Removing the preprocessor and providing specific support for
 its important use cases goes a long way in creating more maintainable and more
 analyzable programs. The same is true for introducing a separate
-\lcr{boolean} type and not interpreting integers as Booleans by default. An
+\ic{boolean} type and not interpreting integers as Booleans by default. An
 explicit cast operator is available.
 
 Type decorations, such as array brackets or the pointer asterisk must be
@@ -154,13 +154,13 @@ pointer type, not the property of an identifier. Identifiers are just names.
 
 \parhead{Decision Tables} (addressing $C_1$, uses $W_3$) are a new kind of
 expression, i.e.~they can be evaluated. An example is shown in \fig{dectab}. A
-decision table represents nested \lcr{if} statements. It is evaluated to the
-value of the first cell whose column and row headers are \lcr{true} (the
-evaluation order is left to right, top to bottom). A default value (\lcr{FAIL})
+decision table represents nested \ic{if} statements. It is evaluated to the
+value of the first cell whose column and row headers are \ic{true} (the
+evaluation order is left to right, top to bottom). A default value (\ic{FAIL})
 is specified to handle the case where none of the column/row header combinations
 is \ic{true}. Since the compiler and IDE have to compute a type for expressions, the
 decision table specifies the type of its result values explicitly
-(\lcr{int8\_t}).
+(\ic{int8\_t}).
 
 
 \begin{marginfigure}[-70mm]
@@ -177,8 +177,8 @@ This case is optimized to not use the indirection of an extra function.}
 \parhead{Unit Tests} (addresses $C_4$, uses $W_1$, $W_2$) are new top-level
 constructs (\fig{testcase}) introduced in a separate \emph{unittest}
 language that extends the C core. They are like \ic{void} functions without
-arguments. The \emph{unittest} language also introduces \lcr{assert} and
-\lcr{fail} statements, which can only be used inside test cases. Testing
+arguments. The \emph{unittest} language also introduces \ic{assert} and
+\ic{fail} statements, which can only be used inside test cases. Testing
 embedded software can be a challenge, and the \emph{unittest} extension is a
 first step at providing comprehensive support for testing. mbeddr also provides
 support for platform-independent logging as well as for specifying stubs and
@@ -189,7 +189,7 @@ mocks. We do not discuss this in this paper.
 \begin{marginfigure}[10mm]  
 \includegraphics[width=50mm]{figures-sweng/impl/unittest.png}
 \caption{The \emph{unittest} language introduces test cases as well as
-\lcr{assert} and \lcr{fail} statements which can only be used inside of a test
+\ic{assert} and \ic{fail} statements which can only be used inside of a test
 case. Test cases are transformed to functions, and the \ic{assert} statements
 become \ic{if} statements with a negated condition. The generated code also
 counts the number of failures so it can be reported to the user via a binary's

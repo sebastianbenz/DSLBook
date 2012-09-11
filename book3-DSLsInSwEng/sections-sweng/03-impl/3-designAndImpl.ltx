@@ -17,12 +17,12 @@ on the extensions discussed in the previous section.
 
 C can be partitioned into expressions, statements, functions, etc. We
 have factored these parts into separate language modules to make each of them
-reusable without pulling in all of C. The \lcr{expressions} language is the most
+reusable without pulling in all of C. The \ic{expressions} language is the most
 fundamental language. It depends on no other language and defines the primitive
 types, the corresponding literals and the basic operators. Support for pointers
-and user defined data types (\lcr{enum, struct, union}) is factored into the
-\lcr{pointers} and \lcr{udt} languages, respectively. \lcr{statements} contains
-the procedural part of C, and the \lcr{modules} language covers modularization.
+and user defined data types (\ic{enum, struct, union}) is factored into the
+\ic{pointers} and \ic{udt} languages, respectively. \ic{statements} contains
+the procedural part of C, and the \ic{modules} language covers modularization.
 \fig{umldiagram} shows an overview over some of the languages and constructs.
 
 
@@ -45,31 +45,31 @@ In this section we illustrate the implementation of the \ic{test case} construct
 as well as of the \ic{assert} and \ic{fail} statements available inside test
 cases.
 
-\parhead{Structure} \lcr{Module}s own a collection of \lcr{IModuleCon- tent}s,
+\parhead{Structure} \ic{Module}s own a collection of \ic{IModuleCon- tent}s,
 an interface that defines the properties of everything that can reside directly in
-a module. All top-level constructs such as \lcr{Function}s implement
-\lcr{IModuleCon- tent}. \lcr{IModuleContent} extends MPS'
-\lcr{IIdentifier- NamedConcept} interface, which provides a \lcr{name} property.
-\lcr{IModuleContent} also defines a Boolean property \lcr{exported} that
+a module. All top-level constructs such as \ic{Function}s implement
+\ic{IModuleCon- tent}. \ic{IModuleContent} extends MPS'
+\ic{IIdentifier- NamedConcept} interface, which provides a \ic{name} property.
+\ic{IModuleContent} also defines a Boolean property \ic{exported} that
 determines whether the respective module content is visible to modules that
 import this module. This property is queried by the scoping rules that determine
-which elements can be referenced. Since the \lcr{IModuleContent} interface can
+which elements can be referenced. Since the \ic{IModuleContent} interface can
 also be implemented by concepts in other languages, new top level constructs
-such as the \lcr{TestCase} in the \ic{unittest} language can implement this
+such as the \ic{TestCase} in the \ic{unittest} language can implement this
 interface, as long as the respective language has a dependency on the
-\lcr{modules} language, which defines \lcr{IModuleContent}. \fig{umldiagram}
+\ic{modules} language, which defines \ic{IModuleContent}. \fig{umldiagram}
 shows some of the relevant concepts and languages.
 
 
 
-\parhead{Constraints} A test case contains a \lcr{StatementList}, so any C
-statement can be used in a test case. \lcr{Statement- List} becomes available
-to the unit test language through its dependency on the \lcr{statements}
-language. \lcr{unittest} also defines new statements: \lcr{assert} and
-\lcr{fail}. They extend the abstract \lcr{Statement} concept defined in the
-\lcr{statements} language. This makes them valid in \emph{any} statement list,
+\parhead{Constraints} A test case contains a \ic{StatementList}, so any C
+statement can be used in a test case. \ic{Statement- List} becomes available
+to the unit test language through its dependency on the \ic{statements}
+language. \ic{unittest} also defines new statements: \ic{assert} and
+\ic{fail}. They extend the abstract \ic{Statement} concept defined in the
+\ic{statements} language. This makes them valid in \emph{any} statement list,
 for example in a function body. This is undesirable, since the transformation of
-\lcr{assert}s into C depends on them being used in a \lcr{TestCase}. To
+\ic{assert}s into C depends on them being used in a \ic{TestCase}. To
 enforce this, a \emph{can be child} constraint is defined
 (\fig{assertConstraints}).
 
@@ -84,9 +84,9 @@ concept constraints AssertStatement {
     }   
 } 
 \end{lstlisting}
-\caption{This constraint restricts an \lcr{AssertStatement} to be used only
-inside a \lcr{TestCase} by checking that at least one of its ancestors is a
-\lcr{TestCase}.}
+\caption{This constraint restricts an \ic{AssertStatement} to be used only
+inside a \ic{TestCase} by checking that at least one of its ancestors is a
+\ic{TestCase}.}
 \label{assertConstraints} 
 \end{figure}
 
@@ -102,10 +102,10 @@ test case exTest {          void test_exTest {           void test_exTest {
                                 on !(x == 4);              }
                             }                            }
 \end{lstlisting}
-\caption{Two-stage transformation of \lcr{TestCase}s. The \lcr{TestCase} is
+\caption{Two-stage transformation of \ic{TestCase}s. The \ic{TestCase} is
 transformed into a C function using the logging framework to output error
-messages. The \lcr{report} statement is in turn transformed into a
-\lcr{printf} statement \emph{if} we generate for the Windows/Mac environment. It
+messages. The \ic{report} statement is in turn transformed into a
+\ic{printf} statement \emph{if} we generate for the Windows/Mac environment. It
 would be transformed to something else if we generated for the actual target
 device (configured by the user in the build configuration).}
 \label{unittest2c}
@@ -131,9 +131,9 @@ device (configured by the user in the build configuration).}
 
 
 
-\parhead{Transformation} The new language concepts in \lcr{unittest} are reduced
-to C concepts: the \lcr{TestCase} is transformed to a \lcr{void} function without
-arguments and the \lcr{assert} statement is transformed into a \lcr{report}
+\parhead{Transformation} The new language concepts in \ic{unittest} are reduced
+to C concepts: the \ic{TestCase} is transformed to a \ic{void} function without
+arguments and the \ic{assert} statement is transformed into a \ic{report}
 statement defined in the logging language. The \ic{report} statement, in turn,
 it is transformed into a platform-specific way of reporting an error (console,
 serial line or error memory). \fig{unittest2c} shows an example of this
@@ -154,9 +154,9 @@ statement must only be visible inside its body and they have to shadow
 variables of the same name declared in outer scopes (such as the \ic{a} declared
 in the second line of the \ic{measure} function in \fig{safeheap}).
 
-\parhead{Structure} The \lcr{safeheap} statement extends \lcr{State- ment}. It
-contains a \lcr{StatementList} as its body, as well as a list of
-\lcr{SafeHeapVar}s. These extend \lcr{LocalVarDecl}, so they fit with the
+\parhead{Structure} The \ic{safeheap} statement extends \ic{State- ment}. It
+contains a \ic{StatementList} as its body, as well as a list of
+\ic{SafeHeapVar}s. These extend \ic{LocalVarDecl}, so they fit with the
 existing mechanism for handling variable shadowing (explained below).
   
 \begin{figure} 
@@ -165,7 +165,7 @@ existing mechanism for handling variable shadowing (explained below).
 \includegraphics[width=85mm]{figures-sweng/impl/safeheap.png}
 \end{minipage}
 }
-\caption{A \lcr{safeheap} statement declares heap variables which can only be
+\caption{A \ic{safeheap} statement declares heap variables which can only be
 used inside the body of the statement. When the body is left, the memory is
 automatically freed. Notice also how we report an error in case the variable
 tries to escape.}
@@ -173,22 +173,22 @@ tries to escape.}
 \end{figure}
 
 
-\parhead{Behaviour} \lcr{LocalVarRef}s are expressions that reference
-\lcr{LocalVarDecl}. A scope constraint, a mechanism provided by MPS, determines
-the set of visible variables for a given \lcr{LocalVarRef}. We implement this
+\parhead{Behaviour} \ic{LocalVarRef}s are expressions that reference
+\ic{LocalVarDecl}. A scope constraint, a mechanism provided by MPS, determines
+the set of visible variables for a given \ic{LocalVarRef}. We implement this
 constraint by plugging into mbeddr's generic local variable scoping mechanism
 using the following approach. The constraint ascends the containment tree
-until it finds a node which implements \lcr{ILocalVarScopeProvider} and calls its \lcr{getLocalVarScope}
-method. A \lcr{LocalVarScope} has a reference to an outer scope, which is set by
-finding \emph{its} \lcr{ILocalVarScopeProvider} ancestor, effectively building a
-hierarchy of \lcr{LocalVarScope}s. To get at the list of the visible variables,
-the \lcr{LocalVarRef} scope constraint calls the \lcr{getVisibleLocalVars}
-method on the innermost \lcr{LocalVarScope} object. This method returns a flat
-list of \lcr{LocalVarDecl}s, taking into account that variables owned by a
-\lcr{LocalVarScope} that is \emph{lower} in the hierarchy shadow variables of the same
+until it finds a node which implements \ic{ILocalVarScopeProvider} and calls its \ic{getLocalVarScope}
+method. A \ic{LocalVarScope} has a reference to an outer scope, which is set by
+finding \emph{its} \ic{ILocalVarScopeProvider} ancestor, effectively building a
+hierarchy of \ic{LocalVarScope}s. To get at the list of the visible variables,
+the \ic{LocalVarRef} scope constraint calls the \ic{getVisibleLocalVars}
+method on the innermost \ic{LocalVarScope} object. This method returns a flat
+list of \ic{LocalVarDecl}s, taking into account that variables owned by a
+\ic{LocalVarScope} that is \emph{lower} in the hierarchy shadow variables of the same
 name from a \emph{higher} level in the hierarchy. So, to plug the
-\lcr{SafeHeapStatement} into this mechanism, it has to implement
-\lcr{ILocalVarScopeProvider} and implement the two methods shown in
+\ic{SafeHeapStatement} into this mechanism, it has to implement
+\ic{ILocalVarScopeProvider} and implement the two methods shown in
 \fig{safeheapbehaviour}.
 
 
@@ -208,12 +208,12 @@ public sequence<node<LocalVariableDecl>> getContainedLocalVars() {
   this.vars;  
 }
 \end{lstlisting} 
-\caption{A \lcr{safeheap} statement implements the two methods declared by the
-\lcr{ILocalVarScopeProvider} interface. \lcr{getContainedLocalVariables}
-returns the \lcr{LocalVarDecl}s that are declared between the parentheses (see
-\fig{safeheap}). \lcr{getLocalVarScope} constructs a scope that contains these
+\caption{A \ic{safeheap} statement implements the two methods declared by the
+\ic{ILocalVarScopeProvider} interface. \ic{getContainedLocalVariables}
+returns the \ic{LocalVarDecl}s that are declared between the parentheses (see
+\fig{safeheap}). \ic{getLocalVarScope} constructs a scope that contains these
 variables and then builds the hierarchy of outer scopes by relying on its
-ancestors that also implement \lcr{ILocalVarScopeProvider}. The index of the
+ancestors that also implement \ic{ILocalVarScopeProvider}. The index of the
 statement that contains the reference is passed in to make sure that only
 variables declared \emph{before} the reference site can be referenced.}
 \label{safeheapbehaviour}
@@ -275,10 +275,10 @@ Boolean.
 
 
 
-\parhead{Structure} The decision table extends the \lcr{Expression} concept
+\parhead{Structure} The decision table extends the \ic{Expression} concept
 defined in the \ic{expressions} language. Decision tables contain a list of
 expressions for the column headers, one for the row headers and
-another one for the result values. It also contains a child of type \lcr{Type} 
+another one for the result values. It also contains a child of type \ic{Type} 
 to declare the type of the result expressions, as well as a default value 
 expression. The concept defines an alias \ic{dectab} to allow users to
 instantiate a decision table in the editor. Obviously, for non-textual notations
@@ -298,14 +298,14 @@ expression in the decision table), the implementation of \ic{getValueAt} simply 
 
 \parhead{Type System} As mentioned above, MPS uses unification in the type
 system. Language concepts specify type equations that contain type literals
-(such as \lcr{boolean}) as well as type variables (such as
-\lcr{typeof(dectab)}). The unification engine then tries to assign values to the
+(such as \ic{boolean}) as well as type variables (such as
+\ic{typeof(dectab)}). The unification engine then tries to assign values to the
 type variables so that all applicable type equations become \ic{true}. New language
 concepts contribute additional type equations. \fig{dectabtyping} shows those
 for decision tables. New equations are solved along with those for existing
-concepts. For example, the typing rules for a \lcr{ReturnStatement} ensure that
+concepts. For example, the typing rules for a \ic{ReturnStatement} ensure that
 the type of the returned expression is the same or a subtype of the type of the
-surrounding function. If a \lcr{ReturnStatement} uses a decision table as the
+surrounding function. If a \ic{ReturnStatement} uses a decision table as the
 returned expression, the type calculated for the decision table must be
 compatible with the return type of the surrounding function.
 
@@ -348,7 +348,7 @@ already shown example code earlier in \fig{unitsexample}.
 
 
 
-\parhead{Structure} Derived and convertible \lcr{UnitDeclaration}s are
+\parhead{Structure} Derived and convertible \ic{UnitDeclaration}s are
 \ic{IModuleContents}. Derived unit declarations specify a name (\ic{mps},
 \ic{kmh}) and the corresponding SI base units (\ic{m}, \ic{s}) plus an
 exponent; a convertible unit declaration specifies a name and a conversion
@@ -361,14 +361,14 @@ represented in programs as \ic{baseType/unit/}. We also provide
 \ic{100 kmh}).
 
 
-\parhead{Scoping} \lcr{LiteralWithUnit}s and \lcr{UnitType}s refer to a
-\lcr{UnitDeclaration}, which is a module content. According to the visibility
-rules, valid targets for the reference are the \lcr{UnitDeclaration}s in the
+\parhead{Scoping} \ic{LiteralWithUnit}s and \ic{UnitType}s refer to a
+\ic{UnitDeclaration}, which is a module content. According to the visibility
+rules, valid targets for the reference are the \ic{UnitDeclaration}s in the
 same module, and the \emph{exported} ones in all imported modules. This rule
 applies to \emph{any} reference to \emph{any} module contents, and is
 implemented generically in mbeddr. \fig{scoping} shows the code for the scope of
-the reference to the \lcr{UnitDeclaration}. We use an interface
-\lcr{IVisibleNodeProvider}, (implemented by \lcr{Module}s) to find all
+the reference to the \ic{UnitDeclaration}. We use an interface
+\ic{IVisibleNodeProvider}, (implemented by \ic{Module}s) to find all
 instances of a given type. The implementation of \ic{visibleContentsOfType}
 simply searches through the contents of the current and imported modules and
 collects instances of the specified concept. The result is used as the scope for
@@ -383,7 +383,7 @@ link {unit} search scope:
       enclosingNode.ancestor<IVisibleNodeProvider>.
               visibleContentsOfType(concept/UnitDeclaration/); } 
 \end{lstlisting} 
-\caption{The \lcr{visibleContentsOfType} operation returns all instances of the
+\caption{The \ic{visibleContentsOfType} operation returns all instances of the
 concept argument in the current module, as well as
 all exported instances in modules imported by the current module.}
 \label{scoping}
@@ -402,9 +402,9 @@ overloaded operations containers essentially specify 3-tuples of
 \emph{(leftArgType, rightArgType, resultType)} plus applicability conditions to
 match type patterns and decide on the resulting type. Typing rules for new
 (combinations of) types can be added by specifying additional 3-tuples.
-\fig{ovopcont} shows the overloaded rules for C's \lcr{MultiExpression} (the
+\fig{ovopcont} shows the overloaded rules for C's \ic{MultiExpression} (the
 language concept the implements the multiplication operator \ic{*}) when applied
-to two \ic{UnitType}s: the result type will be a \lcr{UnitType} as well, where
+to two \ic{UnitType}s: the result type will be a \ic{UnitType} as well, where
 the exponents of the SI units are added.
 
 
@@ -483,15 +483,15 @@ type, wrapped into a \ic{UnitType} with the same unit as the original one.}
 \subsection{Addressing $W_5$ (Alternative Transformations): Range Checking}
 
 
-The \ic{safemodules} language defines an \emph{annotation} to mark \lcr{Modules}
+The \ic{safemodules} language defines an \emph{annotation} to mark \ic{Modules}
 as safe (we will discuss annotations in the next subsection). If a module is
-safe, the binary operators such as \lcr{+} or \lcr{*} are replaced with calls to
+safe, the binary operators such as \ic{+} or \ic{*} are replaced with calls to
 functions that, in addition to performing the addition or multiplication,
 perform a range check.
 
 \parhead{Transformation}  The transformation that replaces the binary operators
 with function calls is triggered by the presence of this annotation on the
-\lcr{Module} which contains the operator.
+\ic{Module} which contains the operator.
 \fig{safetransformation} shows the code. The
 \ic{@safeAnnotation != null} checks for the presence of the annotation. MPS 
 uses priorities to specify relative orderings of transformations, and MPS
@@ -506,11 +506,11 @@ transformation that maps the C tree to C text for compilation.
   \includegraphics[width=85mm]{figures-sweng/impl/safetransformation.png}
 \end{minipage}
 }
-\caption{This \emph{reduction rule} transforms instances of \lcr{PlusExpression}
-into a call to a library function \lcr{addWithRangeChecks}, passing in the left 
-and right argument of the \lcr{+} using the two \lcr{COPY\_SRC} macros. The 
-\lcr{condition} ensures that the transformation is only executed if
-the containing \lcr{Module} has a \lcr{safeAnnotation} attached to it. A
+\caption{This \emph{reduction rule} transforms instances of \ic{PlusExpression}
+into a call to a library function \ic{addWithRangeChecks}, passing in the left 
+and right argument of the \ic{+} using the two \ic{COPY\_SRC} macros. The 
+\ic{condition} ensures that the transformation is only executed if
+the containing \ic{Module} has a \ic{safeAnnotation} attached to it. A
 transformation priority defined in the properties of the transformation makes
 sure it runs before the C-to-text transformation.}
 \label{safetransformation}  
@@ -526,7 +526,7 @@ editor is defined the other way round: the annotation editor delegates to the
 editor of the annotated element. This allows the annotation editor to add
 additional syntax \emph{around} the annotated element. Optionally, it is
 possible to explicitly restrict the concepts to which a particular annotation
-can be attached. We use annotations in several places: the \lcr{safe} annotation discussed in the
+can be attached. We use annotations in several places: the \ic{safe} annotation discussed in the
 previous section, the requirements traces and the product line variability
 presence conditions.
 
@@ -573,11 +573,11 @@ in the program. This is key to enabling arbitrary annotations on arbitrary progr
   \includegraphics[width=85mm]{figures-sweng/impl/tracesAll.png}
 \end{minipage}
 }
-\caption{The editor definition for the \lcr{ReqTrace}
+\caption{The editor definition for the \ic{ReqTrace}
 annotation (an example trace annotation is shown in \fig{screenshot}). It
-consists of a vertical list \lcr{[/ .. /]} with two lines.
+consists of a vertical list \ic{[/ .. /]} with two lines.
 The first line contains the reference to the requirement. The second line uses the
-\lcr{attributed node} construct to embed to the editor of the program node
+\ic{attributed node} construct to embed to the editor of the program node
 to which this annotation is attached. So the annotation is always rendered
 right on top of whatever syntax the original node uses.}
 \label{traces}  

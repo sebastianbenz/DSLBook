@@ -134,8 +134,8 @@ resolved before or during compilation, and not at runtime.
 
 \parhead{$C_2$: C considered Unsafe} While C is efficient and flexible, several
 of C's features are often considered unsafe. For example, unconstrained casting
-via \lcr{void} pointers, using \lcr{int}s as Booleans or the weak typing implied
-by \lcr{union}s can result in runtime errors that are hard to track down.
+via \ic{void} pointers, using \ic{int}s as Booleans or the weak typing implied
+by \ic{union}s can result in runtime errors that are hard to track down.
 Consequently, the unsafe features of C are prohibited in many organizations.
 Standards for automotive software development such as MISRA
 limit C to a \emph{safer} language subset. However, most C IDEs are not aware of
@@ -149,7 +149,7 @@ embedded systems often require additional data to be associated with program
 elements. Examples include physical units, coordinate systems, data encodings or
 value ranges for variables. These annotations are typically used by specific,
 often custom-built analysis or generation tools. Since C programs can only
-capture such data informally as comments or \lcr{pragma}s, the C type system and
+capture such data informally as comments or \ic{pragma}s, the C type system and
 IDE cannot check their correct use in C programs. They may also be stored
 separately (for example, in XML files) and linked back to the program using
 names or other weak links\footnote{Even with tool support that checks the consistency of
@@ -239,7 +239,7 @@ state machine tests are not discussed in this paper.)}
 
 \noindent The semantics of an extension are typically defined by a
 transformation back to the base language. For example, in an extension that provides state machines,
-these may be transformed to a \lcr{switch/case}-based implementation in C.
+these may be transformed to a \ic{switch/case}-based implementation in C.
 Extensions can be stacked (\fig{growing}), where a higher-level extension
 extends (and transforms back to) a lower-level extension instead of C. At the
 bottom of this stack resides plain C in textual form and a suitable compiler.
@@ -295,11 +295,11 @@ integration of test cases or new programming paradigms relevant in particular
 domains such as state machines, or interfaces and components.
 
 
-\parhead{$W_2$: Statements} New statements, such as \lcr{assert} or \lcr{fail}
+\parhead{$W_2$: Statements} New statements, such as \ic{assert} or \ic{fail}
 statements in test cases, must be supported. If statements introduce new
 blocks, then variable visibility and shadowing must be handled correctly, just
 as in regular C. Statements may have to be restricted to a specific
-context; for example the \lcr{assert} or \lcr{fail} statements must
+context; for example the \ic{assert} or \ic{fail} statements must
 \emph{only} be used in test cases and not in any other statement list.
 
 
@@ -318,8 +318,8 @@ attached to number literals (as in \ic{10kg}).
 
 \parhead{$W_5$: Transformation} Alternative transformations for existing
 language concepts must be possible. For example, in a module marked as
-\lcr{safe}, \lcr{x + y} may have to be translated to
-\lcr{addWithBoundsCheck(x, y)}, a call to an \ic{inline} function that performs
+\ic{safe}, \ic{x + y} may have to be translated to
+\ic{addWithBoundsCheck(x, y)}, a call to an \ic{inline} function that performs
 bounds-checking besides the addition. 
 
 

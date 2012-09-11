@@ -20,8 +20,8 @@ Those references are simple, dotted names such as \ic{compartment1.valve}.}
 \genex{In the UI example, the adapter language simply introduces dotted names to
 refer to fields of data structures.}
 
-Extension and Embedding requires modular concrete syntax definitions because
-additional language elements must be "mixed" with programs written with the
+\noindent Extension and Embedding requires modular concrete syntax definitions
+because additional language elements must be "mixed" with programs written with the
 base/host language. As we discuss in Part III \todo{ref} of the book, combining
 independently developed languages after the fact can be a problem: depending on
 the parser technology, the combined grammar may not be parsable with the parser
@@ -32,21 +32,21 @@ details, see  \todo{ref}.
 
 
 \embc{State machines are hosted in regular C programs. This works because the C
-language's \lcr{Module} construct contains a collection of
-\lcr{IModuleContents}, and the \lcr{StateMachine} concept implements the
-\lcr{IModuleContent} concept interface. This state machine language is designed
+language's \ic{Module} construct contains a collection of
+\ic{IModuleContents}, and the \ic{StateMachine} concept implements the
+\ic{IModuleContent} concept interface. This state machine language is designed
 specifically for being embedded into C, so it can access and extend 
-\lcr{IModuleContent} (\fig{statemachinmodules}). If the state machine
+\ic{IModuleContent} (\fig{statemachinmodules}). If the state machine
 language were embeddable in any host language in addition to C, this dependency
-on \lcr{ModuleContent} (from the C base language) would not be allowed. An
-adapter language would have to be created which adapts a \lcr{StateMachine} to
-\lcr{IModuleContent}.}
+on \ic{ModuleContent} (from the C base language) would not be allowed. An
+adapter language would have to be created which adapts a \ic{StateMachine} to
+\ic{IModuleContent}.}
 \begin{marginfigure}[-20mm]
   \includegraphics[width=5cm]{figures-design/embc/statemachinmodules.png}
   \caption{The core language (above the dotted line) defines an interface
-  \lcr{IModuleContent}. Anything that should be hosted inside a \lcr{Module}
+  \ic{IModuleContent}. Anything that should be hosted inside a \ic{Module}
   has to implement this interface, typically from another language.
-  \lcr{StateMachines} are an example.} 
+  \ic{StateMachines} are an example.} 
   \label{statemachinmodules}
 \end{marginfigure}
 
@@ -60,11 +60,11 @@ mind as well.
 \cooling{In the refrigerator example, the algorithm language defines typing
 rules for hardware elements (from the hardware language), because these types
 are used to determine which properties can be accessed on the hardware elements
-(e.g.,~a compressor has a property \lcr{active} that controls if it is turned on
+(e.g.,~a compressor has a property \ic{active} that controls if it is turned on
 or off).}
 
-In case of Extension, the type systems of the base language must be designed in
-a way that allows adding new typing rules in language extensions. For example,
+\noindent In case of Extension, the type systems of the base language must be
+designed in a way that allows adding new typing rules in language extensions. For example,
 if the base language defines typing rules for binary operators, and the
 extension language defines new types, then those typing rules may have to be
 overridden to allow the use of existing operators with the new types. 
@@ -75,8 +75,8 @@ operators (+, -, *, /, etc.). MPS supports declarative type system
 specification, so you can just \emph{add} additional typing rules for the case
 where one or both of the arguments have a type with a physical unit.}
 
-For Reuse and Embedding, the typing rules that affect the interplay between the
-two languages reside in the adapter language. The type systems of both languages
+\noindent For Reuse and Embedding, the typing rules that affect the interplay
+between the two languages reside in the adapter language. The type systems of both languages
 must be extensible in the way described in the previous paragraph on Extension.
 
 \genex{In the UI example the adapter language will have to adapt the data types
@@ -128,8 +128,8 @@ the names of those generated (and hand-written) classes.}
   \caption{A single multi-sourced transformation.}
   \label{referencingCaseB}
 \end{marginfigure}
-The second case (\fig{referencingCaseB}) is a multi-sourced transformation that
-creates one single homogeneous fragment. This typically occurs if the
+\noindent The second case (\fig{referencingCaseB}) is a multi-sourced
+transformation that creates one single homogeneous fragment. This typically occurs if the
 referencing fragment is used to guide the transformation of the referenced
 fragment, for example by specifying transformation strategies (annotation
 models). In this case, a new transformation has to be written that takes the
@@ -149,8 +149,8 @@ fragment remains homogeneous.}
 specified by the referencing fragment}
   \label{referencingCaseC}
 \end{marginfigure}
-The third case, an alternative to rewriting the generator, is the use of a
-preprocessing transformation (\fig{referencingCaseC}), that changes the
+\noindent The third case, an alternative to rewriting the generator, is the use
+of a preprocessing transformation (\fig{referencingCaseC}), that changes the
 referenced fragment in a way consistent with what the referencing fragment
 prescribes. The existing transformations for the referenced fragment can then be
 reused.
@@ -183,19 +183,19 @@ transformed into a dot file that is used to render the state machine
 graphically via graphviz.}
 
 
-Sometimes a language extension requires rewriting transformations defined by the
-base language. In this case, the transformation engine must support
+\noindent Sometimes a language extension requires rewriting transformations
+defined by the base language. In this case, the transformation engine must support
 \emph{overriding} transformations by transformations defined in another
 language.
 
 \embc{In the data-types-with-physical-units example, the language also provides
 range checking and overflow detection. So if two such quantities are added, the
-addition is transformed into a call to a special \lcr{add} function instead of
+addition is transformed into a call to a special \ic{add} function instead of
 using the regular plus operator. This function performs overflow checking and
 addition. MPS supports transformation priorities that can be used to override
 the existing transformation with a new one.}
 
-Language Extension introduces the risk of semantic interactions. The
+\noindent Language Extension introduces the risk of semantic interactions. The
 transformations associated with several independently developed extensions of
 the same base language may interact with each other. To avoid the problem,
 transformations should be built in a way so that they do not "consume scarce
@@ -210,8 +210,8 @@ statements require the surrounding Java class to extend a specific, but
 different base class. This won't work because a Java class can only extend one
 base class.}
 
-Interactions may also be more subtle and affect memory usage or execution
-performance. Note that this problem is not specific to languages, it can occur
+\noindent Interactions may also be more subtle and affect memory usage or
+execution performance. Note that this problem is not specific to languages, it can occur
 whenever several independent extensions of a something can be used together,
 ad hoc. A more thorough discussion of the problem of semantic interactions is
 beyond the scope of this book.

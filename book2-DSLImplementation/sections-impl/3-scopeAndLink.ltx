@@ -62,16 +62,6 @@ IDE, the scope is used for checking the validity of an existing reference: if
 the reference target is not among the elements in the scope, the reference is
 invalid.
 
-%\LK{There seem to be three concepts of scope here:
-%1) the lexical scope as a primarily syntactic concept that marks part of a program and can be nested;
-%2) the local variable scope as a collection of variables associated with a particular lexical scope;
-%3) the scope as a collection of all names that are reachable from a certain lexical scope.
-%
-%The last one I really only know from Xtext, and I've always found it rather confusing.
-%Is it used more generally?
-%It's really more like a symbol table than anything else, that combine names from different
-%lexical scopes.
-%}
 
 \todo{Add a picture on the right showing a hierarchy of scopes}
 Scopes can be hierarchical, in which case they are organized as a stack of
@@ -517,7 +507,7 @@ invoke-get-properties:
 Rules can also have conditions. These can be specified using
 \ic{where}\footnote{If the pattern of a rule does not match, or if its
 conditions do not succeed, a rule is said to \emph{fail}.}. These clauses
-typically use the operators listed in \Figure{Fig:stratego-operators}.
+typically use the operators listed in \fig{Fig:stratego-operators}.
 An example of a rule with a \ic{where} clause is the following:
 
 \begin{lstlisting}[language=stratego]
@@ -710,7 +700,6 @@ the right-hand side, we construct the list of adjusted URIs right away.
 %  Entity(name, body) -> [Entity(), name]
 %\end{lstlisting}
 %
-%\MV{What is a rewrite rule? Why do you want to rewrite the scopes?}
 %%
 %
 %

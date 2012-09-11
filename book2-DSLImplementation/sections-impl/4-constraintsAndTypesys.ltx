@@ -195,7 +195,7 @@ reevaluated.
 The foundation for data flow analysis is the so-called data flow graph. This is
 a data structure that describes the flow of data through a program's code. For
 example, in \ic{int i = 42; j = i + 1;} the \ic{42} is "flowing" from the \ic{init}
-expression in the local variable declaration into the variable \lcr{i} and then,
+expression in the local variable declaration into the variable \ic{i} and then,
 after adding \ic{1}, into \ic{j}. Data flow analysis consists of two tasks: building a
 data flow graph for a program, and then performing analysis on this data flow
 graph to detect problems in the program.
@@ -206,7 +206,7 @@ programs) and a set of default analyses that can be integrated into your
 language\footnote{MPS also comes with a framework for developing custom analyses; however, this is
 beyond the scope of this book.}. We will look at all these ingredients in this
 section\footnote{To play with the data flow graph, you can select a method in a Java program and then use
-the context menu on the method; select \lcr{Language Debug -> Show Data Flow
+the context menu on the method; select \ic{Language Debug -> Show Data Flow
 Graph}. This will render the data flow graph graphically and constitutes a good
 debugging tool when building your own data flow graphs and analyses.}.
 
@@ -216,7 +216,7 @@ debugging tool when building your own data flow graphs and analyses.}.
 \emph{Dataflow} aspect of language definitions. There you can add
 data flow builders (DFBs) for your language concepts. These are programs
 expressed in MPS' data flow DSL that build the data flow graph for instances of
-those concepts in programs. Here is the DFB for \lcr{LocalVariableDeclaration}.
+those concepts in programs. Here is the DFB for \ic{LocalVariableDeclaration}.
 \begin{lstlisting}[language=mps]
 data flow builder for LocalVariableDeclaration { 
   (node)->void { 
@@ -231,26 +231,26 @@ data flow builder for LocalVariableDeclaration {
 \end{lstlisting}
 
 \noindent 
-If the \lcr{LocalVariableDecaration} has an \ic{init} expression (it is
+If the \ic{LocalVariableDecaration} has an \ic{init} expression (it is
 optional!), then the DFB for the \ic{init} expression has to be executed. The
-\lcr{code for} statement calls the DFB for the node that is passed as its
+\ic{code for} statement calls the DFB for the node that is passed as its
 argument. Then we perform an actual data flow definition: the \ic{write node =
 node.init} specifies that write access is performed on the current node. The
 statement also expresses that whatever value was in the \ic{init} expression is
-now in the node itself. If there is no \lcr{init} expression, we still want to
-mark the \lcr{LocalVariableDeclaration} node as visited by the data flow builder
+now in the node itself. If there is no \ic{init} expression, we still want to
+mark the \ic{LocalVariableDeclaration} node as visited by the data flow builder
 --- the program flow has come across this node. A subsequent analysis reports
 all program nodes that have \emph{not} been visited by a DFB as dead code. So
 even if a node has no further effect on a program's data flow, it has to be
-marked as visited using \lcr{nop}.
+marked as visited using \ic{nop}.
 
-To illustrate a \lcr{read} statement, we can take a look at the
-\lcr{LocalVariableRef} expression which read-accesses the variable it
-references. Its data flow is defined as \ic{read node.var}, where \lcr{var} is
+To illustrate a \ic{read} statement, we can take a look at the
+\ic{LocalVariableRef} expression which read-accesses the variable it
+references. Its data flow is defined as \ic{read node.var}, where \ic{var} is
 the name of the reference that points to the referenced variable. 
 
-In an \lcr{AssignmentStatement}, we first execute the DFB for the \lcr{rvalue}
-and then "flow" the \lcr{rvalue} into the \lcr{lvalue} --- the purpose of an 
+In an \ic{AssignmentStatement}, we first execute the DFB for the \ic{rvalue}
+and then "flow" the \ic{rvalue} into the \ic{lvalue} --- the purpose of an 
 assignment:
 
 \begin{lstlisting}[language=mps]
@@ -263,7 +263,7 @@ data flow builder for AssigmentStatement {
 \end{lstlisting}
 
 \noindent 
-For a \lcr{StatementList}, we simply mark the list as visited and then execute
+For a \ic{StatementList}, we simply mark the list as visited and then execute
 the DFBs for each statement in the list. We are now ready to inspect the data
 flow graph for a simple function. \fig{dfgexample} shows the function and the graph.
 \begin{figure}
@@ -276,12 +276,12 @@ flow graph for a simple function. \fig{dfgexample} shows the function and the gr
 
 \noindent 
 Most interesting data flow analysis has to do with loops and branching. So
-specifying the correct DFBs for things like \lcr{if}, \lcr{switch} and \lcr{for}
-is important. As an example, we look at the DFB for the \lcr{IfStatement}. We
-start with the obligatory \lcr{nop} to make the node as visited. Then we run the
+specifying the correct DFBs for things like \ic{if}, \ic{switch} and \ic{for}
+is important. As an example, we look at the DFB for the \ic{IfStatement}. We
+start with the obligatory \ic{nop} to make the node as visited. Then we run the
 DFB for the condition, because that is evaluated in any case. Then it becomes
 interesting: depending on whether the condition is \ic{true} or \ic{false}, we either run
-the \lcr{thenPart} or we jump to where the \lcr{else if} parts begin. Here is
+the \ic{thenPart} or we jump to where the \ic{else if} parts begin. Here is
 the code so far:
 
 \begin{lstlisting}[language=mps]
@@ -293,26 +293,26 @@ code for node.thenPart
 \end{lstlisting}
 
 \noindent 
-The \lcr{ifjump} statement means that we may jump to the specified label (i.e.
-we then execute the \lcr{else if}s). If not (we just "run over" the
-\lcr{ifjmp}), then we execute the \lcr{thenPart}. If we execute the
-\lcr{thenPart}, we are finished with the whole \lcr{IfStatement} --- no
-\lcr{else if}s or \lcr{else} parts are relevant, so we jump after the current
-node (the \lcr{IfStatement}) and we're done. However, there is an additional
-catch: in the \lcr{thenPart}, there may be a \lcr{return} statement. So we may
-never actually arrive at the \lcr{jump after node} statement. This is why it is
+The \ic{ifjump} statement means that we may jump to the specified label (i.e.
+we then execute the \ic{else if}s). If not (we just "run over" the
+\ic{ifjmp}), then we execute the \ic{thenPart}. If we execute the
+\ic{thenPart}, we are finished with the whole \ic{IfStatement} --- no
+\ic{else if}s or \ic{else} parts are relevant, so we jump after the current
+node (the \ic{IfStatement}) and we're done. However, there is an additional
+catch: in the \ic{thenPart}, there may be a \ic{return} statement. So we may
+never actually arrive at the \ic{jump after node} statement. This is why it is
 enclosed in curly braces: this says that the code in the braces is optional. If
 the data flow does not visit it, that's fine (typically because we return from
 the method before we get a chance to execute this code).
 
-Let's continue with the \lcr{else if}s. We arrive at the \lcr{elseIfBlock} label
-if the condition was \ic{false}, i.e.~the above \lcr{ifjump} actually happened. We
-then iterate over the \lcr{elseIf}s and execute their DFB. After that, we run
-the code for the \lcr{elsePart}, if there is one. The following code can only be
-understood if we know that, if we execute one of the \lcr{else if}s, then we
-jump \emph{after the whole \lcr{IfStatement}}. This is specified in the DFB for
-the \lcr{ElseIfPart}, which we'll illustrate below. Here is the rest of the code
-for the \lcr{IfStatement}'s DFB:
+Let's continue with the \ic{else if}s. We arrive at the \ic{elseIfBlock} label
+if the condition was \ic{false}, i.e.~the above \ic{ifjump} actually happened. We
+then iterate over the \ic{elseIf}s and execute their DFB. After that, we run
+the code for the \ic{elsePart}, if there is one. The following code can only be
+understood if we know that, if we execute one of the \ic{else if}s, then we
+jump \emph{after the whole \ic{IfStatement}}. This is specified in the DFB for
+the \ic{ElseIfPart}, which we'll illustrate below. Here is the rest of the code
+for the \ic{IfStatement}'s DFB:
 
 \begin{lstlisting}[language=mps]
 label elseIfBlock 
@@ -325,15 +325,15 @@ if (node.elsePart != null) {
 \end{lstlisting}
 
 \noindent 
-We can now inspect the DFB for the \lcr{ElseIfPart}. We first run the DFB for
-the condition. Then we may jump to after that \lcr{else if}, because the
-condition may be \ic{false} and we want to try the next \lcr{else if}, if there is
+We can now inspect the DFB for the \ic{ElseIfPart}. We first run the DFB for
+the condition. Then we may jump to after that \ic{else if}, because the
+condition may be \ic{false} and we want to try the next \ic{else if}, if there is
 one. Alternatively, if the condition is \ic{true}, we run the DFB for the body
-of the \lcr{ElseIfPart}. Then two things can happen: either we jump to after
-the whole \lcr{IfStatement} (after all, we have found an \lcr{else if} that is
-\ic{true}), or we don't do anything at all anymore because the current \lcr{else if}
+of the \ic{ElseIfPart}. Then two things can happen: either we jump to after
+the whole \ic{IfStatement} (after all, we have found an \ic{else if} that is
+\ic{true}), or we don't do anything at all anymore because the current \ic{else if}
 contains a \ic{return} statement. So we have to use the curly braces again for the
-jump to after the whole \lcr{if}. The code is below, and an example data flow
+jump to after the whole \ic{if}. The code is below, and an example data flow
 graph is shown on figure \fig{ifdfg}.
 
 \begin{lstlisting}[language=mps]
@@ -349,7 +349,7 @@ code for node.body
 \begin{center} 
   \includegraphics[width=3cm]{figures-impl/4/ifdfg.png}
 \end{center}
-\caption{A data flow graph for an \lcr{if} statement \ic{if ( i > 0 ) { j = 1; }
+\caption{A data flow graph for an \ic{if} statement \ic{if ( i > 0 ) { j = 1; }
 else { j = 2; } }}
 \label{ifdfg}  
 \end{marginfigure}
@@ -357,7 +357,7 @@ else { j = 2; } }}
 
 \noindent 
 The DFB for a loop makes use of the fact that loops can be represented using
-conditional branching. Here is the DFB for the \lcr{for} loop:
+conditional branching. Here is the DFB for the \ic{for} loop:
 \begin{lstlisting}[language=mps]
 code for node.iterator 
 label start 
@@ -369,14 +369,14 @@ jump after start
 \end{lstlisting}
 
 \noindent 
-We first execute the DFB for the \lcr{iterator} (which is a subconcept of
-\lcr{LocalVariableDeclaration}, so the DFB shown above works for it as well).
-Then we define a label \lcr{start} so we can jump to this place from further
-down. We then execute the \lcr{condition}. Then we have an \lcr{ifjmp} to after
+We first execute the DFB for the \ic{iterator} (which is a subconcept of
+\ic{LocalVariableDeclaration}, so the DFB shown above works for it as well).
+Then we define a label \ic{start} so we can jump to this place from further
+down. We then execute the \ic{condition}. Then we have an \ic{ifjmp} to after
 the whole loop (which covers the case where the condition is \ic{false} and the
 loop ends). In the other case (where the condition is still \ic{true}) we
-execute the code for the \lcr{body} and the \lcr{incr} part of the \lcr{for}
-loop. We then jump to after the \lcr{start} label we defined above.
+execute the code for the \ic{body} and the \ic{incr} part of the \ic{for}
+loop. We then jump to after the \ic{start} label we defined above.
 
 
 \parhead{Analyses} MPS supports a number of data flow analyses out of the
@@ -417,10 +417,10 @@ public class DataflowUtil {
 \end{lstlisting}
 
 \noindent 
-The class constructs a \lcr{Program} object in the constructor. \lcr{Program}s
+The class constructs a \ic{Program} object in the constructor. \ic{Program}s
 are wrappers around the data flow graph and provide access to a set of
 predefined analyses on the graph. We will make use of one of them here in the
-\lcr{checkForUnreachableNodes} method. This method extracts all unreachable
+\ic{checkForUnreachableNodes} method. This method extracts all unreachable
 nodes from the graph (see comments in the code above) and reports errors for
 them. To actually run the check, we call this method from a
 checking rule for C functions:
@@ -538,7 +538,7 @@ annotation where the head of the list is \ic{Unresolved(t)} and the tail matches
 \ic{\_}.
 
 In addition to annotations, the Spoofax index provides an API for inspecting
-naming relations in programs. \Figure{Fig:spoofax-index-api} shows some of the
+naming relations in programs. \fig{Fig:spoofax-index-api} shows some of the
 key rules the index provides.
 
 \begin{figure}[h]
@@ -1644,27 +1644,6 @@ the subexpressions of the addition to be well-typed. The types of the
 subexpressions are then used to construct a meaningful error message.
 
 
-% Similar to expressions, we can define type constraints on statements:
-% 
-% \begin{lstlisting}
-%   constraint:
-%     Assign(lhs, rhs) -> Error(rhs, $[Type mismatch: Cannot convert from [<pprint> type1] to [<pprint> type2].])
-%     where
-%       type1 := <type-of> lhs ;
-%       type2 := <type-of> rhs ;
-%       <not(is-compatible-to)> (type1, type2)
-%       
-%   constraint:
-%     VarDeclInit(var, type1, exp) -> (exp, $[Type mismatch: Cannot convert from [<pprint> type1] to [<pprint> type2].])
-%     where
-%       type2 := <type-of> exp;
-%       <not(is-compatible-to)> (type1, type2)
-% \end{lstlisting}
-% \MV{Again: constraint-error?}
-% 
-% In an assignment, the type of the expression on the right-hand side has to be 
-% compatible with the type of the variable or property on the left-hand side.
-% The same holds for the initializing expression in a variable declaration.
 
 
 \parhead{Type Compatibility} Whether two types are compatible is again defined

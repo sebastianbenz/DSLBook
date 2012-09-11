@@ -58,8 +58,8 @@ expressed using a DSL can be significantly more concise.
 five times shorter than the C version that users would have to write
 instead.}
 
-While it is always possible to produce short but incomprehensible programs,
-in general, shorter programs require less effort to read and write than longer
+\noindent While it is always possible to produce short but incomprehensible
+programs, in general, shorter programs require less effort to read and write than longer
 programs, and are therefore be more efficient in software engineering. We
 will thus assume that, all other things being equal, shorter programs are
 preferable over longer programs.\footnote[][-20mm]{The size of a program may not
@@ -135,8 +135,8 @@ practice.
 spent years describing pension plans using prose text, tables and (informal)
 formulas. The DSL provides formal languages to express that same in a way thatcan be processed by tools.}
 
-The close alignment between a domain and the DSL can also be exploited during
-the construction of the DSL. While it is not a good idea to start building a DSL
+\noindent The close alignment between a domain and the DSL can also be exploited
+during the construction of the DSL. While it is not a good idea to start building a DSL
 for a domain about which we don't know much, the process of building the DSL can
 help deepen the understanding about a domain. The domain has to
 be scoped, fully explored and systematically structured to be able to build a
@@ -208,7 +208,7 @@ language:
 
 The left loop can be parallelized, since the order of summing up the
 array elements is irrelevant. The right one cannot, since the order of the
-elements in the \lcr{OrderedList} class \emph{is} relevant. A transformation
+elements in the \ic{OrderedList} class \emph{is} relevant. A transformation
 engine that translates and optimizes the programs must perform (sophisticated,
 and sometimes impossible) program analysis to determine that the left loop can
 indeed be parallelized. The following alternative expression of the same
@@ -226,8 +226,8 @@ The property of a language $L_D$ of having first-class concepts for abstractions
 relevant in $D$ is often called \emph{declarativeness}: no sophisticated pattern
 matching or program flow analysis is necessary to capture the semantics of a
 program (relative to the purpose), and treat it correspondingly. The decision
-can simply be based on the language concept used (\lcr{for} vs.
-\lcr{seqfor})\sidenote[][-9\baselineskip]{Without linguistic abstraction, the
+can simply be based on the language concept used (\ic{for} vs.
+\ic{seqfor})\sidenote[][-9\baselineskip]{Without linguistic abstraction, the
 processor has to analyze the program to "reverse engineer" the semantics to be
 able to act on it. With linguistic abstraction, we rely on the language user to
 use the correct abstraction. We assume that the user is able to do this! The
@@ -273,11 +273,11 @@ somethingRandom()) \{ port.doSomething(); \}}). So checking \emph{statically}
 that the invocation only happens if the port is connected is impossible. A
 better solution based on linguistic abstraction is to introduce a new language
 concept that checks for a connected port directly:
-\ic{with port (rp) \{ rp.doSomething(); \}}. The \lcr{with port}
+\ic{with port (rp) \{ rp.doSomething(); \}}. The \ic{with port}
 statement doesn't use an expression as its argument, but only a
 reference to a an optional required port (\fig{optionalport}). This way, the IDE
-can check that an invocation on a required optional port \lcr{rp} is only done
-inside of a \lcr{with port} referencing that same port.}
+can check that an invocation on a required optional port \ic{rp} is only done
+inside of a \ic{with port} referencing that same port.}
 
 
 \begin{figure}[h]
@@ -286,12 +286,12 @@ inside of a \lcr{with port} referencing that same port.}
   \includegraphics[width=\columnwidth]{figures-design/embc/optionalport.png}
 \end{minipage}
 }
-  \caption[][0.3cm]{The \lcr{with port} statement is required to surround an
+  \caption[][0.3cm]{The \ic{with port} statement is required to surround an
   invocation on an optional required port; otherwise, an error is reported in
   the IDE. If the port is not connected for any given instance, the code inside the
-  \lcr{with port} is not executed. It acts like an \lcr{if} statement, but since
+  \ic{with port} is not executed. It acts like an \ic{if} statement, but since
   it cannot contain an expression as its condition, the correct use of the
-  \lcr{with port} statement can be statically checked.}
+  \ic{with port} statement can be statically checked.}
   \label{optionalport}  
 \end{figure}
  
@@ -370,9 +370,9 @@ in-language abstractions. This approach keeps the language itself small, and
 allows subsequent extensions of the library without changing the language
 definition and processing tools.  
 
-\cooling{Hardware building blocks have properties. For example, a \lcr{fan}
-can be turned \lcr{on} or \lcr{off}, and for a \lcr{compressor}, the speed can
-be specified (\lcr{rpm}). The set of properties available for the various
+\cooling{Hardware building blocks have properties. For example, a \ic{fan}
+can be turned \ic{on} or \ic{off}, and for a \ic{compressor}, the speed can
+be specified (\ic{rpm}). The set of properties available for the various
 building blocks is defined via a standard library and is not part of the
 language (\fig{coolinglib}). The reason why this is \emph{not} a contradiction
 to what we discussed earlier is this: as a consequence of the structure of the
@@ -392,7 +392,7 @@ specially!}
   \label{coolinglib}
 \end{figure}
 
-Some languages treat some abstractions defined in the standard library
+\noindent Some languages treat some abstractions defined in the standard library
 specially. For example, Java's \ic{WeakReference} has special behavior in the
 context of garbage collection. While an argument can be made that special
 treatment is acceptable for a standard library (after all, it can be considered
