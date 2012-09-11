@@ -42,8 +42,8 @@ imports
 \subsection{Referencing}
 
 We will illustrate references to elements written in another DSL with Mobl's
-screen definition language, where a \ic{Screen} defined in the UI model refers
-to \ic{Entities} from Mobl's entity language, and \ic{Field}s in a screen refer
+screen definition language\guido{what is this?}, where a \ic{Screen} defined in
+the UI model refers to \ic{Entities} from Mobl's entity language, and \ic{Field}s in a screen refer
 to entity \ic{Property}. Here is some example code:
 
 \begin{lstlisting}[language=webdsl]
@@ -151,6 +151,8 @@ Therefore, it needs to determine the type of the property used as a label.
 
 \parhead{Generators} The same holds for generators. Typically, they just share
 knowledge about the naming and typing of generated code elements.
+\guido{could you provide more information on the implementation of the
+generators?}
 
 
 
@@ -263,11 +265,13 @@ with the \ic{char} type in the table language, and Mobl's \ic{int} type with the
 
 \parhead{Generator} Similar to the Xtext example, we can use two strategies to
 reuse a generator for the database language. The first strategy relies on
-composition techniques of the target language. Like in the MPS example, the code
-generator of the database language generates an abstract Java class for fetching
-data while Mobl's original code generator generates Java classes from entities.
+composition techniques of the target language\footnote{Obviously this works only
+for OO languages where we can use the approach. It would be harder to do in, for
+example, C.}. Like in the MPS example, the code generator of the database
+language generates an abstract Java class for fetching data while Mobl's
+original code generator generates Java classes from entities.
 We can then define an additional generator, which generates a concrete subclass
-which fetches data from entities.
+which fetches data from entities.
 
 The second strategy we discussed in the Xtext example addressed the generation
 of inlined code, which requires an extendable generator of the reusable
@@ -336,16 +340,19 @@ Since in case of extension, the extending language has a dependency on, and is
 developed with knowledge of the base language, it can be designed in a way that
 will not lead to parsing ambiguities. 
 
-\todo{How about using several independent extensions of the same base language
+\guido{How about using several independent extensions of the same base language
 in a program? Do we have to define a "composite" language? Especially in case
 these extensions would lead to ambiguities?}
+
+\guido{How can you do language restriction (i.e. removing things from the base
+language in a sub language)?}
 
 
 \subsection{Embedding}
 
 Embedding can be easily achieved in Spoofax. The procedure is very similar to
 reuse\footnote{We discussed embedding already in the chapter on code generation
-(\todo{ref}), where we embedded the target language into Stratego.}. We will
+(\guido{ref}), where we embedded the target language into Stratego.}. We will
 use the embedding of the Mobl's expression language into Mobl's screen
 definition language as another example here. Instead of just referring to
 entities, we reuse the whole expression language now.
@@ -354,7 +361,7 @@ entities, we reuse the whole expression language now.
 an embedding module which imports the main modules of the host and guest
 language and defines additional syntax rules for embedding (quotations and
 antiquotation). We have seen this in the target language embedding in templates
-(\todo{ref}). In the second style, the syntax definition of the host language
+(\guido{ref}). In the second style, the syntax definition of the host language
 directly employs syntactic sorts of the guest language. For the screen
 definition language, we want to reuse variable definitions and expressions in
 list heads, as well as expressions in labels:
