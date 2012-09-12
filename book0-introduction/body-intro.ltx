@@ -276,8 +276,6 @@ way to compare the various tools.
 
 \section{Case Studies and Examples}
 
-\todo{There still seem to be German examples in the screenshot --- change!}
-
 I strove to make this book as accessible and practically relevant as possible,
 so I provide a lot of examples. I decided against a single big, running example
 because (a) it becomes increasingly complex to follow along and (b) fails to
@@ -393,23 +391,17 @@ keyword.
 \begin{lstlisting}[language=cooling, morekeywords={}] 
 program Standardcooling for KIR {
 
-  parameter t_abtauStart: int
-  parameter t_abtauDauer: int
-  parameter t_abtauEnde: int
-  
-  var tuerNachlaufSchwelle: int = 0
-  
   start:
     entry { state noCooling }
     
   state noCooling:
-    check ( RC->needsCooling && cc.c1->stehzeit > 333 ) {
+    check ( RC->needsCooling && cc.c1->standstillPeriod > 333 ) {
       state rcCooling
     }
     on isDown ( RC.rcdoor->open ) {
       set RC.rcfan->active = true
       set RC.rclight->active = false
-      perform rcfanAbschaltTask after 10 {
+      perform rcFanStopTask after 10 {
         set RC.rcfan->active = false
       }      
     }   
@@ -426,16 +418,16 @@ and then asserting that the algorithm reacts in a certain way.
 \begin{lstlisting}[language=cooling, morekeywords={}] 
 cooling test for Standardcooling {
   prolog {
-    set cc.c1->stehzeit = 0
+    set cc.c1->standstillPeriod = 0
   }
   // initially we are not cooling  
   assert-currentstate-is noCooling
   // then we say that RC needs cooling, but
-  // the stehzeit is still too low.
+  // the standstillPeriod is still too low.
   mock: set RC->needsCooling = true
   step
   assert-currentstate-is noCooling
-  // now we increase stehzeit and check
+  // now we increase standstillPeriod and check
   // if it now goes to rcCooling
   mock: set cc.c1->stehzeit = 400
   step
@@ -1036,7 +1028,8 @@ domain. The same domain can be covered with big and small languages. A big
 language makes use of linguistic abstraction, whereas a small language allows
 the user to define their own in-language abstractions. We discuss the tradeoffs
 between big and small languages in detail as part of the DSL design chapter on
-Expressivity \todo{}, but here is a short overview, based on examples from GPLs:
+Expressivity \todoref{}, but here is a short overview, based on examples from
+GPLs:
 
 \begin{marginfigure}
   \includegraphics[width=4cm]{figures-intro/bigLang.jpg}
