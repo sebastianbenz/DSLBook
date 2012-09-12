@@ -425,7 +425,7 @@ the original one, and we store it in the \ic{transformedProgram} variable.
 The code generator then uses the \ic{transformedProgram} as the source from
 which it generates code. In effect, we have added a "preprocessor"
 model-to-model transformation to the generator. As discussed in the design
-section \todo{ref}, this is one of the most common uses of model-to-model
+section \todoref{}, this is one of the most common uses of model-to-model
 transformations.
 
 The \ic{transform} function (described below) enriches the existing model. It
@@ -533,7 +533,7 @@ s.events += eh
 \noindent 
 The notation used in the actual implementation is more concise and resembles the
 tree structure of the code much more closely. It uses the well-known
-\emph{builder} notation\todo{ref}. Builders are implemented in Xtend with a 
+\emph{builder} notation\todoref{}. Builders are implemented in Xtend with a 
 combination of closures and implicit arguments and a number of functions implemented in the
 \ic{CoolingBuilder} class\footnote{Of course, if you add the line count and
 effort for implementing the builder, then using this alternative over the
@@ -1014,7 +1014,7 @@ node.event.cEnumLiteralName();
 
 In Spoofax, model-to-model transformations and code generation are both
 specified by rewrite rules\footnote{Rewrite rules have been introduced in
-\todo{ref}.}. This allows for the seamless integration of model-to-model
+\todoref{}.}. This allows for the seamless integration of model-to-model
 transformation steps into the code generation process; the clear distinction 
 between model-to-model transformation and code generation vanishes.
 
@@ -1033,7 +1033,7 @@ to-java: EntType(name) -> name
 For entity types, we use their name as the Java representation.
 Typically, more complex rules are recursive and use string
 interpolation\footnote{We used string interpolation already before to compose
-error messages \todo{ref}.} to construct strings from fixed and variable parts.
+error messages \todoref{}.} to construct strings from fixed and variable parts.
 For example, the following two rewrite rules generate Java code for entities and
 their properties:
 
@@ -1793,7 +1793,7 @@ The following is the code for the evaluation function for the symbol reference.
 It must distinguish between references to variables and to
 functions\footnote{This is once again a consequence of the fact that all
 references to any symbol are handled via the \icsn{SymbolRef} class. We have
-discussed this in \todo{ref}.}.
+discussed this in \todoref{}.}.
 
 
 \begin{lstlisting}[language=java]
@@ -2038,7 +2038,7 @@ BaseLanguage was not changed. Instead, an additional language module was defined
 that \emph{extends} BaseLanguage. This module can be used as part of the program
 that contains the interpreter, making the \ic{dispatch} statement available
 there\footnote{We discuss language modularization and composition is
-\todo{ref}.}. Also, the \ic{\$} expression is restricted to only be usable on
+\todoref{}.}. Also, the \ic{\$} expression is restricted to only be usable on
 the right side of the \ic{->}. This way the overall base language namespace is kept
 clean.
 

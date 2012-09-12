@@ -16,7 +16,7 @@ doesn't really help.}
 interacts with to create programs. It may be textual, graphical, tabular or any
 combination thereof. In this book we focus mostly on textual concrete syntaxes
 for reasons described in \todo{reference to the respective place in the
-introduction}. Examples of other forms are briefly discussed \todo{ref}. We
+introduction}. Examples of other forms are briefly discussed \todoref{}. We
 refer to other forms where appropriate.
   
 The \emph{abstract syntax} (AS) of a language is a data structure that
@@ -1509,7 +1509,7 @@ Notice how a rule at a given level only always delegates to rules at higher
 precedence levels. So higher precedence rules always end up further down in the
 tree. If we want to change this, we can use parentheses (see the \ic{ParenExpr}
 in the \ic{AtomicLevel}): inside those, we can again embed an \ic{Expr}, i.e.\ we
-jump back to the lowest precedence level\footnote{This somewhat convolutedapproach to parsing expressions and encoding precedence is a consequence ofthe LL($k$) grammar class support by ANTLR, which underlies Xtext. We havediscussed this topic earlier \todo{ref}. Xtext also supports syntacticpredicates which are annotations in the grammar that tell the parser whichalternative to take in case of an ambiguity. We don't discuss this any furtherin the book.}.
+jump back to the lowest precedence level\footnote{This somewhat convolutedapproach to parsing expressions and encoding precedence is a consequence ofthe LL($k$) grammar class support by ANTLR, which underlies Xtext. We havediscussed this topic earlier \todoref{}. Xtext also supports syntacticpredicates which are annotations in the grammar that tell the parser whichalternative to take in case of an ambiguity. We don't discuss this any furtherin the book.}.
 Note that once you understand the basic approach, it is easy to add new
 expressions with a precedence similar to another one (just add it as an
 alternative to the respective \ic{Level} rule) or to introduce a new precedence
@@ -1521,7 +1521,7 @@ level (just interject a new \ic{Level} rule between two existing ones).
 
 Mobl's \footnote{Mobl is a DSL for defining applications for mobile devices. It
 is based on HTML 5 and is closely related to WebDSL, which has been introduced
-earlier\todo{ref}.} data modeling language provides entities, properties and
+earlier\todoref{}.} data modeling language provides entities, properties and
 functions. To illustrate the language, below are two data type definitions
 related to a shopping list app. It supports lists of items that can be
 favorited, checked, and so on, and are associated with some \ic{Store}.
@@ -2106,7 +2106,7 @@ expression, they are a horizontal list of: editor for \ic{left} argument, the
 \ic{+} symbol, and the editor for the \ic{right} argument.
 
 As we have explained in the general discussion about projectional editing
-\todo{ref}, MPS supports linear input of hierarchical expressions using
+\todoref{}, MPS supports linear input of hierarchical expressions using
 so-called side transforms. The code below shows the right side transformation for
 expressions that transforms an arbitrary expression into a \ic{PlusExpression}
 by putting the \ic{PlusExpression} "on top" of the current node. 
