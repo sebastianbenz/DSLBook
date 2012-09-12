@@ -8,14 +8,19 @@ Transformation refers to the case where the created artifact is an AST, and
 code generation refers to the case where textual concrete syntax is created. In
 some systems, for example MPS, the two are unified into a common approach. }
 
-\noindent
-Transformation of models is an essential step in working with DSLs. We typically
-distinguish between two different cases: if models are transformed into other
-models we call this \emph{model transformation}. If models are transformed into
-text (usually programming language source code, XML or other configuration
-files) we refer to \emph{code generation}. However, as we will see in the
-examples below, depending on the approach and tooling used, this distinction is
-not always easy to make, and the boundary becomes blurred.
+\noindent Transformation of models is an essential step in working with DSLs. We
+typically distinguish between two different cases: if models are transformed
+into other models we call this \emph{model transformation}. If models are
+transformed into text (usually programming language source code, XML or other
+configuration files) we refer to \emph{code generation}\footnote{As we discuss
+in Part I \todoref{}, we do not cover generation of byte code or machine code.
+This is mainly for the following reason: by generating source code of a GPL, we
+can reuse this GPL's compiler or interpreter, including all its optimizations
+(or platform independence). We'd have to rebuild these optimizations in the
+DSL's generator. This is a lot of work, and requires skills that are quite
+different from those most DSL developers (including me) posses.}. However, as we
+will see in the examples below, depending on the approach and tooling used, this
+distinction is not always easy to make, and the boundary becomes blurred.
 
 A fundamentally different approach to processing models is
 \emph{interpretation}. While in case of transformation and generation the model
@@ -31,6 +36,14 @@ to performing the actions that are associated with the language concepts as
 defined by the execution semantics of the concepts. We discuss interpretation in
 the next chapter\footnote{We elaborate on the trade-offs between transformation
 and generation vs. interpretation in the chapter on language design \todo{}.}.
+Note that when developing transformations and code generators, special care must
+be taken to preserve or record trace information that can be used for error
+reporting and debugging. In both cases, we have to be able to go back from the 
+generated code to the higher level abstractions it has been generated from, so
+we can report errors in terms of the higher-level abstractions or show the
+higher-level source code during a debugging session. We discuss this challenge
+to some extent in \sect{ch:debugging}. 
+
 
 
 \section{Overview of the approaches}

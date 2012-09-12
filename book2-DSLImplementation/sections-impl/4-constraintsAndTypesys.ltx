@@ -8,13 +8,26 @@ chapter introduces the concept, some considerations regarding languages
 suitable for expressing constraints and provides examples with our tools.}
 
 \noindent
+
+As we have explained in the DSL Design part of the book, not all programs that
+conform to the structure (AST, meta model) of a language are valid. Language
+definitions include further restrictions that cannot be expressed purely by
+structure. Such additional restrictions are typically called constraints. 
+
 Constraints are Boolean conditions that have to evaluate to \ic{true} in order
-for the model to be correct ("does \ic{expr} hold?"). An error message is
-reported if the expression evaluates to \ic{false} ("\ic{expr} does not hold!").
-Constraints are typically associated a particular language concept ("for each
-instance of \ic{x}, \ic{expr-with-x} must hold"). Constraints address model
-correctness beyond syntax and scoping/linking, but short of actual execution
-semantics. Typical examples for constraints are:
+for the model to be correct ("does \ic{expr} hold?")\footnote{Constraints
+represent the static semantics of a language. The execution semantics are
+typically represented by transformations, generators or interpreters.}. An error
+message is reported if the expression evaluates to \ic{false} ("\ic{expr} does
+not hold!"). Constraints are typically associated a particular language concept
+("for each instance of \ic{x}, \ic{expr-with-x} must hold"). Constraints address
+model correctness beyond syntax and scoping/linking, but short of actual
+execution semantics.
+
+
+
+There are two major kinds of constraints we can distinguish: well-formedness and
+type systems. Examples for well-formedness constraints include:
 
 \begin{itemize}
   \item uniqueness of names in lists of elements (e.g.,~functions in a
@@ -22,14 +35,13 @@ semantics. Typical examples for constraints are:
   \item every non-start state of a state machine has at least one incoming
   transition;
   \item a variable is defined before it is used (statement ordering);
-  \item the assignee is type-compatible with the right hand side expression.
 \end{itemize}
 
-\noindent The last item is an example of a type system rule: these verify the
-correctness of types in programs, e.g.,~they make sure you don't assign a \ic{float} to an
+\noindent Type system rules are different in that they verify the correctness of
+types in programs, e.g.,~they make sure you don't assign a \ic{float} to an
 \ic{int}. Particularly in expression languages, type calculation and checking
-can become quite complicated and therefore warrants special support. This is
-why we distinguish between simple constraints (covered in this chapter)  and
+can become quite complicated and therefore warrants special support. This is why
+we distinguish between constraints in general (covered in this chapter)  and
 type systems (which we cover in the next chapter). 
 
 Constraints can be implemented with any language or framework that is able to
@@ -616,16 +628,14 @@ how should the book be read? (if I'm a MPS guy, I'll read only the MPS stuff?)}
 
 \chapter{Type Systems}
 
-\chapterabstract{Type systems can be considered a sophisticated version of
-constraints --- they also define the static semantics of a language. However,
-the calculation of types for a language is complex enough to warrant special
-support beyond what simple constraints provide. In this chapter we discuss what
-type systems have to be able to do, various strategies for computing types and
-we provide the usual examples with Xtext, MPS and Spoofax.}
+\chapterabstract{Type systems are a subset of constraints --- the implement type
+calculations and type checks. Those can be relatively complex, so special
+support beyond general-purpose constraint checking is useful. In this chapter we
+discuss what type systems have to be able to do, various strategies for
+computing types and we provide the usual examples with Xtext, MPS and Spoofax.}
 
 \noindent
-Type systems are basically sophisticated constraints that check typing rules in
-programs. Here is a definition from Wikipedia:
+Let us start with a definition of type systems from Wikipedia: 
 
 \begin{quote} 
 A type system may be defined as a tractable syntactic framework for
@@ -637,12 +647,21 @@ generally seeks to guarantee that operations expecting a certain kind of value
 are not used with values for which that operation makes no sense.
 \end{quote}
 
-\noindent In summary, type systems associate types with program elements and then check
-whether these types conform to predefined typing rules\footnote{Type systems
-(together with constraints) are also referred to as the static semantics of a
-program.}. We distinguish between dynamic type systems which perform the type
-checks as the program executes, and static type systems, where type checks are performed ahead of execution, mostly based on type specifications in the program. This chapter focuses exclusively on
-static type checks.
+\noindent In summary, type systems associate types with program elements and
+then check whether these types conform to predefined typing rules\footnote{As we
+have set, type systems are special kind of constraints and hence constitute the
+static semantics of a language.}. We distinguish between dynamic type systems
+which perform the type checks as the program executes, and static type systems,
+where type checks are performed ahead of execution, mostly based on type
+specifications in the program. This chapter focuses exclusively on static type
+checks\footnote{In case a DSL uses dynamic typing, the type checks habe to be
+performed at runtime based on the actual types of values. Many of the
+ways of expressing typing rules are similar in this case. However, all the
+DSLs I have built so far use static typing --- the fact you can actually have
+static type systems is a primary benefit of external DSLs. DSLs with dynamic
+type systems are probably better implemented as internal DSLs, relying on the
+dynamic type system of the host language. Internal DSLs are beyond the scope
+of this book.}.
  
  
 \section{Type Systems Basics}\label{tsbasics}

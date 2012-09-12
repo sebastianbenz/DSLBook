@@ -61,27 +61,65 @@ Major comments:
    then starts with an incorrect statement:
      Type systems can be considered a sophisticated version of
      constraints
+     
+-> I have cleaned this up. Ch 3 is still called constraints, but I explain the
+   well-formedness thing an mention that Ch 3 covers essentially well-formedness.
+   I have reformulated the intro to Ch 4 to say that type sys are a special 
+   kind of constraint.     
+     
    In fact, type systems are a very limited form of constraint. Type
    systems can either be complete or sound. Since a non-sound type
    system isn't very useful, they instead sacrifice completeness. In
    other words, all useable type systems reject valid programs to be
-   "on the safe side". This sentence is also incorrect:
+   "on the safe side". 
+   
+-> I am not sure I want to go into the whole complete/sound discussion in 
+   the book. I am not really familiar with the theory there.   
+   
+   This sentence is also incorrect:
      they also define the static semantics of a language
+
+-> constraints do, not just type systems, right? I changed it.
+
    Assuming static types (what about dynamically typed languages?!),
+   
+-> I say explicitly that I focus on static ones:   
+     We distinguish between dynamic type systems which perform the type checks 
+     as the program executes, and static type systems, where type checks are 
+     performed ahead of execution, mostly based on type specifications in the 
+     program. This chapter focuses exclusively on static type checks.
+   
    they're part of the static semantics, but not all of it.
+   
+-> ok, I have clarified this.
 
  * Section 4, similarly to Section 2, lacks a bit of motivation to me. The
    beginning part of the chapter doesn't quite explain things well enough to
    readers who are unfamiliar with the area.
+   
+-> But I explain and motivate all of these things in Part I on DSL design.
+   So I didn€t want to repeat all of that here. I have added a paragraph
+   to the intro of Part II to say this explicitly.   
 
  * Why isn't transformation to bytecode (and maybe even machine code)
    considered in Section 5?
+   
+-> I have added the following para: 
+
+   As we discuss in Part I \todoref{}, we do not cover generation of byte code or machine code.
+   This is mainly for the following reason: by generating source code of a GPL, we
+   can reuse this GPL's compiler or interpreter, including all its optimizations
+   (or platform independence). We'd have to rebuild these optimizations in the
+   DSL's generator. This is a lot of work, and requires skills that are quite
+   different from those most DSL developers (including me) posses.
 
    Similarly, one major problem with both code generation and model
    transformations is that nearly all implementations lose debugging
    information: run-time backtraces often make no sense at all. This
    is sort of tackled in section 9, but maybe it should be mentioned
    earlier too?
+   
+-> I have added a sentence.
 
 
 
@@ -103,4 +141,4 @@ Minor comments:
 
 -> fixed.
 There're also various minor comments that I've pushed to git. If anything is
-unclear, don't hesitate to give me a shout!
+unclear, don't hesitate to give me a shout! 
