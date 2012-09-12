@@ -1014,8 +1014,8 @@ For \emph{step into} behavior, an \ic{ISteppable} specifies those subtrees in
 which instances of \ic{IStepIntoable} may be located (the \ic{array} and
 \ic{len} expressions in the \ic{foreach} case). The debugger searches these
 subtrees at debug-time and collects all instances of \ic{IStepIntoable}. An
-\ic{IStepIntoable} represents a callable invocation (\eg a \ic{FunctionCall}),
-and the returned strategies suspend the debugger within the callable.
+\ic{IStepIntoable} represents a callable invocation (e.g.,~a
+\ic{FunctionCall}), and the returned strategies suspend the debugger within the callable.
  
 
 \emph{Step out} behavior is provided by implementors of
@@ -1024,7 +1024,7 @@ called from many program locations, the call site for a particular invocation ca
 determined by inspecting the program structure; a call stack is needed. We use
 the ordered list of \ic{IStackFrameContributor}s, from which the tree-level call
 stack is derived, to realize the \emph{step out} behavior.
-By "going back" (or ``out") in the stack, the call site for the current
+By "going back" (or "out") in the stack, the call site for the current
 invocation is determined. For \emph{step out}, the debugger locates the
 enclosing \ic{IStackFrameContributor} and asks it for its \emph{step out}
 strategies.
@@ -1057,7 +1057,7 @@ can find all visible watches by iterating through all ancestor
   \label{watches}  
 \end{marginfigure}
 
-\An \ic{IWatchProvider} implements the \ic{contributeWatch- ables}
+\noindent An \ic{IWatchProvider} implements the \ic{contributeWatch- ables}
 operation. It has access to the C variables available in the native C debugger.
 Based on those, it creates a set of Watchables. The method may hide a base-level
 C variable (because it is irrelevant to the extension-level), promote C
