@@ -1,2 +1,170 @@
 \chapter{DSLs as Programmer Utility}
 
+\section{Jnario - Executable Specifications for Java}
+
+This section describes Jnario, a DSL for testing Java applications. 
+
+\subsection{Overview}
+
+With Jnario you can create executable acceptance specifications that are easily readable and understandable to business users, developers and testers. Jnario uses a similar textual format to \emph{Cucumber}(http://cukes.info/). The idea is to describe the features of a Java application using scenarios. The preconditions, events and expected outcomes of a scenario are described textually with \emph{Given}, \emph{When} and \emph{Then} steps. Here is an example acceptance specification for adding values with a calculator:
+
+\begin{lstlisting}[language=jnario-feature]
+ Feature: Addition
+
+  In order to avoid silly mistakes
+  As a math idiot
+  I want to be told the sum of two numbers
+  
+  Scenario: Add two numbers
+    Given I have entered "50" into the calculator
+    And I have entered "70" into the calculator
+    When I press "add"
+    Then the result should be "120" 
+\end{lstlisting}
+
+These scenarios can be made executable by adding for each step the required code to establish preconditions, trigger events or assert properties of the resulting state. There is one big difference between Jnario and Cucumber. You don't need to create separate step definitions to make your steps executable. You can directly add the necessary code below your steps. In our example we create a calculator, pass in the parameters defined in the steps (via the implicit variable \emph{args}) and check the calculated result:
+
+\begin{lstlisting}[language=jnario-feature]
+  ...
+  Scenario: Add two numbers
+        Calculator calculator = new Calculator()
+    Given I have entered "50" into the calculator
+        calculator.enter(args.first)             
+    And I have entered "70" into the calculator
+    When I press "add"
+        calculator.press(args.first)             
+    Then the result should be "120" 
+        calculator.result =&gt; args.first          
+\end{lstlisting}
+
+This reduces the effort in writing scenarios by not needing to maintain separate step definitions. Of course you are still able to reuse existing step definitions in your scenarios. You even have code completion in the editor showing all existing steps. In our example, the step \emph{And I have entered "70" into the calculator} reuses the code of the step \emph{Given I have entered "50" into the calculator} with a different parameter value. You might think now that mixing code and text in your specs makes everything pretty unreadable. Actually, this is not a problem, as you can hide the code in the editor to improve the readability.
+
+Scenarios are good for writing high-level acceptance specifications, but writing scenarios for data structures or algorithms quickly becomes tedious. That is why Jnario provides another language for writing unit specifications. This languages removes all the boilerplate from normal JUnit tests helping you to focus on what is important: specifying facts that your code should fulfill. A fact can be as simple as a single assertion:
+
+\begin{lstlisting}[language=jnario-spec]
+package demo
+
+import java.util.Stack
+
+describe Stack{
+	fact new Stack().size => 0
+}
+\end{lstlisting}
+
+We use \emph{=>} to describe the expected result of an expression. More complex facts can have an additional description:
+
+\begin{lstlisting}[language=jnario-spec]
+package demo
+
+import java.util.Stack
+
+describe Stack{
+	fact "size increases when adding elements"{
+		val stack = new Stack&lt;String&gt;
+		stack.add("something")
+		stack.size => 1
+	}
+}
+
+\end{lstlisting}
+
+Objects can behave differently in different contexts. For example, calling \emph{pop} on a non-empty stack decreases its size. However, if the stack is empty, \emph{pop} results in an exception. In Jnario we can explicitly specify such contexts using the \emph{context} keyword: 
+ 
+\begin{lstlisting}[language=jnario-spec]
+package demo
+
+import java.util.Stack
+
+describe "A Stack"{ 
+	val stack = new Stack&lt;String&gt;
+	context "empty"{
+		fact stack.size => 0
+		fact stack.pop throws Exception
+	}
+	context "with one element"{ 
+    	before stack.add("element")
+    	fact stack.size => 1
+    	fact "pop decreases size"{
+      		stack.pop
+      		stack.size => 0 
+    	}
+	}   
+}
+\end{lstlisting}
+
+You can execute unit specifications as normal JUnit tests. Note that Jnario uses the description as test name or, if not present, the actual expression being executed. If you look at the executed tests, you see that your specifications effectively document the behavior of your code.
+
+Screenshot JUnit View
+
+- Test Suites 
+  - Group tests
+  - Provide additional documentation
+
+\subsection{Why a DSL}
+
+ - remove boilerplate <- Expressivity
+ - Mixing prose and code <- Expressivity
+ - Add statements, literals that are good for testing, but don't necessarily make sense in a general purpose language
+ 	- Tables with example failure
+ 	- Self-explainable Assertions
+
+Jnario is not just another testing framework. It is actually two domain-specific languages specifically made for writing executable specifications. If you think about current testing frameworks, they usually "stretch" the syntax of the underlying programming language to be able to write expressive tests. Now imagine a programming language in which the syntax is specifially designed for the purpose of writing tests. For example, a common scenario is to test a class with different sets of input parameters. I don't know about you, but I find it really hard in JUnit to write parameterized tests (http://junit.sourceforge.net/javadoc/org/junit/runners/Parameterized.html). Writing such tests in Jnario is really easy as it has a special table syntax:
+
+\begin{lstlisting}[language=jnario-spec]
+package demo
+describe "Addition"{
+  def examples{
+  		|  a  |  b  |  sum  |
+  		|  1  |  2  |   3   |
+  		|  4  |  5  |   9   |
+  		| 10  | 11  |  20   | 
+  		| 21  | 21  |  42   | 
+  }
+  fact examples.forEach[a + b => sum]
+}
+\end{lstlisting}
+
+Tables in Jnario are type safe: the type of a column will be automatically inferred to the common super type of all cells in a column. You can easily iterate over each row in a table and write assertions by accessing the column values as variables. If you execute the example specification it will fail with the following error:
+
+\begin{lstlisting}[language=jnario-spec]
+package demo
+java.lang.AssertionError: examples failed
+
+        | a      | b      | sum     |
+        | 1      | 2      | 3       | ✓
+        | 4      | 5      | 9       | ✓
+        | 10     | 11     | 20      | ✘     (1)
+        | 21     | 21     | 42      | ✓
+
+(1) Expected a + b => sum but
+         a + b is 21
+         a is 10
+         b is 11
+         sum is 20
+\end{lstlisting}
+	
+This demonstrates another advantage of Jnario, it tries to give you as much information as possible about why an assertion failed. A failed assertion prints the values of all evaluated sub-expressions. This means you don't need to debug your tests anymore to find the exact reason why an assertion failed. This works out of the box, without any additional constraints such as "your source files must reside in a specific folder". 
+
+These are just two examples demonstrating the advantages of test-centric domain-specific language. Having full control over the syntax of the language and its translation into Java code allows us to add features that are helpful when writing tests, but would never make sense in a general purpose language.
+
+\subsection{How does it work?}
+
+ - Based on Xtext & Xtend <- Language Modularity / Language Reuse
+ 	- Xtend Überblick
+ 	- Was verwenden wir? Type System, Expressions, Tooling
+ 	- Warum Wiederverwendung? Xbase vs Xtend ?
+ - Beispiel Grammatik
+ - Mapping from DSL to JUnit Classes, Diagram aus MA Birgit <- Semantics and Execution <- Transformation Generation
+ - Example: compiling assertions
+ - Constraints
+ - Tooling
+ 	- Feature Editor, Folding, Highlighting
+ 	- Standalone Compiler
+ 	- Quickfixes
+ 	- Autocompletion, Referenzierung von implementierten und nicht-implementierten Schritten
+ 	- Refactoring
+ 	- Debugging
+ - Testing
+ 	- Bootstrapping, Beispiel Test mit Feature
+
+ \subsection{Summary}
