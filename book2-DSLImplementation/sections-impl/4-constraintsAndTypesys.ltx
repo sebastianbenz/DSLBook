@@ -1550,9 +1550,11 @@ overloaded to support string concatenation, we can add the following typing rule
 
 
 \parhead{Persistence of Typing Information} As we discussed earlier, Spoofax
-stores information about definitions in an in-memory data structure called the
-index. This typically includes information about types. Consider the following
-typing rules, which rewrites property and variable declarations to their
+stores information about the definition sites of names in an in-memory data structure called the
+index. This typically includes information about types. 
+For example, to determine the type of property and variable references, 
+Spoofax needs to store the type of the corresponding declarations.
+Consider the following typing rules, which rewrites property and variable declarations to their
 declared types:
 
 \begin{lstlisting}[language=stratego]
@@ -1563,10 +1565,9 @@ declared types:
 \end{lstlisting}
 
 \noindent 
-Spoofax relies on these rules storing type information about property and
-variable declarations in the index\guido{This sentence was not understood
-by a review.}. This is achieved by the following generic rewrite rule:
-
+Spoofax uses these rules to determine the type of a property or variable declaration. 
+This type is stored as an information about the property or variable name.
+The storing itself is implemented by the following generic rewrite rule:
 
 \begin{lstlisting}[language=stratego]
   adjust-index-def-data(store-results |namespace, path):
@@ -1575,11 +1576,11 @@ by a review.}. This is achieved by the following generic rewrite rule:
       type := <type-of> def
 \end{lstlisting}
 
-\noindent Spoofax tries to apply this rule for every definition\guido{What
-is a definition?}. If the definition has a type, \ic{type-of} will succeed and
-the returned type is stored in the index. If the definition has no type, \ic{type-of} will fail. By this,
-the whole rule will fail and nothing is stored. The stored type information can
-then be used in the typing rules for variable references and property accesses:
+\noindent Spoofax tries to apply this rule for every definition site according to the name binding definition. 
+If the definition has a type, \ic{type-of} will succeed and the returned type is stored in the index. 
+If the definition has no type, \ic{type-of} will fail. 
+By this, the whole rule will fail and nothing is stored. 
+The stored type information can then be used in the typing rules for variable references and property accesses:
 
 \begin{lstlisting}[language=stratego]
   type-of:

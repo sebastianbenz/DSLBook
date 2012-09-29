@@ -405,15 +405,22 @@ do some further analysis on the \ic{ICompositeNode} to find out the actual
 concrete syntax node for the keyword.
 
 
-\parhead{An example with Spoofax} In Spoofax, syntax coloring can be specified
-declaratively on the lexical and on the syntactic level\guido{Is this a bug or a
-feature? Why is this?}. Both specifications need to be part of the editor
+\parhead{An example with Spoofax} 
+Spoofax supports syntax coloring on the lexical and the syntactic level.
+At the lexical level, tokens such as keywords, identifiers, or integers are colored.
+This is the most common use case of syntax coloring.
+At the syntactic level, we can color larger code fragments, for example to highlight embeddings.
+In Spoofax, syntax coloring is specified declaratively as part of the editor
 specification, preferably in \ic{<LanguageName>-Colorer.esv}.
 For the lexical level, Spoofax predefines the token classes \ic{keyword},
 \ic{identifier}, \ic{string}, \ic{number}, \ic{var}, \ic{operator}, and
 \ic{layout}. For each of these, we can specify a color (either by name or by RGB
 values) and optionally a font style (\ic{bold}, \ic{italic}, or both). Spoofax
 generates the following default specification:
+
+\guido{Not sure if this fixes it:
+
+Is this a bug or a feature? Why is this?}. 
 
 \begin{lstlisting}[morekeywords={module, colorer, token, based, highlighting}]
 module MoblLang-Colorer.generated
@@ -754,21 +761,35 @@ pretty-printed. It then applies the default rules to pretty-print the remaining
 parts. For example, we could define our own pretty-printing rule for Mobl
 modules:
 
-\begin{lstlisting}[morekeywords={KW}]
+\begin{lstlisting}[morekeywords={KW,V,H,vs,is}]
    Module                   -- V vs=1 is=4 [ H [KW["module"] _1] _2]
 \end{lstlisting}
 
 \noindent 
-The \ic{H} box operator layouts sub-boxes horizontally. The desired horizontal
-separation between the sub-boxes can be specified by the spacing option \ic{hs}.
-Its default value is \ic{1}, that is, a single space is added between the boxes.
-Similarly, the \ic{V} box operator places sub-boxes vertically\guido{this is too
-abstract - without a concrete example it is hard to follow}. The desired vertical separation between the sub-boxes can be specified by the
-spacing option \ic{vs}. Its default value is \ic{0}, that is, no blank lines are
-added between the boxes. For indenting boxes in a vertical combination, the
-spacing option \ic{is} can be specified. All boxes except the first will be
-indented accordingly.
+This rule lets Spoofax prettyprint the term \ic{Module("shopping", [Entity(\ldots), Entity(\ldots)])} as
 
+\begin{lstlisting}[morekeywords={module,entity}]
+module shopping
+
+    entity ...
+    
+    entity ...
+\end{lstlisting}
+
+\noindent
+The \ic{V} box operator places sub-boxes vertically. 
+In the example, it places the entities underneath the \ic{module shopping} line.
+The desired vertical separation between the sub-boxes can be specified by the
+spacing option \ic{vs}. Its default value is \ic{0}, that is, no blank lines are
+added between the boxes.
+In the example, a blank line is enforced by \ic{vs=1}.
+For indenting boxes in a vertical combination, the spacing option \ic{is} can be specified. 
+All boxes except the first will be indented accordingly.
+In the example, the \ic{module shopping} line is unindented, while the entities are indented by 4 spaces.
+The \ic{H} box operator layouts sub-boxes horizontally. 
+In the example, it is used to layout the \ic{module} keyword and its name in the same line.
+The desired horizontal separation between the sub-boxes can be specified by the spacing option \ic{hs}.
+Its default value is \ic{1}, that is, a single space is added between the boxes.
 
 \parhead{Pretty Printing in Xtext} In Xtext, whitespace in the grammar is
 irrelevant. In other words, Xtext cannot infer the "correct" use of whitespace

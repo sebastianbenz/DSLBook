@@ -42,9 +42,9 @@ imports
 \subsection{Referencing}
 
 We will illustrate references to elements written in another DSL with Mobl's
-screen definition language\guido{what is this?}, where a \ic{Screen} defined in
-the UI model refers to \ic{Entities} from Mobl's entity language, and \ic{Field}s in a screen refer
-to entity \ic{Property}. Here is some example code:
+screen definition language.
+This sublanguage of Mobl is used to model the user interface of mobile applications.
+Here is some example code:
 
 \begin{lstlisting}[language=webdsl]
 entity Task {
@@ -73,7 +73,7 @@ screen root() {
 language. It defines a root screen for a list of tasks, using the \ic{name} of a
 \ic{Task} as a label for \ic{list} elements. There are two references to the
 data model: \ic{Task} refers to an \ic{Entity}, and \ic{name} refers to a
-property of that \ic{Entity}.
+property of that \ic{Entity}.In general, a \ic{Screen} defined in the UI model refers to \ic{Entities} from Mobl's entity language, and \ic{Fields} in a screen refer to \ic{Properties} in an entity.
 
 \parhead{Structure} When referencing elements of another language, both
 languages typically share a definition of identifiers. For example, the screen
@@ -339,14 +339,26 @@ to the generator, which can handle the new language constructs.
 Since in case of extension, the extending language has a dependency on, and is
 developed with knowledge of the base language, it can be designed in a way that
 will not lead to parsing ambiguities. 
+However, the composition of different, independent extensions of the same base language might lead to ambiguities.
+These ambiguities will only occur between the extensions.
+The base language will stay unambiguous, since each module is only imported once. 
 
-\guido{How about using several independent extensions of the same base language
-in a program? Do we have to define a "composite" language? Especially in case
-these extensions would lead to ambiguities?}
+\subsection{Restriction}
 
-\guido{How can you do language restriction (i.e.~removing things from the base
-language in a sub language)?}
+In the easiest case, restriction can be handled on the level of syntax rules.
+SDF's import directives allow not only for renaming of sorts, but also for replacing complete syntax rules.
+To remove a rule completely, we can replace it with a dummy rule for a sort, which is not used anywhere.
+The following example restricts Mobl to a version without property access expressions:
 
+\begin{lstlisting}[language=sdf]
+module MoblWithoutPropertyAccess
+
+imports
+  Mobl [Exp "." ID -> Exp => -> UnusedDummySort]
+\end{lstlisting}
+
+In more complex cases, only parts of a syntax rule need to be restricted.
+For example, we might restrict Mobl's screen definition language to support only unparametrized screen definitions.
 
 \subsection{Embedding}
 
@@ -365,7 +377,10 @@ antiquotation). We have seen this in the target language embedding in templates
 directly employs syntactic sorts of the guest language. For the screen
 definition language, we want to reuse variable definitions and expressions in
 list heads, as well as expressions in labels:
-\todo{This is not really embedding, right? It is extension with an embeddign
+\guido{
+Discuss with Markus
+
+This is not really embedding, right? It is extension with an embeddign
 flavor, since MoblScreens now has a direct dependency to MoblExpressions.
 Right?}
 

@@ -195,10 +195,7 @@ on top of the AST. This separation between AST construction and AST processing
 results in much more maintainable language implementations.}. This simplifies the
 implementation compared to directly parsing at the character level. A scanner is
 usually implemented using direct recognition of keywords and a set of regular
-expressions to recognize all other valid input as tokens.\guido{Many lexers support lexer states (I'm pretty sure Antlr is the only
-popular parser gen that does not support these states). They'd allow the same 
-sophisticated contextual keywords as scannerless parsers do.}
-
+expressions to recognize all other valid input as tokens.
 Both the scanner and parser can be generated from grammars (see below). A
 well-known example of a scanner (lexer) generation tool is
 \ic{lex}\footnote{http://dinosaur.compilertools.net/}. Modern parsing 
@@ -211,13 +208,15 @@ only. Usually the former meaning is intended (both in this book as well as
 in general) unless scanning and parsing are discussed specifically.
 
 A separate scanning phase has direct consequences for the overall parser
-implementation, because the scanner typically isn't aware of the context of any
-part of the input --- only the parser has this awareness. An example of a
-typical problem that arises from this is that keywords can't be used as
+implementation, when the scanner is not aware of the context of its input.
+%--- only the parser has this awareness. 
+An example of a typical problem that arises from this is that keywords can't be used as
 identifiers even though often the use of a keyword wouldn't cause ambiguity in
 the actual parsing. The Java language is an example of this: it uses a fixed set
-of keywords, such as \ic{class} and \ic{public}, that cannot be used
-as identifiers.
+of keywords, such as \ic{class} and \ic{public}, that cannot be used as identifiers.
+\guido{Many lexers support lexer states (I'm pretty sure Antlr is the only
+popular parser gen that does not support these states). They'd allow the same 
+sophisticated contextual keywords as scannerless parsers do.}
 
 A context-unaware scanner can also introduce problems when grammars
 are extended or composed. In the case of Java, this was seen with the
@@ -275,7 +274,8 @@ grammar: the \ic{Exp} rule calls itself, so sentences like \ic{2 + 3 * 4} are
 possible. This poses two practical challenges for parser generation systems:
 first, the precedence and associativity of the operators is not described by
 this grammar. Second, not all parser generators provide full support for
-recursion\guido{example?}. We elaborate on these issues in the remainder of
+recursion. For example, ANTLR cannot cope with left-recursive rules. 
+We elaborate on these issues in the remainder of
 the section and in the Spoofax and Xtext examples.
 
 
@@ -321,16 +321,14 @@ grammar exists, but it must be written in a different, sometimes awkward or
 unintuitive way to conform to the subclass. This will be illustrated in the
 Xtext example, which uses ANTLR as the underlying LL($k$) parser technology.
 
-
-\guido{several reviewers suggested that we should remove the listing of the
-various conflicts since just "dropping their names" really doesn't help. We do
-explain some of the later, so I agree to the reviewers.} Parser generators can
+Parser generators can
 detect if a grammar conforms to a certain subclass, reporting conflicts that
-relate to the implementation of the algorithm:
-\emph{shift/reduce} or \emph{reduce/reduce} conflicts for LR parsers, and
-\emph{first/first} or \emph{first/follow} conflicts and direct or indirect
-\emph{left recursion} for LL parsers (we will discuss some of these in detail
-below). DSL developers can then attempt to manually refactor the grammar to
+relate to the implementation of the parsing algorithm.
+% \emph{shift/reduce} or \emph{reduce/reduce} conflicts for LR parsers, and
+% \emph{first/first} or \emph{first/follow} conflicts and direct or indirect
+% \emph{left recursion} for LL parsers (we will discuss some of these in detail
+% below). 
+DSL developers can then attempt to manually refactor the grammar to
 address those errors\footnote{Understanding these errors and then refactoring
 the grammar to address them can be non-trivial since it requires an
 understanding of the particular grammar class and the parsing algorithm.}. As an
@@ -339,7 +337,7 @@ form \ic{customer.name} or \ic{"Tim".length}\footnote{Note that we use ID to
 indicate identifier patterns and STRING to indicate string literal patterns in
 these examples.}:
 \begin{lstlisting}[morekeywords={Exp, NUM, Expr,ID, STRING}] Exp ::= ID
-      | Exp "." ID | STRING
+      | STRING | Exp "." ID 
 \end{lstlisting}
 
 \noindent 
@@ -357,8 +355,8 @@ example grammar uses recursion for repetition, which can be made explicit as
 follows:
 \begin{lstlisting}[morekeywords={Exp, NUM, Expr,ID, STRING}]
 Exp ::= ID
-      | (Exp ".")+ ID
-      | STRING
+			| STRING
+      | Exp ("." ID)+
 \end{lstlisting}
 
 \noindent 
@@ -367,36 +365,26 @@ intermediate rule to eliminate the recursive call to \ic{Exp}:
 
 \begin{lstlisting}[morekeywords={Exp, NUM, Expr,ID, STRING, FieldPart}]
 Exp ::= ID
-      | (FieldPart ".")+ ID
       | STRING
+      | FieldPart ("." ID)+
 
 FieldPart ::= ID
             | STRING
 \end{lstlisting}
 
 \noindent 
-Unfortunately, this resulting grammar still has overlapping rules (a
-first/first conflict) as the \ic{ID} symbol matches more than one rule. This
-conflict can be eliminated by removing the \ic{Exp ::= ID} rule and making
-the \ic{+} (one or more) repetition into a \ic{*} (zero or more)
+Unfortunately, this resulting grammar still has overlapping rules (
+first/first conflicts) as the \ic{ID} and \ic{STRING} symbols both match more than one rule. 
+This conflict can be eliminated by removing the \ic{Exp ::= ID} and \ic{Exp := STRING} rule 
+and making the \ic{+} (one or more) repetition into a \ic{*} (zero or more)
 repetition:
 
-\guido{'m not an expert in gramarsÉ But it looks strange that you are talking 
-about first/first conflict for ID and not talking about same conflict for 
-STRING.. The only difference between these two tokens is: ID used in 
-(FieldPart + ".")+ ID rule, but STRING - not..
-}
-
 \begin{lstlisting}[morekeywords={Exp, NUM, Expr,ID, STRING, FieldPart}]
-Exp       ::= (FieldPart ".")* ID
-            | STRING
+Exp       ::= FieldPart ("." ID)*
             
 FieldPart ::= ID
             | STRING
 \end{lstlisting}
-
-\guido{The refactored grammar is bogus. It allows things like
-'stringliteral'.'stringliteral'.'stringliteral'.id}
 
 \noindent 
 This last grammar now describes the same language as the original field access
@@ -1027,13 +1015,36 @@ Terms consist of the following elements: Strings (\ic{"Mr. White"}), Numbers
 (\ic{15}), Lists (\ic{[1,2,3]}) and constructor applications (\ic{Order(5, 15, 
 "Mr. White")} for labelled tree nodes with a fixed number of children.
 
-\guido{While ECore section was mostly about meta-model definition ATerm one
-looks like specific to the model representation & storage. m.b. It make sense 
-to say something about the way to represent meta-model in Spoofax (or meta-meta 
-model) unless it was done intentionally.}
+%In Ecore, the structure of valid models is specified by a meta-model.
+The structure of valid ATerms is specified by an algebraic \emph{signature}.
+Signatures are typically generated from the concrete-syntax definition, but can also be specified manually.
+A signature introduces one or more algebraic \emph{sorts}, i.e., collections of terms. 
+The sorts \ic{String}, \ic{Int}, and \ic{List}\footnote{\ic{List} is a parametrized sort, i.e., it takes the sort of the list elements as a parameter.} are predefined.
+User-defined sorts are inhabited by declaring term \emph{constructors} and \emph{injections}. 
+A constructor has a name and zero or more subterms. 
+It is declared by stating its name, the list of sorts of its direct subterms, and the sort of the constructed term. 
+Constructor names may be overloaded.
+Injections are declared as nameless constructors.
+The following example shows a signature for expressions:
+
+\begin{lstlisting}[language=stratego]
+signature
+  
+  sorts 
+    Exp
+  
+  constructors
+    Plus : Exp * Exp -> Exp
+    Times: Exp * Exp -> Exp
+         : Int       -> Exp
+\end{lstlisting}
+
+\noindent
+The signature declares sort \ic{Exp} with its constructors \ic{Plus} and \ic{Times}, which both require two expressions as direct subterms.
+Basic expressions are integers, as declared by the injection rule \ic{: Int -> Exp}.
 
 Compared to XML or JSON, perhaps the most significant distinction is that
-ATerms often rely on the order of subterms rather than on labels. For example,
+ATerms rely on the order of subterms rather than on labels. For example,
 a product may be modeled in JSON as follows:
 
 \begin{lstlisting}[morekeywords={}] 
@@ -1537,23 +1548,20 @@ entity Item {
 }
 \end{lstlisting}
 
-\guido{I would expect more information on the semantics:
-what is this header for? does it allow us to define namespaces?}
-
 \noindent 
 In mobl, most files starts with a module header, which can be followed by a list
 of entity type definitions. In turn, each entity can have one or more property
 or function definitions (shown in the next example snippet).
+Modules group entities. 
+Inside a module, one can only access entities from the same module or from imported modules.
 
 
 \parhead{Grammar basics} In Spoofax, the syntax of languages is described using
 SDF\footnote{http://www.syntax-definition.org/}. SDF is short for Syntax
 Definition Formalism and is a modular and flexible syntax definition formalism,
-supported by the SGLR parser generator. It can generate efficient, Java-based scannerless and general parsers. An example of a
-production written in SDF is
-
-\guido{what is SGLR?}
-\guido{In what way is SDF different from e.g.,~ANTLR}
+supported by the SGLR\footnote{SGLR parsing is a \emph{S}cannerless, \emph{G}eneralized extension of \emph{LR} parsing.} parser generator. 
+It can generate efficient, Java-based scannerless and general parsers, allowing Spoofax to support the full class of context-free grammars, grammar composition, and modular syntax definitions.
+An example of a production written in SDF is
 
 \begin{lstlisting}[language=sdf]
 "module" ID Entity* -> Start {"Module"}
@@ -1565,11 +1573,23 @@ symbol \ic{Start} on the right-hand side. Note that SDF uses the exact opposite
 order for productions as the grammars we've discussed so far, switching the
 left-hand and right-hand side. After the right-hand side, SDF productions may
 specify annotations using curly brackets. Most productions specify a quoted
-\emph{constructor label} that is used for the abstract syntax. This particular
-production creates a tree node with the label \ic{Module}. The tree node willhave two children that represent the \ic{ID} and the list of \ic{Entities},respectively. In contrast to Xtext, these children are not named; instead,they are identified via the position in the child collection (the \ic{ID} isfist, the \ic{Entity} list is second).
+\emph{constructor label} that is used for the abstract syntax. 
+This particular production creates a tree node with the constructor \ic{Module}
+and two children that represent the \ic{ID} and the list of \ic{Entities},respectively. 
+As discussed earlier, Spoofax represents abstract syntax trees as ATerms.
+Thus, the tree node will be represented as \ic{Module(\ldots, [\ldots])}.
+In contrast to Xtext, the children are not named; instead,
+they are identified via the position in the child collection (the \ic{ID} is
+fist, the \ic{Entity} list is second).
+Spoofax generates the following signature from the shown production:
 
-\guido{Could you draw a SDF-based AST for a small example. From my
-understanding there shouldn't be labels at the edges}
+\begin{lstlisting}[language=stratego]
+signature
+  sorts
+    Start
+  constructors
+    Module: ID List(Entity) -> Start
+\end{lstlisting}
 
 The left-hand side of an SDF production is the pattern it matches against.
 SDF supports symbols, literals, and character classes in this pattern.
@@ -1637,15 +1657,15 @@ lexical syntax
   \label{Fig:mobl-grammar-basic} 
 \end{center}
 \end{figure}
-\guido{{Param ","}* looks wrong -> last parameter should not be followed by ","}
+\guido{
+This is a missunderstanding: It is a separated list, as discussed for identifiers in the explanation before.
+
+{Param ","}* looks wrong -> last parameter should not be followed by ","}
 
 \parhead{Lexical syntax} As Spoofax uses a scannerless parser, all lexical
-syntax can be customized in the SDF grammar. It provides default definitions for
-common lexical syntax elements such as strings, integers, floats, whitespace and
-comments. But when needed, custom syntax can be specified.
-\guido{Where do the default defintiions come from? I can't find them in the
-grammar.}
-
+syntax can be customized in the SDF grammar. 
+It provides default definitions for common lexical syntax elements such as strings, integers, floats, whitespace and comments, which can be reused by importing the module {Commons}.
+But when needed, custom syntax can be specified.
 Most lexical syntax is specified using character classes such as \ic{[0-9]}.
 Each character class is enclosed in square brackets, and can consist of ranges
 of characters (\ic{c$_1$-c$_2$}), letters and digits (e.g.,\ \ic{x} or \ic{4}),

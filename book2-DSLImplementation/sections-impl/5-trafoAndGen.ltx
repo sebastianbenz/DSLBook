@@ -1140,10 +1140,7 @@ class Item {
 \noindent When we prefer camelcase in method names, we need to slightly change
 our code generation rules, replacing \ic{get\_[x]} and \ic{set\_[x]} by
 \ic{get[<to-upper-first>x]} and \ic{set[<to-upper-first>x]}. We also need to
-specify the following rewrite rule, which turns a string into a list of
-characters, upper-cases the first character, and turns the characters back into
-a string:
-
+specify the following rewrite rule:
 \begin{lstlisting}[language=stratego]
 to-upper-first: s -> s'
   where
@@ -1152,9 +1149,12 @@ to-upper-first: s -> s'
     s'            := <implode-string> [upper|chars]
 \end{lstlisting}
 
-\guido{what are these explode/implode-strings? 
-are they library functions of Spoofax rewrite rules? are they fix, can they 
-be extended with new functions?}
+\noindent
+This turns a string into a list of characters (\ic{explode-string}), upper-cases the first character (\ic{to-upper}), and turns the characters back into a string (\ic{implode-string}).
+The strategies used here are part of Stratego's standard library.
+While \ic{explode-string} and \ic{implode-string} are the only way to turn strings into a list of characters and vice-versa, we can use predefined as well as user-defined strategies to manipulate the characters.
+
+\guido{Should we leave a reference to the library? \url{http://releases.strategoxt.org/docs/api/libstratego-lib/stable/docs/}}
 
 \parhead{Editor Integration} To integrate the code generation into our editor,
 we first have to define the following rewrite rule:
@@ -1184,7 +1184,9 @@ Once we have defined this rule, we can register it as a \ic{builder} in
 builder: "Generate Java code (for selection)" = generate-java (openeditor) (realtime)
 \end{lstlisting}
 
-\guido{for somebody that does not know spoofax, this is too detailed}
+\guido{text before or text after comment?
+
+for somebody that does not know spoofax, this is too detailed}
 
 \noindent 
 This defines a label for our transformation, which is added to the editor's
@@ -1248,11 +1250,6 @@ side of rewrite rules:
       assign := Assign(FieldRef(This(), x), VarRef(x)) 
 \end{lstlisting}
 
-\guido{the Concrete Object Syntax paragraph header shows up twice. Can't be
-intended, right?}
-
-\parhead{Concrete Object Syntax}%
-%
 When we generate abstract syntax trees instead of concrete syntax, we can easily compose transformation steps into a transformation chain by using the output of transformation $n$ as the input for transformation $n+1$. 
 But this chain will still result in abstract syntax trees.
 To turn them back into text, it has to be pretty printed (or serialized).
@@ -1295,7 +1292,7 @@ imports Stratego [ Id   => StrategoId
 
 \noindent 
 Second, we need to define quotations, which will enclose concrete syntax
-fragments of the target language in Stratego rewrite rules. We add a production
+fragments of the target language in Stratego rewrite rules. We add a syntax
 rule for every sort of concrete syntax fragments that we like to use in our
 rewrite rules:
 
@@ -1313,20 +1310,21 @@ exports context-free syntax
   "|[" JFeature* "]|" -> StrategoTerm {"ToTerm"}
 \end{lstlisting}
 
-\todo{@Guido what exactly do we do we the above definitions? and what does
-StrategoTerm {"ToTerm"} mean?}
-
-\noindent 
-\ic{StrategoTerm} is the sort for terms in a Stratego program. 
-With these rules, we allow quoted Java fragments whereever an ordinary Stratego term is allowed.
-We further use \ic{ToTerm} as a constructor in the abstract syntax tree.
+\noindent
+With these rules, we allow quoted Mobl and Java fragments whereever an ordinary Stratego term is allowed.
+The upper rules concern Mobl, our example source language. 
+We like to use concrete syntax for modules (\ic{Module}), import declarations (\ic{Import}), entities (\ic{Entity}), and properties and functions of entities (\ic{EntityBodyDecl}).
+As quotes, we use \ic{|[...]|}.
+The lower rules work similar for Java, our example target language.
+All syntax rules extend \ic{Term} from the Stratego grammar, which we renamed to \ic{StrategoTerm} during import. 
+We use \ic{ToTerm} as a constructor label.
 This way, Stratego can recognise places where we use concrete object syntax inside Stratego code.
 It will then lift the subtrees at these places into Stratego code.
 For example, the abstract syntax of \ic{|[ return |[x]|; ]|} would be \ic{ToTerm(Return(...))}.
 Stratego lifts this to \ic{NoAnnoList(Op(\"Return\", [...]))}, which is the abstract syntax tree for the term \ic{Return(x)}.
 
 Third, we need to define antiquotations, which will enclose Stratego code in
-target language concrete syntax fragments. Here, we add a production rule for
+target language concrete syntax fragments. Here, we add a syntax rule for
 every sort where we like to inject Stratego code into concrete syntax fragments:
 
 \begin{lstlisting}[language=sdf]
@@ -1336,6 +1334,7 @@ exports context-free syntax
 \end{lstlisting}
 
 \noindent 
+This rule allows antiquoted Stratego terms to be used whereever a Java identifier can be used (we renamed \ic{Id} from the Java grammar to \ic{JavaID} during import).
 We use \ic{FromTerm} as a constructor in the abstract syntax tree.
 Like \ic{ToTerm}, Stratego uses this to recognise places where we switch between concrete object syntax and Stratego code.
 For example, the abstract syntax of \ic{|[ return |[x]|; ]|} would be \ic{ToTerm(Return(FromTerm(Var("x"))))}.
@@ -2113,11 +2112,8 @@ eval: LazyAnd(False(), _)     -> False()
 eval: LazyAnd(_, False(), _)  -> False()
 \end{lstlisting}
 
-\noindent We can orchestrate these rules in two different styles. For a
-small-step interpreter, we only apply one rule in each step:
-\guido{the distinction in purpose between small-step and big-step interpreters
-is not clear in this section}
-
+\noindent We can orchestrate these rules in two different styles. 
+First, we can define an interpreter which performs only a single evaluation step by applying one rule in each step:
 \begin{lstlisting}[language=stratego]
 eval-one: exp -> <oncebu(eval)> exp
 \end{lstlisting}
@@ -2129,8 +2125,8 @@ evaluations are likely to happen at the bottom of the tree, why \ic{oncebu} is
 the better choice. The result of \ic{eval-one} will be a slightly simpler
 expression, which might need further evaluation.
 
-In contrast, we can directly apply as many rules as possible, trying to evaluate
-the whole expression. This will give us a big-step interpreter:
+Alternatively, we can directly apply as many rules as possible, trying to evaluate
+the whole expression:
 
 \begin{lstlisting}[language=stratego]
 eval-all: exp -> <bottomup(try(eval))> exp

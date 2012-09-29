@@ -105,10 +105,12 @@ the mobl language. This chapter shows how to add annotations and rules to define
 name resolution for this language.
 
 To understand naming in Spoofax, the notion of a \emph{namespace} is essential.
-A namespace is a collection of names and is not necessarily connected
-to a specific language concept. Different concepts can contribute names to a
-single namespace. During reference resolution, names are resolved against
-namespaces.
+Some languages such as C\# provide namespaces as a language concept to scope the names of declarations such as classes.
+It is important to distinguish these namespaces as a language concept from 
+Spoofax' namespaces as a language definition concept.
+In Spoofax, a namespace is a collection of names and is not necessarily connected to a specific language concept. 
+Different concepts can contribute names to a single namespace. 
+During reference resolution, names are resolved against namespaces.
 
 Language elements that contribute names to a a namespace can be annotated with
 \ic{Namespace@=Symbol}, where \ic{Namespace} is the namespace of the definition,
@@ -117,13 +119,6 @@ concept, and that is contributed to the namespace. As an example, wecan add thi
 \begin{lstlisting}[language=sdf]
 "entity" Type@=ID "{" EntityBodyDecl* "}" -> Decl {"Entity"}
 \end{lstlisting}
-
-\guido{AFAIU, namespaces in spoofax are kind of meta-namespaces. This means, 
-you cannot define new namespace based on ID of the element, but you rather 
-can populate existing namespace with additional ID in it.. 
-Usually in programming languages namespaces are something similar to package 
-f.q.name (derived from the model itself, not defined in meta-model) so m.b. 
-talk a bit about it here.}
 
 \noindent 
 The annotation indicates that every program element that corresponds to this
@@ -194,7 +189,10 @@ We show how to specify a constraint for that later on \todoref{}.}. The full
 grammar of the mobl entities language with annotations is the following (leaving
 out the lexical syntax):
 
-\guido{how are the fully qualified names built?
+\guido{
+I am not sure if this should be discussed here, it requires more adjustment rules.
+
+how are the fully qualified names built?
 how can "private" properties be implemented?}
 
 \begin{lstlisting}[language=sdf]
@@ -287,9 +285,8 @@ The block statement does not define a definition name, but can still become part
 of a URI. Instead of a name, that part will then have the form \ic{Anon(n)}
 where \ic{n} is a generated number that identifies the block. \ic{Anon(n)} is anexample of a complex term.
 
-URIs can be inspected using the default hover help popups, or using the analyzed
-syntax view\guido{what is this view? - is this a Spoofax editor feature?}. The
-analyzed syntax view shows the abstract syntax with all URIs as annotations.
+URIs can be inspected using the default hover help popups, or using Spoofax' analyzed
+syntax view. This view shows the abstract syntax with all URIs as annotations\footnote{To obtain this view, press \emph{Show analyzes syntax(selection)} in the \emph{Transform} menu of the Spoofax editor. Spoofax will open a new editor which updates automatically when the content of the original editor changes}.
 Consider the following example with both named and anonymous blocks:
 
 \begin{lstlisting}[language=webdsl]
@@ -354,7 +351,11 @@ Any references that cannot be resolved are annotated with a special
 represented as
 \ic{Var("nonexistent"\curlies{[Unresolved(Var()),"non\-existent",...]})}. This
 makes it easy to recognize any unresolved references in analyses or
-transformations\guido{give some examples of analyses + transformations}.
+transformations
+
+\guido{code? text?
+
+give some examples of analyses + transformations}.
 
 
 \subsection{Persistence of Naming Information}
@@ -412,26 +413,27 @@ assumptions about a specific language\footnote{Spoofax expects language
 designers to \emph{manage by exception}.}. By default, it does not care about
 file boundaries: if an \ic{Address} is defined in a different file, it will
 still find it. There is also no default constraint for duplicate names: two
-definitions of \ic{Address} are fine (in which case the reference has two
-targets)\guido{what does this mean? How do you process that? it is unintuitive
-to me what "two targets" mean; Another reviewer had the same question.}. Lastly,
+definitions of \ic{Address} are fine (in which case a reference will resolve to one of them). 
+Lastly,
 the default strategy knows nothing about import definitions for a specific language, as these can vary quite a bit among languages.
 
+\subsection{Rewrite Rules}
+\label{Sec:rewrite-rules}
 
 Spoofax provides support for adding constraints and for customization of the
 behavior of the default resolution strategy by means of \emph{rewrite rules}.
 Rewrite rules are functions that operate on terms, transforming one term to
-another. We provide a primer on rewrite rules next, and show how they can be
+another. We provide a primer on rewrite rules here, and show how they can be
 used to customize name resolution\footnote{Rewrite rules are used for all
 kinds of other purposes in Spoofax, and we will encounter them again, for
 example in the chapter on transformation and code generation \todoref{}. This
 is why we explain them in quite some detail here.}.
 
 
-\subsection{Rewrite Rules}
-\label{Sec:rewrite-rules}
+\guido{
+This was exactly done in the paragraph before the subsection. Moved it into.
 
-\guido{Please explain why we need all this detail here AT THIS LOCATION (along
+Please explain why we need all this detail here AT THIS LOCATION (along
 the lines of: we need a general intro to rewriting somewhere, because we'll use
 rewriting later. So we decided to put it here, because we need some of it for linking
 and scoping).}
@@ -575,7 +577,9 @@ the name of the \emph{Stratego} transformation language comes from.}.
 In Spoofax, strategies are used to control traversals in constraints,
 transformation, and code generation.
 
-\guido{this section is extremely dense -- to me it is now unclear what the
+\guido{Not sure how to handle this, need to discuss this
+
+this section is extremely dense -- to me it is now unclear what the
 intention is: to provide a manual about Spoofax? or to present more abstract concepts?
 }
 
