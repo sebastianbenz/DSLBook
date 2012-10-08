@@ -8,12 +8,10 @@ formalisms. The meat of the chapter is made of extensive examples of defining
 language structure and syntax with our three example tools.}
  
 
-\todo{Show stuff in MPS with tables and graphics}
-
 \noindent The \emph{concrete syntax} (CS) of a language is what the user
 interacts with to create programs. It may be textual, graphical, tabular or any
 combination thereof. In this book we focus mostly on textual concrete syntaxes
-for reasons described in \todo{reference to the respective place in the
+for reasons described in \todoref{reference to the respective place in the
 introduction}. Examples of other forms are briefly discussed \todoref{}. We
 refer to other forms where appropriate.
   
@@ -51,10 +49,9 @@ structure is reflected in the corresponding abstract syntax tree. A possible AST
 is illustrated in \fig{astexample}\footnote{We say \emph{possible} because
 there are typically several ways of structuring the abstract syntax.}. 
 
-\todo{gro§ genug?}
 \begin{figure}[ht]
 \begin{center}
-  \includegraphics[scale=0.65]{figures-impl/2/astexample.png}
+  \includegraphics[scale=0.55]{figures-impl/2/astexample.png}
   \caption[]{Abstract syntax tree for the above program. Boxes
   represent instances of language concepts, solid lines represent containment,
   dotted lines represent cross-references}
@@ -165,7 +162,6 @@ approach makes sense. It can lead to very fast parsers that also exhibit good
 error reporting and error recovery (the ability to continue parsing after a
 syntax error has been found).
 
-\todo{Do we want to point to books on compiler construction and parsers?}
 In contrast, language workbenches, and most of today's compilers,
 \emph{generate} a parser from a grammar. A grammar is a syntax specification
 written in a DSL for formally defining textual concrete syntax. These generated
@@ -336,7 +332,8 @@ example, consider a grammar for property or field access, expressions of the
 form \ic{customer.name} or \ic{"Tim".length}\footnote{Note that we use ID to
 indicate identifier patterns and STRING to indicate string literal patterns in
 these examples.}:
-\begin{lstlisting}[morekeywords={Exp, NUM, Expr,ID, STRING}] Exp ::= ID
+\begin{lstlisting}[morekeywords={Exp, NUM, Expr,ID, STRING}] 
+Exp ::= ID
       | STRING | Exp "." ID 
 \end{lstlisting}
 
@@ -562,12 +559,6 @@ Expr ::= NUM
        | Expr "+" Expr
 \end{lstlisting}
 
-\todo{it would be interesting to see how one could use MPS/xtext/spoofax to 
-solve the "expression problem" (really well known)
-http://en.wikipedia.org/wiki/Expression_problem
-http://c2.com/cgi/wiki?ExpressionProblem
-http://channel9.msdn.com/Shows/Going+Deep/C9-Lectures-Dr-Ralf-Laemmel-Advanced-Functional-Programming-The-Expression-Problem
-}
 
 \noindent 
 Once more operators are added and the proper associativities and precedences are
@@ -637,14 +628,13 @@ lexers}
 
 
 
-\sect{Fundamentals of Projectional Editing} 
+\section{Fundamentals of Projectional Editing} 
 
 In parser-based approaches, users use text editors to enter character sequences
 that represent programs. A parser then checks the program for syntactic
 correctness and constructs an abstract syntax tree from the character sequence.
 The AST contains all the semantic information expressed by the program.
 
-\todo{point to a screencast that shows PE in action}
 In projectional editors, the process happens the other way round: as a user
 edits the program, the AST is modified directly. A projection engine then
 creates some representation of the AST with which the user interacts, and which
@@ -709,16 +699,38 @@ assume that you are familiar with modern IDEs, so we do not discuss their
 features in great detail in this section}. However, you can always go back to
 any text editor to edit the programs.
 
+\begin{figure}[ht]
+\fbox{
+\begin{minipage}{104.5mm}
+  \includegraphics[width=\columnwidth]{figures-impl/2/mps-screenshot.png}
+  \caption[]{An mbeddr
+example program using five separate but integrated languages. It contains
+a module with an \icsn{enum}, a state machine (\icsn{Counter}) and a function
+(\icsn{nextMode}) that contains a decision table. Inside both of them developers
+can write regular C code. The IDE provides code completion
+for all language extensions (see the \icsn{start}/\icsn{stop} suggestions) as well
+as static error validation (\icsn{Error\ldots} hover).
+The green \icsn{trace} annotations are traces to requirements that can be attached
+to arbitrary program elements. The red parts with the \icsn{\{resettable\}} next
+to them are presence conditions: the respective elements are only in a program
+variant if the configuration feature \icsn{resettable} is selected.}
+  \label{mps-screenshot} 
+\end{minipage}
+}
+\end{figure}
+
+
+
+
 In projectional editing, this is different since a normal text editor is
 obviously not sufficient as you would be editing some textual representation of
-the AST. A specialized editor has to be supplied. Like in free text editing, it
-has to provide the IDE support features mentioned above. MPS provides those.
+the AST. A specialized editor has to be supplied (an example is shown in
+\fig{mps-screenshot}). Like in free text editing, it has to provide the IDE support features mentioned above. MPS provides those.
 However, there is another challenge: for textual-looking notations, it is
 important that the editor tries and makes the editing experience as text-like as
 possible, i.e.~the keyboard actions we have gotten used to from free-text
 editing should work as far as possible. MPS does a decent job here, using, among
 others, the following strategies\footnote{The following list may be hard torelate to if you have never used a projectional editor. However, understandingthis section in detail is not essential for the rest of the book.}:
-\todo{We should add a screenshot here. Maybe the "big one" from the ASE paper.}
 
 \begin{itemize}
 
@@ -797,11 +809,11 @@ pleasant working environment.
 
 \subsection{Language Modularity}
 
-As we have seen in \todo{ref to the respective design chapter}, language
+As we have seen in \todoref{ref to the respective design chapter}, language
 modularization and composition is an important building block in working with
 DSLs. Parser-based and projectional editors come with different trade-offs in
 this respect. Notice that is this section we only consider syntax issues ---
-semantics has been covered in \todo{the respective section in DSL design}.
+semantics has been covered in \todoref{the respective section in DSL design}.
 
 In parser-based systems it depends on the grammar class supported by the tool
 whether composition can be supported well. As we have said above, the problem is
@@ -818,8 +830,12 @@ more than one way, this can be resolved by declaratively specifying which
 alternative should be used. This specification can be made externally, \emph{without} invasively changing the resulting grammar, retaining modularity.
 
 In projectional editors, language modularity and composition is not a problem at
-all. There is no grammar, no parsing, no grammar classes, and hence no problem
-with composed grammars becoming ambiguous. Any combination of languages will be
+all\footnote{An example for a composed language is shown in
+\fig{mps-screenshot}. It contains code expressed in C, in a statemachines
+extension, a decision tables extension and in languages for expressing
+requirements traces and product line variability.}.
+There is no grammar, no parsing, no grammar classes, and hence no problem with
+composed grammars becoming ambiguous. Any combination of languages will be
 syntactically valid. If a composed language would be ambiguous, the user has to
 make a disambiguating decision as the program is entered. For example, in MPS,
 if in a given location two language concepts are available under the same alias,
@@ -2248,6 +2264,91 @@ a new container concept wants to restrict the use of \emph{existing} child
 concepts without changing those concepts. For example, the \ic{Lambda} concept,
 which contains a statement list as well, prohibits the use of
 \ic{LocalVariableRef}s, in any of its statements.
+
+
+\parhead{Tables and Graphics} The MPS projectional editor associates
+projection rules with program elements. A projection rule consists of cells. Each cell represents
+a primitive rendering element. For example, a \ic{constant} cell contains a
+constant text that is rendered as-is in the programs. A property cell renders a
+property (for example, the \ic{name}). Collections cells arrange other cells in
+some predefined or configurable layout. Among others, MPS has vertical and
+horizontal collections. To render things as tables, only new kinds of collection
+cells are required. For graphics, new primitives (for example, \ic{rectangle}
+and \ic{line}) are required\footnote{At the time of this writing, MPS does not yet support graphical notations;
+however, it is planned to add them in 2013.}. But the fundamental approach to
+editor definition remains unchanged. 
+
+Support for tables is available, but in a limited fashion. When defining an
+editor that contains a table, users simply add a \ic{table}. For example, the
+editor for the decision table (an example is shown in \fig{dectabexample}) is
+shown in \fig{dectabeditor}.
+
+\begin{marginfigure}
+\begin{center}
+  \includegraphics[width=50mm]{figures-impl/2/dectabEditor.png}
+  \caption[]{The editor for a decision table contains a horizontal collection
+  of cells. The first one contains the return type of the decision table, the
+  second one contains the default value, and the last one contains the actual
+  table, represented by the \ic{table} cell.}
+  \label{dectabeditor} 
+\end{center}
+\end{marginfigure}
+
+However, this is only half of the story. The real definition of the table
+happens via a table model implementation inside the \ic{table} cell. The
+inspector for the \ic{table} cell contains a function that has to return a
+\ic{TableModel}, an interface that determines the structure of the
+table\footnote{This is similar to the approach used in Java Swing, but it is
+not the exact same interface.}. Here is the code used in the decision table:
+
+\begin{lstlisting}[language=mps]
+(node, editorContext)->TableModel {
+  return new XYCTableModel(node, link/DecTab : xExpr/, 
+                                 link/DecTab : yExpr/,
+                                 link/DecTab : cExpr/, 
+                                 editorContext);
+}
+\end{lstlisting}
+
+\noindent The \ic{XYCTableModel} class is a utility class that ships with MPS
+for tables whose contents are represented by a concept that has three child collections,
+one for the contents of the row headers, one for the contents of the column
+headers and one for the remaining cells. We pass in the \ic{node} that
+represents the table as well as the three child collections (and the
+\ic{editorcontext}). If none of the existing utility classes is suitable, you
+have to implement the \ic{TableModel} interface yourself\footnote{Later
+versions of MPS will provide a more high-level approach to defining tables
+that is more consistent with the approach for editor definition in MPS, and
+which does not require Java programming for defining a table.}.
+Here is how it looks:
+
+\begin{lstlisting}[language=java]
+public interface TableModel extends <none> { 
+  int getColumnCount(); 
+  int getRowCount(); 
+  void deleteRow(int rowNumber); 
+  node<> getValueAt(int row, int column); 
+  void createElement(int row, int column); 
+  NodeSubstituteInfo getSubstituteInfo(int row, int column); 
+  void insertRow(int rowNumber); 
+  void deleteColumn(int columnNumber); 
+  void insertColumn(int columnNumber); 
+  int getMaxColumnWidth(int columnNumber); 
+} 
+\end{lstlisting}
+
+\noindent Note how the \ic{getValueAt} method returns a \ic{node<>}. The editor
+then renders the editor for that node into the respective table cell, supporting
+nesting of arbitrary other editors into tables.
+
+
+
+
+
+
+
+
+
 
 
 \todo{Do we want to have wrap-up for each chapter and compare things?}
