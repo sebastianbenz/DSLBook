@@ -149,24 +149,20 @@ These are just two examples demonstrating the advantages of test-centric domain-
 
 \subsection{How does it work?}
 
-- both languages for features and specs developed with Xtext
-- using the existing language Xtend which is based on Xbase
-- advantages: language modularity, reuse of languages
+Both Jnario languages - the Feature and Spec language - were developed with the Xtext framework. Xtext was selected because it fitted best for creating a DSL for Java and is a highly evolved framework which supports all steps necessary for creating and using a DSL. When creating Jnario we benefited from the generation of the lexer and parser, the constraint functionality, the code generator for Java source code and the UI capabilities for the integration into Eclipse. Due to the language modularity of Xtext we were able to reuse the existing languages Xbase and Xtend, which are based on Xtext.
 
 Xtend
-- Xtend is a statically-typed programming language that is based on Java, nice features such as extension methods, type inference, lambda expressions etc.
-- why Xtend -> reuse und extension of existing capabilities such as type system, expressions, tooling (imports, ..), not reinventing the wheel
-
+As mentioned before, Xtend is a statically-typed programming language that is based on Java. It supports features such as extension methods, type inference and lambda expressions in a very concise way and compiles to Java source code. We used the language Xtend as basis for our languages because we were able to reuse and extend the existing features such as the type system, the expressions and the tooling, for example for automatically adding import statements.
 
 Design (ref?)
 
-- since both languages based on Xbase and Xtend heavy use of existing concepts and grammar parts
+Jnario consists for three languages - the basic Jnario language, and the Feature and Spec language. For each of those languages a grammar has to be defined.
 
-- Example from specs grammar: Definition of grammar rule Member -> based on XtendMember which can be fields, functions or constructors, those are extended with additional constructs such as Examples and ExamplesGroups which are necessary in the spec language
-- defines either a fact or begins a describe block
-- recursive (in describe block again arbitary number of members)
-- existing annotations are stored in the annotationInfo of the next member
-- 
+The Feature and Spec language have certain grammar rules in common. For those rules an own Jnario language was created which is used by the Spec and Feature language. The possibility of using existing grammars in your own grammar reduces redundancy in the grammars. The language specific rules are defined in the corresponding language project with their own grammar.
+
+Since both languages are based on Xbase and Xtend we made heavy use of existing concepts and grammar parts. The following grammar rule is part of the Spec language. This rule is based on "XtendMember" which is a rule from the Xtend language that defines fields, functions and constructors. For the spec language this rule is extended and the notion of Examples or ExampleGroups are added. Examples are used to define facts with their implementation logic (XExpression/XBlockExpression), ExampleGroups consist of a describe block and an arbitrary number of members. 
+
+(existing annotations are stored in the annotationInfo of the next member)
 
 \begin{lstlisting}
 Member returns xtend::XtendMember:
@@ -182,16 +178,13 @@ Member returns xtend::XtendMember:
      );
 \end{lstlisting}
 
-usage of Xbase in XAnnotation, XBlockExpression, XExpression
+Constraints (ref)
 
-
-general concepts together in one globale jnario project, specifics in spec/feature projects
-includes definition of ecore model for certain parts
-
-
-
+Existing constraints are checked whenever a file a saved. Since every DSL has different domain specific constraints they have to be defined for each language. Validation mechanisms are already part of Xtext and can be extended as needed for example for checking that a fact is only defined once. Another example is the type checks within the example tables of the Spec language where one column has to have matching types. 
 
 Generation (ref)
+
+Jnario translates not just to Java but also generates JUnit 4 compatible code. The features and specs can be run with JUnit to get immediate feedback with the established test framework. To be able to do this you have to define what parts of the language are mapped to which Java concepts. An example mapping for the feature language is shown in figure \ref{jnarioToJava}.
 
 \begin{figure}[h]
 \begin{center}
@@ -201,37 +194,29 @@ Generation (ref)
 \end{center} 
 \end{figure}
 
- - content of methods based on Xtend generation
- - own class generations, 
- - generating junit conform tests -> adding necessary imports, adding @Test annotation etc.
- -
+Scenarios are mapped to Java classes, each step is mapped to a JUnit test method. Steps which are defined in a Background and executed for every Scenario are inherited. For the generation of the source code of the methods the existing Xtend generation could be used. For the compatibility with JUnit all necessary imports, and '@Test' annotations are added during the generation.
+
+For the execution of the tests and we created our own JUnit Test Runners. The runner takes care of finding all test methods and executing them in the right order.
 
 
- - Example: compiling assertions @Sebastian
- 
+- Example: compiling assertions @Sebastian
  
 
- - Constraints -> Validation (ref)
- - additional validation necessary for tables in specs
- - 
- 
- 
- - Tooling (ref)
- 
- - for dsls tooling very important
- - helps learning and using a new language, efficiency main goal
- - eclipse based editor for features and specs
- - specials Feature Editor, Folding, Highlighting
- - quick fixes for importing necessary libraries or when starting with a test to create new class if it doesn't exist yet -> test-driven design
- - auto completion for features very important: referencing other steps (reusage), even when not implemented and in other files -> adding imports automatically
- - refactoring possible for code, debugging of implementation with Xtend Debugging facility, not just in the generated Java code, integrates seemless into eclipse -> feels natural to work with it
- 
- - Standalone Compiler for running features and specs headless without eclipse
+Tooling (ref)
 
- - Testing (ref)
- 	- jnario developed with bootstrapping -> all tests written as features and specs
- 	- advantage: getting a feeling if concepts work and if feels natural, good examples for later
- 	- example:
+For Jnario a good tooling is important since the hurdles of learning a new language should be as low as possible and being able to work efficiently is a main goal. Xtext provides a great tooling support for new DSLs. With the existing integration into Eclipse and the easy extensibility of the UI components you can add support for your DSL fast. 
+
+The Feature language aims to be readable for software developers and for domain experts who have no programming background. The best way to support both groups was to establish two views on a Feature file. We created an own Feature Editor that uses specialized folding to show or hide the implementation logic of the scenarios and features. This enables the possibility of showing only the parts of the file that are in natural language and it therefore feels like working with a text editor. In addition, highlighting of keywords comes in handy when referring to existing steps. We used different colors to show if a step is a implemented, not implemented or a reference to an existing step.
+
+For working efficiently certain concepts such as quick fixes for importing necessary libraries or for creating new class files were added. Auto completion for steps in features is supported since you can reuse other steps by referencing them, even if they are not implemented. Another important feature is the debugging facility of Xtext which lets you step through your DSL file instead of using the generated code. 
+
+Jnario also comes with a standalone compiler for running features and specs headless so features and specs can be run for example from a console.
+
+Testing (ref)
+
+As described in the chapter \ref{testing dsls} different parts of a DSL should be tested to ensure its functionalities and to be confident when changing parts of it. Jnario is a special case since it defines a framework for testing. This is why we decided to bootstrap the languages. Bootstrapping means to use the system under development for the development. We defined most of our tests as features and specs with Jnario as soon as the most basic implementation was done.
+
+The advantages of this approach are that you get a good feeling if your concepts work when you are already using them and if they feel right. In addition, those tests are good examples for people who want to use the framework later and look for ideas of how to use it.
 
 \begin{lstlisting}[language=jnario-feature] 	
  		Scenario: Inferring Fields from other Scenario
@@ -252,8 +237,10 @@ Generation (ref)
 		Then it should execute successfully
 			jnarioFile.successful
 \end{lstlisting}
-	- using a scenario for field inference and defining a feature with two scenarios where fields are inferred for the then step
-	- should execute successfully -> successful method compiles and executes the given char sequence as feature and sees if there are no compile errors, plus that the two scenarios have to pass
+
+A bootstrap feature is defined in listing \ref{}. The scenario is used for testing the field inference between different scenarios. In this scenario an example feature is defined that has two scenarios where the field myString from the first scenario should be inferred in the second scenario.
+
+What happens is that the given feature is assigned to the variable jnarioFile and afterwards the method successful is called. In this method the given CharSequence runs through the entire language infrastructure. This includes compiling, type system and constraint checks, generating the corresponding Java files and executing those. For the entire scenario "Inferring Fields from other Scenario" to pass the inner feature and scenarios also have to pass.
  	
 
  \subsection{Summary}
