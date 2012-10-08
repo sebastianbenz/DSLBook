@@ -62,7 +62,7 @@ the reference target is not among the elements in the scope, the reference is
 invalid.
 
 
-\todo{Add a picture on the right showing a hierarchy of scopes}
+\todofig{Add a picture on the right showing a hierarchy of scopes}
 Scopes can be hierarchical, in which case they are organized as a stack of
 collections --- confusingly, these collections are often called scopes
 themselves. During resolution of a cross-reference, the lowest or
@@ -464,7 +464,7 @@ So, for an entity \ic{Entity("User", [Property("name", String)])}, it binds
 \ic{"User"} to the variable \ic{name}, and \ic{[Property("name", "String")]}
 to the variable \ic{properties}. It then returns \ic{properties}. While rewrite
 rules can be viewed as functions, they have one important difference:
-they can be defined multiple times for different patterns\todo{This is
+they can be defined multiple times for different patterns\footnote{This is
 comparable to polymorphic overloading.}. In the case of \ic{get-properties}, we
 could add another definition that works for property access expressions:
 
@@ -689,8 +689,6 @@ the right-hand side, we construct the list of adjusted URIs right away.
 
 
 
-%\todo{show rules for handling imports here.
-%can't really show anything else interesting without types.}
 
 %unifying Var and Property namespace?
 %
@@ -849,7 +847,7 @@ on that program element will go to the referenced state.
 \subsection{Nested Scopes} 
 
 The approach to scoping shown above is suitable for simple cases, such as the
-\ic{targetState} reference shown above. However, in languages with nestes blocks
+\ic{targetState} reference shown above. However, in languages with nested blocks
 a different approach is recommended. Here is an example of a program expressed in
 a language with nested blocks:
 
@@ -905,13 +903,6 @@ definition. This can be used to make shadowed variables visible under a
 different name, such as \ic{outer.x} if it is referenced from location \ic{1}.
 The following is pseudo-code that implements this behavior:
 
-\todo{how is implementing the "line dependent scoping"? -- e.g.
-
-{
-  int x = a;  // this should not be valid since a was not declared
-  int a;
-  x=a; // this should be valid
-}}
 
 \begin{lstlisting}[language=java]
 // recursive method to build nested scopes
@@ -1079,26 +1070,23 @@ concept Transition
 \noindent The scope itself is defined via the search scope constraint below. The
 system provides an anonymous function \ic{search scope} that has a number of
 arguments that describe the context including the enclosing node and the
-referencing node.
-As the signature shows, the function has to return either an \ic{ISearchScope}
-or simply a sequence of nodes of type \ic{State}. The scope of the target state
-is simply the set of states of the state machine that (transitively) contains
-the transition. To implement this, the expression in the body of this function
-crawls up the containment hierarchy\footnote{Note that for a smart reference,
-where the reference object is created only \emph{after} selecting the target,
-the \icsn{referenceNode} argument is \icsn{null}! This is why we write the scope
-using the \icsn{enclosingNode} argument.
+referencing node. As the signature shows, the function has to return either an
+\ic{ISearchScope} or simply a sequence of nodes of type \ic{State}. The scope of
+the target state is simply the set of states of the state machine that
+(transitively) contains the transition. To implement this, the expression in the
+body of this function crawls up the containment hierarchy\footnote{Note that for
+a smart reference, where the reference object is created only \emph{after}
+selecting the target, the \icsn{referenceNode} argument is \icsn{null}! This is
+why we write the scope using the \icsn{enclosingNode} argument.
 } until it finds a \ic{Statemachine} and then returns its
 \ic{states}\footnote{The code used to express scopes can be arbitrarily complex
 and is implemented in MPS' BaseLanguge, an extended version of Java.}.
-\todo{mention new way of scoping in MPS - talk to Alex. Maybe mention that the
-kinds of scopes used for local var refs are now built in, kinda?}
 \begin{lstlisting}[language=mps] link {target}
   referent set handler:
     <none>
   search scope:
     (model, scope, referenceNode, linkTarget, enclosingNode)
-   ->join(ISearchScope | sequence<node<State>>) {
+             ->join(ISearchScope | sequence<node<State>>) {
       enclosingNode.ancestor<concept = Statemachine>.states;
     }
   validator:
@@ -1116,7 +1104,12 @@ presentation in the code completion menu (\ic{presentation}).
 
 
 \parhead{Nested Scopes} In a more complex, block oriented language with
-nested scopes, a different implementation pattern is recommended:
+nested scopes, a different implementation pattern is recommended\footnote{In
+this section we describe the approach as we have implemented it for mbeddr C.
+Since version 2.5, MPS supports this approach out of the box. For example, an
+interface similar to \icsn{IScopeProvider} ships with MPS, and scopes
+can be inherited from parent nodes.\todo{Is this good enough for the new
+scopes?}}:
 
 \begin{itemize}
   \item All program elements that contribute elements that can be referenced
