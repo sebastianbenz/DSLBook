@@ -857,10 +857,7 @@ can be used in the programs. However, character layout is always ignored. For
 example it is not possible to use parsers to handle tabular notations, fraction
 bars or even graphics\footnote{There have been experimental parsers for
 two-dimensional structures such as tables and even for graphical shapes, but
-these have never made it beyond the experimental stage.}.
-\todo{Table based syntax is possible with Text based tools (even with Xtext -
-see JNario test data specs) - JNario in the last chapter of the book? refernce
-to it?}
+these have never made it beyond the experimental stage. Also, it is possibleto approximate tables by using vertical bars and hyphens to some extent.\todoref{JNario chapter} }.
 
 \begin{marginfigure}
   \includegraphics[width=7cm]{figures-impl/2/dectabincomp.png}
@@ -974,8 +971,6 @@ original language specification.
 
 
 \section{Characteristics of AST formalisms}
-
-\todo{can we provide the same example for all tools?}
 
 Most AST formalisms, aka meta meta models\footnote{\emph{Abstract syntax} and
 \emph{meta model} are typically considered synonyms, even though they have
@@ -1167,7 +1162,7 @@ and from Ecore have been written.}.
 \label{Sec:xtext-syntax}
 
 Cooling programs\footnote{This and the other examples refer back to the case
-studies introduced at the beginning of the book in section \todo{}} represent
+studies introduced at the beginning of the book in section \todoref{}} represent
 the behavioral aspect of the refrigerator descriptions. Here is a trivial
 program that can be used to illustrate some of the features of the language. The
 program is basically a state machine.
@@ -1261,15 +1256,18 @@ In pure grammar languages, one would typically write the following:
 
 This expresses that after the two keywords we expect an \ic{ID}.
 However, Xtext grammars don't just express the concrete syntax --- they also
-determine the mapping to the AS. We have encountered two such mappings so far.
-The first one is implicit (although it can be made explicit as well): the name
-of the rule will be the name of the derived meta class\todo{did we explain the
-derivation of meta classes already? Otherwise we'd have to say this here}.
-So we will get a meta class \ic{CoolingProgram}. The second mapping we have
-encountered is \ic{name=ID}. It specifies that the meta class gets a property \ic{name} that
-holds the contents of the \ic{ID} from the parsed program text. Since nothing
-else is specified in the \ic{ID} terminal rule, the type of this property
-defaults to \ic{EString}, Ecore's version of a string data type.
+determine the mapping to the AS. This is because by default, Xtext automatically
+derives the AS from the grammar\footnote{It is also possible to start with the
+meta model and \emph{then} define the grammar.}. We have encountered two such
+mappings so far. The first one is implicit: the name of the rule will be the
+name of the derived meta class\footnote{If we start with the meta model and then
+define the grammar, it is possible to have grammar rule names that are different
+from meta class names.}. So we will get a meta class \ic{CoolingProgram}. The
+second mapping we have encountered is \ic{name=ID}. It specifies that the meta
+class gets a property \ic{name} that holds the contents of the \ic{ID} from the
+parsed program text. Since nothing else is specified in the \ic{ID} terminal
+rule, the type of this property defaults to \ic{EString}, Ecore's version of a
+string data type.
 
 The rest of the definition of a cooling program is enclosed in curly braces. It
 contains three elements: first the program contains a collection of events and
@@ -1333,7 +1331,6 @@ CustomState:
 share some properties. Consequently, Xtext's AS derivation algorithm pulls them
 up into the abstract \ic{State} meta class so they can be accessed polymorphically.
 \fig{Fig:xtext-metamodel} shows the resulting meta model using EMF's tree view.
-\todo{should this go to the beginning of the section?}
 \begin{figure}[ht]
 \fbox{
 \begin{minipage}{104.5mm}
@@ -1458,7 +1455,6 @@ AtomicLevel returns Expression:
     ({SymbolRef} symbol=[SymbolDeclaration|QID]);
 \end{lstlisting}   
 
-\todo{Kann man das ParensExpr weglassen? Siehe Mail vom SZ}
 
 \noindent 
 To understand the above definition, we first have to explain in more detail how
@@ -1483,15 +1479,16 @@ encoded and parsed. In the expression grammar above, for the rules with the
 \ic{Level} suffix, no meta classes are created, because (as Xtext is able to
 find out statically) they are never instantiated. They merely act as a way to
 encode precedence. To understand this, let's consider how \ic{2 * 3} is parsed:
-\todo{can we show the resulting AST as it "grows" next to the text? maybe
-number the items and then use these numbers in the diagram.}
 \begin{itemize}
+
   \item The \ic{AssignmentStatement} refers to the \ic{Expr} rule in its
   \ic{left} and \ic{right} properties, so we "enter" the expression tree at the
   level of \ic{Expr} (which is the root of the expression hierarchy).
+
   \item The \ic{Expr} rule just calls the \ic{ComparisonLevel} rule, which calls
   \ic{AdditionLevel}, and so on. No objects are created at this point, since no
   assignment to any property is performed. 
+
   \item The parser "dives down" until it finds something that matches the
   first symbol in the parsed text: the \ic{2}. This occurs on \ic{AtomicLevel}, as
   it matches the \ic{DECIMAL\_NUMBER} terminal. At this point it creates an 
@@ -1499,46 +1496,61 @@ number the items and then use these numbers in the diagram.}
   the \ic{value} property. It also sets the \ic{current} object to point to the
   just created \ic{NumberLiteral}, since this is now the AST object created
   most recently.
+
   \item The \ic{AtomicLevel} rule ends, and the stack is unwound. We're back at
   \ic{PrefixOpLevel}, in the second branch. Since nothing else is specified
   after the call to \ic{AtomicLevel}, we unwind once more.
-  \item We're now back at the \ic{MultiplicationLevel}. The rule 
-  is not finished yet and we try to match a \ic{*} and a \ic{/}. The match on 
-  \ic{*} succeeds. At this point the so-called assignment action on the left 
-  side of the \ic{*} kicks
-  in (\ic{{Multi.left=current}}). This action creates an instance of \ic{Multi},
-  and assigns the \ic{current} (the \ic{NumberLiteral} created before) to its
-  \ic{left} property. Then it makes the newly created \ic{Multi} the new 
-  \ic{current}. At this point we have a subtree with the \ic{*} at the root, 
-  and the \ic{NumerLiteral} in the left   property.
+
+  \item We're now back at the \ic{MultiplicationLevel}. The rule is not finished
+  yet and we try to match a \ic{*} and a \ic{/}. The match on \ic{*} succeeds.
+  At this point the so-called assignment action on the left side of the \ic{*}
+  kicks in (\ic{{Multi.left=current}}). This action creates an instance of
+  \ic{Multi}, and assigns the \ic{current} (the \ic{NumberLiteral} created
+  before) to its \ic{left} property. Then it makes the newly created \ic{Multi}
+  the new \ic{current}. At this point we have a subtree with the \ic{*} at the
+  root, and the \ic{NumerLiteral} in the left   property.
+
   \item The rule hasn't ended yet. We dive down to \ic{PrefixOpLevel} and
   \ic{AtomicLevel} once more, matching the \ic{3} in the same way as the two before.
   The \ic{NumerLiteral} for \ic{3} is assigned to the \ic{right} property as we
   unwind the stack.
+
   \item At this point we unwind the stack further, and since no more text is
   present, no more objects are created. The tree structure is as we had
   expected.
 \end{itemize}
-\todo{Can we make this paragraph more readable (Laurie)}
 \noindent If we'd parsed \ic{4 + 2*3} the \ic{+} would have matched before the
-\ic{*}, because it is "mentioned earlier" in the grammar. It is in a lower-precedence
-group, the \ic{AdditionLevel}. Once we're a \ic{4 +}, we'd go down
-again to match the \ic{2}. As we unwind the stack after matching the \ic{2} we'd
-match the \ic{*}, creating a \ic{Multi} again. The \ic{current} at this point
-would be the \ic{2}, so it would be put onto the \ic{left} side of the \ic{*},
-making the \ic{*} the \ic{current}. Unwinding further, that \ic{*} would be put
-onto the \ic{right} side of the \ic{+}, building the tree just as we'd expect.
+\ic{*}, because it is "mentioned earlier" in the grammar (it is in a
+lower-precedence group, the \ic{AdditionLevel}, so it has to end up "higher" in
+the tree). Once we're at \ic{4 +}, we'd go down again to match the \ic{2}. As we
+unwind the stack after matching the \ic{2} we'd match the \ic{*}, creating a
+\ic{Multi} again. The \ic{current} at this point would be the \ic{2}, so it
+would be put onto the \ic{left} side of the \ic{*}, making the \ic{*} the
+\ic{current}. Unwinding further, that \ic{*} would be put onto the \ic{right}
+side of the \ic{+}, building the tree just as we'd expect.
 
 
-Notice how a rule at a given level only always delegates to rules at higher
-precedence levels. So higher precedence rules always end up further down in the
-tree. If we want to change this, we can use parentheses (see the \ic{ParenExpr}
-in the \ic{AtomicLevel}): inside those, we can again embed an \ic{Expr}, i.e.\ we
-jump back to the lowest precedence level\footnote{This somewhat convolutedapproach to parsing expressions and encoding precedence is a consequence ofthe LL($k$) grammar class support by ANTLR, which underlies Xtext. We havediscussed this topic earlier \todoref{}. Xtext also supports syntacticpredicates which are annotations in the grammar that tell the parser whichalternative to take in case of an ambiguity. We don't discuss this any furtherin the book.}.
-Note that once you understand the basic approach, it is easy to add new
-expressions with a precedence similar to another one (just add it as an
-alternative to the respective \ic{Level} rule) or to introduce a new precedence
-level (just interject a new \ic{Level} rule between two existing ones).
+Notice how a rule at a given precedence level only always delegates to rules at
+higher precedence levels. So higher precedence rules always end up further down
+in the tree. If we want to change this, we can use parentheses (see the
+\ic{ParenExpr} in the \ic{AtomicLevel}): inside those, we can again embed an
+\ic{Expr}, i.e.\ we jump back to the lowest precedence
+level\sidenote[][-50mm]{This somewhat convoluted approach to parsing expressions
+and encoding precedence is a consequence of the LL($k$) grammar class support by ANTLR, which underlies
+Xtext. A cleaner approach would be declarative, where precedences are encoded
+explicitly and the order of the parsing rules in not relevant. Spoofax uses this
+approach. Xtext also supports syntactic predicates which are annotations in the
+grammar that tell the parser which alternative to take in case of an ambiguity.
+We don't discuss this any further in the book.}.
+
+Once you understand the basic approach, it is easy to add new expressions with a
+precedence similar to another one (just add it as an alternative to the
+respective \ic{Level} rule) or to introduce a new precedence level (just
+interject a new \ic{Level} rule between two existing ones)\sidenote[][-20mm]{Note that
+the latter requires an invasive change to the grammar; this prevents the
+addition of operators with a precedence level \emph{between} existing precedence
+levels in a sub-language, whose definition cannot invasively change the language
+it extends.}.
 
 
 
@@ -2015,20 +2027,20 @@ surrounded by brackets, and an arrow (\ic{->}) in front of the target state. The
 editor for the actions \ic{StatementList} comes with its own set of curly
 braces. 
 
-\todo{Fix image}
 \begin{figure*}[ht]
 \fbox{
 \begin{minipage}{104.5mm}
-  \includegraphics[width=16cm]{figures-impl/2/mps-transeditor.png}
-  \caption[][-30mm]{The editor for transitions. Note how we embed the
+  \includegraphics[width=\columnwidth]{figures-impl/2/mps-transeditor.png}
+  \caption[][-20mm]{The editor for transitions. Note how we embed the
   guard condition expression simply by referring to the \icsn{guard} child
   relationship. We "inherit" the syntax for expressions from the
   \icsn{com.mbeddr.core.expressions} language.}
+  \vspace{-4mm}
   \label{Fig:mps-transeditor}  
 \end{minipage}
 } 
 \end{figure*}
-\noindent The \ic{\%targetState\% -> \{name\}} part is interesting; it expresses
+\noindent The \ic{\%targetState\% -> \{name\}} part expresses
 that in order to render the target state, the target's state's \ic{name} attribute
 should be shown. We could use any text string to refer to the target state\footnote{We could even use the symbol \icsn{X} to render \emph{all} target state references.
 The reference would still work, because the underlying data structure uses the
@@ -2057,8 +2069,6 @@ cannot be handled --- as long as the user is willing and able to make the
 decision which concept should be instantiated.
 
 
-\todo{Once tables work well in MPS: add a table projection to show off non
-textual notations}
 
 \begin{marginfigure}
   \includegraphics[width=3.5cm]{figures-impl/2/intention.png}
@@ -2351,4 +2361,3 @@ nesting of arbitrary other editors into tables.
 
 
 
-\todo{Do we want to have wrap-up for each chapter and compare things?}
