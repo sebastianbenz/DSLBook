@@ -76,33 +76,35 @@ code. However, this part is \emph{not} intended as a full tutorial for any of
 the three tools. However, You should get a solid understanding of what these
 tools --- and the classes of tools they stand for --- can do for you.
 
-\section{Why Free, and why no Publisher?}
+\section{Why no Publisher?}
 
-This book is available as a free PDF from \ic{http://voelter.de/dslbook} or
-as a printed version from Amazon: \todo{link} (which is not free, but sold at
-essentially zero margin).
+This book is available as a PDF\footnote{There is no Kindle version of the book
+because the layout/figures/code do not translate very well into the Kindle
+format. However, you can of course read PDFs on a Kindle. I tried using my Nexus
+7 tablet to read the book: if you use landscape format, it works reasonably
+well.} or as a printed version from Amazon: \todo{link}. I decided not to go
+with a publisher and sell the book at a very low price (almost free for the PDF,
+and as cheap as possible for the printed version).
 
 Here is some background on book writing and making money: unless you are really
-famous, you will get one or two euros for each copy sold. That is, if you go
-through a "real" publisher. So, if you don't sell books in the tens or hundreds
-of thousands of copies, the money you can get out of a book directly is really
-not relevant, considering the amount of work you put into the book. 
+famous and/or write a book on a mainstream topic, you will get one or two euros
+for each copy sold. That is, if you go through a "real" publisher. So, if you
+don't sell books in the tens or hundreds of thousands of copies, the money you
+can get out of a book directly is really not relevant, considering the amount of
+work you put into the book.
 
 Going through a publisher will also make the book more expensive for you as the
 reader, so fewer people will read it. I decided that it is more important for me
-to reach as many readers as possible. While publishers may help get the book
-advertised. However, in 2013 it seems to be more productive to use word of
-mouth, Twitter and blogs to spread the word. Most mainstream publishers are not
-too well connected to the DSL/MDSD community in the first place. So I hope that
-you (personally :-)) will help me spread word about the book.
+to reach as many readers as possible. Publishers may help get the book
+advertised, but in a niche community like DSLs I figure that word of
+mouth/blog/twitter is likely more useful. So I hope that you (personally :-))
+will help me spread word about the book.
 
-Finally, if you feel sorry for me not making any money with the book you can
-donate some money via Flattr or Paypal (links for both options are at
-\ic{http://voelter.de/dslbook}).
+Finally, if you think the book is too cheap, you can donate some money via
+Flattr or Paypal (links for both options are at
+\ic{http://voelter.de/dslbook}), or buy me a beer/dinner in case we meet one
+day :-).
 
-\todo{
-Book: why not kindle and why the layout 7' tablet landscape
-}
 
 \section{Feedback and Bugs}
 
@@ -280,9 +282,6 @@ at the Language Workbench Competition\marginnote{http://languageworkbenches.net}
 where a number of language workbenches (13 at the time of writing of this book)
 are illustrated by all implementing the same example DSLs. This provides a good
 way to compare the various tools.
-\todo{
-Disclaimer about meine Sicht auf die Tools am Anfang? in der Intro?
-}
 
 \section{Case Studies and Examples}
 
@@ -537,19 +536,9 @@ Intentional Domain Workbench.
 
 \FloatBarrier
 
-\todo{make this figure into two so I can use them below each other. There are
-also some broken refs to these figures in the text} 
-\begin{figure*}[h]
-\fbox{
-\begin{minipage}{104.5mm}
-  \includegraphics[width=17cm]{figures-intro/webdsl.jpg}
-\end{minipage}
-}
-  \caption[-5mm]{Example Code written in WebDSL. The code shows data
-  structures, utility functions, access control rules as well as a page
-  definition.}
-  \label{webdsl} 
-\end{figure*}
+
+
+
 
 \FloatBarrier
 
@@ -562,12 +551,32 @@ modeling (entity), user interface templates (define), access
 control\cite{GroenewegenV08}, data
 validation\cite{GroenewegenVisser-SOSYM-2011}, search, and more. The language
 enforces inter-concern consistency checking, providing early detection of
-failures\cite{HemelGKV11}. The fragment in \fig{webdsl} shows a data model, user
-interface templates, and access control rules for posts in a blogging
+failures\cite{HemelGKV11}. The fragments in \fig{webdsl1} and \fig{webdsl2}
+show a data model, user interface templates, and access control rules for posts in a blogging
 application. WebDSL is implemented with Spoofax and is used in the researchr
 digital library (\url{http://researchr.org}).
  \FloatBarrier
 
+\begin{figure*}[h]
+\fbox{
+\begin{minipage}{104.5mm}
+  \includegraphics[scale=0.4]{figures-intro/webdsl1.png}
+\end{minipage}
+}
+  \caption[-5mm]{Example Code written in WebDSL. The code shows data
+  structures and utility functions. }
+  \label{webdsl1} 
+\end{figure*}
+
+\begin{figure*}[h] \fbox{
+\begin{minipage}{104.5mm}
+  \includegraphics[scale=0.4]{figures-intro/webdsl2.png}
+\end{minipage}
+}
+  \caption[-5mm]{More WebDSL example code. This one shows access control rules as well as a page
+  definition.}
+  \label{webdsl2} 
+\end{figure*}
 
 
 
@@ -1442,9 +1451,6 @@ There ain't no such thing as a free lunch. This is also true for DSLs. Let us
 look at the price you have to pay to get all these nice benefits described
 above.
 
-\todo{Hudak's '96 paper has a wonderful graph showing the start-up costs (c1 and
-c2) of conventional / DSL approaches. I think his thoughts could usefully feed
-into this section.}
 
 \subsection{Effort of Building the DSLs}
 Before a DSL can be used, it has to be built. If it has been built already,
@@ -1745,7 +1751,6 @@ specific parameter values.
 
 \subsection{Internal vs. External DSLs}
 
-\todo{Add controlled natutral language here?}
 
 Internal DSLs are DSLs that are embedded into general-purpose languages.
 Usually, the host languages are dynamically typed and the implementation of the
@@ -1806,8 +1811,18 @@ constraint checking and IDE support. We cover this extensively in the book.
 
 \subsection{Compiler Construction}
 
-\todo{add some details and references here.}
-
+Languages definition, program validation and transformation or interpreters are
+obviously closely related to compiler construction. And many of the techniques
+that are traditionally associated with compiler construction are applicable to
+DSLs. However, there are also significant differences. The tools for building
+DSLs are more powerful and convenient and also include IDE
+definition\footnote{There are universitites who teach compiler construction
+based on language workbenches and DSLs.}, a concern not typically associated
+with compiler construction. Compilers also typically generate machine code,
+whereas DSLs typically transform to source code in a general-purpose language.
+Finally, a big part of building compilers is the implementation of optimizations
+(in the code generator or interpreter), a topic that is not as prominent in the
+context of DSLs.
 
 \subsection{UML}
 
