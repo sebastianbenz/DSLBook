@@ -675,6 +675,15 @@ see interpreters written in $L_{D_0}$. They may be extensible, so new
 interpreter code can be added in case specialized languages define new language
 concepts. 
 
+The abstraction level of an interpreter must be decided. One alternative might
+ignore for example the use of registers when performing an assignment, avoiding
+problems resulting from parallelism. Alternatively, the interpreter might model
+everything and thereby can address issues related to parallelism. In other
+words, an interpreter defines a virtual machine and it is fundamental that this
+virtual machine has an adequate abstraction level and/or the users are aware of
+exactly what it means for the execution of the program on the target hardware if
+the program runs on the virtual machine. 
+
 
 \subsection{Transformation vs. Interpretation} 
 

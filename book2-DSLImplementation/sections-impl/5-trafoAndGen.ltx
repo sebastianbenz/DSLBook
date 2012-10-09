@@ -35,7 +35,7 @@ for cases where the actions actually \emph{execute} the model. Execution refers
 to performing the actions that are associated with the language concepts as
 defined by the execution semantics of the concepts. We discuss interpretation in
 the next chapter\footnote{We elaborate on the trade-offs between transformation
-and generation vs. interpretation in the chapter on language design \todo{}.}.
+and generation vs. interpretation in the chapter on language design\todoref{}.}.
 Note that when developing transformations and code generators, special care must
 be taken to preserve or record trace information that can be used for error
 reporting and debugging. In both cases, we have to be able to go back from the 
@@ -478,7 +478,7 @@ class Transformation {
  
 }
 \end{lstlisting}
-
+ 
 \noindent The two \ic{create} methods create new objects, as the \ic{create}
 prefix suggests\footnote{The \icsn{factory} used in these methods is the way to
 create model elements in EMF. It is generated as part of the EMF code
@@ -585,8 +585,6 @@ class CoolingBuilder {
 
 \section{MPS Example}
 
-\todo{Do we want to discuss the builder lang extension?}
- 
 The distinction between code generators and model-to-model transformations is
 much less clear in MPS. While there is the specialized \ic{textgen} language for
 text generation, it is really just used "at the end" of the transformation chain
@@ -620,7 +618,6 @@ as for XML, or even for a particular schema).}.
 \end{figure}
 
 
-\noindent 
 DSLs and language extensions typically use model-to-model transformations to
 "generate" code expressed in a low level programming language. In general,
 writing transformations in MPS involves two ingredients. Templates define the
@@ -727,7 +724,7 @@ state machines to the various elements we mentioned above. Notice how the
 surrounding module remains unchanged, because no reduction rule is defined for
 it. 
 
-\todo{change figures to remove the med stuff}
+\todofig{change figures to remove the med stuff}
 \begin{figure}[ht]
 \begin{center}
   \includegraphics[width=\columnwidth]{figures-impl/5/mps-gen-phases.png}
@@ -759,7 +756,7 @@ interesting part of \fig{mps-sm-inspector1} is the body of the anonymous functio
 (\icsn{node.states;}), which is why in the future we will only show this part.}.
 For the literals of the events \ic{enum} we use a similar expression
 (\ic{node.events;}).
-\todo{above, the sidenote is somehow broken (-10)}
+
 
 \begin{figure}[ht]
 \fbox{
@@ -790,8 +787,6 @@ expression of the property macro (also entered in the inspector):
 \begin{lstlisting}[language=mps]
 node.cEnumLiteralName();
 \end{lstlisting}
-
-\todo{clean up I and we}
 
 \noindent In the code above, \ic{cEnumLiteralName} is a behavior method.
 Behavior methods are defined as part of the behavior aspect of the \ic{State}
@@ -859,7 +854,6 @@ convenient and works also for cross-model references, where mapping labelsdon't
 \end{figure}
 
 
-\noindent 
 Let us now address the second main template, \fig{mps-sm-gen-2}, which generates
 the execute function. Looking at the template fragment markers (\ic{<TF ...
 TF>}) reveals that we only generate the \ic{switch} statement with this
@@ -1018,8 +1012,57 @@ the \ic{enum} literal generated for this event. The macro code is straight forwa
 node.event.cEnumLiteralName();
 \end{lstlisting}
 
+Instead of using the template-based approach shown above, transformations can
+also be written manually against the MPS API. To do this, a \ic{mapping script}
+is called from the mapping configuration (instead of the mapping configuration
+containing rules). Such a mapping script can contain arbitrary BaseLanguage code
+that operates on the output model of the transformation. This is essentially
+similar to the implementation code for intentions or refactorings
+(\sect{impl-refa}); those also modify a model using the MPS Node API.
 
+As part of the mbeddr project, we have built a Builder extension to BaseLanguge.
+In the example below, we will build the following code:
 
+\begin{lstlisting}[language=mbeddr]
+module SomeModule imports nothing { 
+   
+  exported test case testCase1 {  }  
+   
+  exported int32 main(int32 argc, string*[] argv) { 
+  	return test testCase1; 
+  }  
+}
+\end{lstlisting}
+
+\noindent The code below builds the code above. Notice how by default we work
+with concepts directly (as when we mention \ic{StatementList} or
+\ic{ExecuteTestExpression}). However, we can also embed expression in the
+builder using the \ic{\#(..)} expression. Nodes created by the builder can be
+named \ic{tc:TestCase} so they can be used as a reference target later
+(\ic{testcase -> tc}).
+
+\begin{lstlisting}[language=mps]
+  node<ImplementationModule> immo = build ImplementationModule 
+    name = #(aNamePassedInFromAUserDialog) 
+    contents += tc:TestCase 
+    	name = "testCase1" 
+    	type = VoidType 
+    contents += #(MainFunctionHelper.createMainFunction())
+    	body = StatementList
+    	statements += ReturnStatement 
+    		expression = ExecuteTestExpression 
+      			tests += TestCaseRef 
+        			testcase -> tc 
+\end{lstlisting}
+
+\noindent Builders in MPS are a first-class extension to BaseLanguage, which
+means that the IDE can provide support. For example, if a concept has a
+mandatory child (e.g. the \ic{body} in a \ic{Function}), the IDE will report an
+error if no node is put into this child slot. Code completion can be provided as
+well\footnote{Also, users do not have to build the helper functions we have seen
+for Xtext/Xtend above. On the other hand, the MPS builder extension is specific
+to building MPS node trees, whereas the approach taken by Xtext/Xtend is
+generic, as long as users define the helper functions.}.
 
 
 \section{Spoofax Example}
@@ -1522,22 +1565,19 @@ environment is popped.
 interpreter framework that ships with the Xtext typesystem framework discussed earlier:
 http://code.google.com/a/eclipselabs.org/p/xtext-typesystem/} 
  
-This example describes an interpreter for the cooling language. It is used to
-allow DSL users to "play" with the cooling programs before or instead of
-generating C code. The interpreter can execute test cases (and report success or
-failure) as well as simulate the program interactively. Since no code generation
-and no real target hardware is involved, the turn-around time is much shorter
-and the required infrastructure is trivial --- just the IDE\footnote{ The
-abstraction level of such an interpreter must be decided. One alternative might
-ignore for example the use of registers when performing an assignment, avoiding
-problems resulting from parallelism. Alternatively, the interpreter might model
-everything and thereby can address issues related to parallelism. In other
-words, an interpreter defines a virtual machine and it is fundamental that this
-virtual machine has an adequate abstraction level and/or the users are aware of
-exactly what it means for the execution of the program on the target hardware if
-the program runs on the virtual machine.}. The execution engine, as the
-interpreter is called here, has to handle the following language aspects:
-\todo{I think the big footnote above should go into the design part.}
+This example describes an interpreter for the cooling language\footnote{The
+interpreter in this section is built with Java because this is how we did it in
+the actual project. Instead, since the interpreter just operates on the EMF API,
+it can be written with any JVM language. In particular, Xtend would be well
+suited because of support for functional programming and more generally more
+concise syntax, especially regarding working with EMF abstract syntax trees.
+}. It is used to allow DSL users to "play" with the cooling programs before or
+instead of generating C code. The interpreter can execute test cases (and report
+success or failure) as well as simulate the program interactively. Since no code
+generation and no real target hardware is involved, the turn-around time is much
+shorter and the required infrastructure is trivial --- just the IDE. The
+execution engine, as the interpreter is called here, has to handle the following
+language aspects:
 
 \begin{itemize}
 
@@ -2002,8 +2042,7 @@ private void executeAsyncStuff(LogEntry logger) {
 \end{lstlisting}
 
 
-\todo{Talk a little bit about Xtend for building interpeters using
-extension methods and the cool switch statement}
+
 
 
 
@@ -2051,12 +2090,73 @@ that contains the interpreter, making the \ic{dispatch} statement available
 there\footnote{We discuss language modularization and composition is
 \todoref{}.}. Also, the \ic{\$} expression is restricted to only be usable on
 the right side of the \ic{->}. This way the overall base language namespace is kept
-clean.
-
+clean\footnote{Xbase/Xtend comes with a similar "pimped" \icsn{switch}
+statement directly. It supports switching over integer and enum literals (as
+Java's \icsn{switch} does), but it also supports switching over types plus
+arbitrary boolean guard conditions. This makes it very suitable for building
+interpreters, since, as we have seen, an interpreter typically dispatches its
+behavior based on the metaclass of the node it processes, plus optionally some
+of its context or children (which can be expressed with a guard
+condition in Xtend's \icsn{switch}.)}.
+ 
 Since MPS is a projectional editor, it can show things in the editor that are
 read-only. For example, the result of an interpreter run can be integrated
-directly into the editor. \todo{Show the insurance example thingy, and also
-show how it is actually called.}
+directly into the editor. In \fig{mpsInsurance}, the bottom table contains
+test cases for the \ic{calculate} rule. Users enter a number for
+\ic{squareMeters}, \ic{numberOfRooms} and the expected result, and in the last
+column, the editor shows the actual result of the computation (colored red or
+green depending on whether the actual result matches the expected result). 
+
+\begin{figure}[ht]
+\fbox{
+\begin{minipage}{105mm}
+  \includegraphics[width=\columnwidth]{figures-impl/5/mpsInsurance.png}
+\end{minipage}
+}
+  \caption{This screenshot shows an mbeddr-based demo application where
+  users can specify insurance rules. The system includes an interpreter that
+  executes the test cases directly in the IDE.}
+  \label{mpsInsurance} 
+\end{figure}
+
+\noindent The interpreter is integrated via the \ic{evaluate} button\footnote{In MPS, an
+editor can embed Swing components, and these Swing components can react to
+their own events and modify the model in arbitrary ways.}. Its action listener
+triggers the computation:
+
+\begin{lstlisting}[language=java, morekeywords={component, provider}]
+component provider: (editorContext, node)->JComponent { 
+  JButton evalButton = new JButton("evaluate"); 
+  final node<ProductTestSuite> suite = node; 
+  evalButton.addActionListener(new ActionListener() { 
+    public void actionPerformed(ActionEvent p0) { 
+      command { 
+        foreach tc in suite.cases { 
+          float result = new RateCalculator(tc).calculate(
+                suite.ancestor<concept = ProductType, +>.rateCalculation); 
+          tc.actualResult.value = result + ""; 
+        } 
+      } 
+    } 
+  }); 
+  return evalButton; 
+}
+\end{lstlisting}
+
+\noindent The coloring of the cells (and making them read-only) is done via
+query-based formatting:
+
+\begin{lstlisting}[language=mps, morekeywords={style}, deletekeywords={concept}]
+style {                                                                                                            
+  editable : false                                                                                                           
+  background-color : (node, editorContext)->Color { 
+                        node.ancestor<concept = TestCase>.isOK() 
+                               ? Color.GREEN : Color.RED; 
+                     }
+}                                                                                                                            
+\end{lstlisting}
+
+ 
 
 
 \section{An Interpreter in Spoofax}
@@ -2264,6 +2364,6 @@ interpreter. When we define a concrete syntax for these states, they can be
 shown in an editor. The transition transformation can then be integrated as a
 refactoring on states, changing the current state to the next one. This way, the
 user can control the execution, undo steps, or even modify the current state.
-\todo{This last paragraph, and especially the last part of it hints at how to
+\guido{This last paragraph, and especially the last part of it hints at how to
 build a debugger, right? So maybe we can discuss some of this in the debugging
-chapter.}
+chapter. So how is the state of the debugger chapter on Spoofax?}
