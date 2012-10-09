@@ -72,8 +72,13 @@ public class CoolingLanguageProposalProvider
 \end{lstlisting}
 
 \noindent 
-Let us now look at the actual implementation of the method. In line three we get
-the scope for the particular reference so we can iterate over all the elements
+Let us now look at the actual implementation of the method\footnote{The
+\icsn{complete...} methods can be used to put essentially and (styled) string
+into the code completion menu. In particular, this also works for containment references or primitive properties and not just for references (which are
+affected by scopes). Also, for the the particular example above, we could have
+overridden the \icsn{getStyledDisplayString} method instead, whose task it is to
+provide the textual representation for contents of the scope. }. In line
+three we get the scope for the particular reference so we can iterate over all the elements
 and change their appearance in the code completion menu. To be able to get the
 scope, we need the \ic{EReference} for the particular reference. The first two
 lines in this method are used to this end.
@@ -90,11 +95,6 @@ for (IEObjectDescription od: candidates) {
 }
 \end{lstlisting}
 
-\todo{What this snippet does would usually be implemened in
-'getStyledDisplayString' where the Eclass name would even be styled according 
-to Eclipse style guides. Furthermore it bypasses important concepts such as 
-the value conversion for the insertion string. Also look at the MPS text below
-which emphasizes "brevity" over Xtext.}
 
 \noindent 
 Once we have the scope we can iterate over all its contents (i.e.~the target
@@ -1594,10 +1594,18 @@ user hovers the mouse over a program element. A hover may show the documentation
 of the target element, or, when hovering over a reference, some information
 about the referenced element. 
 
-\parhead{Xtext} While Xtext does not support tooltips directly, the tooltip
-framework provided by JFace can be used.
-\todo{Is this still true? Add a bit more integration on how to integrate them.}
+\parhead{Xtext} In Xtext, hovers/tooltips can be customized to various extents.
+The simplest customization retains the default hover structure (a one-line
+summary plus a more extensive documentation) and just changes the respective
+texts. 
 
+To change the one-line summary, you override the \ic{getFirstLine} method in 
+\ic{DefaultEObjectHoverProvider} and return a custom string. The program element
+for which the hover should be created is represented by the \ic{EObject} passed
+into the method. To customize the documentation, you override
+\ic{getDocumentation} in \ic{IEObjectDocumentationProvider}\footnote{And just
+like in any other case of Xtext framework configuration, you have to register
+the two classes in the UI module.}.
 
 \parhead{Spoofax} Spoofax supports tooltips directly. Tooltips are provided by
 rewrite rules, which need to be defined as hovers in the editor specification,
