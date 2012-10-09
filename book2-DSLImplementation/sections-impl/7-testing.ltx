@@ -156,7 +156,7 @@ test add and add [[1 + 2 + 3]] parse to [[(1 + 2) + 3]]
 
 \noindent A test suite can be run from the \emph{Transform} menu. This will open
 the \emph{Spoofax Test Runner View} which provides information about failing and
-succeeding test cases in a test suite \todo{@Guido Screenshot?}. Additionally,
+succeeding test cases in a test suite \guido{Screenshot?}. Additionally,
 we can also get instant feedback while editing a test suite. Tests can also be
 evaluated outside the IDE, for example as part of a continuous integration
 setup.
@@ -719,8 +719,6 @@ particular message\sidenote[][-10mm]{This process is based on the unique node
 ID; this is the long number that follows the \icsn{\#} in the message text.}.
 You can then click on the node to select it in the editor 
 
-\todo{Check for empty captions and provide text}
-
 
 \begin{figure}[h]
 \begin{center}
@@ -877,11 +875,6 @@ is how it works in principle:
   try again}.
 \end{itemize}
 
-\todo{Laurie: in reality, only a subset of problems are model-checkable. State
-ex- plosion is a massive, intractable, prob- lem. The tricks do make some 
-cases work, but many more simply don’t work, requiring more RAM than there 
-are atoms in the universe!}
-
 \noindent Conceptually, the model checker performs an exhaustive search during
 the verification process. Obviously, the more complex your state machine is, the
 more possibilities the checker has to address, a problem known as state space
@@ -893,7 +886,12 @@ example, \emph{bounded} model checking searches for counterexamples only for a
 bounded set of execution step. If not counterexample is found within the bound,
 the model checker assumes (rightly on not) that the property holds.}. This makes
 model checking scalable and fast enough for real-world problems, although there
-is still a limit in terms of input model complexity.
+is still a limit in terms of input model complexity\footnote{Sometimes input
+models have to be reformulated in a way that makes them better suited for
+model checking. All in all, model checking is not a trivial technique.
+However, if and when it is better integrated with the development tools (as
+we show here), it could be used in many places where today it isn't even
+considered.}.
 
 The interesting aspect of model checking is that the properties you specify are
 not just simple Boolean expressions such as \emph{each state must have at least
@@ -985,7 +983,11 @@ transition). State machines restricted this way are easier to model check.}.
 \begin{figure}[ht]
 \begin{center}
   \includegraphics[width=\columnwidth]{figures-impl/7/verification1.png}
-  \caption[]{}
+  \caption[][30mm]{The result of running the model checker on a
+  \icsn{verifiable} state machine is directly shown in the IDE, listing each property in a table.
+  In case a property fails, the lower part of the result view shows an
+  example execution of the state machine (states and local variable values) that
+  leads to the property being violated.}
   \label{verification1} 
 \end{center} 
 \end{figure}
@@ -1100,7 +1102,7 @@ table essentially represents nested \ic{if} statements: the result value of the
 table is that content cell whose row and column header are \ic{true}.
 \fig{dectabexample} shows an example.
 
-\todo{Remove the yellow "selected line" background if it is still in}
+\todofig{Remove the yellow "selected line" background if it is still in}
 \begin{figure}[ht]
 \fbox{
 \begin{minipage}{105mm}
@@ -1336,9 +1338,6 @@ problem for expectations with a more complex syntactic structure. }.
 
 
 
-
-\todo{Xtext CompilationTestHelper http://www.rcp-vision.com/?p=4089&amp;lang=en}
-\todo{http://christiandietrich.wordpress.com/2012/05/08/unittesting-xtend-generators/}
 
 
 \section{Testing for language appropriateness}
