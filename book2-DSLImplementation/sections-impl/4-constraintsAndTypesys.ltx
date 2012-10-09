@@ -618,12 +618,6 @@ is-ordered-namespace:
 More sophisticated constraints and error messages can be specified using a type
 system, as we show in the next chapter.
 
-\todo{ am missing again a comparison between the three approaches 
-a more general question: who should be the readers of these chapters? is the 
-information enough for starting using a tool (xtext, spoofax, MPS)? or to 
-choose among tools? or to build new tools? how will the reader benefit from 
-the description of the three tools? 
-how should the book be read? (if I'm a MPS guy, I'll read only the MPS stuff?)}
 
 
 \chapter{Type Systems}
@@ -863,7 +857,7 @@ typeof( LocalVarDecl lvd ) {
 
 \subsection{Unification}
 
-Unification is the second well-known approach to type calculation. Once again we
+Unification is the second well-known approach to type calculation. Let's 
 start with a definition from Wikipedia:
 
 \begin{quote}
@@ -887,13 +881,20 @@ algebra. Here is an example:
 solution for this set of equations is \ic{x := 5, y := 10}. 
 
 Using unification for type systems means that language developers specify a
-number of type equations which contain type variables (cf the \ic{x} and \ic{y})
-as well as type values (the numbers in the above example). Some kind of engine
+number of type equations which contain type variables (cf. the \ic{x} and
+\ic{y}) as well as type values (the numbers in the above example). Some kind of engine
 is then trying to make all equations \ic{true} by assigning type values to the
 type variables in the type equations. The interesting property of this approach
 is that there is no distinction between typing rules and type checks. We simply
-specify a set of equations that must be \ic{true} for the types to be valid. If
-an equation cannot be satisfied for any assignment of type values to type
+specify a set of equations that must be \ic{true} for the types to be
+valid\footnote{Consequently they can be evaluated "in both ways". They can be
+used for type checking, but they can also be used to compute "missing" types,
+i.e. support type inference. MPS (which uses this apprach) also exploits this
+declarative nature of typing rules by supporting type-aware code completion
+(\ic{Ctrl-Shift-Space}), where MPS computes the required type from the current
+context and then only shows code completion menu entries that fit the context
+regarding their type (and not just based on the structure).}.
+If an equation cannot be satisfied for any assignment of type values to type
 variables, a type error is detected. To illustrate this, we return to the
 \ic{LocalVarDecl} example introduced above.
  
@@ -923,8 +924,6 @@ equation is ignored. The second equation can be satisfied by assigning \ic{T}, t
 type of the variable declaration, to be \ic{int}. The second equations acts as a type
 derivation rule and defines the type of the overall \ic{LocalVarDecl}
 to be \ic{int}.
-
-\todo{Check the direction of the arrow and the ordering of the equations.}
 
 \begin{lstlisting}[language=mps]
 // var i: int          
@@ -1270,8 +1269,6 @@ of Java code.}.
 
 
 \section{MPS Example}
-
-\todo{Is this too detailed?}
 
 MPS includes a DSL for type system rule definition. It is based on
 unification, and pattern matching for binary operators. 
