@@ -200,23 +200,7 @@ For example, a C compiler's include path or Java's classpath are ways of definin
 the scope within which the overall system description must be complete. This
 does not necessarily have to be done by each developer who, for example, works
 on the business data. But at the point when the final system is generated or
-built, such a "world definition" is essential. \marginnote{In some cases the
-rules for establishing consistency between viewpoints can be described formally,
-and hence the synchronization could be automated. MPS has a nice way of
-automatically executing a quick fix for a constraint violation. If the
-constraint detects an inconsistency between viewpoints, the quick fix can
-automatically correct the problem. This solves the \emph{whole world} problem
-neatly, since every dependent fragment is "corrected" as soon as it is opened in
-the editor.}
-
-
-\embc{Components implement interfaces. Each component provides an implementation
-for each method defined in each of the interfaces it implements. If a new method
-is added to an interface, all components that implement that particular
-interface must get a new, empty method implementation. This is an example of
-model synchronization.}
-
-
+built, such a "world definition" is essential. 
 \subsection{Cross-Cutting Concerns}
 
 In the discussion so far we have considered concerns that can be modularized
@@ -362,8 +346,7 @@ models in each phase (\fig{progressiveRefinement}). The references between model
 elements are called traces\cite{JirapanthongZ05}. Since the same conceptual
 elements may be represented on different refinement levels (e.g.,~component
 design and component implementation), synchronization between the viewpoint
-models is often required (enabled via techniques described in\cite{DiskinXC10,
-Stevens10}).
+models is often required (see next subsection).
 
 
 \begin{figure}[h]
@@ -376,3 +359,86 @@ Stevens10}).
   \label{progressiveRefinement}
 \end{center}
 \end{figure}
+
+
+
+\subsection{Model Synchronization}
+
+In the discussion of viewpoints so far we have assumed that there is no overlap
+between the viewpoints: every piece of information lives in exactly on
+viewpoint. Relationships between viewpoints are established by references
+(which means that the Referencing language composition technique can be used,
+as discussed in \todoref{}). However, sometimes this is not the case, and the
+same (conceptual) information is represented in two viewpoint models. Obviously
+there is a constraint that enforces consistency between the viewpoints; the
+models have to be synchronized\footnote{Thanks to the participants of the
+MoDELS 2012 workshop on Multi-Paradigm Modeling who, by discussing this issue,
+reminded me that it is missing from the book.}.
+
+In some cases the rules for establishing consistency between viewpoints can be
+described formally, and hence the synchronization can be automated, if the DSL
+tool supports such synchronization\footnote{MPS has a nice way of
+automatically executing a quick fix for a constraint violation. If the
+constraint detects an inconsistency between viewpoints, the quick fix can
+automatically correct the problem. This also solves the \emph{whole world}
+problem neatly, since every dependent fragment is "corrected" as soon as it is
+opened in the editor.}. An example occurs in mbeddr C:
+
+
+\embc{Components implement interfaces. Each component provides an implementation
+for each method defined in each of the interfaces it implements. If a new method
+is added to an interface, all components that implement that particular
+interface must get a new, empty method implementation. This is an example of
+model synchronization.}
+
+\noindent In this example the synchronization is trivial, for two reasons:
+first, there is a clear (unidirectional) dependency between the method implementation and the
+operation specification in the interface, so the synchronization is also
+unidirectional. Second, the information represented in both models/places is
+identical, so it is easy to detect an inconsistency and fix it. However, there
+are several more complicated cases:
+
+\begin{itemize}
+  \item The dependency might be bidirectional, and changes may be allowed in
+  either model. This means that two transformations have to be written, one for
+  each direction, or a formalism for expressing the transformation has to be
+  used that can be executed in both directions\footnote{The QVT-R
+  transformation language has this capability, for example.}. In multi-user
+  scenarios it is also possible that the two models are changed at the same
+  time, in an inconsistent way. In this case the changes have to be merged, or a
+  clear priority (who will win) has to be established.
+
+  \item The languages expressing the viewpoints may have been defined
+  independent of each other, with \emph{no dependency}. This probably means that
+  it was discovered only \emph{after the fact} that some parts of the model have
+  to be synchronized. In this case the synchronization must be put into some
+  kind of adapter language. It also means that the synchronization is not as
+  clean as if it had been "designed into" the languages (see next item).
+
+  \item In the mbeddr example, the information (the signature of the operation)
+  was simply replicated, so the transformation was trivial. However, there may
+  not be a 1:1 correspondence between the information in the two viewpoints.
+  This makes the transformation more complex to write. In the worst case it may
+  mean that the synchronization cannot be formally described and automated.
+  
+\end{itemize}
+
+\noindent
+Sometimes the correspondence between models can only be expressed on an instance
+level (as in "this functional block corresponds to this software
+component")\footnote{This often happens in the context of Progressive
+Refinement, as discussed in the previous subsection.}. Consequently, developers
+have to manually express the correspondence (the trace links mentioned earlier).
+However, consistency checks (and possibly automatic synchronization) may still
+be possible, based on the manually expressed trace links.
+
+
+In my work with DSLs I have only encountered the simplest cases of
+synchronization, which is why we don't put much emphasis on this topic in the
+rest of the book. For more details see the papers by Diskin\cite{DiskinXC10} and
+Stevens\cite{Stevens10}.
+
+
+
+
+
