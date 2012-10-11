@@ -410,7 +410,10 @@ unambiguous grammars in linear time and gracefully cope with ambiguities with
 cubic ($O(n^3)$) time in the worst case. Spoofax is an example of a language
 workbench that uses GLR parsing.
 \guido{s O(n^3) really efficient? Is there a space / time tradeoff as there is
-usually with optimizations in one or the other direction.}
+usually with optimizations in one or the other direction.
+
+Relativieren, paper zu error recovery
+}
 
 
 \parhead{Ambiguity} Grammars can be \emph{ambiguous} meaning that at least one
@@ -1685,10 +1688,6 @@ lexical syntax
   \label{Fig:mobl-grammar-basic} 
 \end{center}
 \end{figure}
-\guido{
-This is a missunderstanding: It is a separated list, as discussed for identifiers in the explanation before.
-
-{Param ","}* looks wrong -> last parameter should not be followed by ","}
 
 \parhead{Lexical syntax} As Spoofax uses a scannerless parser, all lexical
 syntax can be customized in the SDF grammar. 

@@ -1193,7 +1193,7 @@ This turns a string into a list of characters (\ic{explode-string}), upper-cases
 The strategies used here are part of Stratego's standard library.
 While \ic{explode-string} and \ic{implode-string} are the only way to turn strings into a list of characters and vice-versa, we can use predefined as well as user-defined strategies to manipulate the characters.
 
-\guido{Should we leave a reference to the library? \url{http://releases.strategoxt.org/docs/api/libstratego-lib/stable/docs/}}
+\guido{ok: Should we leave a reference to the library? \url{http://releases.strategoxt.org/docs/api/libstratego-lib/stable/docs/}}
 
 \parhead{Editor Integration} To integrate the code generation into our editor,
 we first have to define the following rewrite rule:
@@ -1222,10 +1222,6 @@ Once we have defined this rule, we can register it as a \ic{builder} in
 \begin{lstlisting}[morekeywords={builder, generate, java, openeditor, realtime}]
 builder: "Generate Java code (for selection)" = generate-java (openeditor) (realtime)
 \end{lstlisting}
-
-\guido{text before or text after comment?
-
-for somebody that does not know spoofax, this is too detailed}
 
 \noindent 
 This defines a label for our transformation, which is added to the editor's
@@ -2360,6 +2356,6 @@ interpreter. When we define a concrete syntax for these states, they can be
 shown in an editor. The transition transformation can then be integrated as a
 refactoring on states, changing the current state to the next one. This way, the
 user can control the execution, undo steps, or even modify the current state.
-\guido{This last paragraph, and especially the last part of it hints at how to
+\guido{Referenz, This last paragraph, and especially the last part of it hints at how to
 build a debugger, right? So maybe we can discuss some of this in the debugging
 chapter. So how is the state of the debugger chapter on Spoofax?}
