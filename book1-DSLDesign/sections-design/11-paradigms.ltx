@@ -393,6 +393,30 @@ integrated with C, C expression can be used for pre- and post-conditions of
 interface operations (see \fig{ppc}).}
 
 
+
+Using an established behavioral paradigm for a DSL has several
+advantages\footnote{Which is why we discuss these paradigms in this book.}.
+First, it is not necessarily simple to define consistent and correct semantics
+in the first place. By reusing an existing paradigm, one can learn about
+advantages and drawbacks from existing experience. Second, a paradigm may
+already come with existing means for performing interesting analyses (as in
+model checking \todoref{} or SMT solving \todoref{}) that can easily be used to
+analyse DSL programs. Third, there may be existing generators from a behavioral
+paradigm to an efficient executable for a given platform (state machines are a
+prime candidate). By generating a model in a formalism for which such a
+generator exists, we reduce the effort for building an end-to-end generator.
+If our DSL uses the same behavioral paradigm as the language for which the
+genertor exists, writing the necessary transformation is straight forward (from
+a semantic point of view).
+
+The last point emphasizes that using an existing paradigm for a DSL (e.g.
+state-based) does not mean that the concepts have to directly use the
+abstractions used by that paradigm (just because a program is state-based, does
+not mean that the concept that acts as a state has to be called state, etc.). 
+
+
+
+
 \marginnote{This is only an overview over a few paradigms; many more
 exist. I refer to the excellent Wikipedia entry on \emph{Programming Paradigms} and to
 the book\cite{RoyH2004}}
@@ -726,6 +750,18 @@ machines can be model checked efficiently.
  
 \section{Combinations}
 
+The behavioral paradigm also plays a role in the context of language
+composition. If two to-be-composed languages use different behavioral paradigms,
+the composition can become really challenging. For example, combining a
+coninuous system (which works with continuous streams of data) with a
+discrete event-based system requires temporal integration. We won't discuss this
+topic in detail in this book\footnote{It is still very much a research topic}.
+However, it is obvious that combining systems that use the same paradigm is much
+simpler. Alternatively, some paradigms can be integrated relatively easily; for
+example, it is relatively simple to map a state-based system onto an imperative
+system.
+
+
 Many DSLs use combinations of various behavioral and structural paradigms
 described in this section\footnote{Note how this observation leads to the
 desire to better modularize and reuse some of the above paradigms. Room for
@@ -784,15 +820,11 @@ base program: new transitions can be added, and the existing transitions can be
 overridden as a way for an extended program to "plug into" the base program.}
 
 
-\section{Semantic Integration}
 
-\todo{
-Introduce the notion of Model Of Computation into the multi-step transformations
-don't trafo to Java, trafo to SM etc. for which you already have a
-trafo to Java.
-Semtnic integration by mapping diff DSLs to the same (or known
-composable models of computation)
-}
+
+
+\todo{Discuss the challenge of sem interop if diff paradigms are used. Time is
+particularly problematic.}
 
 
 

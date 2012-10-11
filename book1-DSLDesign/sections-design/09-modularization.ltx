@@ -15,13 +15,28 @@ language designers and implementers striving for consistency and avoidance of
 duplicate implementation work.}
 
 
-We have identified the following four composition strategies: referencing,
-extension, reuse and embedding. We distinguish them regarding fragment structure
-and language dependencies, as illustrated in \fig{quadrants}. \fig{fragAndLang}
-shows the relationships between fragments and languages in these
-cases\sidenote[][-3\baselineskip]{Note how in both cases the language
-definitions are modular: \emph{invasive} modification of a language definition
-is not something we consider language modularity!}.
+Language composition requires the composition of abstract syntax, concrete
+syntax, constraints/type systems and the execution semantics\footnote{It
+requires the composition of the IDE as well. However, with the language
+workbenches used in this book, this is \emph{mostly} automatic.}. We discuss all
+of these aspect in this section. However, in the discussion of semantic
+integration, we consider only the case where the composed used the same (or
+closely related) behavioral paradigms\footnote{The behavioral paradigm is also
+known as the Model of Computation.}, since, otherwise the composition can become
+very challenging. We mostly focus on imperative programs. We discuss behavioral
+paradigms in more detail in \todoref{}.
+
+
+
+
+\parhead{Composition Techniques} We have identified the following four
+composition strategies: referencing, extension, reuse and embedding. We
+distinguish them regarding fragment structure and language dependencies, as
+illustrated in \fig{quadrants}. \fig{fragAndLang} shows the relationships
+between fragments and languages in these cases\sidenote[][-3\baselineskip]{Note
+how in both cases the language definitions are modular: \emph{invasive}
+modification of a language definition is not something we consider language
+modularity!}.
 
 
 \begin{figure}[h]

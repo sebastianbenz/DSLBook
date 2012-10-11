@@ -1,12 +1,5 @@
 \FloatBarrier
 
-\todo{
-Introduce the notion of Model Of Computation into the multi-step transformations
-don't trafo to Java, trafo to SM etc. for which you already have a
-trafo to Java.
-Semtnic integration by mapping diff DSLs to the same (or known
-composable models of computation)
-}
 
 \section{Semantics and Execution}
 \label{semantics}
@@ -158,14 +151,14 @@ alternative design would simply infer the fact that a rule overrides another
 one if they have the same name and signature.}
 
 \noindent Note how in all three cases the constraint checking is done in two
-steps.
-First we declare an \emph{intent} (variable is intended to be \ic{int}, this state machine
-is intended to be verifiable, a rule is intended to override another one). We
-then \emph{check} if the program conforms to this intention. The alternative
-approach would infer the fact from the program (the variable's type is whatever
-the expression's type evaluates to, state machines are verifiable if the
-"forbidden" features aren't used, rules override another one if they have the
-same name and signature) \emph{without} any explicitly specified intent.
+steps. First we declare an \emph{intent} (variable is intended to be \ic{int},
+this state machine is intended to be verifiable, a rule is intended to override
+another one). We then \emph{check} if the program conforms to this intention.
+The alternative approach would infer the fact from the program (the variable's
+type is whatever the expression's type evaluates to, state machines are
+verifiable if the "forbidden" features aren't used, rules override another one
+if they have the same name and signature) \emph{without} any explicitly
+specified intent.
 
 When designing constraints and type systems, a decision has to be made regarding
 when to use which approach. Here are some trade-offs. The
