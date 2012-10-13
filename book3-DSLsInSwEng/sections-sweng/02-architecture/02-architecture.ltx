@@ -538,7 +538,7 @@ architecture in a clear and unambiguous way.
 \paragraph{Component Implementation} By default, architecture DSLs are
 incomplete, component implementation code is written manually against the
 generated API code, using well-known composition techniques such as inheritance,
-delegation or partial classes (cf. \todoref{}).
+delegation or partial classes.
 
 However, there are other alternatives for component implementation that do not
 use a GPL, but instead use formalisms that are specific to certain classes of
@@ -660,7 +660,7 @@ application domain DSL has to act as the "implementor" of the components (or
 whatever other architectural abstractions are defined in the architecture DSL).
 The code generated from the business logic DSL must fit into the code skeletons
 generated from the architecture DSL. The code composition techniques discussed
-for incomplete DSLs in \todoref{} can be used here.
+for incomplete DSLs in \sect{incompcomp} can be used here.
 
 
 \sect{Component Models}
@@ -699,15 +699,15 @@ you a head start when defining your own component architecture.
 \subsection{Three Typical Viewpoints}
 
 It is useful to look at a component-based system from several viewpoints
-(\todoref{}). Three viewpoints form the backbone of the description. The
-\emph{Type} viewpoint describes component types, interfaces, and data
-structures\footnote{Referring back to the terminology introduced in \todoref{},
-this viewpoint is \emph{independent}. It is also \emph{sufficient} for
-generating all the code that is needed for developers to implement the
-application logic.}. A component provides a number of interfaces and references
-a number of required interfaces. An interface owns a number of operations, each
-with a return type, parameters, and exceptions. \fig{viewpoints_type} shows
-this.
+(\sect{sec:viewpoints}). Three viewpoints form the backbone of the description.
+The \emph{Type} viewpoint describes component types, interfaces, and data
+structures\footnote{Referring back to the terminology introduced in
+\sect{structureofprograms}, this viewpoint is \emph{independent}. It is also
+\emph{sufficient} for generating all the code that is needed for developers to
+implement the application logic.}. A component provides a number of interfaces
+and references a number of required interfaces. An interface owns a number of
+operations, each with a return type, parameters, and exceptions.
+\fig{viewpoints_type} shows this.
 
 \begin{figure}[h!]
 \begin{center}
