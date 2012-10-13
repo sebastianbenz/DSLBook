@@ -13,7 +13,7 @@ typically distinguish between two different cases: if models are transformed
 into other models we call this \emph{model transformation}. If models are
 transformed into text (usually programming language source code, XML or other
 configuration files) we refer to \emph{code generation}\footnote{As we discuss
-in Part I \todoref{}, we do not cover generation of byte code or machine code.
+in Part I, we do not cover generation of byte code or machine code.
 This is mainly for the following reason: by generating source code of a GPL, we
 can reuse this GPL's compiler or interpreter, including all its optimizations
 (or platform independence). We'd have to rebuild these optimizations in the
@@ -35,7 +35,7 @@ for cases where the actions actually \emph{execute} the model. Execution refers
 to performing the actions that are associated with the language concepts as
 defined by the execution semantics of the concepts. We discuss interpretation in
 the next chapter\footnote{We elaborate on the trade-offs between transformation
-and generation vs. interpretation in the chapter on language design\todoref{}.}.
+and generation vs. interpretation in the respective chapter on language design(\sect{genvsinter}).}.
 Note that when developing transformations and code generators, special care must
 be taken to preserve or record trace information that can be used for error
 reporting and debugging. In both cases, we have to be able to go back from the 
@@ -434,8 +434,8 @@ the original one, and we store it in the \ic{transformedProgram} variable.
 The code generator then uses the \ic{transformedProgram} as the source from
 which it generates code. In effect, we have added a "preprocessor"
 model-to-model transformation to the generator. As discussed in the design
-section \todoref{}, this is one of the most common uses of model-to-model
-transformations.
+section (\sect{semantics}), this is one of the most common uses of
+model-to-model transformations.
 
 The \ic{transform} function (described below) enriches the existing model. It
 creates a new state (\ic{EMERGENCY\_STOP}), creates a new event

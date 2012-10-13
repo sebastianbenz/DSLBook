@@ -11,10 +11,9 @@ language structure and syntax with our three example tools.}
 
 \noindent The \emph{concrete syntax} (CS) of a language is what the user
 interacts with to create programs. It may be textual, graphical, tabular or any
-combination thereof. In this book we focus mostly on textual concrete syntaxes
-for reasons described in \todoref{reference to the respective place in the
-introduction}. Examples of other forms are briefly discussed \todoref{}. We
-refer to other forms where appropriate.
+combination thereof. In this book we focus mostly on textual concrete syntaxes,
+examples of other forms are briefly discussed \sect{concretesyntax}. We refer to
+other forms where appropriate.
   
 The \emph{abstract syntax} (AS) of a language is a data structure that
 holds the core information in a program, but without any of the notational
@@ -633,6 +632,7 @@ lexers}
 
 
 \section{Fundamentals of Projectional Editing} 
+\label{projed}
 
 In parser-based approaches, users use text editors to enter character sequences
 that represent programs. A parser then checks the program for syntactic
@@ -813,11 +813,10 @@ pleasant working environment.
 
 \subsection{Language Modularity}
 
-As we have seen in \todoref{ref to the respective design chapter}, language
+As we have seen in \sect{sec:extAndComp}, language
 modularization and composition is an important building block in working with
 DSLs. Parser-based and projectional editors come with different trade-offs in
-this respect. Notice that is this section we only consider syntax issues ---
-semantics has been covered in \todoref{the respective section in DSL design}.
+this respect. 
 
 In parser-based systems it depends on the grammar class supported by the tool
 whether composition can be supported well. As we have said above, the problem is
@@ -861,7 +860,7 @@ can be used in the programs. However, character layout is always ignored. For
 example it is not possible to use parsers to handle tabular notations, fraction
 bars or even graphics\footnote{There have been experimental parsers for
 two-dimensional structures such as tables and even for graphical shapes, but
-these have never made it beyond the experimental stage. Also, it is possibleto approximate tables by using vertical bars and hyphens to some extent.\todoref{JNario chapter} }.
+these have never made it beyond the experimental stage. Also, it is possibleto approximate tables by using vertical bars and hyphens to some extent. JNario,described in \sect{jnario}, uses this approach.}.
 
 \begin{marginfigure}
   \includegraphics[width=7cm]{figures-impl/2/dectabincomp.png}
@@ -1165,11 +1164,11 @@ and from Ecore have been written.}.
 \section{Xtext Example}
 \label{Sec:xtext-syntax}
 
-Cooling programs\footnote{This and the other examples refer back to the case
-studies introduced at the beginning of the book in section \todoref{}} represent
-the behavioral aspect of the refrigerator descriptions. Here is a trivial
-program that can be used to illustrate some of the features of the language. The
-program is basically a state machine.
+Cooling programs\footnote{This and the other examples in this section refer back
+to the case studies introduced at the beginning of the book in section
+\sect{casestudies}.} represent the behavioral aspect of the refrigerator
+descriptions. Here is a trivial program that can be used to illustrate some of
+the features of the language. The program is basically a state machine.
 
 \begin{lstlisting}[language=cooling] 
 cooling program HelloWorld uses stdlib {
@@ -1562,8 +1561,8 @@ it extends.}.
 
 Mobl's \footnote{Mobl is a DSL for defining applications for mobile devices. It
 is based on HTML 5 and is closely related to WebDSL, which has been introduced
-earlier\todoref{}.} data modeling language provides entities, properties and
-functions. To illustrate the language, below are two data type definitions
+earlier (\sect{casestudies}).} data modeling language provides entities,
+properties and functions. To illustrate the language, below are two data type definitions
 related to a shopping list app. It supports lists of items that can be
 favorited, checked, and so on, and are associated with some \ic{Store}.
 
@@ -2150,7 +2149,7 @@ expression, they are a horizontal list of: editor for \ic{left} argument, the
 \ic{+} symbol, and the editor for the \ic{right} argument.
 
 As we have explained in the general discussion about projectional editing
-\todoref{}, MPS supports linear input of hierarchical expressions using
+(\sect{projed}), MPS supports linear input of hierarchical expressions using
 so-called side transforms. The code below shows the right side transformation for
 expressions that transforms an arbitrary expression into a \ic{PlusExpression}
 by putting the \ic{PlusExpression} "on top" of the current node. 
