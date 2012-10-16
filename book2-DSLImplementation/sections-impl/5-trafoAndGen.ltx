@@ -1062,10 +1062,11 @@ generic, as long as users define the helper functions.}.
 
 
 \section{Spoofax Example}
+\label{Sec:spoofax-trafo-codegen}
 
 In Spoofax, model-to-model transformations and code generation are both
 specified by rewrite rules\footnote{Rewrite rules have been introduced in
-\guido{reference please}.}. This allows for the seamless integration of
+\sect{Sec:spoofax-rewrite-rules}.}. This allows for the seamless integration of
 model-to-model transformation steps into the code generation process; the clear distinction 
 between model-to-model transformation and code generation vanishes.
 
@@ -1084,7 +1085,7 @@ to-java: EntType(name) -> name
 For entity types, we use their name as the Java representation.
 Typically, more complex rules are recursive and use string
 interpolation\footnote{We used string interpolation already before to compose
-error messages \guido{reference}.} to construct strings from fixed and variable
+error messages in \sect{Sec:spoofax-constraints}.} to construct strings from fixed and variable
 parts. For example, the following two rewrite rules generate Java code for entities and
 their properties:
 
