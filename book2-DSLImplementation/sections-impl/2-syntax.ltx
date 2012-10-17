@@ -47,7 +47,8 @@ calc y: int = 1 + 2 * sqrt(x)
 \ic{y} at the top, inside \ic{y} there's a nested expression. This
 structure is reflected in the corresponding abstract syntax tree. A possible AST
 is illustrated in \fig{astexample}\footnote{We say \emph{possible} because
-there are typically several ways of structuring the abstract syntax.}. 
+there are typically several ways of structuring the abstract syntax.}. 
+
 
 \begin{figure}[ht]
 \begin{center}
@@ -93,7 +94,8 @@ the next subsection.}:
   built directly by editor actions, and the concrete syntax is rendered from the AST
   via projection rules. MPS is an example of a tool that uses projectional
   editing.
-\end{description} 
+\end{description}
+ 
 
 \noindent \fig{astandcst} shows the typical combinations of these two
 dimensions. In practice, parser-based systems typically derive the AS from the
@@ -191,7 +193,8 @@ on top of the AST. This separation between AST construction and AST processing
 results in much more maintainable language implementations.}. This simplifies the
 implementation compared to directly parsing at the character level. A scanner is
 usually implemented using direct recognition of keywords and a set of regular
-expressions to recognize all other valid input as tokens.
+expressions to recognize all other valid input as tokens.
+
 Both the scanner and parser can be generated from grammars (see below). A
 well-known example of a scanner (lexer) generation tool is
 \ic{lex}\footnote{http://dinosaur.compilertools.net/}. Modern parsing 
@@ -213,6 +216,14 @@ of keywords, such as \ic{class} and \ic{public}, that cannot be used as identifi
 \guido{Many lexers support lexer states (I'm pretty sure Antlr is the only
 popular parser gen that does not support these states). They'd allow the same 
 sophisticated contextual keywords as scannerless parsers do.}
+\lennart{With lexer states you only really get support for regular grammars,
+and get limited expressiveness. You'd need to resort to lexer hacking
+to do the more sophisticated stuff. \url{http://researchr.org/publication/BravenboerTV06}
+talks about these issues in more detail.}
+\lennart{a different, more recent technique is context-aware scanning, though.
+there you use the state from the parser, not the lexer itself, to determine how to
+interpret the next token: \url{http://www.umsec.umn.edu/publications/Context-Aware-Scanning-Parsing-Extensible-Language}.
+in a way it's related to scannerless parsing as it integrates scanner & parser}
 
 A context-unaware scanner can also introduce problems when grammars
 are extended or composed. In the case of Java, this was seen with the
@@ -238,7 +249,8 @@ textual input ("sentences") looks like\footnote{They can also be used to
 Grammars form the basis for syntax definitions in text-based workbenches such as
 Spoofax and Xtext\footnote{In these systems, the production rules are
 enriched with information beyond the pure grammatical structure of the language, such as the
-semantical relation between references and declarations.}.
+semantical relation between references and declarations.}.
+
 
 Fundamentally, grammar production rules can be expressed in Backus-Naur Form
 (BNF)\footnote{http://en.wikipedia.org/wiki/Backus-Naur\_Form}, written as \(S\)
@@ -251,7 +263,8 @@ the \ic{|} operator to indicate a choice. An extension of BNF, called Extended
 BNF (EBNF)\footnote{http://en.wikipedia.org/wiki/Extended\_Backus-Naur\_Form},
 adds a number of convenience operators such as \ic{?} for  an optional pattern,
 \ic{*} to indicate zero or more occurrences, and \ic{+} to indicate one or more
-occurrences of a pattern expression.
+occurrences of a pattern expression.
+
 
 As an example, the following code is an example of a grammar for
 a simple arithmetic expression language using BNF notation. Basic expressions
@@ -349,7 +362,8 @@ production rules consume at least one token or character before going into the
 recursion. Left-factoring introduces additional rules that act as intermediaries
 and often makes repetition explicit using the \ic{+} and \ic{*} operators. The
 example grammar uses recursion for repetition, which can be made explicit as
-follows:
+follows:
+
 \begin{lstlisting}[morekeywords={Exp, NUM, Expr,ID, STRING}]
 Exp ::= ID
 			| STRING
@@ -392,7 +406,8 @@ makes the grammars larger and/or uglier.}. In the general case, not all
 context-free grammars can be mapped to one of the restricted classes. Valid,
 unambiguous grammars exist that cannot be factored to any of the restricted
 grammar classes. In practice, this means that some languages cannot be parsed
-with LL or LR parsers.
+with LL or LR parsers.
+
 
 \parhead{General parsers} Research into parsing algorithms has produced parser
 generators specific to various grammar classes, but there has also been research
@@ -400,20 +415,28 @@ in parsers for the full class of context-free grammars. A naive approach to
 avoid the restrictions of LL or LR parsers may be to add backtracking, so that
 if any input doesn't match a particular production, the parser can go back and
 try a different production. Unfortunately, this approach risks exponential
-execution times or non-termination and usually exhibits poor performance.
+execution times or non-termination and usually exhibits poor performance.
+
 
 There are also general parsing algorithms that can \emph{efficiently} parse the
 full class. In particular, generalized LR (GLR)
 parsers\footnote{http://en.wikipedia.org/wiki/GLR\_parser} and Earley
 parsers\footnote{http://en.wikipedia.org/wiki/Earley\_parser} can parse
-unambiguous grammars in linear time and gracefully cope with ambiguities with 
-cubic ($O(n^3)$) time in the worst case. Spoofax is an example of a language
-workbench that uses GLR parsing.
+in linear time ($O(n)$) in the common case.
+In case of ambiguities, the time required can increase, but
+in the worst case they are bounded by cubic ($O(n^3)$) time.
+Spoofax is an example of a language
+workbench that uses GLR parsing.
+
 \guido{s O(n^3) really efficient? Is there a space / time tradeoff as there is
 usually with optimizations in one or the other direction.
 
 Relativieren, paper zu error recovery
 }
+\lennart{I changed the phrasing here: main point is that the *common* case
+is O(n). for deterministic grammars it's exactly O(n) and as we've
+shown in the error recovery paper, it approaches O(n) for normal
+grammars with minor local ambiguities}
 
 
 \parhead{Ambiguity} Grammars can be \emph{ambiguous} meaning that at least one
@@ -475,7 +498,8 @@ undecidable problem. However, it is possible to detect violations of the LL or
 LR grammar class restrictions, in the form of conflicts. These conflicts do not
 always indicate ambiguities (as seen with the field access grammar discussed
 above), but by resolving all conflicts (if possible) an unambiguous grammar can
-be formed.
+be formed.
+
 
 Resolving grammar conflicts in the presence of associativity, precedence, and
 other risks of ambiguity requires carefully layering the grammar in such a way
@@ -497,7 +521,8 @@ will end up further up in the expression tree than a \icsn{*}; this means that t
 the \icsn{*} first.}, and how it uses left-recursion to encode left-associativity
 of the operators. The grammar can be left-factored to a corresponding LL grammar
 as follows. We will see more extensive examples of this approach in the section
-on Xtext (\sect{Sec:xtext-syntax}).
+on Xtext (\sect{Sec:xtext-syntax}).
+
 
 \begin{lstlisting}[morekeywords={Exp, NUM, Expr,ID, STRING, FieldPart, Mult,
 NUM}] 
@@ -512,11 +537,13 @@ accepted as a valid grammar. In case of an ambiguity, the generated parser
 simply returns \emph{all possible abstract syntax trees}, e.g.\ a left-associative tree
 and a right-associative tree for the expression \ic{1*2+3}. The different trees
 can be manually inspected to determine what ambiguities exist in the grammar, or
-the desired tree can be programmatically selected.
+the desired tree can be programmatically selected.
+
 
 A way of programmatically selecting one alternative is \emph{disambiguation
 filters}. For example, left-associativity can be indicated on a per-production
-basis:
+basis:
+
 
 \begin{lstlisting}[morekeywords={Exp, NUM, Expr,ID, STRING, FieldPart, Mult,
 NUM}] 
@@ -554,7 +581,8 @@ productions, or by composing the grammar with an existing grammar. Composition
 of grammars is an efficient way of reusing grammars and quickly constructing or
 extending new grammars\footnote{We discuss this extensively in
 \sect{modularization}}. As a basic example of grammar composition, consider once
-again our simple grammar for arithmetic expressions:
+again our simple grammar for arithmetic expressions:
+
 \begin{lstlisting}[morekeywords={Exp, NUM, Expr,ID, STRING, FieldPart, Mult,
 NUM}] 
 Expr ::= NUM
@@ -573,7 +601,8 @@ compose this grammar with the grammar for field access expressions\footnote{
 Here we consider the case where two grammars use a symbol with the identical
 name \icsn{Expr}. Some grammar definition formalisms support mechanisms such as
 grammar mixins and renaming operators to work with grammar modules where the
-symbol names do not match.}:
+symbol names do not match.}:
+
 
 \begin{lstlisting}[morekeywords={Exp, NUM, Expr,ID, STRING, FieldPart, Mult,
 NUM}] 
@@ -597,7 +626,13 @@ expressions and field access grammars, care must specifically be taken to
 indicate the precedence order of all operators with respect to all others. With
 a general parser, new priority rules can be added without changing imported two
 grammars. When an LL or LR parser is used, it is often necessary to change one
-or both of the composed grammars to eliminate any conflicts. This is because ina general parser, the precedences are \emph{declarative} (additional preferencespecification can simply be added at the end), whereas in LL or LR parsers theprecedence information is encoded in the grammar structure (and invasivechanges to this structure may be required).\item We have shown how grammars can be massaged with techniques such as left-factoring in order to
+or both of the composed grammars to eliminate any conflicts. This is because in
+a general parser, the precedences are \emph{declarative} (additional preference
+specification can simply be added at the end), whereas in LL or LR parsers the
+precedence information is encoded in the grammar structure (and invasive
+changes to this structure may be required).
+
+\item We have shown how grammars can be massaged with techniques such as left-factoring in order to
 conform to a certain grammar class. Likewise, any precedence order or
 associativity can be encoded by massaging the grammar to take a certain form.
 Unfortunately, all this massaging makes grammars very resistant to change and
@@ -625,11 +660,11 @@ stage, where no context is considered.
 
 \guido{Can be adressed with multiplex parsing / layered lexers / state based
 lexers}
+\lennart{Multiplex parsing and layered lexers are a bit of a hack
+that require unambiguous, easy-to-recognize boundaries, aren't they?
+And state-based lexers don't compose per \url{http://researchr.org/publication/BravenboerTV06}}
 
 \end{itemize}
-
-
-
 
 \section{Fundamentals of Projectional Editing} 
 \label{projed}
@@ -734,7 +769,10 @@ However, there is another challenge: for textual-looking notations, it is
 important that the editor tries and makes the editing experience as text-like as
 possible, i.e.~the keyboard actions we have gotten used to from free-text
 editing should work as far as possible. MPS does a decent job here, using, among
-others, the following strategies\footnote{The following list may be hard torelate to if you have never used a projectional editor. However, understandingthis section in detail is not essential for the rest of the book.}:
+others, the following strategies\footnote{The following list may be hard to
+relate to if you have never used a projectional editor. However, understanding
+this section in detail is not essential for the rest of the book.}:
+
 
 \begin{itemize}
 
@@ -766,7 +804,8 @@ others, the following strategies\footnote{The following list may be hard torela
   
   \item Delete actions are used to similar effect when elements are deleted.
   Deleting the \ic{3} in \ic{2+3} first keeps the plus, with an empty right slot.
-  Deleting the \ic{+} then removes the \ic{+} and puts the \ic{2} at the root of the subtree.
+  Deleting the \ic{+} then removes the \ic{+} and puts the \ic{2} at the root of the subtree.
+
 
   \item Wrappers support instantiation of concepts that are actually children of
   the concepts allowed at a given location. Consider again a local variable
@@ -778,7 +817,8 @@ others, the following strategies\footnote{The following list may be hard torela
   \ic{Type}s where \ic{LocalVariableDeclaration}s are expected. Once a \ic{Type}
   is selected, the wrapper implementation creates a
   \ic{LocalVariableDeclaration}, puts the \ic{Type} into its \ic{type} field,
-  and moves the cursor into the \ic{name} slot.
+  and moves the cursor into the \ic{name} slot.
+
 
   \item Smart references achieve a similar effect for references (as opposed to
   children). Consider pressing \ic{Ctrl-Space} after the \ic{+} in \ic{2+3}.
@@ -792,7 +832,8 @@ others, the following strategies\footnote{The following list may be hard torela
   puts those targets into the code completion menu. If a user selects one,
   \emph{then} the \ic{VariableReference} is created, and the selected element is
   put into its \ic{variable} slot. This makes the reference object effectively
-  invisible in the editor.
+  invisible in the editor.
+
 
   \item Smart delimiters are used to simplify inputting list-like data that is
   separated with a specific separator symbol, such as parameter lists. Once a
@@ -830,7 +871,9 @@ Xtext, have this problem. Parsers that do support the full set of context-free
 grammars, such as the GLR parser used as part of Spoofax, do not have this problem. While
 a grammar may become ambiguous in the sense that a program may be parseable in
 more than one way, this can be resolved by declaratively specifying which
-alternative should be used. This specification can be made externally, \emph{without} invasively changing the resulting grammar, retaining modularity.
+alternative should be used. This specification can be made externally, 
+\emph{without} invasively changing the resulting grammar, retaining modularity.
+
 
 In projectional editors, language modularity and composition is not a problem at
 all\footnote{An example for a composed language is shown in
@@ -860,7 +903,10 @@ can be used in the programs. However, character layout is always ignored. For
 example it is not possible to use parsers to handle tabular notations, fraction
 bars or even graphics\footnote{There have been experimental parsers for
 two-dimensional structures such as tables and even for graphical shapes, but
-these have never made it beyond the experimental stage. Also, it is possibleto approximate tables by using vertical bars and hyphens to some extent. JNario,described in \sect{jnario}, uses this approach.}.
+these have never made it beyond the experimental stage. Also, it is possible
+to approximate tables by using vertical bars and hyphens to some extent. JNario,
+described in \sect{jnario}, uses this approach.}.
+
 
 \begin{marginfigure}
   \includegraphics[width=7cm]{figures-impl/2/dectabincomp.png}
@@ -876,9 +922,11 @@ non-textual notations are handled the same way as the textual ones (possibly
 with other input gestures), they can be mixed easily: tables can be embedded
 into textual source, and textual languages can be used within table cells (see
 \fig{dectabincomp}). Textual notations can also be used inside boxes or as connection labels in
-diagrams. 
+diagrams. 
+
  
-\subsection{Language Evolution}
+\subsection{Language Evolution}
+
 If the language changes, existing instance models temporarily become
 outdated in the sense that they had been developed for the old version of the
 language. If the new language is not backward compatible, these existing models
@@ -981,7 +1029,8 @@ different histories (the former comes from the parser/grammar community whereas
 the latter comes from the modeling community). Consequently, the formalisms for
 defining ASTs are conceptually similar to meta meta models.}, are ways to
 represent trees or graphs. Usually, such an AST formalism is "meta circular" in
-the sense that it can describe itself.
+the sense that it can describe itself.
+
 Note that this section is really just a very brief overview over the three AST
 formalisms relevant to Xtext, Spoofax and MPS. We will illustrate them in more
 detail in the respective tool example sections.
@@ -1085,7 +1134,8 @@ Order([ItemNumber(5), Quantity(15), Customer("Mr.\ White")])
 However, this representation contains a lot of redundant information that also
 exists in the grammar. Instead, such a product can be written as \ic{Order(5,
 15, "Mr.\ White")}. This more concise notation tends to make it slightly more
-convenient to use in handwritten transformations.
+convenient to use in handwritten transformations.
+
 
 The textual notation of ATerms can be used for exchanging data between
 tools and as a notation for model transformations or code generation
@@ -1097,7 +1147,8 @@ tools can convert between ATerms and XML.
 
 In addition to the basic elements above, ATerms support annotations to add
 additional information to terms. These are similar to attributes in XML. For
-example, it is possible to annotate a product number with its product name:
+example, it is possible to annotate a product number with its product name:
+
 \begin{lstlisting}[morekeywords={}]
 Order(5{ProductName("Apples")}, 15, "Mr. White")
 \end{lstlisting}
@@ -1162,7 +1213,8 @@ and from Ecore have been written.}.
                  
                                                                             
 \section{Xtext Example}
-\label{Sec:xtext-syntax}
+\label{Sec:xtext-syntax}
+
 
 Cooling programs\footnote{This and the other examples in this section refer back
 to the case studies introduced at the beginning of the book in section
@@ -1194,7 +1246,9 @@ system then (automatically) transitions into the \ic{start} state. There it
 waits until it receives the \ic{e} event. It then transition to the state
 \ic{s}, where it uses an entry action to set \ic{v} back to \ic{0}. More complex
 programs include checks of changes of properties of hardware elements
-(\ic{aCompartment->currentTemp}) and commands to the hardware\ic{set aCompartment->isCooling = true}, as shown in the next snippet: 
+(\ic{aCompartment->currentTemp}) and commands to the hardware
+\ic{set aCompartment->isCooling = true}, as shown in the next snippet:
+ 
 
 \begin{lstlisting}[language=cooling] 
 start:
@@ -1245,7 +1299,8 @@ followed by an \ic{ID}. \ic{ID} is a \emph{terminal rule} that is defined in the
 parent grammar from which we inherit (not shown). \ic{ID} is defined as an
 unbounded sequence of lowercase and uppercase characters, digits, and the
 underscore, although it may not start with a digit. This terminal rule is
-defined as follows:
+defined as follows:
+
 \begin{lstlisting} [language=xtextgrammar]
 terminal ID: ('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'_'|'0'..'9')*;
 \end{lstlisting} 
@@ -1295,7 +1350,8 @@ variables collection, events are assigned to the events collection.
 
 This notation means that we can mix events and variables in any order. The
 following alternative notation would first expect all events, and then all
-variables. 
+variables. 
+
 \begin{lstlisting}[language=xtextgrammar] 
       (events+=CustomEvent)*
       (variables+=Variable)*
@@ -1314,7 +1370,8 @@ State:
 The vertical bar operator is used here to express syntactic alternatives. This
 is translated to inheritance in the meta model. The definition of
 \ic{CustomState} is shown in the following code snippet. It uses the set of
-grammar language features explained above.
+grammar language features explained above.
+
 
 \begin{lstlisting}[language=xtextgrammar] 
 CustomState:
@@ -1333,7 +1390,8 @@ CustomState:
 \ic{StartState} and \ic{BackgroundState}, the other two subtypes of \ic{State},
 share some properties. Consequently, Xtext's AS derivation algorithm pulls them
 up into the abstract \ic{State} meta class so they can be accessed polymorphically.
-\fig{Fig:xtext-metamodel} shows the resulting meta model using EMF's tree view.
+\fig{Fig:xtext-metamodel} shows the resulting meta model using EMF's tree view.
+
 \begin{figure}[ht]
 \fbox{
 \begin{minipage}{104.5mm}
@@ -1353,7 +1411,8 @@ up into the abstract \ic{State} meta class so they can be accessed polymorphical
 have entry and exit actions, procedural statements that are executed when a
 state is entered and left, respectively. \ic{set v = 1} in the hello world program is an
 example. \ic{Statement} itself is \ic{abstract} and has the various kinds
-of statements as subtypes/alternatives:
+of statements as subtypes/alternatives:
+
 
 \begin{lstlisting}[language=xtextgrammar] 
 Statement:
@@ -1398,7 +1457,10 @@ syntax, i.e.~a simple (identifier-like) text string is expected. However, this
 can be overridden by specifying the concrete syntax terminal behind a vertical
 bar in the reference\footnote{Notice that in this case the vertical bar does not
 represent an \emph{alternative}, it is merely used as a \emph{separator} between
-the target type and the terminal used to represent the reference.}. In thefollowing piece of code, the \ic{targetState} reference uses the \ic{QID}terminal as the reference syntax.
+the target type and the terminal used to represent the reference.}. In the
+following piece of code, the \ic{targetState} reference uses the \ic{QID}
+terminal as the reference syntax.
+
 
 \begin{lstlisting}[language=xtextgrammar] 
 ChangeStateStatement:
@@ -1481,7 +1543,8 @@ Now we know enough about AST construction to understand how expressions are
 encoded and parsed. In the expression grammar above, for the rules with the
 \ic{Level} suffix, no meta classes are created, because (as Xtext is able to
 find out statically) they are never instantiated. They merely act as a way to
-encode precedence. To understand this, let's consider how \ic{2 * 3} is parsed:
+encode precedence. To understand this, let's consider how \ic{2 * 3} is parsed:
+
 \begin{itemize}
 
   \item The \ic{AssignmentStatement} refers to the \ic{Expr} rule in its
@@ -1521,7 +1584,8 @@ encode precedence. To understand this, let's consider how \ic{2 * 3} is parsed:
   \item At this point we unwind the stack further, and since no more text is
   present, no more objects are created. The tree structure is as we had
   expected.
-\end{itemize}
+\end{itemize}
+
 \noindent If we'd parsed \ic{4 + 2*3} the \ic{+} would have matched before the
 \ic{*}, because it is "mentioned earlier" in the grammar (it is in a
 lower-precedence group, the \ic{AdditionLevel}, so it has to end up "higher" in
@@ -1606,7 +1670,8 @@ left-hand and right-hand side. After the right-hand side, SDF productions may
 specify annotations using curly brackets. Most productions specify a quoted
 \emph{constructor label} that is used for the abstract syntax. 
 This particular production creates a tree node with the constructor \ic{Module}
-and two children that represent the \ic{ID} and the list of \ic{Entities},respectively. 
+and two children that represent the \ic{ID} and the list of \ic{Entities},
+respectively. 
 As discussed earlier, Spoofax represents abstract syntax trees as ATerms.
 Thus, the tree node will be represented as \ic{Module(\ldots, [\ldots])}.
 In contrast to Xtext, the children are not named; instead,
@@ -1645,7 +1710,8 @@ surprises, but it is interesting to note how SDF groups a grammar in different
 sections. First, the \ic{context-free start symbols} section indicates the start
 symbol of the grammar. Then, the \ic{context-free syntax} section list the
 context-free syntax productions, forming the main part of the grammar. Terminals
-are defined in the \ic{lexical syntax} section.
+are defined in the \ic{lexical syntax} section.
+
 
 \begin{figure}[ht]
 \begin{center}
@@ -1692,7 +1758,8 @@ lexical syntax
 \parhead{Lexical syntax} As Spoofax uses a scannerless parser, all lexical
 syntax can be customized in the SDF grammar. 
 It provides default definitions for common lexical syntax elements such as strings, integers, floats, whitespace and comments, which can be reused by importing the module {Commons}.
-But when needed, custom syntax can be specified.
+But when needed, custom syntax can be specified.
+
 Most lexical syntax is specified using character classes such as \ic{[0-9]}.
 Each character class is enclosed in square brackets, and can consist of ranges
 of characters (\ic{c$_1$-c$_2$}), letters and digits (e.g.,\ \ic{x} or \ic{4}),
@@ -1736,7 +1803,8 @@ Note how this term uses the constructor labels of the syntax above:
 \ic{Module}, \ic{Entity}, and \ic{Property}. The children of each node
 correspond to the symbols referenced in the production: the \ic{Module}
 production first referenced \ic{ID} symbol for the module name and then included
-a list of \ic{Decl} symbols (lists are in square brackets).
+a list of \ic{Decl} symbols (lists are in square brackets).
+
 In addition to constructor labels, productions that specify parentheses can
 use the special \ic{bracket} annotation:  
 
@@ -1754,7 +1822,8 @@ and not \ic{Plus("1",Parens("2"))}.
 \parhead{Precedence and associativity} SDF provides special support for
 specifying the associativity and precedence of operators or other
 syntactic constructs. As an example, let us consider the production of the
-\ic{Plus} operator. So far, it has been defined as
+\ic{Plus} operator. So far, it has been defined as
+
 \begin{lstlisting}[language=sdf]
 Exp "+" Exp -> Exp {"Plus"}
 \end{lstlisting}
@@ -1765,7 +1834,8 @@ expression such as \ic{1 + 2} to a term \ic{Plus("1", "2")}. However, the
 production does not specify if an expression \ic{1 + 2 + 3} should be parsed to
 a term \ic{Plus("1", Plus("2", "3"))} or \ic{Plus(Plus("1", "2"), "3")}. If you
 try the grammar in Spoofax, it will show \emph{both} interpretations using the
-special \ic{amb} constructor:
+special \ic{amb} constructor:
+
 
 \begin{lstlisting}
 amb([
@@ -1791,7 +1861,8 @@ Exp "+" Exp -> Exp {"Plus", left}
 \noindent 
 In a similar fashion, SDF makes it possible to describe the precedence order of
 operators. For this, the productions can be placed in a \ic{context-free
-priorities} section:
+priorities} section:
+
 
 \begin{lstlisting}[language=sdf]
 context-free priorities
@@ -1816,7 +1887,8 @@ mobl\footnote{Note how we cannot provide syntax highlighting, since the Latex
 Listing package \emph{cannot} deal with this case!}:
 
 \begin{lstlisting}
-entity entity {
+entity entity {
+
 }
 \end{lstlisting}
 
@@ -1845,7 +1917,8 @@ rejects a certain interpretation:
 \noindent 
 This expresses that \ic{true} can never be interpreted as an identifier.
 Alternatively, we could say that we prefer the one interpretation over the
-other:
+other:
+
 
 \begin{lstlisting}[language=sdf]
 "true" -> Exp {"True", prefer}
@@ -1855,7 +1928,11 @@ other:
 This means that this production is to be preferred if there are any
 other interpretations. However, since these interpretations cannot always be
 foreseen as grammars are extended, it is considered good practice to use the
-more specific \ic{reject} approach instead\footnote{This is the situationwhere a projectional editor like MPS is more flexible, since instead ofrunning into an ambiguity, it would prompt the user to decide whichinterpretation is correct as he types \icsn{true}.}.
+more specific \ic{reject} approach instead\footnote{This is the situation
+where a projectional editor like MPS is more flexible, since instead of
+running into an ambiguity, it would prompt the user to decide which
+interpretation is correct as he types \icsn{true}.}.
+
 
 \parhead{Longest match} Most scanners apply a \emph{longest match} policy for
 scanning tokens. This means that if it is possible to include the next character
@@ -1884,7 +1961,8 @@ entityMoblEntity {}
 \noindent 
 As there is no longest match, the parser can recognize the \ic{entity} keyword
 even if it is not followed by a space. To avoid this behavior, we can specify a
-longest match policy for the \ic{entity} keyword:
+longest match policy for the \ic{entity} keyword:
+
 
 \begin{lstlisting}[language=sdf]
 lexical restrictions
@@ -1894,7 +1972,8 @@ lexical restrictions
 \parhead{Name bindings} So far we have discussed purely syntax specification in
 SDF. Spoofax also allows the specification of name binding annotations in SDF
 grammars, which specify semantic relations between productions. We discuss how
-these relations are specified in \sect{Ch:scopes}.
+these relations are specified in \sect{Ch:scopes}.
+
 
  
 \section{MPS Example}
@@ -1993,7 +2072,9 @@ various specializations are possible, the default implementation is the
 \ic{Expression}, a concept reused from \ic{com.mbeddr.core.expressions}. A type
 system rule will be defined later to constrain this expression to be Boolean.
 The target state is a reference, i.e.~we point to an existing state instead of
-owning it. \ic{actions} is another \ic{StatementList} that can contain arbitraryC statements used as the transition actions.
+owning it. \ic{actions} is another \ic{StatementList} that can contain arbitrary
+C statements used as the transition actions.
+
 
 \parhead{Editor Definition} Editors, i.e.~the projection rules, are made of
 cells. When defining editors, various cell types are arranged so that the
@@ -2004,7 +2085,8 @@ name, the entry actions, the transitions and the exit actions in a vertical
 list. Entry and exit actions are shown only if the respective \ic{StatementList}
 is not empty (a condition is attached to the respective cells, marked by the
 \ic{?} in front of the cell). An intention is used (see next section) to add a
-new statement and hence make the respective list visible.
+new statement and hence make the respective list visible.
+
 \begin{figure}[ht]
 \fbox{
 \begin{minipage}{104.5mm}
@@ -2039,8 +2121,10 @@ braces.
   \label{Fig:mps-transeditor}  
 \end{minipage}
 } 
-\end{figure*}
-\noindent The \ic{\%targetState\% -> \{name\}} part expresses
+\end{figure*}
+
+
+\noindent The \ic{\%targetState\% -> \{name\}} part expresses
 that in order to render the target state, the target's state's \ic{name} attribute
 should be shown. We could use any text string to refer to the target state\footnote{We could even use the symbol \icsn{X} to render \emph{all} target state references.
 The reference would still work, because the underlying data structure uses the
@@ -2181,7 +2265,8 @@ side transform actions makeArithmeticExpression
 Using the alias (i.e.~the operator symbol) of the respective
 \ic{BinaryExpression} and the inheritance hierarchy, it is possible to factor
 all side transformations for all binary operations into one single action
-implementation, resulting in much less implementation effort.
+implementation, resulting in much less implementation effort.
+
 The fact that you can enter expressions linearly, leads to a problem not unlike
 the one found in grammars regarding operator precedence. If you enter \ic{2 + 3
 * 4} by typing these characters sequentially, there are two ways how the tree
