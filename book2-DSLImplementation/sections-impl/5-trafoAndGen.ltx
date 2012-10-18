@@ -1191,10 +1191,8 @@ to-upper-first: s -> s'
 
 \noindent
 This turns a string into a list of characters (\ic{explode-string}), upper-cases the first character (\ic{to-upper}), and turns the characters back into a string (\ic{implode-string}).
-The strategies used here are part of Stratego's standard library.
+The strategies used here are part of Stratego's standard library\footnote{The Stratego standard library is documented at \url{http://releases.strategoxt.org/docs/api/libstratego-lib/stable/docs/}}.
 While \ic{explode-string} and \ic{implode-string} are the only way to turn strings into a list of characters and vice-versa, we can use predefined as well as user-defined strategies to manipulate the characters.
-
-\guido{ok: Should we leave a reference to the library? \url{http://releases.strategoxt.org/docs/api/libstratego-lib/stable/docs/}}
 
 \parhead{Editor Integration} To integrate the code generation into our editor,
 we first have to define the following rewrite rule:
@@ -2357,7 +2355,4 @@ transformation in the builder. This will create an initial state for the
 interpreter. When we define a concrete syntax for these states, they can be
 shown in an editor. The transition transformation can then be integrated as a
 refactoring on states, changing the current state to the next one. This way, the
-user can control the execution, undo steps, or even modify the current state.
-\guido{Referenz, This last paragraph, and especially the last part of it hints at how to
-build a debugger, right? So maybe we can discuss some of this in the debugging
-chapter. So how is the state of the debugger chapter on Spoofax?}
+user can control the execution, undo steps, or even modify the current state.In \sect{Sec:Debugging}, we show how this can be used to build a debugger.
