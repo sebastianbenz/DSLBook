@@ -224,6 +224,7 @@ talks about these issues in more detail.}
 there you use the state from the parser, not the lexer itself, to determine how to
 interpret the next token: \url{http://www.umsec.umn.edu/publications/Context-Aware-Scanning-Parsing-Extensible-Language}.
 in a way it's related to scannerless parsing as it integrates scanner & parser}
+\todo{guido does it}
 
 A context-unaware scanner can also introduce problems when grammars
 are extended or composed. In the case of Java, this was seen with the
@@ -437,6 +438,9 @@ Relativieren, paper zu error recovery
 is O(n). for deterministic grammars it's exactly O(n) and as we've
 shown in the error recovery paper, it approaches O(n) for normal
 grammars with minor local ambiguities}
+\guido{gracefully copy with amb, instead of "just failing"; the perfprmance
+gets a bit worse locally.}
+\todo{guido does it}
 
 
 \parhead{Ambiguity} Grammars can be \emph{ambiguous} meaning that at least one
@@ -663,6 +667,11 @@ lexers}
 \lennart{Multiplex parsing and layered lexers are a bit of a hack
 that require unambiguous, easy-to-recognize boundaries, aren't they?
 And state-based lexers don't compose per \url{http://researchr.org/publication/BravenboerTV06}}
+\todo{guido does it: there are cases of lang embedd where the reviewers
+approach works (in partic if we have well defined escape chars.) or one would
+to hack the lexers. In teh general case, General Parsing is required (the
+appraoch we propose here in Spoofax)}
+
 
 \end{itemize}
 
