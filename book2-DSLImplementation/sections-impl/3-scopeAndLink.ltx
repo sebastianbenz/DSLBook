@@ -184,8 +184,7 @@ one, not the one in \ic{Product}\footnote{Note that Spoofax does not require
 each name inside a block structure to be unique: by default, it is not an error
 if users add an additional property called name to \icsn{Product}. However, in
 most languages it is desirable to prevent assigning duplicate (qualified) names.
-We show how to specify a constraint for that later on \guido{refennce
-please!}.}. The full grammar of the mobl entities language with annotations is
+We show how to specify a constraint for that in \sect{Sec-spoofax-constraints}.}. The full grammar of the mobl entities language with annotations is
 the following (leaving out the lexical syntax):
 
 \guido{
@@ -370,10 +369,10 @@ summary information about files in a project together, it ensures fast access to
 global information. The index is updated automatically with changes to the file
 system (e.g.,~files being deleted or removed) and is persisted as Eclipse exits.
 All entries in the index have a URI as we showed previously. Index entries can
-be represented in the ATerm format (see \guido{reference please}). For example,
+be represented in the ATerm format (see \sect{Sec:spoofax-aterm}). For example,
 \ic{Def([Module(),"banking"])} is a definition entry for a banking module.
 In the form of terms, they can be used in the same way as abstract syntax tree
-fragments in transformations and analyses. \sect{ch:constraints} shows how
+fragments in transformations and analyses. \sect{Sec:spoofax-constraints} shows how
 the index can be used for such tasks.
 
 Internally, index entries are stored in tables for efficient random access. They
@@ -420,7 +419,7 @@ Lastly,
 the default strategy knows nothing about import definitions for a specific language, as these can vary quite a bit among languages.
 
 \subsection{Rewrite Rules}
-\label{Sec:rewrite-rules}
+\label{Sec:spoofax-rewrite-rules}
 
 Spoofax provides support for adding constraints and for customization of the
 behavior of the default resolution strategy by means of \emph{rewrite rules}.
@@ -428,7 +427,7 @@ Rewrite rules are functions that operate on terms, transforming one term to
 another. We provide a primer on rewrite rules here, and show how they can be
 used to customize name resolution\footnote{Rewrite rules are used for all
 kinds of other purposes in Spoofax, and we will encounter them again, for
-example in the chapter on transformation and code generation \guido{ref please}.
+example in the chapter on transformation and code generation \sect{Sec:spoofax-trafo-codegen}.
 This is why we explain them in quite some detail here.}.
 
 Rewrite rules in Spoofax are provided as part of the Stratego program
