@@ -2,11 +2,11 @@
 
 \section{Jnario - Executable Specifications for Java}
 
-This section describes Jnario, a DSL for testing Java applications. 
+General introduction about the goal of this chapter and why Jnario is good example.
 
 \subsection{Overview}
 
-With Jnario you can create executable acceptance specifications that are easily readable and understandable to business users, developers and testers. Jnario uses a similar textual format to \emph{Cucumber}(http://cukes.info/). The idea is to describe the features of a Java application using scenarios. The preconditions, events and expected outcomes of a scenario are described textually with \emph{Given}, \emph{When} and \emph{Then} steps. Here is an example acceptance specification for adding values with a calculator:
+Tests always had an important role during development to ensure that an application behaves as expected. Nowadays tests have become more than simple checks whether a system's output correspond to the inputs. They aid the design process by giving early feedback about an application's modularity (aka testability). Furthermore, tests are means for developers to discuss and elaborate features with stakeholders. The verbose syntax of Java makes it hard to dicuss tests with stakeholders. Therefore, we created Jnario as a DSL to write executable acceptance specifications that are easily readable and understandable to business users, developers and testers. To make the tests understandable by non-programmers, Jnario uses a similar textual format to \emph{Cucumber}(http://cukes.info/). The idea is to describe the features of a Java application using scenarios. The preconditions, events and expected outcomes of a scenario are described textually with \emph{Given}, \emph{When} and \emph{Then} steps. Here is an example acceptance specification for adding values with a calculator:
 
 \begin{lstlisting}[language=jnario-feature]
  Feature: Addition
@@ -156,7 +156,7 @@ As mentioned before, Xtend is a statically-typed programming language that is ba
 
 Design (ref?)
 
-Jnario consists for three languages - the basic Jnario language, and the Feature and Spec language. For each of those languages a grammar has to be defined.
+Jnario consists of three languages - the basic Jnario language, and the Feature and Spec language. For each of those languages a grammar has to be defined.
 
 The Feature and Spec language have certain grammar rules in common. For those rules an own Jnario language was created which is used by the Spec and Feature language. The possibility of using existing grammars in your own grammar reduces redundancy in the grammars. The language specific rules are defined in the corresponding language project with their own grammar.
 
