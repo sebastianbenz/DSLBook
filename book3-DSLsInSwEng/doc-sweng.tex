@@ -13,7 +13,6 @@
 \usepackage{boxedminipage}
 \usepackage{booktabs}
 \usepackage{listings} 
- 
 
 \usepackage{tikz}
 \newenvironment{Tree}{\begin{tikzpicture}[scale=.5]\tikzset{every node/.style={font=\tt}}}{\end{tikzpicture}}
@@ -188,7 +187,21 @@ roles, permissions, role, user, if, true, false, else, validate, String,
 return
 }}
 
+\lstdefinelanguage{jnario-spec}{morekeywords={
+pending,describe,context,fact,facts,this,it,null,abstract,boolean,case,catch,char,class,create,def,default,do,double,else,extends,extension,final,finally,float,for,if,implements,import,int,long,new,override,package,private,protected,return,short,static,super,switch,throw,throws,try,typeof,val,var,void,while,FOR,ENDFOR,IF,ENDIF,ELSEIF,BEFORE,AFTER,SEPARATOR
+}}
 
+\lstdefinelanguage{jnario-feature}{morekeywords={
+Given, When, Then, Feature, Scenario, Background, And
+}}
+
+\lstdefinelanguage{archdsl}{morekeywords={
+namespace, feature, component, instance, dynamic, connect, aspect, provides,
+requires, composition, dynamic, query, registered, registration, parameters, 
+oneway, message, request, reply, interface, struct, replicated, singleton,
+consumes, publishes, update, publication, onchange, protocol, initial, state,
+newimplof, newVersionOf, to, system
+}}
 
 
 
@@ -224,8 +237,6 @@ return
 \renewcommand{\dfrac}[2]{\frac{\displaystyle #1}{\displaystyle #2}}
 \newcommand{\lmrc}{LMR\&C}
 
-
-
 \title{DSL Engineering}
 \author{Markus Voelter, voelter@acm.org}
 \def\titlerunning{DSL Engineering}
@@ -234,7 +245,7 @@ return
 
 \begin{document}
 \noindent
-\includegraphics[width=150mm]{dslengcover.png}
+% \includegraphics[width=150mm]{dslengcover.png}
 \input{body-sweng.ltx}
 \nocite{*}
 \bibliographystyle{abbrv}
