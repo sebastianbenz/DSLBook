@@ -289,7 +289,7 @@ time.}
 \subsection{Superposition and Aspects} 
 
 Superposition\marginnote{This is especially important in the context of product
-line engineering and is discussed in section \todoref{} of this book.} refers to
+line engineering and is discussed in \sect{plesweng}.} refers to
 the ability to merge several model fragments according to some DSL-specific
 merge operator. Aspects provide a way of "pointing to" several locations in a
 program based on a pointcut operator (essentially a query over a program or its
@@ -365,7 +365,10 @@ time.}
 
 The behavior expressed with a DSL must of course be aligned with the needs of
 the domain. However, in many cases, the behavior required for a domain can be
-derived from well-known behavioral paradigms, with slight adaptations or
+derived from well-known behavioral paradigms\footnote{The term \emph{Model of
+Computation} is also used to refer to behavioral paradigms. I prefer
+behavioral paradigm because the term \emph{Model} is obviously heavily
+overloaded in the DSL/MDSD space already.}, with slight adaptations or
 enhancements, or simply interacting with domain-specific structures or data.
 
 Note that there are two kinds of DSLs that don't make use of these kinds of
@@ -388,6 +391,30 @@ component port is intended for synchronous or asynchronous communication.}
 and components as in the previous example. However, since here they are directly
 integrated with C, C expression can be used for pre- and post-conditions of
 interface operations (see \fig{ppc}).}
+
+
+
+Using an established behavioral paradigm for a DSL has several
+advantages\footnote{Which is why we discuss these paradigms in this book.}.
+First, it is not necessarily simple to define consistent and correct semantics
+in the first place. By reusing an existing paradigm, one can learn about
+advantages and drawbacks from existing experience. Second, a paradigm may
+already come with existing means for performing interesting analyses (as in
+model checking or SMT solving) that can easily be used to
+analyse DSL programs. Third, there may be existing generators from a behavioral
+paradigm to an efficient executable for a given platform (state machines are a
+prime candidate). By generating a model in a formalism for which such a
+generator exists, we reduce the effort for building an end-to-end generator.
+If our DSL uses the same behavioral paradigm as the language for which the
+genertor exists, writing the necessary transformation is straight forward (from
+a semantic point of view).
+
+The last point emphasizes that using an existing paradigm for a DSL (e.g.
+state-based) does not mean that the concepts have to directly use the
+abstractions used by that paradigm (just because a program is state-based, does
+not mean that the concept that acts as a state has to be called state, etc.). 
+
+
 
 
 \marginnote{This is only an overview over a few paradigms; many more
@@ -445,13 +472,13 @@ the calculation. This makes building debuggers relatively simple.
 \pension{The calculation core of pension rules is functional. Consequently, a
 debugger has been implemented that, for a given set of input data, shows the
 rules as a tree where all intermediate results of each function call are shown
-(\fig{debugger}). No "step through" debugger is necessary.}
+(\fig{functionaldebugger}). No "step through" debugger is necessary.}
 
 \begin{figure}[h]
   \includegraphics[width=11cm]{figures-design/pension/debugger.png}
   \caption{Debugging functional programs can be done by showing the state of
   the calculation, for example as a tree.}
-  \label{debugger}
+  \label{functionaldebugger}
 \end{figure}
 
 \noindent An important subset of functional programming is pure expressions (as
@@ -550,8 +577,6 @@ declarative specification of equations between input and output parameters of a
 block. A solver comes up with an closed, sequential solution that efficiently
 calculates the output of an overall block diagram.}
 
-\todo{reduce indent level; makes figure less wide}
-
 \begin{figure}[h]
 \fbox{
 \begin{minipage}{105mm}
@@ -574,8 +599,8 @@ calculates the output of an overall block diagram.}
 by MPS itself. Language developers specify a set of type equations containing
 free type variables, among other things. A unification engine tries to solve the
 set of equations by assigning actual types to the free type variables so that
-the set of equations is consistent. We describe this approach in detail in
-section \todoref{}}
+the set of equations is consistent. We describe this approach in detail
+in\sect{mpstypesys}.}
 
 
 
@@ -709,8 +734,7 @@ chart conforms to a set of specifications or provides a counter example that
 violates the specifications. Specifications express something about sequences of
 states such as: "it is not possible that two traffic lights show green at the
 same time" or "whenever a pedestrian presses the \ic{request} button, the
-pedestrian lights eventually will show green"\marginnote[-2cm]{We provide some
-details about model checking in the implementation part \todoref{}. A good
+pedestrian lights eventually will show green"\marginnote[-2cm]{A good
 introduction to model checking can be found in \cite{BerardBidoitM2001}.}.
 
 In principle, any program can be represented as a state machine and can then
@@ -724,6 +748,18 @@ machines can be model checked efficiently.
 
  
 \section{Combinations}
+
+The behavioral paradigm also plays a role in the context of language
+composition. If two to-be-composed languages use different behavioral paradigms,
+the composition can become really challenging. For example, combining a
+coninuous system (which works with continuous streams of data) with a
+discrete event-based system requires temporal integration. We won't discuss this
+topic in detail in this book\footnote{It is still very much a research topic}.
+However, it is obvious that combining systems that use the same paradigm is much
+simpler. Alternatively, some paradigms can be integrated relatively easily; for
+example, it is relatively simple to map a state-based system onto an imperative
+system.
+
 
 Many DSLs use combinations of various behavioral and structural paradigms
 described in this section\footnote{Note how this observation leads to the

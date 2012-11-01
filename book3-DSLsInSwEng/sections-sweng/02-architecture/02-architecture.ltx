@@ -1,5 +1,6 @@
 
 \chapter{DSLs and Software Architecture}
+\label{archsweng}
 
 
 \chapterabstract{In this chapter we explore the relationship between DSLs and
@@ -9,8 +10,8 @@ We first discuss ADSLs based on an extensive example and then discuss the
 conceptual details. The paper also looks at embedding business logic DSLs as
 well as at the role software components can play in the context of DSLs.}
 
-\sect{What is Software Architecture}
-
+\section{What is Software Architecture}
+ 
 \subsection{Definitions}
 
 Software architecture has many definitions by various groups of people. Here are
@@ -108,7 +109,7 @@ fundamental architectural concepts:
 specify architectures unambiguously while emphasizing these fundamentals instead of
 technologies.
 
-\sect{Architecture DSLs}
+\section{Architecture DSLs}
 
 \subsection{Conceptual Architecture and DSLs}
 
@@ -537,7 +538,7 @@ architecture in a clear and unambiguous way.
 \paragraph{Component Implementation} By default, architecture DSLs are
 incomplete, component implementation code is written manually against the
 generated API code, using well-known composition techniques such as inheritance,
-delegation or partial classes (cf. \todoref{}).
+delegation or partial classes.
 
 However, there are other alternatives for component implementation that do not
 use a GPL, but instead use formalisms that are specific to certain classes of
@@ -659,10 +660,10 @@ application domain DSL has to act as the "implementor" of the components (or
 whatever other architectural abstractions are defined in the architecture DSL).
 The code generated from the business logic DSL must fit into the code skeletons
 generated from the architecture DSL. The code composition techniques discussed
-for incomplete DSLs in \todoref{} can be used here.
+for incomplete DSLs in \sect{incompcomp} can be used here.
 
 
-\sect{Component Models}
+\section{Component Models}
 \label{comps}
 
 There are many (more or less formal) definitions of what a components is. They
@@ -698,15 +699,15 @@ you a head start when defining your own component architecture.
 \subsection{Three Typical Viewpoints}
 
 It is useful to look at a component-based system from several viewpoints
-(\todoref{}). Three viewpoints form the backbone of the description. The
-\emph{Type} viewpoint describes component types, interfaces, and data
-structures\footnote{Referring back to the terminology introduced in \todoref{},
-this viewpoint is \emph{independent}. It is also \emph{sufficient} for
-generating all the code that is needed for developers to implement the
-application logic.}. A component provides a number of interfaces and references
-a number of required interfaces. An interface owns a number of operations, each
-with a return type, parameters, and exceptions. \fig{viewpoints_type} shows
-this.
+(\sect{sec:viewpoints}). Three viewpoints form the backbone of the description.
+The \emph{Type} viewpoint describes component types, interfaces, and data
+structures\footnote{Referring back to the terminology introduced in
+\sect{structureofprograms}, this viewpoint is \emph{independent}. It is also
+\emph{sufficient} for generating all the code that is needed for developers to
+implement the application logic.}. A component provides a number of interfaces
+and references a number of required interfaces. An interface owns a number of
+operations, each with a return type, parameters, and exceptions.
+\fig{viewpoints_type} shows this.
 
 \begin{figure}[h!]
 \begin{center}

@@ -62,7 +62,6 @@ the reference target is not among the elements in the scope, the reference is
 invalid.
 
 
-\todo{Add a picture on the right showing a hierarchy of scopes}
 Scopes can be hierarchical, in which case they are organized as a stack of
 collections --- confusingly, these collections are often called scopes
 themselves. During resolution of a cross-reference, the lowest or
@@ -105,10 +104,12 @@ the mobl language. This chapter shows how to add annotations and rules to define
 name resolution for this language.
 
 To understand naming in Spoofax, the notion of a \emph{namespace} is essential.
-A namespace is a collection of names and is not necessarily connected
-to a specific language concept. Different concepts can contribute names to a
-single namespace. During reference resolution, names are resolved against
-namespaces.
+Some languages such as C\# provide namespaces as a language concept to scope the names of declarations such as classes.
+It is important to distinguish these namespaces as a language concept from 
+Spoofax' namespaces as a language definition concept.
+In Spoofax, a namespace is a collection of names and is not necessarily connected to a specific language concept. 
+Different concepts can contribute names to a single namespace. 
+During reference resolution, names are resolved against namespaces.
 
 Language elements that contribute names to a a namespace can be annotated with
 \ic{Namespace@=Symbol}, where \ic{Namespace} is the namespace of the definition,
@@ -117,13 +118,6 @@ concept, and that is contributed to the namespace. As an example, wecan add thi
 \begin{lstlisting}[language=sdf]
 "entity" Type@=ID "{" EntityBodyDecl* "}" -> Decl {"Entity"}
 \end{lstlisting}
-
-\guido{AFAIU, namespaces in spoofax are kind of meta-namespaces. This means, 
-you cannot define new namespace based on ID of the element, but you rather 
-can populate existing namespace with additional ID in it.. 
-Usually in programming languages namespaces are something similar to package 
-f.q.name (derived from the model itself, not defined in meta-model) so m.b. 
-talk a bit about it here.}
 
 \noindent 
 The annotation indicates that every program element that corresponds to this
@@ -181,21 +175,26 @@ entity Product {
 }
 \end{lstlisting}
 
-\noindent 
-In this example, the two \ic{name} properties both live the \ic{Property}
-namespace, but we can still distinguish them: one can be reached as
+\noindent In this example, the two \ic{name} properties both live the
+\ic{Property} namespace, but we can still distinguish them: one can be reached
+as
 \ic{Customer.name}, the other as \ic{Product.name}. This means that if \ic{name}
 is referenced in a function inside \ic{Customer}, then it references the first
 one, not the one in \ic{Product}\footnote{Note that Spoofax does not require
 each name inside a block structure to be unique: by default, it is not an error
 if users add an additional property called name to \icsn{Product}. However, in
 most languages it is desirable to prevent assigning duplicate (qualified) names.
-We show how to specify a constraint for that later on \todoref{}.}. The full
-grammar of the mobl entities language with annotations is the following (leaving
-out the lexical syntax):
+We show how to specify a constraint for that in \sect{Sec-spoofax-constraints}.}. The full grammar of the mobl entities language with annotations is
+the following (leaving out the lexical syntax):
 
-\guido{how are the fully qualified names built?
+\guido{
+I am not sure if this should be discussed here, it requires more adjustment rules.
+
+how are the fully qualified names built?
 how can "private" properties be implemented?}
+
+\todo{guido does it -> SLE paper appraoch is better suited.}
+
 
 \begin{lstlisting}[language=sdf]
 module MoblEntities
@@ -234,7 +233,7 @@ statement \ic{return x.y;}. In such a statement, \ic{x} can be a local variable
 can even be a type (\ic{Type}). As this more complicated scenario is not covered
 by the annotations, we specify an \ic{\_} in the grammar instead.
 The \ic{\_} indicates that we specify additional, manual rules for resolving
-this case. We show how to specify these at the end of this section. \todoref{}
+this case. We show how to specify these at the end of this section. 
 
 \subsection{URIs for Program Elements}
 
@@ -287,9 +286,8 @@ The block statement does not define a definition name, but can still become part
 of a URI. Instead of a name, that part will then have the form \ic{Anon(n)}
 where \ic{n} is a generated number that identifies the block. \ic{Anon(n)} is anexample of a complex term.
 
-URIs can be inspected using the default hover help popups, or using the analyzed
-syntax view\guido{what is this view? - is this a Spoofax editor feature?}. The
-analyzed syntax view shows the abstract syntax with all URIs as annotations.
+URIs can be inspected using the default hover help popups, or using Spoofax' analyzed
+syntax view. This view shows the abstract syntax with all URIs as annotations\footnote{To obtain this view, press \emph{Show analyzes syntax(selection)} in the \emph{Transform} menu of the Spoofax editor. Spoofax will open a new editor which updates automatically when the content of the original editor changes}.
 Consider the following example with both named and anonymous blocks:
 
 \begin{lstlisting}[language=webdsl]
@@ -354,7 +352,15 @@ Any references that cannot be resolved are annotated with a special
 represented as
 \ic{Var("nonexistent"\curlies{[Unresolved(Var()),"non\-existent",...]})}. This
 makes it easy to recognize any unresolved references in analyses or
-transformations\guido{give some examples of analyses + transformations}.
+transformations
+
+\guido{
+Beispiele, Referenzen
+
+code? text?
+
+give some examples of analyses + transformations}.
+\todo{guido does it: SLE paper}
 
 
 \subsection{Persistence of Naming Information}
@@ -367,10 +373,10 @@ summary information about files in a project together, it ensures fast access to
 global information. The index is updated automatically with changes to the file
 system (e.g.,~files being deleted or removed) and is persisted as Eclipse exits.
 All entries in the index have a URI as we showed previously. Index entries can
-be represented in the ATerm format (see \todoref{}). For example,
+be represented in the ATerm format (see \sect{Sec:spoofax-aterm}). For example,
 \ic{Def([Module(),"banking"])} is a definition entry for a banking module.
 In the form of terms, they can be used in the same way as abstract syntax tree
-fragments in transformations and analyses. \sect{ch:constraints} shows how
+fragments in transformations and analyses. \sect{Sec:spoofax-constraints} shows how
 the index can be used for such tasks.
 
 Internally, index entries are stored in tables for efficient random access. They
@@ -412,29 +418,21 @@ assumptions about a specific language\footnote{Spoofax expects language
 designers to \emph{manage by exception}.}. By default, it does not care about
 file boundaries: if an \ic{Address} is defined in a different file, it will
 still find it. There is also no default constraint for duplicate names: two
-definitions of \ic{Address} are fine (in which case the reference has two
-targets)\guido{what does this mean? How do you process that? it is unintuitive
-to me what "two targets" mean; Another reviewer had the same question.}. Lastly,
+definitions of \ic{Address} are fine (in which case a reference will resolve to one of them). 
+Lastly,
 the default strategy knows nothing about import definitions for a specific language, as these can vary quite a bit among languages.
 
+\subsection{Rewrite Rules}
+\label{Sec:spoofax-rewrite-rules}
 
 Spoofax provides support for adding constraints and for customization of the
 behavior of the default resolution strategy by means of \emph{rewrite rules}.
 Rewrite rules are functions that operate on terms, transforming one term to
-another. We provide a primer on rewrite rules next, and show how they can be
+another. We provide a primer on rewrite rules here, and show how they can be
 used to customize name resolution\footnote{Rewrite rules are used for all
 kinds of other purposes in Spoofax, and we will encounter them again, for
-example in the chapter on transformation and code generation \todoref{}. This
-is why we explain them in quite some detail here.}.
-
-
-\subsection{Rewrite Rules}
-\label{Sec:rewrite-rules}
-
-\guido{Please explain why we need all this detail here AT THIS LOCATION (along
-the lines of: we need a general intro to rewriting somewhere, because we'll use
-rewriting later. So we decided to put it here, because we need some of it for linking
-and scoping).}
+example in the chapter on transformation and code generation \sect{Sec:spoofax-trafo-codegen}.
+This is why we explain them in quite some detail here.}.
 
 Rewrite rules in Spoofax are provided as part of the Stratego program
 transformation language. A basic rewrite rule that transforms a term pattern
@@ -462,7 +460,7 @@ So, for an entity \ic{Entity("User", [Property("name", String)])}, it binds
 \ic{"User"} to the variable \ic{name}, and \ic{[Property("name", "String")]}
 to the variable \ic{properties}. It then returns \ic{properties}. While rewrite
 rules can be viewed as functions, they have one important difference:
-they can be defined multiple times for different patterns\todo{This is
+they can be defined multiple times for different patterns\footnote{This is
 comparable to polymorphic overloading.}. In the case of \ic{get-properties}, we
 could add another definition that works for property access expressions:
 
@@ -575,9 +573,13 @@ the name of the \emph{Stratego} transformation language comes from.}.
 In Spoofax, strategies are used to control traversals in constraints,
 transformation, and code generation.
 
-\guido{this section is extremely dense -- to me it is now unclear what the
+\guido{Not sure how to handle this, need to discuss this
+
+this section is extremely dense -- to me it is now unclear what the
 intention is: to provide a manual about Spoofax? or to present more abstract concepts?
 }
+\todo{guido does it -> SLE Paper}
+
 
 \subsection{Customizing the Name Resolution Strategy}
 
@@ -685,8 +687,6 @@ the right-hand side, we construct the list of adjusted URIs right away.
 
 
 
-%\todo{show rules for handling imports here.
-%can't really show anything else interesting without types.}
 
 %unifying Var and Property namespace?
 %
@@ -845,7 +845,7 @@ on that program element will go to the referenced state.
 \subsection{Nested Scopes} 
 
 The approach to scoping shown above is suitable for simple cases, such as the
-\ic{targetState} reference shown above. However, in languages with nestes blocks
+\ic{targetState} reference shown above. However, in languages with nested blocks
 a different approach is recommended. Here is an example of a program expressed in
 a language with nested blocks:
 
@@ -901,13 +901,6 @@ definition. This can be used to make shadowed variables visible under a
 different name, such as \ic{outer.x} if it is referenced from location \ic{1}.
 The following is pseudo-code that implements this behavior:
 
-\todo{how is implementing the "line dependent scoping"? -- e.g.
-
-{
-  int x = a;  // this should not be valid since a was not declared
-  int a;
-  x=a; // this should be valid
-}}
 
 \begin{lstlisting}[language=java]
 // recursive method to build nested scopes
@@ -1056,7 +1049,7 @@ function has to be implemented. It simply returns a list of all the elements
 that are considered valid targets for the reference, as well a an optional text
 string used to represent the respective element in the code completion menu.
 
-As we have explained above \todoref{}, smart references are an important
+As we have explained above (\sect{projed}), smart references are an important
 ingredient to make this work conveniently. They make sure that users can simply
 type the name (or whatever else is put into the code completion menu by the
 language developer) of the targeted element; once something is selected, the
@@ -1075,26 +1068,23 @@ concept Transition
 \noindent The scope itself is defined via the search scope constraint below. The
 system provides an anonymous function \ic{search scope} that has a number of
 arguments that describe the context including the enclosing node and the
-referencing node.
-As the signature shows, the function has to return either an \ic{ISearchScope}
-or simply a sequence of nodes of type \ic{State}. The scope of the target state
-is simply the set of states of the state machine that (transitively) contains
-the transition. To implement this, the expression in the body of this function
-crawls up the containment hierarchy\footnote{Note that for a smart reference,
-where the reference object is created only \emph{after} selecting the target,
-the \icsn{referenceNode} argument is \icsn{null}! This is why we write the scope
-using the \icsn{enclosingNode} argument.
+referencing node. As the signature shows, the function has to return either an
+\ic{ISearchScope} or simply a sequence of nodes of type \ic{State}. The scope of
+the target state is simply the set of states of the state machine that
+(transitively) contains the transition. To implement this, the expression in the
+body of this function crawls up the containment hierarchy\footnote{Note that for
+a smart reference, where the reference object is created only \emph{after}
+selecting the target, the \icsn{referenceNode} argument is \icsn{null}! This is
+why we write the scope using the \icsn{enclosingNode} argument.
 } until it finds a \ic{Statemachine} and then returns its
 \ic{states}\footnote{The code used to express scopes can be arbitrarily complex
 and is implemented in MPS' BaseLanguge, an extended version of Java.}.
-\todo{mention new way of scoping in MPS - talk to Alex. Maybe mention that the
-kinds of scopes used for local var refs are now built in, kinda?}
 \begin{lstlisting}[language=mps] link {target}
   referent set handler:
     <none>
   search scope:
     (model, scope, referenceNode, linkTarget, enclosingNode)
-   ->join(ISearchScope | sequence<node<State>>) {
+             ->join(ISearchScope | sequence<node<State>>) {
       enclosingNode.ancestor<concept = Statemachine>.states;
     }
   validator:
@@ -1112,7 +1102,11 @@ presentation in the code completion menu (\ic{presentation}).
 
 
 \parhead{Nested Scopes} In a more complex, block oriented language with
-nested scopes, a different implementation pattern is recommended:
+nested scopes, a different implementation pattern is recommended\footnote{In
+this section we describe the approach as we have implemented it for mbeddr C.
+Since version 2.5, MPS supports this approach out of the box. For example, an
+interface similar to \icsn{IScopeProvider} ships with MPS, and scopes
+can be inherited from parent nodes.}:
 
 \begin{itemize}
   \item All program elements that contribute elements that can be referenced
@@ -1198,7 +1192,7 @@ means\footnote{It can also be a problem regarding modularity, because every
 referencable concept must extend \icsn{Symbol}. Referencable elements
 contributed by an independently developed language which we may want to embed
 into the C language will \emph{not} extend \icsn{Symbol}, though! We discuss
-language modularization and composition in \todoref{}.}.
+language modularization and composition in \sect{mpsmodular}.}.
 
 In projectional editors this is done differently. To solve the example above,
 one would create a \ic{LocalVariableReference} and an

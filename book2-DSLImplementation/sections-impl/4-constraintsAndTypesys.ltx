@@ -90,6 +90,7 @@ show an example of using a data flow graph in the MPS example
 
 
 \section{Constraints in Xtext}
+\label{xtextconstraints}
 
 Just like scopes, constraints are implemented in Java or any other JVM
 language\footnote{As mentioned earlier, a language that provides higher order
@@ -452,6 +453,7 @@ checking rule check_DataFlow {
 
 
 \section{Constraints in Spoofax}
+\label{Sec:spoofax-constraints}
 
 Spoofax uses \emph{rewrite rules} to specify all semantic parts of a language
 definition. In \sect{Sec:rewrite-rules} we provide a primer on rewrite rules,
@@ -618,15 +620,10 @@ is-ordered-namespace:
 More sophisticated constraints and error messages can be specified using a type
 system, as we show in the next chapter.
 
-\todo{ am missing again a comparison between the three approaches 
-a more general question: who should be the readers of these chapters? is the 
-information enough for starting using a tool (xtext, spoofax, MPS)? or to 
-choose among tools? or to build new tools? how will the reader benefit from 
-the description of the three tools? 
-how should the book be read? (if I'm a MPS guy, I'll read only the MPS stuff?)}
 
 
 \chapter{Type Systems}
+\label{typesysimpl}
 
 \chapterabstract{Type systems are a subset of constraints --- the implement type
 calculations and type checks. Those can be relatively complex, so special
@@ -863,7 +860,7 @@ typeof( LocalVarDecl lvd ) {
 
 \subsection{Unification}
 
-Unification is the second well-known approach to type calculation. Once again we
+Unification is the second well-known approach to type calculation. Let's 
 start with a definition from Wikipedia:
 
 \begin{quote}
@@ -887,13 +884,20 @@ algebra. Here is an example:
 solution for this set of equations is \ic{x := 5, y := 10}. 
 
 Using unification for type systems means that language developers specify a
-number of type equations which contain type variables (cf the \ic{x} and \ic{y})
-as well as type values (the numbers in the above example). Some kind of engine
+number of type equations which contain type variables (cf. the \ic{x} and
+\ic{y}) as well as type values (the numbers in the above example). Some kind of engine
 is then trying to make all equations \ic{true} by assigning type values to the
 type variables in the type equations. The interesting property of this approach
 is that there is no distinction between typing rules and type checks. We simply
-specify a set of equations that must be \ic{true} for the types to be valid. If
-an equation cannot be satisfied for any assignment of type values to type
+specify a set of equations that must be \ic{true} for the types to be
+valid\footnote{Consequently they can be evaluated "in both ways". They can be
+used for type checking, but they can also be used to compute "missing" types,
+i.e. support type inference. MPS (which uses this apprach) also exploits this
+declarative nature of typing rules by supporting type-aware code completion
+(\ic{Ctrl-Shift-Space}), where MPS computes the required type from the current
+context and then only shows code completion menu entries that fit the context
+regarding their type (and not just based on the structure).}.
+If an equation cannot be satisfied for any assignment of type values to type
 variables, a type error is detected. To illustrate this, we return to the
 \ic{LocalVarDecl} example introduced above.
  
@@ -923,8 +927,6 @@ equation is ignored. The second equation can be satisfied by assigning \ic{T}, t
 type of the variable declaration, to be \ic{int}. The second equations acts as a type
 derivation rule and defines the type of the overall \ic{LocalVarDecl}
 to be \ic{int}.
-
-\todo{Check the direction of the arrow and the ordering of the equations.}
 
 \begin{lstlisting}[language=mps]
 // var i: int          
@@ -1057,16 +1059,18 @@ in Spoofax.
 Up until version 1.0, Xtext provided no support for implementing type systems
 (beyond implementing everything manually and plugging it into the constraints).
 In version 2.0, a type system integrated with the JVM's type system is available. Since
-it is limited to JVM-related types, it is not as versatile as it couldbe\footnote{We illustrate it to some extent in the section on languagemodularity \todoref{}.}, since it cannot easily be used for languages that haveno relationship with the JVM, such as C or C++.
+it is limited to JVM-related types, it is not as versatile as it couldbe\footnote{We illustrate it to some extent in the section on languagemodularity (\sect{mpsmodular}).}, since it cannot easily be used for languagesthat have no relationship with the JVM, such as C or C++.
 As a consequence of this limitation and the fact that Xtext is widely used, two
 third-party libraries have been developed: 
 the Xtext Typesystem Framework (developed by the
 author\footnote{http://code.google.com/a/eclipselabs.org/p/xtext-typesystem/},
 and XTypes (developed by Lorenzo
 Bettini\footnote{http://xtypes.sourceforge.net/}. In the remainder of this
-section we will look at the Xtext Typesystem Framework.
+section we will look at the Xtext Typesystem Framework (see
+also an SLE 2012 paper that compares typesystem approaches for
+Xtext~\cite{TS12}).
 
-\todo{reference SLE paper that compares the approaches}
+
 
 
 \parhead{Xtext Typesystem Framework} The Xtext Typesystem Framework is
@@ -1270,8 +1274,7 @@ of Java code.}.
 
 
 \section{MPS Example}
-
-\todo{Is this too detailed?}
+\label{mpstypesys}
 
 MPS includes a DSL for type system rule definition. It is based on
 unification, and pattern matching for binary operators. 
@@ -1550,9 +1553,11 @@ overloaded to support string concatenation, we can add the following typing rule
 
 
 \parhead{Persistence of Typing Information} As we discussed earlier, Spoofax
-stores information about definitions in an in-memory data structure called the
-index. This typically includes information about types. Consider the following
-typing rules, which rewrites property and variable declarations to their
+stores information about the definition sites of names in an in-memory data structure called the
+index. This typically includes information about types. 
+For example, to determine the type of property and variable references, 
+Spoofax needs to store the type of the corresponding declarations.
+Consider the following typing rules, which rewrites property and variable declarations to their
 declared types:
 
 \begin{lstlisting}[language=stratego]
@@ -1563,10 +1568,9 @@ declared types:
 \end{lstlisting}
 
 \noindent 
-Spoofax relies on these rules storing type information about property and
-variable declarations in the index\guido{This sentence was not understood
-by a review.}. This is achieved by the following generic rewrite rule:
-
+Spoofax uses these rules to determine the type of a property or variable declaration. 
+This type is stored as an information about the property or variable name.
+The storing itself is implemented by the following generic rewrite rule:
 
 \begin{lstlisting}[language=stratego]
   adjust-index-def-data(store-results |namespace, path):
@@ -1575,11 +1579,11 @@ by a review.}. This is achieved by the following generic rewrite rule:
       type := <type-of> def
 \end{lstlisting}
 
-\noindent Spoofax tries to apply this rule for every definition\guido{What
-is a definition?}. If the definition has a type, \ic{type-of} will succeed and
-the returned type is stored in the index. If the definition has no type, \ic{type-of} will fail. By this,
-the whole rule will fail and nothing is stored. The stored type information can
-then be used in the typing rules for variable references and property accesses:
+\noindent Spoofax tries to apply this rule for every definition site according to the name binding definition. 
+If the definition has a type, \ic{type-of} will succeed and the returned type is stored in the index. 
+If the definition has no type, \ic{type-of} will fail. 
+By this, the whole rule will fail and nothing is stored. 
+The stored type information can then be used in the typing rules for variable references and property accesses:
 
 \begin{lstlisting}[language=stratego]
   type-of:

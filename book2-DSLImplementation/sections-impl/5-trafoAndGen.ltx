@@ -13,7 +13,7 @@ typically distinguish between two different cases: if models are transformed
 into other models we call this \emph{model transformation}. If models are
 transformed into text (usually programming language source code, XML or other
 configuration files) we refer to \emph{code generation}\footnote{As we discuss
-in Part I \todoref{}, we do not cover generation of byte code or machine code.
+in Part I, we do not cover generation of byte code or machine code.
 This is mainly for the following reason: by generating source code of a GPL, we
 can reuse this GPL's compiler or interpreter, including all its optimizations
 (or platform independence). We'd have to rebuild these optimizations in the
@@ -35,7 +35,7 @@ for cases where the actions actually \emph{execute} the model. Execution refers
 to performing the actions that are associated with the language concepts as
 defined by the execution semantics of the concepts. We discuss interpretation in
 the next chapter\footnote{We elaborate on the trade-offs between transformation
-and generation vs. interpretation in the chapter on language design \todo{}.}.
+and generation vs. interpretation in the respective chapter on language design(\sect{genvsinter}).}.
 Note that when developing transformations and code generators, special care must
 be taken to preserve or record trace information that can be used for error
 reporting and debugging. In both cases, we have to be able to go back from the 
@@ -145,10 +145,7 @@ functions provided by Xtend make it also very well suited for navigating and
 querying models. In the rest of this section we will use Xtend for writing code
 generators and model transformations.
 
-\todo{allContentsIterable was removed. Why not just resource.getContents.
-filter() or something like that. It's usually not required to traverse the 
-complete model to find the top level structures}
-\begin{figure}[ht]
+\begin{figure}[ht] 
 \begin{center}
   \includegraphics[width=\columnwidth]{figures-impl/5/xtext-gen-1.png}
   \caption[]{The top level structure of a generator written in Xtext is a class
@@ -437,8 +434,8 @@ the original one, and we store it in the \ic{transformedProgram} variable.
 The code generator then uses the \ic{transformedProgram} as the source from
 which it generates code. In effect, we have added a "preprocessor"
 model-to-model transformation to the generator. As discussed in the design
-section \todoref{}, this is one of the most common uses of model-to-model
-transformations.
+section (\sect{semantics}), this is one of the most common uses of
+model-to-model transformations.
 
 The \ic{transform} function (described below) enriches the existing model. It
 creates a new state (\ic{EMERGENCY\_STOP}), creates a new event
@@ -478,7 +475,7 @@ class Transformation {
  
 }
 \end{lstlisting}
-
+ 
 \noindent The two \ic{create} methods create new objects, as the \ic{create}
 prefix suggests\footnote{The \icsn{factory} used in these methods is the way to
 create model elements in EMF. It is generated as part of the EMF code
@@ -545,7 +542,7 @@ s.events += eh
 \noindent 
 The notation used in the actual implementation is more concise and resembles the
 tree structure of the code much more closely. It uses the well-known
-\emph{builder} notation\todoref{}. Builders are implemented in Xtend with a 
+\emph{builder}. Builders are implemented in Xtend with a 
 combination of closures and implicit arguments and a number of functions implemented in the
 \ic{CoolingBuilder} class\footnote{Of course, if you add the line count and
 effort for implementing the builder, then using this alternative over the
@@ -585,8 +582,6 @@ class CoolingBuilder {
 
 \section{MPS Example}
 
-\todo{Do we want to discuss the builder lang extension?}
- 
 The distinction between code generators and model-to-model transformations is
 much less clear in MPS. While there is the specialized \ic{textgen} language for
 text generation, it is really just used "at the end" of the transformation chain
@@ -620,7 +615,6 @@ as for XML, or even for a particular schema).}.
 \end{figure}
 
 
-\noindent 
 DSLs and language extensions typically use model-to-model transformations to
 "generate" code expressed in a low level programming language. In general,
 writing transformations in MPS involves two ingredients. Templates define the
@@ -727,7 +721,6 @@ state machines to the various elements we mentioned above. Notice how the
 surrounding module remains unchanged, because no reduction rule is defined for
 it. 
 
-\todo{change figures to remove the med stuff}
 \begin{figure}[ht]
 \begin{center}
   \includegraphics[width=\columnwidth]{figures-impl/5/mps-gen-phases.png}
@@ -759,7 +752,7 @@ interesting part of \fig{mps-sm-inspector1} is the body of the anonymous functio
 (\icsn{node.states;}), which is why in the future we will only show this part.}.
 For the literals of the events \ic{enum} we use a similar expression
 (\ic{node.events;}).
-\todo{above, the sidenote is somehow broken (-10)}
+
 
 \begin{figure}[ht]
 \fbox{
@@ -790,8 +783,6 @@ expression of the property macro (also entered in the inspector):
 \begin{lstlisting}[language=mps]
 node.cEnumLiteralName();
 \end{lstlisting}
-
-\todo{clean up I and we}
 
 \noindent In the code above, \ic{cEnumLiteralName} is a behavior method.
 Behavior methods are defined as part of the behavior aspect of the \ic{State}
@@ -859,7 +850,6 @@ convenient and works also for cross-model references, where mapping labelsdon't
 \end{figure}
 
 
-\noindent 
 Let us now address the second main template, \fig{mps-sm-gen-2}, which generates
 the execute function. Looking at the template fragment markers (\ic{<TF ...
 TF>}) reveals that we only generate the \ic{switch} statement with this
@@ -1018,16 +1008,66 @@ the \ic{enum} literal generated for this event. The macro code is straight forwa
 node.event.cEnumLiteralName();
 \end{lstlisting}
 
+Instead of using the template-based approach shown above, transformations can
+also be written manually against the MPS API. To do this, a \ic{mapping script}
+is called from the mapping configuration (instead of the mapping configuration
+containing rules). Such a mapping script can contain arbitrary BaseLanguage code
+that operates on the output model of the transformation. This is essentially
+similar to the implementation code for intentions or refactorings
+(\sect{impl-refa}); those also modify a model using the MPS Node API.
 
+As part of the mbeddr project, we have built a Builder extension to BaseLanguge.
+In the example below, we will build the following code:
 
+\begin{lstlisting}[language=mbeddr]
+module SomeModule imports nothing { 
+   
+  exported test case testCase1 {  }  
+   
+  exported int32 main(int32 argc, string*[] argv) { 
+  	return test testCase1; 
+  }  
+}
+\end{lstlisting}
+
+\noindent The code below builds the code above. Notice how by default we work
+with concepts directly (as when we mention \ic{StatementList} or
+\ic{ExecuteTestExpression}). However, we can also embed expression in the
+builder using the \ic{\#(..)} expression. Nodes created by the builder can be
+named \ic{tc:TestCase} so they can be used as a reference target later
+(\ic{testcase -> tc}).
+
+\begin{lstlisting}[language=mps]
+  node<ImplementationModule> immo = build ImplementationModule 
+    name = #(aNamePassedInFromAUserDialog) 
+    contents += tc:TestCase 
+    	name = "testCase1" 
+    	type = VoidType 
+    contents += #(MainFunctionHelper.createMainFunction())
+    	body = StatementList
+    	statements += ReturnStatement 
+    		expression = ExecuteTestExpression 
+      			tests += TestCaseRef 
+        			testcase -> tc 
+\end{lstlisting}
+
+\noindent Builders in MPS are a first-class extension to BaseLanguage, which
+means that the IDE can provide support. For example, if a concept has a
+mandatory child (e.g. the \ic{body} in a \ic{Function}), the IDE will report an
+error if no node is put into this child slot. Code completion can be provided as
+well\footnote{Also, users do not have to build the helper functions we have seen
+for Xtext/Xtend above. On the other hand, the MPS builder extension is specific
+to building MPS node trees, whereas the approach taken by Xtext/Xtend is
+generic, as long as users define the helper functions.}.
 
 
 \section{Spoofax Example}
+\label{Sec:spoofax-trafo-codegen}
 
 In Spoofax, model-to-model transformations and code generation are both
 specified by rewrite rules\footnote{Rewrite rules have been introduced in
-\todoref{}.}. This allows for the seamless integration of model-to-model
-transformation steps into the code generation process; the clear distinction 
+\sect{Sec:spoofax-rewrite-rules}.}. This allows for the seamless integration of
+model-to-model transformation steps into the code generation process; the clear distinction 
 between model-to-model transformation and code generation vanishes.
 
 \parhead{Code Generation by String Interpolation} Pure code generation from
@@ -1045,8 +1085,8 @@ to-java: EntType(name) -> name
 For entity types, we use their name as the Java representation.
 Typically, more complex rules are recursive and use string
 interpolation\footnote{We used string interpolation already before to compose
-error messages \todoref{}.} to construct strings from fixed and variable parts.
-For example, the following two rewrite rules generate Java code for entities and
+error messages in \sect{Sec:spoofax-constraints}.} to construct strings from fixed and variable
+parts. For example, the following two rewrite rules generate Java code for entities and
 their properties:
 
 \begin{lstlisting}[language=stratego]
@@ -1140,10 +1180,7 @@ class Item {
 \noindent When we prefer camelcase in method names, we need to slightly change
 our code generation rules, replacing \ic{get\_[x]} and \ic{set\_[x]} by
 \ic{get[<to-upper-first>x]} and \ic{set[<to-upper-first>x]}. We also need to
-specify the following rewrite rule, which turns a string into a list of
-characters, upper-cases the first character, and turns the characters back into
-a string:
-
+specify the following rewrite rule:
 \begin{lstlisting}[language=stratego]
 to-upper-first: s -> s'
   where
@@ -1152,9 +1189,10 @@ to-upper-first: s -> s'
     s'            := <implode-string> [upper|chars]
 \end{lstlisting}
 
-\guido{what are these explode/implode-strings? 
-are they library functions of Spoofax rewrite rules? are they fix, can they 
-be extended with new functions?}
+\noindent
+This turns a string into a list of characters (\ic{explode-string}), upper-cases the first character (\ic{to-upper}), and turns the characters back into a string (\ic{implode-string}).
+The strategies used here are part of Stratego's standard library\footnote{The Stratego standard library is documented at \url{http://releases.strategoxt.org/docs/api/libstratego-lib/stable/docs/}}.
+While \ic{explode-string} and \ic{implode-string} are the only way to turn strings into a list of characters and vice-versa, we can use predefined as well as user-defined strategies to manipulate the characters.
 
 \parhead{Editor Integration} To integrate the code generation into our editor,
 we first have to define the following rewrite rule:
@@ -1183,8 +1221,6 @@ Once we have defined this rule, we can register it as a \ic{builder} in
 \begin{lstlisting}[morekeywords={builder, generate, java, openeditor, realtime}]
 builder: "Generate Java code (for selection)" = generate-java (openeditor) (realtime)
 \end{lstlisting}
-
-\guido{for somebody that does not know spoofax, this is too detailed}
 
 \noindent 
 This defines a label for our transformation, which is added to the editor's
@@ -1248,11 +1284,6 @@ side of rewrite rules:
       assign := Assign(FieldRef(This(), x), VarRef(x)) 
 \end{lstlisting}
 
-\guido{the Concrete Object Syntax paragraph header shows up twice. Can't be
-intended, right?}
-
-\parhead{Concrete Object Syntax}%
-%
 When we generate abstract syntax trees instead of concrete syntax, we can easily compose transformation steps into a transformation chain by using the output of transformation $n$ as the input for transformation $n+1$. 
 But this chain will still result in abstract syntax trees.
 To turn them back into text, it has to be pretty printed (or serialized).
@@ -1295,7 +1326,7 @@ imports Stratego [ Id   => StrategoId
 
 \noindent 
 Second, we need to define quotations, which will enclose concrete syntax
-fragments of the target language in Stratego rewrite rules. We add a production
+fragments of the target language in Stratego rewrite rules. We add a syntax
 rule for every sort of concrete syntax fragments that we like to use in our
 rewrite rules:
 
@@ -1313,20 +1344,21 @@ exports context-free syntax
   "|[" JFeature* "]|" -> StrategoTerm {"ToTerm"}
 \end{lstlisting}
 
-\todo{@Guido what exactly do we do we the above definitions? and what does
-StrategoTerm {"ToTerm"} mean?}
-
-\noindent 
-\ic{StrategoTerm} is the sort for terms in a Stratego program. 
-With these rules, we allow quoted Java fragments whereever an ordinary Stratego term is allowed.
-We further use \ic{ToTerm} as a constructor in the abstract syntax tree.
+\noindent
+With these rules, we allow quoted Mobl and Java fragments whereever an ordinary Stratego term is allowed.
+The upper rules concern Mobl, our example source language. 
+We like to use concrete syntax for modules (\ic{Module}), import declarations (\ic{Import}), entities (\ic{Entity}), and properties and functions of entities (\ic{EntityBodyDecl}).
+As quotes, we use \ic{|[...]|}.
+The lower rules work similar for Java, our example target language.
+All syntax rules extend \ic{Term} from the Stratego grammar, which we renamed to \ic{StrategoTerm} during import. 
+We use \ic{ToTerm} as a constructor label.
 This way, Stratego can recognise places where we use concrete object syntax inside Stratego code.
 It will then lift the subtrees at these places into Stratego code.
 For example, the abstract syntax of \ic{|[ return |[x]|; ]|} would be \ic{ToTerm(Return(...))}.
 Stratego lifts this to \ic{NoAnnoList(Op(\"Return\", [...]))}, which is the abstract syntax tree for the term \ic{Return(x)}.
 
 Third, we need to define antiquotations, which will enclose Stratego code in
-target language concrete syntax fragments. Here, we add a production rule for
+target language concrete syntax fragments. Here, we add a syntax rule for
 every sort where we like to inject Stratego code into concrete syntax fragments:
 
 \begin{lstlisting}[language=sdf]
@@ -1336,6 +1368,7 @@ exports context-free syntax
 \end{lstlisting}
 
 \noindent 
+This rule allows antiquoted Stratego terms to be used whereever a Java identifier can be used (we renamed \ic{Id} from the Java grammar to \ic{JavaID} during import).
 We use \ic{FromTerm} as a constructor in the abstract syntax tree.
 Like \ic{ToTerm}, Stratego uses this to recognise places where we switch between concrete object syntax and Stratego code.
 For example, the abstract syntax of \ic{|[ return |[x]|; ]|} would be \ic{ToTerm(Return(FromTerm(Var("x"))))}.
@@ -1405,6 +1438,7 @@ a grey background color.
                       
 
 \chapter{Building Interpreters}  
+\label{interpreterimpl}
  
 \chapterabstract{Interpreters are programs that execute DSL programs by
 directly traversing the DSL program and performing the semantic actions
@@ -1517,28 +1551,25 @@ environment is popped.
 
 
  
-\sect{Building an Interpreter with Xtext} 
+\section{Building an Interpreter with Xtext} 
 
 \marginnote[3mm]{The example discussed in this section is built using the Xtext
 interpreter framework that ships with the Xtext typesystem framework discussed earlier:
 http://code.google.com/a/eclipselabs.org/p/xtext-typesystem/} 
  
-This example describes an interpreter for the cooling language. It is used to
-allow DSL users to "play" with the cooling programs before or instead of
-generating C code. The interpreter can execute test cases (and report success or
-failure) as well as simulate the program interactively. Since no code generation
-and no real target hardware is involved, the turn-around time is much shorter
-and the required infrastructure is trivial --- just the IDE\footnote{ The
-abstraction level of such an interpreter must be decided. One alternative might
-ignore for example the use of registers when performing an assignment, avoiding
-problems resulting from parallelism. Alternatively, the interpreter might model
-everything and thereby can address issues related to parallelism. In other
-words, an interpreter defines a virtual machine and it is fundamental that this
-virtual machine has an adequate abstraction level and/or the users are aware of
-exactly what it means for the execution of the program on the target hardware if
-the program runs on the virtual machine.}. The execution engine, as the
-interpreter is called here, has to handle the following language aspects:
-\todo{I think the big footnote above should go into the design part.}
+This example describes an interpreter for the cooling language\footnote{The
+interpreter in this section is built with Java because this is how we did it in
+the actual project. Instead, since the interpreter just operates on the EMF API,
+it can be written with any JVM language. In particular, Xtend would be well
+suited because of support for functional programming and more generally more
+concise syntax, especially regarding working with EMF abstract syntax trees.
+}. It is used to allow DSL users to "play" with the cooling programs before or
+instead of generating C code. The interpreter can execute test cases (and report
+success or failure) as well as simulate the program interactively. Since no code
+generation and no real target hardware is involved, the turn-around time is much
+shorter and the required infrastructure is trivial --- just the IDE. The
+execution engine, as the interpreter is called here, has to handle the following
+language aspects:
 
 \begin{itemize}
 
@@ -1805,7 +1836,7 @@ The following is the code for the evaluation function for the symbol reference.
 It must distinguish between references to variables and to
 functions\footnote{This is once again a consequence of the fact that all
 references to any symbol are handled via the \icsn{SymbolRef} class. We have
-discussed this in \todoref{}.}.
+discussed this in \sect{Sec:xtext-syntax}.}.
 
 
 \begin{lstlisting}[language=java]
@@ -2003,8 +2034,7 @@ private void executeAsyncStuff(LogEntry logger) {
 \end{lstlisting}
 
 
-\todo{Talk a little bit about Xtend for building interpeters using
-extension methods and the cool switch statement}
+
 
 
 
@@ -2049,15 +2079,76 @@ Note that this extension is modular in the sense that the definition of
 BaseLanguage was not changed. Instead, an additional language module was defined
 that \emph{extends} BaseLanguage. This module can be used as part of the program
 that contains the interpreter, making the \ic{dispatch} statement available
-there\footnote{We discuss language modularization and composition is
-\todoref{}.}. Also, the \ic{\$} expression is restricted to only be usable on
-the right side of the \ic{->}. This way the overall base language namespace is kept
-clean.
-
+there\footnote{We discuss language modularization and composition in
+\sect{sec:extAndComp}.}. Also, the \ic{\$} expression is restricted to only be
+usable on the right side of the \ic{->}. This way the overall base language namespace is kept
+clean\footnote{Xbase/Xtend comes with a similar "pimped" \icsn{switch}
+statement directly. It supports switching over integer and enum literals (as
+Java's \icsn{switch} does), but it also supports switching over types plus
+arbitrary boolean guard conditions. This makes it very suitable for building
+interpreters, since, as we have seen, an interpreter typically dispatches its
+behavior based on the metaclass of the node it processes, plus optionally some
+of its context or children (which can be expressed with a guard
+condition in Xtend's \icsn{switch}.)}.
+ 
 Since MPS is a projectional editor, it can show things in the editor that are
 read-only. For example, the result of an interpreter run can be integrated
-directly into the editor. \todo{Show the insurance example thingy, and also
-show how it is actually called.}
+directly into the editor. In \fig{mpsInsurance}, the bottom table contains
+test cases for the \ic{calculate} rule. Users enter a number for
+\ic{squareMeters}, \ic{numberOfRooms} and the expected result, and in the last
+column, the editor shows the actual result of the computation (colored red or
+green depending on whether the actual result matches the expected result). 
+
+\begin{figure}[ht]
+\fbox{
+\begin{minipage}{105mm}
+  \includegraphics[width=\columnwidth]{figures-impl/5/mpsInsurance.png}
+\end{minipage}
+}
+  \caption{This screenshot shows an mbeddr-based demo application where
+  users can specify insurance rules. The system includes an interpreter that
+  executes the test cases directly in the IDE.}
+  \label{mpsInsurance} 
+\end{figure}
+
+\noindent The interpreter is integrated via the \ic{evaluate} button\footnote{In MPS, an
+editor can embed Swing components, and these Swing components can react to
+their own events and modify the model in arbitrary ways.}. Its action listener
+triggers the computation:
+
+\begin{lstlisting}[language=java, morekeywords={component, provider}]
+component provider: (editorContext, node)->JComponent { 
+  JButton evalButton = new JButton("evaluate"); 
+  final node<ProductTestSuite> suite = node; 
+  evalButton.addActionListener(new ActionListener() { 
+    public void actionPerformed(ActionEvent p0) { 
+      command { 
+        foreach tc in suite.cases { 
+          float result = new RateCalculator(tc).calculate(
+                suite.ancestor<concept = ProductType, +>.rateCalculation); 
+          tc.actualResult.value = result + ""; 
+        } 
+      } 
+    } 
+  }); 
+  return evalButton; 
+}
+\end{lstlisting}
+
+\noindent The coloring of the cells (and making them read-only) is done via
+query-based formatting:
+
+\begin{lstlisting}[language=mps, morekeywords={style}, deletekeywords={concept}]
+style {                                                                                                            
+  editable : false                                                                                                           
+  background-color : (node, editorContext)->Color { 
+                        node.ancestor<concept = TestCase>.isOK() 
+                               ? Color.GREEN : Color.RED; 
+                     }
+}                                                                                                                            
+\end{lstlisting}
+
+ 
 
 
 \section{An Interpreter in Spoofax}
@@ -2113,11 +2204,8 @@ eval: LazyAnd(False(), _)     -> False()
 eval: LazyAnd(_, False(), _)  -> False()
 \end{lstlisting}
 
-\noindent We can orchestrate these rules in two different styles. For a
-small-step interpreter, we only apply one rule in each step:
-\guido{the distinction in purpose between small-step and big-step interpreters
-is not clear in this section}
-
+\noindent We can orchestrate these rules in two different styles. 
+First, we can define an interpreter which performs only a single evaluation step by applying one rule in each step:
 \begin{lstlisting}[language=stratego]
 eval-one: exp -> <oncebu(eval)> exp
 \end{lstlisting}
@@ -2129,8 +2217,8 @@ evaluations are likely to happen at the bottom of the tree, why \ic{oncebu} is
 the better choice. The result of \ic{eval-one} will be a slightly simpler
 expression, which might need further evaluation.
 
-In contrast, we can directly apply as many rules as possible, trying to evaluate
-the whole expression. This will give us a big-step interpreter:
+Alternatively, we can directly apply as many rules as possible, trying to evaluate
+the whole expression:
 
 \begin{lstlisting}[language=stratego]
 eval-all: exp -> <bottomup(try(eval))> exp
@@ -2267,7 +2355,4 @@ transformation in the builder. This will create an initial state for the
 interpreter. When we define a concrete syntax for these states, they can be
 shown in an editor. The transition transformation can then be integrated as a
 refactoring on states, changing the current state to the next one. This way, the
-user can control the execution, undo steps, or even modify the current state.
-\todo{This last paragraph, and especially the last part of it hints at how to
-build a debugger, right? So maybe we can discuss some of this in the debugging
-chapter.}
+user can control the execution, undo steps, or even modify the current state.In \sect{Sec:Debugging}, we show how this can be used to build a debugger.

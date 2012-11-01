@@ -17,11 +17,11 @@ how X works in some tool, this does \emph{not} mean that you cannot do X with
 this particular tool.}.
 
 
-\sect{Code Completion}
+\section{Code Completion}
 
 Code completion is perhaps the most essential service provided by an IDE. We
 already saw that code completion is implicitly influenced by
-scopes\todoref{}: if you press \keystroke{Ctrl-Space} at the location of a
+scopes: if you press \keystroke{Ctrl-Space} at the location of a
 reference, the IDE will show you the valid targets of this reference (as
 defined in the scope) in the code completion menu. Selecting one establishes the
 reference. 
@@ -72,8 +72,13 @@ public class CoolingLanguageProposalProvider
 \end{lstlisting}
 
 \noindent 
-Let us now look at the actual implementation of the method. In line three we get
-the scope for the particular reference so we can iterate over all the elements
+Let us now look at the actual implementation of the method\footnote{The
+\icsn{complete...} methods can be used to put essentially and (styled) string
+into the code completion menu. In particular, this also works for containment references or primitive properties and not just for references (which are
+affected by scopes). Also, for the the particular example above, we could have
+overridden the \icsn{getStyledDisplayString} method instead, whose task it is to
+provide the textual representation for contents of the scope. }. In line
+three we get the scope for the particular reference so we can iterate over all the elements
 and change their appearance in the code completion menu. To be able to get the
 scope, we need the \ic{EReference} for the particular reference. The first two
 lines in this method are used to this end.
@@ -90,11 +95,6 @@ for (IEObjectDescription od: candidates) {
 }
 \end{lstlisting}
 
-\todo{What this snippet does would usually be implemened in
-'getStyledDisplayString' where the Eclass name would even be styled according 
-to Eclipse style guides. Furthermore it bypasses important concepts such as 
-the value conversion for the insertion string. Also look at the MPS text below
-which emphasizes "brevity" over Xtext.}
 
 \noindent 
 Once we have the scope we can iterate over all its contents (i.e.~the target
@@ -222,15 +222,14 @@ of the language, or by the user in the IDE. \fig{xtext-template} shows the
 
 \noindent 
 In MPS there are several ways to address this. One is simply an intention
-(explained in more detail in \todoref{}). It will not be activated via
+(explained in more detail in \sect{mpssyntax}). It will not be activated via
 \ic{Ctrl-Space}, but rather via \ic{Alt-Enter}. In every other respect it is
 identical: the intention can insert arbitrary code into the program.
 Alternatively we can use a cell menu (already mentioned above).
 \fig{ifthenelsecellmenu} shows the code for a cell menu.
 
-\todo{remove the light border in the figure}
 \begin{figure}[h]
-\fbox{
+\fbox{ 
 \begin{minipage}{105mm}
   \includegraphics[width=9cm]{figures-impl/6/ifthenelsecellmenu.png}
 \end{minipage}
@@ -249,7 +248,7 @@ Alternatively we can use a cell menu (already mentioned above).
 
 
 
-\sect{Syntax Coloring}
+\section{Syntax Coloring}
 
 There are two cases for syntax coloring: syntactic highlighting and semantic
 highlighting. Syntactic highlighting is used to color keywords, for example.
@@ -405,9 +404,12 @@ do some further analysis on the \ic{ICompositeNode} to find out the actual
 concrete syntax node for the keyword.
 
 
-\parhead{An example with Spoofax} In Spoofax, syntax coloring can be specified
-declaratively on the lexical and on the syntactic level\guido{Is this a bug or a
-feature? Why is this?}. Both specifications need to be part of the editor
+\parhead{An example with Spoofax} 
+Spoofax supports syntax coloring on the lexical and the syntactic level.
+At the lexical level, tokens such as keywords, identifiers, or integers are colored.
+This is the most common use case of syntax coloring.
+At the syntactic level, we can color larger code fragments, for example to highlight embeddings.
+In Spoofax, syntax coloring is specified declaratively as part of the editor
 specification, preferably in \ic{<LanguageName>-Colorer.esv}.
 For the lexical level, Spoofax predefines the token classes \ic{keyword},
 \ic{identifier}, \ic{string}, \ic{number}, \ic{var}, \ic{operator}, and
@@ -474,7 +476,7 @@ font from the identifier specification.
 
 
 
-\sect{Go-to-Definition and Find References}
+\section{Go-to-Definition and Find References}
 
 Following a reference (go to definition, \keystroke{Ctrl-Click}) as well as
 finding references to a given program element works automatically without any
@@ -622,7 +624,9 @@ hyperlink.
 
 
 
-\sect{Pretty Printing} Pretty printing refers to the reverse activity from
+\section{Pretty Printing} 
+
+Pretty printing refers to the reverse activity from
 parsing\footnote{It is also known as \emph{serialization}.}. A parser transforms
 a character sequence into an abstract syntax tree. A pretty printer (re-)creates
 the text string from the AST. As the term \emph{pretty} printing suggests, the
@@ -754,21 +758,35 @@ pretty-printed. It then applies the default rules to pretty-print the remaining
 parts. For example, we could define our own pretty-printing rule for Mobl
 modules:
 
-\begin{lstlisting}[morekeywords={KW}]
+\begin{lstlisting}[morekeywords={KW,V,H,vs,is}]
    Module                   -- V vs=1 is=4 [ H [KW["module"] _1] _2]
 \end{lstlisting}
 
 \noindent 
-The \ic{H} box operator layouts sub-boxes horizontally. The desired horizontal
-separation between the sub-boxes can be specified by the spacing option \ic{hs}.
-Its default value is \ic{1}, that is, a single space is added between the boxes.
-Similarly, the \ic{V} box operator places sub-boxes vertically\guido{this is too
-abstract - without a concrete example it is hard to follow}. The desired vertical separation between the sub-boxes can be specified by the
-spacing option \ic{vs}. Its default value is \ic{0}, that is, no blank lines are
-added between the boxes. For indenting boxes in a vertical combination, the
-spacing option \ic{is} can be specified. All boxes except the first will be
-indented accordingly.
+This rule lets Spoofax prettyprint the term \ic{Module("shopping", [Entity(\ldots), Entity(\ldots)])} as
 
+\begin{lstlisting}[morekeywords={module,entity}]
+module shopping
+
+    entity ...
+    
+    entity ...
+\end{lstlisting}
+
+\noindent
+The \ic{V} box operator places sub-boxes vertically. 
+In the example, it places the entities underneath the \ic{module shopping} line.
+The desired vertical separation between the sub-boxes can be specified by the
+spacing option \ic{vs}. Its default value is \ic{0}, that is, no blank lines are
+added between the boxes.
+In the example, a blank line is enforced by \ic{vs=1}.
+For indenting boxes in a vertical combination, the spacing option \ic{is} can be specified. 
+All boxes except the first will be indented accordingly.
+In the example, the \ic{module shopping} line is unindented, while the entities are indented by 4 spaces.
+The \ic{H} box operator layouts sub-boxes horizontally. 
+In the example, it is used to layout the \ic{module} keyword and its name in the same line.
+The desired horizontal separation between the sub-boxes can be specified by the spacing option \ic{hs}.
+Its default value is \ic{1}, that is, a single space is added between the boxes.
 
 \parhead{Pretty Printing in Xtext} In Xtext, whitespace in the grammar is
 irrelevant. In other words, Xtext cannot infer the "correct" use of whitespace
@@ -834,7 +852,7 @@ used by Spoofax) should go a long way.}.
 
 
 
-\sect{Quick Fixes}
+\section{Quick Fixes}
 
 A quick fix is a semi-automatic fix for a constraint violation. It is
 semi-automatic in the sense that it is made available to the user in a menu, and
@@ -863,8 +881,8 @@ public void checkVariable( Variable v ) {
 \end{lstlisting}
 
 \noindent 
-Based on our discussion of constraint checks (in \todoref{}), this code should
-be fairly self-explaining. What is interesting is the third argument to the
+Based on our discussion of constraint checks (\sect{xtextconstraints}), this
+code should be fairly self-explaining. What is interesting is the third argument to the
 \ic{warning} method: we pass in a constant to uniquely identify the problem. The
 quick fix will be tied to this constant. The following code is the quick fix,
 implemented in the \ic{CoolingLanguageQuickfixProvider}\footnote{This code
@@ -981,13 +999,13 @@ components. An automatically executed quick fix adds missing (empty) operation
 implementations and synchronizes their signatures with the signatures of the
 operations in the interface.
 
-\parhead{Intentions} As discussed in \todoref{}, MPS also has intentions. These
-are essentially quick fixes that are not associated with an error. Instead, they
+\parhead{Intentions} As discussed in \sect{mpssyntax}, MPS also has intentions.
+These are essentially quick fixes that are not associated with an error. Instead, they
 can be invoked on any instance of the concept for which the intention is
 declared.
 
 
-\sect{Refactoring}
+\section{Refactoring}
 \label{impl-refa}
 
 Refactoring concerns changing the program structure without changing its
@@ -1086,7 +1104,6 @@ it up. If we find an entity, the renamed entity would clash with this one.
 
 
 
-\todo{Update this to new refactorings (separation UI and code)}
 \parhead{Introduce Local Variable in MPS} A very typical refactoring for a
 procedural language such as C is to introduce a new local variable. Consider
 the following code:
@@ -1121,8 +1138,13 @@ int8 someFunction(int8 v) {
 \noindent 
 The \emph{Introduce Local Variable} refactoring performs just this change. MPS
 provides a DSL for specifying refactorings, based on which the implementation is
-ca. 20 lines of code. We'll go through it in steps. We start with the
-declaration of the refactoring itself.
+ca. 20 lines of code. We'll go through it in steps\footnote{In the meantime,
+the MPS refactoring API has changed to better separate UI aspects (keystrokes,
+choosers) and the refactoring itself. This is important to support integration
+of refactorings with IntelliJ IDEA and, in the future, Eclipse. However, I 
+decided to keep the old style, since it is a little bit more concise and
+easier to follow in the context of this example.}.
+We start with the declaration of the refactoring itself.
 
 
 \begin{lstlisting}[language=mps, morekeywords={refactoring, keystroke, target,
@@ -1247,7 +1269,7 @@ non-trivial.
 
 
 
-\sect{Labels and Icons}
+\section{Labels and Icons}
 
 Labels and icons for language concepts are used in several places, among them
 the outline view and the code completion menu. 
@@ -1298,7 +1320,7 @@ fixed and cannot be changed dynamically.
 \end{marginfigure}
 
 
-\sect{Outline}
+\section{Outline}
 
 The outline provides an overview over the contents of some part of the overall
 model, typically a file. By default, it usually shows more or less the AST, down
@@ -1420,7 +1442,7 @@ shows how to implement your own outline view.}.
 
 
 
-\sect{Code Folding} Code folding refers to the small minuses in the gutter of
+\section{Code Folding} Code folding refers to the small minuses in the gutter of
 an editor that let you collapse code regions (see \fig{folding}). The editor
 shows an ellipsis (\ic{..}) for the folded parts of the code. Clicking on
 the \ic{+} or on the ellipsis restores the full code.
@@ -1478,30 +1500,21 @@ specification with our own rules, disable particular specifications by adding a
 statement. A \ic{(folded)} annotation tells Spoofax to fold a node by default in
 an opening editor, which is typically seen for import sections.
 
-\parhead{Folding in MPS} In MPS, folding can be activated for any
-collection. For example, in a state machine, each state contains a vertical list
-of transitions. \fig{statefolding} shows the definition of the \ic{State}
-editor. It contains the \ic{transitions} collection, which is an indent
-collection with the option \ic{new-line-children} set. This arranges the
-transitions vertically.
-\begin{marginfigure}
-\begin{center}
-  \includegraphics[width=65mm]{figures-impl/6/statefolding.png}
-  \caption[]{}
-  \label{statefolding} 
-\end{center}
-\end{marginfigure}
-\todo{in the above figure we DO NOT show how to set the folding property. Also
-update the caption, which is useless right now.}
-
+\parhead{Folding in MPS} In MPS, folding can be activated for any collection.
+For example, in a state machine, each state contains a vertical list of
+transitions. This arranges the transitions vertically.
 To enable folding for this collection, we simple set the \ic{uses folding}
 property for the collection to \ic{true}. It can also be set to \ic{query}, in
 which case code can be written that determines at runtime whether folding should
 be enabled or not. For example, folding could be enable if there are more than
 three transitions in the state. Once we've set the property to \ic{true}, we
 have to provide a cell that is rendered in case the user selects to fold the
-code. This way the text shown as an ellipses can be customized beyond
-just showing three dots.
+code. This way the text shown as an ellipses can be customized beyond just
+showing three dots. As \fig{statefolding2} shows, we use a \ic{read only model
+access} cell, which allows us to access the underlying model and return an
+arbitrary string. In the example, we essentially output the number of "hidden"
+transitions.
+
 
 \begin{figure}[h]
 \fbox{
@@ -1509,14 +1522,13 @@ just showing three dots.
   \includegraphics[width=\columnwidth]{figures-impl/6/statefolding2.png}
 \end{minipage}
 }
-  \caption[]{Folding enabled for states}
+  \caption[]{After \icsn{uses folding} has been set to \icsn{true} for the
+  \icsn{transitions} collection of a \icsn{State}, we have to specify an
+  \icsn{folded cell} which is shown in case the collection is folded. In this
+  case we use a \icsn{R/O model access} as the folded cell which can return a 
+  (read-only) string that is projected if the collection is folded.}
   \label{statefolding2} 
 \end{figure}
-
-\noindent 
-As \fig{statefolding2} shows, we use a \ic{read only model access} cell, which
-allows us to access the underlying model and return an arbitrary string. In the
-example, we essentially output the number of "hidden" transitions.
 
 MPS provides a second mechanism that can be used to the same effect. Since MPS
 is a projectional editor, some parts of the editor may be projected
@@ -1529,6 +1541,7 @@ conditionally. \fig{requirementsCollapsed} shows an list/tree of requirements.
 \end{center}
 \end{marginfigure}
 
+\noindent 
 After pressing \keystroke{Ctrl-Shift-D} on a requirement, the editor shows the
 requirements details (\fig{requirementsExpanded}). This effect of "expanding
 editors" is implemented by making the detail part optional in the sense that
@@ -1542,8 +1555,6 @@ the projection rule only shows it conditionally.
   \label{requirementsExpanded} 
 \end{center}
 \end{marginfigure}
-\todo{Update the figure above with the new one from ASE that has the plus and
-minus icons. Then improve the caption.}
  
 \begin{figure}[h]
 \begin{center}
@@ -1556,7 +1567,7 @@ minus icons. Then improve the caption.}
 \end{figure}
 
 
-\sect{Diff and Merge}
+\section{Diff and Merge}
 
 Highlighting the differences between versions of a program and the allowing the
 resolution of conflicts is important in the context of version control
@@ -1572,17 +1583,25 @@ that highlight whether a part of the program has changed relative to the last
 checkout.
 
 
-\sect{Tooltips/Hover} 
+\section{Tooltips/Hover} 
 
 A tooltip, or hover, is a small, typically yellow window that is shown if the
 user hovers the mouse over a program element. A hover may show the documentation
 of the target element, or, when hovering over a reference, some information
 about the referenced element. 
 
-\parhead{Xtext} While Xtext does not support tooltips directly, the tooltip
-framework provided by JFace can be used.
-\todo{Is this still true? Add a bit more integration on how to integrate them.}
+\parhead{Xtext} In Xtext, hovers/tooltips can be customized to various extents.
+The simplest customization retains the default hover structure (a one-line
+summary plus a more extensive documentation) and just changes the respective
+texts. 
 
+To change the one-line summary, you override the \ic{getFirstLine} method in 
+\ic{DefaultEObjectHoverProvider} and return a custom string. The program element
+for which the hover should be created is represented by the \ic{EObject} passed
+into the method. To customize the documentation, you override
+\ic{getDocumentation} in \ic{IEObjectDocumentationProvider}\footnote{And just
+like in any other case of Xtext framework configuration, you have to register
+the two classes in the UI module.}.
 
 \parhead{Spoofax} Spoofax supports tooltips directly. Tooltips are provided by
 rewrite rules, which need to be defined as hovers in the editor specification,
@@ -1646,7 +1665,7 @@ details about the referenced element.
 \end{figure}
   
 
-\sect{Visualizations} 
+\section{Visualizations} 
 
 To provide an overview over the structure of the programs, read-only graphical
 representations are useful. Note that these are not necessarily a workaround for

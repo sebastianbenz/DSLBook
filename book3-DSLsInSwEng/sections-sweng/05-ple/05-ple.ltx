@@ -1,4 +1,5 @@
 \chapter{DSLs and Product Lines}
+\label{plesweng}
 
 \chapterabstract{This chapter discusses the role of DSLs in Product Line
 Engineering (PLE). We first briefly introduce PLE and feature models and discuss
@@ -22,7 +23,7 @@ implementation space.}. An automated mapping transforms the configuration to the
 implementation.  
 
 
-\sect{Feature Models}
+\section{Feature Models}
 
 In PLE, this this higher level of abstraction is typically realized with feature
 models. Feature models express configuration options and the constraints among
@@ -82,7 +83,7 @@ product or the product line. The feature model has to be connected to
 implementation artifacts.
 
 
-\sect{Connecting Feature Models to Artifacts}
+\section{Connecting Feature Models to Artifacts}
 
 By definition, feature models express product line variability at a level that
 is more abstract than the implementation. In many systems, the implementation of
@@ -165,8 +166,8 @@ false. When calling the compiler/preprocessor, you have to provide a number of
 symbols that are evaluated as part of the conditions. Conditional compilation
 can also be found in other languages. Preprocessors that treat the source code
 simply as text are available for many languages and are part of many PLE tool
-suites. The AUTOSAR \todoref{} standard, as well as other modeling formalisms,
-support the annotation of model elements with presence conditions.
+suites. The AUTOSAR\footnote{http://autosar.org} standard, as well as other
+modeling formalisms, support the annotation of model elements with presence conditions.
 The model element (and all its children) are removed from the model
 if the condition evaluates to false.
 
@@ -270,11 +271,11 @@ configuration is created, errors will be shown in the configuration model.
 \label{twoconfigs}
 \end{figure}
 
-
+ 
 
 \noindent Presence conditions can be attached to any program element expressed
 in any language, without this language having to know about it, thanks to MPS'
-annotations (discussed in \todoref{}). For example the two \ic{report}
+annotations (discussed in \sect{mpsannot}). For example the two \ic{report}
 statements and the message list in the left program in \fig{projection} are only
 part of a product if the \ic{logging} feature is selected in the product
 configuration. The background color of an annotated node is computed from the
@@ -357,7 +358,7 @@ instantiated, a new ("empty") feature configuration is created, and can be
 configured by the application engineer.
 
 
-\sect{From Feature Models to DSLs}
+\section{From Feature Models to DSLs}
 \label{sec:featureModelsVsDSLs}
 
 A feature model is a compact representation of the features of the products in a
@@ -686,10 +687,10 @@ programs from partial configurations (\sect{sec:future}).
 
 
 
+ 
 
 
-
-\sect{Conceptual Mapping from PLE to DSLs}
+\section{Conceptual Mapping from PLE to DSLs}
 \label{sec:conceptualMapping}
 
 This section looks at the bigger picture of the relationship between PLE and

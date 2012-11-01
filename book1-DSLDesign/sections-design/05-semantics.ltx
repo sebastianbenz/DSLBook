@@ -1,5 +1,6 @@
 \FloatBarrier
 
+
 \section{Semantics and Execution}
 \label{semantics}
  
@@ -117,7 +118,7 @@ expression is non-trivial, since it can be an arbitrarily complex expression. A
 type system is a formalism or framework for defining the rules to establish the
 types of arbitrary expressions, as well as type checking constraints.
 It is a form of constraint checking. We cover the implementation of type systems
-in Part III of the book \todoref{}.
+in Part III of the book (\sect{typesysimpl}).
 
 
 \seppar When designing constraints and type system in a language, a
@@ -150,14 +151,14 @@ alternative design would simply infer the fact that a rule overrides another
 one if they have the same name and signature.}
 
 \noindent Note how in all three cases the constraint checking is done in two
-steps.
-First we declare an \emph{intent} (variable is intended to be \ic{int}, this state machine
-is intended to be verifiable, a rule is intended to override another one). We
-then \emph{check} if the program conforms to this intention. The alternative
-approach would infer the fact from the program (the variable's type is whatever
-the expression's type evaluates to, state machines are verifiable if the
-"forbidden" features aren't used, rules override another one if they have the
-same name and signature) \emph{without} any explicitly specified intent.
+steps. First we declare an \emph{intent} (variable is intended to be \ic{int},
+this state machine is intended to be verifiable, a rule is intended to override
+another one). We then \emph{check} if the program conforms to this intention.
+The alternative approach would infer the fact from the program (the variable's
+type is whatever the expression's type evaluates to, state machines are
+verifiable if the "forbidden" features aren't used, rules override another one
+if they have the same name and signature) \emph{without} any explicitly
+specified intent.
 
 When designing constraints and type systems, a decision has to be made regarding
 when to use which approach. Here are some trade-offs. The
@@ -166,9 +167,12 @@ results in more meaningful and specific error messages. The message can express
 that fact that one part of a program does not conform to a specification made by
 another part of the program\footnote{It also reduces the chance that users do
 something they do not intend by mistake. For example, a user might not
-\emph{want} to override a method from the base class, but it might happen
-just because the user uses the same name and parameters.}. The
-derivation/consistency approach is less effort to write and can hence be seen to be more convenient, but it requires more effort in constraint checking, and error messages may be harder to understand because of the missing, explicit "hard fact" about the program.
+\emph{want} to override a method from the base class, but it might happen just
+because the user uses the same name and parameters.}. The derivation/consistency
+approach is less effort to write and can hence be seen to be more convenient,
+but it requires more effort in constraint checking, and error messages may be
+harder to understand because of the missing, explicit "hard fact" about the
+program.
 
 
 The specification/conformance approach can also be used to "anchor" the
@@ -290,8 +294,9 @@ based on the requirements, but only by "trying to exploit" the program (known as
 penetration testing).
 
 We will elaborate more on ensuring the correctness of the execution semantics in
-this chapter, as well as in the Part III chapter on DSL testing\todoref{},
-where we discuss the implementation aspects of DSL and IDE testing.
+this chapter, as well as in the Part III chapter on DSL testing
+(\sect{testingimpl}), where we discuss the implementation aspects of DSL and IDE
+testing.
 
 
 \subsection{Transformation} 
@@ -646,8 +651,8 @@ as an input. How it does that depends on the particular paradigm used (see
 executes their side effects. In functional programs, the interpreter
 (recursively) evaluates functions. For declarative programs, some other
 evaluation strategy, for example based on a solver, may be used. We describe
-some of the details about how to design and implement interpreters in the
-section on DSL implementation \todoref{}.
+some of the details about how to design and implement interpreters in
+\sect{interpreterimpl}.
 
 \cooling{The DSL also supports the definition of unit tests for the
 asynchronous, reactive cooling algorithm. These tests are executed with an
@@ -667,8 +672,18 @@ see interpreters written in $L_{D_0}$. They may be extensible, so new
 interpreter code can be added in case specialized languages define new language
 concepts. 
 
+The abstraction level of an interpreter must be decided. One alternative might
+ignore for example the use of registers when performing an assignment, avoiding
+problems resulting from parallelism. Alternatively, the interpreter might model
+everything and thereby can address issues related to parallelism. In other
+words, an interpreter defines a virtual machine and it is fundamental that this
+virtual machine has an adequate abstraction level and/or the users are aware of
+exactly what it means for the execution of the program on the target hardware if
+the program runs on the virtual machine. 
+
 
 \subsection{Transformation vs. Interpretation} 
+\label{genvsinter}
 
 When defining the execution semantics for a language, a decision has to be made
 between transformation (code generation) and interpretation. Here are a couple 
@@ -906,8 +921,6 @@ Depending on the semantic gap between the generated model checker input program
 and the DSL, this can be very hard.
 
 
-\todo{talk about mapping DSLs down to state machines and reinterpreting the
-result in the context of the DSL. Should be a result from the LWES project.}
 
 
 

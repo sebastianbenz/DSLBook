@@ -12,7 +12,7 @@ workbenches. We will not discuss in detail any particular extension. The table
 in \fig{tab:challenges_extensions_examples} shows an overview over the
 challenges, the examples in this section, and the ways of extension each example
 makes use of.
-
+ 
 \begin{figure}[h]
 \begin{center}
     \begin{tabular}{ | l | l |}
@@ -289,10 +289,10 @@ the typing rules for the existing operators (such as
 
 \parhead{Requirements Traces} (addresses $C_5$, uses $W_6$) are meta data
 annotations that link a program element to requirements, essentially elements in
-other models imported from requirements management tools (This has been
-discussed in more detail in \todoref{}). Requirements traces can be attached to
-any program element without that element's definition having to be aware of this
-(see green highlights in \fig{screenshot} and in \fig{traces}).
+other models imported from requirements management tools. Requirements traces
+can be attached to any program element without that element's definition having
+to be aware of this (see green highlights in \fig{screenshot} and in
+\fig{traces}).
 
 
 
@@ -301,16 +301,16 @@ any program element without that element's definition having to be aware of this
 determines whether the program element to which it is attached is part of a
 product in the product line. A product is configured by specifying a set of
 configuration flags (expressed via feature models) and the presence condition
-specifies a Boolean expression over these configuration switches (see \todoref{}
-for more details). Like requirements traces, presence conditions can be attached
-to any program element. For example, in \fig{screenshot}, the \ic{resetted} out
-event and the \ic{on start\ldots} transition in the second state have the
-\ic{resettable} presence condition, where \ic{resettable} is a reference to a
-configuration flag.  Upon transformation, program elements whose presence
-condition evaluates to \ic{false} for a particular product configuration are
-simply removed from the program (and hence will not end up in the generated
-binary). This program customization can also be performed by the editor,
-effectively supporting variant-specific editing.
+specifies a Boolean expression over these configuration switches. Like
+requirements traces, presence conditions can be attached to any program element.
+For example, in \fig{screenshot}, the \ic{resetted} out event and the \ic{on
+start\ldots} transition in the second state have the \ic{resettable} presence
+condition, where \ic{resettable} is a reference to a configuration flag.  Upon
+transformation, program elements whose presence condition evaluates to
+\ic{false} for a particular product configuration are simply removed from the
+program (and hence will not end up in the generated binary). This program
+customization can also be performed by the editor, effectively supporting
+variant-specific editing.
 
 
 

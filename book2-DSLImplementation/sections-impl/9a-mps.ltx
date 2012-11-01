@@ -1,4 +1,5 @@
 \section{MPS Example}
+\label{mpsmodular}
 
 
 With MPS two of these challenges outlined above --- composability of
@@ -41,8 +42,8 @@ and \emph{embedding} with regards to the expressions language.
 At the center of the language extensions we will build later, we use a simple
 \ic{entities} language. Below is an example model. \emph{Modules} are root
 nodes. They live as top level elements in models\footnote{Referring back to the
-terminology introduced in the DSL design section \todo{}, root nodes (and their
-descendants) are considered \emph{fragments}, while the models are partitions
+terminology introduced in \sect{structureofprograms}, root nodes (and
+their descendants) are considered \emph{fragments}, while the models are partitions
 (actually, they are XML files).}. 
 
 \begin{lstlisting}[language=mpsmodex]
@@ -715,9 +716,8 @@ sublanguage \ic{rbac\_entities} provides two subconcepts of \ic{Resource}, namel
 \ic{AttributeResource} to reference to an attribute, and \ic{EntityResource} to
 refer to an \ic{Entity}, to define permissions for entities and their
 attributes.
+ 
 
-
-\todo{Reference missing from Permission to Role}
 \begin{figure}[htp]
 \begin{center}
   \includegraphics[width=9cm]{figures-impl/9/a/rbac2.png}
@@ -900,7 +900,7 @@ validations. So without doing anything else, we could write \ic{20 + 40 > 10},
 since integer literals and the \ic{+} and \ic{>} operators are defined as part
 of the composed \ic{expressions} language. However, to write anything useful, we have
 to be able to reference entity attributes from within expressions\footnote{We
-argued in the design part (\todoref{}) that, in order to make an embedded
+argued in the design part that, in order to make an embedded
 language useful with its host language, it has to be extended: the following
 expressions are examples of this.}. To achieve this, we create the
 \ic{AttributeRefExpr} as shown in \fig{uival}. We also create \ic{LenghtOf} and
@@ -1109,6 +1109,7 @@ can be ancestor:
 
 
 \subsection{Annotations}
+\label{mpsannot}
 
 In a projectional editor, the CS of a program is projected from the AST. A
 projectional system always goes from AS to CS, never from CS to AS (as parsers

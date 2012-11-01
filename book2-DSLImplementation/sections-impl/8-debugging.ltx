@@ -8,7 +8,7 @@ programs written in the DSL may have to be debuggable by the end user. We
 address both aspects in this chapter.}
 
 
-\sect{Debugging the DSL Definition}
+\section{Debugging the DSL Definition}
 
 Debugging the definition of the DSL boils down to a language workbench providing
 a debugger for the languages used or language definition. In the section we look
@@ -64,8 +64,6 @@ For any program node MPS can show the cell structure as a tree. The tree contain
 detailed information about the cell hierarchy, the program element associated
 with each cell as well as the properties of the cell (height, width, etc.).
 
-\todo{handle the noindent correctly all over the book}
-
 \subsection{Debugging Scopes, Constraints and Type Systems}
 
 Depending on the level of sophistication of a particular language, a lot of
@@ -114,10 +112,10 @@ trace (which are relative to the generated Java) have been translated to
 locations in the DSL definition (expressed in Base Language). The locations can
 be clicked directly, opening the MPS editor at the respective location.
 
-In the design chapter \todoref{} we discussed how declarative languages may come
+In the design part we discussed how declarative languages may come
 with a debugger that fits the particular declarative paradigm used by a
-particular declarative language. MPS comes with two facilities. First, pressing
-\ic{Ctrl-Shift-T} on any program element will open a dialog that shows the type
+particular declarative language (\sect{learnFromGPLs}). MPS comes with two
+facilities. First, pressing \ic{Ctrl-Shift-T} on any program element will open a dialog that shows the type
 of the element. If the element has a type system error, that dialog also lets
 the user navigate to the rule that reported the error. The second facility is
 much more sophisticated. For any program node, MPS can show the so-called type
@@ -179,7 +177,8 @@ expressions can be debugged. The Variables view shows the EMF representation
  
 \begin{figure*}[h]
   \includegraphics[width=17cm]{figures-impl/8/xtext-templatesdebugging.png} 
-  \caption[][-20mm]{}
+  \caption{Debugging a code generator written in Xtend. The debugger can even
+  step through the template expressions.}
   \label{templatesdebugging} 
 \end{figure*}
 
@@ -275,7 +274,7 @@ templates.}, MPS provides a \emph{static} representation of the transformation
 in terms of the intermediate models and the element traces through them.
 
 
-\sect{Debugging DSL Programs}
+\section{Debugging DSL Programs}
 
 To find errors in DSL programs, we can either debug them on the level of the DSL
 program or in its $L_{D-1}$ representation (i.e.~in the generated code or the
@@ -293,10 +292,10 @@ The way to build debuggers for DSLs of course depends on the DSL itself. For
 example, for DSLs that only describe structures, debugging does not make much
 sense in the first place. For DSLs that describe behavior, the debugging
 approach depends on the behavioral paradigm used in the DSL. We have discussed
-this in \todoref{}. In this section we focus mostly on the imperative
+this in \sect{learnFromGPLs}. In this section we focus mostly on the imperative
 paradigm\footnote{An examples for the functional paradigm has been provided in
-\todoref{}, and the type system tracer described above is an example of a
-debugger for a declarative language.}.
+\sect{functionaldebugger}, and the type system tracer described above is an
+example of a debugger for a declarative language.}.
 
 Building a debugger poses two challenges. The first one is the debugger UI:
 creating all the buttons and views for controlling the debugger and for showing
@@ -469,13 +468,12 @@ inspection.
 
 The interpreter for the Cooling programs mentioned above is of course not the
 final execution engine --- C code is generated that is executed on the actual
-target refrigerator hardware. However, as we have discussed in the design part
-of the book (\todoref{}), we can make sure the generated code and the
-interpreter are semantically identical by running a sufficient (large) number of
-tests. If we do this, we can use the interpreter to test the programs for
-logical errors. The interpreter can also be used interactively, in which case it
-acts as a simulator for the executing program. \fig{simulator} shows a
-screenshot of a running program. 
+target refrigerator hardware. However, as we have discussed in \sect{synctrans},
+we can make sure the generated code and the interpreter are semantically
+identical by running a sufficient (large) number of tests. If we do this, we can
+use the interpreter to test the programs for logical errors. The interpreter can
+also be used interactively, in which case it acts as a simulator for the
+executing program. \fig{simulator} shows a screenshot of a running program.
 
 If you look at \fig{simulator} closely, you will see that it shows all variables
 in the program, the events in the queue, running tasks as well as the values of
@@ -490,9 +488,9 @@ find bugs in the implementation (i.e.~in the generator) this way. But to
 detect those, debugging on the level of the generated C code is more useful
 anyway.}!
 
-If you already have the interpreter\footnote{we discuss how to build on in
-\todo{}}, expanding it into a simulator/debugger is relatively simple.
-Essentially only three things have to be done:
+If you already have the interpreter\footnote{we discuss how to build one in
+\sect{interpreterimpl}}, expanding it into a simulator/debugger is relatively
+simple. Essentially only three things have to be done:
 
 \begin{itemize}
   \item First, the execution of the program must be controllable from the
@@ -524,7 +522,7 @@ DSLs that use Xbase, the reusable expression language that ships with Xtext, get
 debugging mostly\footnote{"Mostly" because in a few cases you have to manually
 add trace information in transformations.} for free. This is because of the
 tight integration of Xbase with the JVM. While we describe this integration in
-more detail in \todo{}. Here is the essence.
+more detail in \sect{xtextmodular}, here is the essence.
 
 A DSL that uses Xbase typically defines its own structural and high-level
 behavioral aspects but uses Xbase for the fine-grained, expression-level
@@ -561,7 +559,7 @@ where to set the breakpoint in the generated Java code.
 
 This section describes in some detail the architecture of an extensible debugger
 for an extensible language\footnote{Extensible languages have been defined and
-discussed in the design section \todoref{}. We show in detail in \todoref{} how
+discussed in \sect{sec:extAndComp}. We show in detail in \sect{mpsmodular} how
 this works with MPS}. We illustrate the approach with an implementation based on
 mbeddr, an extensible version of C implemented with the MPS. We also show the
 debuggers for non-trivial extensions of C.
@@ -630,11 +628,12 @@ re-implemented for every C debugger used.
 
 
 \phead{An example Extension} We start out by developing a simple extension to
-the mbeddr C language\footnote{We assume that you have read the basics about MPS
-language development in \todoref{}.}. The \ic{foreach} statement can be used to
-conveniently iterate over C arrays. Users have to specify the array as well as
-its size, since in C an array cannot be queried for its size. Inside the
-\ic{foreach} body, \ic{it} acts as a reference to the current iteration's array
+the mbeddr C language\footnote{We assume that you know the basics about MPS
+language development, for example, from reading the earlier implementation
+chapters in this book.}. The \ic{foreach} statement can be used to conveniently
+iterate over C arrays. Users have to specify the array as well as its size,
+since in C an array cannot be queried for its size. Inside the \ic{foreach}
+body, \ic{it} acts as a reference to the current iteration's array
 element\footnote{Note that for the sake of the example, we don't consider nested
 \icsn{foreach} statements so we would don't have to deal with unique names for
 various (generated) variables.}.
@@ -983,10 +982,9 @@ Stepping behavior is configured via the following interfaces:
 \ic{IStack- FrameContributor}, \ic{ISteppable}, \ic{ISteppableContext} 
 \ic{IStepIntoable} and \ic{IDebugStrategy}. \fig{stepping} shows an overview.  
 
-\todo{make more vertical}
 \begin{marginfigure}
   \centering
-    \includegraphics[width=60mm]{figures-impl/8/mbeddr/stepping.png}
+    \includegraphics[width=50mm]{figures-impl/8/mbeddr/stepping.png}
     \caption{Structure of language concepts implementing the
     stepping-related interfaces. The boxes represent language concepts
     implementing the interfaces discussed in the text. Those concepts
@@ -1047,10 +1045,9 @@ can find all visible watches by iterating through all ancestor
 \ic{IWatchProviderContext}s and asking them for their \ic{IWatchProvider}s.
 \fig{watches} shows the typical structure of the concepts.
 
-\todo{more vertical}
 \begin{marginfigure}
-  \centering
-    \includegraphics[width=60mm]{figures-impl/8/mbeddr/watches.png}
+  \centering 
+    \includegraphics[width=40mm]{figures-impl/8/mbeddr/watches.png}
     \caption{Typical structure of language concepts implementing the
     Watches-related interfaces} 
   \label{watches}  

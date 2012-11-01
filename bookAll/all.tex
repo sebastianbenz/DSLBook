@@ -1,4 +1,4 @@
-\documentclass[justified]{tufte-book}
+\documentclass[justified, notoc]{tufte-book}
 
 \usepackage{amsmath}
 \usepackage{amssymb}
@@ -31,10 +31,10 @@
 \setlength{\intextsep}{\baselineskip}
 \renewcommand{\floatpagefraction}{0.1}
 
- 
+  
 \setcounter{secnumdepth}{2}
 
-   
+    
 \newcommand{\chapterabstract}[1]{
 \begingroup
 \leftskip2em
@@ -51,13 +51,13 @@
 \begingroup
 \leftskip1em
 \rightskip\leftskip
-     \noindent\hilight{\textbf{#1}} 
+     \noindent\textbf{#1} 
      {#2}~$\blacktriangleleft$
 \par
 \endgroup
 \vspace{3pt}
 }
-\newcommand{\embc}[1]{\excode{Embedded C:}{#1}}
+\newcommand{\embc}[1]{\excode{mbeddr C:}{#1}}
 \newcommand{\cooling}[1]{\excode{Refrigerators:}{#1}}
 \newcommand{\comparch}[1]{\excode{Component Architecture:}{#1}}
 \newcommand{\pension}[1]{\excode{Pension Plans:}{#1}}
@@ -208,6 +208,8 @@ return
 \newcommand{\curlies}[1]{\char123{}#1\char125}
 
 \newcommand\todo[1]{} 
+\newcommand\todoref[1]{} 
+\newcommand\todofig[1]{} 
 \newcommand\guido[1]{} 
 
 \newcommand{\fig}[1]{Fig.~\ref{#1}}
@@ -229,15 +231,17 @@ return
 \author{Markus Voelter, voelter@acm.org}
 \def\titlerunning{DSL Engineering}
 \def\authorrunning{Markus Voelter}
+
+
 \begin{document}
-
-\maketitle
-
-% \input{body-intro.ltx}
-% \input{body-design.ltx}
-% \input{body-impl.ltx}
-% \input{body-sweng.ltx}
-
+\noindent
+\includegraphics[width=150mm]{dslengcover.png}
+\setcounter{tocdepth}{1}
+\tableofcontents
+\input{body-intro.ltx}
+\input{body-design.ltx}
+\input{body-impl.ltx}
+\input{body-sweng.ltx}
 \nocite{*}
 \bibliographystyle{abbrv}
 \nobibliography{book}

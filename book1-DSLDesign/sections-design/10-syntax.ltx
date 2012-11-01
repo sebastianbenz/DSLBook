@@ -1,5 +1,7 @@
-\sect{Concrete Syntax}
+\section{Concrete Syntax}
 \label{concretesyntax}
+
+\todo{Read over this section again, since it has recently been restructured.}
 
 A good choice of concrete syntax is important for DSLs to be accepted by the
 intended user community. Especially (but not exclusively) in business domains, a
@@ -8,6 +10,140 @@ domain --- there might even be existing, established notations that should be
 reused. A good notation makes expression of common concerns simple and concise
 and provides sensible defaults. It is acceptable for less common concerns to
 require a bit more verbosity in the notation.
+
+\section{Design Concerns for Concrete Syntax}
+
+In particular the following concerns may be addressed when designing a concrete
+syntax\footnote{These concerns do not just depend on the concrete syntax, but
+also on the abstract syntax and the expressiveness of the language itself
+(which is discussed in \sect{expressivity}). However, the concrete syntax has a
+major influence, which is why we discuss it here.) }:
+
+\begin{description}
+  \item[Writability] A writable syntax is one that can be written efficiently.
+  This usually means that the syntax is concise, because users have to type
+  less. However, a related aspect is also tool support: the degree to which 
+  the IDE can provide better editing support\footnote{See the example of the
+  \ic{select} statement in \todoreg{}} (code completion and quick fixes in
+  particular) makes a difference for readability.
+
+  \item[Readability] A readable syntax means that it can be read effectively. A
+  more concise syntax is not necessarily more readable, because context may be
+  missing\footnote{A good example of this dilemma are the APL or M languages:
+  the syntax is so concise that it is really hard to read.}, in particular for
+  people other than those who have written the code.
+  
+  \item[Learnability] A learnable syntax is useful to newbies, in particular
+  because it can be "explored", often exploiting IDE support\footnote{"Just
+  press Ctrl-Space and the tool will tell you what you can type next"}.
+  For example, the more the language uses concepts that have a direct meaning in
+  the domain, the easier it is for domain users to lean the language.
+  
+  \item[Effectiveness] Effectivenss relates to the degree that a language
+  enables routined users to effectively express typical domain problems
+  \emph{after} they have learned the language.
+\end{description}
+
+\parhead{Tradeoffs} It is obvious that some of these concerns are in conflict. A
+very writable language may not be very readable. If a group of stakeholders
+\ic{R} uses artifacts developed by another group \ic{W} (e.g. by referencing
+some of the program elements) it is important a readable language is used. A
+learnable language may feel "annoyingly verbose and cumbersome" to routined
+users after a while\footnote{Note that if a specific DSL is only used
+irregularly, then users probably never become routined, and have to re-learn the
+language each time they use it.}. However, creating a effective syntax and
+trying to convince the users to adopt the language although it is hard(er) to
+learn may be a challenge.  
+
+For DSLs whose programs have a short lifetime (as in scripting languages)
+readability is often not very important, because the programs are thrown away
+once they have performed there particular task.
+
+
+\parhead{Multiple Notations}
+One way to solve these dilemmas is to provide different concrete syntaxes for
+the same abstract syntax, and let users choose (beginners chose a more learnable
+one and switch to a more effective one over time). However, depending on the
+tooling used, this can be a lot of work. 
+
+
+\marginnote[8mm]{We have the equivalent of multiple notations for the same
+language in the real world. English can be spoken, written, transported via
+morse code or even expressed via sign language. Each of these is optimized for
+certain contexts and audiences.} \parhead{Multiple Notations} For projectional
+editors it is relatively easy to define several notations for the same language
+concept. By changing the projection rules, existing programs can be shown in a
+different way. In addition, different notations (possibly showing different
+concerns of the overall program) can be used for different stakeholders.
+
+
+\embc{For state machines, the primary syntax is textual. However, a tabular
+notation is supported as well. The projection can be changed as the program is
+edited, rendering the same state machine textually or as a table. As
+mentioned above, a graphical notation will be added in the future, as MPS'
+support for graphical notations improves.}
+
+\cooling{The refrigerator DSL uses graphical visualizations to render diagrams
+of the hardware structure, as well as a graphical state charts representing the
+underlying state machine.}
+
+
+Another option to resolve the leanability vs. effectiveness dilemma is to create
+an effective syntax and help new users by good documentation, training and/or
+IDE support (templates, wizards).
+
+
+
+
+
+\parhead{Reports and Visualization} A visualization is a graphical
+representation of a model that cannot be edited. It is created from the core
+model using some kind of transformation, and highlights a particular aspect of
+the source program. It is often automatically layouted (possibly with layouting
+hints from the user). The resulting diagram may be static (i.e.~an image file is
+generated) or interactive (where users can show, hide and focus on different
+parts of the diagram). It may provide drill-down back to the core program
+(double-clicking on the figure in the image opens the code editor at the
+respective location.)\footnote{Graphviz is one of the most well-known tools for
+this kind of visualization. Another one is Jan Koehnlein's Generic Graph View at
+http://bit.ly/HpW4xV}.
+
+A report has the same goals (highlighting a particular aspect of the source
+program, while not being editable) but uses a textual notation.
+
+
+Visualizations and reports are a good way of resolving a potential conflict
+where the primary DSL users want to use a writability notation and other
+stakeholders still want a more readable representation. Since reports and 
+visualizations are not the primary notation, it is possible to create several
+different visualizations or reports for the sourve program, highlighting
+different aspects of the core program.
+
+\embc{In the mbeddr components extension, we support several notations. The
+first one shows interfaces and the components that provide and require these
+interfaces. The second one shows component instances and the connections
+between their provided and required ports. Finally, there is a third
+visualization that applies to all mbeddr models, not just those that use
+components: it shows the modules, their imports (i.e.~module dependencies) as
+well as the public contents of these modules (functions, structs, components,
+test cases).}
+ 
+\begin{figure}[h]
+  \includegraphics[width=110mm]{figures-design/visuInMPS.png}
+  \caption{mbeddr C also supports graphical visualizations of state machines.
+  For every state machine, a dot representation is automatically generated. The
+  image is then rendered by graphviz directly in the IDE. Double-clicking on a
+  state selects the respective program element in the editor.}
+  \label{visuInMPS}
+\end{figure} 
+
+
+% Another option is to use a writable syntax and generate readable
+% versions (often graphical) so that read-only stakeholders get access to the
+% information more easily (reports, visualizations). As a consequence, one could
+% argue that writability is more important than readability. 
+
+\section{Classes of Concrete Syntax}
 
 There are a couple of major classes for DSL concrete syntax\footnote{Sometimes
 form-based GUIs or trees views are considered DSLs. I disagree, because this
@@ -43,14 +179,17 @@ heavily biased by previous experience, prejudice and tool capabilities. Here are
 some rules of thumb. Purely textual DSLs integrate very well with existing
 development infrastructures, making their adoption relatively easy. They are
 very well suited for detailed descriptions, anything that is algorithmic or
-generally resembles (traditional) program source code. Symbolic notations can be
-considered "better textual", and lend themselves to domains that make heavy use
-of symbols and special notations; many scientific and mathematical domains come
-to mind. Tables are very useful for collections of similarly structured data
-items, or for expressing how two independent dimensions of data relate. Finally,
-graphical notations are very good for describing relationships
+generally resembles (traditional) program source code. A good textual syntax can
+be very effective (in terms of the design concerns discussed above). Symbolic
+notations can be considered "better textual", and lend themselves to domains
+that make heavy use of symbols and special notations; many scientific and
+mathematical domains come to mind. Tables are very useful for collections of
+similarly structured data items, or for expressing how two independent
+dimensions of data relate. Tables emphasize readability over writability.
+Finally, graphical notations are very good for describing relationships
 (\fig{graphicalRel}), flow (\fig{graphicalFlow}) or timing and causal
-relationships (\fig{graphicalCause}).
+relationships (\fig{graphicalCause}). They are often considered easier to learn,
+but may be perceived as less effective by experienced users.
 
  \begin{marginfigure}[-15\baselineskip]
   \includegraphics[width=4cm]{figures-design/graphicalFlow.png}
@@ -212,74 +351,7 @@ the first place. A textual program can also be animated; a debugger essentially
 does just that.
 
 
-\parhead{Writing vs. Reading Code} Textual notations are more productive for
-writing programs. While, in principle, code completion, quick fixes and
-refactorings could also be provided for graphical notations, we see them more
-often in textual IDEs. In general, for DSLs writability
-is often more important than readability, because additional read-only
-representations can always be derived automatically.
 
-
-\parhead{Visualization} A visualization is a graphical representation of a model
-that cannot be edited. It is created from the core model using some kind of
-transformation, and it is often automatically layouted (possibly with
-layouting hints from the user). The resulting diagram may be static (i.e.~an
-image file is generated) or interactive (where users can show, hide and focus
-on different parts of the diagram). It may provide drill-down back to the core
-program (double-clicking on the figure in the image opens the code editor at
-the respective location.)\footnote{Graphviz is one of the most well-known tools
-for this kind of visualization. Another one is Jan Koehnlein's Generic Graph
-View at http://bit.ly/HpW4xV}.
-
-Visualizations are a good way of resolving a potential conflict where the
-primary DSL users want to use a textual notations (for reasons of writability)
-and other stakeholders still want a graphical representation to get an overview
-over the overall model.
-
-Since a visualization is not the primary notation, it is possible to create
-several different visualizations for the same model, highlighting different
-aspects of the core program.
-
-\embc{In the mbeddr components extension, we support several notations. The
-first one shows interfaces and the components that provide and require these
-interfaces. The second one shows component instances and the connections
-between their provided and required ports. Finally, there is a third
-visualization that applies to all mbeddr models, not just those that use
-components: it shows the modules, their imports (i.e.~module dependencies) as
-well as the public contents of these modules (functions, structs, components,
-test cases).}
- 
-\begin{figure}[h]
-  \includegraphics[width=110mm]{figures-design/visuInMPS.png}
-  \caption{mbeddr C also supports graphical visualizations of state machines.
-  For every state machine, a dot representation is automatically generated. The
-  image is then rendered by graphviz directly in the IDE. Double-clicking on a
-  state selects the respective program element in the editor.}
-  \label{visuInMPS}
-\end{figure} 
-
-
-\marginnote[8mm]{We have the equivalent of multiple notations for the same
-language in the real world. English can be spoken, written, transported via morse code or
-even expressed via sign language. Each of these is optimized for certain
-contexts and audiences.} \parhead{Multiple Notations} For projectional editors
-it is possible to define several notations for the same language concept. By
-changing the projection rules, existing programs can be shown in a different
-way. This removes some of the burden of getting it right initially, because the
-notation can be adapted after the fact. In addition, different notations
-(possibly showing different concerns of the overall program) can be used for
-different stakeholders.
-
-
-\embc{For state machines, the primary syntax is textual. However, a tabular
-notation is supported as well. The projection can be changed as the program is
-edited, rendering the same state machine textually or as a table. As
-mentioned above, a graphical notation will be added in the future, as MPS'
-support for graphical notations improves.}
-
-\cooling{The refrigerator DSL uses graphical visualizations to render diagrams
-of the hardware structure, as well as a graphical state charts representing the
-underlying state machine.}
 
 
 
