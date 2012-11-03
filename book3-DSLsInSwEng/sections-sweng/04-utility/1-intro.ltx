@@ -42,9 +42,12 @@ Scenario: Addition
   Then the result should be "120"
 \end{lstlisting}
 
-With cucumber you can make these scenario executable by implementing a parser for each step
-together with the required execution logic to establish preconditions, trigger
-events or assert properties of the resulting state. 
+With cucumber you can make these scenario executable by implementing a parser
+for each step together with the required execution logic to establish
+preconditions, trigger events or assert properties of the resulting state.
+
+\todo{Not clear what you mean by "implementing a parser for each step".}
+
 
 % \begin{lstlisting}[language=java]
 % public class CalculatorStepdefs {
@@ -70,8 +73,10 @@ events or assert properties of the resulting state.
 
 The downside of this approach is that it becomes harder to maintain these
 specifications as scenarios and their implementation are distributed across
-multiple files. Too make it even easier to define executable scenarios for Java
-applications, we decided to create Jnario\footnote{http://www.jnario.org}, a new DSL based on the syntax of Cucumber.
+multiple files\todo{Not clear why this is.}. Too make it even easier to define
+executable scenarios for Java applications, we decided to create
+Jnario\footnote{http://www.jnario.org}, a new DSL based on the syntax of
+Cucumber.
 
 The main difference between Jnario and Cucumber is that you don't need
 to create separate step definitions to make your steps executable. You can
@@ -95,17 +100,23 @@ Scenario: Addition
   Then the result should be "120"
 \end{lstlisting}
 
+\todo{Isn't there an assert or something missing to check the 120?}
+
 This reduces the effort in writing scenarios by not needing to maintain separate
 step definitions. It is still possible to reuse existing step definitions in
 scenarios. The editor even provides code completion showing all existing steps.
 In our example, the step \emph{And I enter "70"} reuses the code of the step
-\emph{Given I enter "50"} with a different parameter value. You might think now
-that mixing code and text in your specs makes everything pretty unreadable.
+\emph{Given I enter "50"} \todo{textual substring matching?} with a different
+parameter value. You might think now that mixing code and text in your specs
+makes everything pretty unreadable.
 Actually, this is not a problem, as you can hide the code in the editor to
-improve the readability as shown in Figure \ref{Jnario_FeatureHiding}. Feature
-definitions in Jnario compile to plain Java JUnit tests, which can be directly
-executed from withing eclipse. Figure \ref{jnario_feature_junit} shows the
-execution result of the Calculator feature in Eclipse.
+improve the readability as shown in Figure \ref{Jnario_FeatureHiding}. 
+\todo{That is pretty cool :-) How does this prevent me from "destroying" the
+code while editing the program?}
+
+Feature definitions in Jnario compile to plain Java JUnit tests, which can be
+directly executed from withing Eclipse. Figure \ref{jnario_feature_junit} shows
+the execution result of the Calculator feature in Eclipse.
 
 \begin{figure}[h]
 \begin{center}
@@ -196,7 +207,14 @@ you see that your specifications effectively document the behavior of your code.
 \end{center} 
 \end{figure}
 
+
+
+
 \section{A DSL for Testing}
+
+\todo{I wonder if this heading makes sense and/or whether there should have
+been another heading earlier. Didn't the above stuff also describe "A DSL for
+Testing"?}
 
 Jnario is not just another testing framework. It is actually two domain-specific
 languages specifically made for writing executable specifications. The main advantage of 
@@ -213,6 +231,9 @@ language in which the syntax is specifially designed for the purpose of writing
 tests. For example, a common scenario is to test a class with different sets of
 input parameters.
 Writing such tests in Jnario is really easy as it has a special table syntax:
+\todo{Tables are clearly useful here, but I wouldn't say that tables are not
+useful in "regular" programs (you imply this with your formulations above).}
+
 
 \begin{lstlisting}[language=jnario-spec] 
 describe "Adding numbers"{
@@ -247,6 +268,9 @@ java.lang.AssertionError: examples failed
          a + b is 21 a is 10 b is 11 sum is 20
 \end{lstlisting}
   
+\todo{Reminder for me and you: do you describe how tables are implemented
+below? and also: how do you "insert" the error marks?}
+  
 This demonstrates another advantage of Jnario, it tries to give you as much
 information as possible about why an assertion failed. A failed assertion prints
 the values of all evaluated sub-expressions. This means you don't need to debug
@@ -256,6 +280,8 @@ These are just some examples demonstrating the advantages of test-centric
 domain-specific language. Having full control over the syntax of the language
 and its translation into Java code allows us to add features that are helpful
 when writing tests, but would never make sense in a general purpose language.
+
+
 
 \section{How does it work?}
 
@@ -284,15 +310,17 @@ example for the usage of Xbase is Xtend, a general purpose programming language
 for the JVM. Xtend enriches Xbase with additional concepts, such as classes, 
 fields and methods. In Jnario we needed similiar concepts, which is why we
 decided to base the Jnario languages on Xtend. Additionally, reusing Xtend
- had the advantage that we could reuse a lot of the existing tooling for Jnario.
+had the advantage that we could reuse a lot of the existing tooling for Jnario.
  
- In Jnario we introcuced new expressions, for example more expressive
- assertions, which can be used in both languages. In order to avoid
- reimplementing these in the feature and the specs language, we created a base
- language with all common features used by Jnario. The resulting language
- hierarchy is shown in Figure \ref{jnario_hierarchy}. This example demonstrates 
- that by carefully modularizing language features it possible in Xtext to
- effectively reuse languages together with their tooling in different contexts.
+In Jnario we introcuced new expressions, for example more expressive
+assertions, which can be used in both languages. In order to avoid
+reimplementing these in the feature and the specs language, we created a base
+language with all common features used by Jnario. The resulting language
+hierarchy is shown in Figure \ref{jnario_hierarchy}. This example demonstrates 
+that by carefully modularizing language features it possible in Xtext to
+effectively reuse languages together with their tooling in different contexts.
+\todo{Here we should discuss how this related to language modularization, as
+discussed earlier.}
 
 \begin{figure}[h]
 \begin{center}
@@ -314,6 +342,8 @@ assert x != null
 Adding a new expression to the Xtext base language works by overriding the
 corresponding grammar rules. In our example, we added the new assertion 
 statement as a primary expression:
+\todo{"statement" as "expression"? SOunds strange :-) Assertion isn't a
+statement, right?}
 
 \begin{lstlisting}[language=jnario-spec] 
 XPrimaryExpression returns xbase::XExpression:
@@ -330,6 +360,11 @@ reuses parts of the Xtext base language:
 Assertion returns xbase::XExpression: 
   'assert' expression=XExpression;
 \end{lstlisting}
+
+
+\todo{I think you should talk about tables and also the ability to "hide"
+the code and only show the prose text snippets.}
+
 
 \subsection{Code Generation}
 
@@ -350,7 +385,7 @@ mapped to a JUnit test method. The additional \verb'@Test' annotations required
 by JUnit are added during the mapping process. The expressions can be completely
 transformed by the Xtend compiler. However, in order to support custom
 expressions, such as the ``assert'' statement, the Xtend compiler needs to be
-extended. 
+extended \todo{how?}. 
 
 \begin{lstlisting}[language=jnario-spec]
 val x = "hello"
@@ -410,22 +445,27 @@ main goal. Xtext provides a great tooling support for new DSLs. With the
 existing integration into Eclipse and the easy extensibility of the UI
 components you can add support for your DSL fast.
 
+\todo{You extended Xtend, right? So how much of the Xtend IDE could you reuse,
+how much did you have to redo?}
+
 The Feature language aims to be readable for software developers and for domain
 experts who have no programming background. The best way to support both groups
 was to establish two views on a Feature file. We created an own Feature Editor
 that uses specialized folding to show or hide the implementation logic of the
-scenarios and features. This enables the possibility of showing only the parts
-of the file that are in natural language and it therefore feels like working
-with a text editor. In addition, highlighting of keywords comes in handy when
-referring to existing steps. We used different colors to show if a step is a
-implemented, not implemented or a reference to an existing step.
+scenarios and features \todo{What does "an own editor" mean? Is this not the
+normal Xtext editor? How much effort?}. This enables the possibility of showing
+only the parts of the file that are in natural language and it therefore feels
+like working with a text editor. In addition, highlighting of keywords comes in
+handy when referring to existing steps. We used different colors to show if a
+step is a implemented, not implemented or a reference to an existing step.
 
 For working efficiently certain concepts such as quick fixes for importing
 necessary libraries or for creating new class files were added. Auto completion
 for steps in features is supported since you can reuse other steps by
 referencing them, even if they are not implemented. Another important feature is
 the debugging facility of Xtext which lets you step through your DSL file
-instead of using the generated code.
+instead of using the generated code\todo{Did you have to adapt that for JNario?
+If so, how?}.
 
 \subsection{Testing}
 
