@@ -218,11 +218,12 @@ popular parser gen that does not support these states). They'd allow the same
 sophisticated contextual keywords as scannerless parsers do.}
 \lennart{With lexer states you only really get support for regular grammars,
 and get limited expressiveness. You'd need to resort to lexer hacking
-to do the more sophisticated stuff. \url{http://researchr.org/publication/BravenboerTV06}
-talks about these issues in more detail.}
-\lennart{a different, more recent technique is context-aware scanning, though.
+to do the more sophisticated stuff.
+\footnote{\icsn{http://researchr.org/publication/BravenboerTV06}} talks about
+these issues in more detail.} \lennart{a different, more recent technique is context-aware scanning, though.
 there you use the state from the parser, not the lexer itself, to determine how to
-interpret the next token: \url{http://www.umsec.umn.edu/publications/Context-Aware-Scanning-Parsing-Extensible-Language}.
+interpret the next token:
+\footnote{\icsn{http://www.umsec.umn.edu/publications/Context-Aware-Scanning-Parsing-Extensible-Language}}.
 in a way it's related to scannerless parsing as it integrates scanner & parser}
 \todo{guido does it}
 
@@ -666,9 +667,11 @@ stage, where no context is considered.
 lexers}
 \lennart{Multiplex parsing and layered lexers are a bit of a hack
 that require unambiguous, easy-to-recognize boundaries, aren't they?
-And state-based lexers don't compose per \url{http://researchr.org/publication/BravenboerTV06}}
-\todo{guido does it: there are cases of lang embedd where the reviewers
-approach works (in partic if we have well defined escape chars.) or one would
+And state-based lexers don't compose per
+\footnote{\icsn{http://researchr.org/publication/BravenboerTV06}}}
+\todo{guido
+does it:
+there are cases of lang embedd where the reviewers approach works (in partic if we have well defined escape chars.) or one would
 to hack the lexers. In teh general case, General Parsing is required (the
 appraoch we propose here in Spoofax)}
 
