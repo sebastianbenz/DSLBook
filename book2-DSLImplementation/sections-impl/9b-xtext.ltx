@@ -303,7 +303,7 @@ model. We then use the \ic{\{EntityColumnMapper\}} action to force instantiation
 of an \ic{EntityColumnMapper} object: this also implicitly leads to the creation
 of an \ic{EntityColumnMapper} class in the generated \ic{db2entity} meta model.
 Since our new rule \ic{returns} an \ic{db::AbstractColumnMapper}, this new meta
-class extends \ic{AbstractColumnMapper} from the \ic{db} meta model --- which is
+class extends \ic{AbstractColumnMapper} from the \ic{db} meta model -- which is
 exactly what we want.
 
 There are two more things we have to do to make it work. First, we have to
@@ -330,7 +330,7 @@ compatibility.
 \parhead{Generator} Let us assume there is a generator the generates Java Beans
 from the \ic{entities}. Further, we assume that there is a generator that
 generates all the persistence management code from \ic{DbDSL} programs, except
-the part of the code that fetches the data from whatever the data source is --- essentially we
+the part of the code that fetches the data from whatever the data source is -- essentially we
 leave the same "hole" as we do with the \ic{AbstractColumnMapper} in the
 grammar. And just in the same way as we define the \ic{EntityColumnMapper} in
 the adapter language, we have to adapt the executing code. We can use two
@@ -877,6 +877,6 @@ languages. However, Xtext only supports extending one base grammar.
 We have shown above how to embed Xbase expressions into a custom DSL. However,as
 we have discussed, this is an example of extension with embedding flavor: we
 create \emph{a new} DSL into which we embed the existing Xbase expressions. So
-we only have to extend from \emph{one} base language --- Xbase. An example of
+we only have to extend from \emph{one} base language -- Xbase. An example of
 embedding would be to take an existing, independent SQL language and embed it
 into the Entity DSL created above. This is not possible.

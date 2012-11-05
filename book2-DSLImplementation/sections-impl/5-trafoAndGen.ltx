@@ -74,8 +74,8 @@ target models are build with the same AST formalism (e.g.,~EMF Ecore). Model
 transformation languages typically provide support for efficiently navigating
 source models, and for creating instances of AS of the target language (tree
 construction). Examples for this approach once again include Xtext's Xtend as
-well as QVT Operational\footnote{http://en.wikipedia.org/wiki/QVT} and
-ATL\footnote{http://www.eclipse.org/atl/}. MPS can also be used in this way. A
+well as QVT Operational\footnote{\icsn{http://en.wikipedia.org/wiki/QVT}} and
+ATL\footnote{\icsn{http://www.eclipse.org/atl/}}. MPS can also be used in this way. A
 slightly different approach just establishes relations between the source and
 target models instead of "imperatively" constructing a target tree as the source
 is traversed. While this is often less intuitive to write down, the approach has
@@ -83,7 +83,7 @@ the advantage that it supports transformation in both directions, and also
 supports model diff\footnote{(It does so by "relating" two instances of the same
 language and marking both as \icsn{readoqnly}; the engine then points out the
 difference between the two.}. QVT
-relational\footnote{http://en.wikipedia.org/wiki/QVT} is an example of this
+relational\footnote{\icsn{http://en.wikipedia.org/wiki/QVT}} is an example of this
 approach.
 
 
@@ -127,8 +127,8 @@ structure. The Spoofax example will provide details.
 
 Since Xtext is based on EMF, generators can be built using any tool that can
 generate code from EMF models, including
-Acceleo\footnote{http://www.acceleo.org/pages/home/en},
-Jet\footnote{http://www.eclipse.org/modeling/m2t/?project=jet} and Xtend
+Acceleo\footnote{\icsn{http://www.acceleo.org/pages/home/en}},
+Jet\footnote{\icsn{http://www.eclipse.org/modeling/m2t/?project=jet}} and Xtend
 (mentioned above). Xtend is a Java-like general-purpose language that removes
 some of Java's noise (it has type inference, property access syntax, operator
 overloading) and adds syntactic sugar (extension methods, multiple-dispatch and
@@ -631,7 +631,7 @@ put an expression that describes which elements from the input model should
 replace the dummy node \ic{true}: \ic{node.guard;} would use the guard condition
 of the input node (expected to be of type \ic{Transition} here). When the
 transformation is executed, the \ic{true} node will be replaced by what the
-macro expression returns --- in this case, the guard of the input transition. Wewill explain this process in detail below.
+macro expression returns -- in this case, the guard of the input transition. Wewill explain this process in detail below.
 
 
 \parhead{Translating the State Machine} State machines live inside modules. Just
@@ -983,7 +983,7 @@ a version of the \ic{TriggerSMStatement} that does not include event arguments.
 \end{figure}
 
 \noindent We use a dummy function \ic{someMethod} so we can embed a function
-call --- because we have to generate a function call to the execute function generated
+call -- because we have to generate a function call to the execute function generated
 from the state machine. Only the function call is surrounded with the template
 fragment markers (so only it will be generated). The function we call \emph{in
 the template} is the \ic{smExecuteFunction} in the template. It has the same
@@ -998,7 +998,7 @@ node.statemachine.type : StatemachineType.machine.cFunctionName();
 
 \noindent 
 Note how the first argument to the \ic{trigger} statement can be \emph{any}expression (local variable reference, global variable reference, a functioncall). However, we know (and enforce via the type system) that the expression'stype must be a \ic{StatemachineType}, which has a reference to the\ic{Statemachine} whose instance the expression represents. So we can cast,access the machine, and get the name of the execute function generated from thatstate machine\footnote{This is an example of where we use the type system in
-the code generator --- not just for checking a program for type correctness.}.
+the code generator -- not just for checking a program for type correctness.}.
 
 The second argument of the \ic{trigger} statement is a reference to the event we
 want to trigger. We can use another reference macro to find
@@ -1567,7 +1567,7 @@ concise syntax, especially regarding working with EMF abstract syntax trees.
 instead of generating C code. The interpreter can execute test cases (and report
 success or failure) as well as simulate the program interactively. Since no code
 generation and no real target hardware is involved, the turn-around time is much
-shorter and the required infrastructure is trivial --- just the IDE. The
+shorter and the required infrastructure is trivial -- just the IDE. The
 execution engine, as the interpreter is called here, has to handle the following
 language aspects:
 

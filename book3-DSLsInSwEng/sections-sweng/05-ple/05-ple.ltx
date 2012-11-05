@@ -36,20 +36,20 @@ features, limiting the set of valid configurations to a more manageable size.
 Constraints include:
 
 \begin{itemize}
-  \item \textbf{mandatory} (filled circles): mandatory features have to be in
+  \item \emph{mandatory} (filled circles): mandatory features have to be in
   each product. For example, in \fig{examplefm}, each \ic{Stack} has to have
   the feature \ic{ElementType}.
   \vspace{-2mm}
-  \item \textbf{optional} (empty circles): optional features may or may not
+  \item \emph{optional} (empty circles): optional features may or may not
   be in a product. \ic{Counter} and \ic{Optimization}
   are examples of optional features.
   \vspace{-2mm}
-  \item \textbf{or} (filled arc): a product may include zero, one or
+  \item \emph{or} (filled arc): a product may include zero, one or
   any number of the features in an \ic{or} group. In the example, a product
   may include any number of features from \ic{ThreadSafety}, \ic{BoundsCheck}
   and \ic{TypeCheck}.
   \vspace{-2mm}
-  \item \textbf{xor} (empty arc): a product must include exactly
+  \item \emph{xor} (empty arc): a product must include exactly
   one of the features grouped into a \ic{xor} group. The \ic{ElementType}
   must either be \ic{int}, \ic{float}, or \ic{String}.
 \end{itemize}
@@ -166,7 +166,7 @@ false. When calling the compiler/preprocessor, you have to provide a number of
 symbols that are evaluated as part of the conditions. Conditional compilation
 can also be found in other languages. Preprocessors that treat the source code
 simply as text are available for many languages and are part of many PLE tool
-suites. The AUTOSAR\footnote{http://autosar.org} standard, as well as other
+suites. The AUTOSAR\footnote{\icsn{http://autosar.org}} standard, as well as other
 modeling formalisms, support the annotation of model elements with presence conditions.
 The model element (and all its children) are removed from the model
 if the condition evaluates to false.
@@ -234,7 +234,7 @@ configurable application. All kinds of other small, simple, or domain specific
 languages can be used as a form of parameterization. A macro language in an
 application is a form of parameterization. That type of parameter is "valid
 program written in language X"\footnote{There is an obvious connection to DSLs
---- a DSL can be used here. This approach is useful when the primary product definition can be expressed
+-- a DSL can be used here. This approach is useful when the primary product definition can be expressed
 with a feature model. The DSL-typed attributes can be used for those variation
 points for which selection is not expressive enough.}.
 
@@ -301,16 +301,16 @@ from the model.
   \includegraphics[width=\columnwidth]{figures-sweng/ple/projection.png}
 \end{minipage}
 }
-\caption{\textbf{Left:} A C program with product line annotations.
-\textbf{Right:} The program rendered in in the \icsn{Production} variant.}
+\caption{\emph{Left:} A C program with product line annotations.
+\emph{Right:} The program rendered in in the \icsn{Production} variant.}
 \label{projection} 
 \end{figure}
 
 
 \subsection{Variations in the Transformation or Execution}
 
-When working with DSLs, the execution of models --- by transformation, code
-generation or interpretation --- is under the control of the domain
+When working with DSLs, the execution of models -- by transformation, code
+generation or interpretation -- is under the control of the domain
 engineer. The transformations or the interpreter can also be varied based on a
 feature model.
 
@@ -383,7 +383,7 @@ following:
 \end{itemize}
 
 \noindent Because of the "select from set of options"-metaphor, feature
-model-based configuration is simple to use --- product definition is basically a decision
+model-based configuration is simple to use -- product definition is basically a decision
 tree. This makes product configuration efficient, and potentially accessible for
 stakeholders other than software developers. Also, as described by Batory
 \cite{Batory05} and Czarnecki \cite{CzarneckiW07}, a one advantage of
@@ -488,7 +488,7 @@ Rule -> CONDITION CONSEQUENCE
 
 
 \noindent \emph{References} allow the creation of context-sensitive relations
-between parts of generated sentences --- or subtrees of the generated
+between parts of generated sentences -- or subtrees of the generated
 derivation trees. For example, by further extending our fountain grammar
 we can describe a rule whose condition refers to the \ic{full} attribute of
 the \ic{ISFULLSENSOR} and whose consequence sets a \ic{PUMP}'s
@@ -551,7 +551,7 @@ greater than zero, then the \ic{rpm} should be set to zero.
 While the extended grammar formalism discussed above enables us to cover the
 full range of behavior variability, the use of trees to instantiate these
 grammars is not practical. Another interpretation of these grammars is as the
-definition of a DSL --- the tree in \fig{exfm-extended-inst} looks like an
+definition of a DSL -- the tree in \fig{exfm-extended-inst} looks like an
 abstract tree (AST). To make the language readable we need to add concrete
 syntax definitions (keywords), as in the following extension of the fountain
 grammar:
@@ -627,7 +627,7 @@ modeling community is working on alleviating some of these limitations.
 
 For example, cardinality based feature models \cite{CzarneckiHE05} support the
 multiple instantiation of feature subtrees. References between features could be
-established by using feature attributes typed with another feature --- the value
+established by using feature attributes typed with another feature -- the value
 range would be the set of instances of this feature. Name references are an
 approximation of this approach.
 
