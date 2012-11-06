@@ -213,17 +213,6 @@ An example of a typical problem that arises from this is that keywords can't be 
 identifiers even though often the use of a keyword wouldn't cause ambiguity in
 the actual parsing. The Java language is an example of this: it uses a fixed set
 of keywords, such as \ic{class} and \ic{public}, that cannot be used as identifiers.
-\guido{Many lexers support lexer states (I'm pretty sure Antlr is the only
-popular parser gen that does not support these states). They'd allow the same 
-sophisticated contextual keywords as scannerless parsers do.}
-\lennart{With lexer states you only really get support for regular grammars,
-and get limited expressiveness. You'd need to resort to lexer hacking
-to do the more sophisticated stuff. \url{http://researchr.org/publication/BravenboerTV06}
-talks about these issues in more detail.}
-\lennart{a different, more recent technique is context-aware scanning, though.
-there you use the state from the parser, not the lexer itself, to determine how to
-interpret the next token: \url{http://www.umsec.umn.edu/publications/Context-Aware-Scanning-Parsing-Extensible-Language}.
-in a way it's related to scannerless parsing as it integrates scanner & parser}
 
 A context-unaware scanner can also introduce problems when grammars
 are extended or composed. In the case of Java, this was seen with the
@@ -234,11 +223,14 @@ languages, similar problems arise as constituent languages have
 different sets of keywords and can define incompatible
 regular expressions for lexicals such as identifiers and numbers.
 
-The term "scannerless parsing" refers to the absence of a separate
-scanner and in this case we don't have the problems of context-unaware
-scanning illustrated above, because the parser operates at a character
-level and statefully processes lexicals and keywords. Spoofax (or
-rather: the underlying parser technology SDF) uses scannerless
+A recent technique to overcome these problems is \emph{context-aware scanning}, where
+the lexer relies on the state of the parser to determine how to interpret the next
+token\footnote{\url{http://www.umsec.umn.edu/publications/Context-Aware-Scanning-Parsing-Extensible-Language}}. 
+With \emph{scannerless parsing}, there is no separate scanner at all.
+Instead, the parser operates at a character level and statefully processes
+lexicals and keywords, avoiding the problems of context-unaware
+scanning illustrated above.
+Spoofax (or rather: the underlying parser technology SDF) uses scannerless
 parsing.
 
 
@@ -425,18 +417,14 @@ parsers\footnote{http://en.wikipedia.org/wiki/Earley\_parser} can parse
 in linear time ($O(n)$) in the common case.
 In case of ambiguities, the time required can increase, but
 in the worst case they are bounded by cubic ($O(n^3)$) time.
-Spoofax is an example of a language
-workbench that uses GLR parsing.
+In practice, most programming languages have few or no ambiguities, ensuring
+good performance with a GLR parser.
+Spoofax is an example of a language workbench that uses GLR parsing.
 
-\guido{s O(n^3) really efficient? Is there a space / time tradeoff as there is
-usually with optimizations in one or the other direction.
-
-Relativieren, paper zu error recovery
-}
-\lennart{I changed the phrasing here: main point is that the *common* case
-is O(n). for deterministic grammars it's exactly O(n) and as we've
-shown in the error recovery paper, it approaches O(n) for normal
-grammars with minor local ambiguities}
+%\lennart{I changed the phrasing here: main point is that the *common* case is
+% O(n). for deterministic grammars it's exactly O(n) and as we've shown in the
+% error recovery paper, it approaches O(n) for normal grammars with minor local
+% ambiguities}
 
 
 \parhead{Ambiguity} Grammars can be \emph{ambiguous} meaning that at least one
@@ -654,16 +642,10 @@ for (Customer c : SELECT customer FROM accounts WHERE balance < 0) {
 \noindent The SQL grammar reserves keywords such as \ic{SELECT}, even though
 they are not reserved in Java. Such a language change could break compatibility
 with existing Java programs which happen to use a variable named \ic{SELECT}.
-This problem can only be avoided by a scannerless parser, which considers the
-lexical syntax in the context it appears instead during a separate scanning
-stage, where no context is considered.
-
-\guido{Can be adressed with multiplex parsing / layered lexers / state based
-lexers}
-\lennart{Multiplex parsing and layered lexers are a bit of a hack
-that require unambiguous, easy-to-recognize boundaries, aren't they?
-And state-based lexers don't compose per \url{http://researchr.org/publication/BravenboerTV06}}
-
+A common programmatic approach to solve this problem is the introduction of
+easy-to-recognize boundaries, which trigger switches between different parsers.
+In general, this problem can only be avoided completely by a scannerless parser,
+which considers the lexical syntax in the context it appears instead during a separate scanning stage, where no context is considered.
 \end{itemize}
 
 \section{Fundamentals of Projectional Editing} 
