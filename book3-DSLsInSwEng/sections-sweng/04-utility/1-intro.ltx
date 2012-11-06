@@ -1,3 +1,508 @@
 \chapter{DSLs as Programmer Utility}
 \label{jnario}
 
+\chapterabstract{General introduction about the goal of this chapter and why 
+Jnario is a good example.}
+
+Tests have an important role during software development, namely to ensure that
+an application behaves as expected. However, the benefit of tests goes beyond
+checking whether a system's output correspond to the input. They provide
+valuable feedback about the quality your application's design.
+For example, if a class is hard to test can be an indicator for too many
+dependencies or responsibilities, which in turn hinders future maintainability.
+Furthermore, tests are effective means for developers to elaborate together with
+the stakeholders how the desired features should work. If done right, tests
+created in such a way can be used as executable specifications of the
+applications behavior.
+
+However, when using a general purpose programming language for writing tests, it
+becomes harder for non-developers to read and understand the specified behavior.
+It is desireable to describe an applications behavior using a textual format
+which can be understood by business users, developers and testers. At
+the same time, it should be possible to make these specifications executable in
+order to use them to automatically check whether the application fulfills the
+expected behavior. 
+
+The most widely used implementation of this idea is
+ \emph{Cucumber}\footnote{\icsn{http://cukes.info/}}. With Cucumber you can describe
+ features of application using scenarios. The preconditions, events and expected
+ outcomes of
+a scenario are described textually with \emph{Given}, \emph{When} and
+\emph{Then} steps. Here is an example acceptance specification for adding values
+with a calculator:
+
+\begin{lstlisting}[language=jnario-feature]
+Feature: Basic Arithmetic
+
+Scenario: Addition
+  Given a just turned on calculator
+  When I enter "50" 
+  And I enter "70"
+  And press add
+  Then the result should be "120"
+\end{lstlisting}
+
+With cucumber you can make these scenario executable by implementing a parser
+for each step together with the required execution logic to establish
+preconditions, trigger events or assert properties of the resulting state.
+
+\todo{Not clear what you mean by "implementing a parser for each step".}
+
+
+% \begin{lstlisting}[language=java]
+% public class CalculatorStepdefs {
+%     private Calculator calc;
+%     private int result;
+% 
+%     @Given("^a calculator$")
+%     public void a_calculator() {
+%         calc = new Calculator();
+%     }
+% 
+%     @When("^I add (\\d+) and (\\d+)$")
+%     public void I_add(int arg1, int arg2) {
+%         result = calc.add(arg1, arg2);
+%     }
+% 
+%     @Then("^the result is (\\d+)$")
+%     public void the_result_is(double expected) {
+%         assertEquals(expected, result);
+%     }
+% }
+% \end{lstlisting}
+
+The downside of this approach is that it becomes harder to maintain these
+specifications as scenarios and their implementation are distributed across
+multiple files\todo{Not clear why this is.}. Too make it even easier to define
+executable scenarios for Java applications, we decided to create
+Jnario\footnote{\icsn{http://www.jnario.org}}, a new DSL based on the syntax of
+Cucumber.
+
+The main difference between Jnario and Cucumber is that you don't need
+to create separate step definitions to make your steps executable. You can
+directly add the necessary code below your steps. In our example we create a
+calculator, pass in the parameters defined in the steps (via the implicit
+variable \emph{args}) and check the calculated result:
+
+\begin{lstlisting}[language=jnario-feature]
+  ...
+Feature: Basic Arithmetic
+
+Scenario: Addition
+    Calculator calculator
+  Given a just turned on calculator
+    calculator = new Calculator()
+  When I enter "50" 
+    calculator.enter(args.first)
+  And I enter "70"
+   And press add
+     calculator.add
+  Then the result should be "120"
+\end{lstlisting}
+
+\todo{Isn't there an assert or something missing to check the 120?}
+
+This reduces the effort in writing scenarios by not needing to maintain separate
+step definitions. It is still possible to reuse existing step definitions in
+scenarios. The editor even provides code completion showing all existing steps.
+In our example, the step \emph{And I enter "70"} reuses the code of the step
+\emph{Given I enter "50"} \todo{textual substring matching?} with a different
+parameter value. You might think now that mixing code and text in your specs
+makes everything pretty unreadable.
+Actually, this is not a problem, as you can hide the code in the editor to
+improve the readability as shown in Figure \ref{Jnario_FeatureHiding}. 
+\todo{That is pretty cool :-) How does this prevent me from "destroying" the
+code while editing the program?}
+
+Feature definitions in Jnario compile to plain Java JUnit tests, which can be
+directly executed from withing Eclipse. Figure \ref{jnario_feature_junit} shows
+the execution result of the Calculator feature in Eclipse.
+
+\begin{figure}[h]
+\begin{center}
+  \includegraphics[width=\textwidth]{figures-sweng/utility/Jnario_FeatureHiding.png}
+  \caption[labelInTOC]{Hiding the step implementation in the Editor.}
+  \label{Jnario_FeatureHiding} 
+\end{center} 
+\end{figure} 
+
+\begin{figure}[h]
+\begin{center}
+  \includegraphics[scale=0.5]{figures-sweng/utility/junitcalculatorfeature.png}
+  \caption[labelInTOC]{Executing Jnario features from within Eclipse.}
+  \label{jnario_feature_junit} 
+\end{center} 
+\end{figure}
+ 
+Scenarios are good for writing high-level acceptance specifications, but writing
+scenarios for data structures or algorithms quickly becomes tedious. This is why
+Jnario provides another language for writing unit specifications. This languages
+removes all the boilerplate from normal JUnit tests helping you to focus on what
+is important: specifying facts about your implementation. A fact can be as
+simple as a single expression asserting a simple behavior:
+
+\begin{lstlisting}[language=jnario-spec] 
+package demo
+
+import java.util.Stack
+
+describe Stack{ 
+  fact new Stack().size => 0 
+}
+\end{lstlisting}
+
+We use \emph{=>} to describe the expected result of an expression. More complex
+facts can have an additional description:
+
+\begin{lstlisting}[language=jnario-spec] 
+package demo
+
+import java.util.Stack
+
+describe Stack{ 
+  fact "size increases when adding elements"{ 
+    val stack = new Stack<String> 
+    stack.add("something") 
+    stack.size => 1 
+  } 
+}
+\end{lstlisting}
+
+Objects can behave differently in different contexts. For example, calling
+\emph{pop} on a non-empty stack decreases its size. However, if the stack is
+empty, \emph{pop} results in an exception. In Jnario we can explicitly specify
+such contexts using the \emph{context} keyword:
+ 
+\begin{lstlisting}[language=jnario-spec] 
+package demo
+
+import java.util.Stack
+
+describe "A Stack"{ 
+  val stack = new Stack<String> 
+  context "empty"{ 
+    fact stack.size => 0 
+    fact stack.pop throws Exception 
+  } 
+  context "with one element"{
+       before stack.add("element") 
+       fact stack.size => 1 
+       fact "pop decreases size"{
+        stack.pop stack.size => 0
+       }
+     } 
+}
+\end{lstlisting}
+
+You can execute unit specifications as normal JUnit tests. Note that Jnario uses
+the description as test name or, if not present, the actual expression being
+executed. If you look at the executed tests in Figure \ref{jnario_spec_junit},
+you see that your specifications effectively document the behavior of your code.
+
+\begin{figure}[h]
+\begin{center}
+  \includegraphics[scale=0.5]{figures-sweng/utility/jnario_spec_junit.png}
+  \caption[labelInTOC]{Executing Jnario unit specs from within Eclipse.}
+  \label{jnario_spec_junit} 
+\end{center} 
+\end{figure}
+
+
+
+
+\section{A DSL for Testing}
+
+\todo{I wonder if this heading makes sense and/or whether there should have
+been another heading earlier. Didn't the above stuff also describe "A DSL for
+Testing"?}
+
+Jnario is not just another testing framework. It is actually two domain-specific
+languages specifically made for writing executable specifications. The main advantage of 
+using a DSL for writing tests is that it becomes possible to adapt the syntax to
+the skills of the intended users. In our case of this means that specifications written
+in Jnario can be understood  by users without programming background. 
+
+Another advantage of using a DSL for writing tests is the possibility to add
+features which do not make sense in a general purpose programming language, but
+are really helpful when writing tests.  If you think about current testing
+frameworks, they usually "stretch" the syntax of the underlying programming
+language to be able to write expressive tests. Now imagine a programming
+language in which the syntax is specifially designed for the purpose of writing
+tests. For example, a common scenario is to test a class with different sets of
+input parameters.
+Writing such tests in Jnario is really easy as it has a special table syntax:
+\todo{Tables are clearly useful here, but I wouldn't say that tables are not
+useful in "regular" programs (you imply this with your formulations above).}
+
+
+\begin{lstlisting}[language=jnario-spec] 
+describe "Adding numbers"{
+  def additions{
+    |  a  |  b  |  sum  | 
+    |  1  |  2  |   3   | 
+    |  4  |  5  |   9   | 
+    | 10  | 11  |  20   | 
+    | 21  | 21  |  42   |
+  } 
+  
+  fact additions.forEach[a + b => sum]
+}
+\end{lstlisting}
+
+Tables in Jnario are type safe: the type of a column will be automatically
+inferred to the common super type of all cells in a column. You can easily
+iterate over each row in a table and write assertions by accessing the column
+values as variables. If you execute the example specification it will fail with
+the following error:
+
+\begin{lstlisting}[language=jnario-spec] 
+java.lang.AssertionError: examples failed
+
+        | a      | b      | sum     | 
+        | 1      | 2      | 3       | 
+        | 4      | 5      | 9       | 
+        | 10     | 11     | 20      | X     (1) 
+        | 21     | 21     | 42      |
+
+(1) Expected a + b => sum but
+         a + b is 21 a is 10 b is 11 sum is 20
+\end{lstlisting}
+  
+\todo{Reminder for me and you: do you describe how tables are implemented
+below? and also: how do you "insert" the error marks?}
+  
+This demonstrates another advantage of Jnario, it tries to give you as much
+information as possible about why an assertion failed. A failed assertion prints
+the values of all evaluated sub-expressions. This means you don't need to debug
+your tests anymore to find the exact reason why an assertion failed.
+
+These are just some examples demonstrating the advantages of test-centric
+domain-specific language. Having full control over the syntax of the language
+and its translation into Java code allows us to add features that are helpful
+when writing tests, but would never make sense in a general purpose language.
+
+
+
+\section{How does it work?}
+
+Both Jnario languages - the Feature and Spec language - are developed with the
+Xtext, which was selected for a number of reasons. 
+
+\begin{description}
+  \item[Eclipse integration:] Jnario targets Java developers, which makes Eclipse 
+  the best tooling choice, as it is currently the mostly used Java IDE.
+  \item[Standalone support:] Although Xtext provides a tight Eclipse integration, 
+  all language features such as parser and compiler are not restricted to Eclipse. 
+  This is important as it should 
+  be possible to compile Jnario specifications with maven or from the command line. 
+  \item[Resuable expression language:] Implementing a DSL with a custom expression language
+  requires a lot effort. Xtext provides Xbase, a statically-typed
+   expression language based on Java. Xbase supports extension methods, 
+   type inference, lambda expressions and compiles to Java source code, while being
+   100\% compatible to the Java type system. This eleminates the need to implement 
+   a custom expression language and ensures compatibility with existing Java code. 
+\end{description}
+
+\subsection{Language Definition}
+
+Xtext provides with Xbase a reusable expression language. An
+example for the usage of Xbase is Xtend, a general purpose programming language
+for the JVM. Xtend enriches Xbase with additional concepts, such as classes, 
+fields and methods. In Jnario we needed similiar concepts, which is why we
+decided to base the Jnario languages on Xtend. Additionally, reusing Xtend
+had the advantage that we could reuse a lot of the existing tooling for Jnario.
+ 
+In Jnario we introcuced new expressions, for example more expressive
+assertions, which can be used in both languages. In order to avoid
+reimplementing these in the feature and the specs language, we created a base
+language with all common features used by Jnario. The resulting language
+hierarchy is shown in Figure \ref{jnario_hierarchy}. This example demonstrates 
+that by carefully modularizing language features it possible in Xtext to
+effectively reuse languages together with their tooling in different contexts.
+\todo{Here we should discuss how this related to language modularization, as
+discussed earlier.}
+
+\begin{figure}[h]
+\begin{center}
+  \includegraphics[width=0.7\textwidth]{figures-sweng/utility/JnarioLanguageHierarchy.png}
+  \caption[labelInTOC]{Jnario language hierarchy.}
+  \label{jnario_hierarchy} 
+\end{center} 
+\end{figure}
+
+As we mentioned earlier, Jnario features assertions with improved 
+error messages. One example is the assert statement, which consists
+of the \emph{assert} keyword followed by an expression evaluating 
+to a boolean:
+
+\begin{lstlisting}[language=jnario-spec]
+assert x != null
+\end{lstlisting}
+  
+Adding a new expression to the Xtext base language works by overriding the
+corresponding grammar rules. In our example, we added the new assertion 
+statement as a primary expression:
+\todo{"statement" as "expression"? SOunds strange :-) Assertion isn't a
+statement, right?}
+
+\begin{lstlisting}[language=jnario-spec] 
+XPrimaryExpression returns xbase::XExpression:
+  XConstructorCall |
+  XBlockExpression |
+  ...
+  Assertion;
+\end{lstlisting}
+
+The assertion statement itself is define in a separate rule, which again
+reuses parts of the Xtext base language:
+
+\begin{lstlisting}[language=jnario-spec] 
+Assertion returns xbase::XExpression: 
+  'assert' expression=XExpression;
+\end{lstlisting}
+
+
+\todo{I think you should talk about tables and also the ability to "hide"
+the code and only show the prose text snippets.}
+
+
+\subsection{Code Generation}
+
+Jnario specifications are compiled to plain Java JUnit4 tests. Xtext provides
+a framework for mapping DSL concepts to corresponding JVM concepts.  
+An example mapping for the feature language is shown in figure \ref{jnarioToJava}.
+
+\begin{figure}[h]
+\begin{center}
+  \includegraphics[scale=0.5]{figures-sweng/utility/jnarioToJavaClasses.png}
+  \caption[labelInTOC]{Generation from Jnario Feature DSL to Java classes with JUnit Tests}
+  \label{jnarioToJava} 
+\end{center} 
+\end{figure}
+
+Scenarios and Backgrounds are mapped to Java classes, in which each step is
+mapped to a JUnit test method. The additional \verb'@Test' annotations required
+by JUnit are added during the mapping process. The expressions can be completely
+transformed by the Xtend compiler. However, in order to support custom
+expressions, such as the ``assert'' statement, the Xtend compiler needs to be
+extended \todo{how?}. 
+
+\begin{lstlisting}[language=jnario-spec]
+val x = "hello"
+val y = "world"
+assert x + y == "hello world" 
+\end{lstlisting}
+
+The execution of these statements will result in the following error message:
+
+\begin{lstlisting}[language=jnario-spec]
+java.lang.AssertionError: Expected x + y == "hello world" but
+     x + y is "helloworld"
+     x is "hello"
+     y is "world"
+\end{lstlisting}
+
+Notably is the error message containing the original failing expression 
+\verb'x + y == "hello world"' together with the value of all sub expressions.
+Creating such error messages is not possible in plain Java as the underlying AST
+cannot be accessed. However, in a DSL like Jnario
+we can include this information when generating the Java code from our
+specifications. The following snipplet shows the extension to the Xtend
+compiler:
+
+\begin{lstlisting}[language=java]
+private void _toJavaExpression(Assertion assertion, ITreeAppendable b) {
+  XExpression expr = assertion.getExpr();
+  toJavaStatement(expr, b, true);
+  b.newLine();
+  b.append("org.junit.Assert.assertTrue(");
+  b.append("Expected ");
+  b.append(serialize(expr));
+  b.append(" but ");
+  appendSubExpressionValues(expr, b);
+  b.append(", ");
+  toJavaExpression(expr, b);
+  b.append(");");
+}
+\end{lstlisting}
+
+We first get the actual expression of the assertion, which then is compiled 
+by invoking \verb'toJavaStatement(expr,...)'. The Xtend compiler automatically 
+creates a temporary variable for each subexpression. The value of these
+variables will be later used to generate the error message. The assertion 
+itself is mapped to the JUnit method
+\verb'Assert.assertTrue(message, result)'. The message is built by serializing
+the expression as it is written in the Jnario file together with the values
+of the subexpressions taken from previously created temporary variables. Finally,
+execution result expression is compiled by invoking 
+ \verb'toJavaExpression(expr, ...)' 
+
+\subsection{Tooling}
+
+For Jnario a good tooling is important since the hurdles of learning a new
+language should be as low as possible and being able to work efficiently is a
+main goal. Xtext provides a great tooling support for new DSLs. With the
+existing integration into Eclipse and the easy extensibility of the UI
+components you can add support for your DSL fast.
+
+\todo{You extended Xtend, right? So how much of the Xtend IDE could you reuse,
+how much did you have to redo?}
+
+The Feature language aims to be readable for software developers and for domain
+experts who have no programming background. The best way to support both groups
+was to establish two views on a Feature file. We created an own Feature Editor
+that uses specialized folding to show or hide the implementation logic of the
+scenarios and features \todo{What does "an own editor" mean? Is this not the
+normal Xtext editor? How much effort?}. This enables the possibility of showing
+only the parts of the file that are in natural language and it therefore feels
+like working with a text editor. In addition, highlighting of keywords comes in
+handy when referring to existing steps. We used different colors to show if a
+step is a implemented, not implemented or a reference to an existing step.
+
+For working efficiently certain concepts such as quick fixes for importing
+necessary libraries or for creating new class files were added. Auto completion
+for steps in features is supported since you can reuse other steps by
+referencing them, even if they are not implemented. Another important feature is
+the debugging facility of Xtext which lets you step through your DSL file
+instead of using the generated code\todo{Did you have to adapt that for JNario?
+If so, how?}.
+
+\subsection{Testing}
+
+As described in Chapter \ref{testingimpl}, testing is an important part of
+developing a DSL. This of course applies to Jnario as well. However, Jnario is a
+special case since it itself is language for writing tests. This gave us the chance
+to bootstrap the implementation of Jnario. This means, all tests for Jnario are
+written in Jnario. The advantage of bootstrapping is that bugs
+or missing features quickly become apparent just from using the language.
+Here is an example in which we test Jnario's \verb'throws' expression:
+
+\begin{lstlisting}[language=jnario-feature] 
+Scenario: Testing exceptions with Jnario
+  Given a unit spec 
+  ''' 
+    describe "expecting exceptions in Jnario"{
+      fact new Stack().pop throws EmptyStackException
+    }
+  ''' 
+  Then it should execute successfully 
+\end{lstlisting}
+
+When we execute this scenario, the given unit specification will first be parsed and compiled 
+into Java source code. The Java source code will then be compiled into 
+a Java class file using the normal Java compiler. The generated class is then
+loaded via the Java classloader and executed with JUnit. This process is greatly 
+simplified by the testing infrastructure provided by Xtext, which provides APIs
+for compiling and classloading DSL artifacts. The advantage of this approach is
+that the whole compiler chain is tested and tests are relatively stable as they are
+independent of changes in the internal implementation.
+
+ \section{Summary}
+ 
+This chapter introduced Jnario, a DSL for testing, which has been developed with
+Xtext. Jnario is a good example for a DSL that is targeted towards developers
+with the goal to ease the development process. It It is also a good example for
+an Xtext-based language that makes use of Xtext's reusable expression language
+Xbase. 
+
+

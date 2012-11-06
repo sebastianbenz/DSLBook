@@ -41,7 +41,7 @@ meaningful error messages are reported.
 \parhead{An Example with Xtext} The following piece of code is the fundamental
 code that needs to be written in Xtext to test a DSL program using the Xtext
 testing
-utilities\footnote{http://code.google.com/a/eclipselabs.org/p/xtext-utils/wiki/Unit\_Testing;
+utilities\footnote{\icsn{http://code.google.com/a/eclipselabs.org/p/xtext-utils/wiki/Unit\_Testing};
 more testing utilities for Xtext can be found in the
 \icsn{org.eclipse.xtext.junit4} package.}.
 It is a JUnit 4 test case with special support for the Xtext
@@ -184,8 +184,8 @@ problems can be detected. \fig{brokenSyntaxInMPS} shows an example.
 \begin{marginfigure}
 \begin{center}
   \includegraphics[width=50mm]{figures-impl/7/brokenSyntaxInMPS.png}
-  \caption[]{\textbf{Top:} an interface expressed in the mbeddr C components
-  extension. \textbf{Bottom:} The same interface after we have removed the
+  \caption[]{\emph{Top:} an interface expressed in the mbeddr C components
+  extension. \emph{Bottom:} The same interface after we have removed the
   \icsn{parameters} collection in an \icsn{Operation}. The error reports that the
   model contains child nodes in a child collection that does not exist.}
   \label{brokenSyntaxInMPS} 
@@ -437,7 +437,7 @@ we have covered all\footnote{There may actually be an infinite number of
 possible execution paths, so we have to limit ourselves to a reasonable set of
 tests.} of the possible executions paths through a generator or interpreter.
 If we do that, the set of tests implicitly tests the generator or interpreter
---- which is the goal we want to achieve in semantics testing.
+-- which is the goal we want to achieve in semantics testing.
 
 If we have several execution backends, such as an interpreter \emph{and} a
 compiler it must be ensured that both have the same semantics. This can be
@@ -701,7 +701,7 @@ specified above\footnote{The generator for mock components translates the
 expectations into implementations of the interface methods that track and record
 invocations. The \icsn{validate mock} statement works with this recorded data to
 determine whether the expectations were met.}, the \ic{validate mock} statement
-will fail --- and with it, the whole test.
+will fail -- and with it, the whole test.
 
 One particular challenge with this approach to semantics testing is that, if an
 assertion fails, you get some kind of \ic{assertion XYZ failed at ABC} output
@@ -773,7 +773,7 @@ these tests, it tests the correctness of the transformation, generator or
 interpreter. However, there is a significant limitation to this approach: it
 only works if the DSL actually specifies behavior! If the DSL only specifies
 structures and cannot be executed, the approach does not work\footnote{For
-testing execution semantics, this does not matter --- if you cannot execute
+testing execution semantics, this does not matter -- if you cannot execute
 something because it has no behavior, then there is no execution semantics to
 test in the first place. But you also cannot use the approach to implicitly test
 generators or transformations then}. In this case you have to perform a
@@ -940,14 +940,14 @@ checker comes to mind here!}.
 To make model checking more user friendly the mbeddr C language provides a nice
 syntax for state machines and then generates the corresponding representation in
 the input language of the model checker (we use the
-NuSMV\footnote{http://nusmv.fbk.eu/} model checker).
+NuSMV\footnote{\icsn{http://nusmv.fbk.eu/}} model checker).
 The replies of the model checker are also reinterpreted in the context of the
 higher level state machine. Tool integration is provided as well: users can
 select the context menu on a state machine and invoke the model checker. The
 model checker input is generated, the model checker is executed, and the replies
 are rendered in a nice table in MPS. Finally, we
 have abstracted the property specification language by providing support for the
-most important idioms\footnote{http://patterns.projects.cis.ksu.edu/}; these can
+most important idioms\footnote{\icsn{http://patterns.projects.cis.ksu.edu/}}; these can
 be specified relatively easily (for example \ic{never <expr>} or \ic{always eventually reachable <state>}).
 Also, a number of properties are automatically checked for each state machine.
 
@@ -1030,7 +1030,7 @@ on step [currentVal + size <= LIMIT] -> countState {
 \end{lstlisting}
 
 \noindent 
-You perhaps don't even recognize the difference --- which is exactly why you
+You perhaps don't even recognize the difference -- which is exactly why you
 would want to use a formal verification! We have changed the \ic{>} to a \ic{>=}
 in the first transition. Running the model checker again, we get, among others, the
 following messages:
@@ -1098,7 +1098,7 @@ solvers that work with arithmetic expressions in addition to Booleans.}. SAT
 solving is an NP-complete problem, so there is no analytic approach: exhaustive
 search (implemented, of course, in much more clever ways) is the way to address
 these problems. SMT solving (Satisfiability Modulo Theories) is an extension of
-SAT solving that allows other constructs in addition to logical operators ---
+SAT solving that allows other constructs in addition to logical operators --
 the most frequently used ones are those of linear arithmetic, arrays or
 bit-vectors. 
 
@@ -1146,10 +1146,10 @@ behavior expressed in the model. There are three ways to address this:
 \begin{itemize}
   \item You can test your generator manually using the strategies suggested in
   this chapter. Once you trust the generator based one a sufficiently large set
-  of tests, you then only have to verify the models --- since you know they will
+  of tests, you then only have to verify the models -- since you know they will
   be translated correctly.
   \item Some tools, for example the UPAAL model
-  checker\footnote{http://www.uppaal.com/}, can also generate test
+  checker\footnote{\icsn{http://www.uppaal.com/}}, can also generate test
   cases\footnote{One can generate test cases by using the model checking
   technology: just specify that some property is \ic{false} and the model checker
   will provide a counterexample that illustrates the execution of the
@@ -1235,7 +1235,7 @@ embedding the subject DSL into the DSL for describing the editor test case.
 
 \parhead{An example with Xtext/Xpect} Xpect is a framework for integration
 testing of Xtext DSLs developed by Moritz
-Eysholdt\footnote{https://github.com/meysholdt/Xpect}. It can be used for
+Eysholdt\footnote{\icsn{https://github.com/meysholdt/Xpect}}. It can be used for
 testing various language aspects, among them, for example, code
 completion\footnote{Xtext itself comes with a set of helpers for IDE service
 testing such as content assist or builder tests. They run with and often even
@@ -1280,7 +1280,7 @@ on this below).
 pipe \ic{|} marks the assumed cursor position relative to \ic{Hel} and \ic{!} where
 the content assist should be triggered.
 
-\item The part after \ic{--->} marks the expectation of the test. In the first test,
+\item The part after \ic{-->} marks the expectation of the test. In the first test,
 content assist is expected to suggest the keyword \ic{Hello} and in the second
 test the exclamation point is expected.
 \end{itemize}
@@ -1296,7 +1296,7 @@ actually the name of a test method inside that class. Everything from an Xpect
 comment after the \ic{XPECT} keyword is passed as parameters into the test
 method. The test method can do whatever it wants as long as it process a string
 as the output. This string is then compared with the expectation, the text
-behind the \ic{--->}. While \ic{contentAssist} is predefined in Xpect-provided
+behind the \ic{-->}. While \ic{contentAssist} is predefined in Xpect-provided
 unit test base classes, you can define your own methods. Since the actual
 testing is based on string comparison, the system is easily extensible. The
 following language aspects are testable with Xpect\footnote{The general idea
@@ -1306,7 +1306,7 @@ the language that you want to test. The test expectations are anything you might
 want the test to verify and which can be expressed as a string. The setup may
 declare other DSL documents that the test depends on including Eclipse project
 setups. Since all these details are hidden, the DSL \emph{user} can potentially
-understand or even write the test cases --- not just the DSL developer.}:
+understand or even write the test cases -- not just the DSL developer.}:
 
 \begin{itemize}
   \item the AST created from a DSL document
@@ -1333,7 +1333,7 @@ Xpect also  makes it easy to specify even large test data scenarios, possibly
 consisting of multiple languages and multiple involved Eclipse projects.
 Finally, since Xpect code is embedded into the to-be-tested DSL code, you can
 use your DLS's Xtext editor to edit your test data. In plain JUnit tests you
-would have to embed snippets of your DSL documents into Java string literals ---
+would have to embed snippets of your DSL documents into Java string literals --
 which won't provide any tool support for your language at all\footnote{Notice,
 however, that when editing the to-be-tested program, there is no tool support
 for the Xpect syntax and the expectations. The reason is that Xtext does not

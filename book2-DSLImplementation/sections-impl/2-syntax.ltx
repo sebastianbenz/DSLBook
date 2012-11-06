@@ -21,7 +21,7 @@ details contained in the concrete syntax: keywords and symbols, layout (e.g.,
 whitespace), and comments are typically not included in the AS. Note that the
 syntactic information that doesn't end up in the AS is often preserved in some
 "hidden" form so the CS can be reconstructed from the combination of the AS and
-this hidden information --- this bidirectionality simplifies creating IDE
+this hidden information -- this bidirectionality simplifies creating IDE
 features such as quick fixes or formatters a lot.
 
 In most cases, the abstract syntax is a tree data structure. Instances that
@@ -87,7 +87,7 @@ the next subsection.}:
   AS, based on the information in the program text. In this case, the
   (formal) definition of the CS is usually called a
   \emph{grammar}\footnote{Sometimes the parser creates a concrete syntax tree
-  which is then transformed to an AST --- however, we ignore this aspect in
+  which is then transformed to an AST -- however, we ignore this aspect in
   the rest of the book, it is not essential.}. Xtext and Spoofax use this
   approach.
   \item[Projection] In the projectional approach, the abstract syntax tree is
@@ -99,7 +99,7 @@ the next subsection.}:
 
 \noindent \fig{astandcst} shows the typical combinations of these two
 dimensions. In practice, parser-based systems typically derive the AS from the
-CS --- i.e., CS first. In projectional systems, the CS is usually annotated onto
+CS -- i.e., CS first. In projectional systems, the CS is usually annotated onto
 the AS data structures - i.e., AS first.
 
 \begin{marginfigure}
@@ -125,8 +125,8 @@ A \emph{parser} is used to check the program text (concrete syntax) for
 syntactic correctness, and create the AST by populating the AS data structures
 from information extracted from the textual source. Most modern IDEs perform this task in
 real-time as the user edits the program and the AST is always kept in sync with
-the program text. Many IDE features --- such as content assist, validation,
-navigation or refactoring support --- are based on the always up-to-date AST.
+the program text. Many IDE features -- such as content assist, validation,
+navigation or refactoring support -- are based on the always up-to-date AST.
 
 \begin{marginfigure}
   \includegraphics[width=3.5cm]{figures-impl/2/parserbased.png}
@@ -171,7 +171,7 @@ parsers may not provide the same performance or error reporting/recovery as a
 hand-tailored parser constructed by an expert, but they provide bounded
 performance guarantees that make them (usually) more than fast enough for modern
 machines. Also, they generate a \emph{complete} parser for the \emph{complete}
-grammar --- developers may forget corner cases if they write the parser
+grammar -- developers may forget corner cases if they write the parser
 manually. However, the most important argument to use parser generation is that
 the effort for building a parser is \emph{much} lower than manually writing a
 custom parser. The grammar definition is also much more readable and
@@ -197,8 +197,8 @@ expressions to recognize all other valid input as tokens.
 
 Both the scanner and parser can be generated from grammars (see below). A
 well-known example of a scanner (lexer) generation tool is
-\ic{lex}\footnote{http://dinosaur.compilertools.net/}. Modern parsing 
-frameworks, such as ANTLR\footnote{http://www.antlr.org/} do their own scanner
+\ic{lex}\footnote{\icsn{http://dinosaur.compilertools.net/}}. Modern parsing 
+frameworks, such as ANTLR\footnote{\icsn{http://www.antlr.org/}} do their own scanner
 generation.
 
 Note that the word "parser" now has more than one meaning: it can either refer
@@ -208,7 +208,7 @@ in general) unless scanning and parsing are discussed specifically.
 
 A separate scanning phase has direct consequences for the overall parser
 implementation, when the scanner is not aware of the context of its input.
-%--- only the parser has this awareness. 
+%-- only the parser has this awareness. 
 An example of a typical problem that arises from this is that keywords can't be used as
 identifiers even though often the use of a keyword wouldn't cause ambiguity in
 the actual parsing. The Java language is an example of this: it uses a fixed set
@@ -245,14 +245,14 @@ semantical relation between references and declarations.}.
 
 
 Fundamentally, grammar production rules can be expressed in Backus-Naur Form
-(BNF)\footnote{http://en.wikipedia.org/wiki/Backus-Naur\_Form}, written as \(S\)
+(BNF)\footnote{\icsn{http://en.wikipedia.org/wiki/Backus-Naur\_Form}}, written as \(S\)
 \ic{::=} \(P_1\) \ic{...} \(P_n\). This grammar defines a symbol $S$ by a series
 of pattern expressions $P_1$ \ic{...} $P_n$. Each pattern expression can refer
 to another symbol or can be a literal such as a keyword or a punctuation symbol.
 If there are multiple possible patterns for a symbol, these can be written as
 separate productions (for the same symbol), or the patterns can be separated by
 the \ic{|} operator to indicate a choice. An extension of BNF, called Extended
-BNF (EBNF)\footnote{http://en.wikipedia.org/wiki/Extended\_Backus-Naur\_Form},
+BNF (EBNF)\footnote{\icsn{http://en.wikipedia.org/wiki/Extended\_Backus-Naur\_Form}},
 adds a number of convenience operators such as \ic{?} for  an optional pattern,
 \ic{*} to indicate zero or more occurrences, and \ic{+} to indicate one or more
 occurrences of a pattern expression.
@@ -293,13 +293,13 @@ parsing itself a lot harder since the parser has to be aware of a lot more than
 just the syntax.
 
 Parser generation was first applied in command-line tools such as \ic{yacc} in
-the early seventies\footnote{http://dinosaur.compilertools.net}. As a
+the early seventies\footnote{\icsn{http://dinosaur.compilertools.net}}. As a
 consequence of relatively slow computers, much attention was paid to the
 efficiency of the generated parsers. Various algorithms were designed that could
 parse text in a bounded amount of time and memory. However, these time and space
 guarantees could only be provided for certain subclasses of the context-free
 grammars, described by acronyms such as LL(1), LL($k$), LR(1), and so on. A
-particular parser tool supports a specific class of grammars --- e.g.,~ANTLR
+particular parser tool supports a specific class of grammars -- e.g.,~ANTLR
 supports LL($k$) and LL(*). In this naming scheme, the first L stands for
 left-to-right scanning, and the second L in LL and the R in LR stand for
 leftmost and rightmost derivation. The constant $k$ in LL($k$) and LR($k$)
@@ -412,19 +412,14 @@ execution times or non-termination and usually exhibits poor performance.
 
 There are also general parsing algorithms that can \emph{efficiently} parse the
 full class. In particular, generalized LR (GLR)
-parsers\footnote{http://en.wikipedia.org/wiki/GLR\_parser} and Earley
-parsers\footnote{http://en.wikipedia.org/wiki/Earley\_parser} can parse
+parsers\footnote{\icsn{http://en.wikipedia.org/wiki/GLR\_parser}} and Earley
+parsers\footnote{\icsn{http://en.wikipedia.org/wiki/Earley\_parser}} can parse
 in linear time ($O(n)$) in the common case.
 In case of ambiguities, the time required can increase, but
 in the worst case they are bounded by cubic ($O(n^3)$) time.
 In practice, most programming languages have few or no ambiguities, ensuring
 good performance with a GLR parser.
 Spoofax is an example of a language workbench that uses GLR parsing.
-
-%\lennart{I changed the phrasing here: main point is that the *common* case is
-% O(n). for deterministic grammars it's exactly O(n) and as we've shown in the
-% error recovery paper, it approaches O(n) for normal grammars with minor local
-% ambiguities}
 
 
 \parhead{Ambiguity} Grammars can be \emph{ambiguous} meaning that at least one
@@ -600,11 +595,11 @@ Expr ::= ID
 \end{lstlisting}
 
 \noindent 
-In the ideal case, composing two such grammars should be trivial --- just copy
+In the ideal case, composing two such grammars should be trivial -- just copy
 them into the same file. However, reality is often less than ideal. There are a
 number of challenges that arise in practice, related to ambiguity and to grammar
 class
-restrictions\footnote{http://tratt.net/laurie/tech\_articles/articles/parsing\_the\_solved\_problem\_that\_isnt}.
+restrictions\footnote{\icsn{http://tratt.net/laurie/tech\_articles/articles/parsing\_the\_solved\_problem\_that\_isnt}}.
 
 
 \begin{itemize}
@@ -879,7 +874,7 @@ resulting in textual programs being made up from "plain text". With the advent
 of unicode, a much wider variety of characters is available while still sticking
 to the linear sequence of character symbols approach. For example, the Fortress
 programming
-language\footnote{http://en.wikipedia.org/wiki/Fortress\_(programming\_language)}
+language\footnote{\icsn{http://en.wikipedia.org/wiki/Fortress\_(programming\_language})}
 makes use of this: greek letters and a wide variety of different bracket styles
 can be used in the programs. However, character layout is always ignored. For
 example it is not possible to use parsers to handle tabular notations, fraction
@@ -1019,11 +1014,11 @@ detail in the respective tool example sections.
 
 \subsection{EMF Ecore}
 
-The Eclipse Modeling Framework\footnote{http://www.eclipse.org/modeling/emf/}
+The Eclipse Modeling Framework\footnote{\icsn{http://www.eclipse.org/modeling/emf/}}
 (EMF) is at the core of all Eclipse Modeling tools. It provides a wide variety
 of services and tools for persisting, editing and processing models and abstract
 syntax definitions. Its core component is Ecore, a variant of the EMOF
-standard\footnote{http://en.wikipedia.org/wiki/Meta-Object\_Facility}. Xtext
+standard\footnote{\icsn{http://en.wikipedia.org/wiki/Meta-Object\_Facility}}. Xtext
 uses Ecore as the foundation for the AS: from a grammar definition, Xtext
 derives the AS as an instance of Ecore. Ecore's central concepts are:
 \ic{EClass} (representing AS elements or language concepts), \ic{EAttribute}
@@ -1181,7 +1176,7 @@ concept ConceptDeclaration extends AbstractConceptDeclaration
 \noindent 
 A concept may extend a single other concept and implement any number of
 interfaces\footnote{Note that interfaces can provide implementations for the
-methods they specify --- they are hence more like Scala traits or mixins
+methods they specify -- they are hence more like Scala traits or mixins
 known from AOP and some programming languages.}.
 It can declare references and child collections. It may also have a number of primitive-type
 properties as well as a couple of "static" features. In addition, concepts can
@@ -1295,7 +1290,7 @@ In pure grammar languages, one would typically write the following:
 \end{lstlisting} 
 
 This expresses that after the two keywords we expect an \ic{ID}.
-However, Xtext grammars don't just express the concrete syntax --- they also
+However, Xtext grammars don't just express the concrete syntax -- they also
 determine the mapping to the AS. This is because by default, Xtext automatically
 derives the AS from the grammar\footnote{It is also possible to start with the
 meta model and \emph{then} define the grammar.}. We have encountered two such
@@ -1324,7 +1319,7 @@ optional \ic{init} block, the meta class will have an \ic{initBlock} property,
 typed as \ic{InitBlock} (whose parser rule we don't show here), with a
 multiplicity of 0..1. Events and variables are more interesting, since the
 vertical bar operator is used within the parentheses. The asterisk expresses
-that whatever is inside the parentheses can occur any number of times --- note
+that whatever is inside the parentheses can occur any number of times -- note
 that the use of a \ic{*} usually goes hand in hand with the use of a \ic{+=}.
 Inside the parentheses we expect either a \ic{CustomEvent} \emph{or} a
 \ic{Variable}, which is expressed with the \ic{|}. Variables are assigned to the
@@ -1421,7 +1416,7 @@ classical grammar languages, where one would write \ic{"state"
 targetStateName=ID;}. Writing it this way only specifies that we expect an \ic{ID} 
 after the \ic{state} keyword. The fact that we call it \ic{targetStateName}
 communicates \emph{to the programmer} that we expect this text string to
-correspond to the name of a state --- a later phase in model
+correspond to the name of a state -- a later phase in model
 processing \emph{resolves} the name to an actual state reference. Typically,
 the code to resolve the reference has to be written manually, because there is
 no way for the tool to automatically derive from the grammar that this \ic{ID}
@@ -1634,7 +1629,7 @@ Inside a module, one can only access entities from the same module or from impor
 
 
 \parhead{Grammar basics} In Spoofax, the syntax of languages is described using
-SDF\footnote{http://www.syntax-definition.org/}. SDF is short for Syntax
+SDF\footnote{\icsn{http://www.syntax-definition.org/}}. SDF is short for Syntax
 Definition Formalism and is a modular and flexible syntax definition formalism,
 supported by the SGLR\footnote{SGLR parsing is a \emph{S}cannerless, \emph{G}eneralized extension of \emph{LR} parsing.} parser generator. 
 It can generate efficient, Java-based scannerless and general parsers, allowing Spoofax to support the full class of context-free grammars, grammar composition, and modular syntax definitions.
@@ -1962,7 +1957,7 @@ these relations are specified in \sect{Ch:scopes}.
 \label{mpssyntax}
 
 We start by defining a simple language for state machines, roughly similar to
-the one used in the mbeddr extensible C\footnote{http://mbeddr.com}. Core
+the one used in the mbeddr extensible C\footnote{\icsn{http://mbeddr.com}}. Core
 concepts include \ic{StateMachine}, \ic{State}, \ic{Transition} and
 \ic{Trigger}. The state machine can be embedded in C code as we will see later.
 The language supports the definition of state machines as shown in the following
@@ -2004,7 +1999,7 @@ defined as \ic{statemachine}, so typing this word inside C modules instantiates
 a state machine (it picks the \ic{Statemachine} concept from the code completion
 menu). State machines also implements a couple of interfaces;
 \ic{IIdentifierNamedElement} contributes a property \ic{name},
-\ic{IModuleContent} makes the state machine embeddable in C \ic{Module}s --- the
+\ic{IModuleContent} makes the state machine embeddable in C \ic{Module}s -- the
 module owns a collection of \ic{IModuleContents}, just like the state machine
 contains states and events.
 
@@ -2131,7 +2126,7 @@ shows from which language a language concept originates, so this is a way to
 distinguish the two. Alternatively, a short explaining text can be shown for
 each entry in the code completion menu that helps the user make the decision.}.
 As we have discussed above, this means that there is never an ambiguity that
-cannot be handled --- as long as the user is willing and able to make the
+cannot be handled -- as long as the user is willing and able to make the
 decision which concept should be instantiated.
 
 
@@ -2211,7 +2206,7 @@ which in turn extends \ic{Expression}. \ic{BinaryExpressions} have \ic{left} and
 be built. Representing expressions as trees is a standard approach that we have
 seen with the Xtext example already; in that sense, the abstract syntax of
 mbeddr expressions (and more generally, the way to handle expressions in MPS) is
-not very interesing. The editors are also trivial --- in case of the \ic{+}
+not very interesing. The editors are also trivial -- in case of the \ic{+}
 expression, they are a horizontal list of: editor for \ic{left} argument, the
 \ic{+} symbol, and the editor for the \ic{right} argument.
 

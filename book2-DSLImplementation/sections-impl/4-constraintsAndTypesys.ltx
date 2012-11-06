@@ -251,7 +251,7 @@ node.init} specifies that write access is performed on the current node. The
 statement also expresses that whatever value was in the \ic{init} expression is
 now in the node itself. If there is no \ic{init} expression, we still want to
 mark the \ic{LocalVariableDeclaration} node as visited by the data flow builder
---- the program flow has come across this node. A subsequent analysis reports
+-- the program flow has come across this node. A subsequent analysis reports
 all program nodes that have \emph{not} been visited by a DFB as dead code. So
 even if a node has no further effect on a program's data flow, it has to be
 marked as visited using \ic{nop}.
@@ -262,7 +262,7 @@ references. Its data flow is defined as \ic{read node.var}, where \ic{var} is
 the name of the reference that points to the referenced variable. 
 
 In an \ic{AssignmentStatement}, we first execute the DFB for the \ic{rvalue}
-and then "flow" the \ic{rvalue} into the \ic{lvalue} --- the purpose of an 
+and then "flow" the \ic{rvalue} into the \ic{lvalue} -- the purpose of an 
 assignment:
 
 \begin{lstlisting}[language=mps]
@@ -308,7 +308,7 @@ code for node.thenPart
 The \ic{ifjump} statement means that we may jump to the specified label (i.e.
 we then execute the \ic{else if}s). If not (we just "run over" the
 \ic{ifjmp}), then we execute the \ic{thenPart}. If we execute the
-\ic{thenPart}, we are finished with the whole \ic{IfStatement} --- no
+\ic{thenPart}, we are finished with the whole \ic{IfStatement} -- no
 \ic{else if}s or \ic{else} parts are relevant, so we jump after the current
 node (the \ic{IfStatement}) and we're done. However, there is an additional
 catch: in the \ic{thenPart}, there may be a \ic{return} statement. So we may
@@ -486,7 +486,7 @@ Most constraint rules use string interpolation for error messages. Interpolated
 strings have the form \ic{\$[...]} where variables can be escaped using
 \ic{[...]}. The following example uses string interpolation to report a warning.
 A standard library rule \ic{string-starts-with-capitals} is used\footnote{These
-and other library rules are documented on the Spoofax website athttp://www.spoofax.org/.}.
+and other library rules are documented on the Spoofax website at\icsn{http://www.spoofax.org/}.}.
 
 \begin{lstlisting}[language=stratego]
 constraint-warning:
@@ -625,7 +625,7 @@ system, as we show in the next chapter.
 \chapter{Type Systems}
 \label{typesysimpl}
 
-\chapterabstract{Type systems are a subset of constraints --- the implement type
+\chapterabstract{Type systems are a subset of constraints -- the implement type
 calculations and type checks. Those can be relatively complex, so special
 support beyond general-purpose constraint checking is useful. In this chapter we
 discuss what type systems have to be able to do, various strategies for
@@ -654,7 +654,7 @@ specifications in the program. This chapter focuses exclusively on static type
 checks\footnote{In case a DSL uses dynamic typing, the type checks habe to be
 performed at runtime based on the actual types of values. Many of the
 ways of expressing typing rules are similar in this case. However, all the
-DSLs I have built so far use static typing --- the fact you can actually have
+DSLs I have built so far use static typing -- the fact you can actually have
 static type systems is a primary benefit of external DSLs. DSLs with dynamic
 type systems are probably better implemented as internal DSLs, relying on the
 dynamic type system of the host language. Internal DSLs are beyond the scope
@@ -1063,9 +1063,9 @@ it is limited to JVM-related types, it is not as versatile as it couldbe\footno
 As a consequence of this limitation and the fact that Xtext is widely used, two
 third-party libraries have been developed: 
 the Xtext Typesystem Framework (developed by the
-author\footnote{http://code.google.com/a/eclipselabs.org/p/xtext-typesystem/},
+author\footnote{\icsn{http://code.google.com/a/eclipselabs.org/p/xtext-typesystem/}},
 and XTypes (developed by Lorenzo
-Bettini\footnote{http://xtypes.sourceforge.net/}. In the remainder of this
+Bettini\footnote{\icsn{http://xtypes.sourceforge.net/}}. In the remainder of this
 section we will look at the Xtext Typesystem Framework (see
 also an SLE 2012 paper that compares typesystem approaches for
 Xtext~\cite{TS12}).
@@ -1313,7 +1313,7 @@ In MPS there are two different ways how language concepts can be instantiated.
 The first one (as shown in the first equation above) uses the BaseLanguage
 \ic{new} expression. The second one uses a quotation, where "a piece of tree" can be 
 inlined into program code. It uses the concrete syntax of the quoted construct 
---- here: a \ic{BooleanType} --- in the quotation.
+-- here: a \ic{BooleanType} -- in the quotation.
 A more interesting example is the typing of \ic{struct}s. Consider the
 following C code:
  

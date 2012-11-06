@@ -257,7 +257,7 @@ of the executing DSL program (\fig{dsltesting}).
 Writing one DSL program and one unit test ensures that this one program executes
 correctly with regards to the test case. Our goal here is, however, to ensure
 that the transformation is correct \emph{for all programs} we can write with the
-DSL. This can be achieved by writing many DSL programs and many tests --- enough
+DSL. This can be achieved by writing many DSL programs and many tests -- enough
 to make sure that every branch of the transformation is covered at least
 once\footnote{For the Xpand code generator there is a coverage analysis tool
 that can be used to make sure that for a given test suite, all branches of the
@@ -306,7 +306,7 @@ Transformations define the execution semantics of a DSL by mapping it to another
 language. In the vast majority of cases a transformation for $L_D$ recreates
 those patterns and idioms in $L_{D-1}$ for which it provides linguistic
 abstraction. The result may be transformed further, until a level is reached for
-which a language with an execution infrastructure exists --- often $D_0$. Code
+which a language with an execution infrastructure exists -- often $D_0$. Code
 generation, the case where we generate GPL code from a DSL is thus a special
 case where $L_{D_0}$ code is generated.
 
@@ -503,7 +503,7 @@ manually. However, this requires a competent developer and, usually, a lot of
 effort \emph{for each specific program}. A tool (i.e.~the transformation in this
 case) will typically address the 90\% case well: it will produce reasonably
 efficient code in the vast majority of cases with very little effort (once the
-optimizations have been defined). In most cases, this is good enough --- in the
+optimizations have been defined). In most cases, this is good enough -- in the
 remaining corner cases, $D_{-1}$ has to be written
 manually\sidenote[][-2\baselineskip]{This argument pro tools is used in GPLs for
 garbage collection and optimizing compilers for higher level programming
@@ -534,7 +534,7 @@ development.} However, there are several exceptions to this rule:
   \item Sometimes generating really well structured code makes the generator
   \emph{much} more complicated. You then have to decide whether you want to live
   with some less nicely structured generated code, or whether you want to
-  increase generator complexity --- a valid trade-off, since the
+  increase generator complexity -- a valid trade-off, since the
   generator also needs to be maintained! A good example is \emph{import}
   statements when generating Java code. It can be a lot of work to find out
   exactly which imports are needed in a generated class.
@@ -599,7 +599,7 @@ cleaner and more efficient. Programmers trade flexibility for performance.}
 
 
 \parhead{Platform} Code generators can become complex. The complexity can be
-reduced by splitting the overall transformation into several steps --- see
+reduced by splitting the overall transformation into several steps -- see
 above. Another approach is to work with a manually implemented, rich domain
 specific platform. It typically consists of middleware, frameworks, drivers,
 libraries and utilities that are taken advantage of by the generated code.
@@ -637,7 +637,7 @@ for embedded systems does not provide good means of abstraction. For example,
 state machines are translated to \ic{switch} statements. If we were to generate
 Java code in an enterprise system, we may populate a state machine framework
 instead. In contrast, when we translate the component definitions to the
-AUTOSAR target environment, a relatively powerful platform is used --- namely
+AUTOSAR target environment, a relatively powerful platform is used -- namely
 the AUTOSAR APIs, conventions and generators.}
 
 
@@ -706,7 +706,7 @@ of criteria to help with this decision.
 	especially useful during the development of the execution engine. Once a the DSL and the engine
 	are finished, users should be able to debug DSL programs on the level of the
 	DSL. However, since building DSL debuggers is not directly supported by most
-	language workbenches, this is a lot of work --- and users are required to debug
+	language workbenches, this is a lot of work -- and users are required to debug
 	on $L_{D-1}$.}
 	
 	\item[Performance and Optimization] The code generator can perform
@@ -810,7 +810,7 @@ performance and scalability.
 Ensuring the semantics of the execution engine becomes more challenging if we
 transform the program to \emph{several different} targets using several
 different transformations. We have to ensure that the semantics of all resulting
-programs are identical\footnote{At least to the extent we care --- we may not
+programs are identical\footnote{At least to the extent we care -- we may not
 care if one of the resulting programs is faster or more scalable. In fact, these
 differences may be the very reason for having several mappings)}. In practice,
 this case often occurs if an interpreter is used in the IDE for "experimenting"
@@ -882,8 +882,8 @@ It may be beneficial to limit the expressiveness of a language. Limited
 expressiveness often results in more sophisticated analyzability. For example,
 while state machines are not very expressive (compared to fully fledged C),
 sophisticated formal verification algorithms are available (e.g.,~model checking
-using SPIN\sidenote[][-2\baselineskip]{http://spinroot.com} or
-NuSMV\sidenote[][-1\baselineskip]{http://nusmv.fbk.eu/}). The same is true for first-order logic,
+using SPIN\sidenote[][-2\baselineskip]{\icsn{http://spinroot.com}} or
+NuSMV\sidenote[][-1\baselineskip]{\icsn{http://nusmv.fbk.eu/}}). The same is true for first-order logic,
 where satisfiability (SAT) solvers\cite{Mitchell05} can be used to check
 programs for consistency. If these kinds of analyses are useful for the model
 purpose, then limiting the expressiveness to the respective formalism may be a

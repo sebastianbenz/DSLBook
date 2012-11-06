@@ -63,7 +63,7 @@ invalid.
 
 
 Scopes can be hierarchical, in which case they are organized as a stack of
-collections --- confusingly, these collections are often called scopes
+collections -- confusingly, these collections are often called scopes
 themselves. During resolution of a cross-reference, the lowest or
 \emph{innermost} collection is searched first. If the reference cannot be
 resolved to match any of its elements, the parent of the innermost collection is
@@ -74,7 +74,7 @@ the innermost scope of a reference consists of all the elements present in the
 directly-encompassing "block" while the outermost scope is the \emph{global}
 scope. This provides a mechanism to disambiguate target elements having the same
 reference syntax (usually the target element's name) by always choosing the
-element from the innermost scope --- this is often called "shadowing".
+element from the innermost scope -- this is often called "shadowing".
 
 Instead of looking at scopes from the perspective of the reference (and hence
 calculating a set of candidate target elements), one can also look at scopes
@@ -192,6 +192,9 @@ I am not sure if this should be discussed here, it requires more adjustment rule
 
 how are the fully qualified names built?
 how can "private" properties be implemented?}
+
+\todo{guido does it -> SLE paper appraoch is better suited.}
+
 
 \begin{lstlisting}[language=sdf]
 module MoblEntities
@@ -357,6 +360,7 @@ Beispiele, Referenzen
 code? text?
 
 give some examples of analyses + transformations}.
+\todo{guido does it: SLE paper}
 
 
 \subsection{Persistence of Naming Information}
@@ -574,6 +578,8 @@ transformation, and code generation.
 this section is extremely dense -- to me it is now unclear what the
 intention is: to provide a manual about Spoofax? or to present more abstract concepts?
 }
+\todo{guido does it -> SLE Paper}
+
 
 \subsection{Customizing the Name Resolution Strategy}
 
@@ -712,7 +718,7 @@ grammar\footnote{In fact, you can use any JVM-based language for implementing
 these language aspects, including Xtend}. Language developers typically provide
 Java classes that implement aspect-specific interfaces and then contribute those
 to Xtext using Google Guice, a dependency injection
-framework\footnote{http://code.google.com/p/google-guice/}. For most language
+framework\footnote{\icsn{http://code.google.com/p/google-guice/}}. For most language
 aspects, Xtext comes with various default implementations developers can build
 on. A lot of functionality is provided out-of-the-box with minimal
 configuration, but it's easy to swap out specific parts by binding another or a
@@ -830,7 +836,7 @@ will use the \ic{name} of the target element as the text by which it will be
 referenced\footnote{You can pass in code that creates other strings than then
 name from the target element.}. So if a state is called \ic{normalCooling}, then
 we'd have to write \ic{state normalCooling} in a \ic{ChangeStateStatement}. The
-text \ic{normalCooling} acts as the reference --- pressing \keystroke{Ctrl-F3}
+text \ic{normalCooling} acts as the reference -- pressing \keystroke{Ctrl-F3}
 on that program element will go to the referenced state. 
 
 
