@@ -179,7 +179,7 @@ maintainable than the actual parser implementation (either custom-written or
 generated). Finally, it means that the developer who defines a language does not
 have to be an expert in parsing technology.
 
-\parhead{Parsing versus scanning} Because of the complexity inherent in parsing,
+\parhead{Parsing vs. Scanning} Because of the complexity inherent in parsing,
 parser implementations tend to split the parsing process into a number of
 phases. In the majority of cases the text input is first separated into a
 sequence of \emph{tokens} (i.e., keywords, identifiers, literals, comments, or
@@ -495,7 +495,7 @@ It is ambiguous, since for a string \ic{1*2+3} there are two possible trees
 Parser generators for restricted grammar classes and generalized parsers handle
 ambiguity differently. We discuss both approaches.
 
-\parhead{Ambiguity with grammar classes} LL and LR parsers are deterministic
+\parhead{Ambiguity with Grammar Classes} LL and LR parsers are deterministic
 parsers: they can only return one possible tree for a given input. This means
 they can't handle any grammar that has ambiguities, including our simple
 expression grammar. Determining whether a grammar is ambiguous is a classic
@@ -536,7 +536,7 @@ Mult ::= NUM ("*" NUM)*
 \end{lstlisting}
 
 
-\parhead{Ambiguity with generalized parsers} General parsers accept grammars
+\parhead{Ambiguity with Generalized Parsers} General parsers accept grammars
 regardless of recursion or ambiguity. That is, the expression grammar is readily
 accepted as a valid grammar. In case of an ambiguity, the generated parser
 simply returns \emph{all possible abstract syntax trees}, e.g.\ a left-associative tree
@@ -1279,7 +1279,7 @@ state initialCooling:
 \end{lstlisting}
 
 
-\parhead{Grammar basics} \marginnote[5mm]{It is also possible to first create
+\parhead{Grammar Basics} \marginnote[5mm]{It is also possible to first create
 the Ecore meta model and then define a grammar for it. While this is a bit more
 work, it is also more flexible because not all possible Ecore meta models can be
 described implicitly by a grammar. For example, Ecore interfaces cannot be
@@ -1663,7 +1663,7 @@ Modules group entities.
 Inside a module, one can only access entities from the same module or from imported modules.
 
 
-\parhead{Grammar basics} In Spoofax, the syntax of languages is described using
+\parhead{Grammar Basics} In Spoofax, the syntax of languages is described using
 SDF\footnote{\icsn{http://www.syntax-definition.org/}}. SDF is short for Syntax
 Definition Formalism and is a modular and flexible syntax definition formalism,
 supported by the SGLR\footnote{SGLR parsing is a \emph{S}cannerless, \emph{G}eneralized extension of \emph{LR} parsing.} parser generator. 
@@ -1767,7 +1767,7 @@ lexical syntax
 \end{center}
 \end{figure}
 
-\parhead{Lexical syntax} As Spoofax uses a scannerless parser, all lexical
+\parhead{Lexical Syntax} As Spoofax uses a scannerless parser, all lexical
 syntax can be customized in the SDF grammar. 
 It provides default definitions for common lexical syntax elements such as strings, integers, floats, whitespace and comments, which can be reused by importing the module {Commons}.
 But when needed, custom syntax can be specified.
@@ -1790,7 +1790,7 @@ feature is that lexical syntax productions usually do not have a constructor
 label in the abstract syntax, as they form terminals in the abstract syntax
 trees (i.e.~they don't own any child nodes).
 
-\parhead{Abstract syntax} To produce abstract syntax trees, Spoofax uses the
+\parhead{Abstract Syntax} To produce abstract syntax trees, Spoofax uses the
 ATerm format, described in \sect{Sec:spoofax-aterm}. SDF combines the
 specification of concrete and abstract syntax, primarily through the
 specification of constructor labels. The way this works is most easily
@@ -1831,7 +1831,7 @@ expression \ic{1 + (2)} would produce \ic{Plus("1","2")} in the abstract syntax,
 and not \ic{Plus("1",Parens("2"))}.
 
 
-\parhead{Precedence and associativity} SDF provides special support for
+\parhead{Precedence and Associativity} SDF provides special support for
 specifying the associativity and precedence of operators or other
 syntactic constructs. As an example, let us consider the production of the
 \ic{Plus} operator. So far, it has been defined as
@@ -1888,7 +1888,7 @@ priority than the \ic{Plus} operator, resolving the ambiguity that arises for an
 expression such as \ic{1+2*3}.
 
  
-\parhead{Reserved keywords and production preference} Parsers generated with SDF
+\parhead{Reserved Keywords and Production Preference} Parsers generated with SDF
 do not use a scanner, but include processing of lexical syntax in the parser.
 Since scanners operate without any context information, they will simply
 recognize any token that corresponds to a keyword in the grammar as a reserved
@@ -1946,7 +1946,7 @@ running into an ambiguity, it would prompt the user to decide which
 interpretation is correct as he types \icsn{true}.}.
 
 
-\parhead{Longest match} Most scanners apply a \emph{longest match} policy for
+\parhead{Longest Match} Most scanners apply a \emph{longest match} policy for
 scanning tokens. This means that if it is possible to include the next character
 in the current token, the scanner will always do so. For most languages, this is
 the expected behavior, but in some cases longest match is not what users expect.
@@ -1981,7 +1981,7 @@ lexical restrictions
   "entity" -/- [A-Za-z0-9]
 \end{lstlisting}
  
-\parhead{Name bindings} So far we have discussed purely syntax specification in
+\parhead{Name Bindings} So far we have discussed purely syntax specification in
 SDF. Spoofax also allows the specification of name binding annotations in SDF
 grammars, which specify semantic relations between productions. We discuss how
 these relations are specified in \sect{Ch:scopes}.

@@ -26,7 +26,7 @@ reference, the IDE will show you the valid targets of this reference (as
 defined in the scope) in the code completion menu. Selecting one establishes the
 reference. 
 
-\parhead{Customizing code completion for a reference in Xtext} Consider the
+\parhead{Customizing Code Completion for a Reference in Xtext} Consider the
 cooling DSL. Cooling programs can reference symbols. Symbols can be hardware
 building blocks, local variables or configuration parameters. It would be useful
 in the code completion menu to show what kind of symbol a particular symbol is
@@ -144,7 +144,7 @@ reference. In the example of the function call, it projects the name of the
 called function (plus the actual arguments).
 
 
-\parhead{Code completion for simple properties} In Xtext, code completion can be
+\parhead{Code completion for Simple Properties} In Xtext, code completion can be
 provided for any property of a rule, not just for references (i.e.~also for
 children or for primitive properties such as strings or numbers). The mechanism
 to do that is the same as the one shown above. Instead of using the scope (only
@@ -270,7 +270,7 @@ colored in grey instead of black.
   \label{globalvareditor} 
 \end{figure}
 
-\parhead{An example with MPS} Let us first look at syntax coloring in MPS,
+\parhead{An Example with MPS} Let us first look at syntax coloring in MPS,
 starting with purely syntactic highlighting. \fig{globalvareditor} shows a
 collage of several ingredients: at the top we see the editor for
 \ic{GlobalVariableDeclaration}. \ic{GlobalVariableDeclaration} implements the
@@ -308,7 +308,7 @@ constant (\ic{darkGreen}) for the color we embed a query expression. The code in
 \end{figure}
 
 
-\parhead{An example with Xtext} Xtext uses a two-phase approach. First, you have
+\parhead{An Example with Xtext} Xtext uses a two-phase approach. First, you have
 to define the styles you want to apply to parts of the text. This is done in a
 the highlighting configuration of the particular language:
 
@@ -404,7 +404,7 @@ do some further analysis on the \ic{ICompositeNode} to find out the actual
 concrete syntax node for the keyword.
 
 
-\parhead{An example with Spoofax} 
+\parhead{An Example with Spoofax} 
 Spoofax supports syntax coloring on the lexical and the syntactic level.
 At the lexical level, tokens such as keywords, identifiers, or integers are colored.
 This is the most common use case of syntax coloring.
@@ -1331,7 +1331,7 @@ completely different from the nesting structure of the AST: the elements may
 have to be grouped based on their concept (first show all variables, then all
 functions) or they may have to be sorted alphabetically.
 
-\parhead{Customizing the structure in Xtext} Xtext provides an
+\parhead{Customizing the Structure in Xtext} Xtext provides an
 \ic{OutlineTree-\\Provider} for your language that can be used to customize the
 outline view structure (labels and icons are taken from the \ic{LabelProvider}
 discussed above). As an example, let us customize the outline view for cooling
@@ -1442,7 +1442,9 @@ shows how to implement your own outline view.}.
 
 
 
-\section{Code Folding} Code folding refers to the small minuses in the gutter of
+\section{Code Folding} 
+
+Code folding refers to the small minuses in the gutter of
 an editor that let you collapse code regions (see \fig{folding}). The editor
 shows an ellipsis (\ic{..}) for the folded parts of the code. Clicking on
 the \ic{+} or on the ellipsis restores the full code.
