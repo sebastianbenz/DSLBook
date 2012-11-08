@@ -1076,7 +1076,7 @@ following simple rules rewrite types to their corresponding representation in
 Java:
 
 \begin{lstlisting}[language=stratego]
-to-java: IntType()     -> "int"
+to-java: NumType()     -> "int"
 to-java: BoolType()    -> "boolean"
 to-java: StringType()  -> "String"
 to-java: EntType(name) -> name
@@ -1267,7 +1267,7 @@ concrete syntax, i.e.~by using model-to-model transformations instead of code
 side of rewrite rules:
 
 \begin{lstlisting}[language=stratego]
-  to-java: IntType()    -> IntBaseType()
+  to-java: NumType()    -> IntBaseType()
   to-java: BoolType()   -> BooleanBaseType()
   to-java: StringType() -> ClassType("java.lang.String")
   to-java: EntType(t)   -> ClassType(t)
