@@ -124,7 +124,7 @@ course, this is tedious and error prone and requirements end up in the sorry
 state we all know.
 
 To get one step better, you can use controlled natural
-language\footnote{http://en.wikipedia.org/wiki/Con- trolled\_natural\_language}:
+language\footnote{\icsn{http://en.wikipedia.org/wiki/Con- trolled\_natural\_language}}:
 words like "must", "may", or "should" have a well defined meaning and are used
 consciously. Using tables and, to some extent, state machines, is also a good
 way to make some of the data a bit more unambiguous. To manage large sets of
@@ -156,14 +156,14 @@ In such a scenario it is important to draw precise boundaries between the
 activities. However, in some sense the boundaries are arbitrary. We could just
 as well state the following:
 
-\noindent \textbf{Requirement} The system shall be 99.99\% reliable by using
+\noindent \emph{Requirement} The system shall be 99.99\% reliable by using
 hot-standby and failover to continue service if something breaks.
 
-\noindent \textbf{Desgin} We use two application servers running on two hosts,
+\noindent \emph{Desgin} We use two application servers running on two hosts,
 using XYZ messaging queue as a replication engine for the hot-standby. We use a watchdog
 for detecting if the primary machine breaks.
 
-\noindent \textbf{Implementation} \ldots all the code that is necessary to
+\noindent \emph{Implementation} \ldots all the code that is necessary to
 implement the design above.
 
 From software development we know that it is very hard to get requirements
@@ -227,13 +227,13 @@ design is blurred, and the two influence each other (\fig{reqAndDesign}).
 So here is the approach for using DSLs we suggest: identify a couple of core
 areas of the to-be-built system that lend themselves to specification with a
 formal language. Then develop a DSL to express these areas and use them to
-describe the system. The rest of the system --- i.e.\ the areas for which a
-DSL-based description makes no sense --- is described textually, with the usual
+describe the system. The rest of the system -- i.e.\ the areas for which a
+DSL-based description makes no sense -- is described textually, with the usual
 tools\footnote{We will discuss the integration between the textual requirements and the
 DSL-based requirements below.}. 
 
 Once a suitable DSL has been found and implemented, those people who have the
-requirements in mind can directly express them --- the lossy human-to-human
+requirements in mind can directly express them -- the lossy human-to-human
 communication is no longer a problem. Various constraint checks, tests and
 simulations can be used to have the requirements owners "play" with the
 requirements models to see if they really express what they had in mind.
@@ -285,8 +285,8 @@ express domain requirements without involvement of the software developers.
 
 Note how this approach to requirements engineering is very close to regular DSL
 usage. We identify an aspect of the domain that lends itself to formalization,
-iteratively build a language, and then let the domain experts --- who are the
-requirements owners for many of the business requirements --- express the system
+iteratively build a language, and then let the domain experts -- who are the
+requirements owners for many of the business requirements -- express the system
 directly. The \emph{classical} requirements document is gone. In many ways the
 refrigerator and pension plan examples from Part I of this book are examples of
 this approach.
@@ -299,10 +299,10 @@ The following lists only those characteristics for which DSLs make a difference.
 	\item[Consistent] Consistency is enforced by the language. If the DSL is crafted
 	correctly, no inconsistent requirements can be expressed.
 	\item[Feasible] Specific requirements are checked for feasibility by being
-	expressible with the DSL --- they are within the scope of what the DSL, hence,
-	the domain for which we write the requirements --- is intended.
-	\item[Unambiguous] A description of requirements --- or application
-	functionality in general --- with a DSL always unambiguous, provided the DSL
+	expressible with the DSL -- they are within the scope of what the DSL, hence,
+	the domain for which we write the requirements -- is intended.
+	\item[Unambiguous] A description of requirements -- or application
+	functionality in general -- with a DSL always unambiguous, provided the DSL
 	has well-defined semantics.
 	\item[Verifiable] Constraints, tests, verification or simulation can be used to
 	verify that the requirements regarding various properties. Inspection and review
@@ -328,8 +328,8 @@ DSL code. Here are some approaches of how this can be done.
 One approach is to mix prose requirements with formalized, DSL-based
 requirements. 
 
-As part of the VERDE\footnote{http://www.itea-verde.org/} and
-ProR\footnote{http://www.pror.org/} research projects, Eclipse-based tooling for
+As part of the VERDE\footnote{\icsn{http://www.itea-verde.org/}} and
+ProR\footnote{\icsn{http://www.pror.org/}} research projects, Eclipse-based tooling for
 requirements engineering is developed. This includes a "classical" requirements
 engineering tool in which textual requirements are classified, structured and
 put into relationships with each other. The requirements structure is
@@ -352,7 +352,7 @@ other words, it is possible to associate DSL programs with requirements
 \end{figure}
 
 \noindent We have built a similar solution for MPS in the mbeddr
-project\footnote{http://mbeddr.com}. The solution supports collecting trees of
+project\footnote{\icsn{http://mbeddr.com}}. The solution supports collecting trees of
 requirements, where each requirement has an ID, a kind and a short summary.
 \fig{requirements1} shows an example. In addition, the one-line summary can be
 expanded to reveal additional details (\fig{requirements2}). There users can
@@ -450,11 +450,11 @@ non-EMF artifacts can be integrated, albeit requiring the special tool adapter.
 \begin{figure*}[h]
 \begin{center}
   \includegraphics[scale=0.45]{figures-sweng/req/trace.png}
-\caption{\textbf{Left:} A C function with an attached requirement trace. Traces
+\caption{\emph{Left:} A C function with an attached requirement trace. Traces
 can be attached to arbitrary program nodes, supporting tracing on arbitrary levels of
-detail. \textbf{Right, Top:} The requirements can be color coded to reflect whether
+detail. \emph{Right, Top:} The requirements can be color coded to reflect whether
 they are traced at all (grey), implemented (blue) and tested (green). Untraced
-requirements are red. \textbf{Right, Bottom:} The Find Usages dialog shows the different kinds of
+requirements are red. \emph{Right, Bottom:} The Find Usages dialog shows the different kinds of
 traces as separate categories. Programs can also be shown without the traces
 using conditional projection. We discuss this mechanism in the section on
 product line variability (\sect{var}).}
@@ -466,8 +466,8 @@ product line variability (\sect{var}).}
 \subsection{Traceability in MPS}
 
 As part of mbeddr, we have implemented a generic tracing framework base on MPS'
-language annotations (discussed in \sect{mpsannot}). Arbitrary models ---
-independent of the language used to create them --- can be annotated with traceability
+language annotations (discussed in \sect{mpsannot}). Arbitrary models --
+independent of the language used to create them -- can be annotated with traceability
 links, as shown in the left part of figure \ref{trace}.
 
 A context menu action adds a new trace to any model element:

@@ -22,7 +22,7 @@ In parser-based systems, the transformation from text to the AST performed by
 the parser is itself a non-trivial process and has a potential for errors.
 Debugging the parsing process can be important.
 
-\parhead{Xtext} Xtext uses ANTLR\footnote{http://antlr.org} under the hood. In
+\parhead{Xtext} Xtext uses ANTLR\footnote{\icsn{http://antlr.org}} under the hood. In
 other words, from the Xtext grammar, an ANTLR grammar is generated which
 performs the actual parsing. So understanding and debugging the Xtext parsing
 process means understanding and debugging the ANTLR parsing process.
@@ -31,7 +31,7 @@ There are two ways to do this. First, since ANTLR generates a Java-based parser,
 you can debug the execution of ANTLR (as part of Xtext) itself. Second, you
 can have Xtext generate a debug grammar, which contains no action code (so it
 does not populate the AST). However, it can be used to debug the parsing process
-with ANTLRWorks\footnote{http://www.antlr.org/works}. ANTLRWorks comes with an
+with ANTLRWorks\footnote{\icsn{http://www.antlr.org/works}}. ANTLRWorks comes with an
 interactive debugger for ANTLR grammars.
 
 \parhead{MPS} In MPS there is no transformation from text to the AST since it is
@@ -167,7 +167,7 @@ ships with Xtend, we look at debugging Xtend transformations. Model-to-model
 transformations and code generators in Xtend look very similar: both use Xtend
 to navigate over and query the model, based on the AST. The difference is that,
 as a side effect, model-to-model transformations create new model elements and
-code generators create strings --- typically using the rich strings (aka
+code generators create strings -- typically using the rich strings (aka
 template expressions). 
  
 Xtend supports debugging either on the level of the generated code, or on the
@@ -309,7 +309,7 @@ interpreter, the situation is simple: the interpreter can be run and controlled
 directly from the debugger. It is easy to implement single-stepping and variable
 watches, for example, since the interpreter can directly provide the respective
 interfaces\footnote{This is especially true if the interpreter is written in the
-same language as the IDE --- no language integration issues have to be addressed
+same language as the IDE -- no language integration issues have to be addressed
 in this case.}. On the other hand, if the DSL program is transformed into code
 that is executed in some other environment outside of our control, it may even
 be impossible to build a debugger because there is no way to influence and
@@ -321,12 +321,12 @@ inspectable by the debugger, and at each program location where the program may
 have to stop (in single step mode or as a consequence of a breakpoint) code is
 inserted that explicitly suspends the execution of the program, for example by
 \ic{sleep}ing the current thread. However, such an approach is often limited and
-ugly --- in the end, an execution infrastructure must provide debug support to
+ugly -- in the end, an execution infrastructure must provide debug support to
 enable robust debugging.
 
 
 
-\subsection{Print Statements --- a Poor Man's Debugger}
+\subsection{Print Statements -- a Poor Man's Debugger}
 
 As the above discussion suggests, building full-blown debuggers may be a lot of
 work. It is worth exploring whether a simpler approach is good enough. The
@@ -467,7 +467,7 @@ inspection.
 \subsection{Simulation as an Approximation for Debugging}
 
 The interpreter for the Cooling programs mentioned above is of course not the
-final execution engine --- C code is generated that is executed on the actual
+final execution engine -- C code is generated that is executed on the actual
 target refrigerator hardware. However, as we have discussed in \sect{synctrans},
 we can make sure the generated code and the interpreter are semantically
 identical by running a sufficient (large) number of tests. If we do this, we can
@@ -1292,7 +1292,7 @@ defined with the language workbench is not where it should be. Especially in the
 face of extensible languages or language composition, the construction of
 debuggers is still a lot of work. The example discussed in \sect{mbeddrex} is
 \emph{not} part of MPS in general, but instead a framework that has been built
-specifically for mbeddr --- although we believe that the architecture can be
+specifically for mbeddr -- although we believe that the architecture can be
 reused more generally.
 
 

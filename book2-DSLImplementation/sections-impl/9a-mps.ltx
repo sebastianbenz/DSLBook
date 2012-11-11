@@ -2,8 +2,8 @@
 \label{mpsmodular}
 
 
-With MPS two of these challenges outlined above --- composability of
-concrete syntax and modular IDEs --- are solved to a large degree. Modular
+With MPS two of these challenges outlined above -- composability of
+concrete syntax and modular IDEs -- are solved to a large degree. Modular
 type systems are reasonably well supported. Semantic interactions are hard to
 solve in general, but can be handled reasonably in many relevant cases, as we
 show in this section as well. However, as we will see, in many cases, languages
@@ -159,7 +159,7 @@ shows a part of the mapping configuration for the \ic{entities} language.
 \end{figure}
 
 \noindent \fig{entitytemplate} shows the \ic{map\_Entity} template. It generates
-a Java class --- notice the complete structure of a Java class is present,
+a Java class -- notice the complete structure of a Java class is present,
 because that is how BaseLanguage defines the editor for a Java class. We then
 generate a field for each entity \ic{Attribute}. To do this we first create a
 prototype field in the class (\ic{private int aField;}). Then we use macros to
@@ -755,12 +755,12 @@ To implement this, several approaches are possible:
 
 
 \begin{itemize}
-  \item We could use AspectJ (\footnote{http://www.eclipse.org/aspectj/}). This
+  \item We could use AspectJ (\footnote{\icsn{http://www.eclipse.org/aspectj/}}). This
   way, we could generate separate Java artifacts (all single-sourced) and then use the aspect weaver to "mix" them.
   However, we don't want to introduce the complexity of yet another tool,
   AspectJ, here, so we will not use this approach. 
   \item An interceptor
-  (\footnote{http://en.wikipedia.org/wiki/Interceptor\_pattern}) framework could
+  (\footnote{\icsn{http://en.wikipedia.org/wiki/Interceptor\_pattern}}) framework could
   be added to the generated Java Beans, with the generated code contributing specific interceptors (effectively building a custom AOP solution). 
   We will not use this approach either, since it would require the addition of a 
   whole interceptor framework to the \ic{entities}. This seems like overkill.
@@ -905,7 +905,7 @@ language useful with its host language, it has to be extended: the following
 expressions are examples of this.}. To achieve this, we create the
 \ic{AttributeRefExpr} as shown in \fig{uival}. We also create \ic{LenghtOf} and
 \ic{IsSetExpression} as further examples of how to adapt an embedded language to
-its new context --- i.e.~the \ic{uispec} and \ic{entities} languages.
+its new context -- i.e.~the \ic{uispec} and \ic{entities} languages.
 
 
 The \ic{AttributeRefExpr} references an \ic{Attribute} from the \ic{entities}
@@ -1070,7 +1070,7 @@ terminology.}. \fig{expr2blgen} shows some of these reduction rules.
 expressions that we have added specifically in the \ic{uispec\_validation}
 language (\ic{AttrRefExpression, isSetExpression, LengthOf}). Those
 transformations are defined in \ic{uispec\_validation}, since this language is
-\emph{not} reusable --- it is specifically designed to integrate the \ic{uispec}
+\emph{not} reusable -- it is specifically designed to integrate the \ic{uispec}
 and the \ic{expressions} languages. As an example, \fig{reductionAttributeRef}
 shows the rule for handling the \ic{AttrRefExpression}. The validation code
 itself is "injected" into the UI form via the same placeholder reduction as in
@@ -1187,7 +1187,7 @@ predefined by MPS. Concepts that extend \ic{NodeAnnotation} have to provide a
 \ic{role} property and an \ic{annotated} concept link.
 Structurally, an annotation is a child of the node it annotates. So the
 \ic{Attribute} has a new child of type \ic{AttrToColMapping}, and the reference
-that contains the child is called \ic{@colMapping} --- the value of the
+that contains the child is called \ic{@colMapping} -- the value of the
 \ic{role} property. The \ic{annotated} concept link points to the concept
 \emph{to which this annotation can be added}. \ic{AttrToColMapping}s can be
 annotated to instances of \ic{Attribute}.
@@ -1240,10 +1240,10 @@ switch.
 
 \begin{figure*}[htp]
   \includegraphics[scale=0.50]{figures-impl/9/a/trace.png} 
-  \caption[]{\textbf{Left:}
+  \caption[]{\emph{Left:}
   Requirements traces (green) can be annotated to any arbitrary program element.
   The annotation is targetted to \icsn{BaseConcept}, which means there is no
-  explicit dependency any specific language. \textbf{Right:} Traces can then be
+  explicit dependency any specific language. \emph{Right:} Traces can then be
   queried in the reverse direction to find which requirements are traced from
   implementation code.}
   \label{requirementstrace} 
@@ -1263,10 +1263,10 @@ editable. Details on this approach can be found in \cite{Voelter2010} and
 
 \begin{figure*}[h]
   \includegraphics[width=180mm]{figures-impl/9/a/projection.png}
-  \caption[][-50mm]{\textbf{Left:} Feature dependency annotations are boolean
+  \caption[][-50mm]{\emph{Left:} Feature dependency annotations are boolean
   expresssions over configuration switches that determine whether the annotated program
   element is part of a program variant. The expressions can be annotated to
-  arbitrary program elements. \textbf{Right:} The transformation removes all those
+  arbitrary program elements. \emph{Right:} The transformation removes all those
   elements for which the annotation evaluates to \icsn{false}. This can also be
   done in the editor to support variant-specific editing of programs.}
   \label{featuredependencies}  

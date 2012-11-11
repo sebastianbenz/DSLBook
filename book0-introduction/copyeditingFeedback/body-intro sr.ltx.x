@@ -43,7 +43,7 @@ very productive, so I think there is a need for a book that fills this gap. I
 wanted to make sure the book contains a lot of detail on how to design and build
 good DSLs, so it can act as a primer for DSL language engineering, for students
 as well as practitioners. However, I also want the book clearly to show the
-benefits of DSLs --- not by pointing out general truths about the approach, but
+benefits of DSLs -- not by pointing out general truths about the approach, but
 instead by providing a couple of good examples of where and how DSLs are used
 successfully. This is why the book is divided into three parts: DSL
 Design, DSL Implementation and Software Engineering with DSLs.
@@ -74,7 +74,7 @@ about DSLs should also be dispelled in the process.
 Part II of the book, on DSL implementation, contains a lot of example
 code. However, this part is \emph{not} intended as a full tutorial for any of
 the three tools. However, You should get a solid understanding of what these
-tools --- and the classes of tools they stand for --- can do for you.
+tools -- and the classes of tools they stand for -- can do for you.
 
 \section{Why no Publisher?}
 
@@ -100,8 +100,8 @@ mouth, blog or Twitter is more useful. So I hope that you the reader
 will help me spread the word about the book.
 
 Finally, if you think the book is too cheap, you can donate via
-Flattr or Paypal --- links for both options are at
-\ic{http://voelter.de/dslbook} --- or you can buy me a beer or dinner if we meet one
+Flattr or Paypal -- links for both options are at
+\ic{http://voelter.de/dslbook} -- or you can buy me a beer or dinner if we meet one
 day.
 
 
@@ -167,7 +167,7 @@ dimensions relevant to DSL design: expressivity, coverage, semantics, separation
 of concerns, completeness, language modularization and syntax. It also discusses
 fundamental language paradigms that might be useful in DSLs, and looks at a
 number of process-related topics. It uses five case studies to illustrate the
-concepts. It does not deal at all with implementation issues --- we address these
+concepts. It does not deal at all with implementation issues -- we address these
 in part III.
 
 
@@ -198,7 +198,7 @@ dense if you don't have hands-on experience with DSLs.
 
 Some of the examples in Part III are quite detailed, because we wanted to make sure we
 didn't skim relevant details. However, if some parts become too detailed for you,
-just skip ahead --- usually the details are not important for understanding
+just skip ahead -- usually the details are not important for understanding
 subsequent subsections.
 
 The chapters in Part IV are independent from each other and can be read in any
@@ -245,11 +245,11 @@ SDF/Stratego/Spoofax, and, to some extent, the Intentional Domain Workbench. All
 except the last are open source. Here is a brief overview over the tools.
 
 
-
+ 
 \subsection{Eclipse Modeling + Xtext}
 \marginnote[3.2mm]{http://eclipse.org/Xtext} 
 The Eclipse Modeling project is an
-ecosystem or frameworks and tools for modeling, DSLs and all that's needed or
+ecosystem -- frameworks and tools -- for modeling, DSLs and all that's needed or
 useful around it. It would easily merit its own book (or set of books), so I
 won't cover it extensively. I have restricted myself to Xtext, the framework for
 building textual DSLs, Xtend, a Java-like language optimized for code
@@ -671,7 +671,7 @@ The \emph{concrete syntax} defines the notation with which users can express
 programs. It may be textual, graphical, tabular or a mix of these. The
 \emph{abstract syntax} is a data structure that can hold the semantically
 relevant information expressed by a program. It is typically a tree or a graph.
-It does not contain any details about the notation --- for example, in textual
+It does not contain any details about the notation -- for example, in textual
 languages, it does not contain keywords, symbols or whitespace. The \emph{static
 semantics} of a language are the set of constraints and/or type system rules to
 which programs have to conform, in addition to being structurally correct (with
@@ -753,7 +753,7 @@ point for expressing programs for a specialized domain effectively.
 
 
 \parhead{Executing the Language} Engineering a DSL (or any language) is not just
-about syntax, it also has to be "brought to life" --- DSL programs have to be
+about syntax, it also has to be "brought to life" -- DSL programs have to be
 executed somehow. It is important to understand the separation of domain
 contents into DSL, execution engine and platform. A domain typically consists of
 three different kinds of concerns (see \fig{variableStuff}):
@@ -820,9 +820,9 @@ add to the picture?
 
 \begin{itemize}
   \item Languages (and the programs you write with them), are the cleanest form of
-abstraction --- essentially, you add a notation to a conceptual model of the
-domain. You get rid of all the unnecessary clutter that an API --- or anything
-else embedded in or expressed with a general-purpose language --- requires. You
+abstraction -- essentially, you add a notation to a conceptual model of the
+domain. You get rid of all the unnecessary clutter that an API -- or anything
+else embedded in or expressed with a general-purpose language -- requires. You
 can define a notation that expresses the abstractions concisely and makes
 interacting with programs easy and efficient. 
   
@@ -944,7 +944,7 @@ transform those representations into executable code expressed in general-purpos
 programming languages and the associated XML/HTML/whatever files. With
 today's tools it is technically relatively simple to define arbitrary
 abstractions that represent some aspect of a software system in a meaningful
-way\sidenote{Designing a \emph{good} language is another matter --- Part II, DSL
+way\sidenote{Designing a \emph{good} language is another matter -- Part II, DSL
 Design, provides some input on designing DSLs}. It is also relatively simple to
 build code generators that generate the executable artifacts (as long as you
 don't need sophisticated optimizations, which can be challenging). Depending on
@@ -966,7 +966,7 @@ Consequently, it is possible to navigate, query and constrain arbitrary models
 with a common API. However, programming language IDEs are typically \emph{not}
 built on top of EMF, but come with their own API for representing and accessing
 the syntax tree. Thus, interoperability between models and source code is
-challenging --- you cannot treat source code in the same way as models in
+challenging -- you cannot treat source code in the same way as models in
 terms of how you access the AST programmatically. 
 
 A similar problem exists regarding IDE support for model-code integrated
@@ -1226,8 +1226,8 @@ support, is adequate for large and complex software systems
 \footnote{This is not true for all formalisms. Expressing hierarchical state
 charts textually can be a challenge. However, textual syntax is a good
 \emph{default} that can be used unless otherwise indicated.}. This becomes even
-more true if you consider that programmers will have to write less code in a DSL --- 
-compared to expressing the same functionality in a GPL --- because the
+more true if you consider that programmers will have to write less code in a DSL -- 
+compared to expressing the same functionality in a GPL -- because the
 abstractions available in the languages will be much more closely aligned with
 the domain. And programmers can always define an additional language module that
 fits a domain. 
@@ -1244,7 +1244,7 @@ The need to \emph{see} graphical notations to gain an overview over complex
 structures does not necessarily mean that the program has to be \emph{edited} in
 a graphical form. Custom visualizations are important as well. Visualizations
 are graphical representations of some interesting aspect of the program that is
-read-only, automatically layouted and supports drill-down back to the program
+read-only, automatically laid out and supports drill-down back to the program
 (you can double-click on, say, a state in the diagram, and the text editor
 selects that particular state in the program text).
 
@@ -1399,7 +1399,7 @@ directly.
 \subsection{Data Longevity}
 If done right, models are independent of specific implementation techniques.
 They are expressed at a level of abstraction that is meaningful to the domain
---- this is why we can analyze and generate based on these models. This also
+-- this is why we can analyze and generate based on these models. This also
 means that models can be transformed into other representations if the need
 arises, for example, because you are migrating to a new DSL technology. While
 the investments in a DSL implementation are specific to a particular tool (and
@@ -1498,7 +1498,7 @@ for architecture DSLs and utility DSLs, whose abstractions may be tied relativel
 closely to the concepts provided by the target platform.}. It is absolutely
 feasible to change the execution engine and the target platform "underneath" a
 DSL to execute the code on a new platform. Portability is enhanced, as is
-maintainability, because DSLs support separation of concerns --- the concerns
+maintainability, because DSLs support separation of concerns -- the concerns
 expressed in the DSL (e.g.~the application logic) is separated from
 implementation details and target platform specifics.
 
@@ -1548,8 +1548,8 @@ language/compiler thing has a bad reputation that mainly stems from "ancient
 times" when tools like lex/yacc, ANTLR, C and Java were the only ingredients
 you could use for language engineering. Modern language workbenches have changed
 this situation radically, but of course there is still a learning curve. In
-addition, the definition of good languages --- independent of tooling and
-technicalities --- is not made simpler by better tools: how do you find out
+addition, the definition of good languages -- independent of tooling and
+technicalities -- is not made simpler by better tools: how do you find out
 which abstractions need to go into the languages? How do you create "elegant"
 languages? The book provides some guidance in Part II, DSL Design, but it nevertheless
 requires a significant element of experience and practice that can only be build up over time.
@@ -1685,7 +1685,7 @@ your development team requires that you know how to track issues, handle version
 management, do testing and quality assurance and document things in a way
 accessible to the target audience. If your development team lacks this
 maturity, you might want to consider first introducing those aspects into the
-team before you start using DSLs in a strategic way --- although the occasional utility
+team before you start using DSLs in a strategic way -- although the occasional utility
 DSL is the obvious exception.
 
 
@@ -1791,7 +1791,7 @@ book. I will not cover it any further.}.
 
 \subsection{DSLs used for Analysis}
 Another category of DSL use is as the basis for analysis, checking and proofs.
-Of course, checking plays a role in all use cases for DSLs --- you want to make
+Of course, checking plays a role in all use cases for DSLs -- you want to make
 sure that the models you release for downstream use are "correct" in a sense
 that goes beyond what the language syntax already enforces. But in some cases,
 DSLs are used to express concerns in a formalism that lends itself to formal
@@ -1800,7 +1800,7 @@ code generation is often a part of it, code generation is not the driver for the
 type of DSL. This is especially relevant in complex technical systems,
 or in systems engineering, where we look beyond only software and consider a
 system as a whole (including mechanical, electric/electronic or fluid-dynamic
-aspects). Sophisticated mathematical formalisms are used here --- I will cover
+aspects). Sophisticated mathematical formalisms are used here -- I will cover
 this aspect only briefly in this book, as part of the Semantics chapter
 (\sect{expressivity}).  
 
@@ -1847,7 +1847,7 @@ Fluent API. Let's look at the three:
   an object on which subsequent calls are possible. This results in more concise
   code, and, more importantly, by returning suitable intermediate objects from
   method calls, a sequence of valid subsequent method calls can be enforced
-  (almost like a grammar --- this is why it could be considered a DSL). Here is
+  (almost like a grammar -- this is why it could be considered a DSL). Here is
   a Java/Easymock example, taken from Wikipedia:
   
 \begin{lstlisting}[language=java]
@@ -1907,7 +1907,7 @@ context of DSLs.
 
 \subsection{UML}
 
-So what about the Unified Modeling Language --- UML? I decided not to cover or use
+So what about the Unified Modeling Language -- UML? I decided not to cover or use
 UML in this book. I focus on mostly textual DSLs and related topics. UML does
 show up peripherally in a couple of places, but if you are interested in
 UML-based MDSD, then this book is not for you. For completeness, let us briefly
@@ -1965,7 +1965,7 @@ the book how close existing tools come to this ideal.}.
 However, this book does have a bias towards textual notations, for
 several reasons. I feel that the textual format is more generally useful,
 scales better and that the necessary tools take (far) less effort to build. In
-the vast majority of cases, starting with textual languages is a good idea ---
+the vast majority of cases, starting with textual languages is a good idea --
 graphical visualizations or editors can be built on top of the meta model later,
 if a real need has been established. If you want to learn more about graphical
 DSLs, I suggest you read Kelly and Tolvanen's book \emph{Domain Specific Modeling}

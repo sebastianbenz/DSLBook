@@ -443,8 +443,8 @@ colorer System colors
 \noindent 
 The generated specification can be customized on the lexical level, but also
 extended on the syntactic level. These extensions are based on syntactic sorts
-and constructor names. For example, the following specification will color the
-\ic{int} type in declarations with a dark green:
+and constructor names. For example, the following specification will color
+numeric types in declarations with a dark green:
 
 \begin{lstlisting}[morekeywords={module,imports, colorer, token, based,
 highlighting}] 
@@ -453,18 +453,20 @@ module DSLbook-Colorer
 imports DSLbook-Colorer.generated
 
 colorer
+
+  Type.NumType: darkgreen
 \end{lstlisting}
 
 \noindent 
-Here, \ic{Type} is a sort from the syntax definition, while \ic{IntType} is the
+Here, \ic{Type} is a sort from the syntax definition, while \ic{NumType} is the
 constructor for the integer type. There are other rules for \ic{Type} in the
 Mobl grammar, for example for the string type. When we want other types also to
 be colored with a dark green, we can either add more rules to the colorer
 specification, or replace the current definition with \ic{Type.\_}, where
 \ic{\_} acts as a wildcard and all types will be colored with a dark green,
 independent of their constructor. Similarly, we can use a wildcard for sorts.
-For example, \ic{\_.IntType} will include all nodes with a constructor
-\ic{IntType}, independent of their syntactic sort.
+For example, \ic{\_.NumType} will include all nodes with a constructor
+\ic{NumType}, independent of their syntactic sort.
 
 In the current example, predefined types like \ic{int} and entity types are all
 colored in a dark green, but only the predefined types will appear in a bold
@@ -694,7 +696,7 @@ language:
    Function.4:iter-star     -- _1,
    Param                    -- _1 KW[":"] _2,
    EntType                  -- _1,
-   IntType                  -- KW["int"],
+   NumType                  -- KW["int"],
    BoolType                 -- KW["boolean"],
    StringType               -- KW["string"],
    Declare                  -- KW["var"] _1 KW["="] _2 KW[";"],
@@ -943,7 +945,7 @@ text looks ok.}.
  
 
 \parhead{Quick Fixes in MPS} Quick fixes work essentially the same way as in
-Xtext. Of couse there are only quick fixes that act on the abstract syntax ---
+Xtext. Of couse there are only quick fixes that act on the abstract syntax --
 the concrete syntax is projected in any case. Here is a constraint that checks
 that the name of an element that implements \ic{INameAllUpperCase} actually
 consists of only upper case letter:
@@ -1672,8 +1674,8 @@ representations are useful. Note that these are not necessarily a workaround for
 not having graphical editors. Visualizations can provide real added value.
 
 \parhead{Xtext} In Xtext, Jan Koehnlein's Generic Graph
-View\footnote{http://bit.ly/AluxnB} can be used to render digrams of Xtext
-models in real time --- the Generic Graph View is an interpreter, so changes in
+View\footnote{\icsn{http://bit.ly/AluxnB}} can be used to render digrams of Xtext
+models in real time -- the Generic Graph View is an interpreter, so changes in
 the model lead to updates in the graph immediately. 
 \begin{marginfigure}
 \begin{center}
@@ -1694,8 +1696,8 @@ Double clicking a node in the graph opens the corresponding program element in
 the Xtext editor.
 
 
-\parhead{MPS} In MPS we have integrated ZGRViewer\footnote{http://bit.ly/qvJJ2},
-a Java-based renderer for GraphViz\footnote{http://bit.ly/2BqWbh} dot files.
+\parhead{MPS} In MPS we have integrated ZGRViewer\footnote{\icsn{http://bit.ly/qvJJ2}},
+a Java-based renderer for GraphViz\footnote{\icsn{http://bit.ly/2BqWbh}} dot files.
 \fig{visualizationInMPS} shows an example.
 
 \begin{figure}[h]
