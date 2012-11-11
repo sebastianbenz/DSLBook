@@ -443,8 +443,8 @@ colorer System colors
 \noindent 
 The generated specification can be customized on the lexical level, but also
 extended on the syntactic level. These extensions are based on syntactic sorts
-and constructor names. For example, the following specification will color the
-\ic{int} type in declarations with a dark green:
+and constructor names. For example, the following specification will color
+numeric types in declarations with a dark green:
 
 \begin{lstlisting}[morekeywords={module,imports, colorer, token, based,
 highlighting}] 
@@ -453,18 +453,20 @@ module DSLbook-Colorer
 imports DSLbook-Colorer.generated
 
 colorer
+
+  Type.NumType: darkgreen
 \end{lstlisting}
 
 \noindent 
-Here, \ic{Type} is a sort from the syntax definition, while \ic{IntType} is the
+Here, \ic{Type} is a sort from the syntax definition, while \ic{NumType} is the
 constructor for the integer type. There are other rules for \ic{Type} in the
 Mobl grammar, for example for the string type. When we want other types also to
 be colored with a dark green, we can either add more rules to the colorer
 specification, or replace the current definition with \ic{Type.\_}, where
 \ic{\_} acts as a wildcard and all types will be colored with a dark green,
 independent of their constructor. Similarly, we can use a wildcard for sorts.
-For example, \ic{\_.IntType} will include all nodes with a constructor
-\ic{IntType}, independent of their syntactic sort.
+For example, \ic{\_.NumType} will include all nodes with a constructor
+\ic{NumType}, independent of their syntactic sort.
 
 In the current example, predefined types like \ic{int} and entity types are all
 colored in a dark green, but only the predefined types will appear in a bold
@@ -694,7 +696,7 @@ language:
    Function.4:iter-star     -- _1,
    Param                    -- _1 KW[":"] _2,
    EntType                  -- _1,
-   IntType                  -- KW["int"],
+   NumType                  -- KW["int"],
    BoolType                 -- KW["boolean"],
    StringType               -- KW["string"],
    Declare                  -- KW["var"] _1 KW["="] _2 KW[";"],

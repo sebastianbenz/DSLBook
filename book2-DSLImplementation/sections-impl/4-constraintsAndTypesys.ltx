@@ -1513,16 +1513,16 @@ section.
 
 \parhead{Typing Rules in Spoofax} For typing rules in Spoofax, the basic idea is
 to use rewrite rules to rewrite language constructs to their types. For example,
-the following rule rewrites integer numbers to the integer type:
+the following rule rewrites integer numbers to the numeric type:
 \begin{lstlisting}[language=stratego]
-  type-of: Int(value) -> IntType()
+  type-of: Int(value) -> NumType()
 \end{lstlisting}
 
 \noindent 
 This is an example for assigning a fixed type to a language element. Similarly,
-we can rewrite a \ic{+} expression to the integer type:
+we can rewrite a \ic{+} expression to the numeric type:
 \begin{lstlisting}[language=stratego]
-  type-of: Add(exp1, exp2) -> IntType()
+  type-of: Add(exp1, exp2) -> NumType()
 \end{lstlisting}
 
 \noindent 
@@ -1531,10 +1531,10 @@ constructs. Thus, we should add type checks for the subexpressions:
 
 \begin{lstlisting}[language=stratego]
   type-of:
-    Add(exp1, exp2) -> IntType()
+    Add(exp1, exp2) -> NumType()
     where
-      <type-of> exp1 => IntType() ;
-      <type-of> exp2 => IntType()
+      <type-of> exp1 => NumType() ;
+      <type-of> exp2 => NumType()
 \end{lstlisting}
 
 \noindent 

@@ -254,7 +254,7 @@ rules
   type-of: PropertyMapper(e, p) -> <type-of> p
   
   compatible-types: (DBCharType(), StringType()) -> <id>
-  compatible-types: (DBNumberType(), IntType())  -> <id>
+  compatible-types: (DBNumberType(), NumType())  -> <id>
 \end{lstlisting}
 
 \noindent The first rule defines the type of a \ic{PropertyMapper} to be the
@@ -352,8 +352,7 @@ The following example restricts Mobl to a version without property access expres
 \begin{lstlisting}[language=sdf]
 module MoblWithoutPropertyAccess
 
-imports
-  Mobl [Exp "." ID -> Exp => -> UnusedDummySort]
+imports Mobl[Exp "." ID -> Exp => -> UnusedDummySort]
 \end{lstlisting}
 
 In more complex cases, only parts of a syntax rule need to be restricted.
@@ -361,70 +360,153 @@ For example, we might restrict Mobl's screen definition language to support only
 
 \subsection{Embedding}
 
-Embedding can be easily achieved in Spoofax. The procedure is very similar to
-reuse\footnote{We discussed embedding already in \sect{Sec:spoofax-trafo-codegen}, where we embedded the target language into Stratego.}. We will
-use the embedding of the Mobl's expression language into Mobl's screen
-definition language as another example here. Instead of just referring to
-entities, we reuse the whole expression language now.
+Embedding can be easily achieved in Spoofax. 
+In general, the procedure is very similar to reuse.
+We discussed embedding already in \sect{Sec:spoofax-trafo-codegen}, where we
+embedded the target language into Stratego.
+We will discuss the embedding of HQL\footnote{HQL is a declarative querylanguage for entities stored in a relational database. It resembles SQL insyntax.} into mobl as another example here.
 
-\parhead{Structure} There are two styles for embedding. The first one requires
-an embedding module which imports the main modules of the host and guest
-language and defines additional syntax rules for embedding (quotations and
-antiquotation). We have seen this in the target language embedding into Stratego
-(\sect{Sec:spoofax-trafo-codegen}). In the second style, the syntax definition of the host language
-directly employs syntactic sorts of the guest language. For the screen
-definition language, we want to reuse variable definitions and expressions in
-list heads, as well as expressions in labels:
-\guido{
-Discuss with Markus
-
-This is not really embedding, right? It is extension with an embeddign
-flavor, since MoblScreens now has a direct dependency to MoblExpressions.
-Right?}
-
-\todo{guido does it: SQL in Java example from earlier?
-Two flavors of Ext: Ext & ExtWIthEmbdFlavour
-One Style of Emb: Embedding: The two (or more) langs don't know each other
-before they are enbedded.
-
-}
-
+\parhead{Structure} 
+Embedding requires an additional syntax definition module which imports the main
+modules of the host and guest language and defines additional syntax rules which
+realise the embedding. 
+In target language embedding into Stratego, this was achieved with quotations
+and antiquotations.
+The following module is a first attempt to embedd HQL into mobl:
 
 \begin{lstlisting}[language=sdf]
-module MoblScreens
+module Mobl-HQL
 
-imports MoblExpressions 
+imports Mobl Hql
 
 context-free syntax
-  "list" VarDef "in" Exp "{" Item* "}" -> List     {"ScreenList"}
-  "label" "(" Exp ")"                  -> ItemPart {"LabelPart"}
+
+  QueryRule           -> Exp {cons("HqlQuery")}
+  DeleteStatement ";" -> Statement {cons("HqlStatement")}
+  
+  "~" Exp             -> Expression {cons("DslExp")}  
 \end{lstlisting}
 
-\parhead{Type System} The type system needs to connect the types from the host
-and guest languages. This can be achieved by adding typing rules for embedded
-and antiquoted constructs. In the embedding of expressions, we do not have
-antiquotes. However, we expect certain types for embedded expressions. For
-example, the expression in a list head needs to be a collection. The type from
-the variable definition needs to be compatible with the content of the
-collection. Finally, the expression for a label should provide a string. We can
-capture these requirements in constraints:
+The module imports syntax definitions of host and guest language.
+Tt embedds HQL queries as mobl expressions and HQL's delete statement as a mobl
+statement without any quotations.
+Furthermore, it allows to use quoted mobl expressions inside HQL queries.
 
+There are two issues in this module.
+First, we might accidentially merge sorts with the same name in host and guest
+language.
+Since both languages are developed independently, we cannot assume mutual
+exclusive names in their syntax definitions.
+One way to avoid name clashes, is to rename sorts manually during import:
+
+\begin{lstlisting}[language=sdf]
+module Mobl-HQL
+
+imports 
+  Mobl 
+  Hql [ QueryRule       => HqlQueryRule
+        DeleteStatement => HqlDeleteStatement
+        Expression      => HqlExpression
+        ...
+      ]
+\end{lstlisting}
+
+This can be quite cumbersome, since we have to rename all sorts, not only the
+embedded ones.
+But we can rely on Spoofax to generate a renamed version of a language
+definition.
+This \emph{Mix} is a parametrized syntax definition, where Spoofax replaces each
+sort by a parametrized sort:
+
+\begin{lstlisting}[language=sdf]
+module HqLMix[Context]
+
+imports 
+  Hql [ QueryRule       => QueryRule[[Context]]
+        DeleteStatement => DeleteStatement[[Context]]
+        Expression      => Expression[[Context]]
+        ...
+      ]
+\end{lstlisting}
+
+The parameter allows us to distinguish sorts from the host and the target
+language. 
+We can then import this module with an actual parameter and use the
+parametrized sorts in the embedding:
+
+\begin{lstlisting}[language=sdf]
+module Mobl-HQL
+
+imports Mobl HqlMix[HQL] 
+
+context-free syntax
+
+  QueryRule[[HQL]]           -> Exp {cons("HqlQuery")}
+  DeleteStatement[[HQL]] ";" -> Statement {cons("HqlStatement")}
+  
+  "~" Exp                    -> Expression[[HQL]] {cons("MoblExp")}  
+\end{lstlisting}
+
+The second issue is ambiguity.
+We need to integrate HQL queries into the precedence rules for mobl expressions.
+Thereby, we do not have to repeat all rules.
+Preceeding and succeeding rules are sufficient:
+
+\begin{lstlisting}[language=sdf]
+context-free priorities
+
+    Assignment                      -> Exp
+  > QueryRule[[HQL]]                -> Exp
+  > "if" "(" Exp ")" Exp "else" Exp -> Exp  
+\end{lstlisting}
+
+% Further ambiguities might arise if host and target language share same prefixes
+% or suffixes for embedded constructs.
+% For example, in \code{from Page as p} the \code{as} phrase can be either
+% an alias in the HQL query or a cast in mobl.
+% To disambiguate this, we can repeat rules from the host or target language
+% definition and annotate them:
+
+\parhead{Type System} 
+The type system needs to connect the types from the host and guest languages.
+This can be achieved by adding typing rules for embedded and antiquoted constructs. 
+For example, we need to connect the HQL type of a query to a mobl type of the
+embedding expression:
 
 \begin{lstlisting}[language=stratego]
-constraint-error: 
-  ScreenList(_, e, _) -> (e, "Needs to provide a collection.")
-  where
-    type := <type-of> e;
-    <not(collection-type)> type
-    
-constraint-error: 
-  ScreenList(VarDef(t, _), e, _) -> (t, "Cannot assign collection elements (incompatible types).")
-  where
-    type  := <type-of> e ;
-    type' := <collection-type> type ;
-    <not(is-assignable)> (t, type')
-\end{lstlisting}
+module mobl-hql/types
 
+imports 
+  mobl/types
+  hql/types
+  
+type-of: 
+  HqlQuery(query) -> mobl-type
+  where
+    hql-type  := <type-of> query
+    mobl-type := <hql-to-mobl-type> hql-type
+
+type-of: 
+  MoblExp(exp) -> hql-type
+  where
+    mobl-type  := <type-of> exp
+    hql-type   := <mobl-to-hql-type> mobl-type
+
+hql-to-mobl-type: JDBC_Integer() -> NumType()
+hql-to-mobl-type: JDBC_Float()   -> NumType()
+hql-to-mobl-type: JDBC_Bit()     -> BoolType()
+
+mobl-to-hql-type: NumType()      -> JDBC_Float()
+mobl-to-hql-type: BoolType()     -> JDBC_Bit()
+\end{lstlisting}
+
+The first rule determines the type of an embedded HQL query and maps it to a
+corresponding mobl type.
+The second rule determines the type of an antiquoted mobl expression and maps it
+to an corresponding HQL type. 
+The remaining rules examplify actual mappings between HQL and mobl types.
+Additional constraints can check for incompatible types which cannot be mapped
+into the host or guest language.
 
 \parhead{Generator} There are two strategies for code generation for embedded
 languages. If the guest language provides a suitable code generator, we can
@@ -434,18 +516,6 @@ generator by delegating to the guest generator. Next, we need rules which
 generate code for antiquoted constructs. These rules have to extend the guest
 generator by delegating to the host generator.
 
-The screen definition language needs to generate a method which returns the text
-of a label. Therefore, it relies on the code generator for expressions, to
-translate the expression into Java code:
-
-\begin{lstlisting}[language=stratego]
-generate-label-text-method: 
-  LabelPart(exp) -> Method([PUBLIC()], StringType(), "getText", [Return(java-exp)])
-  where
-    java-exp := <to-java> exp
-\end{lstlisting}
-
-\noindent
 Another strategy is to define a model-to-model transformation which desugars (or
 "assimilates") embedded constructs to constructs of the host language. This
 transformation is then applied first, before the host generator is applied to
