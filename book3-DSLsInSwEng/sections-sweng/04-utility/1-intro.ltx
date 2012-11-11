@@ -23,13 +23,12 @@ the same time, it should be possible to make these specifications executable in
 order to use them to automatically check whether the application fulfills the
 expected behavior. 
 
-The most widely used implementation of this idea is
- \emph{Cucumber}\footnote{\icsn{http://cukes.info/}}. With Cucumber you can describe
- features of application using scenarios. The preconditions, events and expected
- outcomes of
-a scenario are described textually with \emph{Given}, \emph{When} and
-\emph{Then} steps. Here is an example acceptance specification for adding values
-with a calculator:
+\section{Jnario - A DSL for Testing}
+
+The idea is to describe features of your application using scenarios. In each scenario
+ preconditions, events and expected outcomes of a scenario are described
+ textually with \emph{Given}, \emph{When} and \emph{Then} steps. Here is an
+ example acceptance specification for adding values with a calculator:
 
 \begin{lstlisting}[language=jnario-feature]
 Feature: Basic Arithmetic
@@ -42,44 +41,35 @@ Scenario: Addition
   Then the result should be "120"
 \end{lstlisting}
 
-With cucumber you can make these scenario executable by implementing a parser
-for each step together with the required execution logic to establish
-preconditions, trigger events or assert properties of the resulting state.
+This format has been introduced six years ago by Dan
+North\footnote{http://dannorth.net/introducing-bdd/}
+ and since then has been widely adopted in practice. There exist tools for most
+ programming languages to turn these scenarios into executable specifications.
+ This is accomplished by mapping each step to corresponding execution logic. For
+ example, in Java you need to declare a separate class with a method for each
+ step:
 
-\todo{Not clear what you mean by "implementing a parser for each step".}
+\begin{lstlisting}[language=java]
+public class CalculatorStepdefs {
+  private Calculator calc;
+  
+  @Given("^a calculator$")
+  public void a_calculator() {
+    calc = new Calculator();
+  }
+  
+  ...
+\end{lstlisting}
 
+The method's annotation contains a regular expression matching the step in
+scenario. The method's body contains the actual implementation of the step. The
+tool then executes a scenario by instantiating the step definition class and
+executing for each step the associated method.
 
-% \begin{lstlisting}[language=java]
-% public class CalculatorStepdefs {
-%     private Calculator calc;
-%     private int result;
-% 
-%     @Given("^a calculator$")
-%     public void a_calculator() {
-%         calc = new Calculator();
-%     }
-% 
-%     @When("^I add (\\d+) and (\\d+)$")
-%     public void I_add(int arg1, int arg2) {
-%         result = calc.add(arg1, arg2);
-%     }
-% 
-%     @Then("^the result is (\\d+)$")
-%     public void the_result_is(double expected) {
-%         assertEquals(expected, result);
-%     }
-% }
-% \end{lstlisting}
-
-The downside of this approach is that it becomes harder to maintain these
-specifications as scenarios and their implementation are distributed across
-multiple files\todo{Not clear why this is.}. Too make it even easier to define
-executable scenarios for Java applications, we decided to create
-Jnario\footnote{\icsn{http://www.jnario.org}}, a new DSL based on the syntax of
-Cucumber.
-
-The main difference between Jnario and Cucumber is that you don't need
-to create separate step definitions to make your steps executable. You can
+The problem with this approach is that the overhead of adding new steps is quite
+high as everytime a new method implementating the step needs to be created. Too
+make it even easier to define executable scenarios for Java applications, we
+decided to create Jnario\footnote{http://www.jnario.org}. In Jnario you can
 directly add the necessary code below your steps. In our example we create a
 calculator, pass in the parameters defined in the steps (via the implicit
 variable \emph{args}) and check the calculated result:
@@ -98,21 +88,24 @@ Scenario: Addition
    And press add
      calculator.add
   Then the result should be "120"
+     result => args.first
 \end{lstlisting}
-
-\todo{Isn't there an assert or something missing to check the 120?}
-
+ 
 This reduces the effort in writing scenarios by not needing to maintain separate
 step definitions. It is still possible to reuse existing step definitions in
 scenarios. The editor even provides code completion showing all existing steps.
 In our example, the step \emph{And I enter "70"} reuses the code of the step
-\emph{Given I enter "50"} \todo{textual substring matching?} with a different
-parameter value. You might think now that mixing code and text in your specs
-makes everything pretty unreadable.
+\emph{Given I enter "50"} with a different parameter value. A step is resolved by
+ removing all keywords and parameter values from its descriptions and then matching 
+ the normalized description to the description of steps with an implementation.
+
+You might think now that mixing code and text in your specs makes everything
+pretty unreadable.
 Actually, this is not a problem, as you can hide the code in the editor to
-improve the readability as shown in Figure \ref{Jnario_FeatureHiding}. 
-\todo{That is pretty cool :-) How does this prevent me from "destroying" the
-code while editing the program?}
+improve the readability as shown in Figure \ref{Jnario_FeatureHiding}.
+This is accomplished using the code folding feature of Eclipse for hiding the
+step implementations. When editing a step in an editor, its implementation will
+automatically be shown.
 
 Feature definitions in Jnario compile to plain Java JUnit tests, which can be
 directly executed from withing Eclipse. Figure \ref{jnario_feature_junit} shows
@@ -207,15 +200,6 @@ you see that your specifications effectively document the behavior of your code.
 \end{center} 
 \end{figure}
 
-
-
-
-\section{A DSL for Testing}
-
-\todo{I wonder if this heading makes sense and/or whether there should have
-been another heading earlier. Didn't the above stuff also describe "A DSL for
-Testing"?}
-
 Jnario is not just another testing framework. It is actually two domain-specific
 languages specifically made for writing executable specifications. The main advantage of 
 using a DSL for writing tests is that it becomes possible to adapt the syntax to
@@ -223,17 +207,14 @@ the skills of the intended users. In our case of this means that specifications 
 in Jnario can be understood  by users without programming background. 
 
 Another advantage of using a DSL for writing tests is the possibility to add
-features which do not make sense in a general purpose programming language, but
-are really helpful when writing tests.  If you think about current testing
+features which are not available in a general purpose programming language, but
+are really helpful when writing tests. If you think about current testing
 frameworks, they usually "stretch" the syntax of the underlying programming
 language to be able to write expressive tests. Now imagine a programming
 language in which the syntax is specifially designed for the purpose of writing
 tests. For example, a common scenario is to test a class with different sets of
-input parameters.
-Writing such tests in Jnario is really easy as it has a special table syntax:
-\todo{Tables are clearly useful here, but I wouldn't say that tables are not
-useful in "regular" programs (you imply this with your formulations above).}
-
+input parameters. Writing such tests in Jnario is really easy as it has a
+special table syntax:
 
 \begin{lstlisting}[language=jnario-spec] 
 describe "Adding numbers"{
@@ -269,7 +250,18 @@ java.lang.AssertionError: examples failed
 \end{lstlisting}
   
 \todo{Reminder for me and you: do you describe how tables are implemented
-below? and also: how do you "insert" the error marks?}
+below? and also: how do you "insert" the error marks? - SB: I don't explain tables in detail,
+as I find the implementation quite boring:
+
+  - grammer is straightforward
+  - compiler generates code to create an instance of Table
+  - error marks are implemented in Table and are completely independent of the DSL
+
+Is there anything in particular that I am not aware of which would be interesting?
+
+MV: Well, people probably haven't seen tables defined with a parser-based
+approach. Just writing a paragraph or two about it would be useful.
+ }
   
 This demonstrates another advantage of Jnario, it tries to give you as much
 information as possible about why an assertion failed. A failed assertion prints
@@ -280,8 +272,6 @@ These are just some examples demonstrating the advantages of test-centric
 domain-specific language. Having full control over the syntax of the language
 and its translation into Java code allows us to add features that are helpful
 when writing tests, but would never make sense in a general purpose language.
-
-
 
 \section{How does it Work?}
 
@@ -319,8 +309,12 @@ language with all common features used by Jnario. The resulting language
 hierarchy is shown in Figure \ref{jnario_hierarchy}. This example demonstrates 
 that by carefully modularizing language features it possible in Xtext to
 effectively reuse languages together with their tooling in different contexts.
-\todo{Here we should discuss how this related to language modularization, as
-discussed earlier.}
+\todo{
+MV: Here we should discuss how this related to language modularization, as
+discussed earlier. - 
+SB: which points are the ones we should reference?
+MV: YOu are essentially performing extension - multi levels, though. I can 
+add that reference.}
 
 \begin{figure}[h]
 \begin{center}
@@ -341,9 +335,7 @@ assert x != null
   
 Adding a new expression to the Xtext base language works by overriding the
 corresponding grammar rules. In our example, we added the new assertion 
-statement as a primary expression:
-\todo{"statement" as "expression"? SOunds strange :-) Assertion isn't a
-statement, right?}
+expression as a primary expression:
 
 \begin{lstlisting}[language=jnario-spec] 
 XPrimaryExpression returns xbase::XExpression:
@@ -353,7 +345,7 @@ XPrimaryExpression returns xbase::XExpression:
   Assertion;
 \end{lstlisting}
 
-The assertion statement itself is define in a separate rule, which again
+The assertion expression itself is define in a separate rule, which again
 reuses parts of the Xtext base language:
 
 \begin{lstlisting}[language=jnario-spec] 
@@ -362,8 +354,6 @@ Assertion returns xbase::XExpression:
 \end{lstlisting}
 
 
-\todo{I think you should talk about tables and also the ability to "hide"
-the code and only show the prose text snippets.}
 
 
 \subsection{Code Generation}
@@ -384,8 +374,8 @@ Scenarios and Backgrounds are mapped to Java classes, in which each step is
 mapped to a JUnit test method. The additional \verb'@Test' annotations required
 by JUnit are added during the mapping process. The expressions can be completely
 transformed by the Xtend compiler. However, in order to support custom
-expressions, such as the ``assert'' statement, the Xtend compiler needs to be
-extended \todo{how?}. 
+expressions, such as the ``assert'' expression, the Xtend compiler needs to be
+extended. 
 
 \begin{lstlisting}[language=jnario-spec]
 val x = "hello"
@@ -405,13 +395,28 @@ java.lang.AssertionError: Expected x + y == "hello world" but
 Notably is the error message containing the original failing expression 
 \verb'x + y == "hello world"' together with the value of all sub expressions.
 Creating such error messages is not possible in plain Java as the underlying AST
-cannot be accessed. However, in a DSL like Jnario
-we can include this information when generating the Java code from our
-specifications. The following snipplet shows the extension to the Xtend
-compiler:
+cannot be accessed. However, in a DSL like Jnario we can include this
+information when generating the Java code from our specifications.
+To do so we subclass the XtendCompiler and add a custom generator for our
+assertion expression:
 
 \begin{lstlisting}[language=java]
-private void _toJavaExpression(Assertion assertion, ITreeAppendable b) {
+@Override
+public void doInternalToJavaStatement(XExpression obj,
+		ITreeAppendable appendable, boolean isReferenced) {
+	if (obj instanceof Assertion) {
+		toJavaStatement((Assertion) obj, appendable, isReferenced);
+	}else{
+		super.doInternalToJavaStatement(obj, appendable, isReferenced);
+	}
+}
+\end{lstlisting}
+
+The custom generator translates the given assertion into the corresponding Java
+code:
+
+\begin{lstlisting}[language=java]
+private void toJavaStatement(Assertion assertion, ITreeAppendable b) {
   XExpression expr = assertion.getExpr();
   toJavaStatement(expr, b, true);
   b.newLine();
