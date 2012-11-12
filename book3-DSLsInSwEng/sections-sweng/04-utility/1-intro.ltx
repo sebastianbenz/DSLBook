@@ -450,15 +450,14 @@ main goal. Xtext provides a great tooling support for new DSLs. With the
 existing integration into Eclipse and the easy extensibility of the UI
 components you can add support for your DSL fast.
 
-\todo{You extended Xtend, right? So how much of the Xtend IDE could you reuse,
-how much did you have to redo?}
-
 The Feature language aims to be readable for software developers and for domain
 experts who have no programming background. The best way to support both groups
-was to establish two views on a Feature file. We created an own Feature Editor
-that uses specialized folding to show or hide the implementation logic of the
-scenarios and features \todo{What does "an own editor" mean? Is this not the
-normal Xtext editor? How much effort?}. This enables the possibility of showing
+was to establish two views on a Feature file. The Feature Editor uses specialized 
+folding to show or hide the implementation logic of the
+scenarios and features. Specialized folding means we used the existing folding
+component from Xtext and extended it to disable the normal folding functionality
+and introduced a button to trigger the folding of the implementation logic.
+This enables the possibility of showing
 only the parts of the file that are in natural language and it therefore feels
 like working with a text editor. In addition, highlighting of keywords comes in
 handy when referring to existing steps. We used different colors to show if a
@@ -469,8 +468,14 @@ necessary libraries or for creating new class files were added. Auto completion
 for steps in features is supported since you can reuse other steps by
 referencing them, even if they are not implemented. Another important feature is
 the debugging facility of Xtext which lets you step through your DSL file
-instead of using the generated code\todo{Did you have to adapt that for JNario?
-If so, how?}.
+instead of using the generated code. This facility did not have to be adapted
+for Jnario but could be used as-is.
+
+The described features were implemented based on the existing Xtext and Xtend UI
+components from which we could use the components concerning the implementation
+logic parts in the Feature and Spec languages as-is. For features that are different
+such as folding, outline view, or the auto completion content the necessary components
+were extended.
 
 \subsection{Testing}
 
