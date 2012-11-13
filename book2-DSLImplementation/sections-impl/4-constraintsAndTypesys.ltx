@@ -456,9 +456,153 @@ checking rule check_DataFlow {
 \label{Sec:spoofax-constraints}
 
 Spoofax uses \emph{rewrite rules} to specify all semantic parts of a language
-definition. In \sect{Sec:rewrite-rules} we provide a primer on rewrite rules,
-and in this section we show how they can be used to specify constraints in
-language definitions.
+definition. In this section, we first provide a primer on rewrite rules.
+Next we show how they can be used to specify constraints in languagedefinitions\footnote{Rewrite rules are used for all
+kinds of other purposes in Spoofax, and we will encounter them again, for
+example in the chapter on transformation and code generation \sect{Sec:spoofax-trafo-codegen}.
+This is why we explain them in quite some detail here.}.
+\subsection{Rewrite Rules}
+\label{Sec:spoofax-rewrite-rules}
+
+Rewrite rules are functions that operate on terms, transforming one term to
+another. 
+Rewrite rules in Spoofax are provided as part of the Stratego program
+transformation language. A basic rewrite rule that transforms a term pattern
+\ic{term1} to a term pattern \ic{term2} has the following form:
+
+\begin{lstlisting}[language=stratego]
+rule-name: term1 -> term2
+\end{lstlisting}
+
+\noindent 
+Term patterns have the same form as terms: any term is a legal term pattern.
+In addition to the basic constructors, string literals, integer literals, and so
+on, they also support variables (e.g.,~\ic{v} or \ic{name}) and wildcards
+(indicated by \ic{\_}). As an example, the following rewrite rule rewrites an
+\ic{Entity} to the list of properties contained in that entity:
+
+\begin{lstlisting}[language=stratego]
+get-properties-types:
+  Entity(name, properties) -> properties
+\end{lstlisting}
+
+\noindent 
+So, for an entity \ic{Entity("User", [Property("name", String)])}, it binds
+\ic{"User"} to the variable \ic{name}, and \ic{[Property("name", "String")]}
+to the variable \ic{properties}. It then returns \ic{properties}. While rewrite
+rules can be viewed as functions, they have one important difference:
+they can be defined multiple times for different patterns\footnote{This is
+comparable to polymorphic overloading.}. In the case of \ic{get-properties}, we
+could add another definition that works for property access expressions:
+
+\begin{lstlisting}[language=stratego]
+get-properties:
+  PropAccess(expr, property) -> property
+\end{lstlisting} 
+
+\noindent 
+Rules can have complex patterns. For example, it is possible to write a rule
+that succeeds only for entities with \emph{only} a \ic{name}
+property\footnote{Note how this rule uses a wildcard since it doesn't care about
+the name of the entity.}:
+
+\begin{lstlisting}[language=stratego]
+is-name-only-entity:
+  Entity(_, [Property("name", "String")]) -> True()
+\end{lstlisting}
+
+
+\noindent 
+Rewrite rules can be invoked using the syntax \ic{<rule-name> term}. For
+example, \ic{<get-properties> Entity("Unit", [])} would return an empty list of
+properties. The angle brackets make it easy to distinguish rule invocations
+from terms, and makes it possible to use invocations in term expressions.
+
+Stratego provides a \ic{with} clause that can be used for additional code that
+should be considered for rewrite rules. The \ic{with} clause is most commonly
+used for assignments and calls to other rules. As an example, we can write the
+rule above using a \ic{with}. This rule assigns the value of \ic{get-properties}
+to a variable \ic{result} and returns that as the result value of the rule:
+
+\begin{lstlisting}[language=stratego]
+invoke-get-properties:
+  Entity(name, properties) -> result
+  with
+    result := <get-properties> Entity(name, properties)
+\end{lstlisting}
+
+\noindent 
+Rules can also have conditions. These can be specified using
+\ic{where}\footnote{If the pattern of a rule does not match, or if its
+conditions do not succeed, a rule is said to \emph{fail}.}. These clauses
+typically use the operators listed in \fig{Fig:stratego-operators}.
+An example of a rule with a \ic{where} clause is the following:
+
+\begin{lstlisting}[language=stratego]
+has-properties:
+  Entity(name, properties) -> True()
+  with
+    properties := <get-properties> Entity(name, properties);
+  where
+    not(!properties => [])  
+\end{lstlisting}
+
+\noindent 
+This rule only succeeds for entities where the condition \ic{not(!properties =>
+[])} holds. That is, it succeeds as long as an entity does not have an empty
+list (indicated by \ic{[]}) of properties. Rewrite rules can have any number of
+\ic{where} and \ic{with} clauses, and they are evaluated in the order they
+appear.
+
+\begin{figure}[t]
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Expression} & \textbf{Description} \\ 
+\hline
+\ic{<e> t} & Applies \ic{e} to \ic{t}, or fails if \ic{e} is unsuccessful. \\
+\ic{v := t} & Assign a term expression \ic{t} to a variable \ic{v}. \\ 
+\ic{!t => p} & Match a term \ic{t} against a pattern \ic{p}, or fail. \\
+\ic{not(e)} & Succeeds if \ic{e} does not succeed. \\
+\ic{e1; e2} & Sequence: apply \ic{e1}. If it succeeds, apply \ic{e2}. \\ % Fail if either \ic{e1} or \ic{e2} fails. \\
+\ic{e1 <+ e2} & Choice: apply \ic{e1}, if it fails apply {e2} instead. \\
+%\ic{if e then e1 else e2 end} & If \ic{e} succeeds, then apply \ic{e1}, else \ic{e2}. \\
+\hline
+\end{tabular}
+\caption{Operators in Stratego expressions.}
+\label{Fig:stratego-operators}
+\vspace{2mm}
+\end{figure}
+
+
+
+\noindent 
+Like functions or methods in other languages, rewrite rules can have parameters.
+Stratego distinguishes between parameters that pass other rules and parameters
+that pass terms, using a vertical bar to separate them two separate lists. Rules
+that take both rule and term parameters have a signature of the form
+\ic{rule(r|t)}, those with only rule parameters use \ic{rule(r)}, and those with
+only term parameters use \ic{rule(|t)}. The Stratego standard library provides a
+number of higher-order rules, i.e.\ rules that take other rules as their
+argument. These rules are used for common operations on abstract syntax trees:
+for example, \ic{map(r)} applies a rule \ic{r} to all elements of a list:
+
+\begin{lstlisting}[language=stratego]
+get-property-types:
+  Entity(_, properties) -> types
+  with
+    types := <map(get-property-type)> properties
+
+get-property-type:
+  Property(_, type) -> type
+\end{lstlisting}
+
+\noindent 
+Rules like \ic{map} specify a \emph{traversal} on a certain term structure: they
+specify how a certain rule should be applied to a term and its subterms. Rules
+that specify traversals are also called \emph{strategies}\footnote{This is where
+the name of the \emph{Stratego} transformation language comes from.}.
+In Spoofax, strategies are used to control traversals in constraints,
+transformation, and code generation.
 
 \subsection{Basic Constraint Rules}
 
@@ -518,10 +662,7 @@ Var("v"{[Var(),"v","function","module"]})
 \noindent Without an annotation, the term reads \ic{Var("v")}. The annotation is
 added directly to the name, surrounded with curly braces. The annotation itself is a
 URI \ic{Var://module/function/v}, represented as a list consisting of the
-namespace, the name, and the path in reverse order.
-
-\noindent 
-Unresolved references are represented by terms such as the following (notice
+namespace, the name, and the path in reverse order.Unresolved references are represented by terms such as the following (notice
 the \ic{Unresolved} term, surrounding the namespace):
 
 \begin{lstlisting}
@@ -575,48 +716,22 @@ We can use the index API to detect duplicate definitions. In most languages,
 duplicate definitions are always disallowed. In the case of mobl, duplicate
 definitions are not allowed for functions or entities, but they are allowed for
 variables, just as in JavaScript. The following constraint rules checks for
-duplicates definitions:
+duplicate entity declarations:
 
 \begin{lstlisting}[language=stratego]
 constraint-error:
-  name -> (name, $[Duplicate definition])
+  Entity(name, _) -> (name, $[Duplicate definition])
   where
-    namespace := <index-namespace> name;
-    not(<is-duplicates-allowed> namespace);
     defs := <index-lookup-all> name;
     <gt> (<length> defs, 1)
-    
-is-duplicates-allowed:
-  Var() -> True()
 \end{lstlisting}
 
 
-\noindent Again, this rule is created automatically in a new Spoofax project,
-but it provides an interesting showcase of the index API. This rule matches any tree
-node \ic{name} and starts by determining its namespace using \ic{index-namespace}.
-Then, it fires a helper rule \ic{is-duplicates-allowed}. We only report
-duplicate definitions if the helper does not succeed (indicated by the
-\ic{not})\footnote{Since there is no definition for anything else than
-\icsn{Var()}, the rule will fail in these cases.}. For mobl, that means we never
-report this error for definitions in the \ic{Var()} namespace. Next, the
-constraint rule determines all definitions of the reference. If the list has more than one element, the rule reports an error. This is checked by
-comparing the length of the list with \ic{1}.
-
-
-Another important constraint for names is \emph{definition before use}: for many
-program elements, it is an error if it is used before it is defined. In mobl,
-this property is enforced for variables, but not for entities or functions. The
-rule to check for this property follows the same pattern as the rule for
-duplicates, and should normally not be changed by users. Instead, like before,
-the rule uses a helper rule that can be customized to determine which namespaces
-require definition before use:
-
-\begin{lstlisting}[language=stratego]
-is-ordered-namespace:
-  Var() -> True()
-\end{lstlisting}
-
-\noindent 
+\noindent This rule matches any entity declaration.
+Then, it fires a helper rule \ic{is-duplicates-allowed}.
+Next, the constraint rule determines all definition sites of the entity name. 
+If the list has more than one element, the rule reports an error. 
+This is checked by comparing the length of the list with \ic{1}.
 More sophisticated constraints and error messages can be specified using a type
 system, as we show in the next chapter.
 
@@ -1505,6 +1620,7 @@ of Java, is implemented this way. However, for exceptional cases, procedural
 BaseLanguage code can be used to implement typing rules as well.
 
 \section{Spoofax Example}
+\label{spoofaxtypes}
 
 Spoofax' rewrite rules support both the recursive approach and pattern matching
 in specifying type systems. However, in most projects the recursive approach
@@ -1557,33 +1673,17 @@ stores information about the definition sites of names in an in-memory data stru
 index. This typically includes information about types. 
 For example, to determine the type of property and variable references, 
 Spoofax needs to store the type of the corresponding declarations.
-Consider the following typing rules, which rewrites property and variable declarations to their
-declared types:
+Consider the following name binding rules which also involve type information:
 
-\begin{lstlisting}[language=stratego]
-  type-of: Property(name, type) -> type
-  type-of: VarDecl(name, type) -> type
-  type-of: VarDeclInit(name, type, init-exp) -> type
-  type-of: Param(name, type) -> type
+\begin{lstlisting}[language=nbl]
+Property(p, t): defines Property p of type t
+Param  (p, t) : defines Variable p of type t
 \end{lstlisting}
 
 \noindent 
-Spoofax uses these rules to determine the type of a property or variable declaration. 
-This type is stored as an information about the property or variable name.
-The storing itself is implemented by the following generic rewrite rule:
-
-\begin{lstlisting}[language=stratego]
-  adjust-index-def-data(store-results |namespace, path):
-    def -> <store-results> DefData([namespace | path], Type(), type)
-    where
-      type := <type-of> def
-\end{lstlisting}
-
-\noindent Spoofax tries to apply this rule for every definition site according to the name binding definition. 
-If the definition has a type, \ic{type-of} will succeed and the returned type is stored in the index. 
-If the definition has no type, \ic{type-of} will fail. 
-By this, the whole rule will fail and nothing is stored. 
-The stored type information can then be used in the typing rules for variable references and property accesses:
+Spoofax uses these rules to determine the type of a property or parameter declaration. 
+This type is stored as an information about the property or parameter name.
+Stored type information can then be used in the typing rules for variable references and property accesses:
 
 \begin{lstlisting}[language=stratego]
   type-of:
@@ -1596,16 +1696,28 @@ The stored type information can then be used in the typing rules for variable re
 \noindent 
 Both rules rewrite references to the type of their definition sites. First, the
 definition of a reference is looked-up in the index. Next, this definition is
-rewritten to its type. This uses the \ic{index-lookup-type} rule, which is
-another generic rewrite rule:
+rewritten to its type. This uses the \ic{index-lookup-type} rule, which
+implements the actual type lookup in the index.
 
-\begin{lstlisting}[language=stratego]
-  index-lookup-type:
-    ref -> type
-    where
-      def  := <index-get-data(|Type())> ref ;
-      type := <index-lookup> def 
+But the type of a definition site is not always explicitly declared. 
+For example, variable declarations in Mobl come with an initial expression, but without an expilicit type.
+
+\begin{lstlisting}[language=webdsl]
+var x = 42;
 \end{lstlisting}
+
+\noindent
+The type of \ic{x} is the type of its initial expression \ic{42}, that is \ic{NumType()}.
+In general, we like to persist the type of a variable's initial expression as its declared type.
+The following name binding rule defines this connection between name binding and type system:
+
+\begin{lstlisting}[language=nbl]
+Declare(v, e) : 
+  defines Variable v of type t in subsequent scope
+  where e has type t
+\end{lstlisting}
+
+
 
 
 \parhead{Additional Types} In Spoofax, types are represented as terms. The
@@ -1619,7 +1731,7 @@ of every other type, a \emph{bottom} type is a subtype of every other type.}.
 For example, Java's type system has a special type for \ic{null} values at the
 bottom of its type hierarchy, which cannot be used as a type in Java programs.Spoofax allows to define constructors for additional types in signatures:
 
-\begin{lstlisting}[morekeywords={signature, constructors}]
+\begin{lstlisting}[language=stratego]
 signature constructors 
   FunType: List(Type) * Type -> FunType
 \end{lstlisting}
@@ -1629,17 +1741,18 @@ This defines a binary constructor \ic{FunType} for function types. The first
 subterm of a function type is a list of parameter types (\ic{List(Type)}). The
 second subterm is the return type. We can employ the so defined function type in
 the typing rules for function definitions and calls:
+\begin{lstlisting}[language=nbl]
+Function(f, p*, t) : 
+  defines Function f of type FunType(t*, t)
+  where p* has type t*
+\end{lstlisting}
+
 
 \begin{lstlisting}[language=stratego]
-  type-of:
-    Function(name, param*, type) -> FunType(type*, type)
-    with
-      type* := <map(type-of)> param*
-
-  type-of:
-    Call(name, arg*) -> type
-    where
-      <index-lookup-type> name => FunType(type*, type)
+type-of:
+  Call(name, arg*) -> type
+  where
+    <index-lookup-type> name => FunType(type*, type)
 \end{lstlisting}
 
 

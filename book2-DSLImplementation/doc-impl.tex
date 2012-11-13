@@ -158,8 +158,11 @@ true, false, prolog, assert, currentstate, is, mock, step
 }}
 
 \lstdefinelanguage{webdsl}{morekeywords={
-module, entity, function, var, return, screen
-}}
+module, entity, function, var, return, screen, import
+},
+moredelim=[is][basicstyle]{`}{`}, % to escape non-keyword words
+morecomment=[l]{//},
+}
 
 \lstdefinelanguage{xtend}{morekeywords={
 def, FOR, ENDFOR, SEPARATOR, instanceof, IF, ENDIF,
@@ -167,7 +170,8 @@ dispatch, class, extension, val, create, var, void, extends, boolean, for
 }}
 
 \lstdefinelanguage{stratego}{morekeywords={
-with, where, if, else, end, then, module, rules
+with, where, if, else, end, then, module, rules, signature,
+constructors, sorts, strategies
 }}
 
 
@@ -177,9 +181,9 @@ ID, STRING, terminal, current, returns, grammar, with, generate, import
 
 \lstdefinelanguage{sdf}{morekeywords={
 module, context, free, start, symbols, priorities, syntax,
-lexical, left, reject, prefer, restrictions, imports, exports, signature,
-constructors 
-}}
+lexical, left, reject, prefer, restrictions, imports, exports, bracket
+},
+morestring=[b]"}
 
 \lstdefinelanguage{mpsmodex}{morekeywords={
 module, entity, int, string, boolean, form, uses, field, textfield, 
@@ -188,6 +192,11 @@ roles, permissions, role, user, if, true, false, else, validate, String,
 return
 }}
 
+\lstdefinelanguage{nbl}{morekeywords={
+module, namespaces, rules, defines, refers, non, unique, to, ordered, scopes, of, 
+type, has, in, where, otherwise, surrounding, subsequent, imports, from, as,
+transitive, scope
+}}
 
 
 

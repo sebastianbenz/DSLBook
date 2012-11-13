@@ -89,19 +89,15 @@ exchangable.
 
 \section{Scoping in Spoofax}
 
-In Spoofax, each language concept has its own private namespace. For example,
-functions may live in the \ic{Functions} namespace and properties may live in
-the \ic{Property} namespace. Namespaces can be defined as part of a grammar
-definition by adding annotations to productions. Spoofax supports three
-different forms of annotations: annotations for language elements that define
-something in a namespace, for elements that reference something in a namespace,
-and for block constructs.
-
-\subsection{Definitions and References}
-
 In the previous chapter we described how to specify a grammar for a subset of
-the mobl language. This chapter shows how to add annotations and rules to define
-name resolution for this language.
+the mobl language. This chapter shows how to specify name resolution  for this
+language by means of declarative name binding rules.
+Spoofax' name binding rules are based on five concepts: namespaces, definitions,
+references, scopes, and imports.
+We will introduce each of these concepts separately, going from simple to more
+complicated examples.
+
+\subsection{Namespaces}
 
 To understand naming in Spoofax, the notion of a \emph{namespace} is essential.
 Some languages such as C\# provide namespaces as a language concept to scope the names of declarations such as classes.
@@ -109,138 +105,228 @@ It is important to distinguish these namespaces as a language concept from
 Spoofax' namespaces as a language definition concept.
 In Spoofax, a namespace is a collection of names and is not necessarily connected to a specific language concept. 
 Different concepts can contribute names to a single namespace. 
-During reference resolution, names are resolved against namespaces.
+For example, in Java classes and interfaces contribute to the same namespace.
+Namespaces are declared in a \ic{namespace} section. For mobl, we have separate
+namespaces for modules, entities, properties, functions, and local variables.
 
-Language elements that contribute names to a a namespace can be annotated with
-\ic{Namespace@=Symbol}, where \ic{Namespace} is the namespace of the definition,
-and \ic{Symbol} is the grammatical symbol that represents the name of the
-concept, and that is contributed to the namespace. As an example, wecan add this annotation to the production for \ic{Entity} definitions:
-\begin{lstlisting}[language=sdf]
-"entity" Type@=ID "{" EntityBodyDecl* "}" -> Decl {"Entity"}
+\begin{lstlisting}[language=nbl]
+namespaces Module Entity Property Function Variable
 \end{lstlisting}
 
-\noindent 
-The annotation indicates that every program element that corresponds to this
-production defines a name in the \ic{Type} namespace. It also indicates the name
-of the program element: the identifier \ic{ID} that follows after the
-\ic{entity} keyword.
+\subsection{Definitions and References}
 
-Note how Spoofax distinguishes the name of a namespace from the type of a
-program element: the type of the program element above is \ic{Decl}, but it
-lives in the \ic{Type} namespace. By distinguishing these two things, it becomes
-easy to add or exclude program elements from a namespace. For example,
-\ic{import} statements are also of syntactic type \ic{Decl}, but they do not
-live in the \ic{Type} namespace. Likewise, we could add the primitive integer
-and string types to the \ic{Type} namespace, even though they are syntacticallya very different concept from entity declarations.
+Once we defined namespaces, we can define name bindings with rules of the
+form \ic{pattern : clause*}, where \ic{pattern} is a term pattern\footnote{A term
+pattern is a term that may contain variables~(\ic{x}) and wildcards~(\ic{\_}).}.
+and \ic{clause*} is a list of name binding declarations about the language
+construct that matches with \ic{pattern}.
+For example, the following rules declare definition sites for module and entity
+names:
 
-References to definitions are defined in a similar fashion, using the notation
-\ic{Namespace@Symbol}:
-\begin{lstlisting}[language=sdf]
-Property@=ID ":" Type@ID -> EntityBodyDecl {"Property"}
+\begin{lstlisting}[language=nbl]
+Module(m, _): defines non-unique Module m
+Entity(e, _): defines unique Entity e
 \end{lstlisting}
 
-\noindent 
-The first annotation here says that the production defines something in the 
-\ic{Property} namespace, while the second says that the \ic{ID} after the 
-colon references something in the \ic{Type} namespace.
+\noindent
+The patterns in these rules match module and entity declarations,
+binding variables \ic{m} and \ic{e} to module and entity names,
+respectively.
+While entity declarations are unique definition sites, module declarations are
+non-unique definition sites.
+That is, multiple module declarations can share the same name.
+This allows mobl users to spread the content of a module over several files,
+similar to Java packages.
+The \ic{unique} keyword is only optional and can be obmitted.
+For example, the following rules declares unique definition sites for property
+and variable names:
 
-\subsection{Basic Scoping Rules}
-
-Scoping annotations\footnote{Unfortunately the term \emph{scope} is used in a
-slightly different way in Spoofax.} define the block structures of a language.
-Block structures can be nested and determine the visibility of names. For
-example, functions are block structures that can contain local variable
-definitions that are not visible from outside the function. Internally, the
-local variables are then assigned a qualified name based on the name of the
-function. The same principle applies to fields in a Java class, properties in a
-mobl entity, and so on. Block structures can be specified by adding
-\ic{scope(Namespace)} at the end of a production:
-
-\begin{lstlisting}[language=sdf]
-"entity" Type@=ID "{" EntityBodyDecl* "}" -> Entity {"Entity", scope(Property)}
+\begin{lstlisting}[language=nbl]
+Property(p, _): defines Property p
+Param(p, _)   : defines Variable p
+Declare(v, _) : defines Variable v
 \end{lstlisting}
 
-\noindent 
-Here, the \ic{scope} annotation indicates that every entity scopes the
-properties inside it. These scopes are used to qualify the names of every
-property inside an entity:
+\noindent
+Note how Spoofax distinguishes the name of a namespace from the sort and the
+constructor of a program element:
+in the last rule above,  
+the sort of the program element is \ic{Statement}, its
+constructor is \ic{Declare}, and it lives in the \ic{Variable} namespace.
+By distinguishing these three things, it becomes easy to add or exclude program
+elements from a namespace. 
+For example, \ic{Return} statements are also of syntactic type \ic{Statement},
+but they do not live in any namespace. 
+On the other hand, function parameters live in the \ic{Type} namespace, even
+though they are syntactically a different concept from statements.
+
+Use sites which refer to definition sites of names can be declared similarly.
+For example, the following rule declares use sites of entity names:
+
+\begin{lstlisting}[language=nbl]
+Type(t): refers to Entity t
+\end{lstlisting}
+
+\noindent
+Use sites might refer to different names from different namespaces.
+For example, a variable might refer either to a \ic{Variable} or a
+\ic{Property}.
+In Spoofax, this can be specified by exclusive resolution options:
+
+\begin{lstlisting}[language=nbl]
+Var(x): 
+  refers to Variable x otherwise
+  refers to Property x
+\end{lstlisting}
+
+\subsection{Scoping}
+
+\parhead{Simple Scopes} 
+%
+\emph{Scopes} restrict the visibility of definition sites\footnote{In Spoofax,
+the term \emph{scope} is used in a slightly different way.}. 
+For example, an entity declaration scopes property declarations that are not
+visible from outside the entity.
 
 \begin{lstlisting}[language=webdsl]
 entity Customer {
-  name : String		// Customer.name
+  name : String // Customer.name
 }
 
 entity Product {
-  name : String 	// Product.name
+  name : String // Product.name
 }
 \end{lstlisting}
 
 \noindent In this example, the two \ic{name} properties both live the
-\ic{Property} namespace, but we can still distinguish them: one can be reached
-as
-\ic{Customer.name}, the other as \ic{Product.name}. This means that if \ic{name}
-is referenced in a function inside \ic{Customer}, then it references the first
-one, not the one in \ic{Product}\footnote{Note that Spoofax does not require
-each name inside a block structure to be unique: by default, it is not an error
-if users add an additional property called name to \icsn{Product}. However, in
-most languages it is desirable to prevent assigning duplicate (qualified) names.
-We show how to specify a constraint for that in \sect{Sec-spoofax-constraints}.}. The full grammar of the mobl entities language with annotations is
-the following (leaving out the lexical syntax):
+\ic{Property} namespace, but we can still distinguish them: 
+if \ic{name} is referenced in a function inside \ic{Customer},
+then it references the first one, not the one in \ic{Product}. 
 
-\guido{
-I am not sure if this should be discussed here, it requires more adjustment rules.
+Scopes can be nested and name resolution typically looks for definition sites
+from inner to outer scopes.
+In mobl, modules scope entities, entities scope properties and functions, and
+functions scope local variables.
+This can be specified in Spoofax in terms of \ic{scopes} clauses:
 
-how are the fully qualified names built?
-how can "private" properties be implemented?}
-
-\todo{guido does it -> SLE paper appraoch is better suited.}
-
-
-\begin{lstlisting}[language=sdf]
-module MoblEntities
-
-context-free start symbols
-
-  Module
-  
-context-free syntax
-
-  "module" Module@=ID Decl* -> Module {"Module", scope(Entity)}
-  "entity" Type@=ID "{" EntityBodyDecl* "}"
-                              -> Decl {"Entity", scope(Property,Function)}
-  "import" Module@ID          -> Decl {"import"}
-  Property@=ID ":" Type@ID    -> EntityBodyDecl {"Property"}
-
-  "function" Function@=ID "(" {Param ","}* ")" ":" Type@ID "{" Statement* "}"
-                              -> EntityBodyDecl {"Function", scope(Var)}
-  Var@=ID ":" Type@ID         -> Param {"Param"}
-  "var" Var@=ID "=" Expr ";"  -> Statement {"Declare"}
-  "return" Exp ";"            -> Statement {"Return"}
-
-  Exp "." Function@ID "(" Exp  ")" -> Exp {"MethodCall"}
-  Exp "." Property@ID              -> Exp {"FieldAccess"}
-  Exp "+" Exp                      -> Exp {"Plus"}
-  Exp "*" Exp                      -> Exp {"Mul"}
-  _@ID                             -> Exp {"Var"}
-  INT                              -> Exp {"Int"}
+\begin{lstlisting}[language=nbl]
+Module(m, _)  : defines Module m scopes Entity
+Entity(e, _)  : defines Entity e scopes Property, Function 
+Function(f, _): defines Function f scopes Variable
 \end{lstlisting}
 
 \noindent 
-A special case in this grammar is the rule for \ic{"Var"}, which can refer to
-multiple namespaces (the underscore represents a wildcard). Consider the
-statement \ic{return x.y;}. In such a statement, \ic{x} can be a local variable
-(\ic{Var}) or a local property (\ic{Property}). In the full mobl language, it
-can even be a type (\ic{Type}). As this more complicated scenario is not covered
-by the annotations, we specify an \ic{\_} in the grammar instead.
-The \ic{\_} indicates that we specify additional, manual rules for resolving
-this case. We show how to specify these at the end of this section. 
+As these examples illustrate, scopes are often also definition sites.
+However, this is not a requirement.
+For example, a block statement has no name, but scopes variables:
+
+\begin{lstlisting}[language=nbl]
+Block(_): scopes Variable
+\end{lstlisting}
+
+\parhead{Definition Sites with Limited Scope} 
+%
+So far we have seen examples where definitions are visible in their enclosing
+scope:
+entities are visible in the enclosing module,
+properties and functions are visible in the enclosing entity,
+and parameters are visible in the enclosing function.
+However, this does not hold for variables declared inside a function.
+Their visibility is limited to statements that follow the declaration.
+Thus, we need to restrict the visibility in the name binding rule for
+\ic{Declare} to the \emph{subsequent scope}:
+
+\begin{lstlisting}[language=nbl]
+Declare(v, _) : defines Variable v in subsequent scope
+\end{lstlisting}
+
+\noindent
+Similarly, the iterator variable in a \ic{for} loop is only visible in its
+condition, the update, and the loop's body, but not in the initializing expression.
+This can be declared as follows:
+
+\begin{lstlisting}[language=nbl]
+For(v, t, init, cond, update, body): defines Variable v in cond, update, body
+\end{lstlisting}
+
+\parhead{Scoped References}
+%
+Typically, use sites refer to names which are declared in its surrounding
+scopes.
+But a use site might refer to definition sites which reside outside its scope.
+For example, a property name in a property access expression might refer to a
+property in another entity:
+
+\begin{lstlisting}[language=webdsl]
+entity Customer { 
+  name : String 
+}
+
+entity Order {
+  customer : Customer
+  function getCustomerName(): String {
+    return customer.name;
+  }
+}
+\end{lstlisting}
+
+\noindent
+Here, \ic{name} in \ic{customer.name} refers to the property in
+entity \ic{Customer}.
+The following name binding rule is a first attempt to specify this:
+
+\begin{lstlisting}[language=nbl]
+PropAccess(exp, p): refers to Property p in Entity e
+\end{lstlisting}
+
+\noindent
+But this rule does not specify which entity \ic{e} is the right one.
+This requires interaction with the type system\footnote{We will discuss type
+systems in \sect{spoofaxtypes}.}:
+
+\begin{lstlisting}[language=nbl]
+PropAccess(exp, p): 
+  refers to Property p in Entity e 
+  where exp has type EntityType(e)
+\end{lstlisting}
+
+\parhead{Imports}
+%
+Many languages offer import facilities to include definitions from another scope into the current scope.
+For example, a Mobl module can import other modules, making entities from the imported modules available in the importing module:
+
+\begin{lstlisting}[language=webdsl]
+module order
+
+import banking
+
+entity Customer {
+  name   : String
+  account: BankAccount
+}
+\end{lstlisting}
+
+\noindent
+Here, \ic{BankAccount} is not declared in the scope of module \ic{order}.
+However, module \ic{banking} declares an entity \ic{BankAccount} which is imported into module \ic{order}.
+The type of property \ic{account} should refer to this entity.
+This can be specified by the following name binding rule:
+
+\begin{lstlisting}[language=nbl]
+Import(m): imports Entity from Module m
+\end{lstlisting}
+
+\noindent
+This rule has two effects.
+First, \ic{m} is interpreted as a name referring to a module.
+Second, every entity declared in this module becomes visible in the current scope.
 
 \subsection{URIs for Program Elements}
 
-Each program element that defines something is assigned a URI. The URI uniquely
-identifies the element across a project. By default, these URIs are constructed
-automatically, based on the namespace and scope annotations in the grammar. As
-an example, consider the following entity.
+Each program element that defines a name is assigned a URI. 
+The URI uniquely identifies the element across a project. 
+By default, these URIs are constructed automatically, based on the name binding
+rules. As an example, consider the following entity.
 
 
 \begin{lstlisting}[language=webdsl]
@@ -252,13 +338,14 @@ entity Store {
 \end{lstlisting}
 
 \noindent 
-Following the annotated mobl grammar, there are two block constructs in this
-fragment: one at the module level and one at the entity level. We can assign
-names to these blocks (\ic{storage} and \ic{Store}) by using the namespace
-definition annotations. By creating a hierarchy of these names, Spoofax creates
-URIs: the URI for \ic{Store} is \ic{Type://storage.Store}, and the one for
-\ic{name} is
-\ic{Property://}\linebreak[0]\ic{storage.}\linebreak[0]\ic{Store.name}.
+Following the name binding rules discussed so far, there are two scope levels in
+this fragment:
+one at the module level and one at the entity level. 
+We can assign names to these scopes (\ic{storage} and \ic{Store}) by using the
+naming rules for modules and entities. 
+By creating a hierarchy of these names, Spoofax creates URIs: 
+the URI for \ic{Store} is \ic{Entity://storage.Store}, and the one for \ic{name}
+is \ic{Property://}\linebreak[0]\ic{storage.}\linebreak[0]\ic{Store.name}.
 URIs are represented internally as lists of terms, that start with the
 namespace, followed by a reverse hierarchy of the path names\footnote{The
 reverse order used in the representation makes it easier to efficiently store
@@ -272,19 +359,11 @@ memory space.}:
 
 \noindent 
 In most cases, parts of a path are simple strings, such as \ic{"Store"}, but
-they can be complex terms if needed. An example is \emph{anonymous} blocks that
-do not have a name associated with them. Block statements in C-like languages 
-are an example of this. These scopes are handled differently from named scopes. 
-We can add a block statement to our grammar by adding the following production:
-
-\begin{lstlisting}[language=sdf]
-"{" Stm* "}" -> Stm {"Block", Scope(Var)}
-\end{lstlisting}
-
-\noindent 
-The block statement does not define a definition name, but can still become part
-of a URI. Instead of a name, that part will then have the form \ic{Anon(n)}
-where \ic{n} is a generated number that identifies the block. \ic{Anon(n)} is anexample of a complex term.
+they can be complex terms if needed. An example is \emph{anonymous} scopes that
+do not have a name associated with them, but can still become part
+of a URI. 
+Instead of a name, that part will then have the form \ic{Anon(n)} where \ic{n}is a generated number that identifies the scope. 
+\ic{Anon(n)} is an example of a complex term.
 
 URIs can be inspected using the default hover help popups, or using Spoofax' analyzed
 syntax view. This view shows the abstract syntax with all URIs as annotations\footnote{To obtain this view, press \emph{Show analyzes syntax(selection)} in the \emph{Transform} menu of the Spoofax editor. Spoofax will open a new editor which updates automatically when the content of the original editor changes}.
@@ -297,9 +376,9 @@ entity BankAccount {
   name   : String
   number : Num
   
-  function toCapitals() : String {
+  function toString() : String {
     { // anonymous block
-      var result = name.toUpperCase();
+      var result = name + number.toString();
       return result;
     } 
   }
@@ -313,26 +392,29 @@ The analyzed abstract syntax for this example is the following:
 Module(
   "banking"{[Module(),"banking"]},
   [ Entity(
-      "BankAccount"{[Type(),"BankAccount","banking"]},
+      "BankAccount"{[Entity(),"BankAccount","banking"]},
       [ Property(
           "name"{[Property(),"name","BankAccount","banking"]},
-          "String"{[Type(),"String","mobl"]}
+          StringType()
         ),
         Property(
           "number"{[Property(),"number","BankAccount","banking"]},
-          "Num"{[Type(),"Num","mobl"]}
+          NumType()
         ),
         Function(
-          "toCapitals"{[Function(),"toCapitals","BankAccount","banking"]},
+          "toString"{[Function(),"toString","BankAccount","banking"]},
           [],
-          "String"{[Type(),"String","mobl"]},
+          StringType(),
           Block([
             Declare(
-              "result"{[Var(),"result",Anon(125),"toCapitals","BankAccount","banking"]},
-              MethodCall(..., ...{[Function(),"toUpperCase","String","mobl"]})
+              "result"{[Var(),"result",Anon(125),Anon(124),"toString","BankAccount","banking"]},
+              Add(
+                Var("name"{[Property(),"name","BankAccount","banking"]}), 
+                MethodCall(..., "toString"{[Unresolved(Function()),"toString", "BankAccount", "banking"]})
+              )
             ),
             Return(
-              Var("result"{[Var(),"result",Anon(125),"toCapitals","BankAccount","banking"]})
+              Var("result"{[Var(),"result",Anon(125),Anon(124),"toString","BankAccount","banking"]})
             )
           ])
         )
@@ -351,17 +433,8 @@ Any references that cannot be resolved are annotated with a special
 \ic{Unresolved} constructor. For example, a variable \ic{nonexistent} could be
 represented as
 \ic{Var("nonexistent"\curlies{[Unresolved(Var()),"non\-existent",...]})}. This
-makes it easy to recognize any unresolved references in analyses or
-transformations
-
-\guido{
-Beispiele, Referenzen
-
-code? text?
-
-give some examples of analyses + transformations}.
-\todo{guido does it: SLE paper}
-
+makes it easy to recognize any unresolved references in constraints.
+We discuss constraints in \sect{Sec:spoofax-constraints}.
 
 \subsection{Persistence of Naming Information}
 \label{Sec:spoofax-index}
@@ -387,286 +460,128 @@ URIs: a \ic{banking.Bank} entity could be defined in any file, as long as there
 are no constraints in the language that prevent that.
 
 
-\subsection{The Default Name Resolution Strategy}
-
-The structure of URIs forms the basis of the default name resolution strategy of
-Spoofax\footnote{The default strategy can be customized, but we first take a
-closer look at how name resolution works just based on the annotations in the
-grammar.}. Consider the \ic{address} property in the \ic{Store} entity:
-
-\begin{lstlisting}[language=webdsl]
-module storage
-
-entity Store {
-  name    : String
-  address : Address
-}
-\end{lstlisting}
-
-\noindent 
-The \ic{address} property references something named \ic{Address}. According to
-the grammar, that something lives in the \ic{Type} namespace. Spoofax resolves
-this name by looking at the context: is there an \ic{Address} in
-\ic{Type://storage.Store}? If not, it will keep trying the parent URI:
-\ic{Type://storage} and finally \ic{Type://}. If it is successful in finding it
-this way, it can resolve the reference, otherwise it displays an error marker in
-the editor.
-
-
-The default resolution strategy is designed to be generic and makes few
-assumptions about a specific language\footnote{Spoofax expects language
-designers to \emph{manage by exception}.}. By default, it does not care about
-file boundaries: if an \ic{Address} is defined in a different file, it will
-still find it. There is also no default constraint for duplicate names: two
-definitions of \ic{Address} are fine (in which case a reference will resolve to one of them). 
-Lastly,
-the default strategy knows nothing about import definitions for a specific language, as these can vary quite a bit among languages.
-
-\subsection{Rewrite Rules}
-\label{Sec:spoofax-rewrite-rules}
-
-Spoofax provides support for adding constraints and for customization of the
-behavior of the default resolution strategy by means of \emph{rewrite rules}.
-Rewrite rules are functions that operate on terms, transforming one term to
-another. We provide a primer on rewrite rules here, and show how they can be
-used to customize name resolution\footnote{Rewrite rules are used for all
-kinds of other purposes in Spoofax, and we will encounter them again, for
-example in the chapter on transformation and code generation \sect{Sec:spoofax-trafo-codegen}.
-This is why we explain them in quite some detail here.}.
-
-Rewrite rules in Spoofax are provided as part of the Stratego program
-transformation language. A basic rewrite rule that transforms a term pattern
-\ic{term1} to a term pattern \ic{term2} has the following form:
-
-\begin{lstlisting}[language=stratego]
-rule-name:
-  term1 -> term2
-\end{lstlisting}
-
-\noindent 
-Term patterns have the same form as terms: any term is a legal term pattern.
-In addition to the basic constructors, string literals, integer literals, and so
-on, they also support variables (e.g.,~\ic{v} or \ic{name}) and wildcards
-(indicated by \ic{\_}). As an example, the following rewrite rule rewrites an
-\ic{Entity} to the list of properties contained in that entity:
-
-\begin{lstlisting}[language=stratego]
-get-properties-types:
-  Entity(name, properties) -> properties
-\end{lstlisting}
-
-\noindent 
-So, for an entity \ic{Entity("User", [Property("name", String)])}, it binds
-\ic{"User"} to the variable \ic{name}, and \ic{[Property("name", "String")]}
-to the variable \ic{properties}. It then returns \ic{properties}. While rewrite
-rules can be viewed as functions, they have one important difference:
-they can be defined multiple times for different patterns\footnote{This is
-comparable to polymorphic overloading.}. In the case of \ic{get-properties}, we
-could add another definition that works for property access expressions:
-
-\begin{lstlisting}[language=stratego]
-get-properties:
-  FieldAccess(expr, property) -> property
-\end{lstlisting} 
-
-\noindent 
-Rules can have complex patterns. For example, it is possible to write a rule
-that succeeds only for entities with \emph{only} a \ic{name}
-property\footnote{Note how this rule uses a wildcard since it doesn't care about
-the name of the entity.}:
-
-\begin{lstlisting}[language=stratego]
-is-name-only-entity:
-  Entity(_, [Property("name", "String")]) -> True()
-\end{lstlisting}
+% \subsection{The Default Name Resolution Strategy}
+% 
+% The structure of URIs forms the basis of the default name resolution strategy of
+% Spoofax\footnote{The default strategy can be customized, but we first take a
+% closer look at how name resolution works just based on the annotations in the
+% grammar.}. Consider the \ic{address} property in the \ic{Store} entity:
+% 
+% \begin{lstlisting}[language=webdsl]
+% module storage
+% 
+% entity Store {
+%   name    : String
+%   address : Address
+% }
+% \end{lstlisting}
+% 
+% \noindent 
+% The \ic{address} property references something named \ic{Address}. According to
+% the grammar, that something lives in the \ic{Type} namespace. Spoofax resolves
+% this name by looking at the context: is there an \ic{Address} in
+% \ic{Type://storage.Store}? If not, it will keep trying the parent URI:
+% \ic{Type://storage} and finally \ic{Type://}. If it is successful in finding it
+% this way, it can resolve the reference, otherwise it displays an error marker in
+% the editor.
+% 
+% 
+% The default resolution strategy is designed to be generic and makes few
+% assumptions about a specific language\footnote{Spoofax expects language
+% designers to \emph{manage by exception}.}. By default, it does not care about
+% file boundaries: if an \ic{Address} is defined in a different file, it will
+% still find it. There is also no default constraint for duplicate names: two
+% definitions of \ic{Address} are fine (in which case a reference will resolve to one of them). 
+% Lastly,
+% the default strategy knows nothing about import definitions for a specific language, as these can vary quite a bit among languages.
 
 
-\noindent 
-Rewrite rules can be invoked using the syntax \ic{<rule-name> term}. For
-example, \ic{<get-properties> Entity("Unit", [])} would return an empty list of
-properties. The angle brackets make it easy to distinguish rule invocations
-from terms, and makes it possible to use invocations in term expressions.
-
-Stratego provides a \ic{with} clause that can be used for additional code that
-should be considered for rewrite rules. The \ic{with} clause is most commonly
-used for assignments and calls to other rules. As an example, we can write the
-rule above using a \ic{with}. This rule assigns the value of \ic{get-properties}
-to a variable \ic{result} and returns that as the result value of the rule:
-
-\begin{lstlisting}[language=stratego]
-invoke-get-properties:
-  Entity(name, properties) -> result
-  with
-    result := <get-properties> Entity(name, properties)
-\end{lstlisting}
-
-\noindent 
-Rules can also have conditions. These can be specified using
-\ic{where}\footnote{If the pattern of a rule does not match, or if its
-conditions do not succeed, a rule is said to \emph{fail}.}. These clauses
-typically use the operators listed in \fig{Fig:stratego-operators}.
-An example of a rule with a \ic{where} clause is the following:
-
-\begin{lstlisting}[language=stratego]
-has-properties:
-  Entity(name, properties) -> True()
-  with
-    properties := <get-properties> Entity(name, properties);
-  where
-    not(!properties => [])  
-\end{lstlisting}
-
-\noindent 
-This rule only succeeds for entities where the condition \ic{not(!properties =>
-[])} holds. That is, it succeeds as long as an entity does not have an empty
-list (indicated by \ic{[]}) of properties. Rewrite rules can have any number of
-\ic{where} and \ic{with} clauses, and they are evaluated in the order they
-appear.
-
-\begin{figure}[t]
-\begin{tabular}{|l|l|}
-\hline
-\textbf{Expression} & \textbf{Description} \\ 
-\hline
-\ic{<e> t} & Applies \ic{e} to \ic{t}, or fails if \ic{e} is unsuccessful. \\
-\ic{v := t} & Assign a term expression \ic{t} to a variable \ic{v}. \\ 
-\ic{!t => p} & Match a term \ic{t} against a pattern \ic{p}, or fail. \\
-\ic{not(e)} & Succeeds if \ic{e} does not succeed. \\
-\ic{e1; e2} & Sequence: apply \ic{e1}. If it succeeds, apply \ic{e2}. \\ % Fail if either \ic{e1} or \ic{e2} fails. \\
-\ic{e1 <+ e2} & Choice: apply \ic{e1}, if it fails apply {e2} instead. \\
-%\ic{if e then e1 else e2 end} & If \ic{e} succeeds, then apply \ic{e1}, else \ic{e2}. \\
-\hline
-\end{tabular}
-\caption{Operators in Stratego expressions.}
-\label{Fig:stratego-operators}
-\vspace{2mm}
-\end{figure}
-
-
-
-\noindent 
-Like functions or methods in other languages, rewrite rules can have parameters.
-Stratego distinguishes between parameters that pass other rules and parameters
-that pass terms, using a vertical bar to separate them two separate lists. Rules
-that take both rule and term parameters have a signature of the form
-\ic{rule(r|t)}, those with only rule parameters use \ic{rule(r)}, and those with
-only term parameters use \ic{rule(|t)}. The Stratego standard library provides a
-number of higher-order rules, i.e.\ rules that take other rules as their
-argument. These rules are used for common operations on abstract syntax trees:
-for example, \ic{map(r)} applies a rule \ic{r} to all elements of a list:
-
-\begin{lstlisting}[language=stratego]
-get-property-types:
-  Entity(_, properties) -> types
-  with
-    types := <map(get-property-type)> properties
-
-get-property-type:
-  Property(_, type) -> type
-\end{lstlisting}
-
-\noindent 
-Rules like \ic{map} specify a \emph{traversal} on a certain term structure: they
-specify how a certain rule should be applied to a term and its subterms. Rules
-that specify traversals are also called \emph{strategies}\footnote{This is where
-the name of the \emph{Stratego} transformation language comes from.}.
-In Spoofax, strategies are used to control traversals in constraints,
-transformation, and code generation.
-
-\guido{Not sure how to handle this, need to discuss this
-
-this section is extremely dense -- to me it is now unclear what the
-intention is: to provide a manual about Spoofax? or to present more abstract concepts?
-}
-\todo{guido does it -> SLE Paper}
-
-
-\subsection{Customizing the Name Resolution Strategy}
-
-To customize the name resolution strategy, Spoofax language definitions can
-include \ic{adjust-index-lookup} rules. These rules have a specific signature,
-and are invoked by the name resolution strategy for each reference that is
-resolved\footnote{This is a rewriting rule with a predefined name and signature
-so it can be invoked by Spoofax. It can be redefined to apply to specific
-language concepts.}. As an example, consider how a reference to a local
-property is resolved in mobl:
-
-\begin{lstlisting}[language=webdsl]
-entity BankAccount {
-  function getNumber() : Num {
-    return number;
-  }
-  
-  name   : String
-  number : Num
-}
-\end{lstlisting}
-
-\noindent 
-Here, the function \ic{getNumber} references the local \ic{number} property.
-The production rule we previously specified for these kinds of references
-used an underscore to indicate that we would manually specify how to resolve
-it\footnote{Because properties and variables can be referenced.}:
-
-\begin{lstlisting}
-_@ID -> Exp {"Var"}
-\end{lstlisting}
-
-\noindent 
-So, we need to specify a \ic{adjust-index-lookup} rule for the variables:
-
-\begin{lstlisting}[language=stratego]
-adjust-index-lookup(target |namespace, path, name):
-  Var(x) -> adjusted-uris
-  where
-    <target> x
-  with 
-    adjusted-uris := ...
-\end{lstlisting}
-
-\noindent 
-Each \ic{adjust-index-lookup} rule has this exact signature: it gets a
-\ic{target} rule argument, and term arguments with the \ic{namespace},
-\ic{path}, and \emph{name} of the reference to be resolved. 
-On the left-hand side, it specifies what construct it matches against.
-In this case, we want to resolve a variable.
-Next, we need to specify which part of the node is the name we want to resolve.
-\footnote{There might be nodes with more than one name to resolve, for example in a qualified package name, each segment refers to a package.}
-In a variable reference \ic{Var(x)}, the \ic{x} is the name we want to resolve.
-We specify this explicitely as the first condition of the rule: \ic{where <target> x}.
-On the right-hand side, the rule returns a list of adjusted URIs.
-Spoofax will then use these URIs to further resolve the element.
-
-A variable might refer either to a variable (namespace \ic{Var}) or a property (namespace \ic{Property}).
-Since we got the current \ic{path} of the variable as a parameter, we can construct two possible URIs, where the definition site can be found: \ic{Var://path} and \ic{Property://path}\footnote{Remember that URIs are represented as lists. We use the namespace as the head of the list and the path as the tail. The variable name is not part of these URIs.}:
-
-\begin{lstlisting}[language=stratego]
-adjust-index-lookup(target |namespace, path, prefix):
-  Var(x) -> adjusted-uris
-  where
-    <target> x
-  with
-    var-uri       := [Var() | path];
-    property-uri  := [Property() | path];  
-    adjusted-uris := [var-uri, property-uri]
-\end{lstlisting}
-
-\noindent Note, that the URIs do not contain the variable name \ic{x}.
-This is, because the URIs specify containers telling Spoofax where to look for the variable.
-We return both URIs in a list of adjusted URIs.
-The order in this list is important.
-Spoofax will first look only for variables, before it will look for properties.
-
-The example code we have seen so far is pretty verbose for explanation.
-A typical shorter way to adjust variable lookup, would look like this:
-
-\begin{lstlisting}[language=stratego]
-adjust-index-lookup(target |namespace, path, prefix):
-  Var(<target>) -> [[Var() | path], [Property() | path]]
-\end{lstlisting}
-
-\noindent Here, the \ic{target} is marked in the left-hand side of the rule. On
-the right-hand side, we construct the list of adjusted URIs right away.
+% \subsection{Customizing the Name Resolution Strategy}
+% 
+% To customize the name resolution strategy, Spoofax language definitions can
+% include \ic{adjust-index-lookup} rules. These rules have a specific signature,
+% and are invoked by the name resolution strategy for each reference that is
+% resolved\footnote{This is a rewriting rule with a predefined name and signature
+% so it can be invoked by Spoofax. It can be redefined to apply to specific
+% language concepts.}. As an example, consider how a reference to a local
+% property is resolved in mobl:
+% 
+% \begin{lstlisting}[language=webdsl]
+% entity BankAccount {
+%   function getNumber() : Num {
+%     return number;
+%   }
+%   
+%   name   : String
+%   number : Num
+% }
+% \end{lstlisting}
+% 
+% \noindent 
+% Here, the function \ic{getNumber} references the local \ic{number} property.
+% The production rule we previously specified for these kinds of references
+% used an underscore to indicate that we would manually specify how to resolve
+% it\footnote{Because properties and variables can be referenced.}:
+% 
+% \begin{lstlisting}
+% _@ID -> Exp {"Var"}
+% \end{lstlisting}
+% 
+% \noindent 
+% So, we need to specify a \ic{adjust-index-lookup} rule for the variables:
+% 
+% \begin{lstlisting}[language=stratego]
+% adjust-index-lookup(target |namespace, path, name):
+%   Var(x) -> adjusted-uris
+%   where
+%     <target> x
+%   with 
+%     adjusted-uris := ...
+% \end{lstlisting}
+% 
+% \noindent 
+% Each \ic{adjust-index-lookup} rule has this exact signature: it gets a
+% \ic{target} rule argument, and term arguments with the \ic{namespace},
+% \ic{path}, and \emph{name} of the reference to be resolved. 
+% On the left-hand side, it specifies what construct it matches against.
+% In this case, we want to resolve a variable.
+% Next, we need to specify which part of the node is the name we want to resolve.
+% \footnote{There might be nodes with more than one name to resolve, for example in a qualified package name, each segment refers to a package.}
+% In a variable reference \ic{Var(x)}, the \ic{x} is the name we want to resolve.
+% We specify this explicitely as the first condition of the rule: \ic{where <target> x}.
+% On the right-hand side, the rule returns a list of adjusted URIs.
+% Spoofax will then use these URIs to further resolve the element.
+% 
+% A variable might refer either to a variable (namespace \ic{Var}) or a property (namespace \ic{Property}).
+% Since we got the current \ic{path} of the variable as a parameter, we can construct two possible URIs, where the definition site can be found: \ic{Var://path} and \ic{Property://path}\footnote{Remember that URIs are represented as lists. We use the namespace as the head of the list and the path as the tail. The variable name is not part of these URIs.}:
+% 
+% \begin{lstlisting}[language=stratego]
+% adjust-index-lookup(target |namespace, path, prefix):
+%   Var(x) -> adjusted-uris
+%   where
+%     <target> x
+%   with
+%     var-uri       := [Var() | path];
+%     property-uri  := [Property() | path];  
+%     adjusted-uris := [var-uri, property-uri]
+% \end{lstlisting}
+% 
+% \noindent Note, that the URIs do not contain the variable name \ic{x}.
+% This is, because the URIs specify containers telling Spoofax where to look for the variable.
+% We return both URIs in a list of adjusted URIs.
+% The order in this list is important.
+% Spoofax will first look only for variables, before it will look for properties.
+% 
+% The example code we have seen so far is pretty verbose for explanation.
+% A typical shorter way to adjust variable lookup, would look like this:
+% 
+% \begin{lstlisting}[language=stratego]
+% adjust-index-lookup(target |namespace, path, prefix):
+%   Var(<target>) -> [[Var() | path], [Property() | path]]
+% \end{lstlisting}
+% 
+% \noindent Here, the \ic{target} is marked in the left-hand side of the rule. On
+% the right-hand side, we construct the list of adjusted URIs right away.
 
 % \begin{lstlisting}
 % "import" Module@ID -> Decl {"Import"}
