@@ -8,7 +8,7 @@ additional language concepts to those of $l_1$. We call $l_2$ the
 \emph{extending} language (or language extension), and $l_1$ the \emph{base}
 language. To allow the new concepts to be used in the context provided by $l_1$,
 some of them extend concepts in $l_1$. So, while $l_1$ remains independent,
-$l_2$ becomes dependent on $l_1$ since
+$l_2$ becomes dependent on $l_1$, since:
 \begin{align}
 \exists i \in \mathit{Inh(l_2)} \mid \mathit{i.sub} = l_2\; \wedge \; 
 	\mathit{i.super} = l_1
@@ -20,7 +20,7 @@ $l_2$:
 \end{align}  
 In other words, $C_f \subset (C_{l_1} \cup C_{l_2})$, so $f$ is
 \emph{heterogeneous}. For heterogeneous fragments (1.3) does not
-hold anymore, since
+hold anymore, since:
 \begin{align}  
 \forall c \in \mathit{Cdn_f} \mid\; 
    &(\mathit{lo(co(c.parent))} = l_1 \vee \mathit{lo(co(c.parent))} = l_2 )
@@ -30,8 +30,8 @@ hold anymore, since
 
 \marginnote[-3cm]{Note that copying a language definition and changing it does
 not constitute a case of language extension, because the extension is not modular,
-it is invasive. Also, a native interfaces that support calling one language from
-another one (like calling C from Perl or Java) is not language extension; rather
+it is invasive. Also, native interfaces that support calling one language from
+another (like calling C from Perl or Java) is not language extension; rather
 it is a form of language referencing. The fragments remain homogeneous.}
 
 \begin{figure}[h]
@@ -69,7 +69,7 @@ all the time anyway, they will be comfortable falling back to $D_{-1}$ in
 exceptional cases. This makes extensions suitable only for DSLs used by
 developers. Domain expert DSLs are typically not implemented as extensions.
 
-\embc{As an example consider embedded programming. The C programming language is
+\embc{As an example, consider embedded programming. The C programming language is
 typically used as the GPL for $D_0$ in this case. Extensions for embedded
 programming include state machines, tasks or data types with physical units.
 Language extensions for the subdomain of real-time systems may include ways of
@@ -77,14 +77,14 @@ specifying deterministic scheduling and worst-case execution time. For the
 avionics subdomain support for remote communication using some of the bus
 systems used in avionics could be added.}
 
-\noindent Extension comes in two flavors. One really feels like extension, and
-the other one feels more like embedding. 
+\noindent Extension comes in two flavors. One really feels like extension,
+the other feels more like embedding. 
 
 \begin{description}
 
   \item[Extension-Flavor] In the first case we provide (a little, local)
   additional syntax to an otherwise unchanged language. For example, C may be
-  extended with new data types and literals for complex numbers as in
+  extended with new data types and literals for complex numbers, as in
   \ic{complex c = (3+2i);}. The programs still essentially look like C
   programs (or few) particular places, something is different.
 
@@ -104,19 +104,19 @@ the other one feels more like embedding.
 
 
 \noindent Language extension is also a very useful way to address the problem
-that DSLs often start simple, but then become more complicated over time,
+of DSLs often starting as simple, but then becoming more complicated over time,
 because new corners or intricacies in the domain are discovered as users gain
 more experience in the domain. These corner cases and intricacies can be
 factored into a separate language module that extends the core DSL. The use of
 these extensions can then initially be restricted to a few users in order to
 find out if they are really needed. Different experiments can even be performed
 at the same time, with different groups of users using different extensions. Even
-once these extensions have proven useful, "advanced" language feature are
-restrictable this way to a small group of "advanced" users who handle the hard
+once these extensions have proved useful, "advanced" language features can be
+restriced in this way to a small group of "advanced" users who handle the hard
 cases by using the extension.
 
 
-Incremental extension can help avoid the feared customization cliff. The
+Incremental extension can help to avoid the feared customization cliff. The
 customization cliff is a term introduced by Steve
 Cook\sidenote{\icsn{http://bit.ly/yzZb1u}}: \emph{once you step outside of what is
 covered by your DSL, you plunge down a cliff onto the rocks of the low-level
@@ -127,9 +127,9 @@ extension that extends your DSL to cover an additional, initially unexpected
 aspect.
 
 
-Defining a $D$ languages as an extension of a $D_{-1}$ language can also have
+Defining a $D$ language as an extension of a $D_{-1}$ language can also have
 drawbacks. The language is tightly bound to the $D_{-1}$ language it is extended
-from. While it is possible for a standalone DSL in $D$ to generate
+from. While it is possible for a stand-alone DSL in $D$ to generate
 implementations for different $D_{-1}$ languages, this is not easily possible
 for DSLs that are extensions of a $D_{-1}$ language. Also, interaction with the
 $D_{-1}$ language may make meaningful semantic analysis of complete programs
@@ -148,7 +148,7 @@ may want to restrict users from using the pointer-related expressions.}
 \parhead{Restriction} Sometimes language extension is also used to
 \emph{restrict} the set of language constructs available in the subdomain. For
 example, the real-time extensions for C may restrict the use of dynamic memory
-allocation, the extension for safety-critical systems may prevent the use of
+allocation, or the extension for safety-critical systems may prevent the use of
 \ic{void} pointers and certain casts. Although the extending language is in some
 sense smaller than the extended one, we still consider this a case of language
 extension, for two reasons. First, the restrictions are often implemented by

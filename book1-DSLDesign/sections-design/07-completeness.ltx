@@ -5,18 +5,18 @@
 \label{sect:completeness}
 
  
-Completeness\sidenote{This has nothing to do with Turing-completeness.} refers
+Completeness\sidenote{This has nothing to do with Turing completeness.} refers
 to the degree to which a language $L$ is able to express programs that contain
 all information for them to be executed. Let us introduce a function $G$ ("code
 generator") that transforms a program $p$ in ${L_D}$ to a program $q$ in
 $L_{D-1}$. For a complete language, $p$ and $q$ have the same semantics, i.e.
 $OB(p) == OB(G(p)) == OB(q)$ (see \sect{semantics}). For incomplete languages
-where $OB(G(p)) \subset OB(p)$ we have to write additional code in $L_{D-1}$, to
+where $OB(G(p)) \subset OB(p)$ we have to write additional code in $L_{D-1}$ to
 obtain a program in $D_{-1}$ that has the same semantics as intended by the
 original program in $L_D$.\marginnote{Another way of stating this is that $G$
 produces a program in $L_{D-1}$ that is not sufficient for a subsequent
 transformation (e.g.,~a compiler), only the manually written $L_{D-1}$ code leads
-the sufficiency.} In cases where we use several viewpoints to represent various
+the sufficiency.} In cases in which we use several viewpoints to represent various
 concerns of $D$, the set of fragments written for these concerns must be enough
 for complete $D_{-1}$ generation.
 
@@ -35,7 +35,7 @@ in several ways:
 
 \begin{itemize}
 
-  \item by calling "black box" code written in $L_{D-1}$. This requires concepts
+  \item By calling "black box" code written in $L_{D-1}$. This requires concepts
   in $L_D$ for calling $D_{-1}$ foreign functions. No syntactic embedding of
   $D_{-1}$ code is required, beyond the ability to call
   functions\sidenote[][-2\baselineskip]{In the simplest case, these functions
@@ -43,13 +43,19 @@ in several ways:
   essentially just the function name.}.
 
  
-  \item by directly embedding $L_{D-1}$ code in the $L_D$ program. This is
-  useful if $L_D$ is an extension of $L_{D-1}$, or if the tool provide adequate
+  \item By directly embedding $L_{D-1}$ code in the $L_D$ program. This is
+  useful if $L_D$ is an extension of $L_{D-1}$, or if the tool provides adequate
   support for embedding the $D_{-1}$ language into $L_D$
   programs\marginnote[-1cm]{Just "pasting text into a text field", an approach
   used by several graphical modeling tools, is not productive, since no
-  syntactic and semantic integration between the languages is provided.  In most cases there is no tool support (syntax highlighting,  code completion, error checking)}. Note that $L_{D-1}$ may not be  analyzable, so mixing $L_{D-1}$ into $L_D$ code may compromise  analyzability of the $L_D$ code.
-  \item by using composition mechanisms of $L_{D-1}$ to "plug in" the manually
+  syntactic and semantic integration between the languages is provided.
+  In most cases there is no tool support (syntax highlighting,
+  code completion, error checking)}. Note that $L_{D-1}$ may not be
+  analyzable, so mixing $L_{D-1}$ into $L_D$ code may compromise
+  analyzability of the $L_D$ code.
+
+
+  \item By using composition mechanisms of $L_{D-1}$ to "plug in" the manually
   written code into the generated code without actually modifying the generated
   files (also known as the Generation Gap pattern \cite{Vlissidis1996}). Example
   techniques for realizing this approach include generating a base class with
@@ -60,26 +66,28 @@ in several ways:
   layout algorithm). You can delegate, implement interfaces, use \ic{\#include}, use
   reflection tricks, AOP or take a look at the well-known design patterns for
   inspiration. Some languages provide partial classes, where a class definition
-  can be split over a generated file and a manually written file.
+  can be split over a generated file and a manually written file.
 
-  \item or by inserting manually-written $L_{D-1}$ code into the $L_{D-1}$ code
+
+  \item By inserting manually-written $L_{D-1}$ code into the $L_{D-1}$ code
   generated from the $L_D$ program using protected regions. Protected regions
   are areas of the code, usually delimited by special comments, whose
   (manually written) contents are not overwritten during regeneration of the
   file\marginnote[-2cm]{We strongly discourage the use of protected regions.
   You'll run into all kinds of problems: generated code is not a throw-away
-  product anymore, you have to check it in, and you'll run into all kinds of
+  product any more, you have to check it in, and you'll run into all kinds of
   funny situations with your version control system. Also, often you will
   accumulate a "sediment" of code that has been generated from model elements 
   that are no
   longer in the model (if you don't use protected regions, you can delete the
   whole generated source directory from time to time, cleaning up the
   sediment). In the worst case, these may lead to compilation errors -- even
-  though the code is in fact not longer required.}
+  though the code is in fact not longer required.}.
 
-\end{itemize}
+\end{itemize}
 
-\noindent For DSLs used by developers, incompleteness i usually not a problem
+
+\noindent For DSLs used by developers, incompleteness is usually not a problem
 because they are comfortable with writing the $D_{-1}$ code in a programming
 language. Specifically, the DSL users are the same people as those who provide
 the remaining $D_{-1}$ code, so coordination between the two roles is not a
@@ -96,15 +104,15 @@ problem.}
 they are not able to write $D_{-1}$ code, so other people (developers) have to fill in
 the remaining concerns.\marginnote{This requires elaborate collaboration
 schemes, because the domain experts have to communicate the remaining concerns
-via prose text or verbal communication.} Alternatively, developers can develop a
+via text or verbal communication.} Alternatively, developers can develop a
 predefined set of foreign functions that can be called from within the DSL. In
 effect, developers provide a standard library (cf. \sect{lingvsinlang}) which
 can be invoked as black boxes from DSL programs.
 
 \exwebdsl{The core of a web application is concerned with persistent data and
-their presentation. However, web applications need to perform additional duties
-outside that core, for which often useful libraries exist. WebDSL provides a
-\emph{native interface} that allows a developer to call into a Java, library by
+its presentation. However, web applications need to perform additional duties
+outside that core, for which useful libraries often exist. WebDSL provides a
+\emph{native interface} that allows a developer to call into a Java library by
 declaring types and functions from the library in a WebDSL program.}
 
 
@@ -115,21 +123,21 @@ completely, without any manually written code. Also, the code generated from a
 DSL program may require a framework written in $L_{D-1}$ to run in. That
 framework represents aspects of $D$ outside the scope of $L_D$.
 
-\cooling{The cooling DSL only supports reactive, state based systems that make
+\cooling{The cooling DSL only supports reactive, state-based systems that make
 up the core of the cooling algorithm. The drivers used in the lower layers of
 the system, or the control algorithms controlling the actual compressors in the
-fridge,cannot be expressed with the DSL. However, these aspects are developed
+fridge, cannot be expressed with the DSL. However, these aspects are developed
 once and can be reused without adaptations, so using DSLs is not sensible. These
 parts are implemented manually in C.}
 
 
 
 \parhead{Controlling $D_{-1}$ Code} Allowing users to manually write $D_{-1}$
-code, and especially, if it is actually a GPL in $D_0$, comes with two
+code, and especially if it is actually a GPL in $D_0$, comes with two
 additional challenges. Consider the following example: the generator generates
 an abstract class from some model element. The developer is expected to subclass
 the generated class and implement a couple of abstract methods. The manually
-written subclass needs to conform to a specific naming convention so some other
+written subclass needs to conform to a specific naming convention so that some other
 generated code can instantiate the manually written subclass. The generator,
 however, just generates the base class and stops: how can you make sure
 developers actually do write that subclass, using the correct
@@ -160,19 +168,19 @@ check does not help much.
 
 
 To ensure that promises made by the models are kept by the (manually written)
-code, use on of the following two approaches. First, generate code that does not
+code, use one of the following two approaches. First, generate code that does not
 allow violation of model promises. For example, don't expose a factory that
 allows components to look up and use any other component (creating
 dependencies), but rather use dependency injection to supply objects for the
 valid dependencies expressed in the model\sidenote{A better approach is to build
 a \emph{complete} DSL. The language used to express the behavior (which might
 otherwise plugged in manually in the generated code) is suitably limited and/or
-checked to enforce it does not lead to inconsistencies. This is a nice use case
+checked to enforce that it does not lead to inconsistencies. This is a nice use case
 for language extension and embedding.}.
 
 \comparch{The code generator to Java generates component implementation classes
 that use dependency injection to supply the targets for required ports. This
-way, the implementation class will have access to exactly those interfaces
+ensures that the implementation class will have access to exactly those interfaces
 specified in the model. An alternative approach would be to simply hand to the
 implementation class some kind of factory or registry where a component
 implementation can look up instances of components that provide the interfaces
@@ -184,7 +192,8 @@ constraint in the implementation code.}
 \noindent A second approach uses code checkers (like the Findbugs mentioned
 above) or architecture analysis tools to validate manually written code. You can easily
 generate the relevant checking rules for those tools from
-the models.
+the models.
+
 
 \subsection{Roundtrip Transformation} 
 
@@ -205,17 +214,17 @@ Note that for complete languages roundtripping is generally not useful,
 because the complete program can be written on $L_D$ in the first place. Even if
 recovery of the semantics is possible it may not be practical: if the DSL
 provides significant abstraction over the $L_{D-1}$ program, then the generated
-$L_{D-1}$ program is so complicated, that manually changing the $D_{-1}$ code in
+$L_{D-1}$ program is so complicated that manually changing the $D_{-1}$ code in
 a consistent and correct way is tedious and error-prone.
 
 Roundtripping has traditionally been used with respect to UML models and
 generated class skeletons. In that case, the abstractions between the model and
-the code are similar (classes), the tool basically just provides a different
+the code are similar (classes); the tool basically just provides a different
 concrete syntax (diagrams). This similarity of abstractions in the code and the
 model made roundtripping possible to some extent. However, it also made the
 models relatively useless, because they did \emph{not} provide a significant
 benefit in terms of abstraction over code details. We generally
-recommend to avoid (the attempt of building support for roundtripping.
+recommend avoiding any attempt to build support for roundtripping.
 
 \embc{This language does not support roundtripping, but since all DSLs are
 extensions of C, one can always add C code to the programs, alleviating the
@@ -223,14 +232,14 @@ need for roundtripping in the first place.}
 
 \cooling{Roundtripping is not required here, since the DSL is complete. The
 code generators are quite sophisticated, and nobody would want to manually
-change the generated C code. Since the DSL has proven to provide good
+change the generated C code. Since the DSL has proved to provide good
 coverage, the need to "tweak" the generated code has not come up.}
 
 \comparch{Roundtripping is not supported. Changes to the interfaces, operation
 signatures or components have to be performed in the models. This has not been
 reported as a problem by the users, since both the implementation code and the
 DSL "look and feel" the same way -- they are both Eclipse-based textual editors
--- and generation of the derived low level code happens automatically on saving
+-- and generation of the derived low-level code happens automatically on saving
 a changed model. The workflow is seamless.}
 
 \pension{This is a typical application domain DSL where the users never see the

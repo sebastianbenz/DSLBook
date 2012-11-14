@@ -10,7 +10,7 @@ languages $l_2$ and $l_1$. The referencing language $l_2$ depends on the
 referenced language $l_1$ because at least one concept in the $l_2$ references a
 concept from $l_1$. We call $l_2$ the \emph{referencing} language, and $l_1$ the
 \emph{referenced} language. While equations (1.2) and (1.3) (see
-\sect{structureofprograms}) continue to hold, (1.1) does not. Instead
+\sect{structureofprograms}) continue to hold, (1.1) does not. Instead:
 \begin{align} 
 \forall r \in \mathit{Refs_{l_2}} \mid   
    \mathit{lo(r.from)} = l_2\; \wedge \; (\mathit{lo(r.to)} = l_1 \vee 
@@ -20,7 +20,7 @@ concept from $l_1$. We call $l_2$ the \emph{referencing} language, and $l_1$ the
 \begin{figure}[h]
 \begin{center}
   \includegraphics[width=9cm]{figures-design/langReferencing.png} 
-  \caption{Referencing: Language $l_2$ depends on $l_1$, because
+  \caption{Referencing. Language $l_2$ depends on $l_1$, because
   concepts in $l_2$ reference concepts in $l_1$. (We
   use rectangles for languages, circles for language concepts, and UML
   syntax for the lines: dotted arrows = dependency, normal arrows =
@@ -33,7 +33,7 @@ concept from $l_1$. We call $l_2$ the \emph{referencing} language, and $l_1$ the
 domain $D$ can be composed from different concerns. One way of dealing with this
 is to define separate concern-specific DSLs, each addressing one or more of
 the domain's concerns. A program then consists of a set of concern-specific
-fragments, that relate to each other in a well-defined way using language
+fragments, which relate to each other in a well-defined way using language
 referencing. This approach has the advantage that different stakeholders
 can modify "their" concern independent of others. It also allows reuse of the
 independent fragments and languages with different referencing languages. The
@@ -46,14 +46,14 @@ languages \emph{cannot} be reused, because of the dependency on the other langua
 
 \cooling{As an example, consider the domain of refrigerator configuration. The
 domain consists of three concerns. The first concern $H$ describes the hardware
-structure of refrigerators appliances including compartments, compressors, fans,
+structure of refrigerator appliances including compartments, compressors, fans,
 valves and thermometers. The second concern $A$ describes the cooling algorithm
 using a state-based, asynchronous language. Cooling programs refer to hardware
-building blocks and access the their properties in expressions and commands. The
-third concern is testing $T$. A cooling test can test and simulate cooling
+building blocks and access their properties in expressions and commands. The
+third concern is testing, $T$. A cooling test can test and simulate cooling
 programs. The dependencies are as follows: $A \rightarrow H$ and $T
-\rightarrow A$. Each of these concerns are implemented as a
-separate language with references between them. $H$ and $A$ are separated
+\rightarrow A$. Each of these concerns is implemented as a
+separate language, with references between them. $H$ and $A$ are separated
 because $H$ is defined by product management, whereas $A$ is defined by
 thermodynamicists. Also, several algorithms for the same hardware must be
 supported, which makes separate fragments for $H$ and $A$ useful. $T$ is

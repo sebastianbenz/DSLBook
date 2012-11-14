@@ -3,7 +3,7 @@
 
 Language reuse (\fig{langReuse}) enables \emph{homogenous} fragments with
 \emph{independent} languages. Given are two independent languages $l_2$ and
-$l_1$ and two fragment $f_2$ and $f_1$. $f_2$ depends on $f_1$, so that
+$l_1$ and two fragment $f_2$ and $f_1$. $f_2$ depends on $f_1$, so that:
 \begin{align}
 \exists r \in \mathit{Refs_{f_2}} \mid \; &\mathit{fo(r.from)} = 
 		f_2\; \wedge \nonumber \\ 
@@ -24,7 +24,7 @@ the \emph{context} language and $l_1$ the \emph{reused} language.
 
 
 One way of realizing dependent fragments while retaining independent languages
-is using an adapter language $l_A$ where $l_A$ \emph{extends} $l_2$ and
+is using an adapter language $l_A$ where $l_A$ \emph{extends} $l_2$, and:
 \begin{align}
 \exists r \in \mathit{Refs_{l_A}} \mid \mathit{lo(r.from)} =
 l_A\; \wedge \;\mathit{lo(r.to)} = l_1
@@ -56,7 +56,7 @@ concepts for various widgets, layout definition and disable/enable strategies.
 It also supports data binding, where data structures are associated with
 widgets, to enable two-way synchronization between the UI and the data. Using
 language reuse, the same UI language can be used with \emph{different} data
-description languages. Referencing would not achieve this goal because the UI
+description languages. Referencing would not achieve this goal, because the UI
 language would have a direct dependency on a particular data description
 language. Changing the dependency direction to $data \rightarrow ui$ doesn't
 solve the problem either, because this would go against the generally accepted
@@ -68,6 +68,6 @@ it will be reused with other languages, so hooks may be provided for adapter lan
 to plug in. 
 
 \genex{The UI language thus may define an abstract concept
-\ic{DataMapping} which is then extended by various adapter languages.}
+\ic{DataMapping}, which is then extended by various adapter languages.}
 
                                      
