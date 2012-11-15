@@ -3,8 +3,8 @@
 
 
 \vspace{10mm}
-\noindent This chapter has been written together with Eelco Visser
-of TU Delft. Contact him via \ic{e.visser@tudelft.nl}.
+\noindent This chapter has been written in association with Eelco Visser
+of TU Delft. You can contact him via \ic{e.visser@tudelft.nl}.
 \vspace{10mm}
 
 
@@ -12,7 +12,7 @@ of TU Delft. Contact him via \ic{e.visser@tudelft.nl}.
 expressivity for a specific, narrow problem domain. They are powerful tools for
 software engineering, because they can be tailor-made for a specific class of
 problems. However, because of the large degree of freedom in designing DSLs, and
-because they are supposed to cover the right domain, consistently, and at the
+because they are supposed to cover the intended domain, consistently, and at the
 right abstraction level, DSL design is also hard. In this chapter we present a
 framework for describing and characterizing domain specific languages.
 We identify seven design dimensions that span the space within which DSLs are
@@ -68,8 +68,8 @@ However, often when reading programs, less code is clearly a benefit. So it
 depends on the ratio between writing and reading code as to whether a DSL's
 conciseness is important.}. We use
 the notation $|p_L|$ to indicate the size of program $p$ as encoded in
-language~$L$\sidenote{We will abstract over the exact way to measure the size of
-a program, which can be textual lines of code or nodes in a syntax tree, for
+language~$L$\sidenote{We will not concern ourselves with the exact way to
+measure the size of a program, which can be textual lines of code or nodes in a syntax tree, for
 example.}. The essence is the assumption that, within one language, more complex
 programs will require larger encodings. We also assume that $p_L$ is the
 smallest encoding of $p$ in $L$, i.e.~does not contain dead or convoluted code.
@@ -82,17 +82,17 @@ language $L_2$ ($L_1 \prec_D L_2$), \\ if for each $p \in P_D \cap P_{L_1}
 \end{center}
 
 \noindent A weaker but more realistic version of this statement requires that a
-language is \emph{mostly} more expressive, but may not be in corner cases: DSLs
-may optimize for the common case and may require code written in a more general
+language is \emph{mostly} more expressive, but may not be in some obscure
+special cases: DSLs may optimize for the common case and may require code written in a more general
 language to cover the corner cases\footnote{We discuss this aspect in the section
 on completeness (\sect{sect:completeness}).}.
 
 
 Compared to GPLs, DSLs (and the programs expressed with them) are more
 \emph{abstract}: they avoid describing details that are irrelevant to the model
-purpose. The execution engine then fills in the missing details consistently,
-throughout the system in accordance with the knowledge about the domain encoded
-in the execution engine. Good DSLs are also \emph{declarative}:
+purpose. The execution engine then fills in the missing details to make the
+program executable on a given target platform, based on knowledge about the
+domain encoded in the execution engine. Good DSLs are also \emph{declarative}:
 they provide linguistic abstractions for relevant domain concepts that allow
 processors to "understand" the domain semantics without sophisticated analysis
 of the code. Linguistic abstraction means that a language contains concepts for
@@ -113,15 +113,15 @@ coverage (see next chapter) of the target domain to be useful.
 they are built for. But there is also a disadvantage: before being able to write
 these concise programs, users have to learn the language\sidenote[][]{While a
 GPL also has to be learned, we assume that there is a relatively small number of
-GPLs and developers already know them. Using DSLs, there may be a larger number of
-them used in any given project or organization, and new team members cannot be
-expected to know them.}. This task can be separated into learning the domain
-itself, and learning the syntax of the language. For people who understand the domain,
+GPLs and developers already know them. There may be a larger number of DSLs in
+any given project or organization, and new team members cannot be expected to
+know them.}. This task can be separated into learning the domain itself, and
+learning the syntax of the language. For people who understand the domain,
 learning the syntax can be simplified by using good IDEs with code completion
 and quick fixes, as well as with good, example-based documentation. In many
-cases, DSL users already understand the domain, or would have to learn the domain even
-if no DSL were used to express programs in it: learning the domain is
-independent of the language itself. It is easy to see, however, that, if a
+cases, DSL users already understand the domain, or would have to learn the
+domain even if no DSL were used to express programs in it: learning the domain
+is independent of the language itself. It is easy to see, however, that, if a
 domain is supported by well-defined language, this can be a good reference for
 the domain itself. Learning a domain can be simplified by working with a good
 DSL\footnote{This can also be read the other way round: a measure for the
@@ -146,7 +146,7 @@ language.
 developers to understand the details of the domain, its degrees of
 freedom and the variability in refrigerator hardware and cooling algorithms in a
 much more structured and thorough way than before. Also, the architecture of the
-to-be-generated C application that will run on the device became much more
+generated C application that will run on the device became much more
 well-structured as a consequence of the separation between reusable frameworks,
 device drivers and generated code.}
 
@@ -154,7 +154,7 @@ device drivers and generated code.}
 
 \subsection{Expressivity and the Domain Hierarchy}
 
-In the definition of expressivity above we compare arbitrary languages.
+In the section on expressivity above we compare arbitrary languages.
 An important idea behind domain-specific languages is that progressive
 specialization of the domain enables progressively more specialized and
 expressive languages. Programs for domain $D_n \subset D_{n-1}$ expressed in a
@@ -172,12 +172,12 @@ machine implementation in C.}
 
 
 \exwebdsl{WebDSL entity declarations abstract over the boilerplate code required
-by the Hibernate framework for annotating Java classes with object-relational
-mapping annotations. This reduces code size by an order of
+by the Hibernate\footnote{\icsn{http://www.hibernate.org/}} framework for annotating
+Java classes with object-relational mapping annotations. This reduces code size by an order of
 magnitude~\cite{Visser07}.}
 
 \vspace{-2mm}
-\subsection{Linguistic vs. In-Language Abstraction} 
+\subsection{Linguistic versus In-Language Abstraction} 
 \label{lingvsinlang}
 
 There are two major ways of defining abstractions. Abstractions can be built
@@ -200,11 +200,11 @@ interesting programs in $D$. Consider these two examples of loops in a Java-like
 language:
 
 \begin{lstlisting}[language=java]
-  int[] arr = ...                         int[] arr = ...
-  for (int i=0; i<arr.size(); i++) {      OrderedList<int> l = ... 
-      sum += arr[i];                      for (int i=0;  i<arr.size(); i++) {  
-  }	                                           l.add( arr[i] );
-  	                                      }
+int[] arr = ...                         int[] arr = ...
+for (int i=0; i<arr.size(); i++) {      OrderedList<int> l = ... 
+    sum += arr[i];                      for (int i=0;  i<arr.size(); i++) {  
+}	                                           l.add( arr[i] );
+  	                                    }
 \end{lstlisting}
 
 The loop in the left-hand example can be parallelized, since the order of summing up the
@@ -217,9 +217,9 @@ behavior uses better linguistic abstractions, because it is clear without
 analysis that the first loop can be parallelized and the second cannot:
 
 \begin{lstlisting}[language=java]
-    for (int i in arr) {             seqfor (int i in arr) { 
-        sum += i;                        l.add( arr[i] );
-    }                                }
+for (int i in arr) {             seqfor (int i in arr) { 
+    sum += i;                        l.add( arr[i] );
+}                                }
 \end{lstlisting}
 
 \noindent 
@@ -227,7 +227,7 @@ The property of a language $L_D$ of having first-class concepts for abstractions
 relevant in $D$ is often called \emph{declarativeness}: no sophisticated pattern
 matching or program flow analysis is necessary to capture the semantics of a
 program (relative to the purpose) and treat it correspondingly. The decision
-can simply be based on the language concept used (\ic{for} vs.
+can simply be based on the language concept used (\ic{for} versus
 \ic{seqfor})\sidenote[][-9\baselineskip]{Without linguistic abstraction, the
 processor has to analyze the program to "reverse engineer" the semantics to be
 able to act on it. With linguistic abstraction, we rely on the language user to
@@ -259,27 +259,27 @@ works correctly -- we'll discuss this problem in \sect{semantics} on semantics.}
 
 \embc{Another good example is optional ports in components. Components (see
 \fig{components}) define required ports that specify the interfaces they
-\emph{use}. For each component instance, a required port is connected to the
-provided port of an instance of a component that provides a port with a
-compatible interface. Required ports may be optional\sidenote[][1cm]{The
-terminology may be a little confusing here: \emph{required} means that the
-component invokes operations on the port (as opposed to providing them for other
-to invoke); \emph{optional} refers to the fact that, for any given \emph{instance} of
-that component, the port may be connected or not.}, so for a given instance, an
-optional port may be connected or not. Invoking an operation on an unconnected
-required port would result in an error, so this has to be prevented. This can be
-done by enclosing the invocation on a required port in an \ic{if} statement, checking
-whether the port is connected. However, an \ic{if} statement can contain any
-arbitrary Boolean expression as its condition (e.g.,~\ic{if (isConnected(rp) ||
-somethingRandom()) \{ port.doSomething(); \}}). So checking \emph{statically}
-that the invocation only happens if the port is connected is impossible. A
-better solution based on linguistic abstraction is to introduce a new language
-concept that checks for a connected port directly:
+\emph{use}. For each component instance, each required port is connected to a
+provided port of another instance (that has a compatible interface). Required
+ports may be optional\sidenote[][1cm]{The terminology may be a little confusing here:
+\emph{required} means that the component invokes operations on the port (as
+opposed to providing them for other to invoke); \emph{optional} refers to the
+fact that, for any given \emph{instance} of that component, the port may be
+connected or not.}, so for a given instance, an optional port may be connected
+or not. Invoking an operation on an unconnected required port would result in an
+error, so this has to be prevented. This can be done by enclosing the invocation
+on a required port in an \ic{if} statement, checking whether the port is
+connected. However, an \ic{if} statement can contain any arbitrary Boolean
+expression as its condition (e.g.,~\ic{if (isConnected(rp) || somethingRandom())
+\{ port.doSomething(); \}}). So checking \emph{statically} that the invocation
+only happens if the port is connected is impossible. A better solution based on
+linguistic abstraction is to introduce a new language concept that checks for a
+connected port directly:
 \ic{with port (rp) \{ rp.doSomething(); \}}. The \ic{with port}
-statement doesn't use an expression as its argument, but only a
-reference to an optional required port (\fig{optionalport}). In this way the IDE
-can check that an invocation on a required optional port \ic{rp} is only done
-inside of a \ic{with port} referencing that same port.}
+statement doesn't use an expression as its argument, but only a reference to an
+optional required port (\fig{optionalport}). In this way the IDE can check that
+an invocation on a required optional port \ic{rp} is only done inside of a
+\ic{with port} statement referencing that same port.}
 
 
 \begin{figure}[h]
@@ -300,8 +300,8 @@ inside of a \ic{with port} referencing that same port.}
 
  
  
-Linguistic abstraction also means that no details irrelevant wouldto the model
-purpose are expressed. Once again, this increases conciseness, and avoids the
+\noindent Linguistic abstraction also means that no details irrelevant wouldto
+the model purpose are expressed. Once again, this increases conciseness, and avoids the
 undesired specification of unintended semantics (over-specification).
 Overspecification is usually bad because it limits the degrees of freedom
 available to a transformation engine. In the example with the parallelizable
@@ -323,22 +323,22 @@ platform.}
 
 
 \parhead{In-Language Abstraction} Conciseness can also be achieved by a language
-providing facilities to allow users to define new (non-linguistic) abstractions
-in programs. Well-known GPL concepts for building new abstractions include
+that provides facilities to allow users to define new (non-linguistic)
+abstractions in programs. Well-known GPL concepts for building new abstractions include
 procedures, classes, or functions and higher-order functions, generics, traits
 and monads\marginnote{It is worth understanding these to some extent, so that you can
 make an informed decision which of these -- if any -- are useful in a DSL.}. It
 is \emph{not} a sign of a bad DSL if it has in-language abstraction mechanisms
-as long as the created abstractions don't require special treatment by analysis
+as long as the abstractions created don't require special treatment by analysis
 or processing tools -- at which point they should be refactored into linguistic
 abstractions. An example of such special treatment would be if the compiler of
-the above example language would know that the \ic{OrderedList} library class is
+the above example language knew that the \ic{OrderedList} library class is
 actually ordered, and that, consequently, the respective loop cannot be
 parallelized. Another example of special treatment can be constructed in the
-context of the optional port example. If we'd solve the problem by having a
-library function \ic{isConnected(port)}, we could enforce that a call on an
-optional port is surrounded by an \ic{if (isConnected(port))} \emph{without any
-other expression} in the condition. In this case, the static analyzer would have
+context of the optional port example. If we had solved the problem by having a
+library function \ic{isConnected(port)}, we could enforce a call on an
+optional port to be surrounded by an \ic{if (isConnected(port))} \emph{without
+any other expression} in the condition. In this case, the static analyzer would have
 to treat \ic{isConnected} specially\footnote{Treating program elements specially
 is dangerous because the semantics of \icsn{isConnected} or \icsn{OrderedList} could
 be changed by a library developer without changing the static analyzer of code
@@ -414,10 +414,10 @@ relevant domain concepts have a direct representation in the language. Code
 completion can provide specific and meaningful support for "exploring" how a
 program should be written. However, using linguistic abstractions extensively
 requires that the relevant abstractions be known in advance, or frequent
-evolution of the language is necessary. It also can lead to languages that feel
-large, bloated or even inelegant. In-language abstraction is more flexible,
-because users can build just those abstractions they need. However, this
-requires that users are actually trained to build their own abstractions.
+evolution of the language is necessary. It can also lead to languages that feel
+large, bloated or inelegant. In-language abstraction is more flexible,
+because users can build just those abstractions they actually need. However,
+this requires that users are actually trained to build their own abstractions.
 This is often true for programmers, but it is typically not true for domain
 experts. 
 
@@ -485,11 +485,11 @@ expiration date.}. Alternatively, the set of all models can be migrated to a
 newer version using a script provided by the language developers. In cases where the
 set of users, and the DSL programs, are not easily accessible, much more effort
 must be put into maintaining backward compatibility, and the need for coordinated
-evolution should be reduced\sidenote[][-1\baselineskip]{This is the reason why
-many GPLs can never get rid of deprecated language features.}.
+evolution should be kept minimal\sidenote[][-1\baselineskip]{This is the reason
+why many GPLs can never get rid of deprecated language features.}.
 
 
-\subsection{Precision vs. Algorithm}
+\subsection{Precision versus Algorithm}
 
 We discussed earlier the fact that some DSLs may be Turing complete (and feel more like
 a programming language), whereas others are purely declarative and maybe just
@@ -510,7 +510,7 @@ configured by the users.
 algorithmic. The majority of the models define data structures (customers,
 pension plans, payment schedules). However, there are also mathematical
 equations and calculation rules. These are algorithmic, but in the pension
-insurance domain, the domain users are well able to deal with these.}
+domain, the domain users are well able to deal with these.}
 
 
 \subsection{Configuration Languages}
