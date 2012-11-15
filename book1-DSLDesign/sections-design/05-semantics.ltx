@@ -7,7 +7,7 @@
 Semantics can be partitioned into static semantics and execution semantics.
 Static semantics are implemented by the constraints and type system rules.
 Execution semantics denote the observable behavior of a program $p$ as it is
-executed. We look at both aspects in this chapter; but we refer to execution
+executed. We look at both aspects in this section; but we refer to execution
 semantics if we don't explicitly say otherwise.
 
 \marginnote[1\baselineskip]{There are also a number of approaches for formally
@@ -19,7 +19,7 @@ semantics of a program $p_{L_D}$ by mapping it to a program $q$ in a language
 for $D_{-1}$ that has the same observable behavior:
 $$semantics( p_{L_D} ) := q_{L_{D-1}}\;\;\;where\;OB(p_{L_D}) ==
 OB(q_{L_{D-1}})$$
-Equality of the two observable behaviors can be established with a
+\noindent Equality of the two observable behaviors can be established with a
 sufficient number of tests, or with model checking and proof (which takes a lot of
 effort and is hence rarely done). This definition of semantics reflects the
 hierarchy of domains and works both for languages that describe only structure,
@@ -43,7 +43,7 @@ are used to this end and we describe their implementation in Part III of the
 book. Here is a short overview.
 
 
-\parhead{Constraints} are simply Boolean expressions that
+\parhead{Constraints} Constraints are simply Boolean expressions that
 check some property of a model. For example, one might verify that the names
 of a set of attributes of some entity are unique. For a model to be statically
 correct, all constraints have to evaluate to \ic{true}. Constraint checking should
@@ -82,19 +82,19 @@ constraint could be written as \ic{states.select(s|!s.isInstanceOf(StopState)).
 \\select(s|s.transitions.size == 0)}.} 
 
 \noindent When defining languages and transformations, developers often have
-certain constraints in their mind that they consider obvious. They assume that no one
-would ever use the language in a particular way. However, DSL users may be
+a set of constraints in their mind that they consider obvious. They assume that
+no one would ever use the language in a particular way. However, DSL users may be
 creative and actually use the language in that way, leading the transformation
 to crash or create non-compilable code. Make sure that all constraints are
 actually implemented. This can sometimes be hard. Only extensive (automated)
 testing can prevent these problems from occurring.
 
-In many cases, a multi-stage transformations is used in which a model expressed in
+In many cases, a multi-stage transformation is used in which a model expressed in
 $L_3$ is transformed into a model expressed in $L_2$, which is then in turn
 transformed into a program expressed in $L_1$\footnote{Note how this also
 applies to the classical case in which $L_2$ is your DSL and $L_1$ is a GPL which
-is then compiled!}. Make sure that \emph{every} valid program in $L_3$ leads to
-a valid program in $L_2$. If the processing of $L_2$ fails with an error message
+is then compiled.}. In this case it is important that  \emph{every}
+valid program in $L_3$ leads to a valid program in $L_2$. If the processing of $L_2$ fails with an error message
 using abstractions from $L_2$ (e.g.,~compiler errors), users of $L_3$ will not be
 able to understand them; they may have never seen the programs
 generated in $L_2$. Again, automated testing is the way to address this issue.
@@ -110,8 +110,8 @@ as it changes. Progressively more expensive constraints are checked, for
 example, as a fragment is saved or only upon explicit request by the user.
 
 
-\parhead{Type Systems} are a special kind of constraint. Consider the example
-of \ic{var int x = 2 * someFunction(sqrt(2));}. The type system constraint may
+\parhead{Type Systems} Type systems are a special kind of constraint. Consider
+the example of \ic{var int x = 2 * someFunction(sqrt(2));}. The type system constraint may
 check that the type of the variable is the same or a supertype of the type of
 the initialization expression. However, establishing the type of the init
 expression is non-trivial, since it can be an arbitrarily complex expression. A
@@ -126,25 +126,25 @@ decision has to be made between one of two approaches: (a) declaration of
 intent and checking for conformance, and (b) deriving characteristics and
 checking for consistency. Consider the following examples.
 
-\embc{Variables have to be defined in the way shown above, where a type has to
-be specified explicitly. A type specification expresses the intent that this
-variable be, for example, of type \ic{int}. Alternatively, a type system could
-be built to automatically derive the type of the variable declaration based on
-the type of the \ic{init} expression, an approach called type inference. This
-would allow the following code to be written:
+\embc{For variables, the type has to be specified explicitly. A type
+specification expresses the intent that this variable be, for example, of type
+\ic{int}. Alternatively, a type system could be built to automatically derive
+the type of the variable declaration based on the type of the \ic{init}
+expression, an approach known as \emph{type inference}. This would allow the
+following code to be written:
 \ic{var x = 2 * someFunction(sqrt(2));}. Since no type is explicitly specified,
 the type system will infer the type of \ic{x} to be the type calculated for the
-\ic{init} expression.}
+init expression.}
 
 \embc{State machines that are supposed to be verified by the model checker have
 to be marked as \emph{verified}. In that case, additional constraints kick in
-that report certain ways of writing actions as invalid, because they cannot be
+that report specific ways of writing actions as invalid, because they cannot be
 handled by the model checker. An alternative approach could check a state
-machine whether these "unverifiable" ways of writing actions are used, and if
-so, mark the state machine as not verifiable.}
+machine for whether these "unverifiable" ways of writing actions are used, and
+if so, mark the state machine as not verifiable.}
 
-\pension{Pension plans can inherit from other plans (called the base plan). If a
-pension calculation rule overrides a rule in the base plan, then the overriding
+\pension{Pension plans can inherit from another plan (called the base plan). If
+a pension calculation rule overrides a rule in the base plan, then the overriding
 rule has to be marked as \emph{overrides}. In this way, if the rule in the base plan
 is removed or renamed, validation of the sub-plan will report an error. An
 alternative design would simply infer the fact that a rule overrides another
@@ -156,7 +156,7 @@ this state machine is intended to be verifiable, a rule is intended to override
 another one). We then \emph{check} whether the program conforms to this intention.
 The alternative approach would infer the fact from the program (the variable's
 type is whatever the expression's type evaluates to, state machines are
-verifiable if the "forbidden" features aren't used, rules override another one
+verifiable if the "forbidden" features aren't used, rules override another rule
 if they have the same name and signature) \emph{without} any explicitly
 specified intent.
 
@@ -184,7 +184,7 @@ the typing for this call. To do so, it has to determine the type of the called
 function. Assume this function does \emph{not} specify the return type
 explicitly, instead it is inferred from the returned expressions. These
 expressions may be calls to other functions, so the process repeats. In the
-worst case, a whole chain of function calls must be tracked down in this way to
+worst case, a whole chain of function calls must be followed in this way to
 calculate the type of the function initially called by your program. Notice that
 this requires accessing all the downstream programs, so these all have to be
 loaded and type checked! In large systems, this can lead to serious performance
@@ -195,8 +195,8 @@ explicitly, no downstream models need to be accessed or loaded.
 
 \parhead{Multi-Level Constraints} Several sets of constraints can be used to
 enforce multiple levels of correctness/strictness/compliance for models. The
-first level are typically basic constraints (such as name uniqueness) and typing
-rules. These are checked for every program. Additional levels are often optional.
+first level typically consists of basic constraints (such as name uniqueness)
+and typing rules. These are checked for every program. Additional levels are often optional.
 They are triggered either by a configuration switch or by using the programs for
 a given purpose. Additional levels always constrain programs \emph{further}
 relative to more basic levels.
@@ -205,11 +205,12 @@ relative to more basic levels.
 \embc{A nice example of multi-level constraints can be seen in the state
 machines extension to C. Structural and type system correctness (for C and for
 state machines) is always checked for every program. However, if a state machine
-is marked as \ic{verifiable}, then the action code is further
-restricted via additional constraints. For example, it is not allowed to read
-and write the same variable within a single transition (i.e.~in the total of
-exit actions, transition actions and entry actions). This is necessary to keep
-the complexity of the generated model checker input code within limits.}
+is marked as \ic{verifiable}, then the action code is further restricted via
+additional constraints. For example, it is not allowed to read and write the
+same variable during a single state change (i.e.~in all of the code in the exit
+actions of the current state, the transition actions and entry actions of the
+target state). This is necessary to keep the complexity of the generated model
+checker input code within limits.}
 
 \embc{Another example concerns the use of floating point types. Some target
 devices may not have floating point units (FPUs), which means that floating point
@@ -224,7 +225,7 @@ point types as errors if the target has no FPU.}
 Earlier we defined the meaning of the program $p$ at $D_n$ as the
 equivalent observable behavior of a program $q$ at $D_{n-1}$. This essentially
 \emph{defines} the transformation or interpreter to be correct. However, this is
-useless in practice. As the language developer, we have a certain behavior in
+useless in practice. As the language developer, we have a specific behavior in
 mind, and we want to make sure that the executing DSL program exhibits this
 behavior. We have to make sure that the execution engine executes the DSL
 program accordingly.
@@ -233,13 +234,13 @@ program accordingly.
 \begin{center}
   \includegraphics[width=4.5cm]{figures-design/gpltesting.png}
   \caption{Test code tests the application code based on a single understanding
-  of the requirements towards the system.}
+  of the requirements for the system.}
   \label{gpltesting}  
 \end{center}
 \end{marginfigure}
 In classical programming, we write the GPL code based on our understanding of
 the requirements. We then write unit tests, based on the same understanding,
-which test the code we wrote before (\fig{gpltesting}). 
+which test that code (\fig{gpltesting}). 
 
 
 \begin{marginfigure}
@@ -251,12 +252,12 @@ which test the code we wrote before (\fig{gpltesting}).
 \end{center}
 \end{marginfigure}
 In DSL testing, we write the DSL, the DSL program and the execution engine
-based on our understanding of the requirements towards the system. We can still write
-unit tests (in the GPL) based on this understanding to check for the correctness
+based on our understanding of the requirements for the system. We can still
+write unit tests (in the GPL) based on this understanding to check for the correctness
 of the executing DSL program (\fig{dsltesting}). 
 
 Writing one DSL program and one unit test ensures that this one program executes
-correctly with regards to the test case. Our goal here is, however, to ensure
+correctly regarding the test case. Our goal here is, however, to ensure
 that the transformation is correct \emph{for all programs} we can write with the
 DSL. This can be achieved by writing many DSL programs and many tests -- enough
 to make sure that every branch of the transformation is covered at least
@@ -274,8 +275,8 @@ chapter.}.
 A variant of this approach is to express the test cases
 in the DSL (after extending the DSL with a way to express tests) and then
 executing the application code and the test code on the target platform
-together \fig{dsltesting2}. This is often more convenient, since the tests can be
-formulated more concisely on the level of the DSL. As we will see later, this
+together (\fig{dsltesting2}). This is often more convenient, since the tests can
+be formulated more concisely on the level of the DSL. As we will see later, this
 approach is especially useful if we have \emph{several} execution engines: we
 write the test once and then execute it on all execution engines.
 
@@ -292,11 +293,11 @@ Note that the GPL program may have \emph{additional, unintended} behaviors not
 prescribed by the DSL. These can often be exploited maliciously and are known as
 safety or security problems. These will not be found by testing the GPL code
 based on the requirements, but only by "trying to exploit" the program (known as
-penetration testing).
+\emph{penetration testing}).
 
 We will elaborate more on ensuring the correctness of the execution semantics in
 this chapter, as well as in the Part III chapter on DSL testing
-(\sect{testingimpl}), where we discuss the implementation aspects of DSL and IDE
+(\chap{testingimpl}), where we discuss the implementation aspects of DSL and IDE
 testing.
 
 
@@ -365,8 +366,8 @@ problem in \sect{synctrans}.
 is a model checker that can be used to establish properties of state machines by
 exhaustive search. Examples properties include freedom from deadlocks, assuring
 liveness and specific safety properties such as "It will never happen that the
-out events \emph{pedestrian light green} and
-\emph{car light green} are set at the same time".}
+out events \ic{pedestrian light green} and
+\ic{car light green} are set at the same time".}
 
 
 
@@ -374,7 +375,7 @@ out events \emph{pedestrian light green} and
 \parhead{Multi-staged Transformation} There are several reasons why the gap
 between a language at $D$ and its target platform may not be bridged by a single
 transformation. Instead, the overall transformation becomes a chain of
-subsequent transformations, an approach also known as cascading.
+subsequent transformations, an approach also known as \emph{cascading}.
 
 Multi-staged transformation is a form of modularization, and so the reason for
 doing it is the same reason we always use for modularization: breaking down a big
@@ -383,7 +384,7 @@ case of transformations, this "big problem" is a big semantic gap between the
 DSL and the target language\sidenote[][-5\baselineskip]{One could measure this
 semantic gap between two languages: how many constructs do two languages share, how many
 "synonyms" exist, how many constructs are the same but have different meanings?
-In practice, the size of the gap is an intuition of the transformation
+In practice, the size of the gap is intuited by the transformation
 designer.}. Modularization breaks down this big semantic gap into several
 smaller ones, making each of them easier to understand, test and
 maintain\footnote{This approach can only be used if the tools support
@@ -411,7 +412,7 @@ different languages to the same intermediate language.
 \begin{marginfigure}[-20mm] 
   \includegraphics[width=5cm]{figures-design/trafomodularization.png}
   \caption{\emph{Left:} Backend reuse. Different languages ($L_3/L_2$ and $L_5$)
-  are transformed to the same intermediate language $L_3$, reusing its backend
+  are transformed to the same intermediate language $L_1$, reusing its backend
   generator to $L_0$. \emph{Right:} Frontend reuse. $L_3$ is mapped to $L_2$,
   which has two sets of backend generators, reusing the $L_3$ to $L_2$
   transformation.}
@@ -458,8 +459,8 @@ preprocessor simplifies portability of the actual code generator: it becomes
 simpler, since only the subset of the language has to be mapped to code.  
 
 
-\embc{Consider the case of a state machine where you want to be able to add an
-"emergency stop" feature, i.e.~a new transition from each existing state to a
+\embc{Consider the case of a state machine to which you want to be able to add
+an "emergency stop" feature, i.e.~a new transition from each existing state to a
 new STOP state. Instead of handling this case in the code generator, a model
 transformation script preprocesses the state machine model and adds all the new
 transitions and the new emergency stop state (\fig{states2}). Once done, the
@@ -468,7 +469,7 @@ preprocessor transformation.}
 \begin{marginfigure}[-80mm]
   \includegraphics[width=3.5cm]{figures-design/embc/states2.png}
   \caption{A transformation adds an emergency stop feature to a state machine.
-  A new state is added ($S_{es}$), and a transition from each other state to
+  A new state is added ($S_{es}$), and a transition from every other state to
   that new state is added as well. The transition is triggered by the
   \emph{emergency stop} event (not shown).} 
   \label{states2}  
