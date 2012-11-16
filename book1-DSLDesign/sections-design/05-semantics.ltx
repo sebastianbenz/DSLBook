@@ -489,9 +489,9 @@ what is going on in total. Debugging the overall transformation can become hard,
 and good tool support is needed\sidenote{MPS addresses this problem by
 (optionally) keeping all intermediate models around for debugging purposes. The
 language developer can select a program element in any of the intermediate
-models and have MPS show a trace where the element was transformed from, and
-where it was transformed to. MPS also shows the transformation code involved in
-each step.}.
+models and have MPS show a trace from and to where the element was transformed
+in other (intermediate) models. The trace can also show the
+transformation code involved in each step.}.
 
 
 
@@ -512,8 +512,8 @@ case) will typically address the 90\% case well: it will produce reasonably
 efficient code in the vast majority of cases with very little effort (once the
 optimizations have been defined). In most cases, this is good enough -- in the
 remaining corner cases, $D_{-1}$ has to be written
-manually\sidenote[][-2\baselineskip]{This argument pro tools is used in GPLs for
-garbage collection and optimizing compilers for higher-level programming
+manually\sidenote[][-2\baselineskip]{This argument in favor of tools is used in
+GPLs for garbage collection and optimizing compilers for higher-level programming
 languages.}.
 
 
@@ -576,8 +576,8 @@ port has to be routed to the function that has been generated to implement the
 called interface operation in the target component. Since each component can be
 instantiated multiple times, and each instance can have its required ports
 connected to \emph{different} component instances (implementing the same
-interface) there is no way for the generated code to know the particular
-function that has to be called for an outgoing call on a required port for a
+interface) there is no way for the generated code to know which particular
+function has to be called for an outgoing call on a required port for a
 given instance. An indirection through function pointers is used instead.
 Consequently, functions implementing operations in components take an additional
 \ic{struct} as an argument, which provides those function pointers for each
@@ -619,8 +619,8 @@ Where the generated code and the platform "meet" depends on the complexity of
 the generator, requirements regarding code size and performance, the
 expressiveness of the target language and the potential availability of
 libraries and frameworks that can be used for the task. In the extreme case, the
-generator just generates code to populate/configure the frameworks (which might
-already exist, or which you have to grow together with the generator) or
+generator just generates code to populate (or configure) the frameworks (which
+might already exist, or which you have to grow together with the generator) or
 provides statically typed facades around otherwise dynamic data structures.
 Don't go too far towards this end, however: in cases in which you need to consider
 resource or timing constraints, or when the target platform is predetermined and
@@ -642,7 +642,7 @@ platform too generic or flexible will increase \emph{its} complexity.
 performance reasons and for the fact that the subset of C that is often used
 for embedded systems does not provide good means of abstraction. For example,
 state machines are translated to \ic{switch} statements. If we were to generate
-Java code in an enterprise system, we may populate a state machine framework
+Java code in an enterprise system, we might populate a state machine framework
 instead. In contrast, when we translate the component definitions to the
 AUTOSAR target environment, a relatively powerful platform is used -- namely
 the AUTOSAR APIs, conventions and generators.}
@@ -676,17 +676,17 @@ inspect all intermediate results.}
 \noindent For interpretation, the domain hierarchy could be exploited as well:
 the interpreter for $L_D$ could be implemented in $L_{D-1}$. However, in practice we
 see interpreters written in $L_{D_0}$. They may be extensible, so new
-interpreter code can be added in case specialized languages define new language
-concepts. 
+interpreter code can be added to deal with the case where
+higher-level lanuguages add new language concepts. 
 
 The abstraction level of an interpreter must be decided. One alternative might
 ignore for example the use of registers when performing an assignment, avoiding
 problems resulting from parallelism. Alternatively, the interpreter might model
-everything and thereby can address issues related to parallelism. In other
-words, an interpreter defines a virtual machine and it is fundamental that this
-virtual machine has an adequate abstraction level and/or the users are aware of
-exactly what it means for the execution of the program on the target hardware if
-the program runs on the virtual machine. 
+everything, taking into account issues related to parallelism.
+In other words, an interpreter defines a virtual machine and it is fundamental
+that this virtual machine has an adequate abstraction level. The users
+must be aware of exactly what it means for the execution of the program on
+the target hardware if the program runs on the virtual machine.
 
 
 \subsection{Transformation versus Interpretation} 
@@ -749,7 +749,7 @@ criteria to help with this decision.
 	
 	\item[Runtime Change] In interpreted environments, the DSL program can be
 	changed as the target system runs; the DSL editor can even be integrated into
-	the target system\sidenote{The term data-driven system is often used in this
+	the target system\sidenote{The term \emph{data-driven} system is often used in this
 	case.}.
 \end{description}
 
@@ -796,15 +796,15 @@ have not seen this approach used for DSLs.
 \subsection{Sufficiency}
 
 A program fragment is \emph{sufficient for transformation T} if the fragment
-itself contains all the data necessary to executed for the transformation.
+itself contains all the data necessary to executed the transformation.
 While dependent fragments are by definition not sufficient without the transitive
 closure of fragments they depend on, an independent fragment may be sufficient
 for one transformation, and insufficient for another.
 
 
 \cooling{The hardware structure is sufficient for a transformation that
-generates an HTML doc that describes the hardware. It is insufficient regarding
-the C code generator, since the behavior fragment is required as well.}
+generates an HTML document that describes the hardware. It is insufficient
+regarding the C code generator, since the behavior fragment is required as well.}
 
 \noindent Sufficiency is important where large systems are concerned. An
 sufficient fragment can be used for code generation without checking out and/or loading
@@ -896,7 +896,7 @@ NuSMV\sidenote[][-1\baselineskip]{\icsn{http://nusmv.fbk.eu/}}). The same is tru
 where satisfiability (SAT) solvers\cite{Mitchell05} can be used to check
 programs for consistency. If these kinds of analyses are useful for the model
 purpose, then limiting the expressiveness to the respective formalism may be a
-good idea, even if it makes expressing certain programs in $D$ more
+good idea, even if it makes expressing some programs in $D$ more
 cumbersome\footnote{A simple example is to use integers with ranges
 \icsn{int[0..10] x;} instead of general integers. This makes programs harder to
 write (ranges must be specified every time) but easier to analyze.}. Possibly a

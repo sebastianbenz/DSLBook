@@ -119,7 +119,7 @@ additional concerns. Viewpoints make this possible.
 
 
 \cooling{One concern in this DSL specifies the logical hardware structure of
-refrigerators installations. The other one describes the refrigerator cooling
+refrigerators installations. Another one describes the refrigerator cooling
 algorithm. Both are implemented as separate viewpoints, where the algorithm DSL
 references the hardware structure DSL. Using this dependency structure,
 different algorithms can be defined for the same hardware structure. Each of
@@ -184,19 +184,19 @@ exactly one \ic{EntityPersistenceMapping} element that points to the respective
 \ic{EntityPersistenceMapping} does not exit. Checking this constraint has two
 problems:
 
-The first problem may be performance. The "whole world" has to be searched to
+\begin{itemize}
+  \item The first problem may be performance. The \emph{whole world} has to be searched to
 check if a referencing program element exists somewhere. If the tool supports
 it, this problem can be solved by automatically maintained reverse
 indices\sidenote[][-10mm]{This data should also be exploited by the IDE. UI
 actions should be available to navigate from the referenced element (the \icsn{Entity})
 to the referencing elements (the \icsn{EntityPersistenceMapping}). This is more than 
-generic Find Usages, since it specifically searches for certain kinds of
-usages (the \icsn{EntityPersistenceMapping} in this example). Further tool support
+a generic Find Usages functionality, since it specifically searches for certain
+kinds of usages (the \icsn{EntityPersistenceMapping} in this example). Further tool support
 may include creation of such referencing elements based on a policy that
 determines into which fragment the created element should go.}.
-
-The second problem is more fundamental: it is not clear what constitutes
-\emph{the whole world}. The fragment with the persistence mapping for a given
+  \item The second problem is more fundamental: it is not clear what constitutes
+the whole world. The fragment with the persistence mapping for a given
 \ic{Entity} may reside on a different machine or be under the control of a
 different user. It may not be accessible to the constraint checker when the
 user edits the business data fragment. To solve this problem, it is necessary to
@@ -205,7 +205,13 @@ For example, a C compiler's include path or Java's classpath are ways of definin
 the scope within which the overall system description must be complete. This
 does not necessarily have to be done by each developer who, for example, works
 on the business data. But at the point when the final system is generated or
-built, such a "world definition" is essential. 
+built, such a "world definition" is essential.  
+\end{itemize}
+
+
+
+
+
 \subsection{Cross-Cutting Concerns}
 
 In the discussion so far we have considered concerns that can be modularized
@@ -237,12 +243,12 @@ respective code at the relevant locations (in case of a generator).
 \comparch{The component architecture DSL supports the collection of performance
 data. Using mock objects, we started running load tests early on. For a load
 test, we have to collect the times it takes to execute operations on
-components. Based on a configuration switch, the generator would add the
-necessary code automatically.}
+components. Based on a configuration switch, the generator adds the
+necessary code to collect the performance data automatically.}
 
 \parhead{Modularized in DSL} Another class of cross-cutting concerns are those
-that crosscut in the resulting executable system, but can be modularized on the DSL
-level. A good example is permissions. Specifying users, roles and permissions to
+that cut across the resulting executable system, but can be
+modularized on the DSL level. A good example is permissions. Specifying users, roles and permissions to
 access certain resources in the system can be modularized into a concern,
 and is typically described in a separate viewpoint. It is then the job
 of the execution engine to consider the specified permissions in all relevant places in the
@@ -325,7 +331,7 @@ with and without requirements traces and documentation text.}
   \includegraphics[width=10cm]{figures-design/embc/traces.png}
 \end{minipage}
 }
-  \caption[][0.3cm]{The green annotations are traces into a requirements
+  \caption[][0.3cm]{The shaded annotations are traces into a requirements
   database. The program can be edited with and without these annotations. The
   annotations language has no dependency on the languages it annotates.}
   \label{traces}
@@ -348,7 +354,7 @@ properties, and finishes with the implementation of the components. In each of
 these phases, models can be used to represent the system with abstractions that
 are appropriate for the phase. An appropriate DSL is needed to represent the
 models in each phase (\fig{progressiveRefinement}). The references between model
-elements are called traces\cite{JirapanthongZ05}. Since the same conceptual
+elements are called \emph{traces}\cite{JirapanthongZ05}. Since the same conceptual
 elements may be represented on different refinement levels (e.g.,~component
 design and component implementation), synchronization between the viewpoint
 models is often required (see the next subsection).
@@ -431,8 +437,8 @@ are several more complicated cases:
 \noindent
 Sometimes the correspondence between models can only be expressed on an instance
 level (as in "This functional block corresponds to this software
-component")\footnote{This often happens in the context of Progressive
-Refinement, as discussed in the previous subsection.}. Consequently, developers
+component")\footnote{This often happens in the context of progressive
+refinement, as discussed in the previous subsection.}. Consequently, developers
 have to express the correspondence (the trace links mentioned earlier) manually.
 However, consistency checks (and possibly automatic synchronization) may still
 be possible, based on the manually expressed trace links.

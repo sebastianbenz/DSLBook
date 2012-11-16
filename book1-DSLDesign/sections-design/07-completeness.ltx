@@ -6,19 +6,23 @@
 
  
 Completeness\sidenote{This has nothing to do with Turing completeness.} refers
-to the degree to which a language $L$ is able to express programs that contain
-all information for them to be executed. Let us introduce a function $G$ ("code
-generator") that transforms a program $p$ in ${L_D}$ to a program $q$ in
-$L_{D-1}$. For a complete language, $p$ and $q$ have the same semantics, i.e.
-$OB(p) == OB(G(p)) == OB(q)$ (see \sect{semantics}). For incomplete languages
-where $OB(G(p)) \subset OB(p)$ we have to write additional code in $L_{D-1}$ to
-obtain a program in $D_{-1}$ that has the same semantics as intended by the
-original program in $L_D$.\marginnote{Another way of stating this is that $G$
-produces a program in $L_{D-1}$ that is not sufficient for a subsequent
-transformation (e.g.,~a compiler), only the manually written $L_{D-1}$ code leads
-the sufficiency.} In cases in which we use several viewpoints to represent various
-concerns of $D$, the set of fragments written for these concerns must be enough
-for complete $D_{-1}$ generation.
+to the degree to which a language $L$ can express programs that contain
+all necessary information to execute them. An program expressed in an incomplete
+DSL requires additional specifications (such as configuration files or code
+written in a lower-level language) to make it executable. 
+
+Let us introduce a function $G$ ("code generator") that transforms a program $p$
+in ${L_D}$ to a program $q$ in $L_{D-1}$. For a complete language, $p$ and $q$
+have the same semantics, i.e. $OB(p) == OB(G(p)) == OB(q)$ (see
+\sect{semantics}). For incomplete languages where $OB(G(p)) \subset OB(p)$ we
+have to write additional code in $L_{D-1}$ to obtain a program in $D_{-1}$ that
+has the same semantics as intended by the original program in
+$L_D$.\marginnote{Another way of stating this is that $G$ produces a program in
+$L_{D-1}$ that is not sufficient for a subsequent transformation (e.g.,~a
+compiler), only the manually written $L_{D-1}$ code leads to sufficiency.} In
+cases in which we use several viewpoints to represent various concerns of $D$,
+the set of fragments written for these concerns must be enough for complete
+$D_{-1}$ generation.
 
 \embc{The Embedded C language is complete regarding $D_{-1}$, or even $D_{-m}$
 for higher levels of $D$, since higher levels are always built as extensions of
@@ -30,8 +34,8 @@ falling back to $D_{-1}$ or even $D_0$ is not a problem.}
 \subsection{Compensating for Incompleteness} 
 \label{incompcomp}
 
-Integrating the $L_{D-1}$ in case of an incomplete $L_{D}$ language can be done
-in several ways:
+Integrating the $L_{D-1}$ in the case of an incomplete $L_{D}$ language can be
+done in several ways:
 
 \begin{itemize}
 
@@ -57,16 +61,19 @@ in several ways:
 
   \item By using composition mechanisms of $L_{D-1}$ to "plug in" the manually
   written code into the generated code without actually modifying the generated
-  files (also known as the Generation Gap pattern \cite{Vlissidis1996}). Example
+  files (also known as the Generation Gap\cite{Vlissidis1996} pattern). Example
   techniques for realizing this approach include generating a base class with
   abstract methods (requiring the user to implement them in a manually written
   subclass) or with empty callback methods which the user can use to customize
-  in a subclass (for example, in user interfaces, you can return a position
-  object for a widget, the default method returns \ic{null}, default to the generic
-  layout algorithm). You can delegate, implement interfaces, use \ic{\#include}, use
-  reflection tricks, AOP or take a look at the well-known design patterns for
-  inspiration. Some languages provide partial classes, where a class definition
-  can be split over a generated file and a manually written file.
+  in a subclass\footnote{For example, in user interfaces, such a method could
+  return a position object for a widget. The default implementation returns
+  \ic{null}, indicating to the framework to use the the generic layout
+  algorithm. If a position is returned, it is used instead of the one computed
+  by the layout algorithm.}. You can delegate, implement interfaces, use
+  \ic{\#include}, use reflection tricks, AOP or take a look at the well-known
+  design patterns for inspiration. Some languages provide partial classes, where
+  a class definition can be split over a generated file and a manually written
+  file.
 
 
   \item By inserting manually-written $L_{D-1}$ code into the $L_{D-1}$ code
@@ -178,8 +185,8 @@ otherwise plugged in manually in the generated code) is suitably limited and/or
 checked to enforce that it does not lead to inconsistencies. This is a nice use case
 for language extension and embedding.}.
 
-\comparch{The code generator to Java generates component implementation classes
-that use dependency injection to supply the targets for required ports. This
+\comparch{The Java code generator generates component implementation
+classes that use dependency injection to supply the targets for required ports. This
 ensures that the implementation class will have access to exactly those interfaces
 specified in the model. An alternative approach would be to simply hand to the
 implementation class some kind of factory or registry where a component
@@ -211,7 +218,7 @@ semantics, no "recovery" is necessary for meaningful analysis and
 transformation.}. 
 
 Note that for complete languages roundtripping is generally not useful,
-because the complete program can be written on $L_D$ in the first place. Even if
+because the complete program can be written in $L_D$ in the first place. Even if
 recovery of the semantics is possible it may not be practical: if the DSL
 provides significant abstraction over the $L_{D-1}$ program, then the generated
 $L_{D-1}$ program is so complicated that manually changing the $D_{-1}$ code in

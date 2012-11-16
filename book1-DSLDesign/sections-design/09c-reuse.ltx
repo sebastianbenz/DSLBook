@@ -1,9 +1,9 @@
 
 \subsection{Language Reuse} 
 
-Language reuse (\fig{langReuse}) enables \emph{homogenous} fragments with
-\emph{independent} languages. Given are two independent languages $l_2$ and
-$l_1$ and two fragment $f_2$ and $f_1$. $f_2$ depends on $f_1$, so that:
+Language reuse enables \emph{homogenous} fragments with
+\emph{independent} languages (\fig{langReuse}). Given are two independent
+languages $l_2$ and $l_1$ and two fragment $f_2$ and $f_1$. $f_2$ depends on $f_1$, so that:
 \begin{align}
 \exists r \in \mathit{Refs_{f_2}} \mid \; &\mathit{fo(r.from)} = 
 		f_2\; \wedge \nonumber \\ 
@@ -12,7 +12,7 @@ $l_1$ and two fragment $f_2$ and $f_1$. $f_2$ depends on $f_1$, so that:
 \marginnote[-7mm]{One could argue that in this case reuse is just a clever
 combination of referencing and extension. While this is true from an implementation
 perspective, it is worth describing as a separate approach, because it enables
-the combination of two \emph{independent languages} by adding an adapter
+the combination of two \emph{independent} languages by adding an adapter
 \emph{after the fact}, so no pre-planning during the design of $l_1$ and $l_2$
 is necessary.}
 Since $l_2$ is independent, it cannot directly reference concepts in $l_1$. This
@@ -47,7 +47,7 @@ l_A\; \wedge \;\mathit{lo(r.to)} = l_1
        
 While language referencing supports reuse of the referenced language, language
 reuse supports the reuse of the \emph{referencing} language as well. This makes
-sense for concern DSLs that have the potential to be reused in many domains,
+sense for DSLs that have the potential to be reused in many domains,
 with minor adjustments. Examples include role-based access control, relational
 database mappings and UI specification.    
 
