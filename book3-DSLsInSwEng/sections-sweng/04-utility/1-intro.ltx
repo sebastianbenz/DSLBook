@@ -249,20 +249,6 @@ java.lang.AssertionError: examples failed
          a + b is 21 a is 10 b is 11 sum is 20
 \end{lstlisting}
   
-\todo{Reminder for me and you: do you describe how tables are implemented
-below? and also: how do you "insert" the error marks? - SB: I don't explain tables in detail,
-as I find the implementation quite boring:
-
-  - grammer is straightforward
-  - compiler generates code to create an instance of Table
-  - error marks are implemented in Table and are completely independent of the DSL
-
-Is there anything in particular that I am not aware of which would be interesting?
-
-MV: Well, people probably haven't seen tables defined with a parser-based
-approach. Just writing a paragraph or two about it would be useful.
- }
-  
 This demonstrates another advantage of Jnario, it tries to give you as much
 information as possible about why an assertion failed. A failed assertion prints
 the values of all evaluated sub-expressions. This means you don't need to debug
@@ -314,7 +300,8 @@ MV: Here we should discuss how this related to language modularization, as
 discussed earlier. - 
 SB: which points are the ones we should reference?
 MV: YOu are essentially performing extension - multi levels, though. I can 
-add that reference.}
+add that reference.
+SB: It would be great if you could do this as you know better than I where everything is ;-)}
 
 \begin{figure}[h]
 \begin{center}
@@ -353,8 +340,28 @@ Assertion returns xbase::XExpression:
   'assert' expression=XExpression;
 \end{lstlisting}
 
+Another example for an extension of the base language are tables. Defining the 
+grammar for a table in Xtext is pretty straightforward. A table has a list of 
+columns and rows. Each column in the cells in a row are separated by '|':
 
+\begin{lstlisting}
+Table:
+	'def' name=ID '{'
+		('|' (columns+=Column)*
+		    (rows += Row)*)?
+  	'}';
+Column: 
+	name=ValidID '|';
 
+Row: 
+	'|' {Row} (cells+=XExpression '|')*;
+\end{lstlisting}
+
+Cells in the table can contain arbitrary expressions. We reused the typing
+infrastructure provided by Xtext to calculate the type of each column in the
+table: a column's type is the common supertype of all expressions in the
+respective column. In the next section we will have a look at how we map these
+custom concepts to the generated Java classes.
 
 \subsection{Code Generation}
 
